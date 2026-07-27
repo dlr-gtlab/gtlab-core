@@ -258,16 +258,19 @@ signals:
      * @param Iteration number for monitoring data.
      * @param Monitoring data map.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void monitoringDataTransfer(int iteration, GtMonitoringDataSet map);
 
     /**
      * @brief Emitted when monitoring data is available.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void monitoringDataAvailable();
 
     /**
      * @brief Emitted to trigger a full clear of monitoring data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void triggerClearMonitoringData();
 
 };
