@@ -286,7 +286,7 @@ GtOutputDock::GtOutputDock()
 
     // Connect search changes to editor highlighting
     connect(m_searchWidget, &GtSearchWidget::textChanged, this,
-            &GtOutputDock::onSearchTextChanged);
+            &GtOutputDock::updateSearchResults);
     // Connect navigation button clicks
     connect(m_searchWidget, &GtSearchWidget::nextClicked, this,
             &GtOutputDock::goToNextMatch);
@@ -480,6 +480,11 @@ GtOutputDock::GtOutputDock()
             this, &GtOutputDock::updateSearchResults);
     connect(filterModel, &gt::LogFilterProxyModel::filterTextChanged,
             this, &GtOutputDock::updateSearchResults);
+
+    connect(&m_timer, &QTimer::timeout,
+            this, &GtOutputDock::onSearchTextChanged);
+
+    m_timer.setSingleShot(true);
 }
 
 Qt::DockWidgetArea
@@ -658,10 +663,7 @@ GtOutputDock::onRowsRemoved()
 void
 GtOutputDock::updateSearchResults()
 {
-    if (m_searchWidget)
-    {
-        onSearchTextChanged(m_searchWidget->text());
-    }
+    m_timer.start(0);
 }
 
 
@@ -804,56 +806,56 @@ GtOutputDock::onDeleteRequest()
 }
 
 void
-GtOutputDock::onSearchTextChanged(const QString& text)
+GtOutputDock::onSearchTextChanged()
 {
-    if (!m_logView) return;
+    if (!m_logView || !m_searchWidget  || !m_model) return;
 
-    // Rebuild match list
+    auto* filterModel = m_model->filterModel();
+
+    if (!filterModel) return;
+
+    QString text = m_searchWidget->text();
+
+    // cleanup of old results
     m_matches.clear();
     m_currentMatch = -1;
 
-    // Defer search until after model updates complete
-    QTimer::singleShot(0, this, [this, text]() {
-        auto* filterModel = m_model->filterModel();
-        if (!filterModel) return;
+    int rowCount = m_model->rowCount();
 
-        int rowCount = m_model->rowCount();
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex proxyIndex = m_model->index(row, 3);
 
-        for (int row = 0; row < rowCount; ++row)
+        QString itemText = m_model->data(proxyIndex, Qt::DisplayRole).toString();
+
+        if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
         {
-            QModelIndex proxyIndex = m_model->index(row, 3);
-            
-            QString itemText = m_model->data(proxyIndex, Qt::DisplayRole).toString();
-
-            if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
-            {
-                m_matches.append(proxyIndex);
-            }
+            m_matches.append(proxyIndex);
         }
+    }
 
-        auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(
-            m_logView->itemDelegate());
+    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(
+        m_logView->itemDelegate());
 
-        if (matchDelegate)
-        {
-            matchDelegate->setMatches(m_matches);
-        }
+    if (matchDelegate)
+    {
+        matchDelegate->setMatches(m_matches);
+    }
 
-        if (text.isEmpty() || m_matches.isEmpty())
-        {
-            // Clear selection
-            m_logView->clearSelection();
-        }
-        else
-        {
-            m_currentMatch = 0;
-            // Select the first match
-            m_logView->selectRow(m_matches.first().row());
-            m_logView->scrollTo(m_matches.first());
-        }
-        
-        m_logView->viewport()->update();
-    });
+    if (text.isEmpty() || m_matches.isEmpty())
+    {
+        // Clear selection
+        m_logView->clearSelection();
+    }
+    else
+    {
+        m_currentMatch = 0;
+        // Select the first match
+        m_logView->selectRow(m_matches.first().row());
+        m_logView->scrollTo(m_matches.first());
+    }
+
+    m_logView->viewport()->update();
 }
 
 void

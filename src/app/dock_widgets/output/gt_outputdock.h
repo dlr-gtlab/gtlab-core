@@ -12,6 +12,7 @@
 #define GTOUTPUTDOCK_H
 
 #include <QModelIndexList>
+#include <QTimer>
 
 #include "gt_dockwidget.h"
 
@@ -83,6 +84,8 @@ private:
 
     /// Search widget
     GtSearchWidget* m_searchWidget;
+
+    QTimer m_timer;
 
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};
@@ -183,7 +186,7 @@ private slots:
      * @brief onSearchTextChanged
      * @param text - new text of the search widget
      */
-    void onSearchTextChanged(const QString& text);
+    void onSearchTextChanged();
 
     /**
      * @brief Reaction to go to next found entry
