@@ -566,6 +566,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     if (!m_current)
     {
         gtFatalId(GT_EXEC_ID) << tr("Current task corrupted!");
+        pimpl->projectGuard.reset();
         taskRunner->deleteLater();
         return;
     }

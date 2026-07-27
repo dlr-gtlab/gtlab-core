@@ -14,6 +14,7 @@
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_task.h"
+#include "gt_taskrunner.h"
 
 class TestExecutor : public GtCoreProcessExecutor
 {
@@ -375,6 +376,28 @@ TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
               GtCoreProcessExecutor::RunTaskResult::Busy);
     EXPECT_EQ(secondTask->currentState(), GtProcessComponent::NONE);
     EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+}
+
+TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
+{
+    TestProject project(
+        QStringLiteral("/tmp/gtlab-executor-deleted-task.gtlab"));
+    auto task = std::make_unique<GtTask>();
+    ASSERT_TRUE(project.appendChild(task.get()));
+
+    TestExecutor executor;
+    ASSERT_TRUE(executor.setSource(&project));
+    ASSERT_EQ(executor.runTaskWithResult(task.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    ASSERT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+
+    executor.setCurrentTask(nullptr);
+    GtTaskRunner runner(nullptr);
+    QObject::connect(&runner, SIGNAL(finished()), &executor,
+                     SLOT(onTaskRunnerFinished()), Qt::DirectConnection);
+    emit runner.finished();
+
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
 }
 
 TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)

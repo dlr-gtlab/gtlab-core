@@ -9,8 +9,12 @@
 #include <future>
 #include <stdexcept>
 #include <thread>
+#include <type_traits>
 
 #include "gt_executioncontext.h"
+
+static_assert(!std::is_constructible_v<GtExecutionContextScope,
+                                       GtExecutionContext&&>);
 
 TEST(GtExecutionContext, storesExecutionData)
 {

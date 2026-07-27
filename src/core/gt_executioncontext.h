@@ -82,6 +82,7 @@ class GT_CORE_EXPORT GtExecutionContextScope
 {
 public:
     explicit GtExecutionContextScope(GtExecutionContext const& context);
+    GtExecutionContextScope(GtExecutionContext&&) = delete;
     ~GtExecutionContextScope();
 
     GtExecutionContextScope(GtExecutionContextScope const&) = delete;
