@@ -44,7 +44,6 @@ inline double oneTwoFive(double ideal, double baseSpacing)
 {
     double normalised = ideal / baseSpacing; // work in units of baseSpacing
     double decadeExp  = std::floor(std::log10(normalised));
-//    const double decadeExp = std::floor(std::log10(ideal));
     const double fraction   = normalised / std::pow(10.0, decadeExp); // in [1, 10)
     assert(fraction >= 1 && fraction <  10);
 
@@ -53,7 +52,7 @@ inline double oneTwoFive(double ideal, double baseSpacing)
             (fraction < 3.5) ? 2.0 :
             (fraction < 7.5) ? 5.0 : 10.0;
 
-    return multiplier * std::pow(10, decadeExp);
+    return baseSpacing * multiplier * std::pow(10, decadeExp);
 }
 
 } // strategy namespace
@@ -95,7 +94,7 @@ struct GtGrid::Impl
     VisibleAxis visibleAxis{};
 
     /// Grid scaling strategy
-    ScalingStrategy scalingStrategy = DefaultScalingStrategy;
+    ScalingStrategy scalingStrategy = ScalingStrategy::DefaultScalingStrategy;
 
     /// Global visibility flag
     bool isVisible = true;
@@ -150,13 +149,13 @@ struct GtGrid::Impl
     {
         switch (scalingStrategy)
         {
-        case Base2:
+        case ScalingStrategy::Base2:
             return strategy::base2(ideal, baseSpacing);
-        case Base10:
+        case ScalingStrategy::Base10:
             return strategy::base10(ideal, baseSpacing);
-        case OneTwoFive:
+        case ScalingStrategy::OneTwoFive:
             return strategy::oneTwoFive(ideal, baseSpacing);
-        case Fixed:
+        case ScalingStrategy::Fixed:
         default:
             return baseSpacing;
         }
@@ -164,12 +163,17 @@ struct GtGrid::Impl
 
     GtGridSpacing scaledGridSpacing(double zoom) const
     {
+        GtGridSpacing result{
+            static_cast<double>(hSpacing),
+            static_cast<double>(vSpacing)
+        };
+
+        if (zoom <= 0.0) return result;
+
         // cache spacing
         if (qFuzzyCompare(zoom, cachedZoom)) return cachedSpacing;
 
-        GtGridSpacing result{ static_cast<double>(hSpacing), static_cast<double>(vSpacing) };
-
-        if (scalingStrategy == Fixed) return result;
+        if (scalingStrategy == ScalingStrategy::Fixed) return result;
 
         const double idealH = hSpacing / zoom;
         const double idealV = vSpacing / zoom;
@@ -209,11 +213,12 @@ struct GtGrid::Impl
 
     void paintGridLines(QPainter& painter, const QRectF& rect, double zoom)
     {
-        const double pixelsPerSceneUnit = std::abs(zoom);
-        assert(pixelsPerSceneUnit > 0);
+        if (zoom <= 0.0) return;
+
+        const double pixelsPerSceneUnit = zoom;
 
         cachedSpacing = scaledGridSpacing(pixelsPerSceneUnit);
-        cachedZoom = pixelsPerSceneUnit;
+        cachedZoom    = pixelsPerSceneUnit;
         assert(cachedSpacing.hSpacing > 0);
         assert(cachedSpacing.vSpacing > 0);
 
@@ -291,7 +296,7 @@ GtGrid::GtGrid(QGraphicsView& view) :
 {
     GT_REMOVAL_GUARD(2, 2, "for (visual) backwards compatibility");
     setVisibleAxis(Qt::Horizontal);
-    setScalingStrategy(Base2);
+    setScalingStrategy(ScalingStrategy::Base2);
 }
 
 GtGrid::GtGrid(QObject* parent) :
@@ -351,9 +356,6 @@ GtGrid::currentMinorGridSpacing() const
 GtGridSpacing
 GtGrid::scaledGridSpacing(double zoom) const
 {
-    zoom = std::abs(zoom);
-    assert(zoom > 0);
-
     return pimpl->scaledGridSpacing(zoom);
 }
 
@@ -580,10 +582,12 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 {
     if (!rect.isValid()) return;
 
+    const double zoom = painter.worldTransform().m11();
+
     if (!pimpl->isVisible || !pimpl->showGrid)
     {
         // update spacing
-        pimpl->cachedSpacing = scaledGridSpacing(painter.worldTransform().m11());
+        pimpl->cachedSpacing = scaledGridSpacing(zoom);
 
         if (!pimpl->isVisible) return;
     }
@@ -593,7 +597,7 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 
     if (pimpl->showGrid && options.testFlag(PaintGrid))
     {
-        pimpl->paintGridLines(painter, rect, painter.worldTransform().m11());
+        pimpl->paintGridLines(painter, rect, zoom);
     }
     if (pimpl->showAxis && options.testFlag(PaintAxis))
     {

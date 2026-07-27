@@ -53,7 +53,7 @@ TestMdiViewer::TestMdiViewer()
     grid->setVisibleAxis(Qt::Horizontal | Qt::Vertical);
 
     // scaling strategy
-    grid->setScalingStrategy(GtGrid::Base10);
+    grid->setScalingStrategy(GtGrid::ScalingStrategy::Base10);
 
     // rulers
     auto* hruler = new GtRuler(Qt::Horizontal);

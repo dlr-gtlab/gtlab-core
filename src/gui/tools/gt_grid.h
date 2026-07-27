@@ -44,7 +44,7 @@ public:
     using PaintOptions = QFlags<PaintOption>;
 
     /// Defines how the grid automatically updates when changing the zoom level
-    enum ScalingStrategy : unsigned
+    enum class ScalingStrategy : unsigned
     {
         /// Grid does not automatically scale to current zoom level. When
         /// zoomed-in or -out too much, grid lines may become too sparse/dense.
@@ -203,7 +203,8 @@ public:
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setScalingStrategy` instead.")
     void setScaleGrid(bool enable)
     {
-        setScalingStrategy(enable ?  Base2 :  Fixed);
+        setScalingStrategy(enable ? ScalingStrategy::Base2 :
+                                    ScalingStrategy::Fixed);
     }
 
     /**
