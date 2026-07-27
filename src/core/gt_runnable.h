@@ -11,6 +11,7 @@
 #ifndef GTRUNNABLE_H
 #define GTRUNNABLE_H
 
+#include "gt_core_exports.h"
 #include "gt_abstractrunnable.h"
 #include "gt_executioncontext.h"
 
@@ -19,7 +20,7 @@
 /**
  * @brief The GtRunnable class
  */
-class GtRunnable : public GtAbstractRunnable
+class GT_CORE_EXPORT GtRunnable : public GtAbstractRunnable
 {
     Q_OBJECT
 
