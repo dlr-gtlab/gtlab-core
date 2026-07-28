@@ -5,7 +5,6 @@
  */
 
 #include "gt_filterheaderview.h"
-#include "gt_logfilterproxymodel.h"
 #include "gt_filterpopupwidget.h"
 #include "gt_searchwidget.h"
 
@@ -64,7 +63,7 @@ gt::FilterHeaderView::FilterHeaderView(Qt::Orientation orientation, QWidget* par
 }
 
 void
-gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
+gt::FilterHeaderView::setFilterModel(GtFilteredLogModel* model)
 {
     if (m_filterModel)
     {
@@ -101,17 +100,17 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
             viewport()->update();
         });
         
-        connect(m_filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
+        connect(m_filterModel, &GtFilteredLogModel::levelFilterChanged,
                 this, [this](){
             viewport()->update();
         });
         
-        connect(m_filterModel, &gt::LogFilterProxyModel::categoryFilterChanged,
+        connect(m_filterModel, &GtFilteredLogModel::categoryFilterChanged,
                 this, [this](){
             viewport()->update();
         });
         
-        connect(m_filterModel, &gt::LogFilterProxyModel::filterTextChanged,
+        connect(m_filterModel, &GtFilteredLogModel::filterTextChanged,
                 this, [this](){
             viewport()->update();
         });
@@ -227,42 +226,42 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         
         emit filterButtonClicked(clickedColumn);
         
-        if (clickedColumn == 3 && m_filterModel)
-        {
-            m_popup = new gt::FilterPopupWidget(this);
-            
-            GtSearchWidget* searchWidget = new GtSearchWidget(this);
-            searchWidget->setText(m_filterModel->filterText());
-            
-            m_popup->setSearchWidget(searchWidget);
-            m_popup->setSearchMode();
+if (clickedColumn == 3 && m_filterModel)
+            {
+                m_popup = new gt::FilterPopupWidget(this);
+                
+                GtSearchWidget* searchWidget = new GtSearchWidget(this);
+                searchWidget->setText(m_filterModel->filterText());
+                
+                m_popup->setSearchWidget(searchWidget);
+                m_popup->setSearchMode();
 
-            connect(searchWidget, &GtSearchWidget::textChanged,
-                    m_filterModel, &gt::LogFilterProxyModel::setFilterText);
+                connect(searchWidget, &GtSearchWidget::textChanged,
+                        m_filterModel, &GtFilteredLogModel::setFilterText);
 
-            connect(m_filterModel, &gt::LogFilterProxyModel::modelReset,
-                    this, [this, searchWidget](){
-                        searchWidget->setText(m_filterModel->filterText());
-                    });
+                connect(m_filterModel, &GtFilteredLogModel::modelReset,
+                        this, [this, searchWidget](){
+                            searchWidget->setText(m_filterModel->filterText());
+                        });
 
-            connect(m_popup, &gt::FilterPopupWidget::destroyed,
-                    this, [this](){
-                        m_popup = nullptr;
-                    });
+                connect(m_popup, &gt::FilterPopupWidget::destroyed,
+                        this, [this](){
+                            m_popup = nullptr;
+                        });
 
-            m_popup->setMinimumWidth(300);
+                m_popup->setMinimumWidth(300);
 
-            QPoint popupPos =
-                mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
+                QPoint popupPos =
+                    mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
 
-            int popupWidth = m_popup->minimumWidth();
-            int buttonWidth = FILTER_BUTTON_WIDTH;
-            int newX = popupPos.x() - popupWidth + buttonWidth;
+                int popupWidth = m_popup->minimumWidth();
+                int buttonWidth = FILTER_BUTTON_WIDTH;
+                int newX = popupPos.x() - popupWidth + buttonWidth;
 
-            m_popup->move(QPoint(newX, popupPos.y()));
-            m_popup->show();
-            m_popup->activateWindow();
-        }
+                m_popup->move(QPoint(newX, popupPos.y()));
+                m_popup->show();
+                m_popup->activateWindow();
+            }
         else
         {
             QStringList items;

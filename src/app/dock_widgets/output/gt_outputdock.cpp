@@ -16,7 +16,6 @@
 #include "gt_tableview.h"
 #include "gt_filterheaderview.h"
 #include "gt_matchdelegate.h"
-#include "gt_logfilterproxymodel.h"
 #include "gt_application.h"
 #include "gt_logging.h"
 #include "gt_outputtester.h"
@@ -245,11 +244,8 @@ GtOutputDock::GtOutputDock()
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
     styleModel->setSourceModel(gtLogModel);
 
-    auto* filterModel = new gt::LogFilterProxyModel(this);
-    filterModel->setSourceModel(styleModel);
-
-    m_model = new GtFilteredLogModel(filterModel, this);
-    m_model->setSourceModel(filterModel);
+    m_model = new GtFilteredLogModel(this);
+    m_model->setSourceModel(styleModel);
 
     QTabWidget* tab = new QTabWidget;
     tab->setObjectName("tabWidget");
@@ -306,15 +302,15 @@ GtOutputDock::GtOutputDock()
     m_logView->setItemDelegate(matchDelegate);
     
     auto* headerView = new gt::FilterHeaderView(Qt::Horizontal, m_logView);
-    headerView->setFilterModel(filterModel);
+    headerView->setFilterModel(m_model);
     m_logView->setHorizontalHeader(headerView);
 
     // connect filter model changes to button updates
-    connect(filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
+    connect(m_model, &GtFilteredLogModel::levelFilterChanged,
             this, &GtOutputDock::updateFilterButtons);
-    connect(filterModel, &gt::LogFilterProxyModel::categoryFilterChanged,
+    connect(m_model, &GtFilteredLogModel::categoryFilterChanged,
             this, &GtOutputDock::onCategoryFilterChanged);
-    connect(filterModel, &QSortFilterProxyModel::modelReset,
+    connect(m_model, &QSortFilterProxyModel::modelReset,
             this, &GtOutputDock::updateFilterButtons);
 
     // stretch the last section
@@ -476,9 +472,9 @@ GtOutputDock::GtOutputDock()
             this, &GtOutputDock::onDeleteRequest);
     connect(m_logView, &GtTableView::searchRequest,
             m_searchWidget, &GtSearchWidget::enableSearch);
-    connect(filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
+    connect(m_model, &GtFilteredLogModel::levelFilterChanged,
             this, &GtOutputDock::updateSearchResults);
-    connect(filterModel, &gt::LogFilterProxyModel::filterTextChanged,
+    connect(m_model, &GtFilteredLogModel::filterTextChanged,
             this, &GtOutputDock::updateSearchResults);
 
     connect(&m_delayFiltertimer, &QTimer::timeout,
@@ -514,9 +510,8 @@ GtOutputDock::updateFilterButtons()
 {
     auto& logger = gt::log::Logger::instance();
 
-    // Get current filter state from LogFilterProxyModel
-    auto filterModel = static_cast<gt::LogFilterProxyModel*>(m_model->sourceModel());
-    auto activeLevels = filterModel ? filterModel->levelFilter() : QSet<int>();
+    // Get current filter state from unified GtFilteredLogModel
+    auto activeLevels = m_model->levelFilter();
 
     auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn,
                                                             gt::log::Level level)
@@ -629,13 +624,13 @@ GtOutputDock::onRowsInserted(int start, int last)
 void
 GtOutputDock::onModelAboutToBeReset()
 {
-    m_model->saveAndPreserveDeactivatedCategories(m_model->filterModel()->categoryFilter());
+    m_model->saveAndPreserveDeactivatedCategories(m_model->categoryFilter());
 }
 
 void
 GtOutputDock::onCategoryFilterChanged()
 {
-    m_model->setCategoryFilterWithSave(m_model->filterModel()->categoryFilter());
+    m_model->setCategoryFilterWithSave(m_model->categoryFilter());
 
     updateSearchResults();
 }
@@ -807,10 +802,6 @@ void
 GtOutputDock::onSearchTextChanged()
 {
     if (!m_logView || !m_searchWidget  || !m_model) return;
-
-    auto* filterModel = m_model->filterModel();
-
-    if (!filterModel) return;
 
     QString text = m_searchWidget->text();
 

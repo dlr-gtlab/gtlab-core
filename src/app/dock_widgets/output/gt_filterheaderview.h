@@ -12,11 +12,11 @@
 #include <QMap>
 #include <QRect>
 
+#include "gt_filteredlogmodel.h"
 
 namespace gt
 {
 
-class LogFilterProxyModel;
 class FilterPopupWidget;
 
 
@@ -49,12 +49,12 @@ public:
 
     /**
      * @brief Set the filter model
-     * @param model LogFilterProxyModel to control
+     * @param model GtFilteredLogModel to control
      */
-    void setFilterModel(gt::LogFilterProxyModel* model);
+    void setFilterModel(::GtFilteredLogModel* model);
 
     /// Get current filter model
-    LogFilterProxyModel* filterModel() const { return m_filterModel; }
+    GtFilteredLogModel* filterModel() const { return m_filterModel; }
 
 signals:
     void filterButtonClicked(int column);
@@ -106,8 +106,8 @@ private:
      */
     bool isFilterButtonClicked(const QPoint& pos, int logicalIndex) const;
 
-    LogFilterProxyModel* m_filterModel{nullptr};
-    gt::FilterPopupWidget* m_popup{nullptr};
+    GtFilteredLogModel* m_filterModel{nullptr};
+    FilterPopupWidget* m_popup{nullptr};
     int m_activeColumn{-1};
     QMap<int, QSet<int>> m_levelFilters;
     QMap<int, QSet<QString>> m_categoryFilters;
