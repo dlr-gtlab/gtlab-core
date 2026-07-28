@@ -119,6 +119,13 @@ public:
     virtual bool closeProject(GtProject* project);
 
     /**
+     * @brief Closes the current project and opens the given project.
+     * @param project Project to open.
+     * @return Whether the project switch succeeded.
+     */
+    bool switchProject(GtProject* project);
+
+    /**
      * @brief Deletes given project from session.
      * @param Project pointer
      * @return Whether project could be deleted from session or not
@@ -358,7 +365,7 @@ protected:
      * @param project
      * @param projectData
      */
-    void appendProjectData(GtProject* project,
+    bool appendProjectData(GtProject* project,
                            const QList<GtObject*>& projectData);
 
 private:

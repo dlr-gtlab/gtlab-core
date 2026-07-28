@@ -1094,9 +1094,7 @@ GtProject::isValid() const
 bool
 GtProject::isOpen() const
 {
-    // TODO: logic for open or closed projects
-
-    return (childCount<GtObject*>() != 0);
+    return m_isOpen;
 }
 
 bool

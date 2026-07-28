@@ -126,6 +126,19 @@ TEST(GtProject, isOpenReturnsFalseForUnopenedProject)
     EXPECT_FALSE(project.isOpen());
 }
 
+TEST(GtProject, isOpenDoesNotDependOnProjectChildren)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(),
+                                 QStringLiteral("PreparedProject")));
+
+    TestProject project(tempDir.path());
+    project.appendChild(new GtObject);
+
+    EXPECT_FALSE(project.isOpen());
+}
+
 TEST(GtProject, isValidReturnsBasedOnMetaData)
 {
     QTemporaryDir tempDir;

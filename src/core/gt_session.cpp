@@ -253,6 +253,13 @@ GtSession::setCurrentProject(GtProject* project)
         return false;
     }
 
+    if (!project->isOpen())
+    {
+        gtWarning().medium() << tr("Could not set current project!")
+                             << tr("(Project is not open)");
+        return false;
+    }
+
     m_currentProject = project;
 
     return true;
