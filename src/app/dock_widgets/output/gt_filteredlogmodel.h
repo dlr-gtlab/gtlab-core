@@ -16,10 +16,12 @@
 #include <QStringList>
 #include <QPair>
 #include <QMap>
+#include "gt_logmodel.h"
 
 class GtLogDetails;
 class GtOutputDock;
 
+namespace gt {
 /**
  * @brief Log Filter Level Constants (bit-basiert)
  * Sammelt alle Magic Numbers für Filter-Level
@@ -34,9 +36,6 @@ enum class LogFilterLevel
     Fatal   = 1 << 5   // 0x20 (32)
 };
 
-// Alle Level als Bitset (0x3F = 63 = alle 6 Level aktiv)
-constexpr int ALL_LOG_LEVELS = 0x3F;
-
 /**
  * @brief Log Column Constants
  * Sammelt alle Magic Numbers für Spalten-Indizes
@@ -48,6 +47,19 @@ enum class LogColumn
     Category = 2,
     Message  = 3
 };
+
+const QSet<int> allLevels = {
+    gt::log::TraceLevel,
+    gt::log::DebugLevel,
+    gt::log::InfoLevel,
+    gt::log::WarningLevel,
+    gt::log::ErrorLevel,
+    gt::log::FatalLevel
+};
+
+const QString emptyIDText = "EmptyID";
+
+} //namespace gt
 
 /**
  * @brief The GtFilteredLogModel class
@@ -80,15 +92,22 @@ public:
     QSet<QString> categoryFilter() const;
     QString filterText() const;
     QStringList availableCategories() const;
-    QList<QPair<QString, QString>> availableCategoriesWithStorage() const;
+    QStringList availableCategoriesWithStorage() const;
 
     // === UI Helper Methods ===
-    bool hasActiveFilters() const;
     bool hasActiveFiltersForColumn(int column) const;
     void clearFilters();
 
-    // === UI Slots (bestehendes Interface behalten) ===
+    // === Category Save/Restore (UI-specific) ===
+    void saveAndPreserveDeactivatedCategories(
+        const QSet<QString>& currentActivated = {});
+    QSet<QString> savedDeactivatedCategories() const;
+
+    // === Public methods for GtOutputDock ===
+    void setSourceModel(QAbstractItemModel* model) override;
+
 public slots:
+    // === UI Slots  ===
     /**
      * @brief filterTraceLevel
      * @param val
@@ -131,8 +150,21 @@ public slots:
      */
     void filterData(const QString& val);
 
+    /**
+     * @brief sets the categories and stores manually deactived categoties
+     * in a storage set
+     * @param categories
+     */
     void setCategoryFilterWithSave(const QSet<QString>& categories);
+
+    /**
+     * @brief reset the category filter
+     */
     void resetCategoryFilter();
+
+    /**
+     * @brief update the category filter for the changed data
+     */
     void updateCategoryFilter();
 
 signals:
@@ -140,16 +172,13 @@ signals:
     void categoryFilterChanged(const QSet<QString>& categories);
     void filterTextChanged(const QString& text);
 
-    // === Public methods for GtOutputDock ===
-public:
-    void setSourceModel(QAbstractItemModel* model) override;
 
 protected:
     bool filterAcceptsRow(int srcRow,
                           const QModelIndex& srcParent) const override;
 
 private:
-    // === Filter State (zentral) ===
+    // === Filter State ===
     struct FilterState
     {
         QString text;
@@ -170,13 +199,6 @@ private:
 
     void setFilterLevel(int levelBit, bool enabled);
 
-    // === Category Save/Restore (UI-spezifisch) ===
-public:
-    void saveAndPreserveDeactivatedCategories(
-        const QSet<QString>& currentActivated = {});
-    QSet<QString> savedDeactivatedCategories() const;
-
-private:
     QSet<QString> m_savedDeactivatedCategories;
 };
 

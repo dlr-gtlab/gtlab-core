@@ -6,6 +6,7 @@
 
 #include "gt_filterpopupwidget.h"
 
+#include "gt_filteredlogmodel.h"
 #include "gt_searchwidget.h"
 
 #include <QCheckBox>
@@ -276,7 +277,7 @@ gt::FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItem
         cb->setTristate(false);
         
         // EmptyID in italic font
-        if (display == "EmptyID")
+        if (display == gt::emptyIDText)
         {
             QFont italicFont = cb->font();
             italicFont.setItalic(true);

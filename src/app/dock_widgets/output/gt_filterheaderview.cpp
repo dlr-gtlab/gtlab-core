@@ -226,42 +226,42 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         
         emit filterButtonClicked(clickedColumn);
         
-if (clickedColumn == 3 && m_filterModel)
-            {
-                m_popup = new gt::FilterPopupWidget(this);
-                
-                GtSearchWidget* searchWidget = new GtSearchWidget(this);
-                searchWidget->setText(m_filterModel->filterText());
-                
-                m_popup->setSearchWidget(searchWidget);
-                m_popup->setSearchMode();
+        if (clickedColumn == 3 && m_filterModel)
+        {
+            m_popup = new gt::FilterPopupWidget(this);
 
-                connect(searchWidget, &GtSearchWidget::textChanged,
-                        m_filterModel, &GtFilteredLogModel::setFilterText);
+            GtSearchWidget* searchWidget = new GtSearchWidget(this);
+            searchWidget->setText(m_filterModel->filterText());
 
-                connect(m_filterModel, &GtFilteredLogModel::modelReset,
-                        this, [this, searchWidget](){
-                            searchWidget->setText(m_filterModel->filterText());
-                        });
+            m_popup->setSearchWidget(searchWidget);
+            m_popup->setSearchMode();
 
-                connect(m_popup, &gt::FilterPopupWidget::destroyed,
-                        this, [this](){
-                            m_popup = nullptr;
-                        });
+            connect(searchWidget, &GtSearchWidget::textChanged,
+                    m_filterModel, &GtFilteredLogModel::setFilterText);
 
-                m_popup->setMinimumWidth(300);
+            connect(m_filterModel, &GtFilteredLogModel::modelReset,
+                    this, [this, searchWidget](){
+                        searchWidget->setText(m_filterModel->filterText());
+                    });
 
-                QPoint popupPos =
-                    mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
+            connect(m_popup, &gt::FilterPopupWidget::destroyed,
+                    this, [this](){
+                        m_popup = nullptr;
+                    });
 
-                int popupWidth = m_popup->minimumWidth();
-                int buttonWidth = FILTER_BUTTON_WIDTH;
-                int newX = popupPos.x() - popupWidth + buttonWidth;
+            m_popup->setMinimumWidth(300);
 
-                m_popup->move(QPoint(newX, popupPos.y()));
-                m_popup->show();
-                m_popup->activateWindow();
-            }
+            QPoint popupPos =
+                mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
+
+            int popupWidth = m_popup->minimumWidth();
+            int buttonWidth = FILTER_BUTTON_WIDTH;
+            int newX = popupPos.x() - popupWidth + buttonWidth;
+
+            m_popup->move(QPoint(newX, popupPos.y()));
+            m_popup->show();
+            m_popup->activateWindow();
+        }
         else
         {
             QStringList items;
@@ -280,12 +280,16 @@ if (clickedColumn == 3 && m_filterModel)
             else if (clickedColumn == 2 && m_filterModel)
             {
                 auto itemsWithStorage = m_filterModel->availableCategoriesWithStorage();
-
                 
-                for (const auto& pair : itemsWithStorage)
+                for (const auto& entry : itemsWithStorage)
                 {
-                    displayItems << pair.first;
-                    storageItems << pair.second;
+                    displayItems << entry;
+
+                    if (entry == emptyIDText) storageItems << "";
+                    else
+                    {
+                        storageItems << entry;
+                    }
                 }
                 
                 items = displayItems;
@@ -386,7 +390,14 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
         for (const auto& category :
              m_filterModel->availableCategoriesWithStorage())
         {
-            categories.insert(category.second);
+            if (category == gt::emptyIDText)
+            {
+                categories.insert("");
+            }
+            else
+            {
+                categories.insert(category);
+            }
         }
         m_filterModel->setDeactivatedCategories({});
         m_filterModel->setCategoryFilter(categories);

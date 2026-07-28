@@ -9,8 +9,6 @@
  */
 
 #include "gt_filteredlogmodel.h"
-#include "gt_logmodel.h"
-#include "gt_loglevel.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QRegExp>
@@ -21,14 +19,7 @@
 GtFilteredLogModel::GtFilteredLogModel(QObject* parent) :
     QSortFilterProxyModel(parent)
 {
-    m_filterState.levels = {
-        gt::log::TraceLevel,
-        gt::log::DebugLevel,
-        gt::log::InfoLevel,
-        gt::log::WarningLevel,
-        gt::log::ErrorLevel,
-        gt::log::FatalLevel
-    };
+    m_filterState.levels = gt::allLevels;
 }
 
 void
@@ -99,7 +90,7 @@ GtFilteredLogModel::availableCategories() const
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         const QString category = sourceModel()->data(index).toString();
 
         categories.insert(category);
@@ -108,12 +99,12 @@ GtFilteredLogModel::availableCategories() const
     return QStringList(categories.values());
 }
 
-QList<QPair<QString, QString>>
+QStringList
 GtFilteredLogModel::availableCategoriesWithStorage() const
 {
     if (!sourceModel()) return {};
 
-    QList<QPair<QString, QString>> result;
+    QStringList result;
     QSet<QString> seenStorage;
 
     const int rowCount = sourceModel()->rowCount();
@@ -121,14 +112,14 @@ GtFilteredLogModel::availableCategoriesWithStorage() const
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         QString storageValue = sourceModel()->data(index).toString();
 
         if (storageValue.isEmpty())
         {
             if (!seenStorage.contains(""))
             {
-                result << qMakePair(QString("EmptyID"), QString(""));
+                result << gt::emptyIDText;
                 seenStorage.insert("");
             }
         }
@@ -136,7 +127,7 @@ GtFilteredLogModel::availableCategoriesWithStorage() const
         {
             if (!seenStorage.contains(storageValue))
             {
-                result << qMakePair(storageValue, storageValue);
+                result << storageValue;
                 seenStorage.insert(storageValue);
             }
         }
@@ -146,53 +137,23 @@ GtFilteredLogModel::availableCategoriesWithStorage() const
 }
 
 bool
-GtFilteredLogModel::hasActiveFilters() const
-{
-    if (!m_filterState.text.isEmpty()) return true;
-
-    if (!m_filterState.levels.isEmpty())
-    {
-        QSet<int> allLevels = {
-            gt::log::TraceLevel,
-            gt::log::DebugLevel,
-            gt::log::InfoLevel,
-            gt::log::WarningLevel,
-            gt::log::ErrorLevel,
-            gt::log::FatalLevel
-        };
-
-        if (m_filterState.levels != allLevels) return true;
-    }
-
-    if (!m_filterState.categories.isEmpty()) return true;
-
-    return false;
-}
-
-bool
 GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
 {
     switch (column)
     {
-        case static_cast<int>(LogColumn::Level):
+        case static_cast<int>(gt::LogColumn::Level):
             if (!m_filterState.levels.isEmpty())
             {
-                QSet<int> allLevels = {
-                    gt::log::TraceLevel,
-                    gt::log::DebugLevel,
-                    gt::log::InfoLevel,
-                    gt::log::WarningLevel,
-                    gt::log::ErrorLevel,
-                    gt::log::FatalLevel
-                };
+                QSet<int> allLevels = gt::allLevels;
+
                 return m_filterState.levels != allLevels;
             }
             return false;
 
-        case static_cast<int>(LogColumn::Time):
+        case static_cast<int>(gt::LogColumn::Time):
             return false;
 
-        case static_cast<int>(LogColumn::Category):
+        case static_cast<int>(gt::LogColumn::Category):
             if (!m_filterState.categories.isEmpty())
             {
                 QStringList allCategories = availableCategories();
@@ -210,7 +171,7 @@ GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
 
             return false;
 
-        case static_cast<int>(LogColumn::Message):
+        case static_cast<int>(gt::LogColumn::Message):
             return !m_filterState.text.isEmpty();
 
         default:
@@ -256,37 +217,37 @@ GtFilteredLogModel::clearFilters()
 void
 GtFilteredLogModel::filterTraceLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Trace), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Trace), val);
 }
 
 void
 GtFilteredLogModel::filterDebugLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Debug), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Debug), val);
 }
 
 void
 GtFilteredLogModel::filterInfoLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Info), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Info), val);
 }
 
 void
 GtFilteredLogModel::filterWarningLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Warning), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Warning), val);
 }
 
 void
 GtFilteredLogModel::filterErrorLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Error), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Error), val);
 }
 
 void
 GtFilteredLogModel::filterFatalLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(LogFilterLevel::Fatal), val);
+    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Fatal), val);
 }
 
 void
@@ -328,7 +289,7 @@ GtFilteredLogModel::matchesTextFilter(int source_row,
     if (m_filterState.text.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(LogColumn::Message), source_parent);
+        static_cast<int>(gt::LogColumn::Message), source_parent);
     const QString message = sourceModel()->data(index).toString();
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -348,7 +309,7 @@ GtFilteredLogModel::matchesLevelFilter(int source_row,
     if (m_filterState.levels.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(LogColumn::Level), source_parent);
+        static_cast<int>(gt::LogColumn::Level), source_parent);
     const int level = sourceModel()->data(index, Qt::UserRole).toInt();
 
     return m_filterState.levels.contains(level);
@@ -367,7 +328,7 @@ GtFilteredLogModel::matchesCategoryFilter(int source_row,
     if (m_filterState.categories.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(LogColumn::Category), source_parent);
+        static_cast<int>(gt::LogColumn::Category), source_parent);
     const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
 
     if (m_filterState.deactivatedCategories.contains(category)) return false;
@@ -388,7 +349,7 @@ GtFilteredLogModel::updateCategoryFilter()
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -425,7 +386,7 @@ GtFilteredLogModel::saveAndPreserveDeactivatedCategories(
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -467,7 +428,7 @@ GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -499,7 +460,7 @@ GtFilteredLogModel::resetCategoryFilter()
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(LogColumn::Category));
+            static_cast<int>(gt::LogColumn::Category));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
