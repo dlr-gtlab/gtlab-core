@@ -481,10 +481,10 @@ GtOutputDock::GtOutputDock()
     connect(filterModel, &gt::LogFilterProxyModel::filterTextChanged,
             this, &GtOutputDock::updateSearchResults);
 
-    connect(&m_timer, &QTimer::timeout,
+    connect(&m_delayFiltertimer, &QTimer::timeout,
             this, &GtOutputDock::onSearchTextChanged);
 
-    m_timer.setSingleShot(true);
+    m_delayFiltertimer.setSingleShot(true);
 }
 
 Qt::DockWidgetArea
@@ -518,9 +518,10 @@ GtOutputDock::updateFilterButtons()
     auto filterModel = static_cast<gt::LogFilterProxyModel*>(m_model->sourceModel());
     auto activeLevels = filterModel ? filterModel->levelFilter() : QSet<int>();
 
-    auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn, gt::log::Level level){
-        if (!btn)
-            return;
+    auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn,
+                                                            gt::log::Level level)
+    {
+        if (!btn) return;
 
         bool hideBtn = logger.loggingLevel() > level;
         // if btn is visible and if it should be hidden check if the model
@@ -545,10 +546,7 @@ GtOutputDock::updateFilterButtons()
 void
 GtOutputDock::keyPressEvent(QKeyEvent* event)
 {
-    if (!m_model)
-    {
-        return;
-    }
+    if (!m_model) return;
 
     QString cat = staticMetaObject.className();
 
@@ -663,7 +661,7 @@ GtOutputDock::onRowsRemoved()
 void
 GtOutputDock::updateSearchResults()
 {
-    m_timer.start(0);
+    m_delayFiltertimer.start(0);
 }
 
 

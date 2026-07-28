@@ -85,7 +85,7 @@ private:
     /// Search widget
     GtSearchWidget* m_searchWidget;
 
-    QTimer m_timer;
+    QTimer m_delayFiltertimer;
 
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};

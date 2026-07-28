@@ -55,9 +55,6 @@ public:
     /// Get all available categories with storage mapping (display, storage)
     QList<QPair<QString, QString>> availableCategoriesWithStorage() const;
 
-    /// Get all available logging levels
-    QStringList availableLevels() const;
-
     /// Clear all filters
     void clearFilters();
 

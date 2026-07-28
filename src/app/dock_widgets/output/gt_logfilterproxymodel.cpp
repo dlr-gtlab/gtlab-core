@@ -174,13 +174,6 @@ gt::LogFilterProxyModel::availableCategoriesWithStorage() const
     return result;
 }
 
-QStringList
-gt::LogFilterProxyModel::availableLevels() const
-{
-    return {tr("Trace"), tr("Debug"), tr("Info"), tr("Warning"),
-            tr("Error"), tr("Fatal")};
-}
-
 void
 gt::LogFilterProxyModel::clearFilters()
 {
