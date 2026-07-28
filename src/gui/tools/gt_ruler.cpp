@@ -111,6 +111,7 @@ void
 GtRuler::setDrawOffset(int offset)
 {
     pimpl->drawOffset = offset;
+    repaint();
 }
 
 int
