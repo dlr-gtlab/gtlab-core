@@ -291,13 +291,13 @@ public:
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
     void setHorizontalGridLineColor(const QColor& color)
     {
-        setLineColor(color);
+        setMajorLineColor(color);
     }
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
     void setVerticalGridLineColor(const QColor& color)
     {
-        setLineColor(color);
+        setMajorLineColor(color);
     }
 
     /**
@@ -316,7 +316,7 @@ public:
      * @brief Sets the major grid line color. Overrides the pen color.
      * @param color Major grid line color
      */
-    void setLineColor(const QColor& color);
+    void setMajorLineColor(const QColor& color);
 
     /**
      * @brief Returns the major grid line color
@@ -415,6 +415,14 @@ public:
      * @return Nearest minor grid point to p
      */
     QPointF computeNearestMinorGridPoint(const QPointF& p);
+
+    /**
+     * @brief Explicitly sets the current zoom level. Note: current zoom level
+     * is updated automatically when painting. Only needed when not painintg
+     * the grid. Usually QTransform::m11.
+     * @param zoom Current zoom level
+     */
+    void setCurrentZoom(double zoom);
 
 signals:
 

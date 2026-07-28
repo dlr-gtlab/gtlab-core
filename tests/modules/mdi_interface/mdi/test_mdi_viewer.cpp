@@ -41,7 +41,7 @@ TestMdiViewer::TestMdiViewer()
     grid->setMinorLineColor(gt::gui::color::disabled());
 
     // major pen
-    grid->setLineColor(gt::gui::color::disabled());
+    grid->setMajorLineColor(gt::gui::color::disabled());
 
     // axis pen
     pen = grid->axisPen();

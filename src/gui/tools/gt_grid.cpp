@@ -83,7 +83,7 @@ struct GtGrid::Impl
     /// Current grid spacing
     GtGridSpacing cachedSpacing{1.0, 1.0};
 
-    /// Last uses zoom factor
+    /// Last used zoom factor
     double cachedZoom{};
 
     /// Device independent pixel density at which point the minor grid should
@@ -513,7 +513,7 @@ GtGrid::majorPen() const
 }
 
 void
-GtGrid::setLineColor(const QColor& color)
+GtGrid::setMajorLineColor(const QColor& color)
 {
     pimpl->majorPen.setColor(color);
     emit updated();
@@ -628,4 +628,12 @@ QPointF
 GtGrid::computeNearestMinorGridPoint(const QPointF& p)
 {
     return pimpl->nearestGridPoint(currentMinorGridSpacing(), p);
+}
+
+void
+GtGrid::setCurrentZoom(double zoom)
+{
+    zoom = std::max(zoom, 0.0001);
+    pimpl->cachedSpacing = pimpl->scaledGridSpacing(zoom);
+    pimpl->cachedZoom = zoom;
 }
