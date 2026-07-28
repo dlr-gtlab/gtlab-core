@@ -124,6 +124,8 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(fileEdit));
     grid->addWidget(MAKE_ICON(fileEye));
     grid->addWidget(MAKE_ICON(fileImport));
+    grid->addWidget(MAKE_ICON(filter));
+    grid->addWidget(MAKE_ICON(filterActive));
     grid->addWidget(MAKE_ICON(folder));
     grid->addWidget(MAKE_ICON(folderAdd));
     grid->addWidget(MAKE_ICON(folderEdit));
