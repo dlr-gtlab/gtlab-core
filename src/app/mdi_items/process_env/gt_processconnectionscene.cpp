@@ -229,10 +229,7 @@ QList<GtProcessPropertyPortEntity*>
 GtProcessConnectionScene::validPorts(GtProcessPropertyPortEntity* activePort)
 {
     // check active port
-    if (!activePort)
-    {
-        return QList<GtProcessPropertyPortEntity*>();
-    }
+    if (!activePort) return {};
 
     QList<GtProcessPropertyPortEntity*> retval =
             findItems<GtProcessPropertyPortEntity*>();

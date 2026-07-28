@@ -424,3 +424,9 @@ GtProcessConnectionItem::itemById(const QString& uuid, const QString& propId)
 
     return nullptr;
 }
+
+QPointer<GtAbstractProperty>
+GtProcessConnectionItem::property() const
+{
+    return m_property;
+}

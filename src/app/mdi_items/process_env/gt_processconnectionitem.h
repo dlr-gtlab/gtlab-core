@@ -99,6 +99,12 @@ public:
     GtProcessConnectionItem* itemById(const QString& uuid,
                                       const QString& propId);
 
+    /**
+     * @brief returns the related proptery
+     * @return a qpointer of the related property
+     */
+    QPointer<GtAbstractProperty> property() const;
+
 private:
     /// Pointer to process component
     QPointer<GtProcessComponent> m_component;
