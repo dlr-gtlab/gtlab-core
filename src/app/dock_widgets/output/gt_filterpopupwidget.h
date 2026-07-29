@@ -7,6 +7,7 @@
 #ifndef FILTERPOPUPWIDGET_H
 #define FILTERPOPUPWIDGET_H
 
+#include "gt_logmodel.h"
 #include <QWidget>
 #include <QSet>
 #include <QStringList>
@@ -50,16 +51,6 @@ public:
     explicit FilterPopupWidget(QWidget* parent = nullptr);
 
     /**
-     * @brief Set filter items
-     * @param items List of filter items to display
-     * @param selected Set of currently selected items
-     * 
-     * Sets filter items as a simple string list. Used for general
-     * filtering where display and storage values are the same.
-     */
-    void setItems(const QStringList& items, const QSet<QString>& selected);
-
-    /**
      * @brief Set filter items for integer values (levels)
      * @param items List of item names
      * @param values List of corresponding integer values
@@ -68,20 +59,11 @@ public:
      * Sets filter items for integer-based filtering (e.g., log levels).
      * The items are displayed to users while values are used internally.
      */
-    void setItems(const QStringList& items, const QList<int>& values,
-                  const QSet<int>& selected);
-
-    /// Get currently selected values (string version)
-    QSet<QString> selectedValues() const;
-
-    /// Get currently selected values (int version)
-    QSet<int> selectedIntValues() const;
-
-    /// Get currently selected storage values (for string pairs)
-    QSet<QString> selectedStorageValues() const;
+    void setLevelItems(const QStringList& items, const QList<int>& values,
+                  gt::LogLevelFlags selected);
 
     /**
-     * @brief setItems
+     * @brief setCategoryItems
      * @param displayItems List of display strings
      * @param storageItems List of corresponding storage strings
      * @param selectedStorageValues Set of currently selected storage values
@@ -90,7 +72,7 @@ public:
      * to users but storage values are used internally for filtering.
      * This is used for filtering by log IDs and categories.
      */
-    void setItems(const QStringList& displayItems,
+    void setCategoryItems(const QStringList& displayItems,
                   const QStringList& storageItems,
                   const QSet<QString>& selectedStorageValues);
 
@@ -116,8 +98,8 @@ public:
 signals:
     /// Emitted when selection changes (display values)
     void selectionChanged(const QSet<QString>& selected);
-    void selectionChangedInt(const QSet<int>& selected);
-    void selectionChangedStorage(const QSet<QString>& selectedStorageValues);
+    void selectionChangedLevel(gt::LogLevelFlags selected);
+    void selectionChangedCategory(const QSet<QString>& selected);
 
     void searchTextChanged(const QString& text);
 

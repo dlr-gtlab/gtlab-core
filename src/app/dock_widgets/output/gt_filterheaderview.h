@@ -109,9 +109,6 @@ private:
     GtFilteredLogModel* m_filterModel{nullptr};
     FilterPopupWidget* m_popup{nullptr};
     int m_activeColumn{-1};
-    QMap<int, QSet<int>> m_levelFilters;
-    QMap<int, QSet<QString>> m_categoryFilters;
-    bool m_filtering{false};
 };
 
 } // namespace gt

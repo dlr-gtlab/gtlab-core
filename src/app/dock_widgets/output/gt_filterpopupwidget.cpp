@@ -17,6 +17,35 @@
 #include <QScrollArea>
 #include <QLabel>
 
+namespace {
+    gt::LogLevelFlags levelFlagsFromSet(const QSet<int>& gtLogLevelSet)
+    {
+        gt::LogLevelFlags levels;
+        levels.setFlag(gt::TraceLevelFlag, gtLogLevelSet.contains(gt::log::TraceLevel));
+        levels.setFlag(gt::DebugLevelFlag, gtLogLevelSet.contains(gt::log::DebugLevel));
+        levels.setFlag(gt::InfoLevelFlag, gtLogLevelSet.contains(gt::log::InfoLevel));
+        levels.setFlag(gt::WarningLevelFlag, gtLogLevelSet.contains(gt::log::WarningLevel));
+        levels.setFlag(gt::ErrorLevelFlag, gtLogLevelSet.contains(gt::log::ErrorLevel));
+        levels.setFlag(gt::FatalLevelFlag, gtLogLevelSet.contains(gt::log::FatalLevel));
+        return levels;
+    }
+
+    QSet<int> gtLogLevelSetByFlags(gt::LogLevelFlags flags)
+    {
+        QSet<int> retVal;
+
+        if (flags.testFlag(gt::TraceLevelFlag)) retVal.insert(gt::log::TraceLevel);
+        if (flags.testFlag(gt::DebugLevelFlag)) retVal.insert(gt::log::DebugLevel);
+        if (flags.testFlag(gt::InfoLevelFlag)) retVal.insert(gt::log::InfoLevel);
+        if (flags.testFlag(gt::WarningLevelFlag)) retVal.insert(gt::log::WarningLevel);
+        if (flags.testFlag(gt::ErrorLevelFlag)) retVal.insert(gt::log::ErrorLevel);
+        if (flags.testFlag(gt::FatalLevelFlag)) retVal.insert(gt::log::FatalLevel);
+
+        return retVal;
+    }
+}
+
+
 gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)
 {
@@ -154,34 +183,11 @@ gt::FilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
 }
 
 void
-gt::FilterPopupWidget::setItems(const QStringList& items,
-                                const QSet<QString>& selected)
+gt::FilterPopupWidget::setLevelItems(const QStringList& items,
+                                     const QList<int>& values,
+                                     gt::LogLevelFlags selected)
 {
-    m_itemToInt.clear();
-    for (int i = 0; i < items.size(); ++i)
-    {
-        m_itemToInt[items[i]] = i;
-    }
-    
-    createCheckBoxes(items);
-    
-    m_updating = true;
-    for (QCheckBox* cb : m_checkBoxes)
-    {
-        cb->setChecked(selected.contains(cb->text()));
-    }
-    m_updating = false;
-}
-
-void
-gt::FilterPopupWidget::setItems(const QStringList& items,
-                                const QList<int>& values,
-                                const QSet<int>& selected)
-{
-    if (items.size() != values.size())
-    {
-        return;
-    }
+    if (items.size() != values.size()) return;
     
     m_itemToInt.clear();
     for (int i = 0; i < items.size(); ++i)
@@ -191,25 +197,24 @@ gt::FilterPopupWidget::setItems(const QStringList& items,
     
     createCheckBoxes(items);
     
+    QSet<int> selectedSet = gtLogLevelSetByFlags(selected);
+
     m_updating = true;
     for (QCheckBox* cb : m_checkBoxes)
     {
         int value = m_itemToInt.value(cb->text(), -1);
-        cb->setChecked(selected.contains(value));
+        cb->setChecked(selectedSet.contains(value));
     }
     m_updating = false;
 }
 
 void
-gt::FilterPopupWidget::setItems(const QStringList& displayItems,
-                                const QStringList& storageItems,
-                                const QSet<QString>& selectedStorageValues)
+gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
+                                        const QStringList& storageItems,
+                                        const QSet<QString>& selectedStorageValues)
 {
-    if (displayItems.size() != storageItems.size())
-    {
-        return;
-    }
-    
+    if (displayItems.size() != storageItems.size()) return;
+
     m_itemToInt.clear();
     m_displayToStorage.clear();
     m_storageToDisplay.clear();
@@ -326,7 +331,7 @@ gt::FilterPopupWidget::updateSelection()
                 }
             }
         }
-        emit selectionChangedInt(selected);
+        emit selectionChangedLevel(levelFlagsFromSet(selected));
     }
     else
     {
@@ -342,68 +347,6 @@ gt::FilterPopupWidget::updateSelection()
                 }
             }
         }
-        emit selectionChangedStorage(selected);
+        emit selectionChangedCategory(selected);
     }
-}
-
-QSet<QString>
-gt::FilterPopupWidget::selectedValues() const
-{
-    QSet<QString> selected;
-    for (QCheckBox* cb : m_checkBoxes)
-    {
-        if (cb->isChecked())
-        {
-            // if mapping exists, return display value
-            if (m_displayToStorage.contains(cb->text()))
-            {
-                selected.insert(cb->text());
-            }
-            // Else: direct text
-            else
-            {
-                selected.insert(cb->text());
-            }
-        }
-    }
-    return selected;
-}
-
-QSet<int>
-gt::FilterPopupWidget::selectedIntValues() const
-{
-    QSet<int> selected;
-
-    for (QCheckBox* cb : m_checkBoxes)
-    {
-        if (cb->isChecked())
-        {
-            int value = m_itemToInt.value(cb->text(), -1);
-            if (value >= 0)
-            {
-                selected.insert(value);
-            }
-        }
-    }
-
-    return selected;
-}
-
-QSet<QString>
-gt::FilterPopupWidget::selectedStorageValues() const
-{
-    QSet<QString> selected;
-    for (QCheckBox* cb : m_checkBoxes)
-    {
-        if (cb->isChecked())
-        {
-            QString storageValue = m_displayToStorage.value(cb->text());
-            // If mapping existsts, use storage value
-            if (m_displayToStorage.contains(cb->text()))
-            {
-                selected.insert(storageValue);
-            }
-        }
-    }
-    return selected;
 }

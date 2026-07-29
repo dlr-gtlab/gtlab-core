@@ -76,8 +76,6 @@ gt::FilterHeaderView::setFilterModel(GtFilteredLogModel* model)
     {
         connect(m_filterModel, &QSortFilterProxyModel::modelReset,
                 this, [this](){
-            m_levelFilters.clear();
-            m_categoryFilters.clear();
             viewport()->update();
         });
         
@@ -86,17 +84,11 @@ gt::FilterHeaderView::setFilterModel(GtFilteredLogModel* model)
                              const QModelIndex& bottomRight,
                              const QVector<int>& roles){
             Q_UNUSED(roles);
-            if (topLeft.column() == 2)
-            {
-                m_categoryFilters.clear();
-            }
             viewport()->update();
         });
         
         connect(m_filterModel, &QSortFilterProxyModel::modelReset,
                 this, [this](){
-            m_levelFilters.clear();
-            m_categoryFilters.clear();
             viewport()->update();
         });
         
@@ -265,18 +257,16 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         else
         {
             QStringList items;
-            QSet<int> selectedLevelsSet;
             QSet<QString> selectedCategories;
             QStringList displayItems;
             QStringList storageItems;
+            gt::LogLevelFlags selectedLevels = gt::NoLogLevelFlag;
             
             if (clickedColumn == 0 && m_filterModel)
             {
                 items = logLevelStrings();
 
-                gt::LogLevelFlags selectedLevels = m_filterModel->levelFilter();
-                selectedLevelsSet = gt::gtLogLevelSetByFlags(selectedLevels);
-                m_levelFilters[clickedColumn] = selectedLevelsSet;
+                selectedLevels = m_filterModel->levelFilter();
             }
             else if (clickedColumn == 2 && m_filterModel)
             {
@@ -296,7 +286,6 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 items = displayItems;
                 
                 selectedCategories = m_filterModel->categoryFilter();
-                m_categoryFilters[clickedColumn] = selectedCategories;
             }
             
             if (!items.isEmpty() || clickedColumn == 0 || clickedColumn == 2)
@@ -305,27 +294,25 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 
                 if (clickedColumn == 0)
                 {
-                    m_popup->setItems(items, logLevelInts(), selectedLevelsSet);
+                    m_popup->setLevelItems(items, logLevelInts(), selectedLevels);
                     
-                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedInt,
-                            this, [this, clickedColumn](const QSet<int>& selected){
+                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedLevel,
+                            this, [this, clickedColumn](gt::LogLevelFlags selected){
                                 if (m_filterModel)
                                 {
-                                    m_filterModel->setLevelFilter(gt::levelFlagsFromSet(selected));
-                                    m_levelFilters[clickedColumn] = selected;
+                                    m_filterModel->setLevelFilter(selected);
                                 }
                             });
                 }
                 else if (clickedColumn == 2)
                 {
-                    m_popup->setItems(items, storageItems, selectedCategories);
+                    m_popup->setCategoryItems(items, storageItems, selectedCategories);
                     
-                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedStorage,
+                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedCategory,
                             this, [this, clickedColumn](const QSet<QString>& selected){
                                 if (m_filterModel)
                                 {
                                     m_filterModel->setCategoryFilter(selected);
-                                    m_categoryFilters[clickedColumn] = selected;
                                 }
                             });
                 }
@@ -377,13 +364,7 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
 
     if (logicalIndex == 0)
     {
-        QSet<int> levels;
-        for (int level : logLevelInts())
-        {
-            levels.insert(level);
-        }
         m_filterModel->setLevelFilter(gt::AllLogLevels);
-        m_levelFilters[logicalIndex] = levels;
     }
     else if (logicalIndex == 2)
     {
@@ -402,7 +383,6 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
         }
         m_filterModel->setDeactivatedCategories({});
         m_filterModel->setCategoryFilter(categories);
-        m_categoryFilters[logicalIndex] = categories;
     }
     else if (logicalIndex == 3)
     {

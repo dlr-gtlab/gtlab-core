@@ -34,9 +34,7 @@ enum class LogColumn
     MessageColumn  = 3
 };
 
-gt::LogLevelFlags levelFlagsFromSet(const QSet<int>& gtLogLevelSet);
 
-QSet<int> gtLogLevelSetByFlags(gt::LogLevelFlags flags);
 
 const QString EmptyIDText = "EmptyID";
 
@@ -149,7 +147,7 @@ public slots:
     void updateCategoryFilter();
 
 signals:
-    void levelFilterChanged(const QSet<int>& levels);
+    void levelFilterChanged();
     void categoryFilterChanged(const QSet<QString>& categories);
     void filterTextChanged(const QString& text);
 
@@ -163,21 +161,14 @@ private:
     struct FilterState
     {
         QString text;
-
+        gt::LogLevelFlags levels;
         QSet<QString> categories;
         QSet<QString> deactivatedCategories;
 
         bool allLevelActive() const;
-
         void initAllLevels();
-
         bool levelsEmpty() const;
-
         void clearLevels();
-
-        bool gtLogLevelActive(gt::log::Level l) const;
-
-        gt::LogLevelFlags levels;
     };
 
     FilterState m_filterState;
