@@ -187,7 +187,6 @@ private:
 
         void setBySet(QSet<int> newSet);
 
-    private:
         gt::LogLevelFlags levels;
     };
 

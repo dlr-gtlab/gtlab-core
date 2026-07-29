@@ -65,16 +65,7 @@ GtFilteredLogModel::setDeactivatedCategories(const QSet<QString>& categories)
 gt::LogLevelFlags
 GtFilteredLogModel::levelFilter() const
 {
-    gt::LogLevelFlags flags = gt::NoLogLevelFlag;
-
-    flags.setFlag(gt::TraceLevelFlag, m_filterState.gtLogLevelActive(gt::log::TraceLevel));
-    flags.setFlag(gt::DebugLevelFlag, m_filterState.gtLogLevelActive(gt::log::DebugLevel));
-    flags.setFlag(gt::InfoLevelFlag, m_filterState.gtLogLevelActive(gt::log::InfoLevel));
-    flags.setFlag(gt::WarningLevelFlag, m_filterState.gtLogLevelActive(gt::log::WarningLevel));
-    flags.setFlag(gt::ErrorLevelFlag, m_filterState.gtLogLevelActive(gt::log::ErrorLevel));
-    flags.setFlag(gt::FatalLevelFlag, m_filterState.gtLogLevelActive(gt::log::FatalLevel));
-
-    return flags;
+    return m_filterState.levels;
 }
 
 QSet<int>
@@ -519,29 +510,24 @@ bool
 GtFilteredLogModel::FilterState::allLevelActive() const
 {
     return levels == gt::AllLogLevels;
-
-    //return levels == gt::allLevels;
 }
 
 void
 GtFilteredLogModel::FilterState::initAllLevels()
 {
     levels = gt::AllLogLevels;
-    //levels = gt::allLevels;
 }
 
 bool
 GtFilteredLogModel::FilterState::levelsEmpty() const
 {
     return levels.testFlag(gt::NoLogLevelFlag);
-    //return levels.isEmpty();
 }
 
 void
 GtFilteredLogModel::FilterState::clearLevels()
 {
     levels.setFlag(gt::NoLogLevelFlag);
-    //levels.clear();
 }
 
 bool
@@ -571,7 +557,6 @@ GtFilteredLogModel::FilterState::gtLogLevelActive(gt::log::Level l) const
     }
 
     return false;
-    //return levels.contains(l);
 }
 
 QSet<int>
@@ -587,7 +572,6 @@ GtFilteredLogModel::FilterState::levelSet() const
     if (levels.testFlag(gt::FatalLevelFlag)) retVal.insert(gt::log::FatalLevel);
 
     return retVal;
-    //return levels;
 }
 
 void
@@ -599,6 +583,4 @@ GtFilteredLogModel::FilterState::setBySet(QSet<int> newSet)
     levels.setFlag(gt::WarningLevelFlag, newSet.contains(gt::log::WarningLevel));
     levels.setFlag(gt::ErrorLevelFlag, newSet.contains(gt::log::ErrorLevel));
     levels.setFlag(gt::FatalLevelFlag, newSet.contains(gt::log::FatalLevel));
-
-    //levels = newSet;
 }
