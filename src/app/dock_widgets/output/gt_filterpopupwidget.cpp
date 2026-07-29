@@ -195,7 +195,7 @@ gt::FilterPopupWidget::setLevelItems(const QStringList& items,
         m_itemToInt[items[i]] = values[i];
     }
     
-    createCheckBoxes(items);
+    createCheckBoxesForLevels(items);
     
     QSet<int> selectedSet = gtLogLevelSetByFlags(selected);
 
@@ -228,7 +228,7 @@ gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
         m_storageToDisplay[storage] = display;
     }
     
-    createCheckBoxesForStrings(displayItems, storageItems);
+    createCheckBoxesForCategories(displayItems, storageItems);
     
     m_updating = true;
     for (QCheckBox* cb : m_checkBoxes)
@@ -240,7 +240,7 @@ gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
 }
 
 void
-gt::FilterPopupWidget::createCheckBoxes(const QStringList& items)
+gt::FilterPopupWidget::createCheckBoxesForLevels(const QStringList& items)
 {
     if (!m_contentWidget || !m_contentLayout) return;
     
@@ -265,8 +265,8 @@ gt::FilterPopupWidget::createCheckBoxes(const QStringList& items)
 }
 
 void
-gt::FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItems,
-                                                  const QStringList& storageItems)
+gt::FilterPopupWidget::createCheckBoxesForCategories(
+    const QStringList& displayItems, const QStringList& storageItems)
 {
     if (!m_contentWidget || !m_contentLayout) return;
     

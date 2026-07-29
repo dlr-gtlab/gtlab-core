@@ -90,8 +90,9 @@ GtFilteredLogModel::availableCategories() const
 
     for (int row = 0; row < rowCount; ++row)
     {
-        const QModelIndex index = sourceModel()->index(row,
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+        const QModelIndex index = sourceModel()->index(
+            row, GtLogModel::columnFromRole(GtLogModel::IdRole));
+
         const QString category = sourceModel()->data(index).toString();
 
         categories.insert(category);
@@ -113,7 +114,7 @@ GtFilteredLogModel::availableCategoriesWithStorage() const
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
         QString storageValue = sourceModel()->data(index).toString();
 
         if (storageValue.isEmpty())
@@ -142,17 +143,17 @@ GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
 {
     switch (column)
     {
-        case static_cast<int>(gt::LogColumn::LevelColumn):
+        case GtLogModel::columnFromRole(GtLogModel::LevelRole):
         if (!m_filterState.levelsEmpty())
             {
                 return !m_filterState.allLevelActive();
             }
             return false;
 
-        case static_cast<int>(gt::LogColumn::TimeColumn):
+        case GtLogModel::columnFromRole(GtLogModel::TimeRole):
             return false;
 
-        case static_cast<int>(gt::LogColumn::CategoryColumn):
+        case GtLogModel::columnFromRole(GtLogModel::IdRole):
             if (!m_filterState.categories.isEmpty())
             {
                 QStringList allCategories = availableCategories();
@@ -170,7 +171,7 @@ GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
 
             return false;
 
-        case static_cast<int>(gt::LogColumn::MessageColumn):
+        case GtLogModel::columnFromRole(GtLogModel::MessageRole):
             return !m_filterState.text.isEmpty();
 
         default:
@@ -278,8 +279,9 @@ GtFilteredLogModel::matchesTextFilter(int source_row,
 {
     if (m_filterState.text.isEmpty()) return true;
 
-    const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(gt::LogColumn::MessageColumn), source_parent);
+    const QModelIndex index = sourceModel()->index(
+        source_row, GtLogModel::columnFromRole(GtLogModel::MessageRole),
+        source_parent);
     const QString message = sourceModel()->data(index).toString();
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -299,7 +301,7 @@ GtFilteredLogModel::matchesLevelFilter(int source_row,
     if (m_filterState.levelsEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(gt::LogColumn::LevelColumn), source_parent);
+        GtLogModel::columnFromRole(GtLogModel::LevelRole), source_parent);
     const int level = sourceModel()->data(index, GtLogModel::LevelRole).toInt();
 
     switch (level) {
@@ -341,7 +343,7 @@ GtFilteredLogModel::matchesCategoryFilter(int source_row,
     if (m_filterState.categories.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
-        static_cast<int>(gt::LogColumn::CategoryColumn), source_parent);
+        GtLogModel::columnFromRole(GtLogModel::IdRole), source_parent);
     const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
 
     if (m_filterState.deactivatedCategories.contains(category)) return false;
@@ -362,7 +364,7 @@ GtFilteredLogModel::updateCategoryFilter()
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -399,7 +401,7 @@ GtFilteredLogModel::saveAndPreserveDeactivatedCategories(
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -441,7 +443,7 @@ GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);
@@ -473,7 +475,7 @@ GtFilteredLogModel::resetCategoryFilter()
     for (int row = 0; row < rowCount; ++row)
     {
         const QModelIndex index = sourceModel()->index(row, 
-            static_cast<int>(gt::LogColumn::CategoryColumn));
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
         const QString category = sourceModel()->data(index).toString();
 
         availableCategories.insert(category);

@@ -60,7 +60,7 @@ public:
      * The items are displayed to users while values are used internally.
      */
     void setLevelItems(const QStringList& items, const QList<int>& values,
-                  gt::LogLevelFlags selected);
+                       gt::LogLevelFlags selected);
 
     /**
      * @brief setCategoryItems
@@ -73,8 +73,8 @@ public:
      * This is used for filtering by log IDs and categories.
      */
     void setCategoryItems(const QStringList& displayItems,
-                  const QStringList& storageItems,
-                  const QSet<QString>& selectedStorageValues);
+                          const QStringList& storageItems,
+                          const QSet<QString>& selectedStorageValues);
 
     /**
       * @brief setSearchWidget
@@ -105,24 +105,24 @@ signals:
 
 private:
     /**
-     * @brief createCheckBoxes
+     * @brief createCheckBoxesForLevels
      * @param items List of item names to create checkboxes for
      * 
      * Creates checkbox widgets for the given items and connects
      * them to the selection update mechanism.
      */
-    void createCheckBoxes(const QStringList& items);
+    void createCheckBoxesForLevels(const QStringList& items);
 
     /**
-     * @brief createCheckBoxesForStrings
+     * @brief createCheckBoxesForCategories
      * @param displayItems List of display strings
      * @param storageItems List of corresponding storage strings
      * 
      * Creates checkbox widgets for string pairs where display items
      * are shown to users but storage values are used for filtering.
      */
-    void createCheckBoxesForStrings(const QStringList& displayItems,
-                                    const QStringList& storageItems);
+    void createCheckBoxesForCategories(const QStringList& displayItems,
+                                       const QStringList& storageItems);
 
     /**
      * @brief updateSelection

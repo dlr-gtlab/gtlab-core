@@ -22,19 +22,6 @@ class GtLogDetails;
 class GtOutputDock;
 
 namespace gt {
-/**
- * @brief Log Column Constants
- * Sammelt alle Magic Numbers für Spalten-Indizes
- */
-enum class LogColumn
-{
-    LevelColumn    = 0,
-    TimeColumn     = 1,
-    CategoryColumn = 2,
-    MessageColumn  = 3
-};
-
-
 
 const QString EmptyIDText = "EmptyID";
 
