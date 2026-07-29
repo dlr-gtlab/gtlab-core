@@ -551,18 +551,6 @@ GtFilteredLogModel::FilterState::gtLogLevelActive(gt::log::Level l) const
     return false;
 }
 
-QSet<int>
-GtFilteredLogModel::FilterState::levelSet() const
-{
-    return gt::gtLogLevelSetByFlags(levels);
-}
-
-void
-GtFilteredLogModel::FilterState::setBySet(QSet<int> newSet)
-{
-    levels = gt::levelFlagsFromSet(newSet);
-}
-
 gt::LogLevelFlags
 gt::levelFlagsFromSet(QSet<int> const& gtLogLevelSet)
 {

@@ -275,13 +275,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 items = logLevelStrings();
 
                 gt::LogLevelFlags selectedLevels = m_filterModel->levelFilter();
-                if (selectedLevels.testFlag(gt::TraceLevelFlag)) selectedLevelsSet.insert(gt::log::TraceLevel);
-                if (selectedLevels.testFlag(gt::DebugLevelFlag)) selectedLevelsSet.insert(gt::log::DebugLevel);
-                if (selectedLevels.testFlag(gt::InfoLevelFlag)) selectedLevelsSet.insert(gt::log::InfoLevel);
-                if (selectedLevels.testFlag(gt::WarningLevelFlag)) selectedLevelsSet.insert(gt::log::WarningLevel);
-                if (selectedLevels.testFlag(gt::ErrorLevelFlag)) selectedLevelsSet.insert(gt::log::ErrorLevel);
-                if (selectedLevels.testFlag(gt::FatalLevelFlag)) selectedLevelsSet.insert(gt::log::FatalLevel);
-
+                selectedLevelsSet = gt::gtLogLevelSetByFlags(selectedLevels);
                 m_levelFilters[clickedColumn] = selectedLevelsSet;
             }
             else if (clickedColumn == 2 && m_filterModel)

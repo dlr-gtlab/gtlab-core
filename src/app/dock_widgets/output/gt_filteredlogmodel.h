@@ -177,10 +177,6 @@ private:
 
         bool gtLogLevelActive(gt::log::Level l) const;
 
-        QSet<int> levelSet() const;
-
-        void setBySet(QSet<int> newSet);
-
         gt::LogLevelFlags levels;
     };
 
