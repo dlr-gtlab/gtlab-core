@@ -48,7 +48,7 @@ namespace gt
         FatalLevelFlag   = 1 << 5,
 
         /// all log level are active
-        AllLogLevels = TraceLevelFlag | DebugLevelFlag | InfoLevelFlag | WarningLevelFlag | FatalLevelFlag
+        AllLogLevels = TraceLevelFlag | DebugLevelFlag | InfoLevelFlag | WarningLevelFlag | ErrorLevelFlag | FatalLevelFlag
     };
     using LogLevelFlags = QFlags<LogLevelFlag>;
 
