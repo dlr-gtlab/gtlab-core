@@ -34,14 +34,9 @@ enum class LogColumn
     MessageColumn  = 3
 };
 
-const QSet<int> allLevels = {
-    gt::log::TraceLevel,
-    gt::log::DebugLevel,
-    gt::log::InfoLevel,
-    gt::log::WarningLevel,
-    gt::log::ErrorLevel,
-    gt::log::FatalLevel
-};
+gt::LogLevelFlags levelFlagsFromSet(const QSet<int>& gtLogLevelSet);
+
+QSet<int> gtLogLevelSetByFlags(gt::LogLevelFlags flags);
 
 const QString EmptyIDText = "EmptyID";
 
@@ -69,13 +64,12 @@ public:
 
     // === Filter Methods (public API) ===
     void setFilterText(const QString& text);
-    void setLevelFilter(const QSet<int>& levels);
+    void setLevelFilter(gt::LogLevelFlags levels);
     void setCategoryFilter(const QSet<QString>& categories);
     void setDeactivatedCategories(const QSet<QString>& categories);
 
     // === Getters ===
     gt::LogLevelFlags levelFilter() const;
-    QSet<int> levelFilterSet() const;
     QSet<QString> categoryFilter() const;
     QString filterText() const;
     QStringList availableCategories() const;

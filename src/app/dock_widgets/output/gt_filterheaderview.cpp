@@ -265,7 +265,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         else
         {
             QStringList items;
-            QSet<int> selectedLevels;
+            QSet<int> selectedLevelsSet;
             QSet<QString> selectedCategories;
             QStringList displayItems;
             QStringList storageItems;
@@ -274,8 +274,15 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
             {
                 items = logLevelStrings();
 
-                selectedLevels = m_filterModel->levelFilterSet();
-                m_levelFilters[clickedColumn] = selectedLevels;
+                gt::LogLevelFlags selectedLevels = m_filterModel->levelFilter();
+                if (selectedLevels.testFlag(gt::TraceLevelFlag)) selectedLevelsSet.insert(gt::log::TraceLevel);
+                if (selectedLevels.testFlag(gt::DebugLevelFlag)) selectedLevelsSet.insert(gt::log::DebugLevel);
+                if (selectedLevels.testFlag(gt::InfoLevelFlag)) selectedLevelsSet.insert(gt::log::InfoLevel);
+                if (selectedLevels.testFlag(gt::WarningLevelFlag)) selectedLevelsSet.insert(gt::log::WarningLevel);
+                if (selectedLevels.testFlag(gt::ErrorLevelFlag)) selectedLevelsSet.insert(gt::log::ErrorLevel);
+                if (selectedLevels.testFlag(gt::FatalLevelFlag)) selectedLevelsSet.insert(gt::log::FatalLevel);
+
+                m_levelFilters[clickedColumn] = selectedLevelsSet;
             }
             else if (clickedColumn == 2 && m_filterModel)
             {
@@ -304,13 +311,13 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 
                 if (clickedColumn == 0)
                 {
-                    m_popup->setItems(items, logLevelInts(), selectedLevels);
+                    m_popup->setItems(items, logLevelInts(), selectedLevelsSet);
                     
                     connect(m_popup, &gt::FilterPopupWidget::selectionChangedInt,
                             this, [this, clickedColumn](const QSet<int>& selected){
                                 if (m_filterModel)
                                 {
-                                    m_filterModel->setLevelFilter(selected);
+                                    m_filterModel->setLevelFilter(gt::levelFlagsFromSet(selected));
                                     m_levelFilters[clickedColumn] = selected;
                                 }
                             });
@@ -381,7 +388,7 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
         {
             levels.insert(level);
         }
-        m_filterModel->setLevelFilter(levels);
+        m_filterModel->setLevelFilter(gt::AllLogLevels);
         m_levelFilters[logicalIndex] = levels;
     }
     else if (logicalIndex == 2)
