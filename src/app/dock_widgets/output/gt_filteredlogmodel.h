@@ -23,20 +23,6 @@ class GtOutputDock;
 
 namespace gt {
 /**
- * @brief Log Filter Level Constants (bit-basiert)
- * Sammelt alle Magic Numbers für Filter-Level
- */
-enum class LogFilterLevel
-{
-    Trace   = 1 << 0,  // 0x01 (1)
-    Debug   = 1 << 1,  // 0x02 (2)
-    Info    = 1 << 2,  // 0x04 (4)
-    Warning = 1 << 3,  // 0x08 (8)
-    Error   = 1 << 4,  // 0x10 (16)
-    Fatal   = 1 << 5   // 0x20 (32)
-};
-
-/**
  * @brief Log Column Constants
  * Sammelt alle Magic Numbers für Spalten-Indizes
  */

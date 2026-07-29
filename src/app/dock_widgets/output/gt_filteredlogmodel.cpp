@@ -217,37 +217,37 @@ GtFilteredLogModel::clearFilters()
 void
 GtFilteredLogModel::filterTraceLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Trace), val);
+    setFilterLevel(gt::TraceLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterDebugLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Debug), val);
+    setFilterLevel(gt::DebugLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterInfoLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Info), val);
+    setFilterLevel(gt::InfoLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterWarningLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Warning), val);
+    setFilterLevel(gt::WarningLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterErrorLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Error), val);
+    setFilterLevel(gt::ErrorLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterFatalLevel(bool val)
 {
-    setFilterLevel(static_cast<int>(gt::LogFilterLevel::Fatal), val);
+    setFilterLevel(gt::FatalLevelFlag, val);
 }
 
 void
