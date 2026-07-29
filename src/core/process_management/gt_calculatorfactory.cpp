@@ -41,7 +41,14 @@ GtCalculatorFactory::instance()
 bool
 GtCalculatorFactory::registerCalculatorData(GtCalculatorData calcData)
 {
-    if (!registerClass(calcData->metaData()))
+    return registerCalculatorData(std::move(calcData), {});
+}
+
+bool
+GtCalculatorFactory::registerCalculatorData(GtCalculatorData calcData,
+                                            const QString& moduleId)
+{
+    if (!registerClass(calcData->metaData(), moduleId))
     {
         return false;
     }

@@ -41,6 +41,9 @@ public:
      */
     virtual bool registerCalculatorData(GtCalculatorData calcData);
 
+    virtual bool registerCalculatorData(GtCalculatorData calcData,
+                                        const QString& moduleId);
+
     /**
      * @brief Returns full list of registered calculator data.
      * @return List of calculator data.

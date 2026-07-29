@@ -72,7 +72,13 @@ GtTaskFactory::instance()
 bool
 GtTaskFactory::registerTaskData(GtTaskData taskData)
 {
-    if (!gtObjectFactory->registerClass(taskData->metaData()))
+    return registerTaskData(std::move(taskData), {});
+}
+
+bool
+GtTaskFactory::registerTaskData(GtTaskData taskData, const QString& moduleId)
+{
+    if (!gtObjectFactory->registerClass(taskData->metaData(), moduleId))
     {
         return false;
     }

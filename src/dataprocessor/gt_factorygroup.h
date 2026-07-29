@@ -63,12 +63,20 @@ public:
      */
     bool registerClass(QMetaObject metaObj) override;
 
+    bool registerClass(QMetaObject metaObj,
+                       const QString& moduleId) override;
+
     /**
      * @brief registerClasses
      * @param metaObject
      * @return
      */
     bool registerClasses(const QList<QMetaObject>& metaData) override;
+
+    bool registerClasses(const QList<QMetaObject>& metaData,
+                         const QString& moduleId) override;
+
+    QString moduleId(const QString& className) const override;
 
     /**
      * @brief containsDuplicates

@@ -40,6 +40,9 @@ public:
      */
     virtual bool registerTaskData(GtTaskData taskData);
 
+    virtual bool registerTaskData(GtTaskData taskData,
+                                  const QString& moduleId);
+
     /**
      * @brief Returns full list of registered task data.
      * @return List of task data.

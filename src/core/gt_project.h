@@ -14,6 +14,7 @@
 #include "gt_core_exports.h"
 
 #include <QStringList>
+#include <QMap>
 
 #include "gt_object.h"
 #include "gt_session.h"
@@ -45,6 +46,7 @@ class GT_CORE_EXPORT GtProject : public GtObject
     friend class GtLoadProjectHelper;
     friend class GtSaveProjectHelper;
     friend class GtProjectUI;
+    friend class GtProjectTestAccess;
 
 public:
     /**
@@ -130,6 +132,13 @@ public:
      * @return
      */
     const QStringList& moduleIds() const;
+
+    /**
+     * @brief Returns the module associated with a class used by the project.
+     * @param className Class name to query.
+     * @return Module identification or an empty string if none is known.
+     */
+    QString classModuleId(const QString& className) const;
 
     /**
      * @brief Returns number of label usages. Returns -1 if given label is
@@ -342,6 +351,9 @@ private:
     /// List of all project module ids
     QStringList m_moduleIds;
 
+    /// Module ids associated with classes used by this project
+    QMap<QString, QString> m_classModuleIds;
+
     /// Project path property. Only used for visualization in the GUI.
     GtStringProperty m_pathProp;
 
@@ -366,6 +378,9 @@ private:
      * @param root element to start the read function from
      */
     void readModuleMetaData(const QDomElement& root);
+
+    /// Updates class-to-module mappings from the current object tree.
+    void updateClassModuleIds();
 
     /**
      * @brief readProcessData
