@@ -65,13 +65,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             return {};
         }
         break;
-    case Qt::UserRole:
-        // Pass through UserRole to get raw level data
-        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
-        {
-            return gtLogModel->data(index, GtLogModel::LevelRole);
-        }
-        break;
+ //   case Qt::UserRole:
+ //       // Pass through UserRole to get raw level data
+ //       if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
+ //       {
+ //           return gtLogModel->data(index, GtLogModel::LevelRole);
+ //       }
+ //       break;
     case Qt::ToolTipRole:
         // tooltip for level
         if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
@@ -121,6 +121,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         }
         default:
             break;
+        }
+        break;
+    case GtLogModel::LevelRole:
+        // Pass through log-roles to get raw data
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
+        {
+            return gtLogModel->data(index, GtLogModel::LevelRole);
         }
         break;
     default:

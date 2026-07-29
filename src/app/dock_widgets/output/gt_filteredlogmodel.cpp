@@ -300,7 +300,7 @@ GtFilteredLogModel::matchesLevelFilter(int source_row,
 
     const QModelIndex index = sourceModel()->index(source_row, 
         static_cast<int>(gt::LogColumn::LevelColumn), source_parent);
-    const int level = sourceModel()->data(index, Qt::UserRole).toInt();
+    const int level = sourceModel()->data(index, GtLogModel::LevelRole).toInt();
 
     switch (level) {
     case gt::log::TraceLevel:
