@@ -42,10 +42,10 @@ enum class LogFilterLevel
  */
 enum class LogColumn
 {
-    Level    = 0,
-    Time     = 1,
-    Category = 2,
-    Message  = 3
+    LevelColumn    = 0,
+    TimeColumn     = 1,
+    CategoryColumn = 2,
+    MessageColumn  = 3
 };
 
 const QSet<int> allLevels = {
@@ -57,7 +57,7 @@ const QSet<int> allLevels = {
     gt::log::FatalLevel
 };
 
-const QString emptyIDText = "EmptyID";
+const QString EmptyIDText = "EmptyID";
 
 } //namespace gt
 

@@ -285,7 +285,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 {
                     displayItems << entry;
 
-                    if (entry == emptyIDText) storageItems << "";
+                    if (entry == EmptyIDText) storageItems << "";
                     else
                     {
                         storageItems << entry;
@@ -390,7 +390,7 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
         for (const auto& category :
              m_filterModel->availableCategoriesWithStorage())
         {
-            if (category == gt::emptyIDText)
+            if (category == gt::EmptyIDText)
             {
                 categories.insert("");
             }

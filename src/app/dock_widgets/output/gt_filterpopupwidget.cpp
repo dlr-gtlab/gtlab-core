@@ -277,7 +277,7 @@ gt::FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItem
         cb->setTristate(false);
         
         // EmptyID in italic font
-        if (display == gt::emptyIDText)
+        if (display == gt::EmptyIDText)
         {
             QFont italicFont = cb->font();
             italicFont.setItalic(true);
