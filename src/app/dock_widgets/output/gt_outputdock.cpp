@@ -511,7 +511,7 @@ GtOutputDock::updateFilterButtons()
     auto& logger = gt::log::Logger::instance();
 
     // Get current filter state from unified GtFilteredLogModel
-    auto activeLevels = m_model->levelFilter();
+    gt::LogLevelFlags activeLevels = m_model->levelFilter();
 
     auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn,
                                                             gt::log::Level level)
@@ -528,7 +528,32 @@ GtOutputDock::updateFilterButtons()
         btn->setHidden(hideBtn);
 
         // update checked state based on current filter
-        btn->setChecked(activeLevels.contains(level));
+        bool checked = false;
+        switch (level)
+        {
+        case gt::log::TraceLevel:
+            checked = activeLevels.testFlag(gt::TraceLevelFlag);
+            break;
+        case gt::log::DebugLevel:
+            checked = activeLevels.testFlag(gt::DebugLevelFlag);
+            break;
+        case gt::log::InfoLevel:
+            checked = activeLevels.testFlag(gt::InfoLevelFlag);
+            break;
+        case gt::log::WarningLevel:
+            checked = activeLevels.testFlag(gt::WarningLevelFlag);
+            break;
+        case gt::log::ErrorLevel:
+            checked = activeLevels.testFlag(gt::ErrorLevelFlag);
+            break;
+        case gt::log::FatalLevel:
+            checked = activeLevels.testFlag(gt::FatalLevelFlag);
+            break;
+        default:
+            break;
+        }
+
+        btn->setChecked(checked);
     };
 
     updateLevel(m_traceButton, gt::log::TraceLevel);

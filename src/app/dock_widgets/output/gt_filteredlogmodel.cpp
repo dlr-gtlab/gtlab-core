@@ -19,7 +19,7 @@
 GtFilteredLogModel::GtFilteredLogModel(QObject* parent) :
     QSortFilterProxyModel(parent)
 {
-    m_filterState.levels = gt::allLevels;
+    m_filterState.initAllLevels();
 }
 
 void
@@ -35,9 +35,10 @@ GtFilteredLogModel::setFilterText(const QString& text)
 void
 GtFilteredLogModel::setLevelFilter(const QSet<int>& levels)
 {
-    if (m_filterState.levels == levels) return;
+    if (m_filterState.levelSet() == levels) return;
 
-    m_filterState.levels = levels;
+    m_filterState.setBySet(levels);
+
     invalidateFilter();
     emit levelFilterChanged(levels);
 }
@@ -61,10 +62,25 @@ GtFilteredLogModel::setDeactivatedCategories(const QSet<QString>& categories)
     invalidateFilter();
 }
 
-QSet<int>
+gt::LogLevelFlags
 GtFilteredLogModel::levelFilter() const
 {
-    return m_filterState.levels;
+    gt::LogLevelFlags flags = gt::NoLogLevelFlag;
+
+    flags.setFlag(gt::TraceLevelFlag, m_filterState.gtLogLevelActive(gt::log::TraceLevel));
+    flags.setFlag(gt::DebugLevelFlag, m_filterState.gtLogLevelActive(gt::log::DebugLevel));
+    flags.setFlag(gt::InfoLevelFlag, m_filterState.gtLogLevelActive(gt::log::InfoLevel));
+    flags.setFlag(gt::WarningLevelFlag, m_filterState.gtLogLevelActive(gt::log::WarningLevel));
+    flags.setFlag(gt::ErrorLevelFlag, m_filterState.gtLogLevelActive(gt::log::ErrorLevel));
+    flags.setFlag(gt::FatalLevelFlag, m_filterState.gtLogLevelActive(gt::log::FatalLevel));
+
+    return flags;
+}
+
+QSet<int>
+GtFilteredLogModel::levelFilterSet() const
+{
+    return m_filterState.levelSet();
 }
 
 QSet<QString>
@@ -142,11 +158,9 @@ GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
     switch (column)
     {
         case static_cast<int>(gt::LogColumn::LevelColumn):
-            if (!m_filterState.levels.isEmpty())
+        if (!m_filterState.levelsEmpty())
             {
-                QSet<int> allLevels = gt::allLevels;
-
-                return m_filterState.levels != allLevels;
+                return !m_filterState.allLevelActive();
             }
             return false;
 
@@ -190,9 +204,9 @@ GtFilteredLogModel::clearFilters()
         changed = true;
     }
 
-    if (!m_filterState.levels.isEmpty())
+    if (!m_filterState.levelsEmpty())
     {
-        m_filterState.levels.clear();
+        m_filterState.clearLevels();
         changed = true;
     }
 
@@ -257,17 +271,17 @@ GtFilteredLogModel::filterData(const QString& val)
 }
 
 void
-GtFilteredLogModel::setFilterLevel(int levelBit, bool enabled)
+GtFilteredLogModel::setFilterLevel(gt::LogLevelFlag levelFlag, bool enabled)
 {
-    QSet<int> levels = m_filterState.levels;
+    QSet<int> levels = m_filterState.levelSet();
 
     if (enabled)
     {
-        levels.insert(levelBit);
+        levels.insert(levelFlag);
     }
     else
     {
-        levels.remove(levelBit);
+        levels.remove(levelFlag);
     }
 
     setLevelFilter(levels);
@@ -306,13 +320,13 @@ bool
 GtFilteredLogModel::matchesLevelFilter(int source_row,
                                        const QModelIndex& source_parent) const
 {
-    if (m_filterState.levels.isEmpty()) return true;
+    if (m_filterState.levelsEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
         static_cast<int>(gt::LogColumn::LevelColumn), source_parent);
     const int level = sourceModel()->data(index, Qt::UserRole).toInt();
 
-    return m_filterState.levels.contains(level);
+    return m_filterState.levelSet().contains(level);
 }
 
 bool
@@ -499,4 +513,92 @@ GtFilteredLogModel::setSourceModel(QAbstractItemModel* model)
 {
     QSortFilterProxyModel::setSourceModel(model);
     updateCategoryFilter();
+}
+
+bool
+GtFilteredLogModel::FilterState::allLevelActive() const
+{
+    return levels == gt::AllLogLevels;
+
+    //return levels == gt::allLevels;
+}
+
+void
+GtFilteredLogModel::FilterState::initAllLevels()
+{
+    levels = gt::AllLogLevels;
+    //levels = gt::allLevels;
+}
+
+bool
+GtFilteredLogModel::FilterState::levelsEmpty() const
+{
+    return levels.testFlag(gt::NoLogLevelFlag);
+    //return levels.isEmpty();
+}
+
+void
+GtFilteredLogModel::FilterState::clearLevels()
+{
+    levels.setFlag(gt::NoLogLevelFlag);
+    //levels.clear();
+}
+
+bool
+GtFilteredLogModel::FilterState::gtLogLevelActive(gt::log::Level l) const
+{
+    switch (l) {
+    case gt::log::TraceLevel:
+        return levels.testFlag(gt::TraceLevelFlag);
+        break;
+    case gt::log::DebugLevel:
+        return levels.testFlag(gt::DebugLevelFlag);
+        break;
+    case gt::log::InfoLevel:
+        return levels.testFlag(gt::InfoLevelFlag);
+        break;
+    case gt::log::WarningLevel:
+        return levels.testFlag(gt::WarningLevelFlag);
+        break;
+    case gt::log::ErrorLevel:
+        return levels.testFlag(gt::ErrorLevelFlag);
+        break;
+    case gt::log::FatalLevel:
+        return levels.testFlag(gt::FatalLevelFlag);
+        break;
+    default:
+        break;
+    }
+
+    return false;
+    //return levels.contains(l);
+}
+
+QSet<int>
+GtFilteredLogModel::FilterState::levelSet() const
+{
+    QSet<int> retVal;
+
+    if (levels.testFlag(gt::TraceLevelFlag)) retVal.insert(gt::log::TraceLevel);
+    if (levels.testFlag(gt::DebugLevelFlag)) retVal.insert(gt::log::DebugLevel);
+    if (levels.testFlag(gt::InfoLevelFlag)) retVal.insert(gt::log::InfoLevel);
+    if (levels.testFlag(gt::WarningLevelFlag)) retVal.insert(gt::log::WarningLevel);
+    if (levels.testFlag(gt::ErrorLevelFlag)) retVal.insert(gt::log::ErrorLevel);
+    if (levels.testFlag(gt::FatalLevelFlag)) retVal.insert(gt::log::FatalLevel);
+
+    return retVal;
+    //return levels;
+}
+
+void
+GtFilteredLogModel::FilterState::setBySet(QSet<int> newSet)
+{
+    levels.setFlag(gt::TraceLevelFlag, newSet.contains(gt::log::TraceLevel));
+    levels.setFlag(gt::DebugLevelFlag, newSet.contains(gt::log::DebugLevel));
+    levels.setFlag(gt::InfoLevelFlag, newSet.contains(gt::log::InfoLevel));
+    levels.setFlag(gt::WarningLevelFlag, newSet.contains(gt::log::WarningLevel));
+    levels.setFlag(gt::ErrorLevelFlag, newSet.contains(gt::log::ErrorLevel));
+    levels.setFlag(gt::FatalLevelFlag, newSet.contains(gt::log::FatalLevel));
+
+    //levels = newSet;
 }

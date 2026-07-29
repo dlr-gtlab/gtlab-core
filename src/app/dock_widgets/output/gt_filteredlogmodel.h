@@ -74,7 +74,8 @@ public:
     void setDeactivatedCategories(const QSet<QString>& categories);
 
     // === Getters ===
-    QSet<int> levelFilter() const;
+    gt::LogLevelFlags levelFilter() const;
+    QSet<int> levelFilterSet() const;
     QSet<QString> categoryFilter() const;
     QString filterText() const;
     QStringList availableCategories() const;
@@ -168,9 +169,26 @@ private:
     struct FilterState
     {
         QString text;
-        QSet<int> levels;
+
         QSet<QString> categories;
         QSet<QString> deactivatedCategories;
+
+        bool allLevelActive() const;
+
+        void initAllLevels();
+
+        bool levelsEmpty() const;
+
+        void clearLevels();
+
+        bool gtLogLevelActive(gt::log::Level l) const;
+
+        QSet<int> levelSet() const;
+
+        void setBySet(QSet<int> newSet);
+
+    private:
+        gt::LogLevelFlags levels;
     };
 
     FilterState m_filterState;
@@ -183,7 +201,7 @@ private:
     bool matchesCategoryFilter(int source_row,
                               const QModelIndex& source_parent) const;
 
-    void setFilterLevel(int levelBit, bool enabled);
+    void setFilterLevel(gt::LogLevelFlag levelFlag, bool enabled);
 
     QSet<QString> m_savedDeactivatedCategories;
 };

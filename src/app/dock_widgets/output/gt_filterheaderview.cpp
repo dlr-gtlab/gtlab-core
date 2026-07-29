@@ -274,7 +274,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
             {
                 items = logLevelStrings();
 
-                selectedLevels = m_filterModel->levelFilter();
+                selectedLevels = m_filterModel->levelFilterSet();
                 m_levelFilters[clickedColumn] = selectedLevels;
             }
             else if (clickedColumn == 2 && m_filterModel)
