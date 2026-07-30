@@ -144,15 +144,9 @@ GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
     switch (column)
     {
         case GtLogModel::columnFromRole(GtLogModel::LevelRole):
-        if (!m_filterState.levelsEmpty())
-            {
-                return !m_filterState.allLevelActive();
-            }
-            return false;
-
+            return !m_filterState.allLevelActive();
         case GtLogModel::columnFromRole(GtLogModel::TimeRole):
             return false;
-
         case GtLogModel::columnFromRole(GtLogModel::IdRole):
             if (!m_filterState.categories.isEmpty())
             {
@@ -298,7 +292,9 @@ bool
 GtFilteredLogModel::matchesLevelFilter(int source_row,
                                        const QModelIndex& source_parent) const
 {
-    if (m_filterState.levelsEmpty()) return true;
+    if (m_filterState.levelsEmpty()) return false;
+
+    if (m_filterState.allLevelActive()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 
         GtLogModel::columnFromRole(GtLogModel::LevelRole), source_parent);
@@ -519,13 +515,13 @@ GtFilteredLogModel::setSourceModel(QAbstractItemModel* model)
 bool
 GtFilteredLogModel::FilterState::allLevelActive() const
 {
-    return levels == gt::AllLogLevels;
+    return levels.testFlag(gt::AllLogLevels);
 }
 
 void
 GtFilteredLogModel::FilterState::initAllLevels()
 {
-    levels = gt::AllLogLevels;
+    levels.setFlag(gt::AllLogLevels);
 }
 
 bool
