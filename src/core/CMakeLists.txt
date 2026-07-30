@@ -87,6 +87,7 @@ set(headers
     operations/gt_operationinterface.h
     operations/gt_stdioexecutioneventencoder.h
     gt_projectexecutionguard.h
+    gt_headlessprojectruntime.h
     gt_core_exports.h
     gt_footprint.h
     gt_globals.h
@@ -204,6 +205,7 @@ set(sources
     operations/gt_operationexecutioncontext.cpp
     operations/gt_stdioexecutioneventencoder.cpp
     gt_projectexecutionguard.cpp
+    gt_headlessprojectruntime.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
     gt_saveprojecthelper.cpp
