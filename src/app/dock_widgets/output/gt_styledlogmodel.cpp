@@ -116,6 +116,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             break;
         }
         break;
+    case GtLogModel::LevelRole:
+        // Pass through log-roles to get raw data
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
+        {
+            return gtLogModel->data(index, GtLogModel::LevelRole);
+        }
+        break;
     default:
         break;
     }

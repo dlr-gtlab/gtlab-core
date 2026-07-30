@@ -190,10 +190,6 @@ GtTaskGroup::read(const QString& projectPath,
         else
         {
             assert(qobject_cast<GtTask*>(newTask.get()) && "newTask must be of type GtTask.");
-
-            // Safe to use gtTask here
-            gtDebug().medium().nospace() << "new task created ("
-                                         << newTask->uuid() << ")";
         }
 
         appendChild(newTask.release());

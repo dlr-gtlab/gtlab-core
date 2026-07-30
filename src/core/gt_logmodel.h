@@ -32,6 +32,28 @@ struct GtLogDetails
 
 Q_DECLARE_METATYPE(GtLogDetails)
 
+namespace gt
+{
+    /// Enum indicating which log levels are active
+    enum LogLevelFlag : int
+    {
+        /// no log level is active
+        NoLogLevelFlag = 0,
+
+        TraceLevelFlag   = 1 << 0,
+        DebugLevelFlag   = 1 << 1,
+        InfoLevelFlag    = 1 << 2,
+        WarningLevelFlag = 1 << 3,
+        ErrorLevelFlag   = 1 << 4,
+        FatalLevelFlag   = 1 << 5,
+
+        /// all log level are active
+        AllLogLevels = TraceLevelFlag | DebugLevelFlag | InfoLevelFlag | WarningLevelFlag | ErrorLevelFlag | FatalLevelFlag
+    };
+    using LogLevelFlags = QFlags<LogLevelFlag>;
+
+}; // namespace gt
+
 /**
  * @brief The GtLogSignalSlotDestination class
  * Functor destination sink which uses Qts Signal Slot mechanism. One should

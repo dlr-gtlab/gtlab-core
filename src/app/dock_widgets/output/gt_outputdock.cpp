@@ -14,6 +14,8 @@
 #include "gt_styledlogmodel.h"
 #include "gt_filteredlogmodel.h"
 #include "gt_tableview.h"
+#include "gt_filterheaderview.h"
+#include "gt_matchdelegate.h"
 #include "gt_application.h"
 #include "gt_logging.h"
 #include "gt_outputtester.h"
@@ -38,6 +40,8 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
+#include <QTimer>
+#include <QShortcut>
 
 #ifdef QT_DEBUG
 #include <QAbstractItemModelTester>
@@ -239,9 +243,9 @@ GtOutputDock::GtOutputDock()
 
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
     styleModel->setSourceModel(gtLogModel);
-    m_model = new GtFilteredLogModel(styleModel);
+
+    m_model = new GtFilteredLogModel(this);
     m_model->setSourceModel(styleModel);
-    m_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     QTabWidget* tab = new QTabWidget;
     tab->setObjectName("tabWidget");
@@ -260,10 +264,30 @@ GtOutputDock::GtOutputDock()
     filterLayout->setContentsMargins(0, 0, 0, 0);
     filterLayout->setSpacing(0);
 
-    GtSearchWidget* searchWidget = new GtSearchWidget;
-    filterLayout->addWidget(searchWidget);    
-    connect(searchWidget, &GtSearchWidget::textChanged,
-            m_model, &GtFilteredLogModel::filterData);
+    m_searchWidget = new GtSearchWidget;
+    filterLayout->addWidget(m_searchWidget);
+    m_searchWidget->enableFindNextButtons();
+
+    // Navigation shortcuts: F3 (next), Shift+F3 (previous)
+    auto* m_nextShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToNextElement"), this);
+    m_nextShortcut->setContext(Qt::ApplicationShortcut);
+    connect(m_nextShortcut, &QShortcut::activated, this,
+            &GtOutputDock::goToNextMatch);
+    auto* m_prevShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToPreviousElement"), this);
+    m_prevShortcut->setContext(Qt::ApplicationShortcut);
+    connect(m_prevShortcut, &QShortcut::activated, this,
+            &GtOutputDock::goToPrevMatch);
+
+    // Connect search changes to editor highlighting
+    connect(m_searchWidget, &GtSearchWidget::textChanged, this,
+            &GtOutputDock::updateSearchResults);
+    // Connect navigation button clicks
+    connect(m_searchWidget, &GtSearchWidget::nextClicked, this,
+            &GtOutputDock::goToNextMatch);
+    connect(m_searchWidget, &GtSearchWidget::prevClicked, this,
+            &GtOutputDock::goToPrevMatch);
 
     m_logView = new GtTableView;
     m_logView->setFrameStyle(QFrame::NoFrame);
@@ -273,9 +297,24 @@ GtOutputDock::GtOutputDock()
     m_logView->setShowGrid(false);
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
+    
+    auto* matchDelegate = new GtMatchDelegate(m_logView);
+    m_logView->setItemDelegate(matchDelegate);
+    
+    auto* headerView = new GtFilterHeaderView(Qt::Horizontal, m_logView);
+    headerView->setFilterModel(m_model);
+    m_logView->setHorizontalHeader(headerView);
+
+    // connect filter model changes to button updates
+    connect(m_model, &GtFilteredLogModel::levelFilterChanged,
+            this, &GtOutputDock::updateFilterButtons);
+    connect(m_model, &GtFilteredLogModel::categoryFilterChanged,
+            this, &GtOutputDock::onCategoryFilterChanged);
+    connect(m_model, &QSortFilterProxyModel::modelReset,
+            this, &GtOutputDock::updateFilterButtons);
 
     // stretch the last section
-    m_logView->horizontalHeader()->setStretchLastSection(true);
+    headerView->setStretchLastSection(true);
 
     QFontMetrics metrics{QFont()};
     m_logView->verticalHeader()->setDefaultSectionSize(metrics.height());
@@ -421,6 +460,8 @@ GtOutputDock::GtOutputDock()
     });
     connect(gtLogModel, &GtLogModel::rowsRemoved,
             this, &GtOutputDock::onRowsRemoved);
+    connect(m_model, &GtFilteredLogModel::modelAboutToBeReset,
+            this, &GtOutputDock::onModelAboutToBeReset);
     connect(m_model, &GtFilteredLogModel::modelReset,
             this, &GtOutputDock::onModelReset);
     connect(m_logView, &QWidget::customContextMenuRequested,
@@ -430,7 +471,16 @@ GtOutputDock::GtOutputDock()
     connect(m_logView, &GtTableView::deleteRequest,
             this, &GtOutputDock::onDeleteRequest);
     connect(m_logView, &GtTableView::searchRequest,
-            searchWidget, &GtSearchWidget::enableSearch);
+            m_searchWidget, &GtSearchWidget::enableSearch);
+    connect(m_model, &GtFilteredLogModel::levelFilterChanged,
+            this, &GtOutputDock::updateSearchResults);
+    connect(m_model, &GtFilteredLogModel::filterTextChanged,
+            this, &GtOutputDock::updateSearchResults);
+
+    connect(&m_delayFiltertimer, &QTimer::timeout,
+            this, &GtOutputDock::onSearchTextChanged);
+
+    m_delayFiltertimer.setSingleShot(true);
 }
 
 Qt::DockWidgetArea
@@ -460,29 +510,63 @@ GtOutputDock::updateFilterButtons()
 {
     auto& logger = gt::log::Logger::instance();
 
-    auto const hideLevel = [&logger](QPushButton& btn, gt::log::Level level){
+    // Get current filter state from unified GtFilteredLogModel
+    gt::LogLevelFlags activeLevels = m_model->levelFilter();
+
+    auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn,
+                                                            gt::log::Level level)
+    {
+        if (!btn) return;
+
         bool hideBtn = logger.loggingLevel() > level;
         // if btn is visible and if it should be hidden check if the model
         // contains old messages with that logging level
-        if (btn.isVisible() && hideBtn)
+        if (btn->isVisible() && hideBtn)
         {
             hideBtn = !gtLogModel->containsLogLevel(level);
         }
-        btn.setHidden(hideBtn);
+        btn->setHidden(hideBtn);
+
+        // update checked state based on current filter
+        bool checked = false;
+        switch (level)
+        {
+        case gt::log::TraceLevel:
+            checked = activeLevels.testFlag(gt::TraceLevelFlag);
+            break;
+        case gt::log::DebugLevel:
+            checked = activeLevels.testFlag(gt::DebugLevelFlag);
+            break;
+        case gt::log::InfoLevel:
+            checked = activeLevels.testFlag(gt::InfoLevelFlag);
+            break;
+        case gt::log::WarningLevel:
+            checked = activeLevels.testFlag(gt::WarningLevelFlag);
+            break;
+        case gt::log::ErrorLevel:
+            checked = activeLevels.testFlag(gt::ErrorLevelFlag);
+            break;
+        case gt::log::FatalLevel:
+            checked = activeLevels.testFlag(gt::FatalLevelFlag);
+            break;
+        default:
+            break;
+        }
+
+        btn->setChecked(checked);
     };
 
-    hideLevel(*m_traceButton, gt::log::TraceLevel);
-    hideLevel(*m_debugButton, gt::log::DebugLevel);
-    hideLevel(*m_infoButton, gt::log::InfoLevel);
+    updateLevel(m_traceButton, gt::log::TraceLevel);
+    updateLevel(m_debugButton, gt::log::DebugLevel);
+    updateLevel(m_infoButton, gt::log::InfoLevel);
+    updateLevel(m_warningButton, gt::log::WarningLevel);
+    updateLevel(m_errorButton, gt::log::ErrorLevel);
 }
 
 void
 GtOutputDock::keyPressEvent(QKeyEvent* event)
 {
-    if (!m_model)
-    {
-        return;
-    }
+    if (!m_model) return;
 
     QString cat = staticMetaObject.className();
 
@@ -557,6 +641,23 @@ GtOutputDock::onRowsInserted(int start, int last)
     }
 
     scrollToBottom();
+    m_model->updateCategoryFilter();
+
+    updateSearchResults();
+}
+
+void
+GtOutputDock::onModelAboutToBeReset()
+{
+    m_model->saveAndPreserveDeactivatedCategories(m_model->categoryFilter());
+}
+
+void
+GtOutputDock::onCategoryFilterChanged()
+{
+    m_model->setCategoryFilterWithSave(m_model->categoryFilter());
+
+    updateSearchResults();
 }
 
 void
@@ -564,13 +665,25 @@ GtOutputDock::onModelReset()
 {
     scrollToBottom();
     updateFilterButtons();
+    m_model->resetCategoryFilter();
+
+    updateSearchResults();
 }
 
 void
 GtOutputDock::onRowsRemoved()
 {
     updateFilterButtons();
+
+    updateSearchResults();
 }
+
+void
+GtOutputDock::updateSearchResults()
+{
+    m_delayFiltertimer.start(0);
+}
+
 
 void
 GtOutputDock::exportLog()
@@ -600,7 +713,7 @@ GtOutputDock::openContextMenu()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
@@ -667,12 +780,24 @@ GtOutputDock::onCopyRequest()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
 
     copyToClipboard(indexes);
+}
+
+QModelIndex
+GtOutputDock::mapToRootSource(QAbstractItemModel* model, QModelIndex index)
+{
+    while (auto* proxy = qobject_cast<QAbstractProxyModel*>(model))
+    {
+        index = proxy->mapToSource(index);
+        model = proxy->sourceModel();
+    }
+
+    return index;
 }
 
 void
@@ -690,12 +815,104 @@ GtOutputDock::onDeleteRequest()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
 
     removeItems(indexes);
+}
+
+void
+GtOutputDock::onSearchTextChanged()
+{
+    if (!m_logView || !m_searchWidget  || !m_model) return;
+
+    QString text = m_searchWidget->text();
+
+    // cleanup of old results
+    m_matches.clear();
+    m_matchesForDelegates.clear();
+    m_currentMatch = -1;
+
+    int rowCount = m_model->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex proxyIndex = m_model->index(row, 3);
+
+        QString itemText = m_model->data(proxyIndex, Qt::DisplayRole).toString();
+
+        if (text.isEmpty())
+        {
+            continue;
+        }
+
+        Matches matchesElement;
+
+        int pos = 0;
+        while ((pos = itemText.indexOf(text, pos, Qt::CaseInsensitive)) != -1)
+        {
+            matchesElement.push_back({pos, text.length()});
+            ++pos;
+        }
+
+        if (!matchesElement.isEmpty())
+        {
+            m_matchesForDelegates.insert(proxyIndex, std::move(matchesElement));
+
+            m_matches.push_back(proxyIndex);
+        }
+    }
+
+    auto* matchDelegate = qobject_cast<GtMatchDelegate*>(
+        m_logView->itemDelegate());
+
+    if (matchDelegate)
+    {
+        matchDelegate->setMatches(m_matchesForDelegates);
+    }
+
+    if (text.isEmpty() || m_matches.isEmpty())
+    {
+        // Clear selection
+        m_logView->clearSelection();
+    }
+    else
+    {
+        m_currentMatch = 0;
+        // Select the first match
+        m_logView->selectRow(m_matches.first().row());
+        m_logView->scrollTo(m_matches.first());
+    }
+
+    m_logView->viewport()->update();
+}
+
+void
+GtOutputDock::goToNextMatch()
+{
+    if (m_matches.isEmpty() || !m_logView) return;
+
+    // Move to next match
+    m_currentMatch = (m_currentMatch + 1) % m_matches.size();
+    m_logView->selectRow(m_matches.at(m_currentMatch).row());
+    m_logView->scrollTo(m_matches.at(m_currentMatch));
+        
+    m_logView->viewport()->update();
+}
+
+void
+GtOutputDock::goToPrevMatch()
+{
+    if (m_matches.isEmpty() || !m_logView) return;
+
+    // Move to previous match
+    m_currentMatch = (m_currentMatch - 1 + m_matches.size()) % m_matches.size();
+    m_logView->selectRow(m_matches.at(m_currentMatch).row());
+    m_logView->scrollTo(m_matches.at(m_currentMatch));
+        
+    m_logView->viewport()->update();
 }
 
 void

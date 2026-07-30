@@ -12,12 +12,14 @@
 #define GTOUTPUTDOCK_H
 
 #include <QModelIndexList>
+#include <QTimer>
 
 #include "gt_dockwidget.h"
 
 class GtTableView;
 class GtFilteredLogModel;
 class QPushButton;
+class GtSearchWidget;
 
 /**
  * @brief The GtOutputDock class
@@ -35,6 +37,13 @@ public:
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
     Qt::DockWidgetArea getDockWidgetArea() override;
+
+    struct Match
+    {
+        qsizetype  start;
+        qsizetype  length;
+    };
+    using Matches = QVector<Match>;
 
 protected:
     /**
@@ -59,6 +68,14 @@ private:
     /// Filter model
     GtFilteredLogModel* m_model{};
 
+    /// List of match positions
+    QList<QModelIndex> m_matches;
+    QHash<QPersistentModelIndex, Matches> m_matchesForDelegates{};
+
+
+    /// Current match index
+    int m_currentMatch{-1};
+
     /// Toggle trace button (hide/show)
     QPushButton* m_traceButton{};
 
@@ -73,6 +90,11 @@ private:
 
     /// Toggle error button (hide/show)
     QPushButton* m_errorButton{};
+
+    /// Search widget
+    GtSearchWidget* m_searchWidget;
+
+    QTimer m_delayFiltertimer;
 
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};
@@ -97,13 +119,26 @@ private:
     void updateFilterButtons();
 
     /**
-     * @brief scrollToBottom - scroll to bottom of the view
-     */
+      * @brief scrollToBottom - scroll to bottom of the view
+      */
     void scrollToBottom();
 
+    /**
+      * @brief Triggered when category filter changed
+      */
+    void onCategoryFilterChanged();
+
+    /**
+     * @brief Maps an index of the view to the base model
+     * @param model is the highest level model
+     * @param index to map
+     * @return the mapped index of the base model
+     */
+    QModelIndex mapToRootSource(QAbstractItemModel* model,
+                                QModelIndex index);
 private slots:
     /**
-     * @brief Just a test output method.
+      * @brief Just a test output method.
      * @param Test cae
      */
     void testOutput(int testCase = 1);
@@ -115,14 +150,19 @@ private slots:
      */
     void onRowsInserted(int first, int last);
 
-    /**
-     * @brief Triggered on model reset
-     */
+/**
+      * @brief Triggered on model reset
+      */
     void onModelReset();
 
     /**
-     * @brief Triggered when rows were deleted
-     */
+      * @brief Triggered before model reset
+      */
+    void onModelAboutToBeReset();
+
+    /**
+      * @brief Triggered when rows were deleted
+      */
     void onRowsRemoved();
 
     /**
@@ -150,6 +190,27 @@ private slots:
      * removes selected items from model by using the removeItems function
      */
     void onDeleteRequest();
+
+    /**
+     * @brief onSearchTextChanged
+     * @param text - new text of the search widget
+     */
+    void onSearchTextChanged();
+
+    /**
+     * @brief Reaction to go to next found entry
+     */
+    void goToNextMatch();
+
+    /**
+     * @brief Reaction to go to previous found entry
+     */
+    void goToPrevMatch();
+
+    /**
+     * @brief update the results of the search for the current state
+     */
+    void updateSearchResults();
 };
 
 #endif // GTOUTPUTDOCK_H

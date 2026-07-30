@@ -1,0 +1,146 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ */
+
+#ifndef FILTERPOPUPWIDGET_H
+#define FILTERPOPUPWIDGET_H
+
+#include "gt_logmodel.h"
+#include <QWidget>
+#include <QSet>
+#include <QStringList>
+#include <QMap>
+
+class QCheckBox;
+class QVBoxLayout;
+class QScrollArea;
+class GtSearchWidget;
+
+/**
+ * @brief The FilterPopupWidget class
+ * 
+ * Popup widget for multi-select filtering with scrollable content.
+ * Contains a checkbox list with "Select All/None" buttons and a scrollbar
+ * that limits visible items to 5 for compact UI.
+ * Changes apply immediately (no apply/cancel buttons).
+ * 
+ * The widget supports three item formats:
+ * - Simple string lists for general filtering
+ * - Integer value lists for level-based filtering
+ * - String pairs (display, storage) for ID/category filtering
+ */
+class GtFilterPopupWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    /**
+     * @brief Constructor
+     * @param parent Parent widget
+     * 
+     * Creates a popup widget with a scrollable checkbox list area
+     * and action buttons. The scroll area is configured to display
+     * a maximum of 5 items at a time.
+     */
+    explicit GtFilterPopupWidget(QWidget* parent = nullptr);
+
+    /**
+     * @brief Set filter items for integer values (levels)
+     * @param items List of item names
+     * @param values List of corresponding integer values
+     * @param selected Set of currently selected values
+     * 
+     * Sets filter items for integer-based filtering (e.g., log levels).
+     * The items are displayed to users while values are used internally.
+     */
+    void setLevelItems(const QStringList& items, const QList<int>& values,
+                       gt::LogLevelFlags selected);
+
+    /**
+     * @brief setCategoryItems
+     * @param displayItems List of display strings
+     * @param storageItems List of corresponding storage strings
+     * @param selectedStorageValues Set of currently selected storage values
+     * 
+     * Sets filter items as string pairs where display items are shown
+     * to users but storage values are used internally for filtering.
+     * This is used for filtering by log IDs and categories.
+     */
+    void setCategoryItems(const QStringList& displayItems,
+                          const QStringList& storageItems,
+                          const QSet<QString>& selectedStorageValues);
+
+    /**
+      * @brief setSearchWidget
+      * @param searchWidget GtSearchWidget to use for text filtering
+      * 
+      * Sets the search widget to be displayed at the top of the popup.
+      * This is used for message filtering where text search is needed
+      * instead of checkbox selection.
+      */
+    void setSearchWidget(GtSearchWidget* searchWidget);
+
+    /**
+      * @brief setSearchMode
+      * 
+      * Sets the popup to search-only mode.
+      * Hides checkbox list and button bar, shows only search widget.
+      * Popup opens to the left of the trigger button.
+      */
+    void setSearchMode();
+
+signals:
+    /// Emitted when selection changes (display values)
+    void selectionChanged(const QSet<QString>& selected);
+    void selectionChangedLevel(gt::LogLevelFlags selected);
+    void selectionChangedCategory(const QSet<QString>& selected);
+
+    void searchTextChanged(const QString& text);
+
+private:
+    /**
+     * @brief createCheckBoxesForLevels
+     * @param items List of item names to create checkboxes for
+     * 
+     * Creates checkbox widgets for the given items and connects
+     * them to the selection update mechanism.
+     */
+    void createCheckBoxesForLevels(const QStringList& items);
+
+    /**
+     * @brief createCheckBoxesForCategories
+     * @param displayItems List of display strings
+     * @param storageItems List of corresponding storage strings
+     * 
+     * Creates checkbox widgets for string pairs where display items
+     * are shown to users but storage values are used for filtering.
+     */
+    void createCheckBoxesForCategories(const QStringList& displayItems,
+                                       const QStringList& storageItems);
+
+    /**
+     * @brief updateSelection
+     * 
+     * Updates the internal selection state and emits selectionChanged
+     * signals when the user modifies checkbox states.
+     */
+    void updateSelection();
+
+    QList<QCheckBox*> m_checkBoxes;
+    QMap<QString, int> m_itemToInt;
+    bool m_updating{false};
+
+    QWidget* m_contentWidget{nullptr};
+    QVBoxLayout* m_contentLayout{nullptr};
+
+    QVBoxLayout* m_mainLayout{nullptr};
+    QScrollArea* m_scrollArea{nullptr};
+
+    QMap<QString, QString> m_displayToStorage;
+
+    GtSearchWidget* m_searchWidget{nullptr};
+};
+
+#endif // FILTERPOPUPWIDGET_H

@@ -747,5 +747,7 @@
         <file>binaryTree.svg</file>
         <file>tree.svg</file>
         <file>sleepOff_custom.svg</file>
+        <file>filter.svg</file>
+        <file>filterActive.svg</file>
     </qresource>
 </RCC>

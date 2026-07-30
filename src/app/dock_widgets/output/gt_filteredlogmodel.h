@@ -12,61 +12,98 @@
 #define GTFILTEREDLOGMODEL_H
 
 #include <QSortFilterProxyModel>
+#include <QSet>
+#include <QStringList>
+#include "gt_logmodel.h"
 
+struct GtLogDetails;
 class GtOutputDock;
+
+namespace gt {
+
+const QString EmptyIDText = "EmptyID";
+
+} //namespace gt
+
 /**
- * @brief The GtFilteredLogModel class.
- * Filter proxy model for filtering out certain log levels
+ * @brief The GtFilteredLogModel class
+ * 
+ * Main filter model that handles all log filtering:
+ * - Text search (message column only)
+ * - Multi-select level filter (Trace, Debug, Info, Warning, Error, Fatal)
+ * - Multi-select category filter (auto-extracted from model)
+ * - Deactivated categories (hidden from view)
+ * - All filters combined with AND logic
  */
 class GtFilteredLogModel : public QSortFilterProxyModel
 {
-    friend class GtOutputDock;
-
     Q_OBJECT
 
-    enum FilterLevel
-    {
-        FilterTrace   = 1 << 0,
-        FilterDebug   = 1 << 1,
-        FilterInfo    = 1 << 2,
-        FilterWarning = 1 << 3,
-        FilterError   = 1 << 4,
-        FilterFatal   = 1 << 5,
-    };
+public:
+    using Details = GtLogDetails;
+
+    // === Constructor ===
+    explicit GtFilteredLogModel(QObject* parent = nullptr);
+
+    // === Filter Methods (public API) ===
+    void setFilterText(const QString& text);
+    void setLevelFilter(gt::LogLevelFlags levels);
+    void setCategoryFilter(const QSet<QString>& categories);
+    void setDeactivatedCategories(const QSet<QString>& categories);
+
+    // === Getters ===
+    gt::LogLevelFlags levelFilter() const;
+    QSet<QString> categoryFilter() const;
+    QString filterText() const;
+    QStringList availableCategories() const;
+    QStringList availableCategoriesWithStorage() const;
+
+    // === UI Helper Methods ===
+    bool hasActiveFiltersForColumn(int column) const;
+    void clearFilters();
+
+    // === Category Save/Restore (UI-specific) ===
+    void saveAndPreserveDeactivatedCategories(
+        const QSet<QString>& currentActivated = {});
+    QSet<QString> savedDeactivatedCategories() const;
+
+    // === Public methods for GtOutputDock ===
+    void setSourceModel(QAbstractItemModel* model) override;
 
 public slots:
+    // === UI Slots  ===
     /**
-     * @brief toggleDebugLevel
+     * @brief filterTraceLevel
      * @param val
      */
     void filterTraceLevel(bool val);
 
     /**
-     * @brief toggleDebugLevel
+     * @brief filterDebugLevel
      * @param val
      */
     void filterDebugLevel(bool val);
 
     /**
-     * @brief toggleInfoLevel
+     * @brief filterInfoLevel
      * @param val
      */
     void filterInfoLevel(bool val);
 
     /**
-     * @brief toggleWarningLevel
+     * @brief filterWarningLevel
      * @param val
      */
     void filterWarningLevel(bool val);
 
     /**
-     * @brief toggleErrorLevel
+     * @brief filterErrorLevel
      * @param val
      */
     void filterErrorLevel(bool val);
 
     /**
-     * @brief toggleFatalLevel
+     * @brief filterFatalLevel
      * @param val
      */
     void filterFatalLevel(bool val);
@@ -77,28 +114,61 @@ public slots:
      */
     void filterData(const QString& val);
 
+    /**
+     * @brief sets the categories and stores manually deactived categoties
+     * in a storage set
+     * @param categories
+     */
+    void setCategoryFilterWithSave(const QSet<QString>& categories);
+
+    /**
+     * @brief reset the category filter
+     */
+    void resetCategoryFilter();
+
+    /**
+     * @brief update the category filter for the changed data
+     */
+    void updateCategoryFilter();
+
+signals:
+    void levelFilterChanged();
+    void categoryFilterChanged(const QSet<QString>& categories);
+    void filterTextChanged(const QString& text);
+
+
 protected:
-
-    /// Filter
-    int m_filter{-1};
-
-    void setFilter(FilterLevel level, bool enabled);
-
-    /**
-     * @brief GtFilteredLogModel
-     * @param parent
-     */
-    explicit GtFilteredLogModel(QObject* parent = nullptr);
-
-    /**
-     * @brief filterAcceptsRow
-     * @param source_row
-     * @param source_parent
-     * @return
-     */
     bool filterAcceptsRow(int srcRow,
                           const QModelIndex& srcParent) const override;
 
+private:
+    // === Filter State ===
+    struct FilterState
+    {
+        QString text;
+        gt::LogLevelFlags levels;
+        QSet<QString> categories;
+        QSet<QString> deactivatedCategories;
+
+        bool allLevelActive() const;
+        void initAllLevels();
+        bool levelsEmpty() const;
+        void clearLevels();
+    };
+
+    FilterState m_filterState;
+
+    // === Helper Methods ===
+    bool matchesTextFilter(int source_row,
+                          const QModelIndex& source_parent) const;
+    bool matchesLevelFilter(int source_row,
+                           const QModelIndex& source_parent) const;
+    bool matchesCategoryFilter(int source_row,
+                              const QModelIndex& source_parent) const;
+
+    void setFilterLevel(gt::LogLevelFlag levelFlag, bool enabled);
+
+    QSet<QString> m_savedDeactivatedCategories;
 };
 
 #endif // GTFILTEREDLOGMODEL_H

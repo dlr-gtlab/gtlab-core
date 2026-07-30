@@ -9,112 +9,529 @@
  */
 
 #include "gt_filteredlogmodel.h"
-#include "gt_logmodel.h"
 
-#include <gt_loglevel.h>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
+
+GtFilteredLogModel::GtFilteredLogModel(QObject* parent) :
+    QSortFilterProxyModel(parent)
+{
+    m_filterState.initAllLevels();
+}
+
+void
+GtFilteredLogModel::setFilterText(const QString& text)
+{
+    if (m_filterState.text == text) return;
+
+    m_filterState.text = text;
+    invalidateFilter();
+    emit filterTextChanged(text);
+}
+
+void
+GtFilteredLogModel::setLevelFilter(gt::LogLevelFlags levels)
+{
+    if (m_filterState.levels == levels) return;
+
+    m_filterState.levels = levels;
+
+    invalidateFilter();
+    emit levelFilterChanged();
+}
+
+void
+GtFilteredLogModel::setCategoryFilter(const QSet<QString>& categories)
+{
+    if (m_filterState.categories == categories) return;
+
+    m_filterState.categories = categories;
+    invalidateFilter();
+    emit categoryFilterChanged(categories);
+}
+
+void
+GtFilteredLogModel::setDeactivatedCategories(const QSet<QString>& categories)
+{
+    if (m_filterState.deactivatedCategories == categories) return;
+
+    m_filterState.deactivatedCategories = categories;
+    invalidateFilter();
+}
+
+gt::LogLevelFlags
+GtFilteredLogModel::levelFilter() const
+{
+    return m_filterState.levels;
+}
+
+QSet<QString>
+GtFilteredLogModel::categoryFilter() const
+{
+    return m_filterState.categories;
+}
+
+QString
+GtFilteredLogModel::filterText() const
+{
+    return m_filterState.text;
+}
+
+QStringList
+GtFilteredLogModel::availableCategories() const
+{
+    if (!sourceModel()) return {};
+
+    QSet<QString> categories;
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(
+            row, GtLogModel::columnFromRole(GtLogModel::IdRole));
+
+        const QString category = sourceModel()->data(index).toString();
+
+        categories.insert(category);
+    }
+
+    return QStringList(categories.values());
+}
+
+QStringList
+GtFilteredLogModel::availableCategoriesWithStorage() const
+{
+    if (!sourceModel()) return {};
+
+    QStringList result;
+    QSet<QString> seenStorage;
+
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
+        QString storageValue = sourceModel()->data(index).toString();
+
+        if (storageValue.isEmpty())
+        {
+            if (!seenStorage.contains(""))
+            {
+                result << gt::EmptyIDText;
+                seenStorage.insert("");
+            }
+        }
+        else
+        {
+            if (!seenStorage.contains(storageValue))
+            {
+                result << storageValue;
+                seenStorage.insert(storageValue);
+            }
+        }
+    }
+
+    return result;
+}
+
+bool
+GtFilteredLogModel::hasActiveFiltersForColumn(int column) const
+{
+    switch (column)
+    {
+        case GtLogModel::columnFromRole(GtLogModel::LevelRole):
+            return !m_filterState.allLevelActive();
+        case GtLogModel::columnFromRole(GtLogModel::TimeRole):
+            return false;
+        case GtLogModel::columnFromRole(GtLogModel::IdRole):
+            if (!m_filterState.categories.isEmpty())
+            {
+                QStringList allCategories = availableCategories();
+
+                if (allCategories.isEmpty()) return false;
+
+                return std::any_of(allCategories.begin(), allCategories.end(),
+                    [this](const auto& category)
+                    {
+                        return !m_filterState.categories.contains(category);
+                    });
+            }
+
+            if (!m_filterState.deactivatedCategories.isEmpty()) return true;
+
+            return false;
+
+        case GtLogModel::columnFromRole(GtLogModel::MessageRole):
+            return !m_filterState.text.isEmpty();
+
+        default:
+            return false;
+    }
+}
+
+void
+GtFilteredLogModel::clearFilters()
+{
+    bool changed = false;
+
+    if (!m_filterState.text.isEmpty())
+    {
+        m_filterState.text.clear();
+        changed = true;
+    }
+
+    if (!m_filterState.levelsEmpty())
+    {
+        m_filterState.clearLevels();
+        changed = true;
+    }
+
+    if (!m_filterState.categories.isEmpty())
+    {
+        m_filterState.categories.clear();
+        changed = true;
+    }
+
+    if (!m_filterState.deactivatedCategories.isEmpty())
+    {
+        m_filterState.deactivatedCategories.clear();
+        changed = true;
+    }
+
+    if (changed)
+    {
+        invalidateFilter();
+    }
+}
 
 void
 GtFilteredLogModel::filterTraceLevel(bool val)
 {
-    setFilter(FilterTrace, val);
+    setFilterLevel(gt::TraceLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterDebugLevel(bool val)
 {
-    setFilter(FilterDebug, val);
+    setFilterLevel(gt::DebugLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterInfoLevel(bool val)
 {
-    setFilter(FilterInfo, val);
+    setFilterLevel(gt::InfoLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterWarningLevel(bool val)
 {
-    setFilter(FilterWarning, val);
+    setFilterLevel(gt::WarningLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterErrorLevel(bool val)
 {
-    setFilter(FilterError, val);
+    setFilterLevel(gt::ErrorLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterFatalLevel(bool val)
 {
-    setFilter(FilterFatal, val);
+    setFilterLevel(gt::FatalLevelFlag, val);
 }
 
 void
 GtFilteredLogModel::filterData(const QString& val)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setFilterRegExp(val);
-#else
-    setFilterRegularExpression(val);
-#endif
-    invalidate();
+    setFilterText(val);
 }
 
 void
-GtFilteredLogModel::setFilter(FilterLevel level, bool enabled)
+GtFilteredLogModel::setFilterLevel(gt::LogLevelFlag levelFlag, bool enabled)
 {
-    beginResetModel();
-    if (enabled)
-    {
-        m_filter |= level;
-    }
-    else
-    {
-        m_filter &= ~level;
-    }
-    endResetModel();
-}
-
-GtFilteredLogModel::GtFilteredLogModel(QObject* parent) :
-    QSortFilterProxyModel(parent)
-{
-    // filter all columns
-    setFilterKeyColumn(-1);
+    gt::LogLevelFlags flags = m_filterState.levels;
+    flags.setFlag(levelFlag, enabled);
+    setLevelFilter(flags);
 }
 
 bool
-GtFilteredLogModel::filterAcceptsRow(int srcRow,
-                                     const QModelIndex& srcParent) const
+GtFilteredLogModel::filterAcceptsRow(int source_row,
+                                     const QModelIndex& source_parent) const
 {
-    bool doFilter = true;
+    return matchesTextFilter(source_row, source_parent) &&
+           matchesLevelFilter(source_row, source_parent) &&
+           matchesCategoryFilter(source_row, source_parent);
+}
 
-    const QModelIndex index = sourceModel()->index(srcRow, 0, srcParent);
+bool
+GtFilteredLogModel::matchesTextFilter(int source_row,
+                                      const QModelIndex& source_parent) const
+{
+    if (m_filterState.text.isEmpty()) return true;
 
-    const int level = gtLogModel->data(index, GtLogModel::LevelRole).toInt();
+    const QModelIndex index = sourceModel()->index(
+        source_row, GtLogModel::columnFromRole(GtLogModel::MessageRole),
+        source_parent);
+    const QString message = sourceModel()->data(index).toString();
 
-    switch (level)
-    {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QRegExp regexp(m_filterState.text, Qt::CaseInsensitive, QRegExp::Wildcard);
+    return regexp.indexIn(message) >= 0;
+#else
+    QRegularExpression regexp(m_filterState.text, 
+        QRegularExpression::CaseInsensitiveOption);
+    return regexp.match(message).hasMatch();
+#endif
+}
+
+bool
+GtFilteredLogModel::matchesLevelFilter(int source_row,
+                                       const QModelIndex& source_parent) const
+{
+    if (m_filterState.levelsEmpty()) return false;
+
+    if (m_filterState.allLevelActive()) return true;
+
+    const QModelIndex index = sourceModel()->index(source_row, 
+        GtLogModel::columnFromRole(GtLogModel::LevelRole), source_parent);
+    const int level = sourceModel()->data(index, GtLogModel::LevelRole).toInt();
+
+    switch (level) {
     case gt::log::TraceLevel:
-        doFilter = m_filter & FilterTrace;
+        return m_filterState.levels.testFlag(gt::TraceLevelFlag);
         break;
     case gt::log::DebugLevel:
-        doFilter = m_filter & FilterDebug;
+        return m_filterState.levels.testFlag(gt::DebugLevelFlag);
         break;
     case gt::log::InfoLevel:
-        doFilter = m_filter & FilterInfo;
+        return m_filterState.levels.testFlag(gt::InfoLevelFlag);
         break;
     case gt::log::WarningLevel:
-        doFilter = m_filter & FilterWarning;
+        return m_filterState.levels.testFlag(gt::WarningLevelFlag);
         break;
     case gt::log::ErrorLevel:
-        doFilter = m_filter & FilterError;
+        return m_filterState.levels.testFlag(gt::ErrorLevelFlag);
         break;
     case gt::log::FatalLevel:
-        doFilter = m_filter & FilterFatal;
+        return m_filterState.levels.testFlag(gt::FatalLevelFlag);
+        break;
+    default:
         break;
     }
 
-    return doFilter &&
-           QSortFilterProxyModel::filterAcceptsRow(srcRow, srcParent);
+    return false;
 }
 
+bool
+GtFilteredLogModel::matchesCategoryFilter(int source_row,
+                                          const QModelIndex& source_parent) const
+{
+    if (m_filterState.categories.isEmpty() && 
+        !m_filterState.deactivatedCategories.isEmpty())
+    {
+        return false;
+    }
+
+    if (m_filterState.categories.isEmpty()) return true;
+
+    const QModelIndex index = sourceModel()->index(source_row, 
+        GtLogModel::columnFromRole(GtLogModel::IdRole), source_parent);
+    const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
+
+    if (m_filterState.deactivatedCategories.contains(category)) return false;
+
+    return m_filterState.categories.contains(category);
+}
+
+void
+GtFilteredLogModel::updateCategoryFilter()
+{
+    if (!sourceModel()) return;
+
+    QSet<QString> currentCategories = m_filterState.categories;
+
+    QSet<QString> availableCategories;
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
+        const QString category = sourceModel()->data(index).toString();
+
+        availableCategories.insert(category);
+    }
+
+    if (!availableCategories.isEmpty())
+    {
+        QSet<QString> updatedCategories = currentCategories;
+        for (const QString& cat : availableCategories)
+        {
+            if (!currentCategories.contains(cat) && 
+                !m_savedDeactivatedCategories.contains(cat))
+            {
+                updatedCategories.insert(cat);
+            }
+        }
+
+        if (updatedCategories != currentCategories)
+        {
+            setCategoryFilter(updatedCategories);
+        }
+    }
+}
+
+void
+GtFilteredLogModel::saveAndPreserveDeactivatedCategories(
+    const QSet<QString>& currentActivated)
+{
+    if (!sourceModel()) return;
+
+    QSet<QString> availableCategories;
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
+        const QString category = sourceModel()->data(index).toString();
+
+        availableCategories.insert(category);
+    }
+
+    QSet<QString> activated = currentActivated.isEmpty()
+        ? m_filterState.categories
+        : currentActivated;
+
+    if (!availableCategories.isEmpty())
+    {
+        m_savedDeactivatedCategories.clear();
+        for (const QString& cat : availableCategories)
+        {
+            if (!activated.contains(cat))
+            {
+                m_savedDeactivatedCategories.insert(cat);
+            }
+        }
+
+        setDeactivatedCategories(m_savedDeactivatedCategories);
+    }
+}
+
+QSet<QString>
+GtFilteredLogModel::savedDeactivatedCategories() const
+{
+    return m_savedDeactivatedCategories;
+}
+
+void
+GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
+{
+    if (!sourceModel()) return;
+
+    QSet<QString> availableCategories;
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
+        const QString category = sourceModel()->data(index).toString();
+
+        availableCategories.insert(category);
+    }
+
+    m_savedDeactivatedCategories.clear();
+    for (const QString& cat : availableCategories)
+    {
+        if (!categories.contains(cat))
+        {
+            m_savedDeactivatedCategories.insert(cat);
+        }
+    }
+
+    setCategoryFilter(categories);
+    setDeactivatedCategories(m_savedDeactivatedCategories);
+}
+
+void
+GtFilteredLogModel::resetCategoryFilter()
+{
+    if (!sourceModel()) return;
+
+    QSet<QString> currentCategories = m_filterState.categories;
+
+    QSet<QString> availableCategories;
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 
+            GtLogModel::columnFromRole(GtLogModel::IdRole));
+        const QString category = sourceModel()->data(index).toString();
+
+        availableCategories.insert(category);
+    }
+
+    if (availableCategories.isEmpty())
+    {
+        setDeactivatedCategories(m_savedDeactivatedCategories);
+        if (!currentCategories.isEmpty())
+        {
+            setCategoryFilter(currentCategories);
+        }
+        return;
+    }
+
+    setCategoryFilter(QSet<QString>());
+    setDeactivatedCategories(m_savedDeactivatedCategories);
+
+    QSet<QString> updatedCategories;
+    for (const QString& cat : availableCategories)
+    {
+        if (!m_savedDeactivatedCategories.contains(cat))
+        {
+            updatedCategories.insert(cat);
+        }
+    }
+
+    if (!updatedCategories.isEmpty())
+    {
+        setCategoryFilter(updatedCategories);
+    }
+}
+
+void
+GtFilteredLogModel::setSourceModel(QAbstractItemModel* model)
+{
+    QSortFilterProxyModel::setSourceModel(model);
+    updateCategoryFilter();
+}
+
+bool
+GtFilteredLogModel::FilterState::allLevelActive() const
+{
+    return levels.testFlag(gt::AllLogLevels);
+}
+
+void
+GtFilteredLogModel::FilterState::initAllLevels()
+{
+    levels.setFlag(gt::AllLogLevels);
+}
+
+bool
+GtFilteredLogModel::FilterState::levelsEmpty() const
+{
+    return levels.testFlag(gt::NoLogLevelFlag);
+}
+
+void
+GtFilteredLogModel::FilterState::clearLevels()
+{
+    levels.setFlag(gt::NoLogLevelFlag);
+}
