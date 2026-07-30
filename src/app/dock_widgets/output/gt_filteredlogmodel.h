@@ -16,7 +16,7 @@
 #include <QStringList>
 #include "gt_logmodel.h"
 
-class GtLogDetails;
+struct GtLogDetails;
 class GtOutputDock;
 
 namespace gt {

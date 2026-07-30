@@ -40,8 +40,8 @@ public:
 
     struct Match
     {
-        int start;
-        int length;
+        qsizetype  start;
+        qsizetype  length;
     };
     using Matches = QVector<Match>;
 
