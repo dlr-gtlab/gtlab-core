@@ -78,6 +78,14 @@ public:
     }
 };
 
+class SignalEmitter : public QObject
+{
+    Q_OBJECT
+
+signals:
+    void triggered();
+};
+
 class TestGtCoreProcessExecutor : public ::testing::Test
 {
 protected:
@@ -344,7 +352,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardAfterRealExecution)
     EXPECT_FALSE(executor.taskCurrentlyRunning());
 }
 
-TEST(GtCoreProcessExecutor, AllowsExecutionForProjectWithoutPath)
+TEST(GtCoreProcessExecutor, GuardsExecutionForProjectWithoutPath)
 {
     TestProject project(QString{});
     auto task = std::make_unique<GtTask>();
@@ -356,7 +364,7 @@ TEST(GtCoreProcessExecutor, AllowsExecutionForProjectWithoutPath)
     EXPECT_EQ(executor.runTaskWithResult(task.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
     EXPECT_EQ(executor.executeCalls, 1);
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
 }
 
 TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
@@ -400,6 +408,27 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
     EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
 }
 
+TEST(GtCoreProcessExecutor, ReleasesProjectGuardForInvalidRunnerSender)
+{
+    TestProject project(
+        QStringLiteral("/tmp/gtlab-executor-invalid-sender.gtlab"));
+    auto task = std::make_unique<GtTask>();
+    ASSERT_TRUE(project.appendChild(task.get()));
+
+    TestExecutor executor;
+    ASSERT_TRUE(executor.setSource(&project));
+    ASSERT_EQ(executor.runTaskWithResult(task.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    ASSERT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+
+    SignalEmitter emitter;
+    QObject::connect(&emitter, SIGNAL(triggered()), &executor,
+                     SLOT(onTaskRunnerFinished()), Qt::DirectConnection);
+    emit emitter.triggered();
+
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+}
+
 TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)
 {
     TestProject firstProject(QStringLiteral("/tmp/gtlab-executor-a.gtlab"));
@@ -417,3 +446,5 @@ TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)
     EXPECT_EQ(second.runTaskWithResult(secondTask.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
 }
+
+#include "test_gt_coreprocessexecutor.moc"

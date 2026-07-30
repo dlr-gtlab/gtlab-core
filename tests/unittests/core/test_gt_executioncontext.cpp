@@ -10,32 +10,53 @@
 #include <stdexcept>
 #include <thread>
 #include <type_traits>
+#include <utility>
 
 #include "gt_executioncontext.h"
+#include "gt_project.h"
 
 static_assert(!std::is_constructible_v<GtExecutionContextScope,
                                        GtExecutionContext&&>);
 
-TEST(GtExecutionContext, storesExecutionData)
+namespace
 {
-    GtExecutionContext context(nullptr,
-                               QStringLiteral("/data"),
-                               QStringLiteral("source-a"),
-                               QStringLiteral("/project"),
-                               QStringLiteral("job-1"));
+class TestProject : public GtProject
+{
+public:
+    explicit TestProject(QString path) : GtProject(std::move(path)) {}
+};
+}
+
+TEST(GtExecutionContext, storesProjectData)
+{
+    GtExecutionContext context(nullptr, QStringLiteral("/project"));
 
     EXPECT_EQ(context.project(), nullptr);
-    EXPECT_EQ(context.executionDataRoot(), QStringLiteral("/data"));
-    EXPECT_EQ(context.source(), QStringLiteral("source-a"));
     EXPECT_EQ(context.projectPath(), QStringLiteral("/project"));
-    EXPECT_EQ(context.jobId(), QStringLiteral("job-1"));
-    EXPECT_FALSE(context.isValid());
+    EXPECT_TRUE(context.isValid());
     EXPECT_EQ(GtExecutionContext::current(), nullptr);
+}
+
+TEST(GtExecutionContext, projectOnlyContextIsValid)
+{
+    TestProject project(QString{});
+    GtExecutionContext context(&project);
+
+    EXPECT_TRUE(context.isValid());
+    EXPECT_EQ(context.project(), &project);
+    EXPECT_EQ(context.projectPath(), project.path());
+}
+
+TEST(GtExecutionContext, emptyContextIsInvalid)
+{
+    GtExecutionContext context;
+
+    EXPECT_FALSE(context.isValid());
 }
 
 TEST(GtExecutionContext, scopeInstallsAndRestoresContext)
 {
-    GtExecutionContext context(nullptr, {}, {}, QStringLiteral("/project"));
+    GtExecutionContext context(nullptr, QStringLiteral("/project"));
 
     EXPECT_EQ(GtExecutionContext::current(), nullptr);
     {
@@ -48,8 +69,8 @@ TEST(GtExecutionContext, scopeInstallsAndRestoresContext)
 
 TEST(GtExecutionContext, nestedScopesRestorePreviousContext)
 {
-    GtExecutionContext outer(nullptr, {}, {}, QStringLiteral("/outer"));
-    GtExecutionContext inner(nullptr, {}, {}, QStringLiteral("/inner"));
+    GtExecutionContext outer(nullptr, QStringLiteral("/outer"));
+    GtExecutionContext inner(nullptr, QStringLiteral("/inner"));
 
     GtExecutionContextScope outerScope(outer);
     EXPECT_EQ(GtExecutionContext::current(), &outer);
@@ -62,7 +83,7 @@ TEST(GtExecutionContext, nestedScopesRestorePreviousContext)
 
 TEST(GtExecutionContext, scopeRestoresAfterEarlyReturn)
 {
-    GtExecutionContext context(nullptr, {}, {}, QStringLiteral("/project"));
+    GtExecutionContext context(nullptr, QStringLiteral("/project"));
 
     const auto installAndReturn = [&context]() {
         GtExecutionContextScope scope(context);
@@ -75,7 +96,7 @@ TEST(GtExecutionContext, scopeRestoresAfterEarlyReturn)
 
 TEST(GtExecutionContext, scopeRestoresAfterException)
 {
-    GtExecutionContext context(nullptr, {}, {}, QStringLiteral("/project"));
+    GtExecutionContext context(nullptr, QStringLiteral("/project"));
 
     try
     {
@@ -91,8 +112,8 @@ TEST(GtExecutionContext, scopeRestoresAfterException)
 
 TEST(GtExecutionContext, contextsAreIsolatedBetweenThreads)
 {
-    GtExecutionContext first(nullptr, {}, {}, QStringLiteral("/first"));
-    GtExecutionContext second(nullptr, {}, {}, QStringLiteral("/second"));
+    GtExecutionContext first(nullptr, QStringLiteral("/first"));
+    GtExecutionContext second(nullptr, QStringLiteral("/second"));
     std::promise<void> firstReady;
     std::promise<void> releaseFirst;
     auto firstReadyFuture = firstReady.get_future();

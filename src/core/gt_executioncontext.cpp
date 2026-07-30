@@ -17,15 +17,9 @@ thread_local GtExecutionContext const* currentExecutionContext = nullptr;
 } // namespace
 
 GtExecutionContext::GtExecutionContext(GtProject* project,
-                                       QString executionDataRoot,
-                                       QString source,
-                                       QString projectPath,
-                                       QString jobId) :
+                                       QString projectPath) :
     m_project(project),
-    m_executionDataRoot(std::move(executionDataRoot)),
-    m_source(std::move(source)),
-    m_projectPath(std::move(projectPath)),
-    m_jobId(std::move(jobId))
+    m_projectPath(std::move(projectPath))
 {
     if (m_projectPath.isEmpty() && m_project)
     {
@@ -40,33 +34,15 @@ GtExecutionContext::project() const noexcept
 }
 
 QString const&
-GtExecutionContext::executionDataRoot() const noexcept
-{
-    return m_executionDataRoot;
-}
-
-QString const&
-GtExecutionContext::source() const noexcept
-{
-    return m_source;
-}
-
-QString const&
 GtExecutionContext::projectPath() const noexcept
 {
     return m_projectPath;
 }
 
-QString const&
-GtExecutionContext::jobId() const noexcept
-{
-    return m_jobId;
-}
-
 bool
 GtExecutionContext::isValid() const noexcept
 {
-    return m_project != nullptr;
+    return m_project != nullptr || !m_projectPath.isEmpty();
 }
 
 GtExecutionContext const*

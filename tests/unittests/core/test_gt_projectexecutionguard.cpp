@@ -27,21 +27,33 @@ TEST(GtProjectExecutionGuard, UsesCanonicalProjectIdentity)
               GtProjectExecutionGuard::projectKey(&second));
 }
 
-TEST(GtProjectExecutionGuard, RejectsInvalidProjects)
+TEST(GtProjectExecutionGuard, RejectsNullProjects)
 {
     TestProject project(QString{});
     GtProjectExecutionGuard guard;
 
     EXPECT_TRUE(GtProjectExecutionGuard::projectKey(nullptr).isEmpty());
-    EXPECT_TRUE(GtProjectExecutionGuard::projectKey(&project).isEmpty());
+    EXPECT_FALSE(GtProjectExecutionGuard::projectKey(&project).isEmpty());
     EXPECT_EQ(guard.tryAcquire(nullptr),
               GtProjectExecutionGuard::Result::InvalidProject);
     EXPECT_EQ(guard.tryAcquire(&project),
-              GtProjectExecutionGuard::Result::InvalidProject);
-    EXPECT_FALSE(guard.isHeld());
-    EXPECT_TRUE(guard.key().isEmpty());
+              GtProjectExecutionGuard::Result::Acquired);
+    EXPECT_TRUE(guard.isHeld());
+    EXPECT_FALSE(guard.key().isEmpty());
     EXPECT_FALSE(GtProjectExecutionGuard::isBusy(nullptr));
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+}
+
+TEST(GtProjectExecutionGuard, SerializesPathlessProjects)
+{
+    TestProject project(QString{});
+    GtProjectExecutionGuard first;
+    GtProjectExecutionGuard second;
+
+    ASSERT_EQ(first.tryAcquire(&project),
+              GtProjectExecutionGuard::Result::Acquired);
+    EXPECT_EQ(second.tryAcquire(&project),
+              GtProjectExecutionGuard::Result::Busy);
 }
 
 TEST(GtProjectExecutionGuard, ReacquiringReleasesPreviousProject)

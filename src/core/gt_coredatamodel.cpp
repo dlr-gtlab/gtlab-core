@@ -323,7 +323,8 @@ GtCoreDatamodel::saveProject(GtProject* project)
         return retval;
     }
 
-    if (GtProjectExecutionGuard::isBusy(project))
+    GtProjectExecutionGuard guard;
+    if (guard.tryAcquire(project) != GtProjectExecutionGuard::Result::Acquired)
     {
         gtWarning() << tr("Cannot save project while it is being executed.");
         return false;
@@ -354,7 +355,8 @@ GtCoreDatamodel::closeProject(GtProject* project)
         return false;
     }
 
-    if (GtProjectExecutionGuard::isBusy(project))
+    GtProjectExecutionGuard guard;
+    if (guard.tryAcquire(project) != GtProjectExecutionGuard::Result::Acquired)
     {
         gtWarning() << tr("Cannot close project while it is being executed.");
         return false;

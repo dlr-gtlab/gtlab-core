@@ -53,9 +53,13 @@ public:
 
     enum class RunTaskResult
     {
+        /// Execution was started immediately.
         Started,
+        /// Task was accepted into this executor's queue.
         Queued,
+        /// Task was rejected because the project or executor is busy.
         Busy,
+        /// Task or execution setup was invalid.
         Invalid
     };
 
@@ -84,7 +88,11 @@ public:
     bool runTask(GtTask* task);
 
     /**
-     * @brief Runs a task and reports whether it started, was queued, or was rejected.
+     * @brief Runs a task and reports the outcome.
+     *
+     * Busy tasks are rejected and removed; they are not retried automatically.
+     * The compatibility wrapper runTask() returns true for both Started and
+     * Queued.
      */
     RunTaskResult runTaskWithResult(GtTask* task);
 

@@ -11,6 +11,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QSet>
+#include <QtGlobal>
 
 #include "gt_project.h"
 
@@ -84,19 +85,30 @@ GtProjectExecutionGuard::key() const
 QString
 GtProjectExecutionGuard::projectKey(GtProject const* project)
 {
-    if (!project || project->path().isEmpty())
+    if (!project)
     {
         return {};
     }
 
-    QFileInfo info(project->path());
-    QString path = info.canonicalFilePath();
-    if (path.isEmpty())
+    if (!project->path().isEmpty())
     {
-        path = info.absoluteFilePath();
+        QFileInfo info(project->path());
+        QString path = info.canonicalFilePath();
+        if (path.isEmpty())
+        {
+            path = info.absoluteFilePath();
+        }
+
+        return QDir::cleanPath(path);
     }
 
-    return QDir::cleanPath(path);
+    if (!project->uuid().isEmpty())
+    {
+        return QStringLiteral("uuid:") + project->uuid();
+    }
+
+    return QStringLiteral("object:%1")
+        .arg(reinterpret_cast<quintptr>(project), 0, 16);
 }
 
 bool

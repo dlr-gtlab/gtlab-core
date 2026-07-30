@@ -246,11 +246,7 @@ TEST_F(TestGtRunnable, customProjectPathRemainsAvailableWithoutContext)
 
 TEST_F(TestGtRunnable, executionContextIsInstalledForRunAndRestoredAfterwards)
 {
-    GtExecutionContext context(nullptr,
-                               {},
-                               QStringLiteral("source"),
-                               QStringLiteral("project-path"),
-                               QStringLiteral("job"));
+    GtExecutionContext context(nullptr, QStringLiteral("project-path"));
     GtRunnable runnable(QString{}, context);
     ContextObservingCalculator observer;
     ASSERT_TRUE(runnable.appendProcessComponent(&observer));
@@ -264,11 +260,7 @@ TEST_F(TestGtRunnable, executionContextIsInstalledForRunAndRestoredAfterwards)
 
 TEST_F(TestGtRunnable, runWithoutContextPreservesAnExistingContext)
 {
-    GtExecutionContext outerContext(nullptr,
-                                     {},
-                                     QStringLiteral("outer-source"),
-                                     QStringLiteral("outer-project"),
-                                     QStringLiteral("outer-job"));
+    GtExecutionContext outerContext(nullptr, QStringLiteral("outer-project"));
     GtExecutionContextScope outerScope(outerContext);
     GtRunnable runnable;
 
@@ -286,14 +278,14 @@ TEST_F(TestGtRunnable, sequentialRunsUseDifferentExecutionContexts)
     } firstProject(QStringLiteral("first")),
         secondProject(QStringLiteral("second"));
 
-    GtExecutionContext firstContext(&firstProject, {}, {},
+    GtExecutionContext firstContext(&firstProject,
                                     QStringLiteral("first-path"));
     GtRunnable firstRunnable({}, firstContext);
     ContextObservingCalculator firstCalculator;
     ASSERT_TRUE(firstRunnable.appendProcessComponent(&firstCalculator));
     firstRunnable.run();
 
-    GtExecutionContext secondContext(&secondProject, {}, {},
+    GtExecutionContext secondContext(&secondProject,
                                      QStringLiteral("second-path"));
     GtRunnable secondRunnable({}, secondContext);
     ContextObservingCalculator secondCalculator;

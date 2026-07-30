@@ -39,14 +39,7 @@ void
 GtRunnable::run()
 {
     std::optional<GtExecutionContextScope> contextScope;
-    const bool hasExecutionContext =
-        m_executionContext.project() ||
-        !m_executionContext.executionDataRoot().isEmpty() ||
-        !m_executionContext.source().isEmpty() ||
-        !m_executionContext.projectPath().isEmpty() ||
-        !m_executionContext.jobId().isEmpty();
-
-    if (hasExecutionContext)
+    if (m_executionContext.isValid())
     {
         contextScope.emplace(m_executionContext);
     }

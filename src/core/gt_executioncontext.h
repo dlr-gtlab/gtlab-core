@@ -18,6 +18,9 @@ class GtProject;
  *
  * The project pointer is borrowed and is never owned by this object. The
  * pointed-to project must outlive every context and scope that refers to it.
+ * A context is usable when it contains a project or a project path. Contexts
+ * are intended for synchronous execution boundaries: the project is borrowed,
+ * the scope is thread-local, and neither is propagated to child threads.
  */
 class GT_CORE_EXPORT GtExecutionContext
 {
@@ -25,34 +28,19 @@ public:
     /**
      * @brief Creates an execution context.
      * @param project Project associated with the execution, not owned.
-     * @param executionDataRoot Root directory for execution data.
-     * @param source Source identifier or path for the execution.
      * @param projectPath Project path. If empty, it is taken from @p project.
-     * @param jobId Optional job or execution identifier.
      */
     explicit GtExecutionContext(
         GtProject* project = nullptr,
-        QString executionDataRoot = {},
-        QString source = {},
-        QString projectPath = {},
-        QString jobId = {});
+        QString projectPath = {});
 
     /// Returns the borrowed project associated with this execution.
     GtProject* project() const noexcept;
 
-    /// Returns the root directory for execution data.
-    QString const& executionDataRoot() const noexcept;
-
-    /// Returns the execution source identifier or path.
-    QString const& source() const noexcept;
-
     /// Returns the project path associated with this execution.
     QString const& projectPath() const noexcept;
 
-    /// Returns the optional job or execution identifier.
-    QString const& jobId() const noexcept;
-
-    /// Returns whether a project is associated with this context.
+    /// Returns whether a project or project path is available.
     bool isValid() const noexcept;
 
     /**
@@ -66,10 +54,7 @@ public:
 
 private:
     GtProject* m_project;
-    QString m_executionDataRoot;
-    QString m_source;
     QString m_projectPath;
-    QString m_jobId;
 };
 
 /**
@@ -77,6 +62,8 @@ private:
  *
  * Scopes are thread-local, nestable, non-copyable, and restore the previous
  * context in their destructor. The referenced context must outlive the scope.
+ * Neither the scope nor the context extends the lifetime of the borrowed
+ * project. Do not retain the context or project pointer for asynchronous work.
  */
 class GT_CORE_EXPORT GtExecutionContextScope
 {

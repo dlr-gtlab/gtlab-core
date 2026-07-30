@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QScopeGuard>
 
 #include "gt_logging.h"
 #include "gt_runnable.h"
@@ -514,10 +515,7 @@ GtCoreProcessExecutor::setupTaskRunner()
                                      pimpl->customProjectPath;
     GtExecutionContext executionContext(
         project,
-        {},
-        m_source->objectName(),
-        projectPath,
-        m_current->objectName());
+        projectPath);
 
     // create new runnable
     pimpl->currentRunnable = new GtRunnable{
@@ -546,6 +544,10 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 {
     gtTrace() << __FUNCTION__;
 
+    const auto guardCleanup = qScopeGuard(
+        [this]() { pimpl->projectGuard.reset(); });
+    Q_UNUSED(guardCleanup);
+
     // create timer
     QElapsedTimer timer;
 
@@ -566,7 +568,6 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     if (!m_current)
     {
         gtFatalId(GT_EXEC_ID) << tr("Current task corrupted!");
-        pimpl->projectGuard.reset();
         taskRunner->deleteLater();
         return;
     }
@@ -591,8 +592,6 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         }
     }
 
-    pimpl->projectGuard.reset();
-
     gtInfoId(GT_EXEC_ID).medium()
         << tr("----> Task finished (took %1 ms to merge) <----")
                .arg(timer.elapsed());
@@ -603,5 +602,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     // delete task runner
     taskRunner->deleteLater();
 
+    // Release before starting a queued task so it can acquire its own key.
+    pimpl->projectGuard.reset();
     executeNextTask();
 }

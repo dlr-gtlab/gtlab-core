@@ -314,8 +314,7 @@ TEST(CurrentProjectCompatibility,
     EndToEndLegacyCalculator::projectToSelect = first;
     EndToEndLegacyCalculator::observedProject = nullptr;
 
-    auto* runnable = new GtRunnable(
-        {}, GtExecutionContext(second, {}, {}, second->path(), "job-b"));
+    auto* runnable = new GtRunnable({}, GtExecutionContext(second));
     GtTaskRunner runner(second->findDirectChildren<GtTask*>().front());
     ASSERT_TRUE(runner.setUp(runnable, second));
 
