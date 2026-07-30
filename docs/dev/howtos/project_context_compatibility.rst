@@ -95,14 +95,19 @@ the normal task/result or datamodel APIs rather than direct mutation.
 ``GtCoreApplication::currentProject()`` and
 ``GtCoreDatamodel::currentProject()`` use the same resolution policy:
 
-1. the project from the active, thread-local ``GtExecutionContext``;
-2. otherwise the currently selected project of the active session;
-3. ``nullptr`` when neither is available.
+1. If an execution context is active on the current thread, its project is
+   returned. This takes precedence even when the context contains only a
+   project path; in that case ``currentProject()`` returns ``nullptr``.
+2. If no execution context is active, the currently selected project of the
+   active session is returned.
+3. ``nullptr`` when neither an execution context project nor a selected
+   session project is available.
 
 This keeps existing calls such as ``gtApp->currentProject()`` source-compatible
 while allowing legacy calculator code to observe its execution project. The
 context is only available on the thread where its scope was installed; callers
-must still use an explicit context for worker-thread execution.
+must still use an explicit context for worker-thread execution. An active
+path-only context therefore does not fall back to the GUI-selected project.
 
 Recommended calculator API
 --------------------------

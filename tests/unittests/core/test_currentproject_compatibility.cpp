@@ -233,6 +233,24 @@ TEST(CurrentProjectCompatibility, executionContextOverridesGuiFallback)
     EXPECT_EQ(gtDataModel->currentProject(), second);
 }
 
+TEST(CurrentProjectCompatibility,
+     pathOnlyExecutionContextSuppressesGuiFallback)
+{
+    TestApplication application;
+    TestProject* first = nullptr;
+    TestProject* second = nullptr;
+    auto session = sessionWithProjects(first, second);
+    application.installSession(std::move(session));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+
+    GtExecutionContext context(nullptr,
+                               QStringLiteral("/path-only-project"));
+    GtExecutionContextScope scope(context);
+
+    EXPECT_EQ(gtApp->currentProject(), nullptr);
+    EXPECT_EQ(gtDataModel->currentProject(), nullptr);
+}
+
 TEST(CurrentProjectCompatibility, leavingExecutionContextRestoresGuiFallback)
 {
     TestApplication application;

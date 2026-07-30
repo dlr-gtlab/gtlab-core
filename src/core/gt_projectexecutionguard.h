@@ -19,9 +19,9 @@ public:
     /**
      * @brief Result of trying to acquire a project execution guard.
      *
-     * Guards are process-local, thread-safe, and held for the lifetime of the
-     * guard object. Acquiring a new project first releases a previously held
-     * key.
+     * The process-local guard registry is thread-safe. A guard instance must
+     * be owned and used by one thread and is held for its lifetime. Acquiring
+     * a new project first releases a previously held key.
      */
     enum class Result
     {
