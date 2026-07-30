@@ -79,6 +79,7 @@ set(headers
     gt_coreapplication.h
     gt_executioncontext.h
     gt_projectexecutionguard.h
+    gt_headlessprojectruntime.h
     gt_core_exports.h
     gt_footprint.h
     gt_globals.h
@@ -190,6 +191,7 @@ set(sources
     gt_coreapplication.cpp
     gt_executioncontext.cpp
     gt_projectexecutionguard.cpp
+    gt_headlessprojectruntime.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
     gt_saveprojecthelper.cpp
