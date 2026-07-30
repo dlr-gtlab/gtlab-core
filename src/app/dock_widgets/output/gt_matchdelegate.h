@@ -11,8 +11,6 @@
 
 class QModelIndex;
 
-namespace gt
-{
 
 /**
  * @brief The GtMatchDelegate class is a style delegate to define how to visualize
@@ -44,7 +42,5 @@ public:
 private:
     QList<QModelIndex> m_matches;
 };
-
-} // namespace gt
 
 #endif // GTMATCHDELEGATE_H

@@ -13,14 +13,10 @@
 
 #include "gt_filteredlogmodel.h"
 
-namespace gt
-{
-
-class FilterPopupWidget;
-
+class GtFilterPopupWidget;
 
 /**
- * @brief The FilterHeaderView class
+ * @brief The GtFilterHeaderView class
  *
  * Custom header view that shows filter buttons in specific column headers.
  * Filter buttons with search icons appear only in Level (column 0) and
@@ -33,7 +29,7 @@ class FilterPopupWidget;
  * @note Level column uses integer-based filtering (log levels)
  * @note Id column uses string-based filtering (log IDs/categories)
  */
-class FilterHeaderView : public QHeaderView
+class GtFilterHeaderView : public QHeaderView
 {
     Q_OBJECT
 
@@ -43,8 +39,8 @@ public:
      * @param orientation Header orientation (horizontal only)
      * @param parent Parent widget
      */
-    explicit FilterHeaderView(Qt::Orientation orientation = Qt::Horizontal,
-                              QWidget* parent = nullptr);
+    explicit GtFilterHeaderView(Qt::Orientation orientation = Qt::Horizontal,
+                                QWidget* parent = nullptr);
 
     /**
      * @brief Set the filter model
@@ -106,10 +102,9 @@ private:
     bool isFilterButtonClicked(const QPoint& pos, int logicalIndex) const;
 
     GtFilteredLogModel* m_filterModel{nullptr};
-    FilterPopupWidget* m_popup{nullptr};
+    GtFilterPopupWidget* m_popup{nullptr};
     int m_activeColumn{-1};
 };
 
-} // namespace gt
 
 #endif // FILTERHEADERVIEW_H

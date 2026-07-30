@@ -45,7 +45,7 @@ namespace {
 }
 
 
-gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
+GtFilterPopupWidget::GtFilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -123,7 +123,7 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
 }
 
 void
-gt::FilterPopupWidget::setSearchMode()
+GtFilterPopupWidget::setSearchMode()
 {
     if (m_contentWidget)
     {
@@ -153,7 +153,7 @@ gt::FilterPopupWidget::setSearchMode()
 }
 
 void
-gt::FilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
+GtFilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
 {
     if (m_contentWidget)
     {
@@ -176,15 +176,15 @@ gt::FilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
         m_mainLayout->addLayout(hL);
         searchWidget->show();
         connect(searchWidget, &GtSearchWidget::textChanged,
-                this, &FilterPopupWidget::searchTextChanged);
+                this, &GtFilterPopupWidget::searchTextChanged);
 
     }
 }
 
 void
-gt::FilterPopupWidget::setLevelItems(const QStringList& items,
-                                     const QList<int>& values,
-                                     gt::LogLevelFlags selected)
+GtFilterPopupWidget::setLevelItems(const QStringList& items,
+                                   const QList<int>& values,
+                                   gt::LogLevelFlags selected)
 {
     if (items.size() != values.size()) return;
     
@@ -208,9 +208,9 @@ gt::FilterPopupWidget::setLevelItems(const QStringList& items,
 }
 
 void
-gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
-                                        const QStringList& storageItems,
-                                        const QSet<QString>& selectedStorageValues)
+GtFilterPopupWidget::setCategoryItems(const QStringList& displayItems,
+                                      const QStringList& storageItems,
+                                      const QSet<QString>& selectedStorageValues)
 {
     if (displayItems.size() != storageItems.size()) return;
 
@@ -237,7 +237,7 @@ gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
 }
 
 void
-gt::FilterPopupWidget::createCheckBoxesForLevels(const QStringList& items)
+GtFilterPopupWidget::createCheckBoxesForLevels(const QStringList& items)
 {
     if (!m_contentWidget || !m_contentLayout) return;
     
@@ -262,7 +262,7 @@ gt::FilterPopupWidget::createCheckBoxesForLevels(const QStringList& items)
 }
 
 void
-gt::FilterPopupWidget::createCheckBoxesForCategories(
+GtFilterPopupWidget::createCheckBoxesForCategories(
     const QStringList& displayItems, const QStringList& storageItems)
 {
     if (!m_contentWidget || !m_contentLayout) return;
@@ -300,7 +300,7 @@ gt::FilterPopupWidget::createCheckBoxesForCategories(
 }
 
 void
-gt::FilterPopupWidget::updateSelection()
+GtFilterPopupWidget::updateSelection()
 {
     if (m_itemToInt.isEmpty() && m_displayToStorage.isEmpty())
     {

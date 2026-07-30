@@ -10,15 +10,15 @@
 #include <QApplication>
 #include <QStyleOption>
 
-gt::GtMatchDelegate::GtMatchDelegate(QObject* parent) :
+GtMatchDelegate::GtMatchDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
 {
 }
 
 void
-gt::GtMatchDelegate::paint(QPainter* painter,
-                           const QStyleOptionViewItem& option,
-                           const QModelIndex& index) const
+GtMatchDelegate::paint(QPainter* painter,
+                       const QStyleOptionViewItem& option,
+                       const QModelIndex& index) const
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
@@ -45,7 +45,7 @@ gt::GtMatchDelegate::paint(QPainter* painter,
 }
 
 void
-gt::GtMatchDelegate::setMatches(const QList<QModelIndex>& matches)
+GtMatchDelegate::setMatches(const QList<QModelIndex>& matches)
 {
     m_matches = matches;
 }

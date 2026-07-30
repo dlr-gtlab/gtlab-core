@@ -18,9 +18,6 @@ class QVBoxLayout;
 class QScrollArea;
 class GtSearchWidget;
 
-namespace gt
-{
-
 /**
  * @brief The FilterPopupWidget class
  * 
@@ -34,7 +31,7 @@ namespace gt
  * - Integer value lists for level-based filtering
  * - String pairs (display, storage) for ID/category filtering
  */
-class FilterPopupWidget : public QWidget
+class GtFilterPopupWidget : public QWidget
 {
     Q_OBJECT
 
@@ -47,7 +44,7 @@ public:
      * and action buttons. The scroll area is configured to display
      * a maximum of 5 items at a time.
      */
-    explicit FilterPopupWidget(QWidget* parent = nullptr);
+    explicit GtFilterPopupWidget(QWidget* parent = nullptr);
 
     /**
      * @brief Set filter items for integer values (levels)
@@ -145,5 +142,5 @@ private:
 
     GtSearchWidget* m_searchWidget{nullptr};
 };
-} // namespace gt
+
 #endif // FILTERPOPUPWIDGET_H

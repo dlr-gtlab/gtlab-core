@@ -298,10 +298,10 @@ GtOutputDock::GtOutputDock()
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
     
-    auto* matchDelegate = new gt::GtMatchDelegate(m_logView);
+    auto* matchDelegate = new GtMatchDelegate(m_logView);
     m_logView->setItemDelegate(matchDelegate);
     
-    auto* headerView = new gt::FilterHeaderView(Qt::Horizontal, m_logView);
+    auto* headerView = new GtFilterHeaderView(Qt::Horizontal, m_logView);
     headerView->setFilterModel(m_model);
     m_logView->setHorizontalHeader(headerView);
 
@@ -848,7 +848,7 @@ GtOutputDock::onSearchTextChanged()
         }
     }
 
-    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(
+    auto* matchDelegate = qobject_cast<GtMatchDelegate*>(
         m_logView->itemDelegate());
 
     if (matchDelegate)

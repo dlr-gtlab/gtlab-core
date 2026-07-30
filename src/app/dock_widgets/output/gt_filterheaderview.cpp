@@ -43,7 +43,7 @@ static QList<int> logLevelInts()
 
 }
 
-gt::FilterHeaderView::FilterHeaderView(Qt::Orientation orientation, QWidget* parent) :
+GtFilterHeaderView::GtFilterHeaderView(Qt::Orientation orientation, QWidget* parent) :
     QHeaderView(orientation, parent)
 {
     setMinimumSectionSize(50);
@@ -59,7 +59,7 @@ gt::FilterHeaderView::FilterHeaderView(Qt::Orientation orientation, QWidget* par
 }
 
 void
-gt::FilterHeaderView::setFilterModel(GtFilteredLogModel* model)
+GtFilterHeaderView::setFilterModel(GtFilteredLogModel* model)
 {
     if (m_filterModel)
     {
@@ -118,8 +118,8 @@ gt::FilterHeaderView::setFilterModel(GtFilteredLogModel* model)
 }
 
 void
-gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
-                                   int logicalIndex) const
+GtFilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
+                                 int logicalIndex) const
 {
     if (!m_filterModel || logicalIndex < 0)
     {
@@ -167,7 +167,7 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
 }
 
 void
-gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
+GtFilterHeaderView::mousePressEvent(QMouseEvent* event)
 {
     int clickedColumn = logicalIndexAt(event->pos());
 
@@ -216,7 +216,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         
         if (clickedColumn == 3 && m_filterModel)
         {
-            m_popup = new gt::FilterPopupWidget(this);
+            m_popup = new GtFilterPopupWidget(this);
 
             GtSearchWidget* searchWidget = new GtSearchWidget(this);
             searchWidget->setText(m_filterModel->filterText());
@@ -232,7 +232,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                         searchWidget->setText(m_filterModel->filterText());
                     });
 
-            connect(m_popup, &gt::FilterPopupWidget::destroyed,
+            connect(m_popup, &GtFilterPopupWidget::destroyed,
                     this, [this](){
                         m_popup = nullptr;
                     });
@@ -272,7 +272,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 {
                     displayItems << entry;
 
-                    if (entry == EmptyIDText) storageItems << "";
+                    if (entry == gt::EmptyIDText) storageItems << "";
                     else
                     {
                         storageItems << entry;
@@ -286,13 +286,13 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
             
             if (!items.isEmpty() || clickedColumn == 0 || clickedColumn == 2)
             {
-                m_popup = new gt::FilterPopupWidget(this);
+                m_popup = new GtFilterPopupWidget(this);
                 
                 if (clickedColumn == 0)
                 {
                     m_popup->setLevelItems(items, logLevelInts(), selectedLevels);
                     
-                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedLevel,
+                    connect(m_popup, &GtFilterPopupWidget::selectionChangedLevel,
                             this, [this, clickedColumn](gt::LogLevelFlags selected){
                                 if (m_filterModel)
                                 {
@@ -304,7 +304,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                 {
                     m_popup->setCategoryItems(items, storageItems, selectedCategories);
                     
-                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedCategory,
+                    connect(m_popup, &GtFilterPopupWidget::selectionChangedCategory,
                             this, [this, clickedColumn](const QSet<QString>& selected){
                                 if (m_filterModel)
                                 {
@@ -313,7 +313,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                             });
                 }
                 
-                connect(m_popup, &gt::FilterPopupWidget::destroyed,
+                connect(m_popup, &GtFilterPopupWidget::destroyed,
                         this, [this](){
                             m_popup = nullptr;
                         });
@@ -332,7 +332,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
 }
 
 void
-gt::FilterHeaderView::mouseReleaseEvent(QMouseEvent* event)
+GtFilterHeaderView::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton && m_activeColumn >= 0)
     {
@@ -343,7 +343,7 @@ gt::FilterHeaderView::mouseReleaseEvent(QMouseEvent* event)
 }
 
 void
-gt::FilterHeaderView::closePopup()
+GtFilterHeaderView::closePopup()
 {
     if (m_popup)
     {
@@ -354,7 +354,7 @@ gt::FilterHeaderView::closePopup()
 }
 
 void
-gt::FilterHeaderView::clearFilter(int logicalIndex)
+GtFilterHeaderView::clearFilter(int logicalIndex)
 {
     if (!m_filterModel) return;
 
@@ -389,7 +389,7 @@ gt::FilterHeaderView::clearFilter(int logicalIndex)
 }
 
 QRect
-gt::FilterHeaderView::filterButtonRect(int logicalIndex) const
+GtFilterHeaderView::filterButtonRect(int logicalIndex) const
 {
     int sectionPos = sectionPosition(logicalIndex);
     int sectionSizeVal = sectionSize(logicalIndex);
@@ -405,8 +405,8 @@ gt::FilterHeaderView::filterButtonRect(int logicalIndex) const
 }
 
 bool
-gt::FilterHeaderView::isFilterButtonClicked(const QPoint& pos,
-                                            int logicalIndex) const
+GtFilterHeaderView::isFilterButtonClicked(const QPoint& pos,
+                                          int logicalIndex) const
 {
     QRect filterRect = filterButtonRect(logicalIndex);
     return filterRect.contains(pos);
