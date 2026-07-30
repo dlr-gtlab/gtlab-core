@@ -10,11 +10,7 @@
 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QApplication>
-#include <QMetaObject>
-#include <QFile>
 #include <QMenu>
-#include <QTextStream>
 
 #include "gt_icons.h"
 

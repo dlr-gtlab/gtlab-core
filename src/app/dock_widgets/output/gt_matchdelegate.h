@@ -14,6 +14,10 @@ class QModelIndex;
 namespace gt
 {
 
+/**
+ * @brief The GtMatchDelegate class is a style delegate to define how to visualize
+ * search matches in the output dock search.
+ */
 class GtMatchDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -21,10 +25,20 @@ class GtMatchDelegate : public QStyledItemDelegate
 public:
     explicit GtMatchDelegate(QObject* parent = nullptr);
 
+    /**
+     * @brief paint function to define how the found elements are highlighted
+     * @param painter
+     * @param option
+     * @param index
+     */
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const override;
 
+    /**
+     * @brief set the found matches for the delegate
+     * @param matches
+     */
     void setMatches(const QList<QModelIndex>& matches);
 
 private:

@@ -17,8 +17,8 @@ gt::GtMatchDelegate::GtMatchDelegate(QObject* parent) :
 
 void
 gt::GtMatchDelegate::paint(QPainter* painter,
-                          const QStyleOptionViewItem& option,
-                          const QModelIndex& index) const
+                           const QStyleOptionViewItem& option,
+                           const QModelIndex& index) const
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);

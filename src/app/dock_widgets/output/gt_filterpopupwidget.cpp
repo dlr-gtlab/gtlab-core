@@ -13,7 +13,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QApplication>
 #include <QScrollArea>
 #include <QLabel>
 
@@ -217,7 +216,6 @@ gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
 
     m_itemToInt.clear();
     m_displayToStorage.clear();
-    m_storageToDisplay.clear();
     
     for (int i = 0; i < displayItems.size(); ++i)
     {
@@ -225,7 +223,6 @@ gt::FilterPopupWidget::setCategoryItems(const QStringList& displayItems,
         QString storage = storageItems[i];
         
         m_displayToStorage[display] = storage;
-        m_storageToDisplay[storage] = display;
     }
     
     createCheckBoxesForCategories(displayItems, storageItems);

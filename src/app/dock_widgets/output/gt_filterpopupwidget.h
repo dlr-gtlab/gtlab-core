@@ -14,7 +14,6 @@
 #include <QMap>
 
 class QCheckBox;
-class QPushButton;
 class QVBoxLayout;
 class QScrollArea;
 class GtSearchWidget;
@@ -143,7 +142,6 @@ private:
     QScrollArea* m_scrollArea{nullptr};
 
     QMap<QString, QString> m_displayToStorage;
-    QMap<QString, QString> m_storageToDisplay;
 
     GtSearchWidget* m_searchWidget{nullptr};
 };

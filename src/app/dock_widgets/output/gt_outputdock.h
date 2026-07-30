@@ -109,7 +109,7 @@ private:
      */
     void updateFilterButtons();
 
-/**
+    /**
       * @brief scrollToBottom - scroll to bottom of the view
       */
     void scrollToBottom();

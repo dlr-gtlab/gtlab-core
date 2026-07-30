@@ -9,7 +9,6 @@
 
 #include <QHeaderView>
 #include <QSet>
-#include <QMap>
 #include <QRect>
 
 #include "gt_filteredlogmodel.h"

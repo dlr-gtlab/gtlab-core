@@ -14,8 +14,6 @@
 #include <QSortFilterProxyModel>
 #include <QSet>
 #include <QStringList>
-#include <QPair>
-#include <QMap>
 #include "gt_logmodel.h"
 
 class GtLogDetails;
