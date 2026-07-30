@@ -7,10 +7,10 @@
 #ifndef GTMATCHDELEGATE_H
 #define GTMATCHDELEGATE_H
 
+#include "gt_outputdock.h"
 #include <QStyledItemDelegate>
 
 class QModelIndex;
-
 
 /**
  * @brief The GtMatchDelegate class is a style delegate to define how to visualize
@@ -21,6 +21,8 @@ class GtMatchDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
+
+
     explicit GtMatchDelegate(QObject* parent = nullptr);
 
     /**
@@ -37,10 +39,22 @@ public:
      * @brief set the found matches for the delegate
      * @param matches
      */
-    void setMatches(const QList<QModelIndex>& matches);
+    void setMatches(const QHash<QPersistentModelIndex, GtOutputDock::Matches>& matches);
 
+    void setCurrentMatch(const QPersistentModelIndex& index,
+                         int matchNumber);
 private:
-    QList<QModelIndex> m_matches;
+    //QList<QModelIndex> m_matches;
+    QHash<QPersistentModelIndex, GtOutputDock::Matches> m_matches;
+
+    void drawHighlightedText(QPainter* painter,
+                             const QRect& rect,
+                             const QStyleOptionViewItem& option,
+                             const QString& text,
+                             const GtOutputDock::Matches& matches) const;
+
+    //QPersistentModelIndex m_currentMatchIndex;
+    //int m_currentMatchNumber = -1;
 };
 
 #endif // GTMATCHDELEGATE_H

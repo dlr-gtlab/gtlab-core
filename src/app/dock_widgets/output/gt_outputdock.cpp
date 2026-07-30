@@ -832,6 +832,7 @@ GtOutputDock::onSearchTextChanged()
 
     // cleanup of old results
     m_matches.clear();
+    m_matchesForDelegates.clear();
     m_currentMatch = -1;
 
     int rowCount = m_model->rowCount();
@@ -842,9 +843,25 @@ GtOutputDock::onSearchTextChanged()
 
         QString itemText = m_model->data(proxyIndex, Qt::DisplayRole).toString();
 
-        if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
+        if (text.isEmpty())
         {
-            m_matches.append(proxyIndex);
+            continue;
+        }
+
+        Matches matchesElement;
+
+        int pos = 0;
+        while ((pos = itemText.indexOf(text, pos, Qt::CaseInsensitive)) != -1)
+        {
+            matchesElement.push_back({pos, text.length()});
+            ++pos;
+        }
+
+        if (!matchesElement.isEmpty())
+        {
+            m_matchesForDelegates.insert(proxyIndex, std::move(matchesElement));
+
+            m_matches.push_back(proxyIndex);
         }
     }
 
@@ -853,7 +870,7 @@ GtOutputDock::onSearchTextChanged()
 
     if (matchDelegate)
     {
-        matchDelegate->setMatches(m_matches);
+        matchDelegate->setMatches(m_matchesForDelegates);
     }
 
     if (text.isEmpty() || m_matches.isEmpty())

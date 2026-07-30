@@ -38,6 +38,13 @@ public:
         @return dock widget area */
     Qt::DockWidgetArea getDockWidgetArea() override;
 
+    struct Match
+    {
+        int start;
+        int length;
+    };
+    using Matches = QVector<Match>;
+
 protected:
     /**
      * @brief Event called after current project has changed.
@@ -62,7 +69,9 @@ private:
     GtFilteredLogModel* m_model{};
 
     /// List of match positions
-    QList<QModelIndex> m_matches{};
+    QList<QModelIndex> m_matches;
+    QHash<QPersistentModelIndex, Matches> m_matchesForDelegates{};
+
 
     /// Current match index
     int m_currentMatch{-1};
