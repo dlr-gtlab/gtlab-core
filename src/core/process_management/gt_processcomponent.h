@@ -297,6 +297,10 @@ public:
      */
     void setExecutionLabel(const QString& label);
 
+    /// List of linked datamodel objects.
+    QList<GtObject const*> linkedObjects() const;
+    QList<QPointer<GtObject>>& linkedObjects();
+
 public slots:
     /**
      * @brief Handles process component state changes.
@@ -374,10 +378,6 @@ protected:
     /// Path to process/project specific temporary path.
     const QString& tempPath() const;
     GtProcessComponent& setTempPath(QString);
-
-    /// List of linked datamodel objects.
-    QList<GtObject const*> linkedObjects() const;
-    QList<QPointer<GtObject>>& linkedObjects();
 
     /**
      * @brief Hides or Shows the label property.

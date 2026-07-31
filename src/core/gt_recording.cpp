@@ -6,6 +6,11 @@ GtRecording::GtRecording()
 m_actvityUuid = QUuid::createUuid().toString();
 }
 
+QList<QPointer<GtObject> > GtRecording::linkedObjects() const
+{
+    return m_linkedObjects;
+}
+
 QString GtRecording::toolName() const
 {
     return m_toolName;
