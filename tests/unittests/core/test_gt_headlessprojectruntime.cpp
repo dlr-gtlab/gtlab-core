@@ -6,7 +6,97 @@
 
 #include "gtest/gtest.h"
 
+#include <memory>
+
+#include <QDir>
+#include <QFile>
+#include <QCoreApplication>
+#include <QEventLoop>
+
+#include "gt_coreapplication.h"
+#include "gt_coredatamodel.h"
+#include "gt_externalizationmanager.h"
+#include "gt_objectfactory.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_project.h"
+#include "gt_processdata.h"
+#include "gt_task.h"
+#include "gt_taskgroup.h"
+#include "gt_calculator.h"
 #include "gt_headlessprojectruntime.h"
+#include "gt_testhelper.h"
+
+namespace
+{
+class ContextObservingCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ContextObservingCalculator() = default;
+
+    static GtProject* observedProject;
+
+    bool run() override
+    {
+        observedProject = gtApp->currentProject();
+        return observedProject != nullptr;
+    }
+};
+
+GtProject* ContextObservingCalculator::observedProject = nullptr;
+
+class TestGtHeadlessProjectRuntime : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        m_application = std::make_unique<GtCoreApplication>(
+            QCoreApplication::instance(), GtCoreApplication::AppMode::Batch);
+        m_application->init();
+        m_runtime = std::make_unique<GtHeadlessProjectRuntime>();
+        ASSERT_TRUE(m_runtime->initialize());
+    }
+
+    void TearDown() override
+    {
+        m_runtime.reset();
+        m_application.reset();
+        gtExternalizationManager->onProjectLoaded(QDir::tempPath());
+    }
+
+    QString createProject() const
+    {
+        const auto directory = gtTestHelper->newTempDir();
+        QFile file(directory.filePath(GtProject::mainFilename()));
+        EXPECT_TRUE(file.open(QIODevice::WriteOnly | QIODevice::Text));
+        file.write(QStringLiteral(
+                       "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                       "<GTLAB projectname=\"headless-runtime-test\" "
+                       "version=\"1.7.0-rc1\">\n"
+                       "    <env-footprint><core-ver>2.0.0</core-ver>"
+                       "<modules/></env-footprint>\n"
+                       "    <comment/>\n"
+                       "    <MODULES/>\n"
+                       "    <PROCESSES/>\n"
+                       "    <LABELS/>\n"
+                       "</GTLAB>\n")
+                       .toUtf8());
+        file.close();
+        return directory.absolutePath();
+    }
+
+    GtProject* openProject()
+    {
+        const auto path = createProject();
+        EXPECT_TRUE(m_runtime->openProject(path));
+        return gtDataModel->currentProject();
+    }
+
+    std::unique_ptr<GtCoreApplication> m_application;
+    std::unique_ptr<GtHeadlessProjectRuntime> m_runtime;
+};
+} // namespace
 
 TEST(GtHeadlessTaskStatus, InvalidStatusIsNotDone)
 {
@@ -65,3 +155,72 @@ TEST(GtHeadlessProjectRuntime, ReportsMissingCoreServices)
     EXPECT_FALSE(result.succeeded());
     EXPECT_EQ(runtime.state(), GtHeadlessProjectRuntime::State::Created);
 }
+
+TEST_F(TestGtHeadlessProjectRuntime, ListsTasksAndRejectsUnknownTask)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("task"));
+    ASSERT_NE(project->processData()->taskGroup(), nullptr);
+    ASSERT_TRUE(project->processData()->taskGroup()->appendChild(task));
+
+    const auto descriptors = m_runtime->listTasks();
+    ASSERT_EQ(descriptors.size(), 1);
+    EXPECT_EQ(descriptors.front().taskId, QStringLiteral("task"));
+    EXPECT_EQ(descriptors.front().group,
+              GtTaskGroup::defaultUserGroupId());
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("missing"), &result);
+    EXPECT_FALSE(handle.isValid());
+    EXPECT_EQ(result.code, GtHeadlessRuntimeResult::Code::TaskNotFound);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(ContextObservingCalculator::staticMetaObject);
+    ContextObservingCalculator::observedProject = nullptr;
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("context-task"));
+    auto calculator = std::make_unique<ContextObservingCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("context-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+
+    const auto status = handle.wait(5000);
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    EXPECT_TRUE(status.isDone());
+    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
+    EXPECT_EQ(ContextObservingCalculator::observedProject, project);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+
+    GtProjectExecutionGuard guard;
+    ASSERT_EQ(guard.tryAcquire(project),
+              GtProjectExecutionGuard::Result::Acquired);
+
+    EXPECT_EQ(m_runtime->saveProject().code,
+              GtHeadlessRuntimeResult::Code::ProjectBusy);
+    EXPECT_EQ(m_runtime->closeProject().code,
+              GtHeadlessRuntimeResult::Code::ProjectBusy);
+}
+
+#include "test_gt_headlessprojectruntime.moc"
