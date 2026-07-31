@@ -135,6 +135,20 @@ TEST_F(TestGtCoreProcessExecutor, runTaskReturnsInvalidForRejectedTask)
               GtCoreProcessExecutor::RunTaskResult::Invalid);
 }
 
+TEST_F(TestGtCoreProcessExecutor, preservesConfiguredExecutorFlags)
+{
+    const auto flags = GtCoreProcessExecutor::Flags{
+        gt::DryExecution, gt::NonBlockingExecution};
+    executor.setCoreExecutorFlags(flags);
+
+    EXPECT_TRUE(executor.coreExecutorFlags().testFlag(gt::DryExecution));
+    EXPECT_TRUE(executor.coreExecutorFlags().testFlag(gt::NonBlockingExecution));
+
+    executor.setCoreExecutorFlags({});
+    EXPECT_FALSE(executor.coreExecutorFlags().testFlag(gt::DryExecution));
+    EXPECT_FALSE(executor.coreExecutorFlags().testFlag(gt::NonBlockingExecution));
+}
+
 TEST_F(TestGtCoreProcessExecutor,
        executeNextTaskEmitsCompletionWhenQueueIsEmpty)
 {

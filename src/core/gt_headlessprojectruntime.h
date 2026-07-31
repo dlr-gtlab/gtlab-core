@@ -165,6 +165,8 @@ public:
 private:
     Q_DISABLE_COPY(GtHeadlessProjectRuntime)
 
+    void restoreExecutorFlags();
+
     struct Private;
     QScopedPointer<Private> m_private;
 };

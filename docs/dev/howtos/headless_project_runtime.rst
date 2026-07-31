@@ -70,9 +70,11 @@ Threading
 
 Runtime operations and task-handle operations must be called from the thread
 owning ``GtCoreApplication`` and its Qt event loop. ``wait()`` processes Qt
-events while waiting so that the non-blocking Core executor can complete its
-task runner. A future worker integration should marshal calls to this thread
-explicitly.
+events in a local event loop while waiting so that the non-blocking Core
+executor can complete its task runner. Calls to ``status()``, ``cancel()``
+and ``wait()`` from another thread are rejected. A future worker integration
+should marshal calls to this thread explicitly. Shutdown uses a bounded wait
+and reports a terminal ``Shutdown`` status if cancellation does not complete.
 
 The runtime does not currently propagate an execution context into arbitrary
 module-created threads. Such code must receive its project or context
@@ -81,23 +83,31 @@ explicitly.
 Task addressing and results
 ---------------------------
 
-Tasks can be addressed by ``TaskId`` or ``GroupName/TaskId``. Handles expose a
-stable opaque identifier, queued/running/terminal state, the underlying Core
-process state, cancellation, and waiting. Progress is represented as
-unavailable until the executor provides a task-specific value.
+Tasks can be addressed by ``TaskId``, ``GroupName/TaskId`` or UUID. An
+unqualified task id uses the default task-group lookup; a qualified id first
+looks in the requested custom group and then in the user group. UUID lookup is
+independent of task-group selection and does not change the current group.
+Handles expose a stable opaque identifier, queued/running/terminal state, the
+underlying Core process state, cancellation, and waiting. Terminal status and
+structured error information remain available after completion. Progress is
+represented as unavailable until the executor provides a task-specific value.
 
 The status API is deliberately value-based and does not expose ``GtTask*`` or
 other Qt pointers across the integration boundary.
 
-PR #1514 integration
---------------------
+Execution context and project coordination
+------------------------------------------
 
-The current implementation uses the existing Core executor and contains a
-localized integration point for the execution context and project mutation
-guard introduced by PR #1514. Once that PR is merged, task submission must
-acquire ``GtProjectExecutionGuard`` and install ``GtExecutionContext`` at that
-boundary. The runtime must continue to use the explicit runtime project and
-must not use the GUI-selected project to choose its execution target.
+Task execution reuses the Core executor integration from PR #1514. The
+executor installs a ``GtExecutionContext`` for the selected project and holds
+the project mutation guard for the task's execution scope. The runtime always
+uses its explicitly opened project; it does not use the GUI-selected project
+to choose an execution target.
+
+Project save and close use the same guard-aware Core datamodel operations.
+They reject changes while a task is mutating the project and preserve the
+executor's pre-existing flags after the runtime has finished using its
+non-blocking mode.
 
 Python and worker integration
 -----------------------------

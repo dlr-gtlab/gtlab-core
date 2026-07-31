@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QPointer>
+#include <QTimer>
 #include <QThread>
 #include <QUuid>
 
@@ -30,8 +31,12 @@
 #include "gt_taskgroup.h"
 #include "provider/gt_projectprovider.h"
 
+bool isRuntimeOwnerThread();
+
 namespace
 {
+constexpr int shutdownTimeoutMs = 5000;
+
 GtHeadlessTaskStatus::State taskState(GtProcessComponent::STATE state)
 {
     using ProcessState = GtProcessComponent::STATE;
@@ -79,6 +84,8 @@ struct GtHeadlessTaskHandle::State
     QPointer<GtTask> task;
     QPointer<GtCoreProcessExecutor> executor;
     bool runtimeClosed{false};
+    mutable bool hasTerminalStatus{false};
+    mutable GtHeadlessTaskStatus terminalStatus;
 };
 
 bool GtHeadlessTaskStatus::isDone() const
@@ -114,9 +121,22 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     }
 
     result.id = m_state->id;
+    if (!isRuntimeOwnerThread())
+    {
+        result.state = GtHeadlessTaskStatus::State::Invalid;
+        result.error = QStringLiteral("Task handles must be used from the GTlab owner thread");
+        return result;
+    }
+
+    if (m_state->hasTerminalStatus)
+    {
+        return m_state->terminalStatus;
+    }
+
     if (m_state->runtimeClosed)
     {
         result.state = GtHeadlessTaskStatus::State::Shutdown;
+        result.error = QStringLiteral("Runtime was shut down before task completion");
         return result;
     }
 
@@ -138,12 +158,19 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     {
         result.error = QStringLiteral("Task execution was cancelled");
     }
+
+    if (result.isDone())
+    {
+        m_state->terminalStatus = result;
+        m_state->hasTerminalStatus = true;
+    }
     return result;
 }
 
 bool GtHeadlessTaskHandle::cancel() const
 {
-    if (!m_state || m_state->runtimeClosed || !m_state->task || !m_state->executor)
+    if (!m_state || !isRuntimeOwnerThread() || m_state->runtimeClosed ||
+        m_state->hasTerminalStatus || !m_state->task || !m_state->executor)
     {
         return false;
     }
@@ -153,24 +180,51 @@ bool GtHeadlessTaskHandle::cancel() const
 
 GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
 {
-    QElapsedTimer timer;
-    timer.start();
-
-    while (true)
+    if (!m_state || !isRuntimeOwnerThread())
     {
-        const auto current = status();
-        if (current.isDone())
-        {
-            return current;
-        }
-
-        if (timeoutMs >= 0 && timer.elapsed() >= timeoutMs)
-        {
-            return current;
-        }
-
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+        return status();
     }
+
+    auto current = status();
+    const auto executorFinished = [&]() {
+        return !m_state->executor ||
+               (!m_state->executor->taskCurrentlyRunning() &&
+                !m_state->executor->taskQueued(m_state->task));
+    };
+    if (current.isDone() && executorFinished())
+    {
+        return current;
+    }
+
+    if (!m_state->executor)
+    {
+        return current;
+    }
+
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    QObject::connect(m_state->executor, &GtCoreProcessExecutor::queueChanged,
+                     &loop, &QEventLoop::quit);
+    QObject::connect(m_state->executor, &GtCoreProcessExecutor::allTasksCompleted,
+                     &loop, &QEventLoop::quit);
+    if (timeoutMs >= 0)
+    {
+        timeout.setInterval(timeoutMs);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeout.start();
+    }
+
+    while (!current.isDone() || !executorFinished())
+    {
+        loop.exec(QEventLoop::AllEvents);
+        current = status();
+        if (timeoutMs >= 0 && timeout.remainingTime() <= 0)
+        {
+            break;
+        }
+    }
+    return current;
 }
 
 struct GtHeadlessProjectRuntime::Private
@@ -178,6 +232,10 @@ struct GtHeadlessProjectRuntime::Private
     State state{State::Created};
     QPointer<GtProject> project;
     QVector<QSharedPointer<GtHeadlessTaskHandle::State>> tasks;
+    QPointer<GtCoreProcessExecutor> configuredExecutor;
+    GtCoreProcessExecutor::Flags previousExecutorFlags{};
+    bool executorFlagsOverridden{false};
+    QMetaObject::Connection executorCompletionConnection;
 };
 
 bool isRuntimeOwnerThread()
@@ -214,13 +272,22 @@ GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
         if (!handle.status().isDone())
         {
             handle.cancel();
-            handle.wait();
+            auto status = handle.wait(shutdownTimeoutMs);
+            if (!status.isDone() && task->executor)
+            {
+                task->executor->terminateAllTasks();
+                status = handle.wait(100);
+            }
+            if (!status.isDone())
+            {
+                task->terminalStatus = status;
+                task->terminalStatus.state = GtHeadlessTaskStatus::State::Shutdown;
+                task->terminalStatus.error =
+                    QStringLiteral("Runtime shutdown timed out while cancelling task");
+                task->hasTerminalStatus = true;
+                task->runtimeClosed = true;
+            }
         }
-    }
-
-    for (const auto& task : std::as_const(m_private->tasks))
-    {
-        task->runtimeClosed = true;
     }
 
     if (m_private->project && m_private->project->isOpen())
@@ -228,10 +295,7 @@ GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
         closeProject();
     }
 
-    if (auto* executor = gt::processExecutorManager().currentExecutor())
-    {
-        executor->setCoreExecutorFlags({});
-    }
+    restoreExecutorFlags();
 }
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::initialize()
@@ -271,15 +335,26 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::initialize()
                        QStringLiteral("GTlab Core session or executor could not be initialized"));
     }
 
-    auto* executor = gt::processExecutorManager().currentExecutor();
-    connect(executor,
-            &GtCoreProcessExecutor::allTasksCompleted,
-            this,
-            [executor]() { executor->setCoreExecutorFlags({}); },
-            Qt::UniqueConnection);
-
     m_private->state = State::Initialized;
     return success();
+}
+
+void GtHeadlessProjectRuntime::restoreExecutorFlags()
+{
+    if (!m_private->executorFlagsOverridden)
+    {
+        return;
+    }
+
+    if (m_private->configuredExecutor)
+    {
+        m_private->configuredExecutor->setCoreExecutorFlags(
+            m_private->previousExecutorFlags);
+    }
+    QObject::disconnect(m_private->executorCompletionConnection);
+    m_private->executorCompletionConnection = {};
+    m_private->configuredExecutor.clear();
+    m_private->executorFlagsOverridden = false;
 }
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& projectPath)
@@ -371,21 +446,20 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
         }
     }
 
-    GtProjectExecutionGuard guard;
-    const auto guardResult = guard.tryAcquire(m_private->project);
-    if (guardResult == GtProjectExecutionGuard::Result::Busy)
+    if (GtProjectExecutionGuard::isBusy(m_private->project))
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                        QStringLiteral("Project execution is still active"));
     }
-    if (guardResult == GtProjectExecutionGuard::Result::InvalidProject)
+
+    if (gtDataModel->saveProject(m_private->project))
     {
-        return failure(GtHeadlessRuntimeResult::Code::SaveFailed,
-                       QStringLiteral("Project could not be guarded for saving"));
+        return success();
     }
 
-    return gtDataModel->saveProject(m_private->project) ?
-               success() :
+    return GtProjectExecutionGuard::isBusy(m_private->project) ?
+               failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
+                       QStringLiteral("Project execution started during save")) :
                failure(GtHeadlessRuntimeResult::Code::SaveFailed,
                        QStringLiteral("Project could not be saved"));
 }
@@ -414,33 +488,44 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
         }
     }
 
-    GtProjectExecutionGuard guard;
-    const auto guardResult = guard.tryAcquire(m_private->project);
-    if (guardResult == GtProjectExecutionGuard::Result::Busy)
+    GtProject* project = m_private->project;
+    if (GtProjectExecutionGuard::isBusy(project))
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                        QStringLiteral("Project execution is still active"));
     }
-    if (guardResult == GtProjectExecutionGuard::Result::InvalidProject)
+
+    if (!gtDataModel->closeProject(project))
     {
+        return GtProjectExecutionGuard::isBusy(project) ?
+                   failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
+                           QStringLiteral("Project execution started during close")) :
+                   failure(GtHeadlessRuntimeResult::Code::CloseFailed,
+                           QStringLiteral("Project could not be closed"));
+    }
+
+    if (!gtDataModel->deleteProject(project))
+    {
+        for (const auto& task : std::as_const(m_private->tasks))
+        {
+            task->runtimeClosed = true;
+        }
+        m_private->project.clear();
+        m_private->state = State::Closed;
+        restoreExecutorFlags();
         return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
-                       QStringLiteral("Project could not be guarded for closing"));
+                       QStringLiteral("Project was closed but could not be removed"));
     }
 
     for (const auto& task : std::as_const(m_private->tasks))
     {
+        GtHeadlessTaskHandle(task).status();
         task->runtimeClosed = true;
-    }
-
-    GtProject* project = m_private->project;
-    if (!gtDataModel->closeProject(project) || !gtDataModel->deleteProject(project))
-    {
-        return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
-                       QStringLiteral("Project could not be closed"));
     }
 
     m_private->project.clear();
     m_private->state = State::Closed;
+    restoreExecutorFlags();
     return success();
 }
 
@@ -469,8 +554,16 @@ QVector<GtHeadlessTaskDescriptor> GtHeadlessProjectRuntime::listTasks() const
         return result;
     }
 
-    const auto previousGroup = processData->taskGroup() ?
-                                   processData->taskGroup()->objectName() : QString();
+    const auto* previousTaskGroup = processData->taskGroup();
+    const auto previousGroup = previousTaskGroup ?
+                                   previousTaskGroup->objectName() : QString();
+    auto previousScope = GtTaskGroup::USER;
+    if (previousTaskGroup && previousTaskGroup->parent() &&
+        previousTaskGroup->parent()->objectName() ==
+            GtTaskGroup::scopeId(GtTaskGroup::CUSTOM))
+    {
+        previousScope = GtTaskGroup::CUSTOM;
+    }
     const auto collect = [&result, processData, this]()
     {
         const QString group = processData->taskGroup() ?
@@ -517,7 +610,7 @@ QVector<GtHeadlessTaskDescriptor> GtHeadlessProjectRuntime::listTasks() const
     }
     if (!previousGroup.isEmpty())
     {
-        processData->switchCurrentTaskGroup(previousGroup, GtTaskGroup::USER,
+        processData->switchCurrentTaskGroup(previousGroup, previousScope,
                                             m_private->project->path());
     }
 
@@ -576,7 +669,20 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
         return {};
     }
 
-    if (spec.explicitGroup &&
+    GtTask* task = nullptr;
+    if (!spec.explicitGroup)
+    {
+        const auto matchingTasks = m_private->project->findChildren<GtTask*>();
+        const auto uuidMatch = std::find_if(
+            matchingTasks.cbegin(), matchingTasks.cend(),
+            [&](const auto* candidate) { return candidate->uuid() == spec.task; });
+        if (uuidMatch != matchingTasks.cend())
+        {
+            task = *uuidMatch;
+        }
+    }
+
+    if (!task && spec.explicitGroup &&
         !processData->switchCurrentTaskGroup(spec.group, GtTaskGroup::CUSTOM,
                                              m_private->project->path()) &&
         !processData->switchCurrentTaskGroup(spec.group, GtTaskGroup::USER,
@@ -586,13 +692,16 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
                           QStringLiteral("Task group not found: %1").arg(spec.group)));
         return {};
     }
-    else if (!spec.explicitGroup)
+    else if (!task && !spec.explicitGroup)
     {
         processData->switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
                                             GtTaskGroup::USER, m_private->project->path());
     }
 
-    auto* task = m_private->project->findProcess(spec.task);
+    if (!task)
+    {
+        task = m_private->project->findProcess(spec.task);
+    }
     if (!task)
     {
         setResult(failure(GtHeadlessRuntimeResult::Code::TaskNotFound,
@@ -607,13 +716,26 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
         return {};
     }
 
-    executor->setCoreExecutorFlags(
-        GtCoreProcessExecutor::Flags{gt::NonBlockingExecution});
+    if (!m_private->executorFlagsOverridden)
+    {
+        m_private->configuredExecutor = executor;
+        m_private->previousExecutorFlags = executor->coreExecutorFlags();
+        m_private->executorFlagsOverridden = true;
+        m_private->executorCompletionConnection = connect(
+            executor,
+            &GtCoreProcessExecutor::allTasksCompleted,
+            this,
+            [this]() { restoreExecutorFlags(); });
+    }
+
+    auto flags = executor->coreExecutorFlags();
+    flags.setFlag(gt::NonBlockingExecution, true);
+    executor->setCoreExecutorFlags(flags);
     const auto runResult = executor->runTaskWithResult(task);
     if (runResult != GtCoreProcessExecutor::RunTaskResult::Started &&
         runResult != GtCoreProcessExecutor::RunTaskResult::Queued)
     {
-        executor->setCoreExecutorFlags({});
+        restoreExecutorFlags();
         const auto code = runResult == GtCoreProcessExecutor::RunTaskResult::Busy ?
                               GtHeadlessRuntimeResult::Code::ProjectBusy :
                               GtHeadlessRuntimeResult::Code::ExecutionRejected;
