@@ -53,6 +53,24 @@ public:
 
 std::atomic<GtProject*> ContextObservingCalculator::observedProject{nullptr};
 
+class LegacyCurrentProjectCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE LegacyCurrentProjectCalculator() = default;
+
+    static std::atomic<GtProject*> observedProject;
+
+    bool run() override
+    {
+        observedProject.store(gtApp->currentProject());
+        return observedProject.load() != nullptr;
+    }
+};
+
+std::atomic<GtProject*> LegacyCurrentProjectCalculator::observedProject{nullptr};
+
 class InterruptibleCalculator : public GtCalculator
 {
     Q_OBJECT
@@ -157,7 +175,8 @@ TEST(GtHeadlessTaskHandle, DefaultHandleIsInvalid)
     EXPECT_FALSE(handle.isValid());
     EXPECT_TRUE(handle.id().isEmpty());
     EXPECT_FALSE(handle.status().isDone());
-    EXPECT_FALSE(handle.cancel());
+    EXPECT_EQ(handle.cancel().code,
+              GtHeadlessTaskCancellationResult::Code::TaskUnavailable);
 }
 
 TEST(GtHeadlessProjectRuntime, StartsInCreatedState)
@@ -244,6 +263,35 @@ TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
     EXPECT_EQ(ContextObservingCalculator::observedProject.load(), project);
 }
 
+TEST_F(TestGtHeadlessProjectRuntime, PreservesLegacyCurrentProjectCompatibility)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(LegacyCurrentProjectCalculator::staticMetaObject);
+    LegacyCurrentProjectCalculator::observedProject.store(nullptr);
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("legacy-current-project-task"));
+    auto calculator = std::make_unique<LegacyCurrentProjectCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("legacy-current-project-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+
+    const auto status = handle.wait(5000);
+    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
+    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::Succeeded);
+    EXPECT_EQ(LegacyCurrentProjectCalculator::observedProject.load(), project);
+}
+
 TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
 {
     auto* project = openProject();
@@ -276,10 +324,26 @@ TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
         QThread::msleep(1);
     }
     ASSERT_TRUE(InterruptibleCalculator::started.load());
-    ASSERT_TRUE(handle.cancel());
+    GtHeadlessTaskCancellationResult foreignThreadCancellation;
+    std::thread foreignThread([&]() {
+        foreignThreadCancellation = handle.cancel();
+    });
+    foreignThread.join();
+    EXPECT_EQ(foreignThreadCancellation.code,
+              GtHeadlessTaskCancellationResult::Code::WrongThread);
+
+    const auto cancellation = handle.cancel();
+    ASSERT_TRUE(cancellation.succeeded());
+    EXPECT_EQ(cancellation.code,
+              GtHeadlessTaskCancellationResult::Code::Accepted);
     InterruptibleCalculator::release.store(true);
 
-    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Cancelled);
+    const auto status = handle.wait(5000);
+    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Cancelled);
+    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::Cancelled);
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+    EXPECT_EQ(handle.cancel().code,
+              GtHeadlessTaskCancellationResult::Code::AlreadyCompleted);
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, LostTaskObjectBecomesTerminal)
@@ -303,6 +367,7 @@ TEST_F(TestGtHeadlessProjectRuntime, LostTaskObjectBecomesTerminal)
 
     const auto status = handle.wait(100);
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
+    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::TaskUnavailable);
     EXPECT_TRUE(status.isDone());
 }
 
@@ -395,6 +460,24 @@ TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
               GtHeadlessRuntimeResult::Code::ProjectBusy);
 }
 
+TEST_F(TestGtHeadlessProjectRuntime, RejectsSecondProject)
+{
+    ASSERT_NE(openProject(), nullptr);
+
+    const auto result = m_runtime->openProject(createProject());
+    EXPECT_EQ(result.code,
+              GtHeadlessRuntimeResult::Code::ProjectAlreadyLoaded);
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::ProjectLoaded);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, InitializesAndShutsDownWithoutProject)
+{
+    m_runtime.reset();
+    m_runtime = std::make_unique<GtHeadlessProjectRuntime>();
+    ASSERT_TRUE(m_runtime->initialize());
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Initialized);
+}
+
 TEST_F(TestGtHeadlessProjectRuntime, ClosesProjectSuccessfully)
 {
     ASSERT_NE(openProject(), nullptr);
@@ -426,6 +509,7 @@ TEST_F(TestGtHeadlessProjectRuntime, CompletedHandleRemainsUsableAfterRuntimeCle
     m_runtime.reset();
 
     EXPECT_EQ(handle.status().state, GtHeadlessTaskStatus::State::Finished);
+    EXPECT_EQ(handle.status().result, GtHeadlessTaskStatus::Result::Succeeded);
 }
 
 #include "test_gt_headlessprojectruntime.moc"

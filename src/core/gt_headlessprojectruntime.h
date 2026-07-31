@@ -35,13 +35,47 @@ struct GT_CORE_EXPORT GtHeadlessTaskStatus
         Shutdown
     };
 
+    enum class Result
+    {
+        None,
+        Succeeded,
+        Cancelled,
+        TaskUnavailable,
+        ExecutionFailed,
+        RuntimeShutdown
+    };
+
     QString id;
     State state{State::Invalid};
     GtProcessComponent::STATE processState{GtProcessComponent::NONE};
     int progress{-1};
     QString error;
+    Result result{Result::None};
 
     bool isDone() const;
+};
+
+/**
+ * @brief Outcome of a headless task cancellation request.
+ */
+struct GT_CORE_EXPORT GtHeadlessTaskCancellationResult
+{
+    enum class Code
+    {
+        Accepted,
+        AlreadyCompleted,
+        RuntimeShutdown,
+        TaskUnavailable,
+        WrongThread,
+        ExecutorUnavailable,
+        ExecutorRejected
+    };
+
+    Code code{Code::TaskUnavailable};
+    QString message;
+
+    bool succeeded() const;
+    explicit operator bool() const { return succeeded(); }
 };
 
 /**
@@ -67,9 +101,9 @@ public:
 
     /**
      * @brief Request cancellation of the associated task.
-     * @return Whether a cancellation request was accepted.
+     * @return Structured result describing whether cancellation was accepted.
      */
-    bool cancel() const;
+    GtHeadlessTaskCancellationResult cancel() const;
 
     /**
      * @brief Wait for completion while processing the Qt event loop.

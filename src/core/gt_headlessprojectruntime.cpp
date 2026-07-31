@@ -95,6 +95,11 @@ bool GtHeadlessTaskStatus::isDone() const
            state == State::Cancelled || state == State::Shutdown;
 }
 
+bool GtHeadlessTaskCancellationResult::succeeded() const
+{
+    return code == Code::Accepted;
+}
+
 GtHeadlessTaskHandle::GtHeadlessTaskHandle() = default;
 GtHeadlessTaskHandle::~GtHeadlessTaskHandle() = default;
 
@@ -137,16 +142,25 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     if (m_state->runtimeClosed)
     {
         result.state = GtHeadlessTaskStatus::State::Shutdown;
+        result.result = GtHeadlessTaskStatus::Result::RuntimeShutdown;
         result.error = QStringLiteral("Runtime was shut down before task completion");
         return result;
     }
 
     if (!m_state->task)
     {
-        result.state = GtHeadlessTaskStatus::State::Failed;
+        const bool executorFinished = !m_state->executor ||
+                                      !m_state->executor->taskCurrentlyRunning();
+        result.state = executorFinished ? GtHeadlessTaskStatus::State::Failed :
+                                          GtHeadlessTaskStatus::State::Running;
+        result.result = executorFinished ? GtHeadlessTaskStatus::Result::TaskUnavailable :
+                                           GtHeadlessTaskStatus::Result::None;
         result.error = QStringLiteral("Task object is no longer available");
-        m_state->terminalStatus = result;
-        m_state->hasTerminalStatus = true;
+        if (executorFinished)
+        {
+            m_state->terminalStatus = result;
+            m_state->hasTerminalStatus = true;
+        }
         return result;
     }
 
@@ -167,12 +181,18 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     }
     if (result.state == GtHeadlessTaskStatus::State::Failed)
     {
+        result.result = GtHeadlessTaskStatus::Result::ExecutionFailed;
         result.error = QStringLiteral("Task execution failed (%1)")
                            .arg(static_cast<int>(result.processState));
     }
     else if (result.state == GtHeadlessTaskStatus::State::Cancelled)
     {
+        result.result = GtHeadlessTaskStatus::Result::Cancelled;
         result.error = QStringLiteral("Task execution was cancelled");
+    }
+    else if (result.state == GtHeadlessTaskStatus::State::Finished)
+    {
+        result.result = GtHeadlessTaskStatus::Result::Succeeded;
     }
 
     if (result.isDone() && executorFinished)
@@ -183,20 +203,53 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     return result;
 }
 
-bool GtHeadlessTaskHandle::cancel() const
+GtHeadlessTaskCancellationResult GtHeadlessTaskHandle::cancel() const
 {
-    if (!m_state || !isRuntimeOwnerThread() || m_state->runtimeClosed ||
-        m_state->hasTerminalStatus || !m_state->task || !m_state->executor)
+    if (!m_state)
     {
-        return false;
+        return {GtHeadlessTaskCancellationResult::Code::TaskUnavailable,
+                QStringLiteral("Task handle is invalid")};
+    }
+
+    if (!isRuntimeOwnerThread())
+    {
+        return {GtHeadlessTaskCancellationResult::Code::WrongThread,
+                QStringLiteral("Task handles must be used from the GTlab owner thread")};
+    }
+
+    if (m_state->runtimeClosed)
+    {
+        return {GtHeadlessTaskCancellationResult::Code::RuntimeShutdown,
+                QStringLiteral("Runtime was shut down")};
+    }
+
+    if (m_state->hasTerminalStatus || status().isDone())
+    {
+        return {GtHeadlessTaskCancellationResult::Code::AlreadyCompleted,
+                QStringLiteral("Task has already completed")};
+    }
+
+    if (!m_state->task)
+    {
+        return {GtHeadlessTaskCancellationResult::Code::TaskUnavailable,
+                QStringLiteral("Task object is no longer available")};
+    }
+
+    if (!m_state->executor)
+    {
+        return {GtHeadlessTaskCancellationResult::Code::ExecutorUnavailable,
+                QStringLiteral("Task executor is no longer available")};
     }
 
     const bool accepted = m_state->executor->terminateTask(m_state->task);
     if (accepted)
     {
         m_state->cancellationRequested = true;
+        return {GtHeadlessTaskCancellationResult::Code::Accepted, {}};
     }
-    return accepted;
+
+    return {GtHeadlessTaskCancellationResult::Code::ExecutorRejected,
+            QStringLiteral("Task executor rejected the cancellation request")};
 }
 
 GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
@@ -417,16 +470,16 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& pro
                        QStringLiteral("Runtime must be used from the GTlab owner thread"));
     }
 
-    if (m_private->state != State::Initialized)
-    {
-        return failure(GtHeadlessRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime is not initialized"));
-    }
-
     if (m_private->project)
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectAlreadyLoaded,
                        QStringLiteral("A project is already loaded"));
+    }
+
+    if (m_private->state != State::Initialized)
+    {
+        return failure(GtHeadlessRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime is not initialized"));
     }
 
     if (gtDataModel->currentProject())
