@@ -144,6 +144,7 @@ public:
         Created,
         Initialized,
         ProjectLoaded,
+        CloseFailed,
         Closed
     };
     Q_ENUM(State)
@@ -165,6 +166,7 @@ public:
 private:
     Q_DISABLE_COPY(GtHeadlessProjectRuntime)
 
+    void shutdown();
     void restoreExecutorFlags();
 
     struct Private;

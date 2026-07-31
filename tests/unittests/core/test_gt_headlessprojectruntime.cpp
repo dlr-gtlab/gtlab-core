@@ -260,6 +260,33 @@ TEST_F(TestGtHeadlessProjectRuntime, ListTasksRestoresCustomTaskGroup)
     EXPECT_EQ(processData->taskGroup()->objectName(), customGroup->objectName());
 }
 
+TEST_F(TestGtHeadlessProjectRuntime, SubmitTaskRestoresCurrentTaskGroup)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* processData = project->processData();
+    ASSERT_NE(processData, nullptr);
+    auto* customGroup = processData->createNewTaskGroup(
+        QStringLiteral("custom"), GtTaskGroup::CUSTOM);
+    ASSERT_NE(customGroup, nullptr);
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("custom-task"));
+    ASSERT_TRUE(customGroup->appendChild(task));
+    ASSERT_TRUE(processData->switchCurrentTaskGroup(
+        GtTaskGroup::defaultUserGroupId(), GtTaskGroup::USER, project->path()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("custom/custom-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
+    ASSERT_NE(processData->taskGroup(), nullptr);
+    EXPECT_EQ(processData->taskGroup()->objectName(),
+              GtTaskGroup::defaultUserGroupId());
+}
+
 TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
 {
     auto* project = openProject();

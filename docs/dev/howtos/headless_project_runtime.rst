@@ -55,6 +55,10 @@ The runtime follows this lifecycle::
 
    Created -> Initialized -> ProjectLoaded -> Closed
 
+If project removal fails after the project was closed, the runtime enters
+``CloseFailed`` and retains the project handle so that ``closeProject()`` can
+be retried.
+
 Initialization is idempotent. A runtime accepts one project and rejects a
 second project or operations without a loaded project. ``openProject()`` adds
 the project to the current Core session; ``closeProject()`` closes and removes

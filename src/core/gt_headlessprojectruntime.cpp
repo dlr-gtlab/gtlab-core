@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QPointer>
+#include <QScopeGuard>
 #include <QTimer>
 #include <QThread>
 #include <QUuid>
@@ -266,6 +267,22 @@ GtHeadlessProjectRuntime::GtHeadlessProjectRuntime(QObject* parent) :
 
 GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
 {
+    if (!isRuntimeOwnerThread())
+    {
+        if (gtApp && gtApp->thread() && gtApp->thread()->isRunning() &&
+            !QCoreApplication::closingDown())
+        {
+            QMetaObject::invokeMethod(gtApp, [this]() { shutdown(); },
+                                       Qt::BlockingQueuedConnection);
+        }
+        return;
+    }
+
+    shutdown();
+}
+
+void GtHeadlessProjectRuntime::shutdown()
+{
     for (const auto& task : std::as_const(m_private->tasks))
     {
         GtHeadlessTaskHandle handle(task);
@@ -290,7 +307,7 @@ GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
         }
     }
 
-    if (m_private->project && m_private->project->isOpen())
+    if (m_private->project)
     {
         closeProject();
     }
@@ -472,7 +489,8 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
                        QStringLiteral("Runtime must be used from the GTlab owner thread"));
     }
 
-    if (m_private->state != State::ProjectLoaded || !m_private->project)
+    if ((m_private->state != State::ProjectLoaded &&
+         m_private->state != State::CloseFailed) || !m_private->project)
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidState,
                        QStringLiteral("No project is loaded"));
@@ -489,6 +507,26 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
     }
 
     GtProject* project = m_private->project;
+
+    if (m_private->state == State::CloseFailed)
+    {
+        if (!gtDataModel->deleteProject(project))
+        {
+            return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
+                           QStringLiteral("Project could not be removed"));
+        }
+
+        for (const auto& task : std::as_const(m_private->tasks))
+        {
+            GtHeadlessTaskHandle(task).status();
+            task->runtimeClosed = true;
+        }
+        m_private->project.clear();
+        m_private->state = State::Closed;
+        restoreExecutorFlags();
+        return success();
+    }
+
     if (GtProjectExecutionGuard::isBusy(project))
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
@@ -506,12 +544,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
 
     if (!gtDataModel->deleteProject(project))
     {
-        for (const auto& task : std::as_const(m_private->tasks))
-        {
-            task->runtimeClosed = true;
-        }
-        m_private->project.clear();
-        m_private->state = State::Closed;
+        m_private->state = State::CloseFailed;
         restoreExecutorFlags();
         return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
                        QStringLiteral("Project was closed but could not be removed"));
@@ -564,6 +597,17 @@ QVector<GtHeadlessTaskDescriptor> GtHeadlessProjectRuntime::listTasks() const
     {
         previousScope = GtTaskGroup::CUSTOM;
     }
+    const auto restoreTaskGroup = qScopeGuard([processData,
+                                               previousGroup,
+                                               previousScope,
+                                               projectPath = m_private->project->path()]() {
+        if (!previousGroup.isEmpty())
+        {
+            processData->switchCurrentTaskGroup(previousGroup, previousScope,
+                                                projectPath);
+        }
+    });
+    Q_UNUSED(restoreTaskGroup);
     const auto collect = [&result, processData, this]()
     {
         const QString group = processData->taskGroup() ?
@@ -668,6 +712,28 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
                           QStringLiteral("Project has no process data")));
         return {};
     }
+
+    const auto* previousTaskGroup = processData->taskGroup();
+    const auto previousGroup = previousTaskGroup ?
+                                   previousTaskGroup->objectName() : QString();
+    auto previousScope = GtTaskGroup::USER;
+    if (previousTaskGroup && previousTaskGroup->parent() &&
+        previousTaskGroup->parent()->objectName() ==
+            GtTaskGroup::scopeId(GtTaskGroup::CUSTOM))
+    {
+        previousScope = GtTaskGroup::CUSTOM;
+    }
+    const auto restoreTaskGroup = qScopeGuard([processData,
+                                               previousGroup,
+                                               previousScope,
+                                               projectPath = m_private->project->path()]() {
+        if (!previousGroup.isEmpty())
+        {
+            processData->switchCurrentTaskGroup(previousGroup, previousScope,
+                                                projectPath);
+        }
+    });
+    Q_UNUSED(restoreTaskGroup);
 
     GtTask* task = nullptr;
     if (!spec.explicitGroup)
