@@ -405,4 +405,27 @@ TEST_F(TestGtHeadlessProjectRuntime, ClosesProjectSuccessfully)
     EXPECT_EQ(gtDataModel->currentProject(), nullptr);
 }
 
+TEST_F(TestGtHeadlessProjectRuntime, CompletedHandleRemainsUsableAfterRuntimeCleanup)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("retained-handle-task"));
+    ASSERT_TRUE(taskGroup->appendChild(task));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("retained-handle-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+    ASSERT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
+
+    m_runtime.reset();
+
+    EXPECT_EQ(handle.status().state, GtHeadlessTaskStatus::State::Finished);
+}
+
 #include "test_gt_headlessprojectruntime.moc"

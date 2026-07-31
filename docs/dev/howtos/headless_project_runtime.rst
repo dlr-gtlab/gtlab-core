@@ -102,6 +102,11 @@ while copied handles retain their terminal snapshot.
 The status API is deliberately value-based and does not expose ``GtTask*`` or
 other Qt pointers across the integration boundary.
 
+``Finished`` is reported only after the complete executor operation has
+finished, including post-processing and result merging. A task whose process
+component already reports ``FINISHED`` but whose executor is still completing
+post-processing is reported as ``Running`` until that final boundary.
+
 Execution context and project coordination
 ------------------------------------------
 
