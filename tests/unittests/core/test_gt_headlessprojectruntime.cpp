@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 
 #include <memory>
+#include <thread>
 
 #include <QDir>
 #include <QFile>
@@ -201,11 +202,58 @@ TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
     ASSERT_TRUE(handle.isValid());
     ASSERT_TRUE(result.succeeded());
 
+    GtHeadlessTaskStatus foreignThreadStatus;
+    std::thread foreignThread([&]() { foreignThreadStatus = handle.status(); });
+    foreignThread.join();
+    EXPECT_EQ(foreignThreadStatus.state, GtHeadlessTaskStatus::State::Invalid);
+
     const auto status = handle.wait(5000);
     QCoreApplication::processEvents(QEventLoop::AllEvents);
     EXPECT_TRUE(status.isDone());
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
     EXPECT_EQ(ContextObservingCalculator::observedProject, project);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("uuid-task"));
+    const auto taskUuid = task->uuid();
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(taskUuid, &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, ListTasksRestoresCustomTaskGroup)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* processData = project->processData();
+    ASSERT_NE(processData, nullptr);
+    auto* customGroup = processData->createNewTaskGroup(
+        QStringLiteral("custom"), GtTaskGroup::CUSTOM);
+    ASSERT_NE(customGroup, nullptr);
+    ASSERT_TRUE(processData->switchCurrentTaskGroup(
+        customGroup->objectName(), GtTaskGroup::CUSTOM, project->path()));
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("custom-task"));
+    ASSERT_TRUE(customGroup->appendChild(task));
+
+    const auto descriptors = m_runtime->listTasks();
+
+    EXPECT_FALSE(descriptors.isEmpty());
+    ASSERT_NE(processData->taskGroup(), nullptr);
+    EXPECT_EQ(processData->taskGroup()->objectName(), customGroup->objectName());
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
