@@ -313,7 +313,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& pro
                                  QDir(projectInfo.absoluteFilePath())
                                      .filePath(GtProject::mainFilename()) :
                                  projectPath;
-    if (!GtProjectProvider::projectFileExists(filePath))
+    if (!QFileInfo::exists(filePath))
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidProject,
                        QStringLiteral("Project file does not exist: %1").arg(filePath));
