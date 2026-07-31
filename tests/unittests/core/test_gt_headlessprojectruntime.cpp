@@ -6,6 +6,7 @@
 
 #include "gtest/gtest.h"
 
+#include <atomic>
 #include <memory>
 #include <thread>
 
@@ -17,6 +18,7 @@
 #include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
 #include "gt_externalizationmanager.h"
+#include "gt_executioncontext.h"
 #include "gt_objectfactory.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_project.h"
@@ -36,16 +38,18 @@ class ContextObservingCalculator : public GtCalculator
 public:
     Q_INVOKABLE ContextObservingCalculator() = default;
 
-    static GtProject* observedProject;
+    static std::atomic<GtProject*> observedProject;
 
     bool run() override
     {
-        observedProject = gtApp->currentProject();
-        return observedProject != nullptr;
+        const auto* context = GtExecutionContext::current();
+        auto* project = context ? context->project() : nullptr;
+        observedProject.store(project);
+        return project != nullptr;
     }
 };
 
-GtProject* ContextObservingCalculator::observedProject = nullptr;
+std::atomic<GtProject*> ContextObservingCalculator::observedProject{nullptr};
 
 class TestGtHeadlessProjectRuntime : public ::testing::Test
 {
@@ -188,7 +192,7 @@ TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
 
     gtObjectFactory->registerClass(GtTask::staticMetaObject);
     gtObjectFactory->registerClass(ContextObservingCalculator::staticMetaObject);
-    ContextObservingCalculator::observedProject = nullptr;
+    ContextObservingCalculator::observedProject.store(nullptr);
 
     auto task = std::make_unique<GtTask>();
     task->setObjectName(QStringLiteral("context-task"));
@@ -211,7 +215,7 @@ TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
     QCoreApplication::processEvents(QEventLoop::AllEvents);
     EXPECT_TRUE(status.isDone());
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
-    EXPECT_EQ(ContextObservingCalculator::observedProject, project);
+    EXPECT_EQ(ContextObservingCalculator::observedProject.load(), project);
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
