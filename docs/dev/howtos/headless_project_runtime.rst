@@ -95,6 +95,9 @@ Handles expose a stable opaque identifier, queued/running/terminal state, the
 underlying Core process state, cancellation, and waiting. Terminal status and
 structured error information remain available after completion. Progress is
 represented as unavailable until the executor provides a task-specific value.
+The runtime retains only active task states; completed states are removed from
+the runtime's internal active-task list after the executor signals completion,
+while copied handles retain their terminal snapshot.
 
 The status API is deliberately value-based and does not expose ``GtTask*`` or
 other Qt pointers across the integration boundary.
@@ -111,7 +114,9 @@ to choose an execution target.
 Project save and close use the same guard-aware Core datamodel operations.
 They reject changes while a task is mutating the project and preserve the
 executor's pre-existing flags after the runtime has finished using its
-non-blocking mode.
+non-blocking mode. The current design assumes one runtime/executor consumer per
+worker process; another consumer must not change the shared executor flags
+while a runtime task is active.
 
 Python and worker integration
 -----------------------------

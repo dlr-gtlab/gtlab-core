@@ -167,6 +167,7 @@ private:
     Q_DISABLE_COPY(GtHeadlessProjectRuntime)
 
     void shutdown();
+    void cleanupCompletedTasks();
     void restoreExecutorFlags();
 
     struct Private;

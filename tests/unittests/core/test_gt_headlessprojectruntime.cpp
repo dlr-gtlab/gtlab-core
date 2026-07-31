@@ -11,9 +11,11 @@
 #include <thread>
 
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QThread>
 
 #include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
@@ -50,6 +52,30 @@ public:
 };
 
 std::atomic<GtProject*> ContextObservingCalculator::observedProject{nullptr};
+
+class InterruptibleCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE InterruptibleCalculator() = default;
+
+    static std::atomic_bool started;
+    static std::atomic_bool release;
+
+    bool run() override
+    {
+        started.store(true);
+        while (!release.load())
+        {
+            QThread::msleep(1);
+        }
+        return true;
+    }
+};
+
+std::atomic_bool InterruptibleCalculator::started{false};
+std::atomic_bool InterruptibleCalculator::release{false};
 
 class TestGtHeadlessProjectRuntime : public ::testing::Test
 {
@@ -218,17 +244,84 @@ TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
     EXPECT_EQ(ContextObservingCalculator::observedProject.load(), project);
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
+TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
 {
     auto* project = openProject();
     ASSERT_NE(project, nullptr);
     auto* taskGroup = project->processData()->taskGroup();
     ASSERT_NE(taskGroup, nullptr);
 
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(InterruptibleCalculator::staticMetaObject);
+    InterruptibleCalculator::started.store(false);
+    InterruptibleCalculator::release.store(false);
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("cancellable-task"));
+    auto calculator = std::make_unique<InterruptibleCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("cancellable-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+
+    QElapsedTimer timer;
+    timer.start();
+    while (!InterruptibleCalculator::started.load() && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        QThread::msleep(1);
+    }
+    ASSERT_TRUE(InterruptibleCalculator::started.load());
+    ASSERT_TRUE(handle.cancel());
+    InterruptibleCalculator::release.store(true);
+
+    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Cancelled);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, LostTaskObjectBecomesTerminal)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("lost-task"));
+    ASSERT_TRUE(taskGroup->appendChild(task));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("lost-task"),
+                                               &result);
+    ASSERT_TRUE(handle.isValid());
+    ASSERT_TRUE(result.succeeded());
+
+    delete task;
+
+    const auto status = handle.wait(100);
+    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
+    EXPECT_TRUE(status.isDone());
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* processData = project->processData();
+    ASSERT_NE(processData, nullptr);
+    auto* customGroup = processData->createNewTaskGroup(
+        QStringLiteral("uuid-custom"), GtTaskGroup::CUSTOM);
+    ASSERT_NE(customGroup, nullptr);
+
     auto task = std::make_unique<GtTask>();
     task->setObjectName(QStringLiteral("uuid-task"));
     const auto taskUuid = task->uuid();
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+    ASSERT_TRUE(customGroup->appendChild(task.release()));
+    ASSERT_TRUE(processData->switchCurrentTaskGroup(
+        GtTaskGroup::defaultUserGroupId(), GtTaskGroup::USER, project->path()));
 
     GtHeadlessRuntimeResult result;
     const auto handle = m_runtime->submitTask(taskUuid, &result);
@@ -300,6 +393,16 @@ TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
               GtHeadlessRuntimeResult::Code::ProjectBusy);
     EXPECT_EQ(m_runtime->closeProject().code,
               GtHeadlessRuntimeResult::Code::ProjectBusy);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, ClosesProjectSuccessfully)
+{
+    ASSERT_NE(openProject(), nullptr);
+
+    EXPECT_TRUE(m_runtime->closeProject());
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
+    EXPECT_TRUE(m_runtime->projectPath().isEmpty());
+    EXPECT_EQ(gtDataModel->currentProject(), nullptr);
 }
 
 #include "test_gt_headlessprojectruntime.moc"

@@ -84,6 +84,7 @@ struct GtHeadlessTaskHandle::State
     QPointer<GtTask> task;
     QPointer<GtCoreProcessExecutor> executor;
     bool runtimeClosed{false};
+    bool cancellationRequested{false};
     mutable bool hasTerminalStatus{false};
     mutable GtHeadlessTaskStatus terminalStatus;
 };
@@ -142,13 +143,28 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
 
     if (!m_state->task)
     {
-        result.state = GtHeadlessTaskStatus::State::Invalid;
+        result.state = GtHeadlessTaskStatus::State::Failed;
         result.error = QStringLiteral("Task object is no longer available");
+        m_state->terminalStatus = result;
+        m_state->hasTerminalStatus = true;
         return result;
     }
 
     result.processState = m_state->task->currentState();
     result.state = taskState(result.processState);
+    const bool executorFinished = !m_state->executor ||
+                                  (!m_state->executor->taskCurrentlyRunning() &&
+                                   !m_state->executor->taskQueued(m_state->task));
+    if (result.isDone() && !executorFinished)
+    {
+        result.state = GtHeadlessTaskStatus::State::Running;
+    }
+    if (m_state->cancellationRequested && executorFinished &&
+        (result.state == GtHeadlessTaskStatus::State::Failed ||
+         result.state == GtHeadlessTaskStatus::State::Running))
+    {
+        result.state = GtHeadlessTaskStatus::State::Cancelled;
+    }
     if (result.state == GtHeadlessTaskStatus::State::Failed)
     {
         result.error = QStringLiteral("Task execution failed (%1)")
@@ -159,7 +175,7 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
         result.error = QStringLiteral("Task execution was cancelled");
     }
 
-    if (result.isDone())
+    if (result.isDone() && executorFinished)
     {
         m_state->terminalStatus = result;
         m_state->hasTerminalStatus = true;
@@ -175,7 +191,12 @@ bool GtHeadlessTaskHandle::cancel() const
         return false;
     }
 
-    return m_state->executor->terminateTask(m_state->task);
+    const bool accepted = m_state->executor->terminateTask(m_state->task);
+    if (accepted)
+    {
+        m_state->cancellationRequested = true;
+    }
+    return accepted;
 }
 
 GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
@@ -191,7 +212,7 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
                (!m_state->executor->taskCurrentlyRunning() &&
                 !m_state->executor->taskQueued(m_state->task));
     };
-    if (current.isDone() && executorFinished())
+    if (current.isDone() && (!m_state->task || executorFinished()))
     {
         return current;
     }
@@ -371,6 +392,21 @@ void GtHeadlessProjectRuntime::restoreExecutorFlags()
     m_private->executorCompletionConnection = {};
     m_private->configuredExecutor.clear();
     m_private->executorFlagsOverridden = false;
+}
+
+void GtHeadlessProjectRuntime::cleanupCompletedTasks()
+{
+    if (!isRuntimeOwnerThread())
+    {
+        return;
+    }
+
+    auto isCompleted = [](const auto& task) {
+        return GtHeadlessTaskHandle(task).status().isDone();
+    };
+    m_private->tasks.erase(
+        std::remove_if(m_private->tasks.begin(), m_private->tasks.end(), isCompleted),
+        m_private->tasks.end());
 }
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& projectPath)
@@ -791,7 +827,10 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
             executor,
             &GtCoreProcessExecutor::allTasksCompleted,
             this,
-            [this]() { restoreExecutorFlags(); });
+            [this]() {
+                restoreExecutorFlags();
+                cleanupCompletedTasks();
+            });
     }
 
     auto flags = executor->coreExecutorFlags();
