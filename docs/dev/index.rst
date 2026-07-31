@@ -101,6 +101,7 @@ Your first module
 
    howtos/migration_and_deprecation
    howtos/project_context_compatibility
+   howtos/headless_project_runtime
    faq
    changelog
 
