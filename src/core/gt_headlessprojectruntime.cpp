@@ -24,6 +24,7 @@
 #include "gt_coreprocessexecutor.h"
 #include "gt_processexecutormanager.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_processdata.h"
 #include "gt_task.h"
 #include "gt_taskgroup.h"
@@ -370,6 +371,19 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
         }
     }
 
+    GtProjectExecutionGuard guard;
+    const auto guardResult = guard.tryAcquire(m_private->project);
+    if (guardResult == GtProjectExecutionGuard::Result::Busy)
+    {
+        return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
+                       QStringLiteral("Project execution is still active"));
+    }
+    if (guardResult == GtProjectExecutionGuard::Result::InvalidProject)
+    {
+        return failure(GtHeadlessRuntimeResult::Code::SaveFailed,
+                       QStringLiteral("Project could not be guarded for saving"));
+    }
+
     return gtDataModel->saveProject(m_private->project) ?
                success() :
                failure(GtHeadlessRuntimeResult::Code::SaveFailed,
@@ -398,6 +412,19 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
             return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                            QStringLiteral("Cannot close while a task is running"));
         }
+    }
+
+    GtProjectExecutionGuard guard;
+    const auto guardResult = guard.tryAcquire(m_private->project);
+    if (guardResult == GtProjectExecutionGuard::Result::Busy)
+    {
+        return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
+                       QStringLiteral("Project execution is still active"));
+    }
+    if (guardResult == GtProjectExecutionGuard::Result::InvalidProject)
+    {
+        return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
+                       QStringLiteral("Project could not be guarded for closing"));
     }
 
     for (const auto& task : std::as_const(m_private->tasks))
@@ -580,15 +607,17 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
         return {};
     }
 
-    // PR #1514 integration point: acquire the project execution guard and
-    // install the explicit execution context at this boundary. Keeping this
-    // code local makes the migration onto that PR straightforward.
     executor->setCoreExecutorFlags(
         GtCoreProcessExecutor::Flags{gt::NonBlockingExecution});
-    if (!executor->runTask(task))
+    const auto runResult = executor->runTaskWithResult(task);
+    if (runResult != GtCoreProcessExecutor::RunTaskResult::Started &&
+        runResult != GtCoreProcessExecutor::RunTaskResult::Queued)
     {
         executor->setCoreExecutorFlags({});
-        setResult(failure(GtHeadlessRuntimeResult::Code::ExecutionRejected,
+        const auto code = runResult == GtCoreProcessExecutor::RunTaskResult::Busy ?
+                              GtHeadlessRuntimeResult::Code::ProjectBusy :
+                              GtHeadlessRuntimeResult::Code::ExecutionRejected;
+        setResult(failure(code,
                           QStringLiteral("Task could not be queued: %1").arg(taskReference)));
         return {};
     }
