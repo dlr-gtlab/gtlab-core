@@ -10,6 +10,7 @@ The current API is exposed by:
 * ``GtHeadlessProjectRuntime``
 * ``GtHeadlessTaskHandle``
 * ``GtHeadlessTaskStatus``
+* ``GtHeadlessTaskCancellationResult``
 * ``GtHeadlessRuntimeResult``
 
 Minimal usage
@@ -92,9 +93,13 @@ unqualified task id uses the default task-group lookup; a qualified id first
 looks in the requested custom group and then in the user group. UUID lookup is
 independent of task-group selection and does not change the current group.
 Handles expose a stable opaque identifier, queued/running/terminal state, the
-underlying Core process state, cancellation, and waiting. Terminal status and
-structured error information remain available after completion. Progress is
-represented as unavailable until the executor provides a task-specific value.
+underlying Core process state, cancellation, and waiting. ``cancel()`` returns
+a structured result distinguishing accepted requests from completion,
+shutdown, thread, availability and executor-rejection failures. The final
+status also exposes a structured result (including execution failure after
+post-processing or result merging), while structured error information remains
+available after completion. Progress is represented as unavailable until the
+executor provides a task-specific value.
 The runtime retains only active task states; completed states are removed from
 the runtime's internal active-task list after the executor signals completion,
 while copied handles retain their terminal snapshot.
@@ -133,3 +138,13 @@ lookup, handle storage, lifecycle, and execution belong to Core.
 The existing Python webservice can later preserve its start/poll/cancel HTTP
 interaction while replacing its current task-service calls with the runtime.
 REST or worker-process orchestration is not part of this Core API.
+
+Prototype migration
+-------------------
+
+The implementation reuses the prototype's task descriptors, stable task
+handles, lifecycle polling and non-blocking execution model. It redesigns the
+boundary as a value-based Core API with an explicit project, execution context,
+project guard, structured operation/cancellation results and owner-thread
+lifecycle. Prototype-specific webservice and worker orchestration, as well as
+private implementation details, are intentionally not part of this API.
