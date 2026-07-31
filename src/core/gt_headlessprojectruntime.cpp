@@ -64,7 +64,6 @@ struct TaskSpec
 {
     QString group;
     QString task;
-    bool explicitGroup{false};
 };
 
 TaskSpec parseTaskSpec(const QString& reference)
@@ -72,10 +71,10 @@ TaskSpec parseTaskSpec(const QString& reference)
     const int slash = reference.indexOf('/');
     if (slash < 0)
     {
-        return {{}, reference.trimmed(), false};
+        return {{}, reference.trimmed()};
     }
 
-    return {reference.left(slash).trimmed(), reference.mid(slash + 1).trimmed(), true};
+    return {reference.left(slash).trimmed(), reference.mid(slash + 1).trimmed()};
 }
 }
 
@@ -698,6 +697,7 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
     }
 
     const auto spec = parseTaskSpec(taskReference);
+    const bool explicitGroup = taskReference.indexOf('/') >= 0;
     if (spec.task.isEmpty())
     {
         setResult(failure(GtHeadlessRuntimeResult::Code::TaskNotFound,
@@ -736,7 +736,7 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
     Q_UNUSED(restoreTaskGroup);
 
     GtTask* task = nullptr;
-    if (!spec.explicitGroup)
+    if (!explicitGroup)
     {
         const auto matchingTasks = m_private->project->findChildren<GtTask*>();
         const auto uuidMatch = std::find_if(
@@ -748,7 +748,7 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
         }
     }
 
-    if (!task && spec.explicitGroup &&
+    if (!task && explicitGroup &&
         !processData->switchCurrentTaskGroup(spec.group, GtTaskGroup::CUSTOM,
                                              m_private->project->path()) &&
         !processData->switchCurrentTaskGroup(spec.group, GtTaskGroup::USER,
@@ -758,7 +758,7 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
                           QStringLiteral("Task group not found: %1").arg(spec.group)));
         return {};
     }
-    else if (!task && !spec.explicitGroup)
+    else if (!task && !explicitGroup)
     {
         processData->switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
                                             GtTaskGroup::USER, m_private->project->path());
