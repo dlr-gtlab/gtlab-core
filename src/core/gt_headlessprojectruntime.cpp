@@ -128,6 +128,15 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
 
     result.processState = m_state->task->currentState();
     result.state = taskState(result.processState);
+    if (result.state == GtHeadlessTaskStatus::State::Failed)
+    {
+        result.error = QStringLiteral("Task execution failed (%1)")
+                           .arg(static_cast<int>(result.processState));
+    }
+    else if (result.state == GtHeadlessTaskStatus::State::Cancelled)
+    {
+        result.error = QStringLiteral("Task execution was cancelled");
+    }
     return result;
 }
 
@@ -169,6 +178,11 @@ struct GtHeadlessProjectRuntime::Private
     QPointer<GtProject> project;
     QVector<QSharedPointer<GtHeadlessTaskHandle::State>> tasks;
 };
+
+bool isRuntimeOwnerThread()
+{
+    return gtApp && gtApp->thread() == QThread::currentThread();
+}
 
 GtHeadlessRuntimeResult success()
 {
@@ -232,7 +246,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::initialize()
                        QStringLiteral("Runtime cannot be initialized in its current state"));
     }
 
-    if (!gtApp || !gtDataModel || !gt::processExecutorManager().currentExecutor())
+    if (!gtApp || !gtDataModel)
     {
         return failure(GtHeadlessRuntimeResult::Code::CoreUnavailable,
                        QStringLiteral("Required GTlab Core services are unavailable"));
@@ -242,6 +256,18 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::initialize()
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidState,
                        QStringLiteral("Runtime must be initialized on the GTlab owner thread"));
+    }
+
+    gtApp->init();
+    if (!gtApp->session())
+    {
+        gtApp->initSession();
+    }
+
+    if (!gtApp->session() || !gt::processExecutorManager().currentExecutor())
+    {
+        return failure(GtHeadlessRuntimeResult::Code::CoreUnavailable,
+                       QStringLiteral("GTlab Core session or executor could not be initialized"));
     }
 
     auto* executor = gt::processExecutorManager().currentExecutor();
@@ -257,6 +283,12 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::initialize()
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& projectPath)
 {
+    if (!isRuntimeOwnerThread())
+    {
+        return failure(GtHeadlessRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime must be used from the GTlab owner thread"));
+    }
+
     if (m_private->state != State::Initialized)
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidState,
@@ -316,6 +348,12 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::openProject(const QString& pro
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
 {
+    if (!isRuntimeOwnerThread())
+    {
+        return failure(GtHeadlessRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime must be used from the GTlab owner thread"));
+    }
+
     if (m_private->state != State::ProjectLoaded || !m_private->project)
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidState,
@@ -340,6 +378,12 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
 
 GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
 {
+    if (!isRuntimeOwnerThread())
+    {
+        return failure(GtHeadlessRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime must be used from the GTlab owner thread"));
+    }
+
     if (m_private->state != State::ProjectLoaded || !m_private->project)
     {
         return failure(GtHeadlessRuntimeResult::Code::InvalidState,
@@ -354,6 +398,11 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
             return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                            QStringLiteral("Cannot close while a task is running"));
         }
+    }
+
+    for (const auto& task : std::as_const(m_private->tasks))
+    {
+        task->runtimeClosed = true;
     }
 
     GtProject* project = m_private->project;
@@ -381,7 +430,8 @@ QString GtHeadlessProjectRuntime::projectPath() const
 QVector<GtHeadlessTaskDescriptor> GtHeadlessProjectRuntime::listTasks() const
 {
     QVector<GtHeadlessTaskDescriptor> result;
-    if (m_private->state != State::ProjectLoaded || !m_private->project)
+    if (!isRuntimeOwnerThread() ||
+        m_private->state != State::ProjectLoaded || !m_private->project)
     {
         return result;
     }
@@ -460,6 +510,13 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
             *result = std::move(value);
         }
     };
+
+    if (!isRuntimeOwnerThread())
+    {
+        setResult(failure(GtHeadlessRuntimeResult::Code::InvalidState,
+                          QStringLiteral("Runtime must be used from the GTlab owner thread")));
+        return {};
+    }
 
     if (m_private->state != State::ProjectLoaded || !m_private->project)
     {

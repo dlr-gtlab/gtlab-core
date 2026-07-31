@@ -115,6 +115,7 @@ struct GT_CORE_EXPORT GtHeadlessRuntimeResult
         ProjectBusy,
         TaskNotFound,
         ExecutionRejected,
+        ExecutionFailed,
         SaveFailed,
         CloseFailed
     };
