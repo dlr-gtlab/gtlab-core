@@ -38,10 +38,12 @@ public:
     startAccessTracking(const QUuid& contextUuid);
     void
     endAccessTracking();
+    void pause();
+
 private:
     QStack<QUuid> m_activeStack;
     QMap<QUuid, AccessContext> m_contexts;
-
+    bool m_paused;
     GtAccessTracker() {}
     ~GtAccessTracker() {}
 };

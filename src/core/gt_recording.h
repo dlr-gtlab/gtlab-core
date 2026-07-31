@@ -63,6 +63,8 @@ public:
     QString toolName() const;
     void setToolName(const QString &newToolName);
 
+    QList<QPointer<GtObject> > linkedObjects() const;
+
 private:
     /**
      * @brief Constructor.

@@ -26,11 +26,11 @@ QSet<QUuid> GtAccessTracker::getChildContextUuid(const QUuid &contextUuid)
 
 void GtAccessTracker::addAccessedProperty(const QUuid& uuid)
 {
-    if (!m_activeStack.empty())
+    if (!m_activeStack.empty()&&!m_paused)
     {
         const QUuid& contextUuid = m_activeStack.top();
 
-        //gtInfo() << "Object added:" << uuid<<" of Context:"<<contextUuid;
+        gtDebug() << "Object added:" << uuid<<" of Context:"<<contextUuid;
         m_contexts[contextUuid].accessedObjects.insert(uuid);
     }
 }
@@ -71,4 +71,10 @@ void GtAccessTracker::endAccessTracking()
     }
 
     m_activeStack.pop();
+}
+
+void GtAccessTracker::pause()
+{
+    if (m_paused) m_paused=false;
+    else m_paused=true;
 }
