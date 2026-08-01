@@ -76,6 +76,14 @@ TaskSpec parseTaskSpec(const QString& reference)
 
     return {reference.left(slash).trimmed(), reference.mid(slash + 1).trimmed()};
 }
+
+bool executorFinished(GtCoreProcessExecutor* executor, GtTask* task)
+{
+    return !executor ||
+           (!executor->taskCurrentlyRunning() &&
+            executor->queue().isEmpty() &&
+            (!task || !executor->taskQueued(task)));
+}
 }
 
 struct GtHeadlessTaskHandle::State
@@ -149,31 +157,22 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
 
     if (!m_state->task)
     {
-        const bool executorFinished = !m_state->executor ||
-                                      !m_state->executor->taskCurrentlyRunning();
-        result.state = executorFinished ? GtHeadlessTaskStatus::State::Failed :
-                                          GtHeadlessTaskStatus::State::Running;
-        result.result = executorFinished ? GtHeadlessTaskStatus::Result::TaskUnavailable :
-                                           GtHeadlessTaskStatus::Result::None;
+        result.state = GtHeadlessTaskStatus::State::Failed;
+        result.result = GtHeadlessTaskStatus::Result::TaskUnavailable;
         result.error = QStringLiteral("Task object is no longer available");
-        if (executorFinished)
-        {
-            m_state->terminalStatus = result;
-            m_state->hasTerminalStatus = true;
-        }
+        m_state->terminalStatus = result;
+        m_state->hasTerminalStatus = true;
         return result;
     }
 
     result.processState = m_state->task->currentState();
     result.state = taskState(result.processState);
-    const bool executorFinished = !m_state->executor ||
-                                  (!m_state->executor->taskCurrentlyRunning() &&
-                                   !m_state->executor->taskQueued(m_state->task));
-    if (result.isDone() && !executorFinished)
+    const bool finished = executorFinished(m_state->executor, m_state->task);
+    if (result.isDone() && !finished)
     {
         result.state = GtHeadlessTaskStatus::State::Running;
     }
-    if (m_state->cancellationRequested && executorFinished &&
+    if (m_state->cancellationRequested && finished &&
         (result.state == GtHeadlessTaskStatus::State::Failed ||
          result.state == GtHeadlessTaskStatus::State::Running))
     {
@@ -195,7 +194,7 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
         result.result = GtHeadlessTaskStatus::Result::Succeeded;
     }
 
-    if (result.isDone() && executorFinished)
+    if (result.isDone() && finished)
     {
         m_state->terminalStatus = result;
         m_state->hasTerminalStatus = true;
@@ -260,12 +259,10 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
     }
 
     auto current = status();
-    const auto executorFinished = [&]() {
-        return !m_state->executor ||
-               (!m_state->executor->taskCurrentlyRunning() &&
-                !m_state->executor->taskQueued(m_state->task));
+    const auto isExecutorFinished = [&]() {
+        return executorFinished(m_state->executor, m_state->task);
     };
-    if (current.isDone() && (!m_state->task || executorFinished()))
+    if (current.isDone() && isExecutorFinished())
     {
         return current;
     }
@@ -289,7 +286,7 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::wait(int timeoutMs) const
         timeout.start();
     }
 
-    while (!current.isDone() || !executorFinished())
+    while (!current.isDone() || !isExecutorFinished())
     {
         loop.exec(QEventLoop::AllEvents);
         current = status();
@@ -377,6 +374,30 @@ void GtHeadlessProjectRuntime::shutdown()
                 task->hasTerminalStatus = true;
                 task->runtimeClosed = true;
             }
+        }
+    }
+
+    // A handle can become terminal when its task object is deleted while the
+    // executor is still finishing a copied task. Do not close the project
+    // until the executor has crossed its completion boundary as well.
+    if (auto* executor = m_private->configuredExecutor.data())
+    {
+        if (!executorFinished(executor, nullptr))
+        {
+            executor->terminateAllTasks();
+        }
+
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(executor, &GtCoreProcessExecutor::allTasksCompleted,
+                         &loop, &QEventLoop::quit);
+        timeout.setInterval(shutdownTimeoutMs);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeout.start();
+        while (!executorFinished(executor, nullptr) && timeout.remainingTime() > 0)
+        {
+            loop.exec(QEventLoop::AllEvents);
         }
     }
 
