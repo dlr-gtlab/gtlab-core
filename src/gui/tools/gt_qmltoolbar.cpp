@@ -92,6 +92,7 @@ GtQmlToolbar::setColorTheme(const Theme &colors)
     QVariantMap theme;
     theme["baseColor"] = colors.base;
     theme["backgroundColor"] = colors.background;
+    theme["foregroundColor"] = colors.foreground;
     theme["hoverColor"] = colors.buttonHover;
     theme["darkMode"] = colors.darkMode;
 
@@ -146,7 +147,8 @@ GtQmlToolbar::statusActions()
 }
 
 GtQmlToolbar::Theme::Theme()
-    : base(241, 241, 241)
+    : foreground(69, 130, 190)
+    , base(241, 241, 241)
     , background(255, 255, 255)
     , buttonHover(221, 238, 255)
     , darkMode(false)

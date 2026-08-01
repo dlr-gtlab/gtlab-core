@@ -48,6 +48,7 @@ Item {
 
             icon.source: tbButton.action ? tbButton.action.iconUrl : ""
             darkMode: tbButton.theme.darkMode
+            custom_secondaryColor: tbButton.theme.foregroundColor
             tooltipText: tbButton.action ? tbButton.action.toolTip : ""
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
