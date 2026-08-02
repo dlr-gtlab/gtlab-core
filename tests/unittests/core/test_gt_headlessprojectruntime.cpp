@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QScopeGuard>
 #include <QThread>
 
 #include "gt_coreapplication.h"
@@ -23,6 +24,8 @@
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
 #include "gt_objectfactory.h"
+#include "gt_object.h"
+#include "gt_objectlinkproperty.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_project.h"
 #include "gt_processdata.h"
@@ -137,6 +140,50 @@ public:
         return false;
     }
 };
+
+class MergeFailureCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MergeFailureCalculator() :
+        m_target("target", "Target", "Target object", this,
+                 {GT_CLASSNAME(GtObject)})
+    {
+        registerProperty(m_target);
+    }
+
+    static std::atomic_bool started;
+    static std::atomic_bool release;
+
+    void setTargetUuid(const QString& uuid)
+    {
+        m_target.setVal(uuid);
+    }
+
+    bool run() override
+    {
+        auto* target = data<GtObject*>(m_target);
+        if (!target)
+        {
+            return false;
+        }
+
+        target->setObjectName(QStringLiteral("changed-in-runner"));
+        started.store(true);
+        while (!release.load())
+        {
+            QThread::msleep(1);
+        }
+        return true;
+    }
+
+private:
+    GtObjectLinkProperty m_target;
+};
+
+std::atomic_bool MergeFailureCalculator::started{false};
+std::atomic_bool MergeFailureCalculator::release{false};
 
 class UncooperativeCalculator : public GtCalculator
 {
@@ -412,6 +459,10 @@ TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
     gtObjectFactory->registerClass(InterruptibleCalculator::staticMetaObject);
     InterruptibleCalculator::started.store(false);
     InterruptibleCalculator::release.store(false);
+    const auto releaseOnExit = qScopeGuard([] {
+        InterruptibleCalculator::release.store(true);
+    });
+    Q_UNUSED(releaseOnExit);
 
     auto task = std::make_unique<GtTask>();
     task->setObjectName(QStringLiteral("cancellable-task"));
@@ -445,7 +496,6 @@ TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
     ASSERT_TRUE(cancellation.succeeded());
     EXPECT_EQ(cancellation.code,
               GtHeadlessTaskCancellationResult::Code::Accepted);
-    InterruptibleCalculator::release.store(true);
 
     const auto status = handle.wait(5000);
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Cancelled);
@@ -502,6 +552,78 @@ TEST_F(TestGtHeadlessProjectRuntime, FailedTaskReleasesProjectGuard)
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
     EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
     EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, MergeFailureBecomesTerminalExecutionFailure)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(MergeFailureCalculator::staticMetaObject);
+    MergeFailureCalculator::started.store(false);
+    MergeFailureCalculator::release.store(false);
+    const auto releaseOnExit = qScopeGuard([] {
+        MergeFailureCalculator::release.store(true);
+    });
+    Q_UNUSED(releaseOnExit);
+
+    auto* target = new GtObject;
+    target->setObjectName(QStringLiteral("merge-target"));
+    ASSERT_TRUE(gtDataModel->appendChild(target, project).isValid());
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("merge-failure-task"));
+    auto calculator = std::make_unique<MergeFailureCalculator>();
+    calculator->setTargetUuid(target->uuid());
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("merge-failure-task"),
+                                               &result);
+    const auto copiedHandle = handle;
+    ASSERT_TRUE(result.succeeded());
+
+    QElapsedTimer timer;
+    timer.start();
+    while (!MergeFailureCalculator::started.load() && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        QThread::msleep(1);
+    }
+    ASSERT_TRUE(MergeFailureCalculator::started.load());
+
+    auto runningStatus = handle.status();
+    timer.restart();
+    while (runningStatus.state != GtHeadlessTaskStatus::State::Running &&
+           timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        runningStatus = handle.status();
+    }
+    ASSERT_EQ(runningStatus.state, GtHeadlessTaskStatus::State::Running);
+
+    ASSERT_TRUE(gtDataModel->deleteFromModel(target));
+    MergeFailureCalculator::release.store(true);
+
+    GtHeadlessTaskStatus status;
+    timer.restart();
+    while (!status.isDone() && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        status = handle.status();
+        EXPECT_NE(status.state, GtHeadlessTaskStatus::State::Finished);
+    }
+
+    ASSERT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
+    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+    EXPECT_EQ(copiedHandle.status().state, GtHeadlessTaskStatus::State::Failed);
+    EXPECT_EQ(copiedHandle.status().result,
+              GtHeadlessTaskStatus::Result::ExecutionFailed);
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, ShutdownTimeoutStoresTerminalShutdownStatus)
@@ -642,7 +764,7 @@ TEST_F(TestGtHeadlessProjectRuntime, SavesProjectSuccessfully)
     EXPECT_TRUE(m_runtime->saveProject());
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, CloseFailedCanBeRetried)
+TEST_F(TestGtHeadlessProjectRuntime, CloseFailureKeepsProjectLoadedForRetry)
 {
     auto* project = openProject();
     ASSERT_NE(project, nullptr);
@@ -650,8 +772,33 @@ TEST_F(TestGtHeadlessProjectRuntime, CloseFailedCanBeRetried)
     ASSERT_TRUE(gtDataModel->closeProject(project));
     EXPECT_EQ(m_runtime->closeProject().code,
               GtHeadlessRuntimeResult::Code::CloseFailed);
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::CloseFailed);
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::ProjectLoaded);
 
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    EXPECT_TRUE(m_runtime->closeProject());
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, RemovalFailureRetriesRemoval)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    ASSERT_NE(gtDataModel->session(), nullptr);
+
+    QMetaObject::Connection detachOnClose;
+    detachOnClose = QObject::connect(
+        gtDataModel, &QAbstractItemModel::rowsRemoved,
+        [&detachOnClose, project] {
+            QObject::disconnect(detachOnClose);
+            project->setParent(nullptr);
+        });
+
+    EXPECT_EQ(m_runtime->closeProject().code,
+              GtHeadlessRuntimeResult::Code::CloseFailed);
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::CloseFailed);
+    EXPECT_FALSE(project->isOpen());
+
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
     EXPECT_TRUE(m_runtime->closeProject());
     EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
 }

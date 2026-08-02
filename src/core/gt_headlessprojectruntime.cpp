@@ -676,7 +676,6 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
                            QStringLiteral("Project execution started during close"));
         }
 
-        m_private->state = State::CloseFailed;
         return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
                        QStringLiteral("Project could not be closed"));
     }
