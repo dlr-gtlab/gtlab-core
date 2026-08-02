@@ -363,9 +363,12 @@ GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
             return;
         }
 
-        Q_ASSERT_X(false,
-                   "GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime",
-                   "Runtime must be destroyed on the GTlab owner thread while the application is running");
+        if (gtApp || m_private->project || m_private->executorFlagsOverridden)
+        {
+            Q_ASSERT_X(false,
+                       "GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime",
+                       "Runtime must be destroyed on the GTlab owner thread while the application is running");
+        }
         return;
     }
 
