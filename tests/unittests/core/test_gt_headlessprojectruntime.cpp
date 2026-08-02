@@ -18,6 +18,7 @@
 #include <QThread>
 
 #include "gt_coreapplication.h"
+#include "gt_coreprocessexecutor.h"
 #include "gt_coredatamodel.h"
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
@@ -29,6 +30,7 @@
 #include "gt_taskgroup.h"
 #include "gt_calculator.h"
 #include "gt_headlessprojectruntime.h"
+#include "gt_processexecutormanager.h"
 #include "gt_testhelper.h"
 
 namespace
@@ -84,7 +86,8 @@ public:
     bool run() override
     {
         started.store(true);
-        while (!release.load())
+        auto* task = findParent<GtTask*>();
+        while (!release.load() && !(task && task->isInterruptionRequested()))
         {
             QThread::msleep(1);
         }
@@ -94,6 +97,70 @@ public:
 
 std::atomic_bool InterruptibleCalculator::started{false};
 std::atomic_bool InterruptibleCalculator::release{false};
+
+class ProgressCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ProgressCalculator() = default;
+
+    static std::atomic_bool reported;
+
+    bool run() override
+    {
+        auto* task = findParent<GtTask*>();
+        if (task)
+        {
+            task->setProgress(42);
+        }
+        reported.store(true);
+        while (task && !task->isInterruptionRequested())
+        {
+            QThread::msleep(1);
+        }
+        return true;
+    }
+};
+
+std::atomic_bool ProgressCalculator::reported{false};
+
+class FailingCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE FailingCalculator() = default;
+
+    bool run() override
+    {
+        return false;
+    }
+};
+
+class UncooperativeCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE UncooperativeCalculator() = default;
+
+    static std::atomic_bool started;
+    static std::atomic_bool release;
+
+    bool run() override
+    {
+        started.store(true);
+        while (!release.load())
+        {
+            QThread::msleep(1);
+        }
+        return true;
+    }
+};
+
+std::atomic_bool UncooperativeCalculator::started{false};
+std::atomic_bool UncooperativeCalculator::release{false};
 
 class TestGtHeadlessProjectRuntime : public ::testing::Test
 {
@@ -292,6 +359,48 @@ TEST_F(TestGtHeadlessProjectRuntime, PreservesLegacyCurrentProjectCompatibility)
     EXPECT_EQ(LegacyCurrentProjectCalculator::observedProject.load(), project);
 }
 
+TEST_F(TestGtHeadlessProjectRuntime, ReportsTaskProgress)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(ProgressCalculator::staticMetaObject);
+    ProgressCalculator::reported.store(false);
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("progress-task"));
+    auto calculator = std::make_unique<ProgressCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("progress-task"), &result);
+    ASSERT_TRUE(result.succeeded());
+
+    QElapsedTimer timer;
+    timer.start();
+    while (!ProgressCalculator::reported.load() && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        QThread::msleep(1);
+    }
+    ASSERT_TRUE(ProgressCalculator::reported.load());
+    GtHeadlessTaskStatus progressStatus;
+    timer.restart();
+    while (progressStatus.progress != 42 && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        progressStatus = handle.status();
+        QThread::msleep(1);
+    }
+    ASSERT_EQ(progressStatus.progress, 42);
+    ASSERT_TRUE(handle.cancel().succeeded());
+    EXPECT_EQ(handle.wait(5000).result, GtHeadlessTaskStatus::Result::Cancelled);
+}
+
 TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
 {
     auto* project = openProject();
@@ -369,6 +478,73 @@ TEST_F(TestGtHeadlessProjectRuntime, LostTaskObjectBecomesTerminal)
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
     EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::TaskUnavailable);
     EXPECT_TRUE(status.isDone());
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, FailedTaskReleasesProjectGuard)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(FailingCalculator::staticMetaObject);
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("failing-task"));
+    auto calculator = std::make_unique<FailingCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("failing-task"), &result);
+    ASSERT_TRUE(result.succeeded());
+    const auto status = handle.wait(5000);
+    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
+    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, ShutdownTimeoutStoresTerminalShutdownStatus)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(UncooperativeCalculator::staticMetaObject);
+    UncooperativeCalculator::started.store(false);
+    UncooperativeCalculator::release.store(false);
+
+    auto task = std::make_unique<GtTask>();
+    task->setObjectName(QStringLiteral("uncooperative-task"));
+    auto calculator = std::make_unique<UncooperativeCalculator>();
+    ASSERT_TRUE(task->appendChild(calculator.release()));
+    ASSERT_TRUE(taskGroup->appendChild(task.release()));
+
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("uncooperative-task"), &result);
+    ASSERT_TRUE(result.succeeded());
+
+    QElapsedTimer timer;
+    timer.start();
+    while (!UncooperativeCalculator::started.load() && timer.elapsed() < 5000)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        QThread::msleep(1);
+    }
+    ASSERT_TRUE(UncooperativeCalculator::started.load());
+
+    std::thread releaser([] {
+        QThread::msleep(5500);
+        UncooperativeCalculator::release.store(true);
+    });
+    m_runtime.reset();
+    releaser.join();
+
+    EXPECT_EQ(handle.status().state, GtHeadlessTaskStatus::State::Shutdown);
+    EXPECT_EQ(handle.status().result,
+              GtHeadlessTaskStatus::Result::RuntimeShutdown);
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
@@ -458,6 +634,47 @@ TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
               GtHeadlessRuntimeResult::Code::ProjectBusy);
     EXPECT_EQ(m_runtime->closeProject().code,
               GtHeadlessRuntimeResult::Code::ProjectBusy);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, SavesProjectSuccessfully)
+{
+    ASSERT_NE(openProject(), nullptr);
+    EXPECT_TRUE(m_runtime->saveProject());
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, CloseFailedCanBeRetried)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    EXPECT_EQ(m_runtime->closeProject().code,
+              GtHeadlessRuntimeResult::Code::CloseFailed);
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::CloseFailed);
+
+    EXPECT_TRUE(m_runtime->closeProject());
+    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
+}
+
+TEST_F(TestGtHeadlessProjectRuntime, RestoresExecutorFlagsAfterTask)
+{
+    auto* project = openProject();
+    ASSERT_NE(project, nullptr);
+    auto* taskGroup = project->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+    auto* executor = gt::processExecutorManager().currentExecutor();
+    ASSERT_NE(executor, nullptr);
+    const auto original = GtCoreProcessExecutor::Flags{gt::DryExecution};
+    executor->setCoreExecutorFlags(original);
+
+    auto* task = new GtTask;
+    task->setObjectName(QStringLiteral("flags-task"));
+    ASSERT_TRUE(taskGroup->appendChild(task));
+    GtHeadlessRuntimeResult result;
+    const auto handle = m_runtime->submitTask(QStringLiteral("flags-task"), &result);
+    ASSERT_TRUE(result.succeeded());
+    ASSERT_TRUE(handle.wait(5000).isDone());
+    EXPECT_EQ(executor->coreExecutorFlags(), original);
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, RejectsSecondProject)

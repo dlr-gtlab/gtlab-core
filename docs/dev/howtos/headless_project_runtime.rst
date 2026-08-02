@@ -93,13 +93,14 @@ unqualified task id uses the default task-group lookup; a qualified id first
 looks in the requested custom group and then in the user group. UUID lookup is
 independent of task-group selection and does not change the current group.
 Handles expose a stable opaque identifier, queued/running/terminal state, the
-underlying Core process state, cancellation, and waiting. ``cancel()`` returns
+underlying Core process state, progress in percent where available,
+cancellation, and waiting. ``cancel()`` returns
 a structured result distinguishing accepted requests from completion,
 shutdown, thread, availability and executor-rejection failures. The final
 status also exposes a structured result (including execution failure after
 post-processing or result merging), while structured error information remains
-available after completion. Progress is represented as unavailable until the
-executor provides a task-specific value.
+available after completion. Progress is represented as ``-1`` only when
+neither the task nor its process components provide a value.
 The runtime retains only active task states; completed states are removed from
 the runtime's internal active-task list after the executor signals completion,
 while copied handles retain their terminal snapshot.
