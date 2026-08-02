@@ -84,6 +84,21 @@ bool executorFinished(GtCoreProcessExecutor* executor, GtTask* task)
             executor->queue().isEmpty() &&
             (!task || !executor->taskQueued(task)));
 }
+
+int taskProgress(const GtTask* task)
+{
+    if (!task)
+    {
+        return -1;
+    }
+
+    int progress = task->currentProgress();
+    for (const auto* component : task->findChildren<GtProcessComponent*>())
+    {
+        progress = std::max(progress, component->currentProgress());
+    }
+    return progress;
+}
 }
 
 struct GtHeadlessTaskHandle::State
@@ -166,6 +181,7 @@ GtHeadlessTaskStatus GtHeadlessTaskHandle::status() const
     }
 
     result.processState = m_state->task->currentState();
+    result.progress = taskProgress(m_state->task);
     result.state = taskState(result.processState);
     const bool finished = executorFinished(m_state->executor, m_state->task);
     if (result.isDone() && !finished)
@@ -344,7 +360,12 @@ GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime()
         {
             QMetaObject::invokeMethod(gtApp, [this]() { shutdown(); },
                                        Qt::BlockingQueuedConnection);
+            return;
         }
+
+        Q_ASSERT_X(false,
+                   "GtHeadlessProjectRuntime::~GtHeadlessProjectRuntime",
+                   "Runtime must be destroyed on the GTlab owner thread while the application is running");
         return;
     }
 
@@ -369,6 +390,8 @@ void GtHeadlessProjectRuntime::shutdown()
             {
                 task->terminalStatus = status;
                 task->terminalStatus.state = GtHeadlessTaskStatus::State::Shutdown;
+                task->terminalStatus.result =
+                    GtHeadlessTaskStatus::Result::RuntimeShutdown;
                 task->terminalStatus.error =
                     QStringLiteral("Runtime shutdown timed out while cancelling task");
                 task->hasTerminalStatus = true;
@@ -644,11 +667,15 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
 
     if (!gtDataModel->closeProject(project))
     {
-        return GtProjectExecutionGuard::isBusy(project) ?
-                   failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
-                           QStringLiteral("Project execution started during close")) :
-                   failure(GtHeadlessRuntimeResult::Code::CloseFailed,
-                           QStringLiteral("Project could not be closed"));
+        if (GtProjectExecutionGuard::isBusy(project))
+        {
+            return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
+                           QStringLiteral("Project execution started during close"));
+        }
+
+        m_private->state = State::CloseFailed;
+        return failure(GtHeadlessRuntimeResult::Code::CloseFailed,
+                       QStringLiteral("Project could not be closed"));
     }
 
     if (!gtDataModel->deleteProject(project))
