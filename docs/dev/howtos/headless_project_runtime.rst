@@ -1,9 +1,20 @@
 Headless single-project runtime
 ================================
 
-The headless runtime provides a small Core-facing facade for a worker process
-that owns exactly one loaded project. It is intentionally independent of
+The headless runtime is the single-project application boundary of a future
+Project Worker. It owns the lifecycle around exactly one loaded project and
+its owner-thread execution context. It is intentionally independent of
 ``GtMainWindow`` and other GUI classes.
+
+Asynchronous task execution is the first supported capability, not the full
+long-term purpose of the runtime. Future short-lived project queries and
+mutations, including Memento-based read/apply operations, should use the same
+loaded project and owner-thread execution context. Such operations do not have
+to be represented as asynchronous task handles.
+
+Query and command APIs, Memento APIs, project revisions, project events, and
+IPC contracts remain follow-up work and are not part of the current runtime
+API.
 
 The current API is exposed by:
 
@@ -132,9 +143,10 @@ while a runtime task is active.
 Python and worker integration
 -----------------------------
 
-The Python binding should remain a thin adapter over this API. It may convert
-task descriptors, statuses, and operation results to Python values, but task
-lookup, handle storage, lifecycle, and execution belong to Core.
+The Python binding should remain a thin adapter over this application boundary.
+For the currently implemented task capability, it may convert task descriptors,
+statuses, and operation results to Python values, while task lookup, handle
+storage, lifecycle, and execution belong to Core.
 
 The existing Python webservice can later preserve its start/poll/cancel HTTP
 interaction while replacing its current task-service calls with the runtime.

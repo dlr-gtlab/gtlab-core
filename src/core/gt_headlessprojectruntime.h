@@ -186,14 +186,21 @@ struct GT_CORE_EXPORT GtHeadlessRuntimeResult
 };
 
 /**
- * @brief Headless facade for one explicitly loaded GTlab project.
+ * @brief Single-project application boundary for a headless GTlab worker.
  *
- * The facade uses the existing Core datamodel and process executor. It does
- * not own QCoreApplication. The project added by openProject() is removed
- * from the current session again by closeProject(). The runtime must be
- * destroyed on the GTlab owner thread while the application is running;
- * destruction from another thread is marshalled only while that thread is
- * available.
+ * The runtime owns the lifecycle boundary around one explicitly loaded project
+ * and its owner-thread execution context. Asynchronous task execution is the
+ * first supported capability, not the complete purpose of the abstraction.
+ * Future short-lived project queries and mutations, including Memento-based
+ * read/apply operations, should use the same project and execution context but
+ * do not have to be represented by task handles. Their APIs, as well as project
+ * revisions, project events, and IPC contracts, are follow-up work.
+ *
+ * The runtime uses the existing Core datamodel and process executor. It does
+ * not own QCoreApplication. The project added by openProject() is removed from
+ * the current session again by closeProject(). The runtime must be destroyed
+ * on the GTlab owner thread while the application is running; destruction from
+ * another thread is marshalled only while that thread is available.
  */
 class GT_CORE_EXPORT GtHeadlessProjectRuntime : public QObject
 {
