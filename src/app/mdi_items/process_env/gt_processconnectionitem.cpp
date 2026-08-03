@@ -39,7 +39,8 @@ QStringList GtProcessConnectionItem::m_acceptedPropertyTypes =
                          GT_CLASSNAME(GtIntProperty) <<
                          GT_CLASSNAME(GtObjectLinkProperty) <<
                          GT_CLASSNAME(GtStringProperty) <<
-                         GT_CLASSNAME(GtStringMonitoringProperty);
+                         GT_CLASSNAME(GtStringMonitoringProperty) <<
+                         GT_CLASSNAME(GtBoolProperty);
 
 GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent* comp) :
     m_component(comp),
@@ -249,6 +250,12 @@ GtProcessConnectionItem::data(int column, int role)
                     {
                         return gt::gui::icon::letter::s();
                     }
+
+                    if (qobject_cast<GtBoolProperty*>(m_property))
+                    {
+                        return gt::gui::icon::letter::b();
+                    }
+
                 }
 
             }
