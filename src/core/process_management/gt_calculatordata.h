@@ -15,7 +15,6 @@
 #include "gt_core_exports.h"
 
 #include "gt_abstractprocessdata.h"
-#include "gt_versionnumber.h"
 
 #include <QStringList>
 #include <QMetaObject>
@@ -74,27 +73,6 @@ public:
      * @return List of environment variable identification strings
      */
     const QStringList& environmentVariables();
-
-    /// Calculator identification string.
-    QString id;
-
-    /// Calculator description.
-    QString description;
-
-    /// Calculator author.
-    QString author;
-
-    /// Calculator author contact.
-    QString contact;
-
-    /// Calculator author company.
-    QString company;
-
-    /// Calculator category.
-    QString category;
-
-    /// Calculator version.
-    GtVersionNumber version;
 
 private:
     /// Calculator meta data.

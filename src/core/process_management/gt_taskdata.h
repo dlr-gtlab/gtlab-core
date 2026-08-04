@@ -15,7 +15,7 @@
 #include "gt_core_exports.h"
 
 #include "gt_abstractprocessdata.h"
-#include "gt_versionnumber.h"
+
 
 #include <QStringList>
 #include <QMetaObject>
@@ -62,27 +62,6 @@ public:
      * @return
      */
     static GtTaskData newTaskData(const QMetaObject& metaData);
-
-    /// Task identification string.
-    QString id;
-
-    /// Task description.
-    QString description;
-
-    /// Task author.
-    QString author;
-
-    /// Task author contact.
-    QString contact;
-
-    /// Task author company.
-    QString company;
-
-    /// Task category.
-    QString category;
-
-    /// Task version.
-    GtVersionNumber version;
 
 private:
     /// Task meta data.

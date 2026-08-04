@@ -12,7 +12,10 @@
 #ifndef GTABSTRACTPROCESSDATA_H
 #define GTABSTRACTPROCESSDATA_H
 
+#include <QString>
+
 #include "gt_core_exports.h"
+#include "gt_versionnumber.h"
 
 class QString;
 
@@ -54,6 +57,26 @@ public:
     /// status variable
     GtAbstractProcessData::DEV_STATUS status;
 
+    /// Process component identification string.
+    QString id;
+
+    /// Process component description.
+    QString description;
+
+    /// Process component author.
+    QString author;
+
+    /// Process component author contact.
+    QString contact;
+
+    /// Process component author company.
+    QString company;
+
+    /// Process component category.
+    QString category;
+
+    /// Process component version.
+    GtVersionNumber version;
 protected:
     /**
      * @brief Constructor.
