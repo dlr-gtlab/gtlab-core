@@ -40,6 +40,7 @@ namespace {
     GtCustomProcessWizard* calcWizard(GtCalculator* calc)
     {
         if (!calc) return nullptr;
+        if (!gtCalculatorFactory) return nullptr;
 
         GtCalculatorData calcData = gtCalculatorFactory->calculatorData(
                 calc->metaObject()->className());
@@ -50,6 +51,7 @@ namespace {
     GtCustomProcessWizard* taskWizard(GtTask* task)
     {
         if (!task) return nullptr;
+        if (!gtTaskFactory) return nullptr;
 
         GtTaskData taskData = gtTaskFactory->taskData(
             task->metaObject()->className());
@@ -151,14 +153,7 @@ GtProcessComponentSettingsButton::updateState()
         return;
     }
 
-    if (!m_pc || !m_pc->isReady())
-    {
-        setEnabled(false);
-    }
-    else
-    {
-        setEnabled(true);
-    }
+    setEnabled(m_pc && m_pc->isReady());
 
     if (qobject_cast<GtCalculator*>(m_pc))
     {

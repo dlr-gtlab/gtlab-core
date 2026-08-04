@@ -18,9 +18,6 @@
 
 #include "gt_processcomponent.h"
 
-class GtCustomProcessWizard;
-class GtAbstractProcessProvider;
-
 /**
  * @brief The GtProcessComponentSettingsButton class
  */
