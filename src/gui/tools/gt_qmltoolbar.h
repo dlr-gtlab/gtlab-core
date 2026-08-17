@@ -91,8 +91,14 @@ public:
     {
         Theme();
 
-        /// Color of the text and icons
+        /// Color of button text and icons
         QColor foreground;
+
+        /// Color of button text and icons when hovered
+        QColor foregroundHover;
+
+        /// Color of disabled button text and icons
+        QColor foregroundDisabled;
 
         /// First background color
         QColor base;
@@ -100,8 +106,14 @@ public:
         /// Second background color
         QColor background;
 
-        /// Color of the button, when hovered
-        QColor buttonHover;
+        /// Background color of an unchecked button
+        QColor buttonBackground;
+
+        /// Background color of a checked button
+        QColor buttonCheckedBackground;
+
+        /// Background color of a button when hovered
+        QColor buttonHoverBackground;
 
         /// True, if this theme is a dark mode
         bool darkMode;

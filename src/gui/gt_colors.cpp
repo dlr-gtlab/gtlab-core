@@ -75,6 +75,12 @@ gt::gui::color::toolbarBackground()
 }
 
 QColor
+gt::gui::color::toolbarButtonHoverBackground()
+{
+    return QColor("#ddeeff");
+}
+
+QColor
 gt::gui::color::text()
 {
     return currentTheme().color(QPalette::Text);

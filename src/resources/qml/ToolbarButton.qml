@@ -38,22 +38,25 @@ Item {
                 }
             }
 
-            function bgColor() {
-                if (!checked)
-                    return theme.backgroundColor
-                return Qt.tint(theme.backgroundColor, "#30999999")
-            }
-
-            custom_backgroundColor: bgColor()
+            custom_backgroundColor: checked
+                                    ? tbButton.theme.buttonCheckedBackgroundColor
+                                    : tbButton.theme.buttonBackgroundColor
 
             icon.source: tbButton.action ? tbButton.action.iconUrl : ""
             darkMode: tbButton.theme.darkMode
-            custom_secondaryColor: tbButton.theme.foregroundColor
+            custom_iconColor: tbButton.theme.foregroundColor
+            custom_iconColorDark: tbButton.theme.foregroundColor
+            custom_secondaryColorInactive: tbButton.theme.foregroundDisabledColor
+            custom_secondaryColorInactiveDark: tbButton.theme.foregroundDisabledColor
             tooltipText: tbButton.action ? tbButton.action.toolTip : ""
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
             checkable: tbButton.action ? tbButton.action.checkable : false
-            custom_hoverColor: tbButton.theme.hoverColor
+            custom_hoverColor: tbButton.theme.buttonHoverBackgroundColor
+
+            // AnimatedButton uses its secondary color for hovered icons and
+            // the text that is shown on hover.
+            custom_secondaryColor: tbButton.theme.foregroundHoverColor
 
             function syncButtonCheckedState() {
                 if (b.checked !== tbButton.action.checked) {

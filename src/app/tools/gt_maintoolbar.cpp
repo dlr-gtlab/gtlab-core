@@ -131,7 +131,12 @@ GtMainToolbar::updateTheme()
     theme.base = gt::gui::color::main();
     theme.background = gt::gui::color::toolbarBackground();
     theme.foreground = gt::gui::color::text();
-    theme.buttonHover = gt::gui::color::highlight();
+    theme.foregroundHover = gt::gui::color::highlight();
+    theme.foregroundDisabled = gt::gui::color::disabled();
+    theme.buttonBackground = Qt::transparent;
+    theme.buttonCheckedBackground = gt::gui::color::main();
+    theme.buttonHoverBackground =
+        gt::gui::color::toolbarButtonHoverBackground();
 
     setColorTheme(theme);
 }

@@ -93,7 +93,11 @@ GtQmlToolbar::setColorTheme(const Theme &colors)
     theme["baseColor"] = colors.base;
     theme["backgroundColor"] = colors.background;
     theme["foregroundColor"] = colors.foreground;
-    theme["hoverColor"] = colors.buttonHover;
+    theme["foregroundHoverColor"] = colors.foregroundHover;
+    theme["foregroundDisabledColor"] = colors.foregroundDisabled;
+    theme["buttonBackgroundColor"] = colors.buttonBackground;
+    theme["buttonCheckedBackgroundColor"] = colors.buttonCheckedBackground;
+    theme["buttonHoverBackgroundColor"] = colors.buttonHoverBackground;
     theme["darkMode"] = colors.darkMode;
 
     pimpl->theme = std::move(theme);
@@ -120,9 +124,12 @@ GtQmlToolbar::setDarkMode(bool dark)
     theme.darkMode = dark;
     if (dark)
     {
+        theme.foreground = Qt::white;
+        theme.foregroundDisabled = QColor(53, 59, 74);
         theme.base = QColor(21, 34, 49);
         theme.background = QColor(10, 17, 31);
-        theme.buttonHover = QColor(30, 42, 58);
+        theme.buttonCheckedBackground = QColor(30, 42, 58);
+        theme.buttonHoverBackground = QColor(30, 42, 58);
     }
 
     setColorTheme(theme);
@@ -147,10 +154,14 @@ GtQmlToolbar::statusActions()
 }
 
 GtQmlToolbar::Theme::Theme()
-    : foreground(69, 130, 190)
+    : foreground(Qt::black)
+    , foregroundHover(69, 130, 190)
+    , foregroundDisabled(220, 220, 220)
     , base(241, 241, 241)
     , background(255, 255, 255)
-    , buttonHover(221, 238, 255)
+    , buttonBackground(Qt::transparent)
+    , buttonCheckedBackground(239, 239, 239)
+    , buttonHoverBackground(221, 238, 255)
     , darkMode(false)
 {
 }
