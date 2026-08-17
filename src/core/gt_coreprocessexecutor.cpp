@@ -11,8 +11,6 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
-#include <QScopeGuard>
-
 #include "gt_logging.h"
 #include "gt_runnable.h"
 #include "gt_project.h"
@@ -22,6 +20,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
 #include "gt_executioncontext.h"
+#include "gt_finally.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_taskrunner.h"
 
@@ -544,9 +543,8 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 {
     gtTrace() << __FUNCTION__;
 
-    const auto guardCleanup = qScopeGuard(
+    const auto guardCleanup = gt::finally(
         [this]() { pimpl->projectGuard.reset(); });
-    Q_UNUSED(guardCleanup);
 
     // create timer
     QElapsedTimer timer;
