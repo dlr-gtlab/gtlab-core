@@ -86,6 +86,15 @@ The layout therefore looks like this:
        └── helper_functions.py
 
 The paths in ``index.dat`` are read as server-relative entries.
+For this example, ``index.dat`` looks like this:
+
+.. code-block:: text
+  
+   engine_map_001
+   blade_profile_a
+   script_pack_2026
+
+
 GTlab then appends ``index.json`` to each listed resource path.
 
 Required resource metadata
