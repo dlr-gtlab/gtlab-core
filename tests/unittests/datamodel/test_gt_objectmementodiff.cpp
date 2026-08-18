@@ -63,6 +63,52 @@ TEST_F(TestGtObjectMementoDiff, constructors)
     ASSERT_FALSE(memento3.isNull());
 }
 
+TEST_F(TestGtObjectMementoDiff, fullHash)
+{
+    obj1.appendChild(&obj2);
+
+    ASSERT_DOUBLE_EQ(obj2.getDouble(), 0);
+
+    const double fullPrecision = 3.14159265358979;
+    // baseline state
+    GtObjectMemento baseline = obj2.toMemento();
+
+    // "post-calculation" state holding a high-precision double
+    obj2.setDouble(fullPrecision);
+    ASSERT_DOUBLE_EQ(obj2.getDouble(), fullPrecision);
+
+    GtObjectMemento full = obj2.toMemento();
+
+    ASSERT_FALSE(baseline.isNull());
+    ASSERT_FALSE(full.isNull());
+
+    // simulate the merge-back: diff baseline->result, reset to baseline,
+    // then apply the diff to fold the change back into the data model
+    GtObjectMementoDiff diff(baseline, full);
+
+    ASSERT_FALSE(diff.isNull());
+
+    obj2.setDouble(0.0);
+    ASSERT_DOUBLE_EQ(obj2.getDouble(), 0);
+
+    ASSERT_TRUE(obj2.applyDiff(diff));
+
+    ASSERT_DOUBLE_EQ(obj2.getDouble(), fullPrecision);
+
+    GtObjectMemento merged = obj2.toMemento();
+    ASSERT_FALSE(merged.isNull());
+
+    // pre- and post-merge must serialize identically (the reported premise)
+    ASSERT_EQ(full.toByteArray().toStdString(),
+               merged.toByteArray().toStdString());
+
+    // ...and therefore must carry the same hash
+    full.calculateHashes();
+    merged.calculateHashes();
+    EXPECT_EQ(full.propertyHash(), merged.propertyHash());
+    EXPECT_EQ(full.fullHash(),     merged.fullHash());
+}
+
 TEST_F(TestGtObjectMementoDiff, hasObjectTreeChanges)
 {
     GtObjectMemento mem1 = obj1.toMemento();

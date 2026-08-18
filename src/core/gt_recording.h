@@ -72,6 +72,8 @@ private:
      */
     explicit GtRecording();
 
+    //~GtRecording();
+
     /// Command identification string
     QString m_actvityUuid;
 

@@ -260,7 +260,6 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
         // recursion through GtObjectMemento constructor
         memento.childObjects.push_back(GtObjectMemento(child, clone));
     }
-
     return memento;
 }
 

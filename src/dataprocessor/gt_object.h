@@ -499,40 +499,14 @@ public:
              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T> findDirectChildren(const QString& name = {})
     {
-        auto children = QObject::findChildren<T>(name, Qt::FindDirectChildrenOnly);
-
-        if (!name.isEmpty())
-        {
-            for (auto child : children)
-            {
-                if (auto gtObject = qobject_cast<const GtObject*>(child))
-                {
-                    GtAccessTracker::instance().addAccessedProperty(gtObject->uuid());
-                }
-            }
-        }
-
-        return children;
+        return QObject::findChildren<T>(name, Qt::FindDirectChildrenOnly);
     }
     template <typename T = GtObject*,
              typename T_const_ptr = gt::trait::const_ptr<T>,
              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T_const_ptr> findDirectChildren(const QString& name = {}) const
     {
-        auto children = QObject::findChildren<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
-
-        if (!name.isEmpty())
-        {
-            for (auto child : children)
-            {
-                if (auto gtObject = qobject_cast<const GtObject*>(child))
-                {
-                    GtAccessTracker::instance().addAccessedProperty(gtObject->uuid());
-                }
-            }
-        }
-
-        return children;
+        return QObject::findChildren<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
     }
 
     /**
@@ -563,7 +537,7 @@ public:
              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findDirectChild(const QString& name = {})
     {
-        return QObject::findChild<T>(name, Qt::FindDirectChildrenOnly);
+        return  QObject::findChild<T>(name, Qt::FindDirectChildrenOnly);
     }
     template <typename T = GtObject*,
              typename T_const_ptr = gt::trait::const_ptr<T>,
@@ -936,7 +910,7 @@ findObject(const QString& objectUUID, const List& list)
                                  return obj->uuid() == objectUUID;
                              });
 
-    return iter != std::end(list) ? (GtAccessTracker::instance().addAccessedProperty(objectUUID),*iter) : nullptr;
+    return iter != std::end(list) ? *iter : nullptr;
 }
 
 /**

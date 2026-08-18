@@ -63,3 +63,4 @@ TEST_F(TestVariantHasher, testIssue386)
     ASSERT_EQ(r1.result().toStdString(), a1.result().toStdString());
     ASSERT_EQ(r2.result().toStdString(), a2.result().toStdString());
 }
+

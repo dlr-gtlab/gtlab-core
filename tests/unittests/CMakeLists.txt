@@ -52,7 +52,10 @@ set (SOURCES
     slotadaptor.cpp
 )
 
-add_executable(GTlabUnitTest ${SOURCES})
+add_executable(GTlabUnitTest ${SOURCES}
+    datamodel/test_hash_roundtrip.h
+    datamodel/test_hash_roundtrip.cpp
+    datamodel/test_hash_roundtrip.cpp)
 set_target_properties(GTlabUnitTest PROPERTIES AUTOMOC ON AUTORCC ON)
 
 target_compile_definitions(GTlabUnitTest PRIVATE GT_MODULE_ID="Unittests" "GT_LOG_USE_QT_BINDINGS")

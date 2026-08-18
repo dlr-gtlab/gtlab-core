@@ -118,7 +118,7 @@ GtCalculator::exec()
     // current execution mode identification string
     QString execModeStr = execMode();
 
-    if (execModeStr != "local"&&execModeStr != "parent")
+    if (execModeStr != "local")
     {
         // plugin execution
         // find executor
