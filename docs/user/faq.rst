@@ -31,7 +31,7 @@ Installation & Setup
 
 Q: How do I install GTlab?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-A: Use the installer or the maintenance tool described in :ref:`installation section <label_installation>`.
+A: Use the installer or the maintenance tool described in the :ref:`installation section <label_installation>`.
 
 .. rst-class:: faq-question
 
