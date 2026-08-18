@@ -1129,14 +1129,14 @@ GtCoreApplication::licenseFolder() const
 
 GtRecording GtCoreApplication::startRecording(GtAbstractRecorder* recorder,QPointer<GtObject> activityObject, QList<QPointer<GtObject>> linkedObjects)
 {
-    GtAccessTracker::instance().pause(); //Not RAII
+    GtAccessTracker::instance().pause(true); //Not RAII
 
     GtRecording recording{};
     recording.m_activityObject=activityObject;
     recording.m_linkedObjects = linkedObjects;
     recorder->initLinkedObjects(linkedObjects);
 
-    GtAccessTracker::instance().pause();
+    GtAccessTracker::instance().pause(false);
     GtAccessTracker::instance().startAccessTracking(recording.contextUuid());
 
     recording.m_startAtTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
@@ -1149,7 +1149,7 @@ void GtCoreApplication::endRecording(GtAbstractRecorder* recorder,GtRecording &r
 
     //Finish recording accessed objects
     GtAccessTracker::instance().endAccessTracking();
-    GtAccessTracker::instance().pause();
+    GtAccessTracker::instance().pause(true);
     QString contextUuid = recording.contextUuid();
 
     recording.m_childContextUuids = GtAccessTracker::instance().getChildContextUuid(contextUuid);
@@ -1163,5 +1163,5 @@ void GtCoreApplication::endRecording(GtAbstractRecorder* recorder,GtRecording &r
 
     // execute "diff"
     recorder->recordChanges(recording.m_linkedObjects);
-    GtAccessTracker::instance().pause();
+    GtAccessTracker::instance().pause(false);
 }

@@ -6,6 +6,11 @@ GtRecording::GtRecording()
 m_actvityUuid = QUuid::createUuid().toString();
 }
 
+// GtRecording::~GtRecording()
+// {
+        //MAKE RAII
+// }
+
 QList<QPointer<GtObject> > GtRecording::linkedObjects() const
 {
     return m_linkedObjects;

@@ -151,12 +151,12 @@ GtTask::exec()
     // reset evaluator variables
     m_currentIter.setVal(0);
 
-    // Initialize individual evaluator setting
-    if (!setUp())
-    {
-        setState(GtProcessComponent::FAILED);
-        return false;
-    }
+    // // Initialize individual evaluator setting
+    // if (!setUp())
+    // {
+    //     setState(GtProcessComponent::FAILED);
+    //     return false;
+    // }
 
     // check max. iteration steps
     if (m_maxIter <= 0)
@@ -191,9 +191,9 @@ GtTask::exec()
 
         foreach (GtProcessComponent* comp, childs)
         {
-            if (!(comp->execMode()=="parent")) continue;// check if child is set to parent mode
+            if (comp->execMode()=="parent"){// check if child is set to parent mode
             comp->setExecMode(execModeStr);
-            comp->setExecutionLabel(executionLabel());
+            }
         }
 
         if (!executor)
@@ -214,6 +214,22 @@ GtTask::exec()
     }
     else
     {
+        // Initialize individual evaluator setting
+        if (!setUp())
+        {
+            setState(GtProcessComponent::FAILED);
+            return false;
+        }
+
+        QList<GtProcessComponent*> childs = processComponents();
+
+        foreach (GtProcessComponent* comp, childs)
+        {
+            if (comp->execMode()=="parent"){// check if child is set to parent mode
+                comp->setExecMode(execModeStr);
+            }
+        }
+
         // start iteration
         if (!runIteration())
         {

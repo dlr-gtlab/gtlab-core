@@ -267,6 +267,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     {
         gtDebug() << QObject::tr("compared object mementos are identical!");
         return true;
+
     }
 
     if (leftOrig.uuid() != rightOrig.uuid())

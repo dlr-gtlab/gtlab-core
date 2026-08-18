@@ -280,7 +280,6 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
         // recursion through GtObjectMemento constructor
         memento.childObjects.push_back(toMementoImpl(child, clone, uuidMap));
     }
-
     return memento;
 }
 

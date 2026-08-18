@@ -158,6 +158,10 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
+    if (m_ownerObject)
+    {
+        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
     return m_value;
 }
 

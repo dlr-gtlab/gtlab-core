@@ -30,7 +30,6 @@ void GtAccessTracker::addAccessedProperty(const QUuid& uuid)
     {
         const QUuid& contextUuid = m_activeStack.top();
 
-        gtDebug() << "Object added:" << uuid<<" of Context:"<<contextUuid;
         m_contexts[contextUuid].accessedObjects.insert(uuid);
     }
 }
@@ -73,8 +72,9 @@ void GtAccessTracker::endAccessTracking()
     m_activeStack.pop();
 }
 
-void GtAccessTracker::pause()
+void GtAccessTracker::pause(bool state)
 {
-    if (m_paused) m_paused=false;
-    else m_paused=true;
+    gtDebug()<<"Pause is: "<<m_paused;
+    m_paused=state;
+    gtDebug()<<"Pause set to"<<state;
 }
