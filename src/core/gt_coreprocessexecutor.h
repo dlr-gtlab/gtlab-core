@@ -82,6 +82,11 @@ public:
     void setCoreExecutorFlags(Flags flags);
 
     /**
+     * @brief Returns the currently configured executor flags.
+     */
+    Flags coreExecutorFlags() const;
+
+    /**
      * @brief Runs a process if the queue is free
      * @param process GtdProcess
      */

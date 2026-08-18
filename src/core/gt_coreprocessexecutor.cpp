@@ -30,6 +30,8 @@ const std::string GtCoreProcessExecutor::S_ID = "CoreProcessExecutor";
 
 struct GtCoreProcessExecutor::Impl
 {
+    Flags flags{};
+
     /// save results is used as standard
     /// set to false for batch processes with saving results false to
     /// spend less time
@@ -81,8 +83,15 @@ GtCoreProcessExecutor::~GtCoreProcessExecutor() = default;
 void
 GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 {
+    pimpl->flags    = flags;
     pimpl->save     = !flags.testFlag(gt::DryExecution);
     pimpl->detached =  flags.testFlag(gt::NonBlockingExecution);
+}
+
+GtCoreProcessExecutor::Flags
+GtCoreProcessExecutor::coreExecutorFlags() const
+{
+    return pimpl->flags;
 }
 
 bool
