@@ -1,9 +1,19 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * Source File: gt_runnable.cpp
+ *
+ *  Created on: 19.08.2026
+ *  Author: Robert Marcenko (AT-TWK)
+ */
+
+
 #include "gt_recording.h"
 #include <quuid.h>
 
-GtRecording::GtRecording()
+GtRecording::GtRecording():m_actvityUuid{QUuid::createUuid().toString()}
 {
-m_actvityUuid = QUuid::createUuid().toString();
 }
 
 // GtRecording::~GtRecording()

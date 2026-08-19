@@ -1,3 +1,12 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * Source File: gt_runnable.cpp
+ *
+ *  Created on: 19.08.2026
+ *  Author: Robert Marcenko (AT-TWK)
+ */
 #pragma once
 
 #include "gt_datamodel_exports.h"
