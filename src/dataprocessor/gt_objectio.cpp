@@ -137,11 +137,11 @@ inline QString GtObjectIO::listToString<QVector<double> >(
     // this code is optimized to avoid creating temporaries / reallocating strings,
     // please don't change unless you still make it faster...
     QString str;
-    str.reserve(t.size() * (DBL_DIG + 2));
+    str.reserve(t.size() * 20);
 
     foreach (double m, t)
     {
-        str.append(QString::number(m, 'g', DBL_DIG)).append(';');
+        str.append(QString::number(m, 'g', 17)).append(';');
     }
     str.truncate(str.size() - 1);
 
@@ -189,12 +189,12 @@ inline QString GtObjectIO::listToString<QList<QPointF> >(
         const QList<QPointF>& t)
 {
     QString str;
-    str.reserve(2 * t.size() * (DBL_DIG + 2));
+    str.reserve(2 * t.size() * 20);
 
     for (QPointF const& m : t)
     {
-        str.append(QString::number(m.x(), 'g', DBL_DIG)).append("_").append(
-                    QString::number(m.y(), 'g', DBL_DIG)).append(';');
+        str.append(QString::number(m.x(), 'g', 17)).append("_").append(
+                    QString::number(m.y(), 'g', 17)).append(';');
     }
     str.truncate(str.size()-1);
 
@@ -947,6 +947,18 @@ propertyToVariant(const QString& value, const QString& type)
 
     if (type.isEmpty() && value.trimmed().isEmpty())
     {
+        return QVariant{};
+    }
+
+    if (type == QStringLiteral("QPointF"))
+    {
+        const QStringList pvars = value.split(QStringLiteral("_"));
+        if (pvars.size() == 2)
+        {
+            return QVariant(QPointF(pvars[0].toDouble(),
+                                    pvars[1].toDouble()));
+        }
+
         return QVariant{};
     }
 

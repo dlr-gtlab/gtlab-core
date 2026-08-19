@@ -98,8 +98,8 @@ public:
         if (var.type() == QVariant::PointF)
         {
             QPointF val = var.toPointF();
-            return QString::number(val.x()) + QStringLiteral("_")
-                   + QString::number(val.y());
+            return QString::number(val.x(), 'g', 17) + QStringLiteral("_")
+                   + QString::number(val.y(), 'g', 17);
         }
         else if (var.isNull()) {
             return "";

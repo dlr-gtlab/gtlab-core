@@ -69,7 +69,7 @@ TEST_F(TestGtObjectMementoDiff, fullHash)
 
     ASSERT_DOUBLE_EQ(obj2.getDouble(), 0);
 
-    const double fullPrecision = 3.14159265358979;
+    const double fullPrecision = 3.1415926535897932e15;
     // baseline state
     GtObjectMemento baseline = obj2.toMemento();
 

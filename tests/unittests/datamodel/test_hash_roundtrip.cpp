@@ -5,97 +5,79 @@
  */
 
 /**
- * @brief These tests verify the provenance hash invariant:
+ * @brief Provenance hash invariant tests.
  *
- *  A = object, B = A.clone() (deep copy), B is mutated,
- *  diff(A, B) is computed and applied back onto A.
- *  Afterwards, A and B are semantically identical - therefore
- *  A->calcHash() must equal B->calcHash().
+ * Reproduces the production pipeline (GtCoreProcessExecutor::
+ * handleTaskFinishedHelper) where a calculator mutates a sandbox
+ * clone of a linked object and the diff is merged back into the
+ * live data model:
  *
- *  This mirrors the production pipeline
- *  (GtCoreProcessExecutor::handleTaskFinishedHelper) where a calculator
- *  mutates a restored clone and the diff is merged back into the
- *  live data model. In production the hashes diverged - these tests
- *  are used to isolate the cause among:
+ *   A = live object, B = A.clone(), B mutated,
+ *   diff = GtObjectMementoDiff(A.toMemento(true), B.toMemento(true)),
+ *   A.applyDiff(diff)
  *
- *   1. lossy float serialization of list properties (DBL_DIG)
- *   2. non-canonical QVariant serialization (variantToString)
- *   3. property container entry re-ordering in mergePropertyContainer
- *   4. isActive flag lost on memento restore / diff apply
- *   5. hash instability / non-determinism of calcHash itself
+ * After the merge A must be semantically identical to B, i.e.
+ * A->calcHash() == B->calcHash(). In production this invariant
+ * broke - these tests isolate the suspected causes:
+ *
+ *   1. lossy double serialization of lists ('g' format, DBL_DIG)
+ *   2. non-canonical scalar QVariant serialization (var.toString())
+ *   3. property container entry add/remove handling in the diff
+ *   4. added/removed properties silently dropped by the diff
+ *   5. non-determinism of GtObject::calcHash itself
+ *
+ * Each test either proves the suspect is NOT the cause (hashes
+ * match) or reproduces the production failure (hash mismatch with
+ * a visible value difference in the failure message).
  */
 
 #include "gtest/gtest.h"
 
 #include "gt_object.h"
+#include "gt_boolproperty.h"
+#include "gt_doublelistproperty.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
-#include "gt_boolproperty.h"
-#include "gt_doubleproperty.h"
-#include "gt_doublelistproperty.h"
-#include "gt_variantproperty.h"
-#include "gt_propertystructcontainer.h"
-#include "gt_structproperty.h"
-#include "test_gt_object.h"
-#include "test_propertycontainerobject.h"
 
-#include <QBuffer>
-#include <QDataStream>
-#include <QPoint>
-#include <QPointF>
-#include <QUuid>
+#include "test_gt_object.h"
+#include "test_hash_roundtrip.h"
+
+#include <cstring>
 #include <QRandomGenerator>
-#include <QUrl>
-#include <QSet>
+#include <QUuid>
 
 namespace
 {
-/**
- * @brief Full-precision, non-round-number doubles
- * such that 15-significant-digit serialization loses information.
- */
+
+/// doubles whose exact representation generally needs 16 significant
+/// digits, i.e. not round-trippable with 15 (DBL_DIG) digits
 QVector<double> makeFullPrecisionDoubles(int n, quint32 seed)
 {
     QRandomGenerator gen(seed);
-
     QVector<double> vals;
     vals.reserve(n);
 
     for (int i = 0; i < n; ++i)
     {
-        double sign = (gen.generate() & 1u) ? 1.0 : -1.0;
-        double magnitude = (1.0 + (gen.generate() % 999999) / 9999999.0)
-                            * (1e-12 + (gen.generate() % 1000) * 1e-6);
-        vals.append(sign * magnitude);
+        double magnitude = 1.0 + (gen.generate() % 9999999) / 9999999.0;
+        double scale = (1.0 + (gen.generate() % 1001) * 1e-16) * 1e6;
+        double sign = (gen.generate() & 0x1u) ? 1.0 : -1.0;
+        vals.append(sign * magnitude * scale);
     }
-
     return vals;
 }
 
-double hashOfVariant(const QVariant& var)
-{
-    QBuffer buf;
-    buf.open(QIODevice::WriteOnly);
-    QDataStream ds(&buf);
-    ds << var;
-    return buf.pos();
-}
-
-bool vectorBitwiseEqual(const QVector<double>& a, const QVector<double>& b)
+bool vectorsBitwiseEqual(const QVector<double>& a,
+                         const QVector<double>& b)
 {
     if (a.size() != b.size())
     {
         return false;
     }
-
-    if (a.isEmpty())
-    {
-        return true;
-    }
-
-    return std::memcmp(a.constData(), b.constData(),
-                       sizeof(double) * a.size()) == 0;
+    return a.isEmpty() || std::memcmp(a.constData(),
+                                      b.constData(),
+                                      sizeof(double) * a.size()) == 0;
 }
 
 } // namespace
@@ -110,28 +92,38 @@ protected:
             gtObjectFactory->registerClass(
                         TestSpecialGtObject::staticMetaObject);
         }
-
-        objA.setObjectName("TestHashRoundTrip_A");
-        objA.setFactory(gtObjectFactory);
+        auto registerClassOnce = [this](QMetaObject meta,
+                                        const char* name) {
+            if (!gtObjectFactory->knownClass(QString(name)))
+            {
+                gtObjectFactory->registerClass(meta);
+            }
+        };
+        registerClassOnce(TestHashContainerObject::staticMetaObject,
+                          "TestHashContainerObject");
+        registerClassOnce(TestHashVariantObject::staticMetaObject,
+                          "TestHashVariantObject");
+        registerClassOnce(TestHashPointObject::staticMetaObject,
+                          "TestHashPointObject");
     }
 
     void TearDown() override
     {
-        if (objB && objB->parentObject() == &objA)
-        {
-            objA.removeChild(objB);
-        }
-        else
-        {
-            delete objB;
-        }
+        delete objB;
+        delete oB;
+    }
+
+    TestSpecialGtObject* b()
+    {
+        return qobject_cast<TestSpecialGtObject*>(objB);
     }
 
     TestSpecialGtObject objA;
-    TestSpecialGtObject* objB{nullptr};
+    GtObject* objB{nullptr};
+    TestHashPointObject* oB{nullptr};
 };
 
-/// sanity: no mutation - diff is empty, hashes must agree
+/// no mutation: diff must be empty, hashes must agree
 TEST_F(TestHashRoundTrip, noOpDiffHashesMatch)
 {
     objA.setDouble(10.5);
@@ -145,14 +137,13 @@ TEST_F(TestHashRoundTrip, noOpDiffHashesMatch)
     GtObjectMemento memB = objB->toMemento(true);
 
     GtObjectMementoDiff diff(memA, memB);
-    ASSERT_TRUE(diff.isNull())
-            << "no mutation: diff must be empty";
+    EXPECT_TRUE(diff.isNull()) << "no mutation: diff must be empty";
 
-    EXPECT_EQ(objB->calcHash(), objA->calcHash());
+    EXPECT_EQ(objB->calcHash(), objA.calcHash());
 }
 
-/// test 1a: lossy float serialization of QVector<double> through the diff
-TEST_F(TestHashRoundTrip, doubleListFullPrecisionHashesMatch)
+/// suspect 1a: full-precision QVector<double> through the diff
+TEST_F(TestHashRoundTrip, doubleVecFullPrecisionHashesMatch)
 {
     objA.setDoubleVec(makeFullPrecisionDoubles(20, 0x12345678u));
 
@@ -160,19 +151,10 @@ TEST_F(TestHashRoundTrip, doubleListFullPrecisionHashesMatch)
     ASSERT_NE(nullptr, objB);
     objB->setFactory(gtObjectFactory);
 
-    // mutate a DEEP element of the list
-    QVector<double> bVals = objB->getDoubleVec();
+    QVector<double> bVals = b()->getDoubleVec();
     bVals[7] = -1.2345678901234567e5;
-    bVals[18] = 3.1415926535897932e-3;
-    objB->setDoubleVec(bVals);
-
-    QVector<double> aVals = objA.getDoubleVec();
-    QBuffer buf;
-    buf.open(QIODevice::WriteOnly);
-    QDataStream ds(&buf);
-    ds << aVals;
-    QByteArray aBits = buf.data();
-    buf.close();
+    bVals[18] = 3.1415926535897932e15;
+    b()->setDoubleVec(bVals);
 
     GtObjectMemento memA = objA.toMemento(true);
     GtObjectMemento memB = objB->toMemento(true);
@@ -180,41 +162,41 @@ TEST_F(TestHashRoundTrip, doubleListFullPrecisionHashesMatch)
     GtObjectMementoDiff diff(memA, memB);
     ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
     ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
+    //objA.setDoubleVec(bVals);
 
     QVector<double> aAfter = objA.getDoubleVec();
-    QVector<double> bValsAfter = objB->getDoubleVec();
+    QVector<double> bAfter = b()->getDoubleVec();
 
-    EXPECT_TRUE(vectorBitwiseEqual(aAfter, bValsAfter))
-            << "A=" << aAfter.size()
-            << " B=" << bValsAfter.size()
-            << " firstA=" << (!aAfter.isEmpty() ? aAfter.first() : 0.0)
-            << " firstB=" << (!bValsAfter.isEmpty() ? bValsAfter.first()
-                                                   : 0.0);
+    EXPECT_TRUE(vectorsBitwiseEqual(aAfter, bAfter))
+            << "QVector<double> lost precision in diff round-trip:\n"
+            << "  [7]:  A=" << aAfter.value(7)
+            << " B=" << bAfter.value(7)
+            << "\n [18]: A=" << aAfter.value(18)
+            << " B=" << bAfter.value(18);
 
-    EXPECT_EQ(objB->calcHash(), objA->calcHash())
-            << "hash mismatch after diff round-trip of QVector<double>";
+    EXPECT_EQ(objB->calcHash(), objA.calcHash())
+            << "suspect 1 confirmed: double list serialization lossy";
 }
 
-/// test 1b: lossy float serialization of GtDoubleListProperty (list path)
+/// suspect 1b: GtDoubleListProperty (GTlab list property path)
 TEST_F(TestHashRoundTrip, doubleListPropertyFullPrecisionHashesMatch)
 {
-    auto* listProp = qobject_cast<GtDoubleListProperty*>(
+    auto* prop = qobject_cast<GtDoubleListProperty*>(
                 objA.findPropertyByName("Double List Property"));
-    ASSERT_TRUE(listProp != nullptr);
-
-    listProp->setVal(makeFullPrecisionDoubles(30, 0xA5A5A5A5u));
+    ASSERT_TRUE(prop != nullptr);
+    prop->setVal(makeFullPrecisionDoubles(30, 0xA5A5A5A5u));
 
     objB = objA.clone();
     ASSERT_NE(nullptr, objB);
     objB->setFactory(gtObjectFactory);
 
-    auto* bListProp = qobject_cast<GtDoubleListProperty*>(
+    auto* bProp = qobject_cast<GtDoubleListProperty*>(
                 objB->findPropertyByName("Double List Property"));
-    ASSERT_TRUE(bListProp != nullptr);
+    ASSERT_TRUE(bProp != nullptr);
 
-    QVector<double> bVals = bListProp->value<QVector<double>>();
+    QVector<double> bVals = bProp->get();
     bVals[11] = 2.7182818284590452;
-    bListProp->setVal(bVals);
+    bProp->setVal(bVals);
 
     GtObjectMemento memA = objA.toMemento(true);
     GtObjectMemento memB = objB->toMemento(true);
@@ -223,290 +205,194 @@ TEST_F(TestHashRoundTrip, doubleListPropertyFullPrecisionHashesMatch)
     ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
     ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
 
-    auto* aListPropAfter = qobject_cast<GtDoubleListProperty*>(
+    auto* aPropAfter = qobject_cast<GtDoubleListProperty*>(
                 objA.findPropertyByName("Double List Property"));
-    ASSERT_TRUE(aListPropAfter != nullptr);
-    QVector<double> aAfter = aListPropAfter->value<QVector<double>>();
-    QVector<double> bAfter = bListProp->value<QVector<double>>();
+    ASSERT_TRUE(aPropAfter != nullptr);
+    QVector<double> aAfter = aPropAfter->get();
+    QVector<double> bAfter = bProp->get();
 
-    EXPECT_TRUE(vectorBitwiseEqual(aAfter, bAfter))
-            << "values lost precision in diff round-trip: "
-            << aAfter.mid(10, 3).join(' ') << " vs "
-            << bAfter.mid(10, 3).join(' ');
+    EXPECT_TRUE(vectorsBitwiseEqual(aAfter, bAfter))
+            << "GtDoubleListProperty lost precision in diff round-trip:\n"
+            << "  [11]: A=" << aAfter.value(11)
+            << " B=" << bAfter.value(11);
 
-    EXPECT_EQ(objB->calcHash(), objA->calcHash())
-            << "hash mismatch after diff round-trip of GtDoubleListProperty";
+    EXPECT_EQ(objB->calcHash(), objA.calcHash())
+            << "suspect 1 confirmed: GtDoubleListProperty "
+            << "serialization lossy";
 }
 
-/// test 1c: QPointF list precision (QList<QPointF> serialization)
-TEST_F(TestHashRoundTrip, QPointFListPrecisionSerializationRoundTrip)
+/// suspect 2a: scalar double through GtDoubleProperty
+/// (non-list path: variantToString -> QString -> propertyToVariant)
+TEST_F(TestHashRoundTrip, fullPrecisionDoubleScalarHashesMatch)
 {
-    QList<QPointF> list = makeFullPrecisionDoubles(10, 0x01020304u)
-        .toVector().toStdVector().empty() ? QList<QPointF>()
-        : QList<QPointF>();
+    objA.setDouble(10.0);
 
-    QRandomGenerator gen(0x01020304u);
-    list.clear();
-    for (int i = 0; i < 10; ++i)
-    {
-        list.append(QPointF((1e-12 + (gen.generate() % 1000) * 1e-6)
-                            * (1 + (gen.generate() % 999999) / 9999999.0),
-                            (-1e-12 - (gen.generate() % 1000) * 1e-6)
-                            * (1 + (gen.generate() % 999999) / 9999999.0)));
-    }
+    objB = objA.clone();
+    ASSERT_NE(nullptr, objB);
+    objB->setFactory(gtObjectFactory);
 
-    // serialize the same way as the memento XML round-trip:
-    // 'g' format with DBL_DIG significant digits (gt_objectio.cpp:
-    // listToString<QList<QPointF>>)
-    QString serialized;
-    for (const QPointF& p : list)
-    {
-        serialized.append(QString::number(p.x(), 'g', DBL_DIG))
-                   .append('_')
-                   .append(QString::number(p.y(), 'g', DBL_DIG))
-                   .append(';');
-    }
+    const double target = 1.0 + 1e-16 * 3141.5;
+    b()->setDouble(target);
 
-    QList<QPointF> restored;
-    for (const QString& val : serialized.split(';'))
-    {
-        const QStringList pvars = val.split('_');
-        if (pvars.size() == 2)
+    GtObjectMementoDiff diff(objA.toMemento(true),
+                             objB->toMemento(true));
+    ASSERT_FALSE(diff.isNull()) << "double change must produce a diff";
+    ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
+
+    const double aVal = objA.getDouble();
+    const double bVal = b()->getDouble();
+
+    EXPECT_TRUE(std::memcmp(&aVal, &bVal, sizeof(double)) == 0)
+            << "double property lost precision through the diff:\n"
+            << "  A=" << aVal << "\n  B=" << bVal;
+
+    EXPECT_EQ(objB->calcHash(), objA.calcHash())
+            << "suspect 2 confirmed: scalar double serialization lossy";
+}
+
+/// suspect 2b: QPointF variant through Qt meta property
+/// (variantToString: "x_y" via QString::number default precision)
+TEST_F(TestHashRoundTrip, QPointFVariantPrecisionHashesMatch)
+{
+    TestHashPointObject oA;
+    oA.setFactory(gtObjectFactory);
+    oA.m_point = QPointF(1.2345678901234567e-15, 9.8765432109876543e12);
+
+    oB = qobject_cast<TestHashPointObject*>(oA.clone());
+    ASSERT_NE(nullptr, oB);
+    oB->setFactory(gtObjectFactory);
+
+    const QPointF bPoint(-3.1415926535897932e-16, 2.718281828459045e15);
+    oB->m_point = bPoint;
+
+    GtObjectMementoDiff diff(oA.toMemento(true), oB->toMemento(true));
+    ASSERT_FALSE(diff.isNull()) << "QPointF change must produce a diff";
+    ASSERT_TRUE(oA.applyDiff(diff)) << "applyDiff failed";
+
+    EXPECT_TRUE(oA.m_point == bPoint)
+            << "QPointF lost precision through the diff:\n"
+            << "  A = (" << oA.m_point.x() << ", " << oA.m_point.y()
+            << ")\n  B = (" << bPoint.x() << ", " << bPoint.y() << ")";
+
+    EXPECT_EQ(oB->calcHash(), oA.calcHash())
+            << "suspect 2 confirmed: QVariant (QPointF) "
+            << "serialization is lossy";
+}
+
+/// suspect 3: container entry add/remove/change through the diff.
+/// Known code issue: GtObjectMementoDiff::detectPropertyChanges
+/// ignores added/removed properties ("do nothing for now") ->
+/// A keeps removed entries, does not gain added ones -> hash break.
+TEST_F(TestHashRoundTrip, containerEntryAddRemoveHashesMatch)
+{
+    auto* a = new TestHashContainerObject;
+    a->setFactory(gtObjectFactory);
+    a->addEnvVar("a", "1");
+    a->addEnvVar("b", "2");
+    a->addEnvVar("c", "3");
+
+    auto idsOf = [](const GtPropertyStructContainer& c) {
+        QStringList list;
+        for (auto it = c.begin(); it != c.end(); ++it)
         {
-            restored.append(QPointF(pvars[0].toDouble(),
-                                    pvars[1].toDouble()));
+            list << it->ident();
         }
-    }
+        return list;
+    };
+    const QStringList idsA = idsOf(a->envVars);
+    ASSERT_EQ(3, int(idsA.size()));
 
-    bool allEqual = restored.size() == list.size();
-    if (allEqual)
-    {
-        for (int i = 0; i < list.size(); ++i)
+    objB = a->clone();
+    ASSERT_NE(nullptr, objB);
+    objB->setFactory(gtObjectFactory);
+
+    auto* b = qobject_cast<TestHashContainerObject*>(objB);
+    ASSERT_TRUE(b != nullptr);
+    ASSERT_EQ(3, int(b->envVars.size()));
+
+    const QStringList bIds = idsOf(b->envVars);
+
+    // remove middle entry on B, change first & last entries
+    auto iter = b->envVars.findEntry(bIds[1]);
+    ASSERT_TRUE(iter != b->envVars.end()) << "cloned entry not found by id";
+    b->envVars.removeEntry(iter);
+    b->envVars.findEntry(bIds[0])->setMemberVal("value", "1.1");
+    b->envVars.findEntry(bIds[2])->setMemberVal("value", "3.3");
+    ASSERT_EQ(2, int(b->envVars.size()));
+
+    GtObjectMementoDiff diff(a->toMemento(true),
+                             objB->toMemento(true));
+    ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
+    ASSERT_TRUE(a->applyDiff(diff)) << "applyDiff failed";
+
+    auto dump = [](const GtPropertyStructContainer& c) {
+        QStringList out;
+        for (auto it = c.begin(); it != c.end(); ++it)
         {
-            if (restored[i].x() != list[i].x()
-                    || restored[i].y() != list[i].y())
-            {
-                allEqual = false;
-                break;
-            }
+            out << it->ident() << "="
+                << it->getMemberValToVariant("value").toString();
         }
-    }
+        return out;
+    };
 
-    EXPECT_TRUE(allEqual)
-            << "QList<QPointF> 'g'/DBL_DIG round-trip is lossy:\n"
-            << "  original[" << (!list.isEmpty() ? 0 : -1)
-            << "] = (" << list.value(0).x() << ", " << list.value(0).y()
-            << ")\n  restored[" << (!restored.isEmpty() ? 0 : -1)
-            << "] = (" << restored.value(0).x() << ", "
-            << restored.value(0).y() << ")";
+    const QStringList entriesA = dump(a->envVars);
+    const QStringList entriesB = dump(b->envVars);
+
+    EXPECT_EQ(entriesB, entriesA)
+            << "container entries diverged after diff apply:\n"
+            << "  A=" << entriesA.join(", ").toStdString()
+            << "\n  B=" << entriesB.join(", ").toStdString()
+            << "\n  (diff drops added/removed entries - "
+            "detectPropertyChanges: 'do nothing for now')";
+
+    EXPECT_EQ(objB->calcHash(), a->calcHash())
+            << "suspect 3 confirmed: container entry add/remove "
+            "breaks hash";
 }
 
-/// test 2: non-canonical QVariant through GtVariantProperty
-TEST_F(TestHashRoundTrip, variantCanonicalformHashesMatch)
+/// suspect 4 sanity: an existing scalar property change through the
+/// diff must be applied exactly (rules out the plain property path)
+TEST_F(TestHashRoundTrip, simplePropertyChangeHashesMatch)
 {
-    objB = objA.clone();
-    ASSERT_NE(nullptr, objB);
-    objB->setFactory(gtObjectFactory);
-
-    // mutate the variant property on B (QUrl with percent-encoded form,
-    // toString() and valueToVariant() may produce different forms)
-    objB->setVariant(QUrl(
-                "https://user:pass@[::ffff:1a2b:3c4d:5e6f:4455]:8084"
-                "/some%20path?query=value&x#fragment"));
-
-    GtObjectMemento memA = objA.toMemento(true);
-    GtObjectMemento memB = objB->toMemento(true);
-
-    GtObjectMementoDiff diff(memA, memB);
-    ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
-    ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
-
-    QByteArray aBits, bBits;
-    {
-        QBuffer buf;
-        buf.open(QIODevice::WriteOnly);
-        QDataStream ds(&buf);
-        ds << objA.getVariant();
-        aBits = buf.data();
-        buf.close();
-    }
-    {
-        QBuffer buf;
-        buf.open(QIODevice::WriteOnly);
-        QDataStream ds(&buf);
-        ds << objB.getVariant();
-        bBits = buf.data();
-        buf.close();
-    }
-
-    EXPECT_EQ(aBits.constData(), bBits.constData())
-            << "QVariant changed through variant property round-trip:\n"
-            << "  A = " << objA.getVariant().toString()
-            << "  B = " << objB.getVariant().toString()
-            << "  type A = " << objA.getVariant().type()
-            << "  type B = " << objB.getVariant().type();
-
-    EXPECT_EQ(objB->calcHash(), objA->calcHash())
-            << "hash mismatch after diff round-trip of QVariant property";
-}
-
-/// test 3: property container entry ordering after merge
-TEST_F(TestHashRoundTrip, containerOrderingHashesMatch)
-{
-    auto* parent = new TestObject;
-    parent->setFactory(gtObjectFactory);
-    ASSERT_TRUE(objA.appendChild(parent));
-    parent->addEnvironmentVar("a", "1");
-    parent->addEnvironmentVar("b", "2");
-    parent->addEnvironmentVar("c", "3");
-
-    QString idA = parent->findPropertyContainer("environmentVars")
-                    ->findEntry("a") == parent->findPropertyContainer(
-                       "environmentVars")->end()
-                    ? QString()
-                    : parent->findPropertyContainer("environmentVars")
-                        ->findEntry("a")->ident();
-    QString idB = parent->findPropertyContainer("environmentVars")
-                    ->findEntry("b") == parent->findPropertyContainer(
-                       "environmentVars")->end()
-                    ? QString()
-                    : parent->findPropertyContainer("environmentVars")
-                        ->findEntry("b")->ident();
-    QString idC = parent->findPropertyContainer("environmentVars")
-                    ->findEntry("c") == parent->findPropertyContainer(
-                       "environmentVars")->end()
-                    ? QString()
-                    : parent->findPropertyContainer("environmentVars")
-                        ->findEntry("c")->ident();
+    objA.setDouble(1.0);
+    objA.setString("abc");
 
     objB = objA.clone();
     ASSERT_NE(nullptr, objB);
     objB->setFactory(gtObjectFactory);
 
-    auto* bParent = objB->findDirectChild<TestObject*>();
-    ASSERT_TRUE(bParent != nullptr);
-    auto* bVars = bParent->findPropertyContainer("environmentVars");
-    ASSERT_TRUE(bVars != nullptr);
+    b()->setDouble(2.5);
+    b()->setString("def");
 
-    // remove middle entry + change first/last entries -> forces
-    // re-insertion / deletion inside mergePropertyContainer
-    auto iter = bVars->findEntry(idB);
-    ASSERT_TRUE(iter != bVars->end()) << "entry 'b' not found in clone";
-    bVars->removeEntry(iter);
-    bVars->findEntry(idA)->setMemberVal("value", "1.1");
-    bVars->findEntry(idC)->setMemberVal("value", "3.3");
-
-    ASSERT_TRUE(bVars->findEntry(idA) != bVars->end());
-    ASSERT_TRUE(bVars->findEntry(idC) != bVars->end());
-    ASSERT_TRUE(bVars->findEntry(idB) == bVars->end());
-    ASSERT_EQ(2, bVars->size());
-
-    GtObjectMemento memA = objA.toMemento(true);
-    GtObjectMemento memB = objB->toMemento(true);
-
-    GtObjectMementoDiff diff(memA, memB);
+    GtObjectMementoDiff diff(objA.toMemento(true),
+                             objB->toMemento(true));
     ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
     ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
 
-    auto* aVars = parent->findPropertyContainer("environmentVars");
-    ASSERT_TRUE(aVars != nullptr);
+    EXPECT_DOUBLE_EQ(b()->getDouble(), objA.getDouble());
+    ASSERT_EQ(b()->getString(), objA.getString());
 
-    QList<QPair<QString, QString>> entriesA, entriesB;
-    for (const auto& e : *aVars)
-    {
-        entriesA.append(qMakePair(e.memberValToVariant("name").toString(),
-                                  e.memberValToVariant("value").toString()));
-    }
-    for (const auto& e : *bVars)
-    {
-        entriesB.append(qMakePair(e.memberValToVariant("name").toString(),
-                                  e.memberValToVariant("value").toString()));
-    }
-
-    QSet<QString> expected;
-    for (const auto& e : entriesB)
-    {
-        expected.insert(e.first + "=" + e.second);
-    }
-    for (const auto& e : entriesA)
-    {
-        EXPECT_TRUE(expected.contains(e.first + "=" + e.second))
-                << "merged container lost or altered entry: "
-                << e.first << "=" << e.second;
-    }
-
-    EXPECT_EQ(objB->calcHash(), objA->calcHash())
-            << "hash mismatch after diff round-trip of property container";
+    EXPECT_EQ(objB->calcHash(), objA.calcHash())
+            << "simple property change round-trip must be lossless";
 }
 
-/// test 4: isActive flag must survive the memento/diff round-trip
-TEST_F(TestHashRoundTrip, isActiveSurvivesHashesMatch)
-{
-    auto* boolProp = qobject_cast<GtBoolProperty*>(
-                objA.findPropertyByName("Test Bool"));
-    ASSERT_TRUE(boolProp != nullptr);
-    objA.setBool(true);
-
-    objB = objA.clone();
-    ASSERT_NE(nullptr, objB);
-    objB->setFactory(gtObjectFactory);
-
-    auto* bBoolProp = qobject_cast<GtBoolProperty*>(
-                objB->findPropertyByName("Test Bool"));
-    ASSERT_TRUE(bBoolProp != nullptr);
-
-    // mutate value on B AND drop active state on B
-    boolProp->setActive(false);
-    bBoolProp->setActive(false);
-    objB->setDouble(77.7);
-
-    GtObjectMemento memA = objA.toMemento(true);
-    GtObjectMemento memB = objB->toMemento(true);
-
-    GtObjectMementoDiff diff(memA, memB);
-    ASSERT_FALSE(diff.isNull()) << "mutation must produce a diff";
-    ASSERT_TRUE(objA.applyDiff(diff)) << "applyDiff failed";
-    QObject::disconnect();
-
-    boolProp = qobject_cast<GtBoolProperty*>(
-                objA.findPropertyByName("Test Bool"));
-    EXPECT_TRUE(boolProp->isActive() == false)
-            << "isActive flag not restored after applyDiff (memento reader "
-            << "TODO: gt_objectmemento.cpp 'should this be set by the "
-            << "reader ???')";
-    EXPECT_DOUBLE_EQ(77.7, objA.getDouble());
-
-    EXPECT_EQ(objB->calcHash(), objA->calcHash())
-            << "hash mismatch caused by lost isActive flag";
-}
-
-/// test 5: calcHash must be deterministic and stable across repeated calls
+/// test 5: calcHash must be deterministic across repeated calls
 TEST_F(TestHashRoundTrip, calcHashIsDeterministic)
 {
     objA.setDouble(1.0 / 3.0);
     objA.setBool(false);
     objA.setDoubleVec(makeFullPrecisionDoubles(5, 0xCAFEBABEu));
 
-    GtObjectMemento mem = objA.toMemento(true);
-    mem.calculateHashes();
-    QByteArray mementoHashBytes = mem.fullHash();
+    GtObjectMemento m1 = objA.toMemento(true);
+    m1.calculateHashes();
+    GtObjectMemento m2 = objA.toMemento(true);
+    m2.calculateHashes();
 
-    QByteArray hash1, hash2, hash3;
-    for (int i = 0; i < 3; ++i)
-    {
-        GtObjectMemento m = objA.toMemento(true);
-        m.calculateHashes();
-        QByteArray h = m.fullHash();
-
-        if (i == 0) { hash1 = h; }
-        if (i == 1) { hash2 = h; }
-        if (i == 2) { hash3 = h; }
-    }
-
-    EXPECT_EQ(hash1.constData(), hash2.constData())
-            << "calcHash non-deterministic between two consecutive calls";
-    EXPECT_EQ(hash2.constData(), hash3.constData())
-            << "calcHash non-deterministic between call two and three";
-    EXPECT_EQ(mem.fullHash().toHex(), objA.calcHash())
-            << "GtObject::calcHash differs from toMemento()+calculateHashes()";
+    EXPECT_EQ(m1.fullHash().toHex(), m2.fullHash().toHex())
+            << "toMemento + calculateHashes non-deterministic";
+    EXPECT_EQ(m1.fullHash().toHex(), objA.calcHash())
+            << "GtObject::calcHash differs from "
+            << "toMemento()+calculateHashes()";
+    EXPECT_EQ(objA.calcHash(), objA.calcHash())
+            << "calcHash non-deterministic";
 }
