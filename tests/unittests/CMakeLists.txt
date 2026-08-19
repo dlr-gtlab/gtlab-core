@@ -55,7 +55,9 @@ set (SOURCES
     slotadaptor.cpp
 )
 
-add_executable(GTlabUnitTest ${SOURCES})
+add_executable(GTlabUnitTest ${SOURCES}
+    core/test_gt_processexecutioninfo.cpp
+    core/test_gt_processexecutioninfo.h)
 set_target_properties(GTlabUnitTest PROPERTIES AUTOMOC ON AUTORCC ON)
 
 target_compile_definitions(GTlabUnitTest PRIVATE GT_MODULE_ID="Unittests" "GT_LOG_USE_QT_BINDINGS")

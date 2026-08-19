@@ -21,6 +21,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
 #include "gt_taskrunner.h"
+#include "gt_processexecutioninfo.h"
 
 #include "gt_coreprocessexecutor.h"
 
@@ -42,6 +43,9 @@ struct GtCoreProcessExecutor::Impl
 
     /// Pointer to current runnable
     QPointer<GtRunnable> currentRunnable;
+
+    /// store proc run info per task
+    QHash<GtTask*, QPointer<GtProcessExecutionInfo>> processExecInfo;
 };
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
@@ -67,9 +71,14 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 bool
 GtCoreProcessExecutor::runTask(GtTask* task)
 {
+    return runTask(task, nullptr);
+}
+
+bool GtCoreProcessExecutor::runTask(GtTask *task, GtProcessExecutionInfo *procExcInfo)
+{
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
-    if (!queueTask(task))
+    if (!queueTask(task, procExcInfo))
     {
         return false;
     }
@@ -148,6 +157,7 @@ bool
 GtCoreProcessExecutor::terminateAllTasks()
 {
     m_queue.clear();
+    pimpl->processExecInfo.clear();
 
     return !taskCurrentlyRunning() || terminateTask(m_current);
 }
@@ -179,6 +189,12 @@ GtCoreProcessExecutor::queue() const
 bool
 GtCoreProcessExecutor::queueTask(GtTask* task)
 {
+    return queueTask(task, nullptr);
+}
+
+bool
+GtCoreProcessExecutor::queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo)
+{
     if (!task)
     {
         gtErrorId(GT_EXEC_ID)
@@ -208,6 +224,16 @@ GtCoreProcessExecutor::queueTask(GtTask* task)
     task->resetMonitoringProperties();
 
     m_queue.append(task);
+
+    cleanupProcessExecutionMapping();
+    if (procExcInfo!=Q_NULLPTR)
+    {
+        procExcInfo->setProcessState(GtProcessComponent::QUEUED);
+        procExcInfo->setQueuedTimeNow();
+        pimpl->processExecInfo[task] = procExcInfo;
+    }
+
+
     emit queueChanged();
 
     return true;
@@ -220,7 +246,15 @@ GtCoreProcessExecutor::removeFromQueue(GtTask *task)
     {
         m_queue.removeAll(task);
 
-        if (task) task->setStateRecursively(GtTask::NONE);
+        if (task)
+        {
+            task->setStateRecursively(GtTask::NONE);
+        }
+
+        if(processExecutionInfo(task))
+        {
+            pimpl->processExecInfo.remove(task);
+        }
 
         emit queueChanged();
     }
@@ -299,6 +333,12 @@ GtCoreProcessExecutor::execute()
         QEventLoop eventLoop;
 
         connect(runner, &QObject::destroyed, &eventLoop, &QEventLoop::quit);
+
+        auto procExecInfo = processExecutionInfo(m_current);
+        if(procExecInfo)
+        {
+            procExecInfo->setStartTimeNow();
+        }
 
         // run
         runner->run();
@@ -379,6 +419,14 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             gtWarningId(GT_EXEC_ID) << tr("Failed to apply memento diff!");
             ok = false;
         }
+
+
+        auto procExecInfo = processExecutionInfo(task);
+        if(procExecInfo)
+        {
+            procExecInfo->setDataDiffToMerge(sumDiff);
+        }
+
     }
 
     if (!ok)
@@ -388,6 +436,8 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
                       "back into datamodel!").arg(task->objectName());
         task->setState(GtProcessComponent::FAILED);
     }
+
+
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "end";
 }
@@ -466,6 +516,31 @@ GtCoreProcessExecutor::setupTaskRunner()
     return runner;
 }
 
+GtProcessExecutionInfo*
+GtCoreProcessExecutor::processExecutionInfo(GtTask *task)
+{
+    if (task && pimpl->processExecInfo.contains(task))
+    {
+        return pimpl->processExecInfo[task];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+void GtCoreProcessExecutor::cleanupProcessExecutionMapping()
+{
+    for(auto key : pimpl->processExecInfo.keys())
+    {
+        if (pimpl->processExecInfo[key].isNull())
+        {
+            pimpl->processExecInfo.remove(key);
+        }
+    }
+}
+
+
 void
 GtCoreProcessExecutor::onTaskRunnerFinished()
 {
@@ -518,6 +593,17 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     gtInfoId(GT_EXEC_ID).medium()
         << tr("----> Task finished (took %1 ms to merge) <----")
                .arg(timer.elapsed());
+
+
+
+    auto procExecInfo = processExecutionInfo(finishedTask);
+    if (procExecInfo)
+    {
+        procExecInfo->setProcessState(finishedTask->currentState());
+        procExecInfo->setEndTimeNow();
+        pimpl->processExecInfo.remove(finishedTask);
+    }
+    cleanupProcessExecutionMapping();
 
     // reset source
     m_source.clear();

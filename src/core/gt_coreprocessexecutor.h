@@ -13,6 +13,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_object.h"
+#include "gt_processexecutioninfo.h"
 
 #include <QObject>
 #include <QPointer>
@@ -70,9 +71,18 @@ public:
 
     /**
      * @brief Runs a process if the queue is free
-     * @param process GtdProcess
+     * @param task GtTask
      */
     bool runTask(GtTask* task);
+
+    /**
+     * @brief Runs a process if the queue is free,
+     * the caller of runTask maintains ownership of the GtProcessExecutionInfo
+     * and has to take care of lifetime management
+     * @param task GtTask
+     * @param procExcInfo GtProcessExecutionInfo
+     */
+    bool runTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
      * @brief Executes the next task in the queue. No task must be running.
@@ -125,6 +135,15 @@ public:
      * @return Success
      */
     bool queueTask(GtTask* task);
+
+    /**
+     * @brief Queues a task,
+     * the caller of queueTask maintains ownership of the GtProcessExecutionInfo
+     * and has to take care of lifetime management
+     * @param task GtTask
+     * @param procExcInfo GtProcessExecutionInfo
+     */
+    bool queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
      * @brief Removes the task from the queue
@@ -214,6 +233,18 @@ protected:
      * @return Task runner pointer (null if setup failed)
      */
     GtTaskRunner* setupTaskRunner();
+
+    /**
+     * @brief Return the GtProcessExecutionInfo for a task is available
+     * @return the GtProcessExecutionInfo (null is not available)
+     */
+    GtProcessExecutionInfo* processExecutionInfo(GtTask* task);
+
+    /**
+     * @brief Removes mappings to objects which are no longer available
+     */
+    void cleanupProcessExecutionMapping();
+
 
 private:
 
