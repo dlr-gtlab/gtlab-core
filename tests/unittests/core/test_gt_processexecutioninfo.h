@@ -25,12 +25,6 @@
 #include "gt_propertyconnection.h"
 
 
-class TestPackage : public GtPackage
-{
-public:
-    TestPackage() = default;
-};
-
 class TestObjectDouble : public GtObject
 {
     Q_OBJECT
@@ -127,34 +121,24 @@ public:
         delete m_a;
     }
 
+    void setA(double val)
+    {
+        m_a->setVal(val);
+    }
+
     void setLinkedObj(TestObjectDouble* obj)
     {
         m_obj->setVal(obj->uuid());
-        qDebug() << "setLinkedObj" << this;
-        qDebug() << "|-> obj:" << obj->uuid();
-        qDebug() << "|-> m_obj:" << m_obj->getVal();
     }
 
     bool run() override
     {
-        qDebug() << "run TestCalculatorWriteToObject" << this;
-        qDebug() << "m_obj:" << m_obj << m_obj->getVal();
-
-        qDebug() << "proccomp::data";
-        qDebug() << "linkedObjects:" << linkedObjects();
-
         auto obj = data<TestObjectDouble*>(*m_obj);
-
         if (!obj)
         {
-            qDebug() << "TestCalculatorWriteToObject - Linked obj not found!";
-            qDebug() << "uuid:" <<  m_obj->getVal();
             return false;
         }
-        qDebug() << "obj:" << obj;
-        qDebug() << "m_a->getVal():" << m_a->getVal();
         obj->setX(m_a->getVal());
-        qDebug() << "obj getX:" << obj->getX();
         return true;
     }
 
@@ -172,13 +156,24 @@ public:
     {
     }
 
-    ~TestCalculatorFailing() override
+    bool run() override
+    {
+        return false;
+    }
+};
+
+class TestCalculatorWarning : public GtCalculator
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE TestCalculatorWarning()
     {
     }
 
     bool run() override
     {
-        return false;
+        setWarningFlag(true);
+        return true;
     }
 };
 
@@ -207,13 +202,6 @@ public:
 
     }
 
-    ~TestTask1() override
-    {
-        delete m_calc1;
-        delete m_calc2;
-        delete m_conn1;
-    }
-
     void setInput(double a, double b, TestObjectDouble* targetobj)
     {
         m_calc1->setA(a);
@@ -229,5 +217,51 @@ private:
 
 };
 
+class TestWarningTask1 : public GtTask
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE TestWarningTask1()
+    {
+        m_calc1 = new TestCalculatorWarning;
+        appendChild(m_calc1);
+    }
+private:
+    TestCalculatorWarning* m_calc1;
+};
+
+class TestFailingTask1 : public GtTask
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE TestFailingTask1()
+    {
+        m_calc1 = new TestCalculatorFailing;
+        appendChild(m_calc1);
+    }
+private:
+    TestCalculatorFailing* m_calc1;
+};
+
+class TestFailingTask2 : public GtTask
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE TestFailingTask2()
+    {
+        m_calc1 = new TestCalculatorWriteToObject;
+        appendChild(m_calc1);
+        m_calc2 = new TestCalculatorFailing;
+        appendChild(m_calc2);
+    }
+    void setInput(double a, TestObjectDouble* targetobj)
+    {
+        m_calc1->setA(a);
+        m_calc1->setLinkedObj(targetobj);
+    }
+private:
+    TestCalculatorWriteToObject* m_calc1;
+    TestCalculatorFailing* m_calc2;
+};
 
 #endif // TEST_GT_PROCESSEXECUTIONINFO_H
