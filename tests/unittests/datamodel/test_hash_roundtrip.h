@@ -4,60 +4,69 @@
  * SPDX-License-Identifier: MPL-2.0+
  */
 
-/**
- * @brief These tests verify the provenance hash invariant:
- *
- *  A = object, B = A.clone() (deep copy), B is mutated,
- *  diff(A, B) is computed and applied back onto A.
- *  Afterwards, A and B are semantically identical - therefore
- *  A->calcHash() must equal B->calcHash().
- *
- *  This mirrors the production pipeline
- *  (GtCoreProcessExecutor::handleTaskFinishedHelper) where a calculator
- *  mutates a restored clone and the diff is merged back into the
- *  live data model. In production the hashes diverged - these tests
- *  isolate the cause among:
- *
- *   1. lossy float serialization of list properties (DBL_DIG)
- *   2. non-canonical QVariant serialization (variantToString)
- *   3. property container entry re-ordering in mergePropertyContainer
- *   4. isActive flag lost on memento restore / diff apply
- *   5. non-determinism of calcHash itself
- */
-
 #ifndef TEST_HASH_ROUNDTRIP_H
 #define TEST_HASH_ROUNDTRIP_H
+
+#include <QObject>
+#include <QVariant>
+#include <QVector>
 
 #include "gt_object.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_stringproperty.h"
 
-class TestContainerObject : public GtObject
+class TestHashContainerObject : public GtObject
 {
     Q_OBJECT
 public:
-    TestContainerObject() :
-        GtObject()
+    Q_INVOKABLE TestHashContainerObject()
     {
-        GtPropertyStructDefinition envVarStruct("EnvironmentVarsStruct");
-        envVarStruct.defineMember("name", gt::makeStringProperty());
-        envVarStruct.defineMember("value", gt::makeStringProperty());
-
-        environmentVars.registerAllowedType(envVarStruct);
-
-        registerPropertyStructContainer(environmentVars);
-        setObjectName("testcontainerobject");
+        GtPropertyStructDefinition s("EnvironmentVarsStruct");
+        s.defineMember("name", gt::makeStringProperty());
+        s.defineMember("value", gt::makeStringProperty());
+        envVars.registerAllowedType(s);
+        registerPropertyStructContainer(envVars);
+        setObjectName("testhashcontainerobject");
     }
 
-    void addEnvironmentVar(QString name, QString value)
+    void addEnvVar(QString name, QString value)
     {
-        auto& var = environmentVars.newEntry("EnvironmentVarsStruct");
+        auto& var = envVars.newEntry("EnvironmentVarsStruct");
         var.setMemberVal("name", name);
         var.setMemberVal("value", value);
     }
 
-    GtPropertyStructContainer environmentVars{"environmentVars", "variables"};
+    GtPropertyStructContainer envVars{"envVars", "environment vars"};
+};
+
+/// object exposing a raw QVariant as a Qt meta property,
+/// so the diff path must serialize it through variantToString
+class TestHashVariantObject : public GtObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QVariant myVariant MEMBER m_variant)
+public:
+    Q_INVOKABLE TestHashVariantObject()
+    {
+        setObjectName("testhashvariantobject");
+    }
+
+    QVariant m_variant;
+};
+
+/// object exposing a full-precision QPointF as a Qt meta property
+class TestHashPointObject : public GtObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QPointF myPoint MEMBER m_point)
+public:
+    Q_INVOKABLE TestHashPointObject()
+    {
+        setObjectName("testhashpointobject");
+    }
+
+    QPointF m_point;
 };
 
 #endif // TEST_HASH_ROUNDTRIP_H
