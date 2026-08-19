@@ -71,10 +71,17 @@ public:
 
     /**
      * @brief Runs a process if the queue is free
-     * @param process GtdProcess
+     * @param task GtTask
      */
     bool runTask(GtTask* task);
 
+    /**
+     * @brief Runs a process if the queue is free,
+     * the caller of runTask maintains ownership of the GtProcessExecutionInfo
+     * and has to take care of lifetime management
+     * @param task GtTask
+     * @param procExcInfo GtProcessExecutionInfo
+     */
     bool runTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
@@ -128,6 +135,14 @@ public:
      * @return Success
      */
     bool queueTask(GtTask* task);
+
+    /**
+     * @brief Queues a task,
+     * the caller of queueTask maintains ownership of the GtProcessExecutionInfo
+     * and has to take care of lifetime management
+     * @param task GtTask
+     * @param procExcInfo GtProcessExecutionInfo
+     */
     bool queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**

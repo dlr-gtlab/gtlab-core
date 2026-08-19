@@ -55,14 +55,14 @@ GtProcessExecutionInfo::GtProcessExecutionInfo():
     registerProperty(pimpl->dataDiffToMerge);
 }
 
-const double GtProcessExecutionInfo::queuedTime()
+double GtProcessExecutionInfo::queuedTime() const
 {
     return pimpl->queuedTime.getVal();
 }
 
 void GtProcessExecutionInfo::setQueuedTime(double queuedTime)
 {
-    pimpl->queuedTime = queuedTime;
+    pimpl->queuedTime.setVal(queuedTime);
     pimpl->queuedTime.setActive(true);
 }
 
@@ -71,14 +71,14 @@ void GtProcessExecutionInfo::setQueuedTimeNow()
     setQueuedTime(QDateTime::currentMSecsSinceEpoch()/1000.);
 }
 
-const double GtProcessExecutionInfo::startTime()
+double GtProcessExecutionInfo::startTime() const
 {
     return pimpl->startTime.getVal();
 }
 
 void GtProcessExecutionInfo::setStartTime(double startTime)
 {
-    pimpl->startTime = startTime;
+    pimpl->startTime.setVal(startTime);
     pimpl->startTime.setActive(true);
 }
 
@@ -87,7 +87,7 @@ void GtProcessExecutionInfo::setStartTimeNow()
     setStartTime(QDateTime::currentMSecsSinceEpoch()/1000.);
 }
 
-const double GtProcessExecutionInfo::endTime()
+double GtProcessExecutionInfo::endTime() const
 {
     return pimpl->endTime.getVal();
 }
@@ -103,7 +103,7 @@ void GtProcessExecutionInfo::setEndTimeNow()
     setEndTime(QDateTime::currentMSecsSinceEpoch()/1000.);
 }
 
-const GtProcessComponent::STATE GtProcessExecutionInfo::processState()
+const GtProcessComponent::STATE GtProcessExecutionInfo::processState() const
 {
     return pimpl->processState.getVal();
 }
@@ -113,7 +113,7 @@ void GtProcessExecutionInfo::setProcessState(GtProcessComponent::STATE state)
     pimpl->processState.setVal(state);
 }
 
-const GtObjectMementoDiff GtProcessExecutionInfo::dataDiffToMerge()
+GtObjectMementoDiff GtProcessExecutionInfo::dataDiffToMerge() const
 {
     GtObjectMementoDiff diff;
 

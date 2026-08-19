@@ -22,22 +22,22 @@ public:
     Q_INVOKABLE GtProcessExecutionInfo();
     ~GtProcessExecutionInfo();
 
-    const double queuedTime();
+    double queuedTime() const;
     void setQueuedTime(double queuedTime);
     void setQueuedTimeNow();
 
-    const double startTime();
+    double startTime() const;
     void setStartTime(double startTime);
     void setStartTimeNow();
 
-    const double endTime();
+    double endTime() const;
     void setEndTime(double endTime);
     void setEndTimeNow();
 
-    const GtProcessComponent::STATE processState();
+    const GtProcessComponent::STATE processState() const;
     void setProcessState(GtProcessComponent::STATE state);
 
-    const GtObjectMementoDiff dataDiffToMerge();
+    GtObjectMementoDiff dataDiffToMerge() const;
     void setDataDiffToMerge(const GtObjectMementoDiff& dataDiffToMerge);
 
     void listEnumOptions();
