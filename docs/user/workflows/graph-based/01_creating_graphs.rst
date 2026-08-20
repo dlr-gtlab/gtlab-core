@@ -14,7 +14,7 @@ To install, select the component in the Maintenance Tool:
 
 	*GTlab 2.0* → *Modules* → *GTlab IntelliGraph Libraries*
 	
-To activate the module for the current project, right click on the project in the Explorer Dock and navigate to:
+To activate the module for the current project, right-click on the project in the Explorer Dock and navigate to:
 
 	*Choose Project Modules* → *IntelliGraph*
 
@@ -22,7 +22,7 @@ Creating a Graph
 """"""""""""""""
 
 Once the module is activated for the current project, a new datatree object named ``IntelliGraphs`` appears. 
-This object is the also called **package**.
+This object is also called the **package**.
 All Intelli Graphs are organized in this package.
 
 First, one has to create a **category object**, which can be used to organize Intelli Graphs accordingly.
@@ -40,7 +40,7 @@ Enter the name of the category and confirm.
    :class: only-dark
 
 .. note::
-   Category objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
+   Category objects on the same level cannot be named the same. The object names should update automatically to create unique names.
    
 To create a **new graph**, right-click the desired category and select *Add Graph*.
 Enter the name of the graph and confirm.
@@ -56,9 +56,9 @@ Enter the name of the graph and confirm.
    :class: only-dark
 
 .. note::
-   Graph objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
+   Graph objects on the same level cannot be named the same. The object names should update automatically to create unique names.
    
-Double click the newly created graph object or right-click and select *Open*.
+Double-click the newly created graph object or right-click and select *Open*.
 The so-called **Graph View** will open and display the selected graph in the central widget area.
 For a newly created graph the displayed **Graph Scene** is empty.
 
@@ -90,10 +90,10 @@ To add new nodes right-click on an empty space in the scene, displaying the *Sce
 The Scene Menu lists all available nodes, organized into categories/types of nodes.
 Clicking an entry will create a new instance of the selected node.
 
-To add data to operate on to the graph, input nodes are used.
+To add data to the graph to operate on, input nodes are used.
 These allow entering values, referencing directories and files, or accessing data objects of the project.
 
-For example, the *Project Info* node allows to access the name and directory of the project.
+For example, the *Project Info* node provides access to the name and directory of the project.
 
 .. image:: ../images/workflows_how_to_add_nodes_bright.png
    :align: center
@@ -105,7 +105,7 @@ For example, the *Project Info* node allows to access the name and directory of 
    :alt: Scene Menu displaying all available nodes
    :class: only-dark
 
-We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project directory. In this example, a file was explicity added to the project directory named *readme.txt*. 
+We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project directory. In this example, a file was explicitly added to the project directory named *readme.txt*. 
 
 .. image:: ../images/workflows_how_to_add_nodes_2_bright.png
    :align: center
@@ -156,23 +156,23 @@ Comments
 Besides nodes, comments can be added to a graph via the Scene Menu's entry *Add Comment*.
 
 Comments support markdown syntax and can be resized freely. 
-They are intended to be used as way to document a graph for yourself or other people.
+They are intended to be used as a way to document a graph for yourself or other people.
 
 Double-click the comment to edit. 
 
 Comments can either be standalone ("floating") in a scene or they can be connected to one or multiple nodes.
-To associate a comment to antoher node, right-click the comment and select *Connect to...*. 
+To associate a comment to another node, right-click the comment and select *Connect to...*. 
 Click on the desired node.
 A dotted line indicates that the connection succeeded.
 
 .. image:: ../images/workflows_graph_comment_bright.png
    :align: center
-   :alt: Comment, adding addition information to the graph
+   :alt: Comment, adding additional information to the graph
    :class: only-light
    
 .. image:: ../images/workflows_graph_comment_dark.png
    :align: center
-   :alt: Comment, adding addition information to the graph
+   :alt: Comment, adding additional information to the graph
    :class: only-dark
    
 Further, the style of a comment can be customized.
@@ -186,7 +186,7 @@ A dialog opens that allows to change the background color, text color, text alig
    
 .. image:: ../images/workflows_graph_comment_style_dark.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Styling a comment
    :class: only-dark
    
 .. note::
@@ -242,11 +242,11 @@ The subgraph is opened in the same Graph viewer but in a different Graph Scene o
    :class: only-dark
 
 After grouping the selection of nodes and opening the subgraph, one can find that the selected nodes have been moved to this level and connected as expected.
-Each subgraph has two special types of nodes, an input and output provider node.
+Each subgraph has two special types of nodes: an input provider and an output provider node.
 Using the context menu of these nodes new inputs and outputs to the graph can be added.
    
 To navigate to the parent scene, find the *Scene Hierarchy* in the menu bar in the top-left of the Graph View.
-This widget displayes the current level and allows the user to navigate to any intermediate level by click the desired (sub)graph name.
+This widget displays the current level and allows the user to navigate to any intermediate level by clicking the desired (sub)graph name.
    
 A subgraph can also be expanded/resolved.
 Right-click the subgraph and select *Expand Subgraph*. 

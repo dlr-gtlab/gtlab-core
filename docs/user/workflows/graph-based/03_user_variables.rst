@@ -4,7 +4,7 @@ User Variables
 For some workflows user-defined global variables may be required.
 The IntelliGraph module allows you to define such variables as key-value pairs, called **user variables**.
 
-User variables are defined per Graph and are persistently in the project.
+User variables are defined per Graph and are stored persistently in the project.
 All Nodes, including nodes in subgraphs, have access to the same user variables of the root graph.
 
 
