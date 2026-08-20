@@ -114,4 +114,5 @@ Further Reading
 
    graph-based/01_creating_graphs
    graph-based/02_execution
-   graph-based/03_standard_nodes
+   graph-based/03_user_variables
+   graph-based/04_standard_nodes

@@ -65,11 +65,11 @@ For a newly created graph the displayed **Graph Scene** is empty.
 In the top-left corner of the Graph View a small menu bar is displayed.
 Here, view and scene specific actions can be performed, such as
 
-- Enabling/disabling the grid
 - Centering the view
 - Resetting the scale
-- Toggling automatic evaluation of the graph
+- Enabling/disabling the grid
 - Enabling/disabling snap to grid
+- Toggling automatic evaluation of the graph
 
 .. image:: ../images/workflows_graph_view_bright.png
    :align: center
@@ -84,11 +84,13 @@ Here, view and scene specific actions can be performed, such as
 Adding Nodes and Connections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _label_section_intelli_graph_add_nodes:
+
 To add new nodes right-click on an empty space in the scene, displaying the *Scene Menu*.
 The Scene Menu lists all available nodes, organized into categories/types of nodes.
 Clicking an entry will create a new instance of the selected node.
 
-To add information into the graph, input nodes are used.
+To add data to operate on to the graph, input nodes are used.
 These allow entering values, referencing directories and files, or accessing data objects of the project.
 
 For example, the *Project Info* node allows to access the name and directory of the project.
@@ -173,9 +175,24 @@ A dotted line indicates that the connection succeeded.
    :alt: Comment, adding addition information to the graph
    :class: only-dark
    
-Further, comments can be collapsed to take up less space.
-To collapse a comment, right-click the node and select *Collapse selected objects*.
+Further, the style of a comment can be customized.
+Right-click the comment and select *Change Style*.
+A dialog opens that allows to change the background color, text color, text alignment and whether a frame is drawn when the comment is not selected or hovered.
+   
+.. image:: ../images/workflows_graph_comment_style_bright.png
+   :align: center
+   :alt: Stlying a comment
+   :class: only-light
+   
+.. image:: ../images/workflows_graph_comment_style_dark.png
+   :align: center
+   :alt: Stlying a comment
+   :class: only-dark
+
+Finally, comments can be collapsed to take up less space.
+To collapse a comment, right-click the comment and select *Collapse selected objects*.
 If a comment is linked to a single node, it will dock onto the node until its uncollapsed.
+ 
 
 Subgraphs
 """""""""

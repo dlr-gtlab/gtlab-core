@@ -34,10 +34,10 @@ The properties of the ports can then be found in the corresponding tabs under pr
   :align: center
   :alt: Python Node Editor
 
-It is important to give the ports a meaningful name here, as this identifier can be used to access the port in the Python script.
-The type can be used to specify what type of data can be transferred.
+It is important to give the ports a meaningful and unique caption, as the caption is used as an identifier to access the port in the Python script.
+The type denotes what type of data can be connected.
 
-The port is made accessible in the Python script via the name. To access the value of the port, the *.value()* function must be called on this novh.
+In the Python script the port is accessed using the port caption. To access the value of the port, the *.value()* function must be called on the port variable.
 Please note that error messages may occur for unconnected ports when analysing the Python script.
 
 
