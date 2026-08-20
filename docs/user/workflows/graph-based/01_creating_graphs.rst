@@ -188,7 +188,10 @@ A dialog opens that allows to change the background color, text color, text alig
    :align: center
    :alt: Stlying a comment
    :class: only-dark
-
+   
+.. note::
+   The customization of comments is added in version 0.16.0 of the IntelliGraph module
+   
 Finally, comments can be collapsed to take up less space.
 To collapse a comment, right-click the comment and select *Collapse selected objects*.
 If a comment is linked to a single node, it will dock onto the node until it is expanded again.
