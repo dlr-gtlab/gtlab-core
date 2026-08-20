@@ -2,7 +2,7 @@ User Variables
 --------------
 
 For some workflows user-defined global variables may be required.
-The IntelliGraph module allows you to define such variables as key-value pairs, called **user variables**.
+The IntelliGraph Module allows you to define such variables as key-value pairs, called **user variables**.
 
 User variables are defined per Graph and are stored persistently in the project.
 All Nodes, including nodes in subgraphs, have access to the same user variables of the root graph.
@@ -55,7 +55,7 @@ User variables are usually accessed in two ways: using the dedicated node that e
 User Constants Node
 ^^^^^^^^^^^^^^^^^^^
 
-Right-click the scene and add a **User Constants** node (see :ref:`Creating Graphs → Adding Nodes and Connections <label_section_intelli_graph_add_nodes>` on how to add nodes).
+Right-click the scene and add a **User Constants Node** (see :ref:`Creating Graphs → Adding Nodes and Connections <label_section_intelli_graph_add_nodes>` on how to add nodes).
 
 The user variables are automatically exposed as output ports of the node.
 Editing the user variables causes the node to automatically update.

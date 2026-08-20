@@ -26,7 +26,7 @@ Intelli Graphs
 --------------
 
 In GTlab, the graph-based process architecture is called **Intelli Graphs**.
-Like many features and functionalities of GTlab, this architecture too is implemented by a module -- the **IntelliGraph-Module**.
+Like many features and functionalities of GTlab, this architecture too is implemented by a module -- the **IntelliGraph Module**.
 To use Intelli Graphs, this module must be installed and activated for the current project (see :ref:`Creating Graphs → Initial Setup <label_section_intelli_graph_install>`).
 
 Nodes

@@ -8,7 +8,7 @@ Creating Graphs
 Initial Setup
 """""""""""""
 
-The **IntelliGraph-Module** must be installed and activated for the active project.
+The **IntelliGraph Module** must be installed and activated for the active project.
 
 To install, select the component in the Maintenance Tool:
 
@@ -93,7 +93,7 @@ Clicking an entry will create a new instance of the selected node.
 To add data to the graph to operate on, input nodes are used.
 These allow entering values, referencing directories and files, or accessing data objects of the project.
 
-For example, the *Project Info* node provides access to the name and directory of the project.
+For example, the **Project Info Node** provides access to the name and directory of the project.
 
 .. image:: ../images/workflows_how_to_add_nodes_bright.png
    :align: center
@@ -105,24 +105,24 @@ For example, the *Project Info* node provides access to the name and directory o
    :alt: Scene Menu displaying all available nodes
    :class: only-dark
 
-We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project directory. In this example, a file was explicitly added to the project directory named *readme.txt*. 
+We can use this node in combination with a **File Input Node** and **String Input Node** to open a file relative to the current project directory. In this example, a file was explicitly added to the project directory named *readme.txt*. 
 
 .. image:: ../images/workflows_how_to_add_nodes_2_bright.png
    :align: center
-   :alt: Adding a String Input and File Input node
+   :alt: Adding a String Input and File Input Node
    :class: only-light
    :scale: 60%
 
 .. image:: ../images/workflows_how_to_add_nodes_2_dark.png
    :align: center
-   :alt: Adding a String Input and File Input node
+   :alt: Adding a String Input and File Input Node
    :class: only-dark
    :scale: 60%
 
 To connect nodes, left-click the desired port handle, and drag and drop the connection on a target port of another node.
 Compatible/valid target ports are highlighted automatically and the cursor snaps to the nearest port to highlight, which port will be connected.
 
-After connecting the String Input and Project Info nodes to the File Input node accordingly, a file handle is created that can be used for further processing by other nodes.
+After connecting the String Input and Project Info nodes to the **File Input Node** accordingly, a file handle is created that can be used for further processing by other nodes.
 
 .. image:: ../images/workflows_how_to_add_nodes_3_bright.png
    :align: center
@@ -136,18 +136,18 @@ After connecting the String Input and Project Info nodes to the File Input node 
    :class: only-dark
    :scale: 60%
 
-In particular, a *File Reader* node exists that attempts to read the file and outputs the content of said file.
+In particular, a **File Reader Node** exists that attempts to read the file and outputs the content of said file.
 If the file does not exist the File Reader will "fail" (denoted by the status indicator, see :ref:`Graph Execution → Evaluation States of Nodes <label_section_graph_execution_states>`).
-To display the content, the *Text Display* node may be used -- thus completing this example.
+To display the content, the **Text Display Node** may be used -- thus completing this example.
 
 .. image:: ../images/workflows_how_to_add_nodes_4_bright.png
    :align: center
-   :alt: Adding a File Reader and Text Display node, finalizing the example
+   :alt: Adding a File Reader and Text Display Node, finalizing the example
    :class: only-light
    
 .. image:: ../images/workflows_how_to_add_nodes_4_dark.png
    :align: center
-   :alt: Adding a File Reader and Text Display node, finalizing the example
+   :alt: Adding a File Reader and Text Display Node, finalizing the example
    :class: only-dark
 
 Comments
@@ -177,7 +177,7 @@ A dotted line indicates that the connection succeeded.
    
 Further, the style of a comment can be customized.
 Right-click the comment and select *Change Style*.
-A dialog opens that allows to change the background color, text color, text alignment and whether a frame is drawn when the comment is not selected or hovered.
+A dialog opens that allows changing the background color, text color, text alignment and whether a frame is drawn when the comment is not selected or hovered.
    
 .. image:: ../images/workflows_graph_comment_style_bright.png
    :align: center
@@ -190,7 +190,7 @@ A dialog opens that allows to change the background color, text color, text alig
    :class: only-dark
    
 .. note::
-   The customization of comments is added in version 0.16.0 of the IntelliGraph module
+   The customization of comments is added in version 0.16.0 of the IntelliGraph Module
    
 Finally, comments can be collapsed to take up less space.
 To collapse a comment, right-click the comment and select *Collapse selected objects*.

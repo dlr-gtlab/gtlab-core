@@ -5,19 +5,19 @@ Each module may define their own nodes.
 
 This page gives an overview over the nodes defined by the core modules.
 
-IntelliGraph-Module
+IntelliGraph Module
 ~~~~~~~~~~~~~~~~~~~
 
-The following nodes are defined by the `IntelliGraph`-Module.
+The following nodes are defined by the IntelliGraph Module.
 
 Input Nodes
 """""""""""
 
 Various nodes are implemented to input values of various types into the graph.
 
-For plain data, a *Double Input*, *Int Input*, *Boolean Input*, and *String Input* node exist.
+For plain data, a **Double Input Node**, **Int Input Node**, **Boolean Input Node**, and **String Input Node** exist.
 
-Further -- as highlighted in :ref:`Creating Graphs <label_section_creating_graphs>` -- a *Project Info* and *File Input* Node exist.
+Further -- as highlighted in :ref:`Creating Graphs <label_section_creating_graphs>` -- a **Project Info Node** and **File Input Node** exist.
 
 Each of these nodes contain a central widget, with which the user can enter a value, string, reference a file, or directory.
 For the number and bool input nodes, multiple input widget-modes exist.
@@ -33,13 +33,13 @@ These can be changed using the corresponding entry in the :ref:`Property Dock<la
    :alt: Input Nodes Overview
    :class: only-dark
 
-By far, one of the most useful input nodes is the **Object Input** node.
-As the name implies, the Object Input node allows the user to reference an object in the project data tree.
+By far, one of the most useful input nodes is the **Object Input Node**.
+As the name implies, the Object Input Node allows the user to reference an object in the project data tree.
 
 To select an object, either drag and drop the desired object onto the widget or left-click on the "three dots"-icon (similar to the object-link property).
 One can jump to the referenced object by clicking the "arrow"-icon or clear the referenced object, by left-clicking the "clear"-icon.
 
-.. note:: Each node connected to the Object Input node will operate on a copy of the referenced object. Thus, the original object cannot be overwritten accidentally.
+.. note:: Each node connected to the Object Input Node will operate on a copy of the referenced object. Thus, the original object cannot be overwritten accidentally.
 
 .. image:: ../images/workflows_input_nodes_overview_2_bright.png
    :align: center
@@ -58,9 +58,9 @@ Display Nodes
 
 To display intermediate results, multiple nodes are implemented.
 
-A *Number Display*, *Bool Display*, and *Text Display* node exist.
+A **Number Display Node**, **Bool Display Node**, and **Text Display Node** exist.
 
-The Text Display node supports various syntax highlighting, allowing to render XML, JSON, or Python code accordingly (Highlighting can be set using the :ref:`Property Dock<label_property_dock>` of the Text Display node).
+The Text Display Node supports various syntax highlighting, allowing to render XML, JSON, or Python code accordingly (Highlighting can be set using the :ref:`Property Dock<label_property_dock>` of the Text Display Node).
 
 .. image:: ../images/workflows_display_nodes_overview_bright.png
    :align: center
@@ -77,7 +77,7 @@ The Text Display node supports various syntax highlighting, allowing to render X
 Output Nodes
 """"""""""""
 
-Currently, the IntelliGraph-Module only implements a single output node, the **Object Sink** Node.
+Currently, the IntelliGraph Module only implements a single output node, the **Object Sink Node**.
 
 This node allows the user to append/override an object to the datatree.
 The node contains a central widget, with which the object must be committed to the datamodel explicitly.
@@ -87,15 +87,15 @@ To set the target object in the project's datatree, use the :ref:`Property Dock<
 Data Mutating Nodes
 """""""""""""""""""
 
-Various nodes exist that allow the user to mutate data, be it strings, perform calculations, or conversions.
+Various nodes exist that allow the user to mutate data, be it strings, to perform calculations, or conversions.
 
-Examples include the *String Builder* node and the File Operations Nodes (Read & Write).
+Examples include the **String Builder Node** and the File Operations Nodes (Read & Write).
 
-.. note:: Use the File Writer node with care, as files may be created or overwritten accidentally when evaluating with improper inputs.
+.. note:: Use the File Writer Node with care, as files may be created or overwritten accidentally when evaluating with improper inputs.
 
 Hub-Spoke-specific Nodes
 """"""""""""""""""""""""
 
-Further, certain :ref:`Calculators <label_section_calculators>` can be executed within an Intelli Graph using the **Execute Calculator** Node.
+Further, certain :ref:`Calculators <label_section_calculators>` can be executed within an Intelli Graph using the **Execute Calculator Node**.
 
 However, not all calculators are designed to support this feature.
