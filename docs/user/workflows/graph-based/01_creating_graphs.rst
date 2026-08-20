@@ -192,8 +192,7 @@ A dialog opens that allows to change the background color, text color, text alig
 Finally, comments can be collapsed to take up less space.
 To collapse a comment, right-click the comment and select *Collapse selected objects*.
 If a comment is linked to a single node, it will dock onto the node until it is expanded again.
-If a comment is linked to a single node, it will dock onto the node until its uncollapsed.
- 
+
 
 Subgraphs
 """""""""

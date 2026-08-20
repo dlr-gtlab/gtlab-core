@@ -15,12 +15,12 @@ To edit the user variables of a graph, right-click the object of the root graph 
    
 .. image:: ../images/workflows_user_variables_context_menu_light.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Opening the graph user variables dialog on the root graph
    :class: only-light
    
 .. image:: ../images/workflows_user_variables_context_menu_dark.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Opening the graph user variables dialog on the root graph
    :class: only-dark
    
 A dialog is opened, in which user variables may be added or edited.
@@ -39,12 +39,12 @@ Unchecking a user variable and saving will cause the user variable to be deleted
 
 .. image:: ../images/workflows_user_variables_dialog_light.png
    :align: center
-   :alt: Stlying a comment
+   :alt: The graph user variables dialog
    :class: only-light
    
 .. image:: ../images/workflows_user_variables_dialog_dark.png
    :align: center
-   :alt: Stlying a comment
+   :alt: The graph user variables dialog
    :class: only-dark
 
 Using User Variables
@@ -62,12 +62,13 @@ Editing the user variables causes the node to automatically update.
 
 .. image:: ../images/workflows_user_variables_node_light.png
    :align: center
+   :alt: Accessing the user variables using the User Constants node
    :alt: Stlying a comment
    :class: only-light
    
 .. image:: ../images/workflows_user_variables_node_dark.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Accessing the user variables using the User Constants node
    :class: only-dark
    
 Python Scripting Node
@@ -77,10 +78,10 @@ The user variables can be accessed in a **Python Node** (see :ref:`Scripting of 
   
 .. image:: ../images/workflows_user_variables_python_node_light.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Accessing the user variables using the Python scripting node
    :class: only-light
    
 .. image:: ../images/workflows_user_variables_python_node_dark.png
    :align: center
-   :alt: Stlying a comment
+   :alt: Accessing the user variables using the Python scripting node
    :class: only-dark
