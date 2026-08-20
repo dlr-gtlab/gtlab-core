@@ -63,7 +63,6 @@ Editing the user variables causes the node to automatically update.
 .. image:: ../images/workflows_user_variables_node_light.png
    :align: center
    :alt: Accessing the user variables using the User Constants node
-   :alt: Stlying a comment
    :class: only-light
    
 .. image:: ../images/workflows_user_variables_node_dark.png
