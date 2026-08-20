@@ -58,7 +58,7 @@ Connections are colorized according to this datatype.
 
 Some datatypes -- while different -- are compatible with each other and are converted implictly by the Intelli Graph system.
 When creating a connection, only valid target nodes and their ports are highlighted. 
-Connections between different but compatible datatypes are indicated by gradient.
+Connections between different but compatible datatypes are indicated by a gradient.
 
 .. image:: images/workflows_graph_datatype_overview_bright.png
    :align: center
