@@ -51,7 +51,7 @@ class GT_CORE_EXPORT GtCoreProcessExecutor : public QObject
 
 public:
 
-    enum class RunTaskResult
+    enum class TaskExecState
     {
         /// Task or execution setup was invalid.
         Invalid = 0,
@@ -85,13 +85,13 @@ public:
     bool runTask(GtTask* task)
     {
         const auto result = startTask(task);
-        return result == RunTaskResult::Started || result == RunTaskResult::Queued;
+        return result == TaskExecState::Started || result == TaskExecState::Queued;
     }
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use startNextTask instead")
     bool executeNextTask()
     {
-        return startNextTask() == RunTaskResult::Started;
+        return startNextTask() == TaskExecState::Started;
     }
 
     /**
@@ -103,12 +103,12 @@ public:
      * The compatibility wrapper runTask() returns true for both Started and
      * Queued.
      */
-    RunTaskResult startTask(GtTask* task);
+    TaskExecState startTask(GtTask* task);
 
     /**
      * @brief Starts the next task in the queue. No task must be running.
      */
-    RunTaskResult startNextTask();
+    TaskExecState startNextTask();
 
     /**
      * @brief Terminates current running task.

@@ -85,39 +85,39 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
     pimpl->detached =  flags.testFlag(gt::NonBlockingExecution);
 }
 
-GtCoreProcessExecutor::RunTaskResult
+GtCoreProcessExecutor::TaskExecState
 GtCoreProcessExecutor::startTask(GtTask* task)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
     if (!queueTask(task))
     {
-        return RunTaskResult::Invalid;
+        return TaskExecState::Invalid;
     }
 
     if (taskCurrentlyRunning())
     {
-        return RunTaskResult::Queued;
+        return TaskExecState::Queued;
     }
 
     return startNextTask();
 }
 
-GtCoreProcessExecutor::RunTaskResult
+GtCoreProcessExecutor::TaskExecState
 GtCoreProcessExecutor::startNextTask()
 {
     // check whether a task is already running
     if (taskCurrentlyRunning())
     {
         gtErrorId(GT_EXEC_ID) << tr("A Task is already running!");
-        return RunTaskResult::Busy;
+        return TaskExecState::Busy;
     }
 
     // check whether queue is empty
     if (m_queue.isEmpty())
     {
         emit allTasksCompleted();
-        return RunTaskResult::Invalid;
+        return TaskExecState::Invalid;
     }
 
     // checkout next task in queue
@@ -128,7 +128,7 @@ GtCoreProcessExecutor::startNextTask()
     {
         gtErrorId(GT_EXEC_ID) << tr("Cannot execute an invalid Task!");
         clearCurrentTask();
-        return RunTaskResult::Invalid;
+        return TaskExecState::Invalid;
     }
 
     // setup source
@@ -142,7 +142,7 @@ GtCoreProcessExecutor::startNextTask()
         {
             gtErrorId(GT_EXEC_ID) << tr("Source corrupted!");
             clearCurrentTask();
-            return RunTaskResult::Invalid;
+            return TaskExecState::Invalid;
         }
     }
 
@@ -157,7 +157,7 @@ GtCoreProcessExecutor::startNextTask()
             m_current->setState(GtProcessComponent::NONE);
             m_current = nullptr;
             emit queueChanged();
-            return RunTaskResult::Busy;
+            return TaskExecState::Busy;
         }
         if (result == GtProjectExecutionGuard::Result::InvalidProject)
         {
@@ -169,7 +169,7 @@ GtCoreProcessExecutor::startNextTask()
 
     execute();
 
-    return RunTaskResult::Started;
+    return TaskExecState::Started;
 }
 
 bool

@@ -131,7 +131,7 @@ TEST_F(TestGtCoreProcessExecutor, queueTaskRejectsNullAndDuplicateTasks)
 TEST_F(TestGtCoreProcessExecutor, runTaskReturnsInvalidForRejectedTask)
 {
     EXPECT_EQ(executor.startTask(nullptr),
-              GtCoreProcessExecutor::RunTaskResult::Invalid);
+              GtCoreProcessExecutor::TaskExecState::Invalid);
 }
 
 TEST_F(TestGtCoreProcessExecutor,
@@ -141,7 +141,7 @@ TEST_F(TestGtCoreProcessExecutor,
     QObject::connect(&executor, &GtCoreProcessExecutor::allTasksCompleted,
                      [&completed]() { ++completed; });
 
-    EXPECT_EQ(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startNextTask());
+    EXPECT_EQ(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startNextTask());
     EXPECT_EQ(completed, 1);
     EXPECT_EQ(executor.executeCalls, 0);
 }
@@ -154,7 +154,7 @@ TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsWhenTaskAlreadyRunning)
     ASSERT_TRUE(executor.queueTask(queuedTask.get()));
     executor.setCurrentTask(runningTask.get());
 
-    EXPECT_EQ(GtCoreProcessExecutor::RunTaskResult::Busy, executor.startNextTask());
+    EXPECT_EQ(GtCoreProcessExecutor::TaskExecState::Busy, executor.startNextTask());
     EXPECT_EQ(executor.executeCalls, 0);
     EXPECT_EQ(executor.currentRunningTask(), runningTask.get());
     EXPECT_TRUE(executor.taskQueued(queuedTask.get()));
@@ -164,7 +164,7 @@ TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsNullQueuedTask)
 {
     executor.appendQueuedTask(nullptr);
 
-    EXPECT_EQ(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startNextTask());
+    EXPECT_EQ(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startNextTask());
     EXPECT_EQ(executor.currentRunningTask(), nullptr);
     EXPECT_TRUE(executor.queue().isEmpty());
 }
@@ -175,7 +175,7 @@ TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsTaskWithoutSource)
 
     ASSERT_TRUE(executor.queueTask(task.get()));
 
-    EXPECT_EQ(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startNextTask());
+    EXPECT_EQ(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startNextTask());
     EXPECT_EQ(task->currentState(), GtProcessComponent::FAILED);
     EXPECT_EQ(executor.currentRunningTask(), nullptr);
     EXPECT_TRUE(executor.queue().isEmpty());
@@ -192,7 +192,7 @@ TEST_F(TestGtCoreProcessExecutor, runTaskQueuesTaskAndTriggersExecute)
     QObject::connect(&executor, &GtCoreProcessExecutor::queueChanged,
                      [&queueChanges]() { ++queueChanges; });
 
-    EXPECT_NE(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startTask(task.get()));
+    EXPECT_NE(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startTask(task.get()));
     EXPECT_EQ(executor.executeCalls, 1);
     EXPECT_EQ(executor.currentRunningTask(), task.get());
     EXPECT_TRUE(executor.taskQueued(task.get()));
@@ -207,7 +207,7 @@ TEST_F(TestGtCoreProcessExecutor,
 
     executor.setCurrentTask(runningTask.get());
 
-    EXPECT_NE(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startTask(queuedTask.get()));
+    EXPECT_NE(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startTask(queuedTask.get()));
     EXPECT_EQ(executor.executeCalls, 0);
     EXPECT_TRUE(executor.taskQueued(queuedTask.get()));
     EXPECT_EQ(executor.currentRunningTask(), runningTask.get());
@@ -258,7 +258,7 @@ TEST_F(TestGtCoreProcessExecutor,
     auto task2 = makeTask("task-2");
 
     ASSERT_TRUE(executor.setSource(&source));
-    ASSERT_NE(GtCoreProcessExecutor::RunTaskResult::Invalid, executor.startTask(task1.get()));
+    ASSERT_NE(GtCoreProcessExecutor::TaskExecState::Invalid, executor.startTask(task1.get()));
     ASSERT_TRUE(executor.queueTask(task2.get()));
 
     EXPECT_FALSE(executor.terminateTask(task2.get()));
@@ -326,7 +326,7 @@ TEST_F(TestGtCoreProcessExecutor,
     ASSERT_TRUE(project.appendChild(task.get()));
 
     EXPECT_TRUE(executor.queueTask(task.get()));
-    EXPECT_TRUE(executor.startNextTask() != GtCoreProcessExecutor::RunTaskResult::Invalid);
+    EXPECT_TRUE(executor.startNextTask() != GtCoreProcessExecutor::TaskExecState::Invalid);
     EXPECT_EQ(executor.executeCalls, 1);
     EXPECT_EQ(executor.currentRunningTask(), task.get());
 }
@@ -346,7 +346,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardAfterRealExecution)
     ASSERT_TRUE(executor.setSource(&project));
 
     EXPECT_EQ(executor.startTask(task.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&project));
     EXPECT_FALSE(executor.taskCurrentlyRunning());
 }
@@ -361,7 +361,7 @@ TEST(GtCoreProcessExecutor, GuardsExecutionForProjectWithoutPath)
     ASSERT_TRUE(executor.setSource(&project));
 
     EXPECT_EQ(executor.startTask(task.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     EXPECT_EQ(executor.executeCalls, 1);
     EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 }
@@ -378,9 +378,9 @@ TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
     TestExecutor second;
 
     EXPECT_EQ(first.startTask(firstTask.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     EXPECT_EQ(second.startTask(secondTask.get()),
-              GtCoreProcessExecutor::RunTaskResult::Busy);
+              GtCoreProcessExecutor::TaskExecState::Busy);
     EXPECT_EQ(secondTask->currentState(), GtProcessComponent::NONE);
     EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 }
@@ -395,7 +395,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
     TestExecutor executor;
     ASSERT_TRUE(executor.setSource(&project));
     ASSERT_EQ(executor.startTask(task.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     ASSERT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 
     executor.setCurrentTask(nullptr);
@@ -417,7 +417,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardForInvalidRunnerSender)
     TestExecutor executor;
     ASSERT_TRUE(executor.setSource(&project));
     ASSERT_EQ(executor.startTask(task.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     ASSERT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 
     SignalEmitter emitter;
@@ -441,9 +441,9 @@ TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)
     TestExecutor second;
 
     EXPECT_EQ(first.startTask(firstTask.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
     EXPECT_EQ(second.startTask(secondTask.get()),
-              GtCoreProcessExecutor::RunTaskResult::Started);
+              GtCoreProcessExecutor::TaskExecState::Started);
 }
 
 #include "test_gt_coreprocessexecutor.moc"
