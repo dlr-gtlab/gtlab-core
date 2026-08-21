@@ -8,7 +8,7 @@ If you are new, follow the short path below in order: install GTlab, learn the i
 Get started
 -----------
 
-1. **Install GTlab** and, if needed, the Python module.
+1. **Install GTlab** and other modules you need. See :doc:`Installation and Updates <basics/02_installation>`.
 2. **Open the app** and skim the **UI tour** so the main docks make sense.
 3. Create your first **project** and read the **Projects** page before changing anything else.
 4. Run a **workflow** only after you know where project data lives and how modules are selected.

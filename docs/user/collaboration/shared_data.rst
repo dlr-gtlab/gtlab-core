@@ -25,20 +25,20 @@ This page focuses on the user-facing setup:
 
 It does not describe module implementation details. Those belong to the module developer documentation.
 
-How GTlab sees a shared-resource server
----------------------------------------
 
-GTlab works with a collection interface that exposes a collection ID, an optional settings dialog, and the structure of the resource metadata.
+How GTlab accesses shared resources
+-----------------------------------
 
-For users, the important result is simple:
+A module provides the user interface for accessing a specific type of shared resource.
+The user configures the URL of the HTTP server from which the resources should be retrieved.
 
-1. A module defines a collection ID for a resource family.
-2. GTlab looks for access data with the same ID.
-3. The configured server is queried for an ``index.dat`` file.
-4. That file lists the available resources.
-5. Each resource is described by its own ``index.json`` file.
+GTlab then accesses the resources as follows:
 
-In practice, this means that a single web server can host a whole resource library as long as it follows the required folder structure.
+1. GTlab requests an ``index.dat`` file from the configured server URL.
+2. The file lists the resources available on the server.
+3. Each listed resource corresponds to a directory containing an ``index.json`` file with its metadata and the actual resource files.
+
+This allows a web server to host a complete resource library, provided that it follows the required folder structure.
 
 Map collections in practice
 ---------------------------
@@ -60,42 +60,53 @@ When you select one entry, GTlab shows its metadata and files on the right.
 Server layout
 -------------
 
-At the top level, the server must provide an ``index.dat`` file.
-The file contains one entry per line.
-Each entry points to one resource folder.
+A web server can host multiple resource collections. Each collection is
+available under its own base URL. At the root of that URL, the server must
+provide an ``index.dat`` file containing one entry per resource.
 
-Each resource folder must contain an ``index.json`` file.
-That JSON file describes the resource and lists the files that belong to it.
+Each entry points to a resource directory. This directory must contain an
+``index.json`` file describing the resource and listing the files that belong
+to it.
 
-The layout therefore looks like this:
+The layout may look like this:
+
 
 .. code-block:: text
 
    https://your-server.example/
-   ├── index.dat
-   ├── engine_map_001/
-   │   ├── index.json
-   │   ├── map.dat
-   │   └── map_meta.xml
-   ├── blade_profile_a/
-   │   ├── index.json
-   │   └── profile.xml
-   └── script_pack_2026/
-       ├── index.json
-       ├── prepare_case.py
-       └── helper_functions.py
+   ├── maps/
+   │   ├── index.dat
+   │   ├── engine_map_001/
+   │   │   ├── index.json
+   │   │   ├── map.dat
+   │   │   └── map_meta.xml
+   │   └── engine_map_002/
+   │       ├── index.json
+   │       ├── map.dat
+   │       └── map_meta.xml
+   ├── blade_profiles/
+   │   ├── index.dat
+   │   └── blade_profile_a/
+   │       ├── index.json
+   │       └── profile.xml
+   └── scripts/
+       ├── index.dat
+       └── script_pack_2026/
+           ├── index.json
+           ├── prepare_case.py
+           └── helper_functions.py
 
-The paths in ``index.dat`` are read as server-relative entries.
-For this example, ``index.dat`` looks like this:
+
+For example, if ``https://your-server.example/maps/`` is configured as the
+collection URL, its ``index.dat`` file looks like this:
 
 .. code-block:: text
   
    engine_map_001
-   blade_profile_a
-   script_pack_2026
+   engine_map_002
 
-
-GTlab then appends ``index.json`` to each listed resource path.
+The paths in ``index.dat`` are read as server-relative entries.
+This server contains 3 different collections (maps, profiles, scripts).
 
 Required resource metadata
 --------------------------
