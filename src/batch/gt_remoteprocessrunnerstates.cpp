@@ -285,7 +285,7 @@ GtInitializedProcessRunnerState::handleCommand(Command& command)
                             tr("Failed to set source!"));
     }
 
-    if (!executor.runTask(m->task))
+    if (executor.startTask(m->task) == GtCoreProcessExecutor::RunTaskResult::Invalid)
     {
         return makeResponse(command, gt::process_runner::RunTaskError,
                            tr("Triggering task execution failed!"));

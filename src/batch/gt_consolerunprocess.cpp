@@ -201,7 +201,7 @@ gt::console::runProcess(const QString& projectId,
     }
 
     // execute process
-    gt::currentProcessExecutor().runTask(process);
+    gt::currentProcessExecutor().startTask(process);
 
     if (process->currentState() != GtProcessComponent::FINISHED)
     {

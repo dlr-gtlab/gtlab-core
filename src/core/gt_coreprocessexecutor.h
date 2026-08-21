@@ -81,26 +81,34 @@ public:
 
     void setCoreExecutorFlags(Flags flags);
 
-    /**
-     * @brief Runs a process if the queue is free
-     * @param process GtdProcess
-     */
-    bool runTask(GtTask* task);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use startTask instead")
+    bool runTask(GtTask* task)
+    {
+        const auto result = startTask(task);
+        return result == RunTaskResult::Started || result == RunTaskResult::Queued;
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use startNextTask instead")
+    bool executeNextTask()
+    {
+        return startNextTask() == RunTaskResult::Started;
+    }
 
     /**
      * @brief Runs a task and reports the outcome.
+     *
+     * Queues the task and then starts it via ::startNextTask().
      *
      * Busy tasks are rejected and removed; they are not retried automatically.
      * The compatibility wrapper runTask() returns true for both Started and
      * Queued.
      */
-    RunTaskResult runTaskWithResult(GtTask* task);
+    RunTaskResult startTask(GtTask* task);
 
     /**
-     * @brief Executes the next task in the queue. No task must be running.
-     * @return Whether task execution was successfully triggered
+     * @brief Starts the next task in the queue. No task must be running.
      */
-    bool executeNextTask();
+    RunTaskResult startNextTask();
 
     /**
      * @brief Terminates current running task.
@@ -238,9 +246,6 @@ protected:
     GtTaskRunner* setupTaskRunner();
 
 private:
-
-    RunTaskResult executeNextTaskWithResult();
-
     ///pimpl
     struct Impl;
     std::unique_ptr<Impl> pimpl;

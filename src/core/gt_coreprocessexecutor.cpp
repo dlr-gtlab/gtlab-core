@@ -85,15 +85,8 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
     pimpl->detached =  flags.testFlag(gt::NonBlockingExecution);
 }
 
-bool
-GtCoreProcessExecutor::runTask(GtTask* task)
-{
-    const auto result = runTaskWithResult(task);
-    return result == RunTaskResult::Started || result == RunTaskResult::Queued;
-}
-
 GtCoreProcessExecutor::RunTaskResult
-GtCoreProcessExecutor::runTaskWithResult(GtTask* task)
+GtCoreProcessExecutor::startTask(GtTask* task)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
@@ -107,17 +100,11 @@ GtCoreProcessExecutor::runTaskWithResult(GtTask* task)
         return RunTaskResult::Queued;
     }
 
-    return executeNextTaskWithResult();
-}
-
-bool
-GtCoreProcessExecutor::executeNextTask()
-{
-    return executeNextTaskWithResult() == RunTaskResult::Started;
+    return startNextTask();
 }
 
 GtCoreProcessExecutor::RunTaskResult
-GtCoreProcessExecutor::executeNextTaskWithResult()
+GtCoreProcessExecutor::startNextTask()
 {
     // check whether a task is already running
     if (taskCurrentlyRunning())
@@ -519,7 +506,7 @@ GtCoreProcessExecutor::setupTaskRunner()
         delete pimpl->currentRunnable;
         delete runner;
         clearCurrentTask();
-        executeNextTask();
+        startNextTask();
         return nullptr;
     }
 
@@ -595,5 +582,5 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 
     // Release before starting a queued task so it can acquire its own key.
     pimpl->projectGuard.reset();
-    executeNextTask();
+    startNextTask();
 }

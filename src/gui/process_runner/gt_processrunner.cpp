@@ -222,7 +222,7 @@ GtProcessRunner::onTaskCollected()
     clearCurrentTask();
 
     // execute next task
-    executeNextTask();
+    startNextTask();
 }
 
 void
@@ -383,7 +383,7 @@ GtProcessRunner::onTransceiverAborted()
     clearCurrentTask();
 
     // execute next task
-    executeNextTask();
+    startNextTask();
 }
 
 gt::process_runner::ConnectionAddress

@@ -1043,7 +1043,7 @@ GtProcessDock::runProcess()
                 }
                 else
                 {
-                    gt::currentProcessExecutor().runTask(task);
+                    gt::currentProcessExecutor().startTask(task);
                 }
             }
         }
