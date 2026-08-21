@@ -1,22 +1,24 @@
+.. _label_chapter_graph_workflows:
+
 Graph-Based Workflows
 =====================
 
 The graph-based process architecture operates on the **functional programming** paradigm:
 
-Instead of modifying a central state, small functional blocks -- here called `nodes` -- operate on a set of inputs and yield a set of outputs. 
-Nodes are interconnected using `connections`, where the outputs of a node are connected to inputs of other nodes.
+Instead of modifying a central state, small functional blocks -- here called **nodes** -- operate on a set of inputs and yield a set of outputs.
+Nodes are interconnected using **connections**, where the outputs of a node are connected to inputs of other nodes.
 
-The resulting data structure is a so-called **directed acyclic graph**: 
+The resulting data structure is a so-called **directed acyclic graph**:
 
-- `Directed` meaning, that data "flows" is one direction only. Here data can only flow forward, i.e. the data at the outputs of a node feed into the inputs of the successor nodes.
+- **Directed** meaning, that data "flows" is one direction only. Here data can only flow forward, i.e. the data at the outputs of a node feed into the inputs of the successor nodes.
 
-- `Acyclic` denotes, that a graph cannot contain loops or cycles. As such, in an acyclic graph the predecessors of a node (both indirect and direct predecessors) cannot simultaneously be successor nodes as well.
+- **Acyclic** denotes, that a graph cannot contain loops or cycles. As such, in an acyclic graph the predecessors of a node (both indirect and direct predecessors) cannot simultaneously be successor nodes as well.
 
 .. image:: images/workflows_graph_architecture_bright.png
    :align: center
    :alt: Directed Acyclic Graph
    :class: only-light
-   
+
 .. image:: images/workflows_graph_architecture_dark.png
    :align: center
    :alt: Directed Acyclic Graph
@@ -25,14 +27,14 @@ The resulting data structure is a so-called **directed acyclic graph**:
 Intelli Graphs
 --------------
 
-In GTlab, the graph-based process architecture is called **Intelli Graphs**.
+In GTlab, the graph-based process architecture is called **Intelli-Graphs** or just **Graphs**.
 Like many features and functionalities of GTlab, this architecture too is implemented by a module -- the **IntelliGraph Module**.
 To use Intelli Graphs, this module must be installed and activated for the current project (see :ref:`Creating Graphs → Initial Setup <label_section_intelli_graph_install>`).
 
 Nodes
 """""
 
-Nodes represent a function or operation in a graph. 
+Nodes represent a function or operation in a graph.
 
 Each node may have multiple input and output **ports**.
 Some nodes only have outputs ports and thus act as an input to the graph, whereas other nodes only have input ports and thus act as an output of the graph.
@@ -42,22 +44,22 @@ Some nodes only have outputs ports and thus act as an input to the graph, wherea
    :alt: Node Entity Structure
    :scale: 50%
    :class: only-light
-   
+
 .. image:: images/workflows_node_overview_dark.png
    :align: center
    :alt: Node Entity Structure
    :scale: 50%
    :class: only-dark
-	
-Each port is associated with a **datatype**. 
+
+Each port is associated with a **datatype**.
 Only ports with compatible datatypes can be connected.
 Some ports have a caption or a tooltip, the latter can be triggered by hovering over the port.
 
-Each datatype is associated with a color to better distinguish each type. 
+Each datatype is associated with a color to better distinguish each type.
 Connections are colorized according to this datatype.
 
 Some datatypes -- while different -- are compatible with each other and are converted implicitly by the Intelli Graph system.
-When creating a connection, only valid target nodes and their ports are highlighted. 
+When creating a connection, only valid target nodes and their ports are highlighted.
 Connections between different but compatible datatypes are indicated by a gradient.
 
 .. image:: images/workflows_graph_datatype_overview_bright.png
@@ -65,23 +67,23 @@ Connections between different but compatible datatypes are indicated by a gradie
    :alt: Overview of datatypes
    :scale: 40%
    :class: only-light
-   
+
 .. image:: images/workflows_graph_datatype_overview_dark.png
    :align: center
    :alt: Overview of datatypes
    :scale: 40%
    :class: only-dark
-   
+
 Some nodes may embed a **central widget**, which may either be used for the user to input values, to configure the node, to display results, or similar.
 Besides the central widget, many nodes use the :ref:`Property System<label_section_properties>` for configuring additional settings.
 Clicking on a node triggers the :ref:`Property Dock<label_property_dock>` to show the available properties of the node.
-    
+
 .. image:: images/workflows_node_configuration_bright.png
    :align: center
    :alt: Configuring nodes via its properties
    :scale: 65%
    :class: only-light
-   
+
 .. image:: images/workflows_node_configuration_dark.png
    :align: center
    :alt: Configuring nodes via its properties
@@ -91,7 +93,7 @@ Clicking on a node triggers the :ref:`Property Dock<label_property_dock>` to sho
 Data Flow
 """""""""
 
-For a node to evaluate (= perform its operation) the nodes connected to the input ports (= predecessors) must be evaluated first.
+For a node to evaluate (i.e. to perform its operation) the nodes connected to the input ports (called the predecessors) must be evaluated first.
 Once a node is evaluated, the data is forwarded via the output ports to the connected successor nodes.
 
 Following this principle, a chain of dependencies forms.

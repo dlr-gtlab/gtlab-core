@@ -1,7 +1,7 @@
 GTlab User Documentation
 ========================
 
-Welcome to the GTlab docs. This site covers installation, everyday workflows, scripting, and headless operation.  
+Welcome to the GTlab docs. This site covers installation, everyday workflows, scripting, and headless operation.
 If you’re new, follow the quick setup below; otherwise jump straight to a section via the sidebar.
 
 Get started
@@ -44,9 +44,9 @@ Quick links
 Common tasks
 ------------
 
-- **Run a workflow:** start with :doc:`Hub–Spoke <workflows/hub_spoke>`  
-- **Automate with scripts:** see :doc:`Scripting examples <scripting/03_examples>` and the :doc:`reference <scripting/04_scripting-reference>`  
-- **Share data with teammates:** :doc:`Collaboration basics <collaboration/shared_data>`  
+- **Run a workflow:** start with :doc:`Hub–Spoke <workflows/hub_spoke>`
+- **Automate with scripts:** see :doc:`Scripting examples <scripting/03_examples>` and the :doc:`reference <scripting/04_scripting-reference>`
+- **Share data with teammates:** :doc:`Collaboration basics <collaboration/shared_data>`
 - **Non-interactive runs (CI/servers):** :doc:`Headless execution <headless/01_overview>`
 
 

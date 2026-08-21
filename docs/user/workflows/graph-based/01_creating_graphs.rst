@@ -13,7 +13,7 @@ The **IntelliGraph Module** must be installed and activated for the active proje
 To install, select the component in the Maintenance Tool:
 
 	*GTlab 2.0* → *Modules* → *GTlab IntelliGraph Libraries*
-	
+
 To activate the module for the current project, right-click on the project in the Explorer Dock and navigate to:
 
 	*Choose Project Modules* → *IntelliGraph*
@@ -21,9 +21,9 @@ To activate the module for the current project, right-click on the project in th
 Creating a Graph
 """"""""""""""""
 
-Once the module is activated for the current project, a new datatree object named ``IntelliGraphs`` appears. 
-This object is also called the **package**.
-All Intelli Graphs are organized in this package.
+Once the module is activated for the current project, a new datatree object named **IntelliGraphs** appears.
+This object is also called the :ref:`Package  <label_section_packages>`.
+All Intelli Graphs are organized under this package object.
 
 First, one has to create a **category object**, which can be used to organize Intelli Graphs accordingly.
 To add a new category, right-click the package and select *Add Category*.
@@ -41,7 +41,7 @@ Enter the name of the category and confirm.
 
 .. note::
    Category objects on the same level cannot be named the same. The object names should update automatically to create unique names.
-   
+
 To create a **new graph**, right-click the desired category and select *Add Graph*.
 Enter the name of the graph and confirm.
 
@@ -57,7 +57,7 @@ Enter the name of the graph and confirm.
 
 .. note::
    Graph objects on the same level cannot be named the same. The object names should update automatically to create unique names.
-   
+
 Double-click the newly created graph object or right-click and select *Open*.
 The so-called **Graph View** will open and display the selected graph in the central widget area.
 For a newly created graph the displayed **Graph Scene** is empty.
@@ -75,7 +75,7 @@ Here, view and scene specific actions can be performed, such as
    :align: center
    :alt: Graph View
    :class: only-light
-   
+
 .. image:: ../images/workflows_graph_view_dark.png
    :align: center
    :alt: Graph View
@@ -99,13 +99,13 @@ For example, the **Project Info Node** provides access to the name and directory
    :align: center
    :alt: Scene Menu displaying all available nodes
    :class: only-light
-   
+
 .. image:: ../images/workflows_how_to_add_nodes_dark.png
    :align: center
    :alt: Scene Menu displaying all available nodes
    :class: only-dark
 
-We can use this node in combination with a **File Input Node** and **String Input Node** to open a file relative to the current project directory. In this example, a file was explicitly added to the project directory named *readme.txt*. 
+We can use this node in combination with a **File Input Node** and **String Input Node** to open a file relative to the current project directory. In this example, a file was explicitly added to the project directory named ``readme.txt``.
 
 .. image:: ../images/workflows_how_to_add_nodes_2_bright.png
    :align: center
@@ -122,7 +122,7 @@ We can use this node in combination with a **File Input Node** and **String Inpu
 To connect nodes, left-click the desired port handle, and drag and drop the connection on a target port of another node.
 Compatible/valid target ports are highlighted automatically and the cursor snaps to the nearest port to highlight, which port will be connected.
 
-After connecting the String Input and Project Info nodes to the **File Input Node** accordingly, a file handle is created that can be used for further processing by other nodes.
+After connecting the String Input and Project Info nodes to the File Input node accordingly, a file handle is created that can be used for further processing by other nodes.
 
 .. image:: ../images/workflows_how_to_add_nodes_3_bright.png
    :align: center
@@ -138,13 +138,13 @@ After connecting the String Input and Project Info nodes to the **File Input Nod
 
 In particular, a **File Reader Node** exists that attempts to read the file and outputs the content of said file.
 If the file does not exist the File Reader will "fail" (denoted by the status indicator, see :ref:`Graph Execution → Evaluation States of Nodes <label_section_graph_execution_states>`).
-To display the content, the **Text Display Node** may be used -- thus completing this example.
+To display the content, the **Text Display Node** may be used -- completing this example.
 
 .. image:: ../images/workflows_how_to_add_nodes_4_bright.png
    :align: center
    :alt: Adding a File Reader and Text Display Node, finalizing the example
    :class: only-light
-   
+
 .. image:: ../images/workflows_how_to_add_nodes_4_dark.png
    :align: center
    :alt: Adding a File Reader and Text Display Node, finalizing the example
@@ -155,13 +155,13 @@ Comments
 
 Besides nodes, comments can be added to a graph via the Scene Menu's entry *Add Comment*.
 
-Comments support markdown syntax and can be resized freely. 
+Comments support markdown syntax and can be resized freely.
 They are intended to be used as a way to document a graph for yourself or other people.
 
-Double-click the comment to edit. 
+Double-click the comment to edit.
 
 Comments can either be standalone ("floating") in a scene or they can be connected to one or multiple nodes.
-To associate a comment to another node, right-click the comment and select *Connect to...*. 
+To associate a comment to another node, right-click the comment and select *Connect to*.
 Click on the desired node.
 A dotted line indicates that the connection succeeded.
 
@@ -169,29 +169,29 @@ A dotted line indicates that the connection succeeded.
    :align: center
    :alt: Comment, adding additional information to the graph
    :class: only-light
-   
+
 .. image:: ../images/workflows_graph_comment_dark.png
    :align: center
    :alt: Comment, adding additional information to the graph
    :class: only-dark
-   
+
 Further, the style of a comment can be customized.
 Right-click the comment and select *Change Style*.
 A dialog opens that allows changing the background color, text color, text alignment and whether a frame is drawn when the comment is not selected or hovered.
-   
+
 .. image:: ../images/workflows_graph_comment_style_bright.png
    :align: center
    :alt: Styling a comment
    :class: only-light
-   
+
 .. image:: ../images/workflows_graph_comment_style_dark.png
    :align: center
    :alt: Styling a comment
    :class: only-dark
-   
+
 .. note::
    The customization of comments is added in version 0.16.0 of the IntelliGraph Module
-   
+
 Finally, comments can be collapsed to take up less space.
 To collapse a comment, right-click the comment and select *Collapse selected objects*.
 If a comment is linked to a single node, it will dock onto the node until it is expanded again.
@@ -200,7 +200,7 @@ If a comment is linked to a single node, it will dock onto the node until it is 
 Subgraphs
 """""""""
 
-Multiple nodes can be grouped into a so-called *subgraph*, allowing the user to organize a graph and reduce its visual complexity.
+Multiple nodes can be grouped into a so-called **Subgraph**, allowing the user to organize a graph and reduce its visual complexity.
 
 To group nodes, right-click on a selection of nodes and select *Group selected Nodes* in the context menu.
 Enter a name for the subgraph and confirm.
@@ -209,12 +209,12 @@ Enter a name for the subgraph and confirm.
    :align: center
    :alt: Grouping selected nodes via its context-menu
    :class: only-light
-   
+
 .. image:: ../images/workflows_how_to_create_subgraph_1_dark.png
    :align: center
    :alt: Grouping selected nodes via its context-menu
    :class: only-dark
-   
+
 The selection will be replaced by a single node, the subgraph node.
 This node is slightly tinted and contains an icon in the top-right corner of the node indicating it as a subgraph node.
 
@@ -222,12 +222,12 @@ This node is slightly tinted and contains an icon in the top-right corner of the
    :align: center
    :alt: Grouped nodes are replaced by a subgraph node
    :class: only-light
-   
+
 .. image:: ../images/workflows_how_to_create_subgraph_2_dark.png
    :align: center
    :alt: Grouped nodes are replaced by a subgraph node
    :class: only-dark
-   
+
 The subgraph can be opened by double-clicking the node or right-clicking and selecting *Open*.
 The subgraph is opened in the same Graph viewer but in a different Graph Scene on a nested level.
 
@@ -235,7 +235,7 @@ The subgraph is opened in the same Graph viewer but in a different Graph Scene o
    :align: center
    :alt: Opening subgraph node
    :class: only-light
-   
+
 .. image:: ../images/workflows_how_to_create_subgraph_3_dark.png
    :align: center
    :alt: Opening subgraph node
@@ -244,9 +244,9 @@ The subgraph is opened in the same Graph viewer but in a different Graph Scene o
 After grouping the selection of nodes and opening the subgraph, one can find that the selected nodes have been moved to this level and connected as expected.
 Each subgraph has two special types of nodes: an input provider and an output provider node.
 Using the context menu of these nodes new inputs and outputs to the graph can be added.
-   
+
 To navigate to the parent scene, find the *Scene Hierarchy* in the menu bar in the top-left of the Graph View.
 This widget displays the current level and allows the user to navigate to any intermediate level by clicking the desired (sub)graph name.
-   
+
 A subgraph can also be expanded/resolved.
-Right-click the subgraph and select *Expand Subgraph*. 
+Right-click the subgraph and select *Expand Subgraph*.

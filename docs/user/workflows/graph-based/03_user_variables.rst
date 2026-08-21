@@ -2,7 +2,7 @@ User Variables
 --------------
 
 For some workflows user-defined global variables may be required.
-The IntelliGraph Module allows you to define such variables as key-value pairs, called **user variables**.
+The IntelliGraph Module allows you to define such variables as key-value pairs, called **User Variables**.
 
 User variables are defined per Graph and are stored persistently in the project.
 All Nodes, including nodes in subgraphs, have access to the same user variables of the root graph.
@@ -12,17 +12,17 @@ Editing User Variables
 """"""""""""""""""""""
 
 To edit the user variables of a graph, right-click the object of the root graph in the Explorer and select *Edit User Variables*.
-   
+
 .. image:: ../images/workflows_user_variables_context_menu_light.png
    :align: center
    :alt: Opening the graph user variables dialog on the root graph
    :class: only-light
-   
+
 .. image:: ../images/workflows_user_variables_context_menu_dark.png
    :align: center
    :alt: Opening the graph user variables dialog on the root graph
    :class: only-dark
-   
+
 A dialog is opened, in which user variables may be added or edited.
 For each variable a unique key must be defined.
 Under this key the user variable may be accessed by other nodes.
@@ -41,7 +41,7 @@ Unchecking a user variable and saving will cause the user variable to be deleted
    :align: center
    :alt: The graph user variables dialog
    :class: only-light
-   
+
 .. image:: ../images/workflows_user_variables_dialog_dark.png
    :align: center
    :alt: The graph user variables dialog
@@ -64,22 +64,22 @@ Editing the user variables causes the node to automatically update.
    :align: center
    :alt: Accessing the user variables using the User Constants node
    :class: only-light
-   
+
 .. image:: ../images/workflows_user_variables_node_dark.png
    :align: center
    :alt: Accessing the user variables using the User Constants node
    :class: only-dark
-   
+
 Python Scripting Node
 ^^^^^^^^^^^^^^^^^^^^^
-  
+
 The user variables can be accessed in a **Python Node** (see :ref:`Scripting of GTlab → Nodes <label_scripting_nodes>`) using the `user_vars` dictionary like a normal Python key-value dictionary.
-  
+
 .. image:: ../images/workflows_user_variables_python_node_light.png
    :align: center
    :alt: Accessing the user variables using the Python scripting node
    :class: only-light
-   
+
 .. image:: ../images/workflows_user_variables_python_node_dark.png
    :align: center
    :alt: Accessing the user variables using the Python scripting node
