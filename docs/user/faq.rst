@@ -110,7 +110,7 @@ The Python node can process all available types on the input side.
 Many provided data types have a value() function or similar to make the data of the connection accessible in the Python script. This is also demonstrated in the attached examples.
 A few generic data types are enabled on the output side.
 However, the intelli::ByteArrayData data type can be used to pass Python objects directly.
-In this case, the Python functionality "pickl" is used. This method is therefore restricted to data that [is pickl-capable.](https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled)
+In this case, the Python functionality "pickle" is used. This method is therefore restricted to data that [is pickle-capable.](https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled)
 
 
 .. rst-class:: faq-question
