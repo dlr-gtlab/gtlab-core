@@ -101,7 +101,7 @@ When selecting a data object, its properties are shown in the :ref:`Properties D
 Project Comments
 ^^^^^^^^^^^^^^^^
 GTlab offers the option of adding a text comment to a project.
-You can access the editor via the *Edit Comment* entry in the projects's `context menu`_.
+You can access the editor via the *Edit Comment* entry in the project's `context menu`_.
 
 .. image:: images/project_comment1_bright.png
    :align: center
@@ -136,7 +136,7 @@ The context menu of a project is the access point for many of the actions mentio
    * - Action
      - Description
    * - *Open Project*
-     - Opens a clodes project.
+     - Opens a closed project.
    * - *Close Project*
      - Closes an open project.
    * - *Save Project*

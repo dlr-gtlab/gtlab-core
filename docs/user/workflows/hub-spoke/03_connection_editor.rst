@@ -6,7 +6,7 @@ Connection Editor
 By right-clicking on a process element (both calculators and tasks), a context menu appears in which the entry **Connection Editor** can be found.
 This entry can be used to open the editor for this workflow.
 
-Propety values can be passed on from one process element to another here.
+Property values can be passed on from one process element to another here.
 Only identical types can be connected with each other.
 Values from the left-hand side are passed on to the properties on the right-hand side.
 To do this, click on one of the semicircles on the properties. The characters in the lines (e.g. a stylised I) already indicate the type (here an integer value).

@@ -23,6 +23,6 @@ To build the user documentation, use
     cd user
     sphinx-build . html
 
-To start a local web-server for serving the HTML requests, user
+To start a local web-server for serving the HTML requests, use
 
     python3 -m http.server -d html
