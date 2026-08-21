@@ -49,9 +49,6 @@ public:
      */
     static GtExecutionContext const* current() noexcept;
 
-    /// Alias for current(), for callers that prefer the explicit name.
-    static GtExecutionContext const* currentContext() noexcept;
-
 private:
     GtProject* m_project;
     QString m_projectPath;

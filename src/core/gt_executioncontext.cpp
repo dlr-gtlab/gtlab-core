@@ -51,12 +51,6 @@ GtExecutionContext::current() noexcept
     return currentExecutionContext;
 }
 
-GtExecutionContext const*
-GtExecutionContext::currentContext() noexcept
-{
-    return current();
-}
-
 GtExecutionContextScope::GtExecutionContextScope(
     GtExecutionContext const& context) :
     m_previous(currentExecutionContext)

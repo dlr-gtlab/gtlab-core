@@ -499,15 +499,7 @@ GtCoreProcessExecutor::setupTaskRunner()
     // create new task runner
     auto* runner = new GtTaskRunner{m_current};
 
-    GtProject* project = qobject_cast<GtProject*>(m_source.data());
-    if (!project)
-    {
-        project = m_source->findParent<GtProject*>();
-    }
-    if (!project)
-    {
-        project = m_current->findParent<GtProject*>();
-    }
+    GtProject* project = projectForTask(m_current, m_source);
 
     const QString projectPath = pimpl->customProjectPath.isEmpty() && project ?
                                      project->path() :
@@ -543,8 +535,9 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 {
     gtTrace() << __FUNCTION__;
 
-    const auto guardCleanup = gt::finally(
-        [this]() { pimpl->projectGuard.reset(); });
+    const auto _ = gt::finally([this]() {
+        pimpl->projectGuard.reset();
+    });
 
     // create timer
     QElapsedTimer timer;

@@ -38,10 +38,10 @@ TEST(GtProjectExecutionGuard, RejectsNullProjects)
               GtProjectExecutionGuard::Result::InvalidProject);
     EXPECT_EQ(guard.tryAcquire(&project),
               GtProjectExecutionGuard::Result::Acquired);
-    EXPECT_TRUE(guard.isHeld());
-    EXPECT_FALSE(guard.key().isEmpty());
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(nullptr));
-    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(guard.isLocked());
+    EXPECT_FALSE(guard.projectKey().isEmpty());
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(nullptr));
+    EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 }
 
 TEST(GtProjectExecutionGuard, SerializesPathlessProjects)
@@ -64,18 +64,18 @@ TEST(GtProjectExecutionGuard, ReacquiringReleasesPreviousProject)
 
     ASSERT_EQ(guard.tryAcquire(&first),
               GtProjectExecutionGuard::Result::Acquired);
-    ASSERT_TRUE(guard.isHeld());
+    ASSERT_TRUE(guard.isLocked());
     ASSERT_EQ(guard.tryAcquire(&second),
               GtProjectExecutionGuard::Result::Acquired);
 
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&first));
-    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&second));
-    EXPECT_EQ(guard.key(),
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&first));
+    EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&second));
+    EXPECT_EQ(guard.projectKey(),
               GtProjectExecutionGuard::projectKey(&second));
 
     guard.release();
     guard.release();
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&second));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&second));
 }
 
 TEST(GtProjectExecutionGuard, SerializesSameProjectAndReleases)
@@ -86,12 +86,12 @@ TEST(GtProjectExecutionGuard, SerializesSameProjectAndReleases)
 
     EXPECT_EQ(first.tryAcquire(&project),
               GtProjectExecutionGuard::Result::Acquired);
-    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
     EXPECT_EQ(second.tryAcquire(&project),
               GtProjectExecutionGuard::Result::Busy);
 
     first.release();
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&project));
     EXPECT_EQ(second.tryAcquire(&project),
               GtProjectExecutionGuard::Result::Acquired);
 }

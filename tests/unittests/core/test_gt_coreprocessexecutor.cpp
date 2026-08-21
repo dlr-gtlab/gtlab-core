@@ -348,7 +348,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardAfterRealExecution)
 
     EXPECT_EQ(executor.runTaskWithResult(task.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&project));
     EXPECT_FALSE(executor.taskCurrentlyRunning());
 }
 
@@ -364,7 +364,7 @@ TEST(GtCoreProcessExecutor, GuardsExecutionForProjectWithoutPath)
     EXPECT_EQ(executor.runTaskWithResult(task.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
     EXPECT_EQ(executor.executeCalls, 1);
-    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 }
 
 TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
@@ -383,7 +383,7 @@ TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
     EXPECT_EQ(second.runTaskWithResult(secondTask.get()),
               GtCoreProcessExecutor::RunTaskResult::Busy);
     EXPECT_EQ(secondTask->currentState(), GtProcessComponent::NONE);
-    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 }
 
 TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
@@ -397,7 +397,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
     ASSERT_TRUE(executor.setSource(&project));
     ASSERT_EQ(executor.runTaskWithResult(task.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
-    ASSERT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    ASSERT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 
     executor.setCurrentTask(nullptr);
     GtTaskRunner runner(nullptr);
@@ -405,7 +405,7 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardWhenCurrentTaskIsDeleted)
                      SLOT(onTaskRunnerFinished()), Qt::DirectConnection);
     emit runner.finished();
 
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&project));
 }
 
 TEST(GtCoreProcessExecutor, ReleasesProjectGuardForInvalidRunnerSender)
@@ -419,14 +419,14 @@ TEST(GtCoreProcessExecutor, ReleasesProjectGuardForInvalidRunnerSender)
     ASSERT_TRUE(executor.setSource(&project));
     ASSERT_EQ(executor.runTaskWithResult(task.get()),
               GtCoreProcessExecutor::RunTaskResult::Started);
-    ASSERT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+    ASSERT_TRUE(GtProjectExecutionGuard::isLocked(&project));
 
     SignalEmitter emitter;
     QObject::connect(&emitter, SIGNAL(triggered()), &executor,
                      SLOT(onTaskRunnerFinished()), Qt::DirectConnection);
     emit emitter.triggered();
 
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(&project));
 }
 
 TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)

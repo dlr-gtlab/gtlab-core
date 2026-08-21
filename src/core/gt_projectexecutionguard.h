@@ -25,9 +25,9 @@ public:
      */
     enum class Result
     {
+        InvalidProject = 0,
         Acquired,
         Busy,
-        InvalidProject
     };
 
     GtProjectExecutionGuard() = default;
@@ -43,11 +43,28 @@ public:
      */
     Result tryAcquire(GtProject* project);
 
-    /// Releases the currently held project key, if any.
+    /**
+     * @brief Releases the currently held project key, if any.
+     */
     void release();
 
-    bool isHeld() const;
-    QString key() const;
+    /**
+     * Returns, whether this guard aquired a project or not
+     */
+    bool isLocked() const;
+
+    /**
+     * @brief The indentity of the project this guard protects.
+     *
+     * The key is used to identify a certain project and discriminate
+     * it from others.
+     *
+     * In the current implementation, it is just the project path,
+     * but it could also be its uuid.
+     *
+     * @return Value of the key
+     */
+    QString projectKey() const;
 
     /**
      * @brief Returns the project identity used by the process-local guard.
@@ -56,7 +73,7 @@ public:
      * stable object UUID and finally their in-process object address.
      */
     static QString projectKey(GtProject const* project);
-    static bool isBusy(GtProject const* project);
+    static bool isLocked(GtProject const* project);
 
 private:
     QString m_key;

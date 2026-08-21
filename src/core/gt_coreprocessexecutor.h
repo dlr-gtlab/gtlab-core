@@ -53,14 +53,14 @@ public:
 
     enum class RunTaskResult
     {
+        /// Task or execution setup was invalid.
+        Invalid = 0,
         /// Execution was started immediately.
         Started,
         /// Task was accepted into this executor's queue.
         Queued,
         /// Task was rejected because the project or executor is busy.
-        Busy,
-        /// Task or execution setup was invalid.
-        Invalid
+        Busy
     };
 
     /// Id of this executor

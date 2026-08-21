@@ -40,20 +40,20 @@ GtProjectExecutionGuard::tryAcquire(GtProject* project)
 {
     release();
 
-    const QString projectPath = projectKey(project);
-    if (projectPath.isEmpty())
+    const QString key = projectKey(project);
+    if (key.isEmpty())
     {
         return Result::InvalidProject;
     }
 
     QMutexLocker locker(&guardMutex());
-    if (guardedProjects().contains(projectPath))
+    if (guardedProjects().contains(key))
     {
         return Result::Busy;
     }
 
-    guardedProjects().insert(projectPath);
-    m_key = projectPath;
+    guardedProjects().insert(key);
+    m_key = key;
     return Result::Acquired;
 }
 
@@ -71,13 +71,13 @@ GtProjectExecutionGuard::release()
 }
 
 bool
-GtProjectExecutionGuard::isHeld() const
+GtProjectExecutionGuard::isLocked() const
 {
     return !m_key.isEmpty();
 }
 
 QString
-GtProjectExecutionGuard::key() const
+GtProjectExecutionGuard::projectKey() const
 {
     return m_key;
 }
@@ -112,7 +112,7 @@ GtProjectExecutionGuard::projectKey(GtProject const* project)
 }
 
 bool
-GtProjectExecutionGuard::isBusy(GtProject const* project)
+GtProjectExecutionGuard::isLocked(GtProject const* project)
 {
     const QString projectPath = projectKey(project);
     if (projectPath.isEmpty())

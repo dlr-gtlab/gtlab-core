@@ -62,7 +62,6 @@ TEST(GtExecutionContext, scopeInstallsAndRestoresContext)
     {
         GtExecutionContextScope scope(context);
         EXPECT_EQ(GtExecutionContext::current(), &context);
-        EXPECT_EQ(GtExecutionContext::currentContext(), &context);
     }
     EXPECT_EQ(GtExecutionContext::current(), nullptr);
 }
