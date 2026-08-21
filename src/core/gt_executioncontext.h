@@ -71,6 +71,7 @@ public:
 
     GtExecutionContextScope(GtExecutionContextScope const&) = delete;
     GtExecutionContextScope& operator=(GtExecutionContextScope const&) = delete;
+    GtExecutionContextScope& operator=(GtExecutionContextScope&&) = delete;
 
 private:
     GtExecutionContext const* m_previous;
