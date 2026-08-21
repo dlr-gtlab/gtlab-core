@@ -3,7 +3,7 @@ Installation and Updates
 
 .. _label_installation:
 
-This section describes how to install GTlab and its components, including the optional Python module. The installation process is supported on Windows and Linux systems.
+This section describes how to install GTlab and its components like the optional Python module. The installation process is supported on Windows and Linux systems.
 
 System Requirements
 -------------------
@@ -19,7 +19,7 @@ Before installing GTlab, ensure that your system meets the following minimum req
 Obtaining GTlab
 ---------------
 
-* The **community version** of GTlab can be downloaded from https://gtlab.de.  
+* The **community version** of GTlab can be downloaded from https://gtlab.de.
 * For the **DLR internal version**, which includes additional modules, or if you require licensed modules, please contact: gtlab-support@dlr.de.
 
 Installation Steps
@@ -31,10 +31,10 @@ for your system from https://gtlab.de/pages/download.html .
 2. **Run the Installer**
 Launch the installation program and follow the on-screen instructions.
 
-3. **Select Components**  
+3. **Select Components**
    Choose the desired components during installation:
 
-   - **GTlab Core Framework** (mandatory)  
+   - **GTlab Core Framework** (mandatory)
    - **Optional Modules** such as IntelliGraph, or the GTlab Python Module
 
    .. image:: images/installation.png
@@ -62,7 +62,7 @@ The GTlab Maintenance Tool allows you to:
 Silent Installation
 -------------------
 
-For automated deployments, GTlab supports silent installation using command-line parameters. 
+For automated deployments, GTlab supports silent installation using command-line parameters.
 
 To e.g. install on windows to ``c:\tools\gtlab``, type
 

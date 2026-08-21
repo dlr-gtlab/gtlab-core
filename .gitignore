@@ -24,6 +24,7 @@ moc_*
 linuxBuild.txt
 unittests.xml
 
+venv/
 lib/
 include/
 examples/

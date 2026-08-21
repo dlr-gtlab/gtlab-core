@@ -4,8 +4,8 @@ About Page
 The About page provides an overview of some information about the GTlab instance that is currently being used.
 Version information in particular, but also the changelog are provided here.
 
-The About page can be accessed via the menu. Under the *Help* entry, select the *About GTlab* entry.
-It is also possible to go directly to the About page with the overview of the modules via the short cut *Alt + M*.
+The About page can be accessed via ``Help → About GTlab`` in the menu bar.
+It is also possible to go directly to the About page with the overview of the modules via the short cut ``Alt+M``.
 
 The window is organised with three tabs. If GTlab is started in developer mode, other overviews that are not relevant for normal use are displayed.
 
@@ -22,20 +22,19 @@ Initially, this is given in a shortened version and can be displayed in its enti
 
 
 Modules
-------- 
+-------
 This overview shows which modules are loaded in the current GTlab instance and in which version number they are available.
 
-.. image:: images/About_Modules_bright.png
+.. image:: images/about_modules_bright.png
    :align: center
    :alt: Module overview
    :class: only-light
 
 
-.. image:: images/About_Modules_dark.png
+.. image:: images/about_modules_dark.png
    :align: center
    :alt: Module overview
    :class: only-dark
-   
+
 If an entry is selected in the list, a further view with additional information can be opened for this entry by clicking the *Details* button at the bottom.
 In the window that then opens, you can find information about the author, the licence or a further description of the module, for example, if this information was provided by the module developer.
-    
