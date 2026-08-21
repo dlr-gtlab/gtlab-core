@@ -168,7 +168,7 @@ GTlab downloads every file listed in ``files`` and also stores the corresponding
 Setting up access in GTlab
 --------------------------
 
-To connect a server, open the access settings in GTlab and add a host for the relevant collection.
+To connect to a server, open ``Edit → Preferences → Access`` and add a host for the relevant collection.
 The collection ID must match the resource family provided by the module.
 
 In the current setup, the access entry is just the server location GTlab should query.
