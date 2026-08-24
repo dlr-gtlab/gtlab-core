@@ -200,7 +200,7 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
     if (pimpl->grid)
     {
         pimpl->grid->paint(*painter, rect);
-        auto spacing = pimpl->grid->currentGridSpacing();
+        auto spacing = pimpl->grid->scaledGridSpacing();
 
         if (pimpl->vRuler)
         {

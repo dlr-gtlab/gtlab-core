@@ -60,6 +60,12 @@ inline double oneTwoFive(double ideal, double baseSpacing)
 
 struct GtGrid::Impl
 {
+
+    explicit Impl()
+    {
+        recomputeChachedSpacing();
+    }
+
     /// Grid horizontal spacing
     unsigned hSpacing = 100;
 
@@ -82,10 +88,10 @@ struct GtGrid::Impl
     QPen axisPen = makePen(gt::gui::color::gridAxis());
 
     /// Current grid spacing
-    GtGridSpacing cachedSpacing{1.0, 1.0};
+    mutable GtGridSpacing cachedSpacing{};
 
     /// Last used zoom factor
-    double cachedZoom{};
+    mutable double cachedZoom{};
 
     /// Device independent pixel density at which point the minor grid should
     /// not be drawn
@@ -141,9 +147,12 @@ struct GtGrid::Impl
         QLineF m_lines[Capacity];
     };
 
-    void invalidateChachedSpacing()
+    void recomputeChachedSpacing(double zoom = 1.0) const
     {
-        cachedZoom = 0.0;
+        if (cachedZoom > 0.0) zoom = cachedZoom;
+        cachedZoom  = 0.0;
+        cachedSpacing = scaledGridSpacing(zoom);
+        cachedZoom    = zoom;
     }
 
     double quantizedSpacing(double ideal, double baseSpacing) const
@@ -212,7 +221,7 @@ struct GtGrid::Impl
         }
     }
 
-    void paintGridLines(QPainter& painter, const QRectF& rect, double zoom)
+    void paintGridLines(QPainter& painter, const QRectF& rect, double zoom) const
     {
         if (zoom <= 0.0) return;
 
@@ -242,7 +251,7 @@ struct GtGrid::Impl
         paintGridLinesImpl(rect, cachedSpacing.hSpacing, cachedSpacing.vSpacing, buffer);
     }
 
-    void paintAxis(QPainter& painter, const QRectF& rect)
+    void paintAxis(QPainter& painter, const QRectF& rect) const
     {
         painter.setPen(axisPen);
 
@@ -262,7 +271,7 @@ struct GtGrid::Impl
         }
     }
 
-    QPointF nearestTopLeftGridPoint(GtGridSpacing s, const QPointF& p)
+    QPointF nearestTopLeftGridPoint(GtGridSpacing s, const QPointF& p) const
     {
         double tmpWidth  = s.hSpacing;
         double tmpHeight = s.vSpacing;
@@ -275,7 +284,7 @@ struct GtGrid::Impl
         return {x, y};
     }
 
-    QPointF nearestGridPoint(GtGridSpacing s, const QPointF& p)
+    QPointF nearestGridPoint(GtGridSpacing s, const QPointF& p) const
     {
         double tmpWidth  = s.hSpacing;
         double tmpHeight = s.vSpacing;
@@ -314,7 +323,7 @@ void
 GtGrid::setHSpacing(unsigned spacing)
 {
     pimpl->hSpacing = std::max(spacing, 1u);
-    pimpl->invalidateChachedSpacing();
+    pimpl->recomputeChachedSpacing();
     emit updated();
 }
 
@@ -328,7 +337,7 @@ void
 GtGrid::setVSpacing(unsigned spacing)
 {
     pimpl->vSpacing = std::max(spacing, 1u);
-    pimpl->invalidateChachedSpacing();
+    pimpl->recomputeChachedSpacing();
     emit updated();
 }
 
@@ -339,15 +348,15 @@ GtGrid::vSpacing() const
 }
 
 GtGridSpacing
-GtGrid::currentGridSpacing() const
+GtGrid::scaledGridSpacing() const
 {
     return pimpl->cachedSpacing;
 }
 
 GtGridSpacing
-GtGrid::currentMinorGridSpacing() const
+GtGrid::scaledMinorGridSpacing() const
 {
-    const auto spacing = currentGridSpacing();
+    const auto spacing = scaledGridSpacing();
     return GtGridSpacing{
         spacing.hSpacing / pimpl->hSubdivisions,
         spacing.vSpacing / pimpl->vSubdivisions
@@ -374,7 +383,7 @@ void
 GtGrid::setScalingStrategy(ScalingStrategy strategy)
 {
     pimpl->scalingStrategy = strategy;
-    pimpl->invalidateChachedSpacing();
+    pimpl->recomputeChachedSpacing();
     emit updated();
 }
 
@@ -612,31 +621,29 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 QPointF
 GtGrid::computeTopLeftGridPoint(const QPointF& p)
 {
-    return pimpl->nearestTopLeftGridPoint(currentGridSpacing(), p);
+    return pimpl->nearestTopLeftGridPoint(scaledGridSpacing(), p);
 }
 
 QPointF
 GtGrid::computeTopLeftMinorGridPoint(const QPointF& p)
 {
-    return pimpl->nearestTopLeftGridPoint(currentMinorGridSpacing(), p);
+    return pimpl->nearestTopLeftGridPoint(scaledMinorGridSpacing(), p);
 }
 
 QPointF
 GtGrid::computeNearestGridPoint(const QPointF& p)
 {
-    return pimpl->nearestGridPoint(currentGridSpacing(), p);
+    return pimpl->nearestGridPoint(scaledGridSpacing(), p);
 }
 
 QPointF
 GtGrid::computeNearestMinorGridPoint(const QPointF& p)
 {
-    return pimpl->nearestGridPoint(currentMinorGridSpacing(), p);
+    return pimpl->nearestGridPoint(scaledMinorGridSpacing(), p);
 }
 
 void
 GtGrid::setCurrentZoom(double zoom)
 {
-    zoom = std::max(zoom, 0.0001);
-    pimpl->cachedSpacing = pimpl->scaledGridSpacing(zoom);
-    pimpl->cachedZoom = zoom;
+    pimpl->recomputeChachedSpacing(std::max(zoom, 0.0001));
 }

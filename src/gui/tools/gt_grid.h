@@ -102,16 +102,19 @@ public:
      * @return Horizontal spacing
      */
     unsigned hSpacing() const;
+
     /**
      * @brief Sets the spacing between vertical (major) grid lines
      * @param value
      */
     void setVSpacing(unsigned spacing);
+
     /**
      * @brief Returns the spacing between vertical (major) grid lines
      * @return Vertical spacing
      */
     unsigned vSpacing() const;
+
     /**
      * @brief Sets whether the minor grid should be shown.
      * @param Show show minor grid
@@ -173,16 +176,18 @@ public:
     unsigned vSubdivisions() const;
 
     /**
-     * @brief Returns the current spacing for the major grid
-     * @return Current grid scaling
+     * @brief Returns the current spacing for the major grid for the last
+     * zoom level
+     * @return Current grid scaling for the last zoom level
      */
-    GtGridSpacing currentGridSpacing() const;
+    GtGridSpacing scaledGridSpacing() const;
 
     /**
-     * @brief Returns the current spacing for the minor grid
-     * @return Current minor grid scaling
+     * @brief Returns the current spacing for the minor grid for the last
+     * zoom level
+     * @return Current minor grid scaling for the last zoom level
      */
-    GtGridSpacing currentMinorGridSpacing() const;
+    GtGridSpacing scaledMinorGridSpacing() const;
 
     /**
      * @brief Returns the grid spacing scaled for the given zoom level using
@@ -459,17 +464,17 @@ protected:
     }
 
     /// Returns scaled grid width.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `currentGridSpacing` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `scaledGridSpacing` instead.")
     double getScaledGridWidth() const
     {
-        return currentGridSpacing().hSpacing;
+        return scaledGridSpacing().hSpacing;
     }
 
     /// Returns scaled grid height.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `currentGridSpacing` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `scaledGridSpacing` instead.")
     double getScaledGridHeight() const
     {
-        return currentGridSpacing().vSpacing;
+        return scaledGridSpacing().vSpacing;
     }
 
 private:

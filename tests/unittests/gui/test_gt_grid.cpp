@@ -9,8 +9,6 @@
 #include <gt_grid.h>
 
 #include <QPainter>
-#include <QPixmap>
-#include <QApplication>
 #include <QImage>
 
 #include <array>
@@ -76,8 +74,8 @@ TEST(Grid, scaled_spacing_invalid_zoom_level)
     }
 }
 
-/// zero spacing and subdivions
-TEST(Grid, zero_spacing_and_subdivs)
+/// setting invalid spacing and subdivions should clamp the spacing values
+TEST(Grid, invalid_spacing_and_subdivs)
 {
     GtGrid grid;
     grid.setSpacing(0);
@@ -89,18 +87,49 @@ TEST(Grid, zero_spacing_and_subdivs)
     EXPECT_EQ(grid.vSubdivisions(), 1u);
 }
 
-/// zero zoom
-TEST(Grid, zero_zoom)
+/// setting an invalid zoom level should clamp the zoom and spacing values
+TEST(Grid, invalid_zoom)
 {
     GtGrid grid;
     grid.setSpacing(10);
     grid.setSubdivisions(10);
 
     grid.setCurrentZoom(0.0);
-    EXPECT_GT(grid.currentGridSpacing().hSpacing, 0.0);
-    EXPECT_GT(grid.currentGridSpacing().vSpacing, 0.0);
-    EXPECT_GT(grid.currentMinorGridSpacing().hSpacing, 0.0);
-    EXPECT_GT(grid.currentMinorGridSpacing().vSpacing, 0.0);
+    EXPECT_GT(grid.scaledGridSpacing().hSpacing, 0.0);
+    EXPECT_GT(grid.scaledGridSpacing().vSpacing, 0.0);
+    EXPECT_GT(grid.scaledMinorGridSpacing().hSpacing, 0.0);
+    EXPECT_GT(grid.scaledMinorGridSpacing().vSpacing, 0.0);
+}
+
+/// zero scaling will return default scaling spacing
+TEST(Grid, initial_cached_zoom_level)
+{
+    GtGrid grid;
+
+    GtGridSpacing spacing = grid.scaledGridSpacing();
+
+    EXPECT_DOUBLE_EQ(spacing.hSpacing, grid.hSpacing());
+    EXPECT_DOUBLE_EQ(spacing.vSpacing, grid.vSpacing());
+
+    // on next grid point
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing}).x(), spacing.hSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing}).y(), spacing.vSpacing);
+
+    // x or y closer to next grid point
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.6, spacing.vSpacing}).x(), spacing.hSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.6, spacing.vSpacing}).y(), spacing.vSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing * 0.6}).x(), spacing.hSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing * 0.6}).y(), spacing.vSpacing);
+
+    // x or y closer to origin
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing}).x(), 0);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing}).y(), spacing.vSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing * 0.4}).x(), spacing.hSpacing);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing, spacing.vSpacing * 0.4}).y(), 0);
+
+    // x and y closer to origin
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing * 0.4}).x(), 0);
+    EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing * 0.4}).y(), 0);
 }
 
 /// checks if scaling strategies generate expected spacings at different zoom
