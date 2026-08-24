@@ -21,7 +21,7 @@ struct GtQmlToolbar::Impl
     GtQmlToolbarGroup m_statusActions;
     QQuickWidget qmlToolbar;
 
-    bool m_darkMode = {false};
+    QVariantMap theme;
 };
 
 GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
@@ -33,6 +33,7 @@ GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
     }();
     Q_UNUSED(typeRegistered);
 
+    setColorTheme(Theme());
 
     pimpl->qmlToolbar.rootContext()->setContextProperty("toolbar", this);
     pimpl->qmlToolbar.setSource(QUrl(QStringLiteral("qrc:/qml/Toolbar.qml")));
@@ -83,19 +84,61 @@ GtQmlToolbar::addStatusAction(GtQmlAction* action)
     emit statusActionsChanged();
 }
 
+void
+GtQmlToolbar::setColorTheme(const Theme &colors)
+{
+    bool const darkModeChanged = colors.darkMode != darkMode();
+
+    QVariantMap theme;
+    theme["baseColor"] = colors.base;
+    theme["backgroundColor"] = colors.background;
+    theme["foregroundColor"] = colors.foreground;
+    theme["foregroundHoverColor"] = colors.foregroundHover;
+    theme["foregroundDisabledColor"] = colors.foregroundDisabled;
+    theme["buttonBackgroundColor"] = colors.buttonBackground;
+    theme["buttonCheckedBackgroundColor"] = colors.buttonCheckedBackground;
+    theme["buttonHoverBackgroundColor"] = colors.buttonHoverBackground;
+    theme["darkMode"] = colors.darkMode;
+
+    pimpl->theme = std::move(theme);
+
+    emit themeChanged();
+    if (darkModeChanged)
+    {
+        emit this->darkModeChanged();
+    }
+}
+
 bool
 GtQmlToolbar::darkMode() const
 {
-    return pimpl->m_darkMode;
+    return pimpl->theme.value("darkMode").toBool();
 }
 
 void
-GtQmlToolbar::setDarkMode(bool d)
+GtQmlToolbar::setDarkMode(bool dark)
 {
-    if (d == pimpl->m_darkMode) return;
+    if (dark == darkMode()) return;
 
-    pimpl->m_darkMode = d;
-    emit darkModeChanged();
+    Theme theme;
+    theme.darkMode = dark;
+    if (dark)
+    {
+        theme.foreground = Qt::white;
+        theme.foregroundDisabled = QColor(53, 59, 74);
+        theme.base = QColor(21, 34, 49);
+        theme.background = QColor(10, 17, 31);
+        theme.buttonCheckedBackground = QColor(30, 42, 58);
+        theme.buttonHoverBackground = QColor(30, 42, 58);
+    }
+
+    setColorTheme(theme);
+}
+
+QVariantMap
+GtQmlToolbar::themeMap() const
+{
+    return pimpl->theme;
 }
 
 QVariantListModel*
@@ -108,4 +151,17 @@ GtQmlToolbarGroup*
 GtQmlToolbar::statusActions()
 {
     return &pimpl->m_statusActions;
+}
+
+GtQmlToolbar::Theme::Theme()
+    : foreground(Qt::black)
+    , foregroundHover(69, 130, 190)
+    , foregroundDisabled(220, 220, 220)
+    , base(241, 241, 241)
+    , background(255, 255, 255)
+    , buttonBackground(Qt::transparent)
+    , buttonCheckedBackground(239, 239, 239)
+    , buttonHoverBackground(221, 238, 255)
+    , darkMode(false)
+{
 }

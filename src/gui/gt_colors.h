@@ -77,6 +77,17 @@ GT_GUI_EXPORT QColor main();
 GT_GUI_EXPORT QColor base();
 
 /**
+ * @brief Background color for the main toolbar.
+ * @return Toolbar background color for the current theme.
+ */
+GT_GUI_EXPORT QColor toolbarBackground();
+
+/**
+ * @brief Background color of toolbar buttons when hovered
+ */
+GT_GUI_EXPORT QColor toolbarButtonHoverBackground();
+
+/**
  * @brief Palette text color
  * @return
  */

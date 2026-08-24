@@ -10,7 +10,7 @@ Item {
 
     id: tbButton
     property ToolbarAction action: None
-    property bool darkMode: false
+    property var theme: null
 
     width: l.width
     height: l.height
@@ -38,21 +38,25 @@ Item {
                 }
             }
 
-            function bgColor() {
-                if (!checked)
-                    return "transparent"
-                else
-                    return darkMode ? "#1e2a3a" : "#efefef"
-            }
-
-            custom_backgroundColor: bgColor()
+            custom_backgroundColor: checked
+                                    ? tbButton.theme.buttonCheckedBackgroundColor
+                                    : tbButton.theme.buttonBackgroundColor
 
             icon.source: tbButton.action ? tbButton.action.iconUrl : ""
-            darkMode: tbButton.darkMode
+            darkMode: tbButton.theme.darkMode
+            custom_iconColor: tbButton.theme.foregroundColor
+            custom_iconColorDark: tbButton.theme.foregroundColor
+            custom_secondaryColorInactive: tbButton.theme.foregroundDisabledColor
+            custom_secondaryColorInactiveDark: tbButton.theme.foregroundDisabledColor
             tooltipText: tbButton.action ? tbButton.action.toolTip : ""
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
             checkable: tbButton.action ? tbButton.action.checkable : false
+            custom_hoverColor: tbButton.theme.buttonHoverBackgroundColor
+
+            // AnimatedButton uses its secondary color for hovered icons and
+            // the text that is shown on hover.
+            custom_secondaryColor: tbButton.theme.foregroundHoverColor
 
             function syncButtonCheckedState() {
                 if (b.checked !== tbButton.action.checked) {
@@ -79,7 +83,7 @@ Item {
         id: sep
 
         ToolbarSeparator {
-            darkMode: tbButton.darkMode
+            theme: tbButton.theme
         }
     }
 }
