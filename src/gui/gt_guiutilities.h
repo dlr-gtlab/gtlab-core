@@ -53,7 +53,7 @@ GT_GUI_EXPORT gt::gui::applicationTheme theme();
 GT_GUI_EXPORT bool isApplicationDarkTheme();
 
 template <class T, class Obj>
-QList<T> findGraphicItems(Obj& o)
+QList<T> findGraphicsItems(Obj& o)
 {
     QList<T> retval;
 

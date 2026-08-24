@@ -179,7 +179,7 @@ GtProcessConnectionGraphicsView::createConnection(
         return nullptr;
     }
 
-    auto const list = gt::gui::findGraphicItems<GtProcessPropertyConnectionEntity*>(*m_scene);
+    auto const list = gt::gui::findGraphicsItems<GtProcessPropertyConnectionEntity*>(*m_scene);
 
     // check whether connection already exists in map
     if (std::any_of(std::begin(list), std::end(list),
@@ -256,7 +256,7 @@ GtProcessConnectionGraphicsView::updateConnections()
 {
     // TODO: optimize for separate update based on input or output changes
 
-    auto const list = gt::gui::findGraphicItems<GtProcessPropertyConnectionEntity*>(*m_scene);
+    auto const list = gt::gui::findGraphicsItems<GtProcessPropertyConnectionEntity*>(*m_scene);
 
     foreach (GtProcessPropertyConnectionEntity* entity, list)
     {

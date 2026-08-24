@@ -30,11 +30,11 @@ public:
 
     template <class T>
     GT_DEPRECATED_ATTR(2, 2, "Function will be removed, "
-                             "use `gt::gui::findGraphicItems<T>` "
+                             "use `gt::gui::findGraphicsItems<T>` "
                              "(gt_guiutilities.h) instead.")
     QList<T> findItems()
     {
-        return gt::gui::findGraphicItems<T>(*this);
+        return gt::gui::findGraphicsItems<T>(*this);
     }
     
 };

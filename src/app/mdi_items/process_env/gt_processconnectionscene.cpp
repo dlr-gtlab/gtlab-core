@@ -65,7 +65,7 @@ GtProcessConnectionScene::animatePorts()
 
     QList<GtProcessPropertyPortEntity*> valids = validPorts(port);
     QList<GtProcessPropertyPortEntity*> invalids =
-        gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
+        gt::gui::findGraphicsItems<GtProcessPropertyPortEntity*>(*this);
 
     invalids.removeOne(port);
 
@@ -95,7 +95,7 @@ GtProcessConnectionScene::animatePorts()
 void
 GtProcessConnectionScene::resetPorts()
 {
-    auto const ports = gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
+    auto const ports = gt::gui::findGraphicsItems<GtProcessPropertyPortEntity*>(*this);
 
     if (m_animationGroup)
     {
@@ -228,7 +228,7 @@ GtProcessConnectionScene::validPorts(GtProcessPropertyPortEntity* activePort)
         return QList<GtProcessPropertyPortEntity*>();
     }
 
-    auto retval = gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
+    auto retval = gt::gui::findGraphicsItems<GtProcessPropertyPortEntity*>(*this);
 
     retval.removeOne(activePort);
 
