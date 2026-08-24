@@ -10,6 +10,7 @@
 
 #include "gt_grid.h"
 #include "gt_colors.h"
+#include "gt_finally.h"
 
 #include <QPainter>
 #include <QGraphicsView>
@@ -592,7 +593,10 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
         if (!pimpl->isVisible) return;
     }
 
-    auto oldRenderHints = painter.renderHints();
+    painter.save();
+    auto restore = gt::finally([&painter](){ painter.restore(); });
+    Q_UNUSED(restore);
+
     painter.setRenderHint(QPainter::Antialiasing, false);
 
     if (pimpl->showGrid && options.testFlag(PaintGrid))
@@ -603,7 +607,6 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
     {
         pimpl->paintAxis(painter, rect);
     }
-    painter.setRenderHints(oldRenderHints);
 }
 
 QPointF

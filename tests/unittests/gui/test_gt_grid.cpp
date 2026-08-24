@@ -6,9 +6,12 @@
 
 #include "gtest/gtest.h"
 
-#include <QPen>
-
 #include <gt_grid.h>
+
+#include <QPainter>
+#include <QPixmap>
+#include <QApplication>
+#include <QImage>
 
 #include <array>
 
@@ -257,6 +260,7 @@ TEST(Grid, emit_updated)
     GtGrid grid;
 
     size_t emissionCount = 0;
+    size_t ref = 0;
 
     auto onUpdated = [&emissionCount](){
         emissionCount++;
@@ -264,32 +268,32 @@ TEST(Grid, emit_updated)
 
     QObject::connect(&grid, &GtGrid::updated, &grid, onUpdated);
 
-    EXPECT_EQ(emissionCount, 0u);
+    EXPECT_EQ(emissionCount, ref);
 
-    grid.setShowGrid(false);
-    grid.setShowMinorGrid(false);
-    grid.setShowAxis(false);
-    grid.show();
-    grid.hide();
+    grid.setShowGrid(false); ref++;
+    grid.setShowMinorGrid(false); ref++;
+    grid.setShowAxis(false); ref++;
+    grid.show(); ref++;
+    grid.hide(); ref++;
 
-    grid.setMajorLineColor({});
-    grid.setMinorLineColor({});
-    grid.setAxisColor({});
+    grid.setMajorLineColor({}); ref++;
+    grid.setMinorLineColor({}); ref++;
+    grid.setAxisColor({}); ref++;
 
-    grid.setMajorPen({});
-    grid.setMinorPen({});
-    grid.setAxisPen({});
+    grid.setMajorPen({}); ref++;
+    grid.setMinorPen({}); ref++;
+    grid.setAxisPen({}); ref++;
 
-    grid.setVisibleAxis({});
-    grid.setMinorGridCutoffDensity(1.0);
-    grid.setScalingStrategy(GtGrid::ScalingStrategy::Fixed);
+    grid.setVisibleAxis({}); ref++;
+    grid.setMinorGridCutoffDensity(1.0); ref++;
+    grid.setScalingStrategy(GtGrid::ScalingStrategy::Fixed); ref++;
 
-    grid.setHSpacing(1u);
-    grid.setVSpacing(1u);
-    grid.setHSubdivisions(1u);
-    grid.setVSubdivisions(1u);
+    grid.setHSpacing(1u); ref++;
+    grid.setVSpacing(1u); ref++;
+    grid.setHSubdivisions(1u); ref++;
+    grid.setVSubdivisions(1u); ref++;
 
-    EXPECT_EQ(emissionCount, 18u);
+    EXPECT_EQ(emissionCount, ref);
 }
 
 /// check if compute nearest points correctly calculates the nearest point
@@ -363,4 +367,46 @@ TEST(Grid, compute_nearest_point)
     EXPECT_DOUBLE_EQ(grid.computeNearestGridPoint({-1.5, -1.24}).y(), 0.0);
     EXPECT_DOUBLE_EQ(grid.computeNearestMinorGridPoint({-1.5, -1.24}).x(), -2.0);
     EXPECT_DOUBLE_EQ(grid.computeNearestMinorGridPoint({-1.5, -1.24}).y(),  0.0);
+}
+
+/// check if painter's state is restored  after painting the grid
+TEST(Grid, painter_state_restored)
+{
+    GtGrid grid;
+
+//    char args[] = "";
+//    char* argv  = args;
+//    int argc    = 0;
+//    QApplication app{argc, &argv};
+
+    QImage image{400, 400, QImage::Format_ARGB32};
+    QPainter painter{&image};
+
+    painter.setRenderHints(QPainter::Antialiasing, true);
+    painter.setRenderHints(QPainter::TextAntialiasing, true);
+
+    QPen pen{Qt::red};
+    pen.setWidth(5);
+    pen.setStyle(Qt::PenStyle::DashDotLine);
+    pen.setCosmetic(false);
+    pen.setBrush(Qt::black);
+
+    QBrush brush{Qt::black};
+    brush.setStyle(Qt::BrushStyle::CrossPattern);
+
+    painter.setPen(pen);
+    painter.setBrush(brush);
+
+    grid.paint(painter, image.rect(), GtGrid::PaintOption::PaintAll);
+
+    EXPECT_TRUE(painter.renderHints().testFlag(QPainter::Antialiasing));
+    EXPECT_TRUE(painter.renderHints().testFlag(QPainter::TextAntialiasing));
+
+    EXPECT_EQ(painter.pen().color(), pen.color());
+    EXPECT_EQ(painter.pen().style(), pen.style());
+    EXPECT_EQ(painter.pen().isCosmetic(), pen.isCosmetic());
+    EXPECT_EQ(painter.pen().brush().color(), pen.brush().color());
+
+    EXPECT_EQ(painter.brush().color(), brush.color());
+    EXPECT_EQ(painter.brush().style(), brush.style());
 }
