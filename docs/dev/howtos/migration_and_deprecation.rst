@@ -79,4 +79,3 @@ Migration Plans
    :maxdepth: 1
 
    migration_2-1
-   migration_2-2
