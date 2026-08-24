@@ -195,27 +195,40 @@ struct GtGrid::Impl
     }
 
     template <unsigned N>
-    static void paintGridLinesImpl(const QRectF& sceneRect,
-                            double vLineDistance,
-                            double hLineDistance,
-                            BufferedLineRender<N>& buffer)
+    static void paintVGridLinesImpl(const QRectF& sceneRect,
+                                    double lineDistance,
+                                    BufferedLineRender<N>& buffer)
     {
-        assert(vLineDistance > 0);
-        assert(hLineDistance > 0);
+        assert(lineDistance > 0);
 
         const double bottom  = sceneRect.bottom();
         const double right = sceneRect.right();
         const double left = sceneRect.left();
         const double top = sceneRect.top();
 
-        const double leftStart = std::floor(left / vLineDistance) * vLineDistance;
-        const double topStart = std::floor(top / hLineDistance) * hLineDistance;
+        const double leftStart = std::floor(left / lineDistance) * lineDistance;
 
-        for (double x = leftStart; x < right; x += vLineDistance)
+        for (double x = leftStart; x < right; x += lineDistance)
         {
             buffer.draw(QLineF{x, top, x, bottom});
         }
-        for (double y = topStart; y < bottom; y += hLineDistance)
+    }
+
+    template <unsigned N>
+    static void paintHGridLinesImpl(const QRectF& sceneRect,
+                                    double lineDistance,
+                                    BufferedLineRender<N>& buffer)
+    {
+        assert(lineDistance > 0);
+
+        const double bottom  = sceneRect.bottom();
+        const double right = sceneRect.right();
+        const double left = sceneRect.left();
+        const double top = sceneRect.top();
+
+        const double topStart = std::floor(top / lineDistance) * lineDistance;
+
+        for (double y = topStart; y < bottom; y += lineDistance)
         {
             buffer.draw(QLineF{left, y, right, y});
         }
@@ -234,21 +247,30 @@ struct GtGrid::Impl
 
         BufferedLineRender<1000> buffer{painter};
 
-        const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
-        const double cutoffDistance    = minorGridTooDenseThreshold * hSubdivisions;
-        if (showMinorGrid && majorLineDistance >= cutoffDistance)
+        // draw also minor grid lines
+        if (showMinorGrid)
         {
-            // draw also minor grid lines
-            const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
-            const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
+            const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
+            const double cutoffHDistance    = minorGridTooDenseThreshold * hSubdivisions;
+            const double cutoffVDistance    = minorGridTooDenseThreshold * vSubdivisions;
 
             painter.setPen(minorPen);
-            paintGridLinesImpl(rect, tmpHMinorSpacing, tmpVMinorSpacing, buffer);
+            if (majorLineDistance >= cutoffHDistance)
+            {
+                const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
+                paintHGridLinesImpl(rect, tmpHMinorSpacing, buffer);
+            }
+            if (majorLineDistance >= cutoffVDistance)
+            {
+                const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
+                paintVGridLinesImpl(rect, tmpVMinorSpacing, buffer);
+            }
             buffer.flush();
         }
 
         painter.setPen(majorPen);
-        paintGridLinesImpl(rect, cachedSpacing.hSpacing, cachedSpacing.vSpacing, buffer);
+        paintHGridLinesImpl(rect, cachedSpacing.hSpacing, buffer);
+        paintVGridLinesImpl(rect, cachedSpacing.vSpacing, buffer);
     }
 
     void paintAxis(QPainter& painter, const QRectF& rect) const
