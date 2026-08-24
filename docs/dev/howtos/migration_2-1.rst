@@ -216,7 +216,7 @@ The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant 
    :header-rows: 1
    :widths: 40 10 50
 
-   * - **API**
+   * - **Deprecated API**
      - **Since**
      - **Replacement / Notes**
    * - ``GtGraphicsScene``
