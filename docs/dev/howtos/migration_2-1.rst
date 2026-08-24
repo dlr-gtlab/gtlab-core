@@ -52,6 +52,18 @@ The tables below list deprecated APIs relevant for migration to GTlab 2.1.
 The value in **Since** is the first released git tag in this
 repository that already contains the deprecation marker.
 
+.. note::
+    Consider using preprocessor-macros for version dependent code:
+
+    .. code-block:: cpp
+
+        #if GT_VERSION < GT_VERSION_CHECK(2, 1, 0)
+            grid->setHorizontalRuler(hruler);
+            grid->setVerticalRuler(vruler);
+        #else
+            // nothing to do here
+        #endif
+
 Dataprocessor-Library Deprecations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -167,21 +179,10 @@ GUI-Library Deprecations
 Graphics API
 """"""""""""
 
-The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant updates (see :ref:`Migration to GTlab 2.1 → Graphics API <label_migration_2-1_graphics_api>` for more details on how to migrate).
+The API of ``GtGraphicsScene``, ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant updates. The resulting API changes have been summarized here:
 
-**API breaking changes:**
-
-.. note::
-    Use preprocessor-macros for version dependent code:
-
-    .. code-block:: cpp
-
-        #if GT_VERSION < GT_VERSION_CHECK(2, 1, 0)
-            grid->setHorizontalRuler(hruler);
-            grid->setVerticalRuler(hruler);
-        #else
-            // nothing to do here
-        #endif
+API-breaking Changes
+********************
 
 .. rst-class:: compact-table
 
@@ -204,11 +205,15 @@ The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant 
    * - Removed ``GtGrid::setHorizontalRuler`` /``setVerticalRuler(ruler)``
      - 2.1.0
      - Use ``GtGraphicsView::connectHorizontalRuler`` / ``GtGraphicsView::connectVerticalRuler(ruler)``.
-   * - Removed ``GtGrid::paintRuler(GtRuler*)``
+   * - Removed ``GtGrid::paintRuler()``
      - 2.1.0
      - Rulers are now self-drawing. Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)`` instead.
+   * - Removed ``GtRuler::buffer()`` (returned ``QImage``)
+     - 2.1.0
+     - Replaced with non-public ``GtRuler::cache()`` method (returns ``QPixmap``).
 
-**Deprecated:**
+Deprecated API
+**************
 
 .. rst-class:: compact-table
 
@@ -225,9 +230,9 @@ The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant 
    * - ``GtGraphicsScene::findItems<T>()``
      - 2.1.0
      - Use ``gt::gui::findGraphicsItems<T>()``.
-   * - ``GtGraphicsView::setHorizontalRuler`` / ``setVerticalRuler(GtRuler*)``
+   * - ``GtGraphicsView::setHorizontalRuler`` / ``setVerticalRuler(ruler)``
      - 2.1.0
-     - Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectHorizontalRuler(ruler)``. Do not take ownership.
+     - Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)``. Do not take ownership.
    * - ``GtGraphicsView::setScale(double)``
      - 2.1.0
      - Use ``zoomBy(double)``.
@@ -264,9 +269,6 @@ The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant 
    * - ``GtRuler()`` constructor
      - 2.1.0
      - Use ``GtRuler(Qt::Orientation, QWidget* parent)``.
-   * - ``GtRuler::buffer()`` (public, returned ``QImage``)
-     - 2.1.0
-     - Use ``GtRuler::cache()`` (now protected, returns ``QPixmap``).
    * - ``GtRuler::needsRepaint()``
      - 2.1.0
      - Use ``needsRepaint(QRectF, QTransform)``.
@@ -279,8 +281,118 @@ The API of ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant 
    * - ``GtRuler::getFontSizeHint(QString)``
      - 2.1.0
      - Use ``GtRuler::textSizeHint(QString)``.
-   
-----
+
+Migration Steps
+***************
+
+1. Replace ``new GtGrid(view)`` with ``new GtGrid(parent)`` and use
+   ``GtGraphicsView::setGrid(GtGrid*)`` to transfer ownership.
+2. Replace ``GtGraphicsView::setHorizontalRuler``/``setVerticalRuler`` with
+   ``GtGraphicsView::connectHorizontalRuler``/``connectVerticalRuler`` (no ownership taken).
+   Remove calls to ``GtGrid::setHorizontalRuler``/``setVerticalRuler``.
+3. Replace ``GtGraphicsScene`` with ``QGraphicsScene``.
+4. Update grid scaling API: ``setScaleGrid(bool)`` -> ``setScalingStrategy``.
+5. Update ruler constructor: ``GtRuler()`` -> ``GtRuler(Qt::Orientation)``.
+
+Ownership Model
+***************
+
+The ownership model for ``GtGrid`` has been clarified:
+
+- **Old**: ``GtGrid`` was constructed with a ``QGraphicsView&`` reference and
+  the grid was managed internally with unclear ownership semantics.
+- **New**: ``GtGrid`` uses standard Qt parent-child ownership.
+  ``GtGraphicsView::setGrid(GtGrid*)`` takes ownership. The grid is no longer fixed to ``GtGraphicsView``.
+
+Example Snippets
+****************
+
+Example (old)::
+
+    auto* scene = new GtGraphicsScene();     // had to use GtGraphicsScene before
+    auto* view = new GtGraphicsView(scene);  // view destroys its scene, could not work without a scene
+    
+    auto* grid = new GtGrid(*view);          // grid is owned by view, but was not clearly expressed
+    view->setGrid(grid); 
+    grid->setShowAxis(true);                 // only showed horizontal axis
+    grid->setGridWidth(50);                  // no control over minor grid
+    grid->setGridHeight(50);
+    auto* hRuler = new GtRuler(Qt::Horizontal);
+    auto* vRuler = new GtRuler(Qt::Vertical);
+    
+    // need to register ruler on view and grid
+    view->setHorizontalRuler(hRuler);        // unsure whether view or grid may own rulers
+    view->setVerticalRuler(vRuler);
+    view->grid()->setHorizontalRuler(hRuler);
+    view->grid()->setVerticalRuler(vRuler);
+
+    auto* lay = new QGridLayout(this);
+    lay->addWidget(hRuler, 0, 1);
+    lay->addWidget(vRuler, 1, 0);
+    lay->addWidget(view, 1, 1);              // (layout owns rulers and view)
+
+Example (new)::
+
+    auto* scene = new QGraphicsScene();      // Now operates on plain QGraphicsScene objects
+    auto* view = new GtGraphicsView(scene, GtGraphicsView::DestroyActiveSceneOnDeletion);
+
+    auto* grid = new GtGrid(view);           // parent (view) now own grid
+    view->setGrid(grid);                     // transfers ownership to view
+
+    grid->setSpacing(50);                    // sets both horizontal and vertical spacing
+    grid->setSubdivisions(5);                // configure number of minor grid lines
+    
+    QPen minorPen = grid->minorPen();        // allows control over major, minor, and axis pen
+    minorPen.setStyle(Qt::DotLine);
+    grid->setMinorPen(minorPen);
+    
+    grid->setLineColor(Qt::gray);            // same as QPen::setColor on the major pen
+    
+    // sets which axis to show
+    grid->setVisibleAxis(Qt::Horizontal | Qt::Vertical);
+    // sets how grid should adapt to changes in the zoom level
+    grid->setScalingStrategy(GtGrid::ScalingStrategy::Base10);
+
+    auto* hruler = new GtRuler(Qt::Horizontal);
+    auto* vruler = new GtRuler(Qt::Vertical);
+    view->connectHorizontalRuler(hruler);    // does not take ownership
+    view->connectVerticalRuler(vruler);      // does not take ownership
+
+    auto* lay = new QGridLayout(this);
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
+    lay->addWidget(hruler, 0, 1);
+    lay->addWidget(vruler, 1, 0);
+    lay->addWidget(view, 1, 1);              // layout owns rulers and view
+
+**GtGraphicsScene**
+
+``GtGraphicsScene`` is deprecated in 2.1. Use ``QGraphicsScene`` directly::
+
+    // old
+    auto* scene = new GtGraphicsScene();
+
+    // new
+    auto* scene = new QGraphicsScene();
+
+For finding items, use ``gt::gui::findGraphicsItems<T>()`` instead of
+``GtGraphicsScene::findItems<T>()``.
+
+**Grid Scaling Strategies**
+
+``GtGrid::setScaleGrid(bool)`` is replaced by ``GtGrid::setScalingStrategy(ScalingStrategy)``:
+
+- ``ScalingStrategy::Fixed`` - No automatic scaling (like ``setScaleGrid(false)``).
+- ``ScalingStrategy::Base2`` - Scales in step sizes of 2 (like old ``setScaleGrid(true)`` default).
+- ``ScalingStrategy::Base10`` - Scales in step sizes of 10.
+- ``ScalingStrategy::OneTwoFive`` - Scales in step sizes of 1, 2, 5, 10, 20, 50, etc. New default.
+
+Grid spacing methods:
+
+- ``GtGrid::setGridWidth`` / ``setGridHeight`` -> ``GtGrid::setHSpacing`` / ``setVSpacing`` (or ``GtGrid::setSpacing`` for both).
+- ``GtGrid::scaledGridSpacing`` return a ``GtGridSpacing`` struct with ``hSpacing`` and ``vSpacing`` members denoting the spacing in scene coordinate systems for the current zoom level.
+
+---
 
 Qt6 Migration
 ~~~~~~~~~~~~~
@@ -387,12 +499,3 @@ Before upgrading to GTlab 2.1:
 
 - Remove all calls to deprecated functions.
 - Replace all deprecated types with modern counterparts.
-
-Related Pages
-^^^^^^^^^^^^^
-
-
-.. toctree::
-   :maxdepth: 1
-
-   migration_2-1_graphics_api

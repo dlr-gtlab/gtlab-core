@@ -63,7 +63,7 @@ struct GtGrid::Impl
 
     explicit Impl()
     {
-        recomputeChachedSpacing();
+        recomputeChachedSpacing(1.0);
     }
 
     /// Grid horizontal spacing
@@ -147,10 +147,10 @@ struct GtGrid::Impl
         QLineF m_lines[Capacity];
     };
 
-    void recomputeChachedSpacing(double zoom = 1.0) const
+    void recomputeChachedSpacing(double zoom) const
     {
-        if (cachedZoom > 0.0) zoom = cachedZoom;
-        cachedZoom  = 0.0;
+        if (qFuzzyCompare(zoom, 0.0)) zoom = 1.0;
+        cachedZoom    = 0.0;
         cachedSpacing = scaledGridSpacing(zoom);
         cachedZoom    = zoom;
     }
@@ -250,17 +250,19 @@ struct GtGrid::Impl
         // draw also minor grid lines
         if (showMinorGrid)
         {
-            const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
+            const double majorHLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
             const double cutoffHDistance    = minorGridTooDenseThreshold * hSubdivisions;
-            const double cutoffVDistance    = minorGridTooDenseThreshold * vSubdivisions;
 
             painter.setPen(minorPen);
-            if (majorLineDistance >= cutoffHDistance)
+            if (majorHLineDistance >= cutoffHDistance)
             {
                 const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
                 paintHGridLinesImpl(rect, tmpHMinorSpacing, buffer);
             }
-            if (majorLineDistance >= cutoffVDistance)
+
+            const double majorVLineDistance = cachedSpacing.vSpacing * pixelsPerSceneUnit;
+            const double cutoffVDistance    = minorGridTooDenseThreshold * vSubdivisions;
+            if (majorVLineDistance >= cutoffVDistance)
             {
                 const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
                 paintVGridLinesImpl(rect, tmpVMinorSpacing, buffer);
@@ -345,7 +347,7 @@ void
 GtGrid::setHSpacing(unsigned spacing)
 {
     pimpl->hSpacing = std::max(spacing, 1u);
-    pimpl->recomputeChachedSpacing();
+    pimpl->recomputeChachedSpacing(pimpl->cachedZoom);
     emit updated();
 }
 
@@ -359,7 +361,7 @@ void
 GtGrid::setVSpacing(unsigned spacing)
 {
     pimpl->vSpacing = std::max(spacing, 1u);
-    pimpl->recomputeChachedSpacing();
+    pimpl->recomputeChachedSpacing(pimpl->cachedZoom);
     emit updated();
 }
 
@@ -405,7 +407,7 @@ void
 GtGrid::setScalingStrategy(ScalingStrategy strategy)
 {
     pimpl->scalingStrategy = strategy;
-    pimpl->recomputeChachedSpacing();
+    pimpl->recomputeChachedSpacing(pimpl->cachedZoom);
     emit updated();
 }
 
@@ -619,8 +621,7 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
     if (!pimpl->isVisible || !pimpl->showGrid)
     {
         // update spacing
-        pimpl->cachedSpacing = scaledGridSpacing(zoom);
-
+        setCurrentZoom(zoom);
         if (!pimpl->isVisible) return;
     }
 

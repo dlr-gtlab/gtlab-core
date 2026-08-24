@@ -117,7 +117,7 @@ INSTANTIATE_TEST_SUITE_P(
         [](GtGrid& grid){ grid.setHSpacing(50.0); }, // custom hspacing
         [](GtGrid& grid){ grid.setVSpacing(25.0); }, // custom vspacing
         [](GtGrid& grid){ grid.setHSubdivisions(5); }, // custom hsubdivs
-        [](GtGrid& grid){ grid.setHSubdivisions(3); }, // custom vsubdivs
+        [](GtGrid& grid){ grid.setVSubdivisions(3); }, // custom vsubdivs
         [](GtGrid& grid){ grid.setScalingStrategy(GtGrid::ScalingStrategy::Base10); } // scaling strategy
         )
     );
@@ -175,6 +175,28 @@ TEST_P(GridScaledSpacingTest, cached_zoom_level)
     // x and y closer to origin
     EXPECT_DOUBLE_EQ(grid.computeNearestMinorGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing * 0.4}).x(), 0);
     EXPECT_DOUBLE_EQ(grid.computeNearestMinorGridPoint({spacing.hSpacing * 0.4, spacing.vSpacing * 0.4}).y(), 0);
+}
+
+TEST(Grid, hidden_grid_keeps_cached_zoom_and_spacing_consistent)
+{
+    GtGrid grid;
+    grid.setScalingStrategy(GtGrid::ScalingStrategy::Base2);
+    grid.setSpacing(10);
+    grid.setCurrentZoom(1.0);
+    grid.setShowGrid(false);
+
+    EXPECT_EQ(grid.scaledGridSpacing().hSpacing, grid.scaledGridSpacing(1.0).hSpacing);
+    EXPECT_EQ(grid.scaledGridSpacing().vSpacing, grid.scaledGridSpacing(1.0).vSpacing);
+
+    QImage image{100, 100, QImage::Format_ARGB32};
+    QPainter painter{&image};
+    painter.scale(2.0, 2.0);
+    grid.paint(painter, QRectF{0, 0, 50, 50});
+
+    grid.setSpacing(20);
+
+    EXPECT_EQ(grid.scaledGridSpacing().hSpacing, grid.scaledGridSpacing(2.0).hSpacing);
+    EXPECT_EQ(grid.scaledGridSpacing().vSpacing, grid.scaledGridSpacing(2.0).vSpacing);
 }
 
 /// checks if scaling strategies generate expected spacings at different zoom
