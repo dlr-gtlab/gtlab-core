@@ -193,9 +193,9 @@ API-breaking Changes
    * - **Removed API**
      - **Since**
      - **Replacement / Notes**
-   * - Removed ``GtGraphicsView::repaintRuler(ruler)``
+   * - Removed ``GtGraphicsView::repaintRuler()``
      - 2.1.0
-     - Rulers are now self-drawing. Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)`` instead.
+     - Rulers are now self-drawing. Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)`` or use ``GtRuler::invalidate()`` to force repainting of the ruler if necessary.
    * - Removed ``GtGrid::setShowGridPoints(show)``
      - 2.1.0
      - No replacement. Did not provide any functionality.
@@ -205,9 +205,9 @@ API-breaking Changes
    * - Removed ``GtGrid::setHorizontalRuler`` / ``setVerticalRuler(ruler)``
      - 2.1.0
      - Use ``GtGraphicsView::connectHorizontalRuler`` / ``GtGraphicsView::connectVerticalRuler(ruler)``.
-   * - Removed ``GtGrid::paintRuler()``
+   * - Removed ``GtGrid::paintRuler(ruler)``
      - 2.1.0
-     - Rulers are now self-drawing. Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)`` instead.
+     - Rulers are now self-drawing. Use ``GtGraphicsView::connectHorizontalRuler`` / ``connectVerticalRuler(ruler)`` or use ``GtRuler::paint(...)`` instead.
    * - Removed ``GtRuler::buffer()`` (returned ``QImage``)
      - 2.1.0
      - Replaced with non-public ``GtRuler::cache()`` method (returns ``QPixmap``).
@@ -323,30 +323,36 @@ The way the grid's visibility has been clarified:
 Example Snippets
 ****************
 
-Example (old)::
+Example (old):
+
+.. code-block:: cpp
 
     auto* scene = new GtGraphicsScene();     // had to use GtGraphicsScene before
     auto* view = new GtGraphicsView(scene);  // view destroys its scene, could not work without a scene
     auto* grid = new GtGrid(*view);          // grid is owned by view, but was not clearly expressed
     view->setGrid(grid); 
-    grid->setShowAxis(true);                 // only showed horizontal axis
     grid->setGridWidth(50);                  // no control over minor grid
     grid->setGridHeight(50);
+    grid->setShowAxis(true);                 // only showed horizontal axis
+
+    // needed to register ruler on view and grid
     auto* hRuler = new GtRuler(Qt::Horizontal);
     auto* vRuler = new GtRuler(Qt::Vertical);
-    
-    // need to register ruler on view and grid
     view->setHorizontalRuler(hRuler);        // unsure whether view or grid may own rulers
     view->setVerticalRuler(vRuler);
     view->grid()->setHorizontalRuler(hRuler);
     view->grid()->setVerticalRuler(vRuler);
 
-    auto* lay = new QGridLayout(this);
+    auto* lay = new QGridLayout(this);       // parent widget ("this") owns rulers and view
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
     lay->addWidget(hRuler, 0, 1);
     lay->addWidget(vRuler, 1, 0);
-    lay->addWidget(view, 1, 1);              // (layout owns rulers and view)
+    lay->addWidget(view, 1, 1);
 
-Example (new)::
+Example (new):
+
+.. code-block:: cpp
 
     auto* scene = new QGraphicsScene();      // Now operates on plain QGraphicsScene objects
     auto* view = new GtGraphicsView(scene, GtGraphicsView::DestroyActiveSceneOnDeletion);
@@ -364,21 +370,24 @@ Example (new)::
     // sets how grid should adapt to changes in the zoom level
     grid->setScalingStrategy(GtGrid::ScalingStrategy::Base10);
 
+    // need to register ruler on view only
     auto* hruler = new GtRuler(Qt::Horizontal);
     auto* vruler = new GtRuler(Qt::Vertical);
     view->connectHorizontalRuler(hruler);    // does not take ownership
     view->connectVerticalRuler(vruler);      // does not take ownership
 
-    auto* lay = new QGridLayout(this);
+    auto* lay = new QGridLayout(this);       // parent widget ("this") owns rulers and view
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     lay->addWidget(hruler, 0, 1);
     lay->addWidget(vruler, 1, 0);
-    lay->addWidget(view, 1, 1);              // layout owns rulers and view
+    lay->addWidget(view, 1, 1);
 
 **GtGraphicsScene**
 
-``GtGraphicsScene`` is deprecated in 2.1. Use ``QGraphicsScene`` directly::
+``GtGraphicsScene`` is deprecated in 2.1. Use ``QGraphicsScene`` directly:
+
+.. code-block:: cpp
 
     // old
     auto* scene = new GtGraphicsScene();

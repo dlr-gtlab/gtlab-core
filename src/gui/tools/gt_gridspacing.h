@@ -14,7 +14,10 @@
 /// Defines the actual spacing of a grid
 struct GtGridSpacing
 {
-    double hSpacing = 0.0, vSpacing = 0.0;
+    /// distance or spacing between vertical lines (intersecting the x-axis)
+    double hSpacing = 0.0;
+    /// distance or spacing between horizontal lines (intersecting the y-axis)
+    double vSpacing = 0.0;
 };
 
 #endif // GT_GRIDSPACING_H

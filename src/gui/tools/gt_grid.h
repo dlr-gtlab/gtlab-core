@@ -61,6 +61,7 @@ public:
         DefaultScalingStrategy = OneTwoFive
     };
 
+    /// Flags to enable the axis along a specific orientation
     using ActiveAxis = QFlags<Qt::Orientation>;
 
     /// Constructor. Transfers ownership to view
@@ -92,25 +93,29 @@ public:
     }
 
     /**
-     * @brief Sets the spacing between horizontal (major) grid lines
+     * @brief Sets the spacing between vertical (intersecting the x-axis)
+     * major grid lines
      * @param value Spacing
      */
     void setHSpacing(unsigned spacing);
 
     /**
-     * @brief Returns the spacing between horizontal (major) grid lines
+     * @brief Returns the spacing between vertical (intersecting the x-axis)
+     * major grid lines
      * @return Horizontal spacing
      */
     unsigned hSpacing() const;
 
     /**
-     * @brief Sets the spacing between vertical (major) grid lines
+     * @brief Sets the spacing between horizontal (intersecting the y-axis)
+     * major grid lines
      * @param value
      */
     void setVSpacing(unsigned spacing);
 
     /**
-     * @brief Returns the spacing between vertical (major) grid lines
+     * @brief Returns the spacing between horizontal (intersecting the y-axis)
+     * major grid lines
      * @return Vertical spacing
      */
     unsigned vSpacing() const;
@@ -130,7 +135,8 @@ public:
     double minorGridCutoffDensity() const;
 
     /**
-     * @brief Sets both the vertical and horizontal subdivisions
+     * @brief Sets both the vertical and horizontal subdivisions defining the
+     * minor grid
      * @param count Divisions
      */
     void setSubdivisions(unsigned count)
@@ -140,26 +146,30 @@ public:
     }
 
     /**
-     * @brief Sets the minor horizontal subdivisions
-     * @param count Divisions
+     * @brief Sets the number of subdivisions between vertical major grid
+     * lines defining the minor grid
+     * @param value Divisions
      */
     void setHSubdivisions(unsigned count);
 
     /**
-     * @brief Sets the minor vertical subdivisions
-     * @param count Divisions
-     */
-    void setVSubdivisions(unsigned count);
-
-    /**
-     * @brief Returns the horizontal subdivisions
-     * @return Minor horizontal subdivisions
+     * @brief Returns the number of subdivisions between vertical major grid
+     * lines
+     * @return Minor subdivisions between vertical major grid lines
      */
     unsigned hSubdivisions() const;
 
     /**
-     * @brief Returns the vertical subdivisions
-     * @return Minor vertical subdivisions
+     * @brief Sets the number of subdivisions between horizontal major grid
+     * lines defining the minor grid
+     * @param value Divisions
+     */
+    void setVSubdivisions(unsigned count);
+
+    /**
+     * @brief Returns the number of subdivisions between horizontal major grid
+     * lines
+     * @return Minor subdivisions between horizontal major grid lines
      */
     unsigned vSubdivisions() const;
 
@@ -214,8 +224,9 @@ public:
     ScalingStrategy scalingStrategy() const;
 
     /**
-     * @brief Sets the visibility of the grid and the axis. Major and minor grid
-     * and axis remember their previous state.
+     * @brief Sets the visibility of this objects, overriding the grid and the
+     * axis. Major grid, minor grid and axis remember their previous state.
+     * By default the object is visible.
      * @param visible Whether the object should be visible or hidden
      */
     Q_INVOKABLE void setVisible(bool visible = true);
@@ -228,7 +239,7 @@ public:
 
     /**
      * @brief Returns whether the object (grid and axis) is visible.
-     * @return Is grid visible
+     * @return Is the object visible
      */
     bool isVisible() const;
 
@@ -245,42 +256,44 @@ public:
     }
 
     /**
-     * @brief Sets whether the major grid should be enabled or not.
-     * Note: minor grid is only shown if the major grid is enabled.
-     * @param show Whether to show the axis
+     * @brief Sets whether the grid should be enabled or not. By default
+     * the grid is enabled.
+     * Note: minor grid is only shown if the grid is enabled.
+     * @param enable Whether to enable the grid
      */
-    Q_INVOKABLE void enableGrid(bool show = true);
+    Q_INVOKABLE void enableGrid(bool enable = true);
 
     /**
      * @brief Returns whether the grid is actually visible
-     * @return Is grid shown
+     * @return Is grid actually visible
      */
     bool isGridVisible() const;
 
     /**
-     * @brief Returns whether the major grid is enabled
-     * @return Is grid shown
+     * @brief Returns whether the grid is enabled
+     * @return Is grid enabled
      */
     bool isGridEnabled() const;
 
     /**
-     * @brief Sets whether the minor grid should be activated.
-     * @param Show show minor grid
+     * @brief Sets whether the minor grid should be activated. By default
+     * the minor grid is enabled.
+     * @param enable Whether to enable the minor grid
      */
-    void enableMinorGrid(bool show = true);
+    void enableMinorGrid(bool enable = true);
 
     /**
      * @brief Returns whether the minor grid is actually shown.
      * Does not reflect whether the minor grid is too dense to be shown
      * (see `setMinorGridCutoffDensity`)
-     * Note:Minor grid is only shown if the major grid is enabled.
-     * @return Whether minor grid is shown
+     * Note:Minor grid is only shown if the grid is enabled.
+     * @return Whether minor grid is actually visible
      */
     bool isMinorGridVisible() const;
 
     /**
      * @brief Returns whether the minor grid is enabled.
-     * @return Whether minor grid is shown
+     * @return Whether minor grid is enabled
      */
     bool isMinorGridEnabled() const;
 
@@ -288,25 +301,24 @@ public:
     Q_INVOKABLE void setShowAxis(bool show)
     {
         // not using setAxisVisible for backwards compatibility
-        setActiveAxis(show ? ActiveAxis{} : Qt::Horizontal);
+        setActiveAxis(!show ? ActiveAxis{} : Qt::Horizontal);
     }
 
     /**
      * @brief Returns whether any axis is actually visible.
-     * @return Is axis visible
+     * @return Is any axis visible
      */
     bool isAxisVisible() const;
 
     /**
-     * @brief Sets which axis should be enabled. Independent of `setAxisVisible`
-     * @param show Whether to show the given axis
-     * @param orientation Which axis to show
+     * @brief Sets which axis should be enabled. By default no axis is visible.
+     * @param axis Orientations of the axis to enable
      */
     void setActiveAxis(ActiveAxis axis);
 
     /**
-     * @brief Returns which axis is active. Independent of `isAxisVisible`
-     * @return which axis is visible
+     * @brief Returns which axis is active.
+     * @return which axis is active
      */
     ActiveAxis activeAxis() const;
 

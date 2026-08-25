@@ -414,9 +414,9 @@ GtGrid::scalingStrategy() const
 }
 
 void
-GtGrid::enableMinorGrid(bool show)
+GtGrid::enableMinorGrid(bool enable)
 {
-    pimpl->showMinorGrid = show;
+    pimpl->showMinorGrid = enable;
     emit updated();
 }
 
@@ -497,9 +497,9 @@ GtGrid::show()
 }
 
 void
-GtGrid::enableGrid(bool show)
+GtGrid::enableGrid(bool enable)
 {
-    pimpl->showGrid = show;
+    pimpl->showGrid = enable;
     emit updated();
 }
 
