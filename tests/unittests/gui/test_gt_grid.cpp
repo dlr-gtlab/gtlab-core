@@ -119,8 +119,8 @@ INSTANTIATE_TEST_SUITE_P(
         [](GtGrid& grid){ grid.setHSubdivisions(5); }, // custom hsubdivs
         [](GtGrid& grid){ grid.setVSubdivisions(3); }, // custom vsubdivs
         [](GtGrid& grid){ grid.setScalingStrategy(GtGrid::ScalingStrategy::Base10); } // scaling strategy
-        )
-    );
+    )
+);
 
 /// check that the grid produces expected grid spacing if no zoom or
 /// spacing could be cached
@@ -183,7 +183,7 @@ TEST(Grid, hidden_grid_keeps_cached_zoom_and_spacing_consistent)
     grid.setScalingStrategy(GtGrid::ScalingStrategy::Base2);
     grid.setSpacing(10);
     grid.setCurrentZoom(1.0);
-    grid.setShowGrid(false);
+    grid.enableGrid(false);
 
     EXPECT_EQ(grid.scaledGridSpacing().hSpacing, grid.scaledGridSpacing(1.0).hSpacing);
     EXPECT_EQ(grid.scaledGridSpacing().vSpacing, grid.scaledGridSpacing(1.0).vSpacing);
@@ -365,10 +365,9 @@ TEST(Grid, emit_updated)
     QObject::connect(&grid, &GtGrid::updated, &grid, onUpdated);
 
     EXPECT_EQ(emissionCount, ref);
-
-    grid.setShowGrid(false); ref++;
-    grid.setShowMinorGrid(false); ref++;
-    grid.setShowAxis(false); ref++;
+    
+    grid.enableGrid(false); ref++;
+    grid.enableMinorGrid(false); ref++;
     grid.show(); ref++;
     grid.hide(); ref++;
 
@@ -379,8 +378,8 @@ TEST(Grid, emit_updated)
     grid.setMajorPen({}); ref++;
     grid.setMinorPen({}); ref++;
     grid.setAxisPen({}); ref++;
-
-    grid.setVisibleAxis({}); ref++;
+    
+    grid.setActiveAxis({}); ref++;
     grid.setMinorGridCutoffDensity(1.0); ref++;
     grid.setScalingStrategy(GtGrid::ScalingStrategy::Fixed); ref++;
 

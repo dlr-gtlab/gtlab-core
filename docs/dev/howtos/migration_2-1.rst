@@ -179,7 +179,7 @@ GUI-Library Deprecations
 Graphics API
 """"""""""""
 
-The API of ``GtGraphicsScene``, ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` recieved significant updates. The resulting API changes have been summarized here:
+The API of ``GtGraphicsScene``, ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` received significant updates. The resulting API changes have been summarized here:
 
 API-breaking Changes
 ********************
@@ -202,7 +202,7 @@ API-breaking Changes
    * - Removed ``GtGrid::setGridPointColor(color)``
      - 2.1.0
      - No replacement. Did not provide any functionality.
-   * - Removed ``GtGrid::setHorizontalRuler`` /``setVerticalRuler(ruler)``
+   * - Removed ``GtGrid::setHorizontalRuler`` / ``setVerticalRuler(ruler)``
      - 2.1.0
      - Use ``GtGraphicsView::connectHorizontalRuler`` / ``GtGraphicsView::connectVerticalRuler(ruler)``.
    * - Removed ``GtGrid::paintRuler()``
@@ -247,10 +247,13 @@ Deprecated API
      - Use ``setHSpacing(unsigned)`` / ``setVSpacing(unsigned)`` or ``setSpacing(unsigned)`` for both.
    * - ``GtGrid::setScaleGrid(bool)``
      - 2.1.0
-     - Use ``setScalingStrategy(ScalingStrategy)``. ``Base2`` replicates the old default.
+     - Use ``setScalingStrategy(ScalingStrategy)``. ``GtGrid::ScalingStrategy::Base2`` replicates the old default.
+   * - ``GtGrid::hideGrid(bool)`` / ``showGrid(bool)``
+     - 2.1.0
+     - Use ``GtGrid::enableGrid(bool)`` to enable or disable the grid and ``GtGrid::setVisible(bool)`` to control the visibility of the object itself.
    * - ``GtGrid::setShowAxis(bool)``
      - 2.1.0
-     - Use ``setVisibleAxis(VisibleAxis)`` for selective axis visibility.
+     - Use ``GtGrid::setActiveAxis(ActiveAxis)`` to set which axis should be enabled.
    * - ``GtGrid::paintGrid(QPainter*, QRectF)``
      - 2.1.0
      - Use ``paint(QPainter&, QRectF, PaintOptions)``.
@@ -268,7 +271,7 @@ Deprecated API
      - Use ``GtGrid::updated`` signal.
    * - ``GtRuler()`` constructor
      - 2.1.0
-     - Use ``GtRuler(Qt::Orientation, QWidget* parent)``.
+     - Use ``GtRuler(orientation, parent)``.
    * - ``GtRuler::needsRepaint()``
      - 2.1.0
      - Use ``needsRepaint(QRectF, QTransform)``.
@@ -277,7 +280,7 @@ Deprecated API
      - Use ``GtRuler::invalidate()``.
    * - ``GtRuler::getFont()``
      - 2.1.0
-     - Use ``QWidget::font()``.
+     - Use ``GtRuler::font()``.
    * - ``GtRuler::getFontSizeHint(QString)``
      - 2.1.0
      - Use ``GtRuler::textSizeHint(QString)``.
@@ -294,8 +297,7 @@ Migration Steps
 4. Update grid scaling API: ``setScaleGrid(bool)`` -> ``setScalingStrategy``.
 5. Update ruler constructor: ``GtRuler()`` -> ``GtRuler(Qt::Orientation)``.
 
-Ownership Model
-***************
+**Notes on the Ownership Model**
 
 The ownership model for ``GtGrid`` has been clarified:
 
@@ -304,6 +306,20 @@ The ownership model for ``GtGrid`` has been clarified:
 - **New**: ``GtGrid`` uses standard Qt parent-child ownership.
   ``GtGraphicsView::setGrid(GtGrid*)`` takes ownership. The grid is no longer fixed to ``GtGraphicsView``.
 
+**Notes on Grid Visiblity**
+
+The way the grid's visibility has been clarified:
+
+- **Old**:
+    - ``GtGrid::hideGrid(bool)`` / ``showGrid(bool)`` influenced the visibility of the grid and axis
+    - ``GtGrid::setShowAxis(bool)`` only influenced whether a horizontal axis was shown (if the object was not hidden using ``GtGrid::hideGrid(bool)`` / ``showGrid(bool)``)
+
+- **New**:
+    - ``GtGrid::setVisible(bool)`` / ``hide()`` / ``show()`` now sets the global visibility of the object, but the grid remembers its last state.
+    - ``GtGrid::enableGrid(bool)`` sets whether grid should be enabled. The grid is only shown if the grid is enabled and the object itself is visible. Use ``GtGrid::isGridVisible`` to check if the grid is actually visible.
+    - ``GtGrid::enableMinorGrid(bool)`` sets whether minor grid should be enabled. Minor grid is only shown if the grid is enabled and the object itself is visible. Use ``GtGrid::isMinorGridVisible`` to check if the minor grid is actually visible.
+    - ``GtGrid::setActiveAxis(ActiveAxis)`` sets which axis is enabled. Axis are only shown if any axis is enabled and the object itself is visible. Use ``GtGrid::isAxisVisible`` to check if the axis grid is actually visible.
+
 Example Snippets
 ****************
 
@@ -311,7 +327,6 @@ Example (old)::
 
     auto* scene = new GtGraphicsScene();     // had to use GtGraphicsScene before
     auto* view = new GtGraphicsView(scene);  // view destroys its scene, could not work without a scene
-    
     auto* grid = new GtGrid(*view);          // grid is owned by view, but was not clearly expressed
     view->setGrid(grid); 
     grid->setShowAxis(true);                 // only showed horizontal axis
@@ -335,21 +350,17 @@ Example (new)::
 
     auto* scene = new QGraphicsScene();      // Now operates on plain QGraphicsScene objects
     auto* view = new GtGraphicsView(scene, GtGraphicsView::DestroyActiveSceneOnDeletion);
-
-    auto* grid = new GtGrid(view);           // parent (view) now own grid
+    auto* grid = new GtGrid(view);           // parent (view) now owns grid
     view->setGrid(grid);                     // transfers ownership to view
-
     grid->setSpacing(50);                    // sets both horizontal and vertical spacing
     grid->setSubdivisions(5);                // configure number of minor grid lines
-    
+    grid->setActiveAxis(Qt::Horizontal | Qt::Vertical); // sets which axis to show
+
     QPen minorPen = grid->minorPen();        // allows control over major, minor, and axis pen
     minorPen.setStyle(Qt::DotLine);
     grid->setMinorPen(minorPen);
-    
-    grid->setLineColor(Qt::gray);            // same as QPen::setColor on the major pen
-    
-    // sets which axis to show
-    grid->setVisibleAxis(Qt::Horizontal | Qt::Vertical);
+    grid->setMajorLineColor(Qt::gray);       // same as QPen::setColor on the major pen
+
     // sets how grid should adapt to changes in the zoom level
     grid->setScalingStrategy(GtGrid::ScalingStrategy::Base10);
 
@@ -392,7 +403,7 @@ Grid spacing methods:
 - ``GtGrid::setGridWidth`` / ``setGridHeight`` -> ``GtGrid::setHSpacing`` / ``setVSpacing`` (or ``GtGrid::setSpacing`` for both).
 - ``GtGrid::scaledGridSpacing`` return a ``GtGridSpacing`` struct with ``hSpacing`` and ``vSpacing`` members denoting the spacing in scene coordinate systems for the current zoom level.
 
----
+----
 
 Qt6 Migration
 ~~~~~~~~~~~~~

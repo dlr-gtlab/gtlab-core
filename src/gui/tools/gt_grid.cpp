@@ -97,20 +97,17 @@ struct GtGrid::Impl
     /// not be drawn
     double minorGridTooDenseThreshold = 9.1;
 
-    /// Axis indicator
-    VisibleAxis visibleAxis{};
-
     /// Grid scaling strategy
     ScalingStrategy scalingStrategy = ScalingStrategy::DefaultScalingStrategy;
 
+    /// Axis indicator
+    ActiveAxis activeAxis{};
+
     /// Global visibility flag
-    bool isVisible = true;
+    bool showAll = true;
 
     /// Grid only visibility flag
     bool showGrid = true;
-
-    /// Axis only visibility flag
-    bool showAxis = false;
 
     /// Minor grid only visibility flag
     bool showMinorGrid = true;
@@ -281,7 +278,7 @@ struct GtGrid::Impl
 
         for (Qt::Orientation axis : { Qt::Vertical, Qt::Horizontal })
         {
-            if (!visibleAxis.testFlag(axis)) continue;
+            if (!activeAxis.testFlag(axis)) continue;
 
             switch (axis)
             {
@@ -329,7 +326,6 @@ GtGrid::GtGrid(QGraphicsView& view) :
     GtGrid(&view)
 {
     GT_REMOVAL_GUARD(2, 2, "for (visual) backwards compatibility");
-    setVisibleAxis(Qt::Horizontal);
     setScalingStrategy(ScalingStrategy::Base2);
 }
 
@@ -418,14 +414,20 @@ GtGrid::scalingStrategy() const
 }
 
 void
-GtGrid::setShowMinorGrid(bool show)
+GtGrid::enableMinorGrid(bool show)
 {
     pimpl->showMinorGrid = show;
     emit updated();
 }
 
 bool
-GtGrid::showMinorGrid() const
+GtGrid::isMinorGridVisible() const
+{
+    return isGridVisible() && isMinorGridEnabled();
+}
+
+bool
+GtGrid::isMinorGridEnabled() const
 {
     return pimpl->showMinorGrid;
 }
@@ -472,13 +474,13 @@ GtGrid::vSubdivisions() const
 bool
 GtGrid::isVisible() const
 {
-    return pimpl->isVisible;
+    return pimpl->showAll;
 }
 
 void
 GtGrid::setVisible(bool visible)
 {
-    pimpl->isVisible = visible;
+    pimpl->showAll = visible;
     emit updated();
 }
 
@@ -495,42 +497,41 @@ GtGrid::show()
 }
 
 void
-GtGrid::setShowGrid(bool show)
+GtGrid::enableGrid(bool show)
 {
     pimpl->showGrid = show;
     emit updated();
 }
 
 bool
-GtGrid::showGrid() const
+GtGrid::isGridVisible() const
+{
+    return pimpl->showAll && isGridEnabled();
+}
+
+bool
+GtGrid::isGridEnabled() const
 {
     return pimpl->showGrid;
 }
 
-void
-GtGrid::setShowAxis(bool show)
-{
-    pimpl->showAxis = show;
-    emit updated();
-}
-
 bool
-GtGrid::showAxis() const
+GtGrid::isAxisVisible() const
 {
-    return pimpl->showAxis;
+    return pimpl->showAll && pimpl->activeAxis != 0;
 }
 
 void
-GtGrid::setVisibleAxis(VisibleAxis axis)
+GtGrid::setActiveAxis(ActiveAxis axis)
 {
-    pimpl->visibleAxis = axis;
+    pimpl->activeAxis = axis;
     emit updated();
 }
 
-GtGrid::VisibleAxis
-GtGrid::visibleAxis() const
+GtGrid::ActiveAxis
+GtGrid::activeAxis() const
 {
-    return pimpl->visibleAxis;
+    return pimpl->activeAxis;
 }
 
 void
@@ -554,7 +555,7 @@ GtGrid::setMajorLineColor(const QColor& color)
 }
 
 QColor
-GtGrid::lineColor() const
+GtGrid::majorLineColor() const
 {
     return pimpl->majorPen.color();
 }
@@ -618,11 +619,11 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 
     const double zoom = painter.worldTransform().m11();
 
-    if (!pimpl->isVisible || !pimpl->showGrid)
+    if (!pimpl->showAll)
     {
         // update spacing
         setCurrentZoom(zoom);
-        if (!pimpl->isVisible) return;
+        return;
     }
 
     painter.save();
@@ -635,7 +636,11 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
     {
         pimpl->paintGridLines(painter, rect, zoom);
     }
-    if (pimpl->showAxis && options.testFlag(PaintAxis))
+    else // update spacing manually
+    {
+        setCurrentZoom(zoom);
+    }
+    if (options.testFlag(PaintAxis))
     {
         pimpl->paintAxis(painter, rect);
     }

@@ -61,7 +61,7 @@ public:
         DefaultScalingStrategy = OneTwoFive
     };
 
-    using VisibleAxis = QFlags<Qt::Orientation>;
+    using ActiveAxis = QFlags<Qt::Orientation>;
 
     /// Constructor. Transfers ownership to view
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGrid(QObject* parent)` instead.")
@@ -114,18 +114,6 @@ public:
      * @return Vertical spacing
      */
     unsigned vSpacing() const;
-
-    /**
-     * @brief Sets whether the minor grid should be shown.
-     * @param Show show minor grid
-     */
-    void setShowMinorGrid(bool show = true);
-
-    /**
-     * @brief Returns whether the minor grid should be shown.
-     * @return Whether minor grid is shown
-     */
-    bool showMinorGrid() const;
 
     /**
      * @brief Sets the device independent pixel distance at which the
@@ -226,72 +214,101 @@ public:
     ScalingStrategy scalingStrategy() const;
 
     /**
-     * @brief Sets the visibility of the grid
-     * @param visible Whether the grid should be visible or hidden
+     * @brief Sets the visibility of the grid and the axis. Major and minor grid
+     * and axis remember their previous state.
+     * @param visible Whether the object should be visible or hidden
      */
     Q_INVOKABLE void setVisible(bool visible = true);
 
-    /// hides the grid and axis
+    /// hides grid and axis
     Q_INVOKABLE void hide();
 
-    /// shows the grid and axis
+    /// shows grid and axis
     Q_INVOKABLE void show();
 
     /**
-     * @brief Returns whether the grid is visible
+     * @brief Returns whether the object (grid and axis) is visible.
      * @return Is grid visible
      */
     bool isVisible() const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `enableGrid` or `setVisible` instead.")
     Q_INVOKABLE void hideGrid(bool hidden = true)
     {
-        showGrid(!hidden);
+        setVisible(!hidden); // not using setGridVisible for backwards compatibility
     }
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `enableGrid` or `setVisible` instead.")
     Q_INVOKABLE void showGrid(bool visible = true)
     {
-        setVisible(visible); // not using setShowGrid for backwards compatibility
+        setVisible(visible); // not using setGridVisible for backwards compatibility
     }
-    /**
-     * @brief Sets whether the grid should be enabled or not. Independent of
-     * show axis.
-     * @param show Whether to show the axis
-     */
-    Q_INVOKABLE void setShowGrid(bool show);
 
     /**
-     * @brief Returns whether the grid is visible
+     * @brief Sets whether the major grid should be enabled or not.
+     * Note: minor grid is only shown if the major grid is enabled.
+     * @param show Whether to show the axis
+     */
+    Q_INVOKABLE void enableGrid(bool show = true);
+
+    /**
+     * @brief Returns whether the grid is actually visible
      * @return Is grid shown
      */
-    bool showGrid() const;
+    bool isGridVisible() const;
 
     /**
-     * @brief Sets whether the axis should be enabled or not. Independent of
-     * show grid.
-     * @param show Whether to show the axis
+     * @brief Returns whether the major grid is enabled
+     * @return Is grid shown
      */
-    Q_INVOKABLE void setShowAxis(bool show);
+    bool isGridEnabled() const;
 
     /**
-     * @brief Returns whether the axis is visible
-     * @return Is axis shown
+     * @brief Sets whether the minor grid should be activated.
+     * @param Show show minor grid
      */
-    bool showAxis() const;
+    void enableMinorGrid(bool show = true);
 
     /**
-     * @brief Sets which axis should be shown
+     * @brief Returns whether the minor grid is actually shown.
+     * Does not reflect whether the minor grid is too dense to be shown
+     * (see `setMinorGridCutoffDensity`)
+     * Note:Minor grid is only shown if the major grid is enabled.
+     * @return Whether minor grid is shown
+     */
+    bool isMinorGridVisible() const;
+
+    /**
+     * @brief Returns whether the minor grid is enabled.
+     * @return Whether minor grid is shown
+     */
+    bool isMinorGridEnabled() const;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setActiveAxis` instead.")
+    Q_INVOKABLE void setShowAxis(bool show)
+    {
+        // not using setAxisVisible for backwards compatibility
+        setActiveAxis(show ? ActiveAxis{} : Qt::Horizontal);
+    }
+
+    /**
+     * @brief Returns whether any axis is actually visible.
+     * @return Is axis visible
+     */
+    bool isAxisVisible() const;
+
+    /**
+     * @brief Sets which axis should be enabled. Independent of `setAxisVisible`
      * @param show Whether to show the given axis
      * @param orientation Which axis to show
      */
-    void setVisibleAxis(VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
+    void setActiveAxis(ActiveAxis axis);
 
     /**
-     * @brief Returns which axis is shown, if any.
+     * @brief Returns which axis is active. Independent of `isAxisVisible`
      * @return which axis is visible
      */
-    VisibleAxis visibleAxis() const;
+    ActiveAxis activeAxis() const;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
     void setHorizontalGridLineColor(const QColor& color)
@@ -327,7 +344,7 @@ public:
      * @brief Returns the major grid line color
      * @return Major grid line pen color
      */
-    QColor lineColor() const;
+    QColor majorLineColor() const;
 
     /**
      * @brief Sets the pen for the minor grid lines

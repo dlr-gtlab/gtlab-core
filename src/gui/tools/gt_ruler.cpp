@@ -173,8 +173,10 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     pimpl->cachedTransform = viewportTransform;
 
     QPainter painter{&pimpl->cache};
+    painter.setClipRect(viewportTransform.mapRect(backgroundRect));
     painter.setRenderHint(QPainter::Antialiasing, false);
     painter.setRenderHint(QPainter::TextAntialiasing, false);
+
     painter.fillRect(cache().rect(), palette().color(QPalette::Window));
 
     painter.setPen(gt::gui::color::text());
@@ -195,7 +197,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     switch (orientation())
     {
     case Qt::Horizontal:
-        lineDistance = spacing.hSpacing;
+        lineDistance = spacing.vSpacing;
         left   = backgroundRect.left();
         right  = backgroundRect.right();
         height = cache().height();
@@ -207,7 +209,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
         painter.translate(cache().height(), 0); // move to end of pixmap
         painter.scale(-1, -1); // flip 180 degrees (so that the text is rotated correctly)
 
-        lineDistance = spacing.vSpacing;
+        lineDistance = spacing.hSpacing;
         left   = backgroundRect.top();
         right  = backgroundRect.bottom();
         height = cache().width();
