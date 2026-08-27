@@ -28,4 +28,5 @@ target_link_libraries(TestProcessInterface
     GTlab::Logging
     GTlab::Core
     TestDatamodelInterface
+    TestMdiInterface
 )

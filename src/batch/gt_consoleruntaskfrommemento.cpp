@@ -16,6 +16,7 @@
 #include "gt_processfactory.h"
 #include "gt_project.h"
 #include "gt_task.h"
+#include "gt_xmlutilities.h"
 
 #include <QCommandLineOption>
 #include <QCommandLineParser>
@@ -310,7 +311,8 @@ gt::console::runTaskFromMemento(QStringList const& args)
         return 5;
     }
 
-    const GtObjectMemento resultProjectMemento = project.toProjectDataMemento();
+    GtObjectMemento resultProjectMemento = project.toProjectDataMemento();
+    resultProjectMemento.setIdent(initialProjectMemento.ident());
     GtObjectMementoDiff diff(initialProjectMemento, resultProjectMemento);
     if (!writeDiff(outputFile, diff))
     {

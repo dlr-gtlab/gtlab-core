@@ -140,6 +140,7 @@ namespace
     {
         GtObjectGroup projectData;
         projectData.setUuid("-");
+        projectData.setObjectName("Memento Root");
         auto package = std::make_unique<MementoTestPackage>();
         package->setFactory(gtObjectFactory);
         package->setObjectName("Package");
@@ -175,6 +176,7 @@ namespace
             original.restore<GtObjectGroup*>(gtObjectFactory));
         ASSERT_TRUE(restored);
         ASSERT_TRUE(restored->applyDiff(diff));
+        EXPECT_EQ(restored->objectName(), "Memento Root");
         auto* restoredPackage =
             restored->findDirectChild<MementoTestPackage*>();
         ASSERT_TRUE(restoredPackage);

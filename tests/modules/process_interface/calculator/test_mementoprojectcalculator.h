@@ -8,6 +8,8 @@
 #define TEST_MEMENTO_PROJECT_CALCULATOR_H
 
 #include "gt_calculator.h"
+#include "gt_intproperty.h"
+#include "gt_objectlinkproperty.h"
 
 class TestMementoProjectCalculator final : public GtCalculator
 {
@@ -17,6 +19,10 @@ public:
     Q_INVOKABLE TestMementoProjectCalculator();
 
     bool run() override;
+
+private:
+    GtObjectLinkProperty m_target;
+    GtIntProperty m_inputValue;
 };
 
 #endif // TEST_MEMENTO_PROJECT_CALCULATOR_H
