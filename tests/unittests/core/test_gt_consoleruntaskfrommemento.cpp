@@ -79,6 +79,7 @@ namespace
                 if (auto* package = qobject_cast<MementoTestPackage*>(object))
                 {
                     package->value.setVal(42);
+                    setWarningFlag(produceWarning);
                     return true;
                 }
             }
@@ -92,6 +93,7 @@ namespace
 
         static QString observedProjectPath;
         static QString observedWorkingDirectory;
+        static bool produceWarning;
 
     private:
         GtObjectLinkProperty packageLink;
@@ -99,6 +101,7 @@ namespace
 
     QString MementoTestCalculator::observedProjectPath;
     QString MementoTestCalculator::observedWorkingDirectory;
+    bool MementoTestCalculator::produceWarning = false;
 
     bool writeFile(QString const& path, QByteArray const& data)
     {
@@ -112,6 +115,7 @@ namespace
     protected:
         void SetUp() override
         {
+            MementoTestCalculator::produceWarning = false;
             application = std::make_unique<TestApplication>();
             gtObjectFactory->registerClass(
                 MementoTestPackage::staticMetaObject);
@@ -187,11 +191,65 @@ namespace
     {
         ASSERT_TRUE(writeFile(projectPath, "not xml"));
         ASSERT_TRUE(writeFile(taskPath, "not xml"));
+        ASSERT_TRUE(writeFile(outputPath, "stale diff"));
         EXPECT_NE(gt::console::runTaskFromMemento(
                       {"--project-memento", projectPath, "--task-memento",
                        taskPath, "--output-diff", outputPath}),
                   0);
         EXPECT_FALSE(QFileInfo::exists(outputPath));
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento, OutputCannotOverwriteInputMemento)
+    {
+        ASSERT_TRUE(writeFile(projectPath, "input"));
+        EXPECT_NE(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", projectPath}),
+                  0);
+        EXPECT_TRUE(QFileInfo::exists(projectPath));
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           WarningFinishedTaskProducesApplicableDiff)
+    {
+        GtObjectGroup projectData;
+        projectData.setUuid("-");
+        projectData.setObjectName("Memento Root");
+        auto package = std::make_unique<MementoTestPackage>();
+        package->setFactory(gtObjectFactory);
+        package->setObjectName("Package");
+        const QString packageUuid = package->uuid();
+        ASSERT_TRUE(projectData.appendChild(package.get()));
+        package.release();
+
+        GtObjectMemento original = projectData.toMemento(true);
+        ASSERT_TRUE(writeFile(projectPath, original.toByteArray()));
+
+        GtTask task;
+        task.setFactory(gtObjectFactory);
+        auto calculator = std::make_unique<MementoTestCalculator>();
+        calculator->setFactory(gtCalculatorFactory);
+        calculator->setPackageUuid(packageUuid);
+        ASSERT_TRUE(task.appendChild(calculator.get()));
+        calculator.release();
+        ASSERT_TRUE(writeFile(taskPath, task.toMemento().toByteArray()));
+
+        MementoTestCalculator::produceWarning = true;
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  0);
+
+        QFile output(outputPath);
+        ASSERT_TRUE(output.open(QIODevice::ReadOnly));
+        GtObjectMementoDiff diff(output.readAll());
+        EXPECT_FALSE(diff.isNull());
+        auto restored = std::unique_ptr<GtObjectGroup>(
+            original.restore<GtObjectGroup*>(gtObjectFactory));
+        ASSERT_TRUE(restored);
+        ASSERT_TRUE(restored->applyDiff(diff));
+        auto* restoredPackage =
+            restored->findDirectChild<MementoTestPackage*>();
+        ASSERT_TRUE(restoredPackage);
+        EXPECT_EQ(restoredPackage->value.getVal(), 42);
     }
 
 } // namespace

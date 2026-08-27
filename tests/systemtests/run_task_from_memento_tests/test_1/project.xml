@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
 <object name="CreateMementos" class="GtObjectGroup" uuid="-">
  <objectlist>
   <object name="Test DMI Package" class="TestDmiPackage" uuid="{2f96bc74-bdec-407c-9cec-ece2a13da5c2}">
@@ -57,4 +63,3 @@
   </object>
  </objectlist>
 </object>
-

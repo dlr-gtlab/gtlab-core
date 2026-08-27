@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
 # System tests
 
 This directory contains end-to-end tests for GTlab Core functionality that is

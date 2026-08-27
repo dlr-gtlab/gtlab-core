@@ -240,6 +240,21 @@ gt::console::runTaskFromMemento(QStringList const& args)
             ? QFileInfo(parser.value(workingDirectoryOption)).absoluteFilePath()
             : projectFile.absolutePath();
 
+    if (outputFile == projectFile.absoluteFilePath() ||
+        outputFile == taskFile.absoluteFilePath())
+    {
+        gtError() << QObject::tr(
+            "Output diff must not overwrite an input Memento");
+        return 2;
+    }
+
+    if (QFileInfo::exists(outputFile) && !QFile::remove(outputFile))
+    {
+        gtError()
+            << QObject::tr("Cannot replace output diff: %1").arg(outputFile);
+        return 6;
+    }
+
     if (!projectFile.isFile())
     {
         gtError() << QObject::tr("Project Memento does not exist: %1")
@@ -304,8 +319,10 @@ gt::console::runTaskFromMemento(QStringList const& args)
                            .arg(previousWorkingDirectory);
     }
 
+    const auto taskState = executionTask->currentState();
     if (state != GtCoreProcessExecutor::TaskExecState::Started ||
-        executionTask->currentState() != GtProcessComponent::FINISHED)
+        (taskState != GtProcessComponent::FINISHED &&
+         taskState != GtProcessComponent::WARN_FINISHED))
     {
         gtError() << QObject::tr("Task execution failed");
         return 5;
