@@ -15,6 +15,7 @@ SPDX-License-Identifier: MPL-2.0+
    <property type="bool" name="failOnWarn">false</property>
    <property type="QString" name="target">{2f96bc74-bdec-407c-9cec-ece2a13da5c2}</property>
    <property type="int" name="inputValue">40</property>
+   <property type="QString" name="sideEffectFile">memento_side_effect.txt</property>
   </object>
  </objectlist>
 </object>

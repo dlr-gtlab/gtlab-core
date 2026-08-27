@@ -10,6 +10,7 @@
 #include "gt_calculator.h"
 #include "gt_intproperty.h"
 #include "gt_objectlinkproperty.h"
+#include "gt_stringproperty.h"
 
 class TestMementoProjectCalculator final : public GtCalculator
 {
@@ -23,6 +24,7 @@ public:
 private:
     GtObjectLinkProperty m_target;
     GtIntProperty m_inputValue;
+    GtStringProperty m_sideEffectFile;
 };
 
 #endif // TEST_MEMENTO_PROJECT_CALCULATOR_H
