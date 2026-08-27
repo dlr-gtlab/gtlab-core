@@ -11,23 +11,34 @@
 #ifndef GTRUNNABLE_H
 #define GTRUNNABLE_H
 
+#include "gt_core_exports.h"
 #include "gt_abstractrunnable.h"
+#include "gt_executioncontext.h"
 
 #include "gt_processcomponent.h"
 
 /**
  * @brief The GtRunnable class
  */
-class GtRunnable : public GtAbstractRunnable
+class GT_CORE_EXPORT GtRunnable : public GtAbstractRunnable
 {
     Q_OBJECT
 
 public:
     /**
-     * @brief Constrcutor. Sets a custom project path for the execution process
+     * @brief Constructor. Sets a custom project path for the execution process
      * @param projectPath Project path
      */
     explicit GtRunnable(QString projectPath = {});
+
+    /**
+     * @brief Constructs a runnable with execution-specific context data.
+     * @param projectPath Legacy custom project path
+     * @param executionContext Borrowed project/path context installed only
+     *        during run(). The referenced project must outlive run() and must
+     *        not be retained for asynchronous work.
+     */
+    GtRunnable(QString projectPath, GtExecutionContext executionContext);
 
     /**
      * @brief run
@@ -46,8 +57,10 @@ public:
     QDir tempDir() override;
 
     /**
-     * @brief Returns path of current project.
-     * @return Path to current project.
+     * @brief Returns the execution-context project path, if present.
+     *
+     * Resolution is context first, then the legacy custom path, then the
+     * selected application project.
      */
     QString projectPath() override;
 
@@ -62,6 +75,9 @@ private:
 
     /// custom project path (by default empty)
     QString m_projectPath;
+
+    /// Context associated with this execution.
+    GtExecutionContext m_executionContext;
 
     /**
      * @brief transferObjects

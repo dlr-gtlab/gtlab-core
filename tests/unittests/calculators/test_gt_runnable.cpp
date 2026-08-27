@@ -14,6 +14,8 @@
 #include "gt_object.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+#include "gt_project.h"
+#include "gt_runnable.h"
 
 class TestCalculatorRunnable : public GtAbstractRunnable
 {
@@ -103,6 +105,23 @@ public:
 private:
     GtObjectLinkProperty linkProp;
     GtObjectPathProperty pathProp;
+};
+
+class ContextObservingCalculator : public TestableCalculator
+{
+public:
+    GtProject* observedProject = nullptr;
+    QString observedPath;
+    bool contextWasActive = false;
+
+    bool run() override
+    {
+        auto const* context = GtExecutionContext::current();
+        contextWasActive = context != nullptr;
+        observedProject = context ? context->project() : nullptr;
+        observedPath = projectPath();
+        return true;
+    }
 };
 
 class TestGtRunnable : public ::testing::Test
@@ -216,4 +235,66 @@ TEST_F(TestGtRunnable, successfulRunClearsTempDirectoryWhenEnabled)
     ASSERT_TRUE(calc.exec());
     EXPECT_EQ(runnable.clearTempDirCalls, 1);
     EXPECT_EQ(runnable.clearedPath, QString("temp/calculator"));
+}
+
+TEST_F(TestGtRunnable, customProjectPathRemainsAvailableWithoutContext)
+{
+    GtRunnable runnable(QStringLiteral("custom-project-path"));
+
+    EXPECT_EQ(runnable.projectPath(), QStringLiteral("custom-project-path"));
+}
+
+TEST_F(TestGtRunnable, executionContextIsInstalledForRunAndRestoredAfterwards)
+{
+    GtExecutionContext context(nullptr, QStringLiteral("project-path"));
+    GtRunnable runnable(QString{}, context);
+    ContextObservingCalculator observer;
+    ASSERT_TRUE(runnable.appendProcessComponent(&observer));
+
+    runnable.run();
+
+    EXPECT_TRUE(observer.contextWasActive);
+    EXPECT_EQ(observer.observedPath, QStringLiteral("project-path"));
+    EXPECT_EQ(GtExecutionContext::current(), nullptr);
+}
+
+TEST_F(TestGtRunnable, runWithoutContextPreservesAnExistingContext)
+{
+    GtExecutionContext outerContext(nullptr, QStringLiteral("outer-project"));
+    GtExecutionContextScope outerScope(outerContext);
+    GtRunnable runnable;
+
+    runnable.run();
+
+    EXPECT_EQ(GtExecutionContext::current(), &outerContext);
+}
+
+TEST_F(TestGtRunnable, sequentialRunsUseDifferentExecutionContexts)
+{
+    class TestProject : public GtProject
+    {
+    public:
+        explicit TestProject(QString path) : GtProject(std::move(path)) {}
+    } firstProject(QStringLiteral("first")),
+        secondProject(QStringLiteral("second"));
+
+    GtExecutionContext firstContext(&firstProject,
+                                    QStringLiteral("first-path"));
+    GtRunnable firstRunnable({}, firstContext);
+    ContextObservingCalculator firstCalculator;
+    ASSERT_TRUE(firstRunnable.appendProcessComponent(&firstCalculator));
+    firstRunnable.run();
+
+    GtExecutionContext secondContext(&secondProject,
+                                     QStringLiteral("second-path"));
+    GtRunnable secondRunnable({}, secondContext);
+    ContextObservingCalculator secondCalculator;
+    ASSERT_TRUE(secondRunnable.appendProcessComponent(&secondCalculator));
+    secondRunnable.run();
+
+    EXPECT_EQ(firstCalculator.observedProject, &firstProject);
+    EXPECT_EQ(firstCalculator.observedPath, QStringLiteral("first-path"));
+    EXPECT_EQ(secondCalculator.observedProject, &secondProject);
+    EXPECT_EQ(secondCalculator.observedPath, QStringLiteral("second-path"));
+    EXPECT_EQ(GtExecutionContext::current(), nullptr);
 }

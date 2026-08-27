@@ -24,6 +24,7 @@ class GtTask;
 class GtRunnable;
 class GtCalculator;
 class GtTaskRunner;
+class GtProjectExecutionGuard;
 
 class GtObjectLinkProperty;
 
@@ -50,6 +51,18 @@ class GT_CORE_EXPORT GtCoreProcessExecutor : public QObject
 
 public:
 
+    enum class TaskExecState
+    {
+        /// Task or execution setup was invalid.
+        Invalid = 0,
+        /// Execution was started immediately.
+        Started,
+        /// Task was accepted into this executor's queue.
+        Queued,
+        /// Task was rejected because the project or executor is busy.
+        Busy
+    };
+
     /// Id of this executor
     static const std::string S_ID;
 
@@ -68,17 +81,34 @@ public:
 
     void setCoreExecutorFlags(Flags flags);
 
-    /**
-     * @brief Runs a process if the queue is free
-     * @param process GtdProcess
-     */
-    bool runTask(GtTask* task);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use startTask instead")
+    bool runTask(GtTask* task)
+    {
+        const auto result = startTask(task);
+        return result == TaskExecState::Started || result == TaskExecState::Queued;
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use startNextTask instead")
+    bool executeNextTask()
+    {
+        return startNextTask() == TaskExecState::Started;
+    }
 
     /**
-     * @brief Executes the next task in the queue. No task must be running.
-     * @return Whether task execution was successfully triggered
+     * @brief Runs a task and reports the outcome.
+     *
+     * Queues the task and then starts it via ::startNextTask().
+     *
+     * Busy tasks are rejected and removed; they are not retried automatically.
+     * The compatibility wrapper runTask() returns true for both Started and
+     * Queued.
      */
-    bool executeNextTask();
+    TaskExecState startTask(GtTask* task);
+
+    /**
+     * @brief Starts the next task in the queue. No task must be running.
+     */
+    TaskExecState startNextTask();
 
     /**
      * @brief Terminates current running task.
@@ -216,7 +246,6 @@ protected:
     GtTaskRunner* setupTaskRunner();
 
 private:
-
     ///pimpl
     struct Impl;
     std::unique_ptr<Impl> pimpl;

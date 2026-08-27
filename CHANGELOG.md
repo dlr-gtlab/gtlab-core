@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - GTlab now requires C++17 for compilation and usage. - #1441
+ - Core-managed process execution now resolves `currentProject()` through an
+   execution-scoped project context. Existing calculators remain compatible;
+   new execution code should pass an explicit project or `GtExecutionContext`.
+   See the project-context migration guide.
+   - #1507
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239

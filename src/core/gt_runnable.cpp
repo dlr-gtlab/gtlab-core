@@ -12,6 +12,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include <optional>
+
 #include "gt_runnable.h"
 #include "gt_objectmemento.h"
 #include "gt_objectfactory.h"
@@ -21,7 +23,14 @@
 #include "gt_logging.h"
 
 GtRunnable::GtRunnable(QString projectPath) :
-    m_projectPath{std::move(projectPath)}
+    GtRunnable(std::move(projectPath), GtExecutionContext())
+{
+}
+
+GtRunnable::GtRunnable(QString projectPath,
+                       GtExecutionContext executionContext) :
+    m_projectPath{std::move(projectPath)},
+    m_executionContext{std::move(executionContext)}
 {
     setObjectName("GtRunnable");
 }
@@ -29,6 +38,12 @@ GtRunnable::GtRunnable(QString projectPath) :
 void
 GtRunnable::run()
 {
+    std::optional<GtExecutionContextScope> contextScope;
+    if (m_executionContext.isValid())
+    {
+        contextScope.emplace(m_executionContext);
+    }
+
     bool success = true;
 
     readObjects();
@@ -120,6 +135,11 @@ GtRunnable::tempDir()
 QString
 GtRunnable::projectPath()
 {
+    if (auto const* context = GtExecutionContext::current())
+    {
+        return context->projectPath();
+    }
+
     if (!m_projectPath.isEmpty())
     {
         return m_projectPath;

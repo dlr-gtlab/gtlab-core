@@ -11,7 +11,6 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
-
 #include "gt_logging.h"
 #include "gt_runnable.h"
 #include "gt_project.h"
@@ -20,6 +19,9 @@
 #include "gt_task.h"
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
+#include "gt_executioncontext.h"
+#include "gt_finally.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_taskrunner.h"
 
 #include "gt_coreprocessexecutor.h"
@@ -42,7 +44,26 @@ struct GtCoreProcessExecutor::Impl
 
     /// Pointer to current runnable
     QPointer<GtRunnable> currentRunnable;
+
+    std::unique_ptr<GtProjectExecutionGuard> projectGuard;
 };
+
+namespace
+{
+GtProject* projectForTask(GtTask* task, GtObject* source)
+{
+    auto* project = qobject_cast<GtProject*>(source);
+    if (!project && source)
+    {
+        project = source->findParent<GtProject*>();
+    }
+    if (!project && task)
+    {
+        project = task->findParent<GtProject*>();
+    }
+    return project;
+}
+}
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
     QObject(parent),
@@ -64,39 +85,39 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
     pimpl->detached =  flags.testFlag(gt::NonBlockingExecution);
 }
 
-bool
-GtCoreProcessExecutor::runTask(GtTask* task)
+GtCoreProcessExecutor::TaskExecState
+GtCoreProcessExecutor::startTask(GtTask* task)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
     if (!queueTask(task))
     {
-        return false;
+        return TaskExecState::Invalid;
     }
 
     if (taskCurrentlyRunning())
     {
-        return true;
+        return TaskExecState::Queued;
     }
 
-    return executeNextTask();
+    return startNextTask();
 }
 
-bool
-GtCoreProcessExecutor::executeNextTask()
+GtCoreProcessExecutor::TaskExecState
+GtCoreProcessExecutor::startNextTask()
 {
     // check whether a task is already running
     if (taskCurrentlyRunning())
     {
         gtErrorId(GT_EXEC_ID) << tr("A Task is already running!");
-        return false;
+        return TaskExecState::Busy;
     }
 
     // check whether queue is empty
     if (m_queue.isEmpty())
     {
         emit allTasksCompleted();
-        return false;
+        return TaskExecState::Invalid;
     }
 
     // checkout next task in queue
@@ -107,7 +128,7 @@ GtCoreProcessExecutor::executeNextTask()
     {
         gtErrorId(GT_EXEC_ID) << tr("Cannot execute an invalid Task!");
         clearCurrentTask();
-        return false;
+        return TaskExecState::Invalid;
     }
 
     // setup source
@@ -121,7 +142,26 @@ GtCoreProcessExecutor::executeNextTask()
         {
             gtErrorId(GT_EXEC_ID) << tr("Source corrupted!");
             clearCurrentTask();
-            return false;
+            return TaskExecState::Invalid;
+        }
+    }
+
+    if (auto* project = projectForTask(m_current, m_source))
+    {
+        pimpl->projectGuard = std::make_unique<GtProjectExecutionGuard>();
+        const auto result = pimpl->projectGuard->tryAcquire(project);
+        if (result == GtProjectExecutionGuard::Result::Busy)
+        {
+            pimpl->projectGuard.reset();
+            m_queue.removeAll(m_current);
+            m_current->setState(GtProcessComponent::NONE);
+            m_current = nullptr;
+            emit queueChanged();
+            return TaskExecState::Busy;
+        }
+        if (result == GtProjectExecutionGuard::Result::InvalidProject)
+        {
+            pimpl->projectGuard.reset();
         }
     }
 
@@ -129,7 +169,7 @@ GtCoreProcessExecutor::executeNextTask()
 
     execute();
 
-    return true;
+    return TaskExecState::Started;
 }
 
 bool
@@ -446,16 +486,27 @@ GtCoreProcessExecutor::setupTaskRunner()
     // create new task runner
     auto* runner = new GtTaskRunner{m_current};
 
+    GtProject* project = projectForTask(m_current, m_source);
+
+    const QString projectPath = pimpl->customProjectPath.isEmpty() && project ?
+                                     project->path() :
+                                     pimpl->customProjectPath;
+    GtExecutionContext executionContext(
+        project,
+        projectPath);
+
     // create new runnable
-    pimpl->currentRunnable = new GtRunnable{pimpl->customProjectPath};
+    pimpl->currentRunnable = new GtRunnable{
+        pimpl->customProjectPath, std::move(executionContext)};
 
     // setup task runner
     if (!runner->setUp(pimpl->currentRunnable, m_source))
     {
+        pimpl->projectGuard.reset();
         delete pimpl->currentRunnable;
         delete runner;
         clearCurrentTask();
-        executeNextTask();
+        startNextTask();
         return nullptr;
     }
 
@@ -470,6 +521,10 @@ void
 GtCoreProcessExecutor::onTaskRunnerFinished()
 {
     gtTrace() << __FUNCTION__;
+
+    const auto _ = gt::finally([this]() {
+        pimpl->projectGuard.reset();
+    });
 
     // create timer
     QElapsedTimer timer;
@@ -525,5 +580,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     // delete task runner
     taskRunner->deleteLater();
 
-    executeNextTask();
+    // Release before starting a queued task so it can acquire its own key.
+    pimpl->projectGuard.reset();
+    startNextTask();
 }

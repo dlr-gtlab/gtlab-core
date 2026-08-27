@@ -140,8 +140,11 @@ public:
     GtSettings* settings();
 
     /**
-     * @brief Returns pointer to current project. NULL if no current project
-     * selected.
+     * @brief Returns the execution-context project or the session project.
+     *
+     * This uses the same resolution policy as GtCoreDatamodel::currentProject:
+     * an active context on the current thread takes precedence over the
+     * currently selected session project. NULL is returned if neither exists.
      * @return Pointer to current project
      */
     GtProject* currentProject();

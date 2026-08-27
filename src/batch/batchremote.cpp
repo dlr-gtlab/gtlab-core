@@ -357,7 +357,7 @@ gt::batch::run(const QString& inputName,
         objectGroup->appendChild(object);
     }
     executor.setSource(objectGroup);
-    executor.runTask(process);
+    executor.startTask(process);
 
     if (process->currentState() != GtProcessComponent::FINISHED)
     {

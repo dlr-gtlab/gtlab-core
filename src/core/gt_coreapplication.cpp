@@ -948,14 +948,7 @@ GtCoreApplication::settings()
 GtProject*
 GtCoreApplication::currentProject()
 {
-    GtSession* w = session();
-
-    if (w)
-    {
-        return w->currentProject();
-    }
-
-    return nullptr;
+    return m_dataModel ? m_dataModel->currentProject() : nullptr;
 }
 
 GtProject*
