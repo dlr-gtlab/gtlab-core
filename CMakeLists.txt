@@ -31,6 +31,10 @@ option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)
 option(BUILD_TESTMODULES "Build the test modules" OFF)
+
+if (BUILD_UNITTESTS OR BUILD_TESTMODULES)
+    enable_testing()
+endif()
 set(GTLAB_COVERAGE_LCOV_ARGS ""
     CACHE STRING "Additional arguments passed to lcov for the test-coverage target")
 
@@ -145,6 +149,7 @@ endif()
 
 if (BUILD_TESTMODULES)
     add_subdirectory(tests/modules)
+    add_subdirectory(tests/systemtests)
 endif(BUILD_TESTMODULES)
 
 include(CPack)
