@@ -9,6 +9,7 @@
  */
 
 #include "test_calculator.h"
+#include "test_mementoprojectcalculator.h"
 #include "test_processstatescalculator.h"
 #include "test_crashonexecutecalculator.h"
 #include "test_sleepcalculator.h"
@@ -79,6 +80,17 @@ TestProcessInterface::calculators()
     progressTest->description = QStringLiteral("Test progress animation");
     progressTest->status = GtCalculatorDataImpl::RELEASE;
     metaData << progressTest;
+
+    GtCalculatorData mementoProject =
+        GT_CALC_DATA(TestMementoProjectCalculator);
+    mementoProject->id = QStringLiteral("Memento Project Modifier");
+    mementoProject->version = GtVersionNumber(0, 1);
+    mementoProject->author = QStringLiteral("DLR");
+    mementoProject->category = QStringLiteral("Testing");
+    mementoProject->description =
+        QStringLiteral("Modifies project data through currentProject()");
+    mementoProject->status = GtCalculatorDataImpl::RELEASE;
+    metaData << mementoProject;
 
     return metaData;
 }

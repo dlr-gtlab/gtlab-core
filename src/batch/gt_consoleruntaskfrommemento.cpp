@@ -24,6 +24,8 @@
 #include <QFileInfo>
 #include <QSaveFile>
 
+#include <algorithm>
+#include <array>
 #include <memory>
 
 namespace
@@ -208,14 +210,18 @@ gt::console::runTaskFromMemento(QStringList const& args)
         parser.showHelp(0);
     }
 
-    for (auto const* option : {&projectOption, &taskOption, &outputOption})
+    const std::array requiredOptions{&projectOption, &taskOption,
+                                     &outputOption};
+    auto missingOption = std::find_if(
+        requiredOptions.cbegin(), requiredOptions.cend(),
+        [&parser](auto const* option) {
+            return !parser.isSet(*option) || parser.value(*option).isEmpty();
+        });
+    if (missingOption != requiredOptions.cend())
     {
-        if (!parser.isSet(*option) || parser.value(*option).isEmpty())
-        {
-            gtError() << QObject::tr("Missing required option --%1")
-                             .arg(option->names().constLast());
-            return 2;
-        }
+        gtError() << QObject::tr("Missing required option --%1")
+                         .arg((*missingOption)->names().constLast());
+        return 2;
     }
     if (!parser.positionalArguments().isEmpty())
     {
