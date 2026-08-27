@@ -9,6 +9,32 @@ In addition to a series of basic commands, which are explained below, modules ca
 A good overview of the use of the console application and the available commands can be found by calling up the help with the command
 GTlabConsole.exe --help (Windows) or GTlabConsole --help (Linux)
 
+Execute a task from Mementos
+----------------------------
+
+``run_task_from_memento`` executes one task in an isolated ``GTlabConsole``
+process. The project input is the ``GtObjectGroup`` Memento produced by
+``GtProject::toProjectDataMemento()``. The output is the existing
+``GtObjectMementoDiff`` XML representation without an additional wrapper.
+
+.. code-block:: console
+
+   GTlabConsole run_task_from_memento \
+       --project-memento project_memento.xml \
+       --task-memento task.xml \
+       --output-diff result.diff.xml \
+       [--working-directory working_dir]
+
+The short option names are ``-p``, ``-t``, ``-o``, and ``-w``. If no working
+directory is supplied, the directory containing the project Memento is used.
+During execution this directory is both the process working directory and the
+project path exposed by the execution context. Therefore existing calculators
+using ``gtApp->currentProject()`` observe the temporary execution project.
+
+The result file is published atomically only after successful task execution.
+Logs and diagnostics remain on standard output and standard error. Direct file
+system changes made by the task are not included in the project Memento-Diff.
+
 Overall, the use of the console application is correct in the form GTlabConsole.exe [options] <command>
 
 A number of options and commands are generally available:
@@ -56,6 +82,8 @@ Commands:
      - Executes a process. To define a project name and a process name is the default used option to execute this command. Use --help for more details.	 
    * - run_meta <input.xml> <output.xml>
      - Executes given meta process data. Results are stored in given output file.
+   * - run_task_from_memento
+     - Executes a task from project and task Mementos and writes the resulting project Memento-Diff.
    * - set_variable
      - Sets a global variable that already exists in settings.	 						
    * - switch_session

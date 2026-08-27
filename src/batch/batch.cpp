@@ -22,6 +22,7 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
+#include "gt_consoleruntaskfrommemento.h"
 #include "gt_consoleupgradeproject.h"
 
 #include "gt_coreapplication.h"
@@ -748,6 +749,12 @@ initSystemOptions()
                     gt::console::runOptions(),
                     QList<GtCommandLineArgument>(),
                     false);
+
+    initPosArgument(
+        "run_task_from_memento", gt::console::runTaskFromMemento,
+        "Executes a task from project and task Mementos and writes the "
+        "resulting project Memento-Diff.",
+        gt::console::runTaskFromMementoOptions(), {}, false);
 
     initPosArgument("list", displayList,
                     "\tShows list of modules, session, projects and tasks.",
