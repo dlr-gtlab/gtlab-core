@@ -25,6 +25,8 @@ else()
             ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
             LABELS "SystemTest;Batch"
         )
+
+        set(GTLAB_SYSTEMTESTS_ENABLED TRUE PARENT_SCOPE)
     else()
         message(WARNING
             "Pytest system tests are disabled: install dependencies from "

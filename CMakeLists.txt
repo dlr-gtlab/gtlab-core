@@ -123,6 +123,11 @@ if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)
 endif(BUILD_UNITTESTS)
 
+if (BUILD_TESTMODULES)
+    add_subdirectory(tests/modules)
+    add_subdirectory(tests/systemtests)
+endif(BUILD_TESTMODULES)
+
 if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
 
     if (EXISTS ${GTLAB_DEVTOOLS_DIR})
@@ -132,9 +137,18 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
     separate_arguments(GTLAB_COVERAGE_LCOV_ARGS_LIST NATIVE_COMMAND
                        "${GTLAB_COVERAGE_LCOV_ARGS}")
 
+    set(GTLAB_COVERAGE_SYSTEMTEST_OPTIONS)
+    if (BUILD_TESTMODULES AND GTLAB_SYSTEMTESTS_ENABLED)
+        list(APPEND GTLAB_COVERAGE_SYSTEMTEST_OPTIONS
+             CTEST_ARGS -L SystemTest --output-on-failure
+             DEPENDENCIES systemtests)
+    endif()
+
     setup_target_for_coverage_lcov(
             NAME test-coverage
             EXECUTABLE GTlabUnitTest
+            DEPENDENCIES GTlabUnitTest
+            ${GTLAB_COVERAGE_SYSTEMTEST_OPTIONS}
             LCOV_ARGS ${GTLAB_COVERAGE_LCOV_ARGS_LIST}
             EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             BASE_DIRECTORY "${PROJECT_SOURCE_DIR}")
@@ -146,11 +160,6 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
             EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             FILTER ".*/src/core/" ".*/src/dataprocessor/")
 endif()
-
-if (BUILD_TESTMODULES)
-    add_subdirectory(tests/modules)
-    add_subdirectory(tests/systemtests)
-endif(BUILD_TESTMODULES)
 
 include(CPack)
 set(CPACK_PACKAGE_VENDOR "DLR AT")

@@ -213,7 +213,7 @@ jobs:
     - name: Install dependencies (linux)
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build lcov
+        sudo apt-get install -y ninja-build lcov python3-pytest
 
         wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
         mkdir -p $HOME/build_deps
