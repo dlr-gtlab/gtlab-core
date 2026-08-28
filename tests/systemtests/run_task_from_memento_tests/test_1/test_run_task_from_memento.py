@@ -32,6 +32,19 @@ def console_path() -> Path:
     return path
 
 
+def test_command_help(console_path: Path) -> None:
+    """The subcommand exposes its documented options without Memento inputs."""
+    result = subprocess.run(
+        [console_path, "run_task_from_memento", "--help"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "--project-memento" in result.stdout
+
+
 def test_run_task_from_memento(console_path: Path, tmp_path: Path) -> None:
     """Execute the fixture task and assert its expected project-property diff."""
     project_memento = tmp_path / "project.xml"

@@ -57,6 +57,13 @@ namespace
         GtIntProperty value;
     };
 
+    class MementoTestObject final : public GtObject
+    {
+        Q_OBJECT
+    public:
+        Q_INVOKABLE MementoTestObject() = default;
+    };
+
     class MementoTestCalculator final : public GtCalculator
     {
         Q_OBJECT
@@ -70,6 +77,10 @@ namespace
 
         bool run() override
         {
+            if (!shouldSucceed)
+            {
+                return false;
+            }
             observedProjectPath = gtApp && gtApp->currentProject()
                                       ? gtApp->currentProject()->path()
                                       : QString{};
@@ -94,6 +105,7 @@ namespace
         static QString observedProjectPath;
         static QString observedWorkingDirectory;
         static bool produceWarning;
+        static bool shouldSucceed;
 
     private:
         GtObjectLinkProperty packageLink;
@@ -102,6 +114,7 @@ namespace
     QString MementoTestCalculator::observedProjectPath;
     QString MementoTestCalculator::observedWorkingDirectory;
     bool MementoTestCalculator::produceWarning = false;
+    bool MementoTestCalculator::shouldSucceed = true;
 
     bool writeFile(QString const& path, QByteArray const& data)
     {
@@ -110,15 +123,47 @@ namespace
                file.write(data) == data.size();
     }
 
+    bool writeRunnableMementos(QString const& projectPath,
+                              QString const& taskPath)
+    {
+        GtObjectGroup projectData;
+        auto package = std::make_unique<MementoTestPackage>();
+        package->setFactory(gtObjectFactory);
+        const QString packageUuid = package->uuid();
+        if (!projectData.appendChild(package.get()))
+        {
+            return false;
+        }
+        package.release();
+
+        GtTask task;
+        task.setFactory(gtObjectFactory);
+        auto calculator = std::make_unique<MementoTestCalculator>();
+        calculator->setFactory(gtCalculatorFactory);
+        calculator->setPackageUuid(packageUuid);
+        if (!task.appendChild(calculator.get()))
+        {
+            return false;
+        }
+        calculator.release();
+
+        return writeFile(projectPath,
+                         projectData.toMemento(true).toByteArray()) &&
+               writeFile(taskPath, task.toMemento().toByteArray());
+    }
+
     class TestGtConsoleRunTaskFromMemento : public ::testing::Test
     {
     protected:
         void SetUp() override
         {
             MementoTestCalculator::produceWarning = false;
+            MementoTestCalculator::shouldSucceed = true;
             application = std::make_unique<TestApplication>();
             gtObjectFactory->registerClass(
                 MementoTestPackage::staticMetaObject);
+            gtObjectFactory->registerClass(
+                MementoTestObject::staticMetaObject);
             gtCalculatorFactory->registerClass(
                 MementoTestCalculator::staticMetaObject);
             ASSERT_TRUE(tempDir.isValid());
@@ -250,6 +295,102 @@ namespace
             restored->findDirectChild<MementoTestPackage*>();
         ASSERT_TRUE(restoredPackage);
         EXPECT_EQ(restoredPackage->value.getVal(), 42);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento, RejectsInvalidCommandLineArguments)
+    {
+        EXPECT_EQ(gt::console::runTaskFromMemento({"--unknown"}), 2);
+        EXPECT_EQ(gt::console::runTaskFromMemento({"-p", projectPath}), 2);
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath,
+                       "unexpected"}),
+                  2);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento, ShowsHelpAndExitsSuccessfully)
+    {
+        EXPECT_EXIT(
+            { gt::console::runTaskFromMemento({"--help"}); },
+            ::testing::ExitedWithCode(0), "");
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           RejectsMissingInputAndWorkingDirectory)
+    {
+        ASSERT_TRUE(writeFile(projectPath, "project"));
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  3);
+
+        ASSERT_TRUE(writeFile(taskPath, "task"));
+        const QString missingDirectory =
+            QDir(tempDir.path()).filePath("missing directory");
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath,
+                       "-w", missingDirectory}),
+                  3);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento, RejectsUnsupportedProjectMemento)
+    {
+        GtTask projectTask;
+        projectTask.setFactory(gtObjectFactory);
+        ASSERT_TRUE(
+            writeFile(projectPath, projectTask.toMemento().toByteArray()));
+        ASSERT_TRUE(writeRunnableMementos(
+            QDir(tempDir.path()).filePath("valid project.xml"), taskPath));
+
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  4);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           RejectsUnsupportedTaskAndProjectRoot)
+    {
+        const QString validProjectPath =
+            QDir(tempDir.path()).filePath("valid project.xml");
+        ASSERT_TRUE(writeRunnableMementos(validProjectPath, taskPath));
+        ASSERT_TRUE(writeFile(
+            projectPath, GtObjectGroup().toMemento(true).toByteArray()));
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", validProjectPath, "-t", projectPath, "-o",
+                       outputPath}),
+                  4);
+
+        GtObjectGroup projectData;
+        auto object = std::make_unique<MementoTestObject>();
+        object->setFactory(gtObjectFactory);
+        ASSERT_TRUE(projectData.appendChild(object.get()));
+        object.release();
+        ASSERT_TRUE(
+            writeFile(projectPath, projectData.toMemento(true).toByteArray()));
+        ASSERT_TRUE(writeRunnableMementos(validProjectPath, taskPath));
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  4);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento, ExposesAllCommandLineOptions)
+    {
+        EXPECT_EQ(gt::console::runTaskFromMementoOptions().size(), 4);
+    }
+
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           RejectsOutputDirectoryAndTaskFailure)
+    {
+        ASSERT_TRUE(QDir().mkpath(outputPath));
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  6);
+        ASSERT_TRUE(QDir(outputPath).removeRecursively());
+
+        ASSERT_TRUE(writeRunnableMementos(projectPath, taskPath));
+        MementoTestCalculator::shouldSucceed = false;
+        EXPECT_EQ(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
+                  5);
+        EXPECT_FALSE(QFileInfo::exists(outputPath));
     }
 
 } // namespace
