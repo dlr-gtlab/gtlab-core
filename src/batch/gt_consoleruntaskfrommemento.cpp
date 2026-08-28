@@ -161,6 +161,24 @@ namespace
         return true;
     }
 
+    bool removeExistingOutput(QString const& fileName)
+    {
+        QFile outputFile(fileName);
+        if (!outputFile.exists())
+        {
+            return true;
+        }
+
+        if (!outputFile.remove())
+        {
+            gtError() << QObject::tr("Cannot remove existing output diff '%1': %2")
+                             .arg(fileName, outputFile.errorString());
+            return false;
+        }
+
+        return true;
+    }
+
 } // namespace
 
 QList<GtCommandLineOption>
@@ -291,6 +309,11 @@ gt::console::runTaskFromMemento(QStringList const& args)
         return 4;
     }
     task.release();
+
+    if (!removeExistingOutput(outputFile))
+    {
+        return 6;
+    }
 
     const QString previousWorkingDirectory = QDir::currentPath();
     if (!QDir::setCurrent(workingDirectory))

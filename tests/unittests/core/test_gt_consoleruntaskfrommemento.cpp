@@ -373,7 +373,7 @@ namespace
     }
 
     TEST_F(TestGtConsoleRunTaskFromMemento,
-           RejectsOutputDirectoryAndTaskFailure)
+           RejectsOutputDirectory)
     {
         ASSERT_TRUE(writeRunnableMementos(projectPath, taskPath));
         ASSERT_TRUE(QDir().mkpath(outputPath));
@@ -381,8 +381,13 @@ namespace
                       {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
                   6);
         ASSERT_TRUE(QDir(outputPath).removeRecursively());
+    }
 
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           TaskFailureRemovesExistingOutput)
+    {
         ASSERT_TRUE(writeRunnableMementos(projectPath, taskPath));
+        ASSERT_TRUE(writeFile(outputPath, "stale diff"));
         MementoTestCalculator::shouldSucceed = false;
         EXPECT_EQ(gt::console::runTaskFromMemento(
                       {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
