@@ -134,28 +134,10 @@ namespace
 
     bool writeDiff(QString const& fileName, GtObjectMementoDiff const& diff)
     {
-        QSaveFile file(fileName);
-        if (!file.open(QIODevice::WriteOnly))
+        if (!gt::xml::writeDomDocumentToFile(fileName, diff.doc()))
         {
-            gtError() << QObject::tr("Cannot write output diff '%1': %2")
-                             .arg(fileName, file.errorString());
-            return false;
-        }
-
-        const QByteArray data = diff.toByteArray();
-        if (file.write(data) != data.size())
-        {
-            gtError() << QObject::tr(
-                             "Cannot write complete output diff '%1': %2")
-                             .arg(fileName, file.errorString());
-            file.cancelWriting();
-            return false;
-        }
-
-        if (!file.commit())
-        {
-            gtError() << QObject::tr("Cannot publish output diff '%1': %2")
-                             .arg(fileName, file.errorString());
+            gtError() << QObject::tr("Cannot write output diff '%1'")
+                             .arg(fileName);
             return false;
         }
 
