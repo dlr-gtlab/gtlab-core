@@ -16,12 +16,12 @@ else()
 
     if (PYTEST_IMPORT_RESULT EQUAL 0)
         add_test(
-            NAME SystemTest.RunTaskFromMemento.Test1
+            NAME SystemTest.RunTaskFromMemento
             COMMAND ${Python3_EXECUTABLE} -m pytest
-                    ${CMAKE_CURRENT_SOURCE_DIR}/run_task_from_memento_tests/test_1/test_run_task_from_memento.py
+                    ${CMAKE_CURRENT_SOURCE_DIR}/run_task_from_memento/test_run_task_from_memento.py
         )
 
-        set_tests_properties(SystemTest.RunTaskFromMemento.Test1 PROPERTIES
+        set_tests_properties(SystemTest.RunTaskFromMemento PROPERTIES
             ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
             LABELS "SystemTest;Batch"
         )
