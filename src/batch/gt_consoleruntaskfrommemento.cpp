@@ -134,10 +134,27 @@ namespace
 
     bool writeDiff(QString const& fileName, GtObjectMementoDiff const& diff)
     {
-        if (!gt::xml::writeDomDocumentToFile(fileName, diff.doc()))
+        QSaveFile file(fileName);
+        if (!file.open(QIODevice::WriteOnly))
         {
-            gtError() << QObject::tr("Cannot write output diff '%1'")
-                             .arg(fileName);
+            gtError() << QObject::tr("Cannot write output diff '%1': %2")
+                             .arg(fileName, file.errorString());
+            return false;
+        }
+
+        if (!gt::xml::writeDomDocumentToDevice(file, diff.doc()))
+        {
+            gtError()
+                << QObject::tr("Cannot write complete output diff '%1': %2")
+                       .arg(fileName, file.errorString());
+            file.cancelWriting();
+            return false;
+        }
+
+        if (!file.commit())
+        {
+            gtError() << QObject::tr("Cannot publish output diff '%1': %2")
+                             .arg(fileName, file.errorString());
             return false;
         }
 
@@ -228,13 +245,6 @@ gt::console::runTaskFromMemento(QStringList const& args)
         gtError() << QObject::tr(
             "Output diff must not overwrite an input Memento");
         return 2;
-    }
-
-    if (QFileInfo::exists(outputFile) && !QFile::remove(outputFile))
-    {
-        gtError()
-            << QObject::tr("Cannot replace output diff: %1").arg(outputFile);
-        return 6;
     }
 
     if (!projectFile.isFile())

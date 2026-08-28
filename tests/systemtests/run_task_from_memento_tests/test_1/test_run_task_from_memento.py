@@ -160,12 +160,12 @@ def test_empty_diff(console_path, tmp_path):
     output = tmp_path / "empty.xml"
     result = _run(console_path, project, task, output)
     assert result.returncode == 0, result.stderr
-    assert output.read_bytes() == b""
+    assert output.read_text().strip() == '<?xml version="1.0" encoding="UTF-8"?>'
 
 
 @pytest.mark.parametrize("project_data,task_data", [(None, None), ("invalid", None), ("fixture", "invalid"), ("fixture", (TEST_DATA_DIR / "project.xml").read_text())])
-def test_invalid_inputs_publish_no_output(console_path, tmp_path, project_data, task_data):
-    """Missing, invalid, and unsupported Mementos discard stale output."""
+def test_invalid_inputs_preserve_existing_output(console_path, tmp_path, project_data, task_data):
+    """Failed Memento validation preserves an existing result diff."""
     project, task, output = tmp_path / "project.xml", tmp_path / "task.xml", tmp_path / "result.xml"
     if project_data == "fixture":
         shutil.copyfile(TEST_DATA_DIR / "project.xml", project)
@@ -176,7 +176,9 @@ def test_invalid_inputs_publish_no_output(console_path, tmp_path, project_data, 
     elif project_data is not None:
         shutil.copyfile(TEST_DATA_DIR / "change_project_task.xml", task)
     output.write_text("stale")
-    _assert_failed_without_output(_run(console_path, project, task, output), output)
+    result = _run(console_path, project, task, output)
+    assert result.returncode != 0
+    assert output.read_text() == "stale"
 
 
 def test_task_failure_and_unwritable_output_publish_no_diff(console_path, tmp_path):

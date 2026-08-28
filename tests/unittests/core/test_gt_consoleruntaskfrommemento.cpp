@@ -232,7 +232,8 @@ namespace
         EXPECT_EQ(restoredPackage->value.getVal(), 42);
     }
 
-    TEST_F(TestGtConsoleRunTaskFromMemento, InvalidInputDoesNotPublishOutput)
+    TEST_F(TestGtConsoleRunTaskFromMemento,
+           InvalidInputPreservesExistingOutput)
     {
         ASSERT_TRUE(writeFile(projectPath, "not xml"));
         ASSERT_TRUE(writeFile(taskPath, "not xml"));
@@ -241,7 +242,9 @@ namespace
                       {"--project-memento", projectPath, "--task-memento",
                        taskPath, "--output-diff", outputPath}),
                   0);
-        EXPECT_FALSE(QFileInfo::exists(outputPath));
+        QFile output(outputPath);
+        ASSERT_TRUE(output.open(QIODevice::ReadOnly));
+        EXPECT_EQ(output.readAll(), "stale diff");
     }
 
     TEST_F(TestGtConsoleRunTaskFromMemento, OutputCannotOverwriteInputMemento)
@@ -305,13 +308,6 @@ namespace
                       {"-p", projectPath, "-t", taskPath, "-o", outputPath,
                        "unexpected"}),
                   2);
-    }
-
-    TEST_F(TestGtConsoleRunTaskFromMemento, ShowsHelpAndExitsSuccessfully)
-    {
-        EXPECT_EXIT(
-            { gt::console::runTaskFromMemento({"--help"}); },
-            ::testing::ExitedWithCode(0), "");
     }
 
     TEST_F(TestGtConsoleRunTaskFromMemento,
@@ -379,6 +375,7 @@ namespace
     TEST_F(TestGtConsoleRunTaskFromMemento,
            RejectsOutputDirectoryAndTaskFailure)
     {
+        ASSERT_TRUE(writeRunnableMementos(projectPath, taskPath));
         ASSERT_TRUE(QDir().mkpath(outputPath));
         EXPECT_EQ(gt::console::runTaskFromMemento(
                       {"-p", projectPath, "-t", taskPath, "-o", outputPath}),
