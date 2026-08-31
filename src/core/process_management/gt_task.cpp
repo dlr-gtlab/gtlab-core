@@ -16,6 +16,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
+#include "gt_monitoringdatatable.h"
 
 #include <QDebug>
 #include <QThreadPool>
@@ -300,13 +301,17 @@ GtTask::runIteration()
 int
 GtTask::monitoringDataSize() const
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable.size();
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 const GtMonitoringDataTable&
 GtTask::monitoringDataTable()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable;
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 int
@@ -430,9 +435,13 @@ GtTask::runChildElements()
 GtMonitoringDataSet
 GtTask::collectMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     GtMonitoringDataSet retval;
 
     collectMonitoringDataHelper(retval, this);
+
+    GT_SUPPRESS_DEPRECATED_END
 
     return retval;
 }
@@ -470,6 +479,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         return;
     }
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     // get monitoring properties
     auto monProps = component->monitoringProperties();
     auto conMonProps = component->containerMonitoringPropertyRefs();
@@ -477,6 +488,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
     // check whether monitoring properties exists
     if (!monProps.isEmpty() || !conMonProps.isEmpty())
     {
+
         // create new monitoring data container
         GtMonitoringData monData;
 
@@ -507,6 +519,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         // collect data for each child recursively
         collectMonitoringDataHelper(map, child);
     }
+
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
@@ -592,17 +606,20 @@ void
 GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
+    GT_SUPPRESS_DEPRECATED_BEGIN
     if (!pimpl->monitoringDataTable.append(iteration, set))
     {
         gtWarning().medium() << tr("Could not append data set!");
         return;
     }
-
     emit monitoringDataAvailable();
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
 GtTask::clearMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     pimpl->monitoringDataTable.clear();
+    GT_SUPPRESS_DEPRECATED_END
 }

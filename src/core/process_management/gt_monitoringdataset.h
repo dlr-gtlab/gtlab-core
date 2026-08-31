@@ -18,6 +18,7 @@
 #include <QString>
 
 #include "gt_monitoringdata.h"
+#include "gt_version.h"
 
 /**
  * @brief The GtMonitoringDataSet class
@@ -28,6 +29,7 @@ public:
     /**
      * @brief Constructor.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     GtMonitoringDataSet();
 
     /**
@@ -36,18 +38,21 @@ public:
      * @param Monitoring data.
      * @return Returns true if data was added, otherwise returns false.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool insert(const QString& uuid, const GtMonitoringData& monData);
 
     /**
      * @brief Returns size of data.
      * @return Size of data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     int size();
 
     /**
      * @brief Returns true if data is empty, otherwise returns false.
      * @return Whether data is empty or not.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool isEmpty();
 
     /**
@@ -56,6 +61,7 @@ public:
      * @param Process component UUID.
      * @return  Whether process component uuid exists or not.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool contains(const QString& uuid);
 
     /**
@@ -63,6 +69,7 @@ public:
      * @param Process component UUID.
      * @return Process monitoring data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     GtMonitoringData getData(const QString& uuid);
 
 private:
