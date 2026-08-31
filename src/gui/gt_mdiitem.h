@@ -109,6 +109,7 @@ public:
       * @brief subWin
       * @return
       */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned.")
     QWidget* subWin();
 
     /**

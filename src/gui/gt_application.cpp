@@ -339,6 +339,18 @@ GtApplication::duplicatePerspective(const QString& source,
     return GtPerspective::duplicatePerspective(source, target);
 }
 
+GtPerspective*
+GtApplication::perspective()
+{
+    return m_perspective.get();
+}
+
+const GtPerspective*
+GtApplication::perspective() const
+{
+    return m_perspective.get();
+}
+
 void
 GtApplication::savePerspectiveData(const QByteArray& geometry,
                                    const QByteArray& state)
@@ -351,7 +363,7 @@ GtApplication::savePerspectiveData(const QByteArray& geometry,
 }
 
 QPair<QByteArray, QByteArray>
-GtApplication::loadPerspectiveData()
+GtApplication::loadPerspectiveData() const
 {
     if (m_perspective)
     {

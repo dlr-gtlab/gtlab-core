@@ -15,6 +15,8 @@
 
 #include "gt_object.h"
 
+#include <QDir>
+
 /**
  * @brief The GtPerspective class
  */
@@ -24,6 +26,41 @@ class GT_GUI_EXPORT GtPerspective : public GtObject
 
 public:
 
+    /**
+     * @brief saveGeometry
+     * @param data
+     */
+    void saveGeometry(const QByteArray& data);
+
+    /**
+     * @brief saveState
+     * @param data
+     */
+    void saveDockState(const QByteArray& data);
+
+    /**
+     * @brief saveState
+     * @param data
+     */
+    void saveState(const QByteArray& data);
+
+    /**
+     * @brief loadGeometry
+     * @return
+     */
+    QByteArray loadGeometry() const;
+
+    /**
+     * @brief saveState
+     * @param data
+     */
+    QByteArray loadDockState() const;
+
+    /**
+     * @brief loadState
+     * @return
+     */
+    QByteArray loadState() const;
 
 protected:
     /**
@@ -53,30 +90,6 @@ protected:
      */
     static bool duplicatePerspective(const QString& source,
                                      const QString& target);
-
-    /**
-     * @brief saveGeometry
-     * @param data
-     */
-    void saveGeometry(const QByteArray& data);
-
-    /**
-     * @brief saveState
-     * @param data
-     */
-    void saveState(const QByteArray& data);
-
-    /**
-     * @brief loadGeometry
-     * @return
-     */
-    QByteArray loadGeometry();
-
-    /**
-     * @brief loadState
-     * @return
-     */
-    QByteArray loadState();
 
     /**
      * @brief emptyFile
