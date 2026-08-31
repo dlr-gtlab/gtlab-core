@@ -210,7 +210,7 @@ GtCalculator::setExecModeLocal()
 }
 
 const QString&
-GtCalculator::executionLabel()
+GtCalculator::executionLabel() const
 {
     return pimpl->labelProperty.get();
 }
@@ -219,6 +219,34 @@ void
 GtCalculator::setExecutionLabel(const QString& label)
 {
     pimpl->labelProperty.setVal(label);
+}
+
+GtAbstractRunnable::DOEContext
+GtCalculator::doeContext() const
+{
+    if (!runnable())
+    {
+        return {}; // Empty context
+    }
+
+    return runnable()->doeContext();
+}
+
+QString
+GtCalculator::executionLabelWithIndex() const
+{
+    auto ctx = doeContext();
+
+    if (ctx.totalRuns <= 1)
+    {
+        return executionLabel(); // Kein Tracking nötig
+    }
+
+    // Append run index to label
+    return QString("%1 [Run %2/%3]")
+        .arg(executionLabel())
+        .arg(ctx.runIndex + 1)  // 1-based for display
+        .arg(ctx.totalRuns);
 }
 
 bool
