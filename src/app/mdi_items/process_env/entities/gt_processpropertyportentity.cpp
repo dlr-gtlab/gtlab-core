@@ -282,7 +282,7 @@ GtProcessPropertyPortEntity::propertyValue()
 {
     if (!m_item)
     {
-        return QString();
+        return QVariant();
     }
 
     return m_item->propertyValue();
