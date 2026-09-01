@@ -116,30 +116,21 @@ GtProcessConnectionItem::data(int column, int role)
             {
                 if (m_type == GtProcessConnectionItem::PROCESS_COMPONENT)
                 {
-                    if (!m_component)
-                    {
-                        return QVariant();
-                    }
+                    if (!m_component) return {};
 
                     return m_component->objectName();
                 }
 
                 if (m_type == GtProcessConnectionItem::PROPERTY_CONTAINER)
                 {
-                    if (!m_container)
-                    {
-                        return QVariant();
-                    }
+                    if (!m_container) return {};
 
                     return m_container->name();
                 }
 
                 if (m_type == GtProcessConnectionItem::CONTAINER_ENTRY)
                 {
-                    if (!m_containerEntry || !m_container)
-                    {
-                        return QVariant();
-                    }
+                    if (!m_containerEntry || !m_container) return {};
 
                     auto iter = m_container->findEntry(m_containerEntry->ident());
                     // cppcheck-suppress assertWithSideEffect
@@ -147,10 +138,7 @@ GtProcessConnectionItem::data(int column, int role)
                     return m_container->entryDisplayName(iter);
                 }
 
-                if (!m_property)
-                {
-                    return QVariant();
-                }
+                if (!m_property) return {};
 
                 return m_property->objectName();
 
@@ -164,10 +152,7 @@ GtProcessConnectionItem::data(int column, int role)
             {
                 if (m_type == GtProcessConnectionItem::PROCESS_COMPONENT)
                 {
-                    if (!m_component)
-                    {
-                        return QVariant();
-                    }
+                    if (!m_component) return {};
 
                     if (qobject_cast<GtCalculator*>(m_component))
                     {
@@ -176,14 +161,11 @@ GtProcessConnectionItem::data(int column, int role)
                         GtCalculatorData calcData =
                             gtCalculatorFactory->calculatorData(className);
 
-                        GtExtendedCalculatorDataImpl* eData =
+                        auto* eData =
                             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                                 calcData.get());
 
-                        if (eData)
-                        {
-                            return eData->icon;
-                        }
+                        if (eData) return eData->icon;
 
                         return gt::gui::icon::calculator();
 
@@ -197,10 +179,7 @@ GtProcessConnectionItem::data(int column, int role)
                             QVariant value = oui->data(m_component, role,
                                                        column);
 
-                            if (value.isValid())
-                            {
-                                return value;
-                            }
+                            if (value.isValid()) return value;
                         }
                         else
                         {
@@ -208,10 +187,7 @@ GtProcessConnectionItem::data(int column, int role)
                             QVariant value = oui2.data(m_component, role,
                                                        column);
 
-                            if (value.isValid())
-                            {
-                                return value;
-                            }
+                            if (value.isValid()) return value;
                         }
                     }
                 }
@@ -228,7 +204,7 @@ GtProcessConnectionItem::data(int column, int role)
                             return gt::gui::icon::arrowDown();
                         }
 
-                        return QVariant();
+                        return {};
                     }
 
                     if (qobject_cast<GtDoubleProperty*>(m_property))
@@ -255,7 +231,6 @@ GtProcessConnectionItem::data(int column, int role)
                     {
                         return gt::gui::icon::letter::b();
                     }
-
                 }
 
             }
@@ -270,22 +245,16 @@ GtProcessConnectionItem::data(int column, int role)
             if (m_type == GtProcessConnectionItem::MONITORING_PROPERTY ||
                     m_type == GtProcessConnectionItem::DEFAULT_PROPERTY)
             {
-                if (!m_property)
-                {
-                    return false;
-                }
+                if (!m_property) return false;
 
                 return propertyTypeAccepted(m_property);
             }
-            else
-            {
-                return false;
-            }
+            else return false;
         }
     }
     }
 
-    return QVariant();
+    return {};;
 }
 
 QString
@@ -293,32 +262,22 @@ GtProcessConnectionItem::componentUuid()
 {
     if (m_type == GtProcessConnectionItem::PROCESS_COMPONENT)
     {
-        if (m_component)
-        {
-            return m_component->uuid();
-        }
+        if (m_component) return m_component->uuid();
     }
 
-    return QString();
+    return {};;
 }
 
 QString
 GtProcessConnectionItem::parentComponentUuid()
 {
-    if (m_component)
-    {
-        return m_component->uuid();
-    }
+    if (m_component) return m_component->uuid();
 
     // get parent component item
-    GtProcessConnectionItem* parentComp =
-            qobject_cast<GtProcessConnectionItem*>(parent());
+    auto* parentComp = qobject_cast<GtProcessConnectionItem*>(parent());
 
     // check parent component item
-    if (!parentComp)
-    {
-        return QString();
-    }
+    if (!parentComp) return {};
 
     return parentComp->componentUuid();
 }
@@ -342,11 +301,9 @@ GtProcessConnectionItem::propertyId()
         {
             return GtPropertyReference(m_property->ident()).toString();
         }
-
-
     }
 
-    return QString();
+    return QString{};
 }
 
 QVariant
@@ -361,7 +318,7 @@ GtProcessConnectionItem::propertyValue()
         }
     }
 
-    return QVariant();
+    return {};
 }
 
 QString
@@ -373,48 +330,31 @@ GtProcessConnectionItem::propertyClassName()
         if (m_property)
         {
             return m_property->metaObject()->className();
-            //return GT_CLASSNAME(m_property->metaObject()->c);
         }
     }
 
-    return QString();
+    return {};
 }
 
 GtProcessConnectionItem*
 GtProcessConnectionItem::itemById(const QString& uuid, const QString& propId)
 {
     // check uuid
-    if (uuid.isEmpty())
-    {
-        return nullptr;
-    }
+    if (uuid.isEmpty()) return nullptr;
 
     // check property id
-    if (propId.isEmpty())
-    {
-        return nullptr;
-    }
+    if (propId.isEmpty()) return nullptr;
 
     // check item type
     if (m_type != GtProcessConnectionItem::PROCESS_COMPONENT)
     {
-        if (propertyId() != propId)
-        {
-            return nullptr;
-        }
+        if (propertyId() != propId) return nullptr;
 
-        GtProcessConnectionItem* parentItem =
-                qobject_cast<GtProcessConnectionItem*>(parent());
+        auto* parentItem = qobject_cast<GtProcessConnectionItem*>(parent());
 
-        if (!parentItem)
-        {
-            return nullptr;
-        }
+        if (!parentItem) return nullptr;
 
-        if (parentItem->componentUuid() == uuid)
-        {
-            return this;
-        }
+        if (parentItem->componentUuid() == uuid) return this;
     }
 
     // iterate over children
@@ -423,10 +363,7 @@ GtProcessConnectionItem::itemById(const QString& uuid, const QString& propId)
     {
         GtProcessConnectionItem* retval = child->itemById(uuid, propId);
 
-        if (retval)
-        {
-            return retval;
-        }
+        if (retval) return retval;
     }
 
     return nullptr;
