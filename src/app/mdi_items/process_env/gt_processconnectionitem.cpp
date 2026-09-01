@@ -254,7 +254,7 @@ GtProcessConnectionItem::data(int column, int role)
     }
     }
 
-    return {};;
+    return {};
 }
 
 QString
@@ -265,7 +265,7 @@ GtProcessConnectionItem::componentUuid()
         if (m_component) return m_component->uuid();
     }
 
-    return {};;
+    return {};
 }
 
 QString
@@ -303,7 +303,7 @@ GtProcessConnectionItem::propertyId()
         }
     }
 
-    return QString{};
+    return {};
 }
 
 QVariant
