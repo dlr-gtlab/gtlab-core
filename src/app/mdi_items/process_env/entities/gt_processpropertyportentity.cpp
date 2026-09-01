@@ -109,10 +109,16 @@ GtProcessPropertyPortEntity::connectPort(
         GtProcessPropertyConnectionEntity* connection)
 {
     // check connection
-    if (!connection) return false;
+    if (!connection)
+    {
+        return false;
+    }
 
     // check whether connection already exists
-    if (m_connections.contains(connection)) return false;
+    if (m_connections.contains(connection))
+    {
+        return false;
+    }
 
     // check port type
     if (m_type == GtProcessPropertyPortEntity::INPUT_PORT)
@@ -274,7 +280,10 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
 QVariant
 GtProcessPropertyPortEntity::propertyValue()
 {
-    if (!m_item) return {};
+    if (!m_item)
+    {
+        return QString();
+    }
 
     return m_item->propertyValue();
 }
@@ -282,7 +291,10 @@ GtProcessPropertyPortEntity::propertyValue()
 QString
 GtProcessPropertyPortEntity::propertyClassName()
 {
-    if (!m_item) return {};
+    if (!m_item)
+    {
+        return QString();
+    }
 
     return m_item->propertyClassName();
 }
@@ -290,7 +302,10 @@ GtProcessPropertyPortEntity::propertyClassName()
 QString
 GtProcessPropertyPortEntity::parentComponentUuid()
 {
-    if (!m_item) return {};
+    if (!m_item)
+    {
+        return QString();
+    }
 
     return m_item->parentComponentUuid();
 }
@@ -298,7 +313,10 @@ GtProcessPropertyPortEntity::parentComponentUuid()
 QString
 GtProcessPropertyPortEntity::propertyId()
 {
-    if (!m_item) return {};
+    if (!m_item)
+    {
+        return QString();
+    }
 
     return m_item->propertyId();
 }
