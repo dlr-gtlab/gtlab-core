@@ -93,7 +93,6 @@ Your first module
 
    basics/data_modelling
    basics/process_elements
-   adr/0001-executable-operations-one-shot-worker
 
 .. toctree::
    :caption: Maintenance and support
@@ -102,15 +101,15 @@ Your first module
 
    howtos/migration_and_deprecation
    howtos/project_context_compatibility
-   howtos/executable_operations
    faq
    changelog
 
 .. toctree::
    :caption: Core contributors
-   :maxdepth: 1
+   :maxdepth: 2
    :hidden:
 
    basics/building
+   architecture/index
    api
    genindex

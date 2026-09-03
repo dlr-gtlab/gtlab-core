@@ -2,7 +2,7 @@ Executable operations and one-shot workers
 ==========================================
 
 This guide applies the accepted :doc:`operation ADR
-<../adr/0001-executable-operations-one-shot-worker>` for module, runtime, and
+<decisions/0001-executable-operations-one-shot-worker>` for module, runtime, and
 worker implementers. It describes the planned contract, not APIs implemented by
 this change. #1526 remains the normative architecture source.
 
