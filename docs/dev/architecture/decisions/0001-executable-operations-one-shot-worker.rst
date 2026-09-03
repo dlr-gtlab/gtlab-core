@@ -1,5 +1,5 @@
-Executable operations and the one-shot worker slice
-====================================================
+ADR 0001 — Executable operations and the one-shot worker slice
+================================================================
 
 :Status: Accepted
 :Date: 2026-09-03
