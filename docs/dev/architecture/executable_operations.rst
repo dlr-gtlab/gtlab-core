@@ -3,8 +3,25 @@ Executable operations and one-shot workers
 
 This guide applies the accepted :doc:`operation ADR
 <decisions/0001-executable-operations-one-shot-worker>` for module, runtime, and
-worker implementers. It describes the planned contract, not APIs implemented by
-this change. #1526 remains the normative architecture source.
+worker implementers. It describes the implemented Core foundation and the
+follow-up runtime and worker contracts. #1528 introduces only the
+transport-neutral operation API; execution scheduling, event streaming, and
+worker transport remain follow-up work. #1526 remains the normative
+architecture source.
+
+Core foundation
+---------------
+
+Core provides ``GtExecutableOperation`` together with ``GtOperationExecutionContext``,
+``GtExecutionId``, ``GtCancellationToken``, ``GtExecutionEventSink``, and the
+structured ``GtOperationApplyResult``. The context carries borrowed detached data,
+an invocation identity, the event-sink boundary, and shared cooperative cancellation
+state; it does not carry project state.
+
+Use ``GtOperationInterface::operations()`` to declaratively contribute operation
+``QMetaObject`` values. The normal module loader validates each declaration as an
+invokable ``GtExecutableOperation`` and registers it through ``GtObjectFactory``.
+Operations, data, and results use existing Memento/XML reconstruction.
 
 Operation authors
 -----------------
