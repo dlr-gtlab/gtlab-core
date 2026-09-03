@@ -20,6 +20,14 @@ class GT_CORE_EXPORT GtOperationInterface
 public:
     virtual ~GtOperationInterface() = default;
 
+    /**
+     *  Returns executable operation types contributed by this module.
+     *
+     * Each meta object must describe a reconstructable GtExecutableOperation
+     * with an invokable constructor. The normal module loader validates the
+     * declaration and registers valid types in GtObjectFactory. Module authors
+     * must not perform a separate operation registration step.
+     */
     virtual QList<QMetaObject> operations() const { return {}; }
 };
 
