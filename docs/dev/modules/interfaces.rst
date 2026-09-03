@@ -32,7 +32,7 @@ Choose interfaces by feature
    * - :ref:`processinterface`
      - Calculators or workflow tasks
      - Calculator and task descriptors
-   * - ``GtOperationInterface``
+   * - :ref:`operationinterface`
      - Transport-neutral executable operations
      - Executable-operation class metadata registered in ``GtObjectFactory``
    * - :ref:`mdiinterface`
@@ -84,35 +84,6 @@ second ``Q_INTERFACES(GtModuleInterface)`` declaration. Registration functions
 should describe available types, not create long-lived application objects.
 GTlab creates registered objects when the corresponding feature is used.
 
-Executable-operation interface
-------------------------------
-
-Implement ``GtOperationInterface`` when a module contributes transport-neutral
-``GtExecutableOperation`` types. Add it to ``Q_INTERFACES`` and return each
-operation class's ``staticMetaObject`` from ``operations()``:
-
-.. code-block:: cpp
-
-  class MyModule : public QObject,
-                   public GtModuleInterface,
-                   public GtOperationInterface
-  {
-      Q_OBJECT
-      GT_MODULE()
-      Q_INTERFACES(GtOperationInterface)
-
-  public:
-      QList<QMetaObject> operations() const override
-      {
-          return {MyOperation::staticMetaObject};
-      }
-  };
-
-Each declared type must derive from ``GtExecutableOperation`` and provide an
-invokable constructor so normal ``GtObjectFactory``/Memento reconstruction can
-create it. The module loader validates and registers these types; do not add a
-second operation factory or registration call.
-
 Interface compatibility
 -----------------------
 
@@ -131,6 +102,7 @@ subsystems. Add them only when the relevant basic feature is already working.
    interfaces/module
    interfaces/datamodel
    interfaces/process
+   interfaces/operation
    interfaces/mdi
    interfaces/importer
    interfaces/exporter
