@@ -28,23 +28,25 @@ and identity; project access is separately scoped through ``GtExecutionContext``
 Module authors
 --------------
 
-Declare operation types through the optional ``GtOperationInterface``:
+Declare operation types through the optional ``GtOperationInterface`` using the
+existing GTlab ``QMetaObject`` module convention:
 
 .. code-block:: cpp
 
    class MyOperationInterface : public GtOperationInterface
    {
    public:
-       QList<GtTypeId> operations() const override
+       QList<QMetaObject> operations() const override
        {
-           return {MySimulationOperation::typeId()};
+           return {MySimulationOperation::staticMetaObject};
        }
    };
 
-The module loader validates this declaration and uses existing GTlab factory
-infrastructure for reconstruction. Do not add an operation registry, second
-factory, or ``QMetaObject`` public extension API. Use the eventual Core
-``GtTypeId`` API rather than hard-coding Qt metadata in a public contract.
+The module loader validates these declarations and registers them through the
+existing ``GtObjectFactory`` and normal GTlab type infrastructure. Do not add an
+operation registry, second factory, ``GtTypeId``, ``GtTypeDescriptor``,
+operation-specific metadata wrapper, or placeholder ``GtMetaObject``. A future
+``GtMetaObject`` migration belongs to the broader GTlab type-system work and
 
 Runtime implementers
 --------------------

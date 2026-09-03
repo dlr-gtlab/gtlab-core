@@ -69,12 +69,24 @@ rejects it before execution if it is not a ``GtExecutableOperation``.
 operation types. The module loader validates declarations and makes types
 reconstructable through existing object/type factories. There is no second
 factory, global ``GtOperationRegistry``, or public discovery API initially.
-``GtTypeId`` is a small, copyable GTlab value type with stable equality and
-lookup semantics for a canonical operation-type identity. Its exact textual
-storage is private. The module-loader/type-infrastructure layer owns the first
-private bridge from ``GtTypeId`` to today's ``QMetaObject`` and
-``GtObjectFactory`` metadata. Thus public extension APIs never expose
-``QMetaObject`` and #1528 does not invent a second metadata system.
+
+Worker Slice 1 follows the existing GTlab module/type-registration convention:
+
+.. code-block:: cpp
+
+   class GtOperationInterface
+   {
+   public:
+       virtual QList<QMetaObject> operations() const { return {}; }
+   };
+
+The module loader validates these ``QMetaObject`` declarations and registers
+them through the existing ``GtObjectFactory`` and normal GTlab type
+infrastructure. Module authors perform no second operation-factory step. This
+slice introduces no ``GtTypeId``, ``GtTypeDescriptor``, operation-specific
+metadata wrapper, or placeholder ``GtMetaObject``. The future, richer
+``GtMetaObject`` type system belongs to separate GTlab 3/type-system work;
+operations migrate with the other module interfaces when that work is ready.
 
 Three lifetimes remain separate:
 
