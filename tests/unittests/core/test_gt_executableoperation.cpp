@@ -26,12 +26,12 @@ namespace
 class TestEventSink : public GtExecutionEventSink
 {
 public:
-    void publish(QString const& eventType) override
+    void publish() override
     {
-        publishedEvents << eventType;
+        ++publishedEvents;
     }
 
-    QStringList publishedEvents;
+    int publishedEvents = 0;
 };
 
 class TestNonOperation : public GtObject
@@ -83,7 +83,7 @@ public:
         observedData = context.data() != nullptr;
         observedCancellation = context.cancellation().isCancellationRequested();
         observedExecutionId = context.executionId().toString();
-        context.events().publish(QStringLiteral("test.operation.executed"));
+        context.events().publish();
         return std::make_unique<GtObject>();
     }
 
@@ -231,8 +231,7 @@ TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
     EXPECT_TRUE(testOperation->observedData);
     EXPECT_TRUE(testOperation->observedCancellation);
     EXPECT_EQ(testOperation->observedExecutionId, executionId);
-    EXPECT_EQ(events.publishedEvents,
-              QStringList{QStringLiteral("test.operation.executed")});
+    EXPECT_EQ(events.publishedEvents, 1);
     EXPECT_NE(result, nullptr);
     GtExecutionContext clientContext;
     EXPECT_TRUE(testOperation->applyResult(result.get(), clientContext).isSuccess());

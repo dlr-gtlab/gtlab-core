@@ -50,15 +50,18 @@ private:
 };
 
 /**
- * @brief Transport-neutral boundary for execution-side operation observations.
+ * @brief Temporary transport-neutral boundary for execution-side observations.
+ *
+ * This foundation intentionally does not define an event envelope, event type,
+ * or payload contract. Those contracts are follow-up runtime work.
  */
 class GT_CORE_EXPORT GtExecutionEventSink
 {
 public:
     virtual ~GtExecutionEventSink() = default;
 
-    /// Publishes a transport-neutral execution-side observation.
-    virtual void publish(QString const& eventType) = 0;
+    /// Publishes an execution-side observation without defining its event data.
+    virtual void publish() = 0;
 };
 
 /**
