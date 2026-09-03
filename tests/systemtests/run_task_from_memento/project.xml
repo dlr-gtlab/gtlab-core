@@ -1,0 +1,65 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object name="CreateMementos" class="GtObjectGroup" uuid="-">
+ <objectlist>
+  <object name="Test DMI Package" class="TestDmiPackage" uuid="{2f96bc74-bdec-407c-9cec-ece2a13da5c2}">
+   <property name="link" type="QString"/>
+   <property name="mementoTestValue" type="int">21</property>
+   <objectlist>
+    <object name="Internal_Data" aslink="true" class="TestDmiData" uuid="{9d8340bd-7f9c-4c34-b2a6-beef43367d04}">
+     <property name="value" type="double">1</property>
+     <property name="modeProp" type="QString">Type A</property>
+     <property name="optionalValue" type="double" active="false">0</property>
+     <property name="TestEnum" type="QString">Apple</property>
+     <property name="Color" type="QString">#808000</property>
+     <property name="Voltage" type="double">1</property>
+     <property name="Current" type="double">1</property>
+     <property name="Resistance" type="double">1</property>
+     <property name="Impedance" type="double">1</property>
+     <property name="heatTransferCapability" type="double">1</property>
+     <property name="heatTransferCoefficient" type="double">1</property>
+     <property name="thermalConductivity" type="double">1</property>
+     <property-container name="notes"/>
+     <property-container name="tasks">
+      <property name="entry_1" type="StringStruct">
+       <property name="value" type="QString"/>
+       <property name="name" type="QString">Speed</property>
+      </property>
+      <property name="entry_2" type="StringStruct">
+       <property name="value" type="QString"/>
+       <property name="name" type="QString">Force</property>
+      </property>
+      <property name="entry_3" type="StringStruct">
+       <property name="value" type="QString"/>
+       <property name="name" type="QString">Power</property>
+      </property>
+     </property-container>
+     <property-container name="hiddenNotes"/>
+     <property-container name="mapContainer">
+      <property name="answer" type="DoubleStruct">
+       <property name="value" type="double">42</property>
+      </property>
+      <property name="weight" type="DoubleStruct">
+       <property name="value" type="double">123.4</property>
+      </property>
+     </property-container>
+    </object>
+    <object name="External_Data" class="TestDmiExternalObject" uuid="{361e25ea-c19f-4496-bd95-b14456f20e29}">
+     <property name="isFetched" type="bool">true</property>
+     <property name="fetchInitialVersion" type="bool">true</property>
+     <property name="cachedHash" type="QString"/>
+     <property name="metaData" type="int">0</property>
+     <propertylist name="params" type="QString">param_0;param_1;param_2</propertylist>
+     <propertylist name="values" type="double">0.123;1.234;2.345</propertylist>
+    </object>
+   </objectlist>
+  </object>
+  <object class="TestMdiPackage" uuid="{62ec4df8-34fc-414a-9fd7-0a4455363d86}" name="Test MDI Package">
+   <property type="int" name="mementoExternalValue">2</property>
+  </object>
+ </objectlist>
+</object>

@@ -279,6 +279,7 @@ valgrind:
     # Convert to codequality format
     - valgrind-codequality --input-file valgrind-report.xml --output-file valgrind.json
   artifacts:
+    when: always
     paths:
       - valgrind-report.xml
     reports:

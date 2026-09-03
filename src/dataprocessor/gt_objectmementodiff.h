@@ -95,6 +95,14 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Returns the dom document representation of the diff
+     */
+    const QDomDocument& doc() const
+    {
+        return *this;
+    }
+
 private:
     /**
      * @brief makeDiff

@@ -87,6 +87,7 @@ endif()
 #     NAME testrunner_coverage                    # New target name
 #     EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
 #     DEPENDENCIES testrunner                     # Dependencies to build first
+#     CTEST_ARGS -L SystemTest --output-on-failure # Optional CTest invocation before capture
 #     BASE_DIRECTORY "../"                        # Base directory for report
 #                                                 #  (defaults to PROJECT_SOURCE_DIR)
 #     EXCLUDE "src/dir1/*" "src/dir2/*"           # Patterns to exclude (can be relative
@@ -98,7 +99,7 @@ function(setup_target_for_coverage_lcov)
 
     set(options NO_DEMANGLE SONARQUBE)
     set(oneValueArgs BASE_DIRECTORY NAME)
-    set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES LCOV_ARGS GENHTML_ARGS)
+    set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES LCOV_ARGS GENHTML_ARGS CTEST_ARGS)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT LCOV_PATH)
@@ -146,6 +147,13 @@ function(setup_target_for_coverage_lcov)
     set(LCOV_EXEC_TESTS_CMD
         ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
     )
+    set(LCOV_EXEC_CTEST_CMD_COMMAND)
+    if(Coverage_CTEST_ARGS)
+        set(LCOV_EXEC_CTEST_CMD
+            ${CMAKE_CTEST_COMMAND} ${Coverage_CTEST_ARGS}
+        )
+        set(LCOV_EXEC_CTEST_CMD_COMMAND COMMAND ${LCOV_EXEC_CTEST_CMD})
+    endif()
     # Capturing lcov counters and generating report
     set(LCOV_CAPTURE_CMD
         ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b
@@ -226,6 +234,7 @@ function(setup_target_for_coverage_lcov)
         COMMAND ${LCOV_CLEAN_CMD}
         COMMAND ${LCOV_BASELINE_CMD}
         COMMAND ${LCOV_EXEC_TESTS_CMD}
+        ${LCOV_EXEC_CTEST_CMD_COMMAND}
         COMMAND ${LCOV_CAPTURE_CMD}
         COMMAND ${LCOV_BASELINE_COUNT_CMD}
         COMMAND ${LCOV_FILTER_CMD}

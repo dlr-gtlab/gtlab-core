@@ -8,11 +8,12 @@
  * Author: M. Bröcker
  */
 
-#ifndef TEST_DMI_PACKAGE_H
-#define TEST_DMI_PACKAGE_H
+#ifndef TEST_MDI_PACKAGE_H
+#define TEST_MDI_PACKAGE_H
 
 #include "test_mdi_interface_exports.h"
 
+#include "gt_intproperty.h"
 #include "gt_package.h"
 
 /**
@@ -23,12 +24,15 @@ class TEST_MDI_INTERFACE_EXPORT TestMdiPackage : public GtPackage
     Q_OBJECT
 
 public:
-
     /**
       * @brief Constructor.
       */
     Q_INVOKABLE TestMdiPackage();
 
+    int mementoExternalValue() const;
+
+private:
+    GtIntProperty m_mementoExternalValue;
 };
 
-#endif // TEST_DMI_PACKAGE_H
+#endif // TEST_MDI_PACKAGE_H

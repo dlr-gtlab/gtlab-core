@@ -16,7 +16,9 @@
 ///generated (v 0.1)
 TestDmiPackage::TestDmiPackage() :
     m_link("link", tr("link"), tr("link"), "", this,
-           QStringList() << GT_CLASSNAME(GtObject), true)
+           QStringList() << GT_CLASSNAME(GtObject), true),
+    m_mementoTestValue("mementoTestValue", tr("Memento Test Value"),
+                       tr("Value modified by the Memento E2E task"), 21)
 {
     setObjectName("Test DMI Package");
 
@@ -29,4 +31,17 @@ TestDmiPackage::TestDmiPackage() :
     appendChild(extData);
 
     registerProperty(m_link);
+    registerProperty(m_mementoTestValue);
+}
+
+int
+TestDmiPackage::mementoTestValue() const
+{
+    return m_mementoTestValue.getVal();
+}
+
+void
+TestDmiPackage::setMementoTestValue(int value)
+{
+    m_mementoTestValue.setVal(value);
 }

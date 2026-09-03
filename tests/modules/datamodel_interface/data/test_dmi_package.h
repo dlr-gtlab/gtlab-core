@@ -13,6 +13,7 @@
 
 #include "test_datamodel_interface_exports.h"
 
+#include "gt_intproperty.h"
 #include "gt_package.h"
 #include "gt_objectlinkproperty.h"
 
@@ -24,15 +25,17 @@ class TEST_DATAMODEL_INTERFACE_EXPORT TestDmiPackage : public GtPackage
     Q_OBJECT
 
 public:
-
     /**
       * @brief Constructor.
       */
     Q_INVOKABLE TestDmiPackage();
 
+    int mementoTestValue() const;
+    void setMementoTestValue(int value);
+
 private:
     GtObjectLinkProperty m_link;
-
+    GtIntProperty m_mementoTestValue;
 };
 
 #endif // TEST_DMI_PACKAGE_H

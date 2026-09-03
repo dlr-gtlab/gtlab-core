@@ -14,6 +14,7 @@ set(headers
     gt_remoteprocessrunner.h
     gt_remoteprocessrunnerstates.h
     gt_consolerunprocess.h
+    gt_consoleruntaskfrommemento.h
     gt_consoleupgradeproject.h
 )
 
@@ -24,6 +25,7 @@ set(sources
     gt_remoteprocessrunner.cpp
     gt_remoteprocessrunnerstates.cpp
     gt_consolerunprocess.cpp
+    gt_consoleruntaskfrommemento.cpp
     gt_consoleupgradeproject.cpp
 )
 

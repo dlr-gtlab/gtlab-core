@@ -1,0 +1,21 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="GtTask" uuid="{b8886142-f49a-4714-8efd-b6a18d2ee2a7}" name="Change Project task">
+ <property type="bool" name="skip">false</property>
+ <property type="QString" name="processRunner"/>
+ <objectlist>
+  <object class="TestMementoProjectCalculator" uuid="{198fb819-af62-4fa4-8a88-9e45a3cc2aab}" name="Memento Project Modifier">
+   <property type="bool" name="skip">false</property>
+   <property type="QString" name="execLabel"/>
+   <property type="QString" name="execMode">local</property>
+   <property type="bool" name="failOnWarn">false</property>
+   <property type="QString" name="target">{2f96bc74-bdec-407c-9cec-ece2a13da5c2}</property>
+   <property type="int" name="inputValue">40</property>
+   <property type="QString" name="sideEffectFile">memento_side_effect.txt</property>
+  </object>
+ </objectlist>
+</object>
