@@ -103,14 +103,25 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
+        QSet<QString> declaredClassNames;
         for (QMetaObject const& operation : operations)
         {
+            const QString className = QString::fromLatin1(operation.className());
+            if (declaredClassNames.contains(className))
+            {
+                gtWarning() << errorString()
+                            << QObject::tr("An operation is declared more than once:")
+                            << gt::squoted(className);
+                return false;
+            }
+            declaredClassNames.insert(className);
+
             std::unique_ptr<QObject> object(operation.newInstance());
             if (!qobject_cast<GtExecutableOperation*>(object.get()))
             {
                 gtWarning() << errorString()
                             << QObject::tr("Invalid executable operation class:")
-                            << gt::squoted(QString::fromLatin1(operation.className()));
+                            << gt::squoted(className);
                 return false;
             }
         }

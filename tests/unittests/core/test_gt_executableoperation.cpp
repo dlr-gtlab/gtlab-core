@@ -7,9 +7,15 @@
 #include "gtest/gtest.h"
 
 #include <memory>
+
+#include <QCoreApplication>
 #include <thread>
 
 #include "gt_executableoperation.h"
+#include "gt_coreapplication.h"
+#include "gt_moduleinterface.h"
+#include "gt_operationinterface.h"
+#include "gt_processmoduleloader.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_objectgroup.h"
@@ -26,6 +32,17 @@ public:
     }
 
     QStringList publishedEvents;
+};
+
+class TestNonOperation : public GtObject
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE explicit TestNonOperation(GtObject* parent = nullptr) :
+        GtObject(parent)
+    {
+    }
 };
 
 class TestOperation : public GtExecutableOperation
@@ -100,6 +117,90 @@ public:
     }
 };
 
+class TestOperationModule : public QObject,
+                            public GtModuleInterface,
+                            public GtOperationInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(GtModuleInterface GtOperationInterface)
+
+public:
+    explicit TestOperationModule(QList<QMetaObject> operations) :
+        m_operations(std::move(operations))
+    {
+    }
+
+    QString ident() const override
+    {
+        return QStringLiteral("TestOperationModule");
+    }
+
+    GtVersionNumber version() override
+    {
+        return {1, 0, 0};
+    }
+
+    QString description() const override
+    {
+        return {};
+    }
+
+    QList<QMetaObject> operations() const override
+    {
+        return m_operations;
+    }
+
+private:
+    QList<QMetaObject> m_operations;
+};
+
+class TestProcessModuleLoader : public GtProcessModuleLoader
+{
+public:
+    bool validate(GtModuleInterface* module) const
+    {
+        return check(module);
+    }
+
+    void registerModule(GtModuleInterface* module)
+    {
+        insert(module);
+    }
+};
+
+class TestApplication : public GtCoreApplication
+{
+public:
+    TestApplication() :
+        GtCoreApplication(QCoreApplication::instance(), AppMode::Batch)
+    {
+        init();
+    }
+
+protected:
+    bool initFirstRun() override
+    {
+        return true;
+    }
+};
+
+class OperationModuleLoaderTest : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        m_application = std::make_unique<TestApplication>();
+    }
+
+    void TearDown() override
+    {
+        m_application.reset();
+    }
+
+private:
+    std::unique_ptr<TestApplication> m_application;
+};
+
 } // namespace
 
 TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
@@ -145,6 +246,45 @@ TEST(GtExecutableOperation, rejectsReconstructedNonOperationBeforeExecution)
     auto reconstructed = memento.toObject(*gtObjectFactory);
     ASSERT_NE(reconstructed, nullptr);
     EXPECT_EQ(qobject_cast<GtExecutableOperation*>(reconstructed.get()), nullptr);
+}
+
+TEST(GtOperationInterface, defaultDeclarationIsEmpty)
+{
+    GtOperationInterface operationInterface;
+
+    EXPECT_TRUE(operationInterface.operations().isEmpty());
+}
+
+TEST_F(OperationModuleLoaderTest, registersDeclaredOperation)
+{
+    TestOperationModule module({GT_METADATA(TestOperation)});
+    TestProcessModuleLoader loader;
+
+    ASSERT_TRUE(loader.validate(&module));
+    loader.registerModule(&module);
+
+    ASSERT_TRUE(gtObjectFactory->knownClass(GT_CLASSNAME(TestOperation)));
+    std::unique_ptr<GtObject> object(
+        gtObjectFactory->newObject(GT_CLASSNAME(TestOperation)));
+    EXPECT_NE(qobject_cast<GtExecutableOperation*>(object.get()), nullptr);
+    EXPECT_TRUE(gtObjectFactory->unregisterClass(GT_METADATA(TestOperation)));
+}
+
+TEST_F(OperationModuleLoaderTest, rejectsNonOperationDeclaration)
+{
+    TestOperationModule module({GT_METADATA(TestNonOperation)});
+    TestProcessModuleLoader loader;
+
+    EXPECT_FALSE(loader.validate(&module));
+}
+
+TEST_F(OperationModuleLoaderTest, rejectsDuplicateOperationDeclaration)
+{
+    TestOperationModule module(
+        {GT_METADATA(TestOperation), GT_METADATA(TestOperation)});
+    TestProcessModuleLoader loader;
+
+    EXPECT_FALSE(loader.validate(&module));
 }
 
 TEST(GtOperationApplyResult, exposesStructuredFailure)

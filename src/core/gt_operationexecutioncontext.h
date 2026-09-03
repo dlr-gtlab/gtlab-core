@@ -24,6 +24,7 @@ class GT_CORE_EXPORT GtExecutionId
 public:
     GtExecutionId();
 
+    /// Returns the stable text representation used by logs and protocols.
     QString const& toString() const noexcept;
 
 private:
@@ -38,7 +39,9 @@ class GT_CORE_EXPORT GtCancellationToken
 public:
     GtCancellationToken();
 
+    /// Requests cooperative cancellation; safe to call from another thread.
     void requestCancellation() noexcept;
+    /// Returns the shared request state; safe to observe during execution.
     bool isCancellationRequested() const noexcept;
 
 private:
@@ -54,6 +57,7 @@ class GT_CORE_EXPORT GtExecutionEventSink
 public:
     virtual ~GtExecutionEventSink() = default;
 
+    /// Publishes a transport-neutral execution-side observation.
     virtual void publish(QString const& eventType) = 0;
 };
 
@@ -71,11 +75,17 @@ public:
                                 GtCancellationToken cancellation = {},
                                 GtExecutionId executionId = {});
 
+    /// Returns borrowed mutable invocation data, or nullptr; do not retain it.
     GtObject* data() noexcept;
+    /// Returns borrowed read-only invocation data, or nullptr; do not retain it.
     GtObject const* data() const noexcept;
+    /// Returns the immutable identity shared by this complete invocation.
     GtExecutionId const& executionId() const noexcept;
+    /// Returns the transport-neutral sink for execution-side observations.
     GtExecutionEventSink& events() noexcept;
+    /// Returns shared state that can be observed while another thread requests cancellation.
     GtCancellationToken& cancellation() noexcept;
+    /// Returns shared state that can be observed while another thread requests cancellation.
     GtCancellationToken const& cancellation() const noexcept;
 
 private:
