@@ -106,9 +106,10 @@ Your first module
 
 .. toctree::
    :caption: Core contributors
-   :maxdepth: 1
+   :maxdepth: 2
    :hidden:
 
    basics/building
+   architecture/index
    api
    genindex
