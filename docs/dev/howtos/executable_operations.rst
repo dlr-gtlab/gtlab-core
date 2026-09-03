@@ -47,6 +47,7 @@ existing ``GtObjectFactory`` and normal GTlab type infrastructure. Do not add an
 operation registry, second factory, ``GtTypeId``, ``GtTypeDescriptor``,
 operation-specific metadata wrapper, or placeholder ``GtMetaObject``. A future
 ``GtMetaObject`` migration belongs to the broader GTlab type-system work and
+will migrate operations together with the other module interfaces.
 
 Runtime implementers
 --------------------

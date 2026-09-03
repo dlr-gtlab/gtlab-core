@@ -170,10 +170,13 @@ invariant is that long-running execution does not make status, cancellation, or
 event observation unusable. Close/destruction are bounded and mutation uses the
 established execution context and guard/serialization mechanisms.
 
-The detached ``GtObject`` returned by ``execute()`` is the runtime result. It is
-available through the handle only in the appropriate successful terminal state;
-failure, cancellation, close, or shutdown does not expose a partial result as a
-successful completion.
+The detached ``GtObject`` returned by ``execute()`` is the runtime result. The
+runtime-owned execution state retains it after successful terminal completion.
+Reading it through any handle copy must not consume, move, invalidate, or change
+its availability through another copy. #1515 may choose a non-dangling access
+form such as a serialized/value snapshot, explicit clone, or equivalent shared
+immutable view. Failure, cancellation, close, or shutdown does not expose a
+partial result as successful completion.
 
 Completion and event model
 --------------------------
