@@ -9,7 +9,6 @@
 #include "gt_object.h"
 #include "gt_objectmemento.h"
 
-#include <QIODevice>
 #include <QJsonDocument>
 
 #include <utility>
@@ -29,7 +28,7 @@ QJsonObject commonRecord(QString const& kind, GtExecutionId const& executionId)
 }
 
 GtStdioExecutionEventEncoder::GtStdioExecutionEventEncoder(
-    GtExecutionId executionId, QIODevice& output, QObject* parent) :
+    GtExecutionId executionId, std::ostream& output, QObject* parent) :
     QObject(parent),
     m_executionId(std::move(executionId)),
     m_output(output)
@@ -111,7 +110,9 @@ bool GtStdioExecutionEventEncoder::writeRecord(QJsonObject record, bool terminal
     line += '\n';
 
     std::lock_guard<std::mutex> outputLock(s_outputMutex);
-    if (m_output.write(line) != line.size()) {
+    m_output.write(line.constData(), line.size());
+    m_output.flush();
+    if (!m_output) {
         return false;
     }
 

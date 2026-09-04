@@ -12,12 +12,12 @@
 
 #include <mutex>
 #include <optional>
+#include <ostream>
 
 #include <QJsonObject>
 #include <QObject>
 
 class GtObject;
-class QIODevice;
 
 /**
  * @brief Boundary adapter that writes ADR 0001 Worker Slice 1 records.
@@ -25,9 +25,9 @@ class QIODevice;
  * Connect GtExecutionEventStream::eventPublished() to encodeEvent() when a
  * one-shot worker needs protocol output. Each protocol record is assembled as
  * compact JSON and written as one UTF-8 line beginning with
- * "@gtlab-operation-v1 ". The supplied QIODevice is normally stdout, but is
- * injected so callers can choose the process-boundary device and tests can use
- * a buffer.
+ * "@gtlab-operation-v1 ". The supplied standard stream is normally std::cout,
+ * but is injected so callers can choose the process boundary and tests can use
+ * an in-memory stream.
  *
  * Events may precede exactly one terminal result or failure. Once terminal,
  * this encoder rejects all further records. A process-wide write lock prevents
@@ -42,13 +42,13 @@ public:
     /**
      * @brief Creates a V1 writer for one execution and output device.
      * @param executionId Identity required in every emitted protocol object.
-     * @param output Open writable device receiving complete protocol records.
+     * @param output Writable stream receiving complete protocol records.
      *
-     * The encoder does not own output. The caller must keep the device open and
-     * alive for the entire encoder lifetime and for all queued signal delivery.
+     * The encoder does not own output. The caller must keep the stream alive for
+     * the entire encoder lifetime and for all queued signal delivery.
      */
     explicit GtStdioExecutionEventEncoder(GtExecutionId executionId,
-                                          QIODevice& output,
+                                          std::ostream& output,
                                           QObject* parent = nullptr);
 
     /// Returns whether a terminal result or failure record was written.
@@ -86,7 +86,7 @@ private:
     bool writeRecord(QJsonObject record, bool terminal);
 
     GtExecutionId m_executionId;
-    QIODevice& m_output;
+    std::ostream& m_output;
     bool m_terminal {false};
     mutable std::mutex m_mutex;
     static std::mutex s_outputMutex;

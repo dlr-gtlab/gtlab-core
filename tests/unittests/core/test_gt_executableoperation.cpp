@@ -6,9 +6,10 @@
 
 #include "gtest/gtest.h"
 
+#include <functional>
 #include <memory>
+#include <sstream>
 
-#include <QBuffer>
 #include <QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -341,16 +342,14 @@ TEST(GtExecutionEventStream, assignsSequenceAndNotifiesLocalObservers)
 
 TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtExecutionId executionId;
     GtStdioExecutionEventEncoder encoder(executionId, output);
     encoder.encodeEvent(GtExecutionEvent(executionId, 7, QStringLiteral("progress"),
                                          QJsonObject{{"ratio", 0.5}}));
 
-    const QJsonObject record = protocolRecord(bytes);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_EQ(record.value("version"), 1);
     EXPECT_EQ(record.value("kind"), "event");
     EXPECT_EQ(record.value("executionId"), executionId.toString());
@@ -362,16 +361,14 @@ TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
 
 TEST(GtStdioExecutionEventEncoder, encodesAbsentPayloadAsJsonNull)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtExecutionId executionId;
     GtStdioExecutionEventEncoder encoder(executionId, output);
     encoder.encodeEvent(GtExecutionEvent(executionId, 0,
                                          QStringLiteral("started")));
 
-    const QJsonObject record = protocolRecord(bytes);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_TRUE(record.contains("payload"));
     EXPECT_EQ(record.value("payloadEncoding"), "json");
     EXPECT_TRUE(record.value("payload").isNull());
@@ -379,9 +376,7 @@ TEST(GtStdioExecutionEventEncoder, encodesAbsentPayloadAsJsonNull)
 
 TEST(GtStdioExecutionEventEncoder, encodesMementoPayloadWithoutRawNewlines)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtObject object;
     GtExecutionId executionId;
@@ -389,8 +384,8 @@ TEST(GtStdioExecutionEventEncoder, encodesMementoPayloadWithoutRawNewlines)
     encoder.encodeEvent(GtExecutionEvent(executionId, 0, QStringLiteral("snapshot"),
                                          object.toMemento().toByteArray()));
 
-    ASSERT_EQ(bytes.count('\n'), 1);
-    const QJsonObject record = protocolRecord(bytes);
+    ASSERT_EQ(QByteArray::fromStdString(output.str()).count('\n'), 1);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_EQ(record.value("payloadEncoding"), "memento-xml-base64");
     const QByteArray xml = QByteArray::fromBase64(
         record.value("payload").toString().toLatin1());
@@ -399,9 +394,7 @@ TEST(GtStdioExecutionEventEncoder, encodesMementoPayloadWithoutRawNewlines)
 
 TEST(GtStdioExecutionEventEncoder, encodesNullResultAndRejectsLaterRecords)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtExecutionId executionId;
     GtStdioExecutionEventEncoder encoder(executionId, output);
@@ -410,7 +403,7 @@ TEST(GtStdioExecutionEventEncoder, encodesNullResultAndRejectsLaterRecords)
     encoder.encodeEvent(GtExecutionEvent(executionId, 1, QStringLiteral("late")));
     EXPECT_FALSE(encoder.encodeFailure(QStringLiteral("late"), QStringLiteral("late")));
 
-    const QJsonObject record = protocolRecord(bytes);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_EQ(record.value("kind"), "result");
     EXPECT_EQ(record.value("resultEncoding"), "null");
     EXPECT_TRUE(record.value("result").isNull());
@@ -418,27 +411,55 @@ TEST(GtStdioExecutionEventEncoder, encodesNullResultAndRejectsLaterRecords)
 
 TEST(GtStdioExecutionEventEncoder, encodesMementoResult)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtObject result;
     GtExecutionId executionId;
     GtStdioExecutionEventEncoder encoder(executionId, output);
     ASSERT_TRUE(encoder.encodeResult(&result));
 
-    const QJsonObject record = protocolRecord(bytes);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_EQ(record.value("kind"), "result");
     EXPECT_EQ(record.value("resultEncoding"), "memento-xml-base64");
     EXPECT_EQ(QByteArray::fromBase64(record.value("result").toString().toLatin1()),
               result.toMemento().toByteArray());
 }
 
+TEST(GtStdioExecutionEventEncoder, serializesConcurrentWholeRecordWrites)
+{
+    std::ostringstream output;
+    GtExecutionId firstExecutionId;
+    GtExecutionId secondExecutionId;
+    GtStdioExecutionEventEncoder first(firstExecutionId, output);
+    GtStdioExecutionEventEncoder second(secondExecutionId, output);
+
+    auto publish = [](GtStdioExecutionEventEncoder& encoder,
+                      GtExecutionId const& executionId) {
+        for (quint64 sequence = 0; sequence < 20; ++sequence) {
+            encoder.encodeEvent(GtExecutionEvent(
+                executionId, sequence, QStringLiteral("progress"),
+                QJsonObject{{"sequence", static_cast<qint64>(sequence)}}));
+        }
+    };
+
+    std::thread firstThread(publish, std::ref(first), std::cref(firstExecutionId));
+    std::thread secondThread(publish, std::ref(second), std::cref(secondExecutionId));
+    firstThread.join();
+    secondThread.join();
+
+    const QList<QByteArray> lines =
+        QByteArray::fromStdString(output.str()).split('\n');
+    ASSERT_EQ(lines.size(), 41);
+    for (int index = 0; index < 40; ++index) {
+        const QJsonObject record = protocolRecord(lines.at(index) + '\n');
+        EXPECT_EQ(record.value("kind"), "event");
+        EXPECT_EQ(record.value("eventType"), "progress");
+    }
+}
+
 TEST(GtStdioExecutionEventEncoder, encodesStructuredFailure)
 {
-    QByteArray bytes;
-    QBuffer output(&bytes);
-    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+    std::ostringstream output;
 
     GtExecutionId executionId;
     GtStdioExecutionEventEncoder encoder(executionId, output);
@@ -446,7 +467,7 @@ TEST(GtStdioExecutionEventEncoder, encodesStructuredFailure)
                                       QStringLiteral("Calculation failed"),
                                       QJsonObject{{"iteration", 4}}));
 
-    const QJsonObject record = protocolRecord(bytes);
+    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
     EXPECT_EQ(record.value("kind"), "failure");
     EXPECT_EQ(record.value("errorCode"), "operation.failed");
     EXPECT_EQ(record.value("message"), "Calculation failed");
