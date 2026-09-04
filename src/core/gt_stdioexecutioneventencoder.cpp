@@ -50,7 +50,9 @@ void GtStdioExecutionEventEncoder::encodeEvent(GtExecutionEvent event)
 
     if (event.payloadEncoding() == GtExecutionEvent::PayloadEncoding::Json) {
         record.insert(QStringLiteral("payloadEncoding"), QStringLiteral("json"));
-        record.insert(QStringLiteral("payload"), event.jsonPayload());
+        record.insert(QStringLiteral("payload"),
+                      event.jsonPayload().isUndefined() ? QJsonValue::Null :
+                                                          event.jsonPayload());
     } else {
         record.insert(QStringLiteral("payloadEncoding"),
                       QStringLiteral("memento-xml-base64"));

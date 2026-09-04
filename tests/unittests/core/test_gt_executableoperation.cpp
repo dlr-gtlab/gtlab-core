@@ -360,6 +360,23 @@ TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
     EXPECT_EQ(record.value("payload").toObject().value("ratio"), 0.5);
 }
 
+TEST(GtStdioExecutionEventEncoder, encodesAbsentPayloadAsJsonNull)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    encoder.encodeEvent(GtExecutionEvent(executionId, 0,
+                                         QStringLiteral("started")));
+
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_TRUE(record.contains("payload"));
+    EXPECT_EQ(record.value("payloadEncoding"), "json");
+    EXPECT_TRUE(record.value("payload").isNull());
+}
+
 TEST(GtStdioExecutionEventEncoder, encodesMementoPayloadWithoutRawNewlines)
 {
     QByteArray bytes;

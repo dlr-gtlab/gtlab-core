@@ -43,6 +43,9 @@ public:
      * @brief Creates a V1 writer for one execution and output device.
      * @param executionId Identity required in every emitted protocol object.
      * @param output Open writable device receiving complete protocol records.
+     *
+     * The encoder does not own output. The caller must keep the device open and
+     * alive for the entire encoder lifetime and for all queued signal delivery.
      */
     explicit GtStdioExecutionEventEncoder(GtExecutionId executionId,
                                           QIODevice& output,
