@@ -6,9 +6,6 @@
 
 #include "gt_executioneventstream.h"
 
-#include "gt_object.h"
-#include "gt_objectmemento.h"
-
 #include <stdexcept>
 #include <utility>
 
@@ -20,35 +17,47 @@ GtExecutionEventStream::GtExecutionEventStream(GtExecutionId executionId,
     qRegisterMetaType<GtExecutionEvent>();
 }
 
-GtExecutionId const&
-GtExecutionEventStream::executionId() const noexcept
+GtExecutionId const& GtExecutionEventStream::executionId() const noexcept
 {
     return m_executionId;
 }
 
 void GtExecutionEventStream::publish(QString eventType, QJsonValue payload)
 {
-    publish(GtExecutionEvent(m_executionId, 0, std::move(eventType),
-                             std::move(payload)));
-}
-
-void GtExecutionEventStream::publish(QString eventType, GtObject const& payload)
-{
-    publish(GtExecutionEvent(m_executionId, 0, std::move(eventType),
-                             payload.toMemento().toByteArray()));
-}
-
-void GtExecutionEventStream::publish(GtExecutionEvent event)
-{
-    if (event.eventType().isEmpty()) {
+    if (eventType.isEmpty())
+    {
         throw std::invalid_argument("Execution event type must not be empty");
     }
 
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-    event = event.payloadEncoding() == GtExecutionEvent::PayloadEncoding::Json ?
-                GtExecutionEvent(m_executionId, m_nextSequence++, event.eventType(),
-                                 event.jsonPayload()) :
-                GtExecutionEvent(m_executionId, m_nextSequence++, event.eventType(),
-                                 event.mementoXml());
-    emit eventPublished(event);
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_pending.emplace_back(m_executionId, m_nextSequence++,
+                               std::move(eventType), std::move(payload));
+
+        if (m_dispatching)
+        {
+            return;
+        }
+
+        m_dispatching = true;
+    }
+
+    for (;;)
+    {
+        GtExecutionEvent event;
+
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            if (m_pending.empty())
+            {
+                m_dispatching = false;
+                return;
+            }
+
+            event = std::move(m_pending.front());
+            m_pending.pop_front();
+        }
+
+        emit eventPublished(event);
+    }
 }

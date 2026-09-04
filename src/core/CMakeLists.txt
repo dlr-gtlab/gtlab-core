@@ -80,6 +80,7 @@ set(headers
     gt_executioncontext.h
     gt_executionevent.h
     gt_executioneventstream.h
+    gt_executioneventfilewriter.h
     gt_executableoperation.h
     gt_operationapplyresult.h
     gt_operationexecutioncontext.h
@@ -198,6 +199,7 @@ set(sources
     gt_executioncontext.cpp
     gt_executionevent.cpp
     gt_executioneventstream.cpp
+    gt_executioneventfilewriter.cpp
     gt_operationapplyresult.cpp
     gt_operationexecutioncontext.cpp
     gt_stdioexecutioneventencoder.cpp
@@ -265,7 +267,6 @@ target_include_directories(GTlabCore
 )
 
 set_target_properties(GTlabCore PROPERTIES 
-  AUTOMOC ON
   AUTORCC ON
   # set rpath to lib directory, since it is installed to lib/core
   INSTALL_RPATH "\$ORIGIN:\$ORIGIN/.."

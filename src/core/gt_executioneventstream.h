@@ -10,67 +10,61 @@
 #include "gt_core_exports.h"
 #include "gt_executionevent.h"
 
+#include <deque>
 #include <mutex>
 
 #include <QObject>
 
-class GtObject;
-
 /**
- * @brief Ordered local event stream and event-sink implementation for one execution.
+ * @brief Concrete operation-facing publisher and Qt-observable stream.
  *
- * Give this stream to GtOperationExecutionContext when invoking an operation.
- * Each publish call receives the stream execution identity and the next sequence
- * number atomically, then emits eventPublished(). Therefore direct Qt observers
- * see the same order as transport adapters connected to this signal. Connect
- * observers before calling GtExecutableOperation::execute(). Qt uses queued
- * delivery automatically when sender and receiver have different thread affinity.
+ * Give one stream to GtOperationExecutionContext for each operation invocation.
+ * The stream assigns a common execution identity and strictly increasing
+ * sequence numbers to its events. Local observers connect to eventPublished();
+ * Qt selects queued delivery automatically when sender and receiver have
+ * different thread affinity.
  *
- * The stream is transport-neutral: it neither knows nor writes stdout. Attach a
- * GtStdioExecutionEventEncoder to eventPublished() only at a process boundary.
+ * Publications from multiple threads and publications made reentrantly by an
+ * observer are queued and drained in sequence order. Signal handlers are never
+ * called while the stream mutex is held.
  */
-class GT_CORE_EXPORT GtExecutionEventStream : public QObject,
-                                              public GtExecutionEventSink
+class GT_CORE_EXPORT GtExecutionEventStream : public QObject
 {
     Q_OBJECT
 
 public:
     /**
      * @brief Creates a stream for one operation invocation.
-     * @param executionId Identity that is assigned to every emitted event.
+     * @param executionId Identity assigned to every event published by the stream.
+     * @param parent Optional Qt owner of the stream.
      */
     explicit GtExecutionEventStream(GtExecutionId executionId,
                                     QObject* parent = nullptr);
 
-    /// Returns the invocation identity used for every published event.
+    /// Returns the immutable identity assigned to this stream's events.
     GtExecutionId const& executionId() const noexcept;
 
     /**
      * @brief Publishes a JSON-valued domain observation.
      *
-     * eventType must not be empty. Sequence assignment and signal emission are
-     * serialized, including when multiple execution-side threads publish.
-     */
-    void publish(QString eventType, QJsonValue payload = {}) override;
-
-    /**
-     * @brief Publishes a detached GtObject observation as Memento/XML.
+     * @param eventType Non-empty, domain-specific event type key.
+     * @param payload JSON value; an undefined value represents no payload.
      *
-     * The object is serialized before observers receive the event, so the event
-     * does not expose the object's process-local address.
+     * This function is safe to call concurrently. It assigns the next sequence
+     * number before notifying observers.
      */
-    void publish(QString eventType, GtObject const& payload) override;
+    void publish(QString eventType, QJsonValue payload = {});
 
 signals:
-    /// Emitted once per accepted publication, in per-execution sequence order.
+    /// Emitted once per accepted publication in per-execution sequence order.
     void eventPublished(GtExecutionEvent event);
 
 private:
-    void publish(GtExecutionEvent event);
-
     GtExecutionId m_executionId;
     quint64 m_nextSequence {0};
-    std::recursive_mutex m_mutex;
+    std::deque<GtExecutionEvent> m_pending;
+    std::mutex m_mutex;
+    bool m_dispatching {false};
 };
 
 #endif // GTEXECUTIONEVENTSTREAM_H

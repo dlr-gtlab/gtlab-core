@@ -29,10 +29,10 @@ class GtObject;
  * but is injected so callers can choose the process boundary and tests can use
  * an in-memory stream.
  *
- * Events may precede exactly one terminal result or failure. Once terminal,
- * this encoder rejects all further records. A process-wide write lock prevents
- * bytes from protocol records emitted by concurrent encoders from interleaving.
- * Ordinary non-prefixed stdout remains outside this class and is not protocol.
+ * This is a compatibility/fallback adapter. Worker Slice 1 uses the exclusive
+ * file-backed event channel as its primary event output. A process-wide write
+ * lock serializes records emitted through this adapter relative to each other;
+ * it cannot constrain unrelated stdout writers.
  */
 class GT_CORE_EXPORT GtStdioExecutionEventEncoder : public QObject
 {
@@ -58,8 +58,8 @@ public slots:
     /**
      * @brief Encodes one intermediate event record.
      *
-     * JSON payloads remain JSON; Memento/XML bytes become standard Base64.
-     * Events with another execution identity or events after completion are
+     * Event payloads are encoded as JSON. Events with another execution identity
+     * or events after completion are
      * ignored so one encoder cannot violate its invocation framing.
      */
     void encodeEvent(GtExecutionEvent event);

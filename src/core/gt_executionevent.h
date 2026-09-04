@@ -10,76 +10,51 @@
 #include "gt_core_exports.h"
 #include "gt_operationexecutioncontext.h"
 
-#include <QByteArray>
 #include <QJsonValue>
 
 /**
  * @brief Transport-neutral observation emitted during one operation execution.
  *
- * An event is a value object. It carries no process-local pointers and may be
- * delivered to local Qt observers or encoded by a transport adapter. An event
- * belongs to exactly one execution and is ordered relative to other events of
- * that execution by its zero-based sequence number.
+ * An event is an immutable value object with a JSON payload. It contains no
+ * process-local pointers and can therefore be observed locally through Qt or
+ * serialized by a transport adapter. Each event belongs to exactly one
+ * execution and its zero-based sequence number defines its order within that
+ * execution.
  *
- * Operations do not construct events directly. They publish a domain event
- * through GtOperationExecutionContext::events(); the associated
- * GtExecutionEventStream supplies the execution identity and sequence number.
+ * Operations normally publish through GtOperationExecutionContext::events()
+ * instead of constructing events directly. GtExecutionEventStream assigns the
+ * execution identity and sequence number for every publication.
  */
 class GT_CORE_EXPORT GtExecutionEvent
 {
 public:
-    /**
-     * @brief Identifies the representation of the payload.
-     *
-     * Json stores a JSON value tree directly. MementoXmlBase64 stores detached
-     * UTF-8 Memento/XML bytes; the stdio V1 encoder represents these bytes with
-     * standard Base64.
-     */
-    enum class PayloadEncoding { Json, MementoXmlBase64 };
-
     /// Creates an empty event for Qt metatype construction only.
     GtExecutionEvent();
 
     /**
-     * @brief Creates an event with a JSON-value payload.
-     * @param executionId Immutable identity of the execution that emitted it.
+     * @brief Creates one JSON-valued execution event.
+     * @param executionId Immutable identity of the producing execution.
      * @param sequence Zero-based order within that execution.
      * @param eventType Non-empty, domain-specific event type key.
-     * @param payload JSON value tree; an undefined value represents no payload.
+     * @param payload JSON value; an undefined value represents no payload.
      */
     GtExecutionEvent(GtExecutionId executionId, quint64 sequence,
                      QString eventType, QJsonValue payload = {});
 
-    /**
-     * @brief Creates an event with detached Memento/XML payload bytes.
-     * @param mementoXml UTF-8 bytes from GtObject::toMemento().
-     *
-     * The bytes must represent a detached serializable object and must not
-     * contain borrowed project state or process-local references.
-     */
-    GtExecutionEvent(GtExecutionId executionId, quint64 sequence,
-                     QString eventType, QByteArray mementoXml);
-
-    /// Returns the immutable identity shared by all events of this invocation.
+    /// Returns the identity shared by all events of this execution.
     GtExecutionId const& executionId() const noexcept;
-    /// Returns the strictly increasing, zero-based sequence within the invocation.
+    /// Returns the strictly increasing, zero-based per-execution sequence.
     quint64 sequence() const noexcept;
-    /// Returns the non-empty domain event type key.
+    /// Returns the domain-specific type key describing this event.
     QString const& eventType() const noexcept;
-    /// Returns whether the payload is a JSON tree or detached Memento/XML bytes.
-    PayloadEncoding payloadEncoding() const noexcept;
-    /// Returns the JSON payload; meaningful only when payloadEncoding() is Json.
-    QJsonValue const& jsonPayload() const noexcept;
-    /// Returns detached Memento/XML bytes; meaningful only for MementoXmlBase64.
-    QByteArray const& mementoXml() const noexcept;
+    /// Returns the JSON payload, or an undefined value when no payload was set.
+    QJsonValue const& payload() const noexcept;
 
 private:
     GtExecutionId m_executionId;
     quint64 m_sequence;
     QString m_eventType;
-    PayloadEncoding m_payloadEncoding;
-    QJsonValue m_jsonPayload;
-    QByteArray m_mementoXml;
+    QJsonValue m_payload;
 };
 
 Q_DECLARE_METATYPE(GtExecutionEvent)

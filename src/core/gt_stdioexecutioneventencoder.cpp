@@ -46,19 +46,10 @@ void GtStdioExecutionEventEncoder::encodeEvent(GtExecutionEvent event)
     QJsonObject record = commonRecord(QStringLiteral("event"), event.executionId());
     record.insert(QStringLiteral("sequence"), static_cast<qint64>(event.sequence()));
     record.insert(QStringLiteral("eventType"), event.eventType());
-
-    if (event.payloadEncoding() == GtExecutionEvent::PayloadEncoding::Json) {
-        record.insert(QStringLiteral("payloadEncoding"), QStringLiteral("json"));
-        record.insert(QStringLiteral("payload"),
-                      event.jsonPayload().isUndefined() ? QJsonValue::Null :
-                                                          event.jsonPayload());
-    } else {
-        record.insert(QStringLiteral("payloadEncoding"),
-                      QStringLiteral("memento-xml-base64"));
-        record.insert(QStringLiteral("payload"),
-                      QString::fromLatin1(event.mementoXml().toBase64()));
-    }
-
+    record.insert(QStringLiteral("payloadEncoding"), QStringLiteral("json"));
+    record.insert(QStringLiteral("payload"),
+                  event.payload().isUndefined() ? QJsonValue::Null :
+                                                  event.payload());
     writeRecord(std::move(record), false);
 }
 
