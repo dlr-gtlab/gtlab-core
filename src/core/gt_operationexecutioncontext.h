@@ -51,18 +51,31 @@ private:
 };
 
 /**
- * @brief Temporary transport-neutral boundary for execution-side observations.
+ * @brief Transport-neutral publication boundary for operation observations.
  *
- * This foundation intentionally does not define an event envelope, event type,
- * or payload contract. Those contracts are follow-up runtime work.
+ * An operation receives this boundary from GtOperationExecutionContext and
+ * publishes domain observations only through it. Implementations such as
+ * GtExecutionEventStream assign execution order and identity; operations must
+ * not write stdout, access a transport, or select a GUI observer themselves.
  */
 class GT_CORE_EXPORT GtExecutionEventSink
 {
 public:
     virtual ~GtExecutionEventSink() = default;
 
-    /// Publishes an execution-side observation without defining its event data.
+    /**
+     * @brief Publishes a JSON-valued domain observation.
+     * @param eventType Non-empty, domain-specific event type key.
+     * @param payload Optional JSON value tree with no process-local pointers.
+     */
     virtual void publish(QString eventType, QJsonValue payload = {}) = 0;
+
+    /**
+     * @brief Publishes a detached serializable object observation.
+     *
+     * Implementations serialize payload to a Memento before exposing the event
+     * to observers or a transport adapter.
+     */
     virtual void publish(QString eventType, GtObject const& payload) = 0;
 };
 
