@@ -349,7 +349,15 @@ TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
     encoder.encodeEvent(GtExecutionEvent(executionId, 7, QStringLiteral("progress"),
                                          QJsonObject{{"ratio", 0.5}}));
 
-    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
+    const QByteArray line = QByteArray::fromStdString(output.str());
+    const QByteArray expected =
+        "@gtlab-operation-v1 {\"eventType\":\"progress\",\"executionId\":\"" +
+        executionId.toString().toUtf8() +
+        "\",\"kind\":\"event\",\"payload\":{\"ratio\":0.5},"
+        "\"payloadEncoding\":\"json\",\"sequence\":7,\"version\":1}\n";
+    EXPECT_EQ(line, expected);
+
+    const QJsonObject record = protocolRecord(line);
     EXPECT_EQ(record.value("version"), 1);
     EXPECT_EQ(record.value("kind"), "event");
     EXPECT_EQ(record.value("executionId"), executionId.toString());
@@ -403,7 +411,15 @@ TEST(GtStdioExecutionEventEncoder, encodesNullResultAndRejectsLaterRecords)
     encoder.encodeEvent(GtExecutionEvent(executionId, 1, QStringLiteral("late")));
     EXPECT_FALSE(encoder.encodeFailure(QStringLiteral("late"), QStringLiteral("late")));
 
-    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
+    const QByteArray line = QByteArray::fromStdString(output.str());
+    const QByteArray expected =
+        "@gtlab-operation-v1 {\"executionId\":\"" +
+        executionId.toString().toUtf8() +
+        "\",\"kind\":\"result\",\"result\":null,"
+        "\"resultEncoding\":\"null\",\"version\":1}\n";
+    EXPECT_EQ(line, expected);
+
+    const QJsonObject record = protocolRecord(line);
     EXPECT_EQ(record.value("kind"), "result");
     EXPECT_EQ(record.value("resultEncoding"), "null");
     EXPECT_TRUE(record.value("result").isNull());
@@ -467,7 +483,16 @@ TEST(GtStdioExecutionEventEncoder, encodesStructuredFailure)
                                       QStringLiteral("Calculation failed"),
                                       QJsonObject{{"iteration", 4}}));
 
-    const QJsonObject record = protocolRecord(QByteArray::fromStdString(output.str()));
+    const QByteArray line = QByteArray::fromStdString(output.str());
+    const QByteArray expected =
+        "@gtlab-operation-v1 {\"details\":{\"iteration\":4},"
+        "\"errorCode\":\"operation.failed\",\"executionId\":\"" +
+        executionId.toString().toUtf8() +
+        "\",\"kind\":\"failure\",\"message\":\"Calculation failed\","
+        "\"version\":1}\n";
+    EXPECT_EQ(line, expected);
+
+    const QJsonObject record = protocolRecord(line);
     EXPECT_EQ(record.value("kind"), "failure");
     EXPECT_EQ(record.value("errorCode"), "operation.failed");
     EXPECT_EQ(record.value("message"), "Calculation failed");
