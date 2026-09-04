@@ -113,9 +113,10 @@ complete ``execute()`` call. Its minimum contract is:
   during execution but must not retain its pointer afterward.
 * ``executionId()`` returns immutable, opaque, globally unique invocation
   identity. The execution handle and every event use this same identity.
-* ``events()`` returns the invocation event sink. Publishing enters the ordered
-  execution event stream; runtime serialization occurs before local observers
-  or a transport adapter see it.
+* ``events()`` returns the concrete invocation-local
+  ``GtExecutionEventStream``. Operations publish through the stream; local
+  observers and process-boundary adapters subscribe through Qt signals/slots.
+  No separate ``GtExecutionEventSink`` or observer-interface hierarchy is used.
 * ``cancellation()`` returns the invocation cancellation token. Its request
   state is safe to observe while another thread requests cancellation.
 
@@ -194,20 +195,31 @@ Worker Slice 1 implements only runtime completion. A future client-side
 reconstruction, ``applyResult()``, and its failure state. The runtime never
 applies a result to the originating project.
 
-Operations publish observations through the execution context, not a transport
-or GUI. A transport-neutral logical event envelope has these required fields:
+Operations publish observations through the concrete invocation-local
+``GtExecutionEventStream``, not a transport or GUI. The stream is a Qt
+``QObject`` and provides publication methods plus a logical-event signal. Local
+observers and transport adapters connect through Qt signals/slots; no separate
+observer or event-sink interface hierarchy is introduced.
+
+A transport-neutral logical event envelope has these required fields:
 
 * ``executionId``: invocation identity;
 * ``sequence``: zero-based, strictly increasing unsigned per-execution order;
 * ``eventType``: non-empty domain event key; and
 * ``payload``: absent, a JSON value tree (null, boolean, number, string, list,
-  or string-keyed object), or a detached serializable ``GtObject`` Memento with
-  an identifying payload encoding.
+  or string-keyed object), or detached serializable ``GtObject`` Memento/XML.
 
-Payloads contain no process-local pointers. Qt signals/slots are preferred local
-observation; stdio is a transport adapter. Events are ordered per execution,
-connections are established before ``execute()``, and events are observations,
-not GUI instructions.
+Payloads contain no process-local pointers. The logical event representation
+must describe the payload itself, not a wire encoding: Memento payloads remain
+Memento/XML in the event model. A textual adapter such as stdio V1 may encode
+those bytes as Base64 at the process boundary.
+
+Qt signals/slots are the local observation mechanism; stdio is only one
+transport adapter. Events are ordered per execution, connections are established
+before ``execute()``, and events are observations, not GUI instructions.
+Reentrant/concurrent publication must preserve a single consistent sequence
+order for all observers without executing arbitrary observer code while an
+internal stream mutex is held.
 
 Task integration and worker boundary
 ------------------------------------
@@ -219,7 +231,7 @@ may reuse the executor, but generic runtime state does not depend on it,
 
 Worker Slice 1 depends on the generic runtime from #1515. The batch command is
 a boundary adapter: it reconstructs serialized project, operation, and optional
-data, configures stdio, and delegates lifecycle to
+data, configures the process-boundary event adapter, and delegates lifecycle to
 ``GtHeadlessProjectRuntime::submitOperation(...)``. It does not construct an
 execution context and invoke ``operation.execute()`` as an architectural path.
 
@@ -232,10 +244,11 @@ records contain ``version`` (integer ``1``), ``kind``, and ``executionId``.
 ``kind`` is exactly ``event``, ``result``, or ``failure``.
 
 * ``event`` additionally contains ``sequence``, ``eventType``,
-  ``payloadEncoding``, and ``payload``. ``payloadEncoding`` is ``json`` for the
-  logical JSON value tree or ``memento-xml-base64`` for UTF-8 Memento/XML bytes
-  encoded with standard Base64. ``payload`` is respectively the JSON value or a
-  Base64 string.
+  ``payloadEncoding``, and ``payload``. ``payloadEncoding`` is a stdio V1
+  wire-format field: ``json`` for the logical JSON value tree or
+  ``memento-xml-base64`` for logical UTF-8 Memento/XML bytes encoded with
+  standard Base64 by the stdio adapter. ``payload`` is respectively the JSON
+  value or a Base64 string.
 * ``result`` additionally contains ``resultEncoding`` and ``result``.
   ``resultEncoding`` is ``null`` for a valid null result or
   ``memento-xml-base64`` for a detached-result Memento. ``result`` is JSON null
@@ -246,11 +259,16 @@ records contain ``version`` (integer ``1``), ``kind``, and ``executionId``.
 Compact JSON plus Base64 guarantees no unescaped newline in a protocol record.
 Each execution emits zero or more events followed by exactly one terminal
 ``result`` or ``failure`` record; no later event or second terminal record is
-valid. Protocol writes are serialized as whole records, so another thread's
-ordinary/log output cannot interleave bytes inside a prefixed record.
+valid. Protocol emissions through the stdio adapter are serialized relative to
+one another and assembled as complete records before writing. This does not
+claim stronger atomicity against unrelated third-party stdout writers than the
+underlying process/stdout abstraction can provide.
+
 Non-prefixed stdout is ordinary output; decoders ignore or forward it separately
-and never treat every stdout line as protocol data. V1 excludes replay,
-reconnect, broker, queue, cluster, and a general remote protocol.
+and never treat every stdout line as protocol data. Exclusive/custom execution
+channels may later replace stdio framing without changing operation or event
+stream APIs. V1 excludes replay, reconnect, broker, queue, cluster, and a general
+remote protocol.
 
 Migration and open details
 --------------------------
@@ -263,5 +281,6 @@ handles/statuses and ``submitTask()`` with generic equivalents; remove
 addressing can later be a task-specific convenience API.
 
 Internal scheduler classes, concrete structured-result spelling, GUI integration,
-capability matching, remote replay/reconnect, and resident-session
-synchronization remain open and must not change these boundaries.
+capability matching, remote replay/reconnect, exclusive/custom process-boundary
+channels, and resident-session synchronization remain open and must not change
+these boundaries.
