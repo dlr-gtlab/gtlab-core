@@ -387,7 +387,7 @@ TEST(GtExecutionEventStream, publishesConcurrentlyWithOneGapFreeSequence)
     publishers.reserve(threadCount);
     for (int threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
-        publishers.emplace_back([&stream, threadIndex] {
+        publishers.emplace_back([&stream, threadIndex, eventsPerThread] {
             for (quint64 index = 0; index < eventsPerThread; ++index)
             {
                 stream.publish(
