@@ -26,10 +26,8 @@ namespace
 class TestEventSink : public GtExecutionEventSink
 {
 public:
-    void publish() override
-    {
-        ++publishedEvents;
-    }
+    void publish(QString, QJsonValue = {}) override { ++publishedEvents; }
+    void publish(QString, GtObject const&) override { ++publishedEvents; }
 
     int publishedEvents = 0;
 };
@@ -83,7 +81,7 @@ public:
         observedData = context.data() != nullptr;
         observedCancellation = context.cancellation().isCancellationRequested();
         observedExecutionId = context.executionId().toString();
-        context.events().publish();
+        context.events().publish(QStringLiteral("test"));
         return std::make_unique<GtObject>();
     }
 

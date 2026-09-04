@@ -12,6 +12,7 @@
 #include <atomic>
 #include <memory>
 
+#include <QJsonValue>
 #include <QString>
 
 class GtObject;
@@ -61,7 +62,8 @@ public:
     virtual ~GtExecutionEventSink() = default;
 
     /// Publishes an execution-side observation without defining its event data.
-    virtual void publish() = 0;
+    virtual void publish(QString eventType, QJsonValue payload = {}) = 0;
+    virtual void publish(QString eventType, GtObject const& payload) = 0;
 };
 
 /**

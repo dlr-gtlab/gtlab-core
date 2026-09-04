@@ -1,0 +1,5 @@
+#include "gt_executionevent.h"
+#include <utility>
+GtExecutionEvent::GtExecutionEvent() : m_sequence(0), m_payloadEncoding(PayloadEncoding::Json) {}
+
+GtExecutionEvent::GtExecutionEvent(GtExecutionId id, quint64 s, QString type, QJsonValue p) : m_executionId(std::move(id)),m_sequence(s),m_eventType(std::move(type)),m_payloadEncoding(PayloadEncoding::Json),m_jsonPayload(std::move(p)) {} GtExecutionEvent::GtExecutionEvent(GtExecutionId id, quint64 s, QString type, QByteArray x) : m_executionId(std::move(id)),m_sequence(s),m_eventType(std::move(type)),m_payloadEncoding(PayloadEncoding::MementoXmlBase64),m_mementoXml(std::move(x)) {} GtExecutionId const& GtExecutionEvent::executionId() const noexcept{return m_executionId;} quint64 GtExecutionEvent::sequence() const noexcept{return m_sequence;} QString const& GtExecutionEvent::eventType() const noexcept{return m_eventType;} GtExecutionEvent::PayloadEncoding GtExecutionEvent::payloadEncoding() const noexcept{return m_payloadEncoding;} QJsonValue const& GtExecutionEvent::jsonPayload() const noexcept{return m_jsonPayload;} QByteArray const& GtExecutionEvent::mementoXml() const noexcept{return m_mementoXml;}
