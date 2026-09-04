@@ -13,10 +13,17 @@ Core foundation
 ---------------
 
 Core provides ``GtExecutableOperation`` together with ``GtOperationExecutionContext``,
-``GtExecutionId``, ``GtCancellationToken``, ``GtExecutionEventSink``, and the
-structured ``GtOperationApplyResult``. The context carries borrowed detached data,
-an invocation identity, the event-sink boundary, and shared cooperative cancellation
-state; it does not carry project state.
+``GtExecutionId``, ``GtCancellationToken``, and the structured
+``GtOperationApplyResult``. The context carries borrowed detached data, an
+invocation identity, direct access to the invocation-local
+``GtExecutionEventStream``, and shared cooperative cancellation state; it does
+not carry project state.
+
+The event stream is a concrete Qt-based publisher/observable object rather than
+an observer/sink interface hierarchy. Operations publish through
+``context.events().publish(...)``; local consumers and process-boundary adapters
+observe the resulting logical events through Qt signals/slots. The stream itself
+has no stdout, file, GUI, or remote-control-plane dependency.
 
 Use ``GtOperationInterface::operations()`` to declaratively contribute operation
 ``QMetaObject`` values. The normal module loader validates each declaration as an
@@ -88,6 +95,19 @@ Keep lifecycle boundaries separate:
 
 The runtime owns only the first. A future client ``GtOperationExecutor`` owns
 the second; the runtime never calls ``applyResult()`` on an originating project.
+
+Event observation
+-----------------
+
+``GtExecutionEventStream`` is the operation-facing event publisher and local
+observable stream for one invocation. It assigns execution identity and strict
+per-execution sequence order and emits logical ``GtExecutionEvent`` values via
+Qt signals/slots. Writers and adapters connect as ordinary Qt observers; there
+is no separate ``GtExecutionEventSink`` interface.
+
+Logical event payloads remain transport-neutral. A detached object payload is
+represented logically as Memento/XML; textual adapters such as stdio V1 may
+encode those bytes as Base64, but Base64 is not part of the logical event type.
 
 Worker implementers
 -------------------
