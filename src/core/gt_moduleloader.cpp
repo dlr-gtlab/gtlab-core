@@ -233,6 +233,12 @@ private:
     bool m_locked{false};
 };
 
+enum class PreviousCrashPolicy
+{
+    Skip,
+    Ignore
+};
+
 class GtModuleLoader::Impl
 {
 public:
@@ -260,7 +266,9 @@ public:
     bool performLoading(GtModuleLoader& moduleLoader,
                         const QStringList& modulesToLoad,
                         const ModuleMetaMap &metaMap,
-                        QStringList& failedModules);
+                        QStringList& failedModules,
+                        PreviousCrashPolicy previousCrashPolicy =
+                            PreviousCrashPolicy::Skip);
     /**
      * @brief checkDependency
      * The dependencies of the module are given by a list and are compared
@@ -618,6 +626,32 @@ ModuleMetaMap loadModuleMeta()
     return metaData;
 }
 
+ModuleMetaMap
+loadModuleMetaExcludingCrashed()
+{
+    auto metaData = loadModuleMeta();
+
+    ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return {};
+    }
+
+    const auto crashedModules = CrashedModulesLog().crashedModules();
+    return filterModules(metaData, [&](const ModuleMetaData& moduleMeta){
+        if (crashedModules.contains(moduleMeta.location()))
+        {
+            logWarnOnce(
+                QObject::tr("Module '%1' caused a crash in a previous run. "
+                            "Skipping module!").arg(moduleMeta.moduleId())
+            );
+            return false;
+        }
+        return true;
+    });
+}
+
 } // namespace
 
 bool
@@ -659,7 +693,8 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 
     QStringList failedModules;
     if (!m_pimpl->performLoading(*this, modulesToLoad,
-                                 moduleMetaMap, failedModules))
+                                 moduleMetaMap, failedModules,
+                                 PreviousCrashPolicy::Ignore))
     {
         gtError().verbose() << QObject::tr("Some modules failed to load!");
         Impl::printDependencies(failedModules, moduleMetaMap);
@@ -687,7 +722,7 @@ GtModuleLoader::load()
 QMap<QString, QString>
 GtModuleLoader::moduleEnvironmentVars()
 {
-    auto moduleMeta = loadModuleMeta();
+    auto moduleMeta = loadModuleMetaExcludingCrashed();
 
     QMap<QString, QString> retval;
     for (const auto& mod : moduleMeta)
@@ -1012,7 +1047,8 @@ bool
 GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
                                  const QStringList& moduleIds,
                                  const ModuleMetaMap& metaMap,
-                                 QStringList& failedModules)
+                                 QStringList& failedModules,
+                                 PreviousCrashPolicy previousCrashPolicy)
 {
     auto sortedModuleIds = getSortedModulesToLoad(moduleIds, metaMap);
 
@@ -1037,7 +1073,8 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         const ModuleMetaData& moduleMeta = moduleIt->second;
 
-        if (crashedModules.contains(moduleMeta.location()))
+        if (previousCrashPolicy == PreviousCrashPolicy::Skip &&
+            crashedModules.contains(moduleMeta.location()))
         {
             logWarnOnce(
                 QObject::tr("Module '%1' caused a crash in a previous run. "
