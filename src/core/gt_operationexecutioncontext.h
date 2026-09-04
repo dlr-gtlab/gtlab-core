@@ -14,34 +14,35 @@
 
 #include <QString>
 
+class GtExecutionEventStream;
 class GtObject;
 
 /**
- * @brief Opaque, globally unique identity of one operation execution.
+ * @brief Stable identity of one operation invocation.
+ *
+ * A default-constructed id is a new UUID. The execution event stream owns the
+ * id used by an operation execution context and its published events.
  */
 class GT_CORE_EXPORT GtExecutionId
 {
 public:
+    /// Creates a new UUID-based execution identity.
     GtExecutionId();
-
-    /// Returns the stable text representation used by logs and protocols.
+    /// Returns the UUID representation without enclosing braces.
     QString const& toString() const noexcept;
 
 private:
     QString m_value;
 };
 
-/**
- * @brief Cooperative cancellation state shared by one operation invocation.
- */
 class GT_CORE_EXPORT GtCancellationToken
 {
 public:
+    /// Creates a token whose cancellation has not been requested.
     GtCancellationToken();
-
-    /// Requests cooperative cancellation; safe to call from another thread.
+    /// Requests cancellation for every copy of this token.
     void requestCancellation() noexcept;
-    /// Returns the shared request state; safe to observe during execution.
+    /// Returns whether cancellation was requested for this shared token state.
     bool isCancellationRequested() const noexcept;
 
 private:
@@ -50,52 +51,35 @@ private:
 };
 
 /**
- * @brief Temporary transport-neutral boundary for execution-side observations.
- *
- * This foundation intentionally does not define an event envelope, event type,
- * or payload contract. Those contracts are follow-up runtime work.
- */
-class GT_CORE_EXPORT GtExecutionEventSink
-{
-public:
-    virtual ~GtExecutionEventSink() = default;
-
-    /// Publishes an execution-side observation without defining its event data.
-    virtual void publish() = 0;
-};
-
-/**
  * @brief Invocation-local services passed to one GtExecutableOperation::execute call.
  *
- * The context never owns project state or the detached data object. The caller
- * owns the data for the complete invocation; operations must not retain it.
+ * The context borrows both detached data and its concrete event stream. It does
+ * not own project state. The stream is the sole source of this context's
+ * execution identity, so context and all published events cannot diverge.
  */
 class GT_CORE_EXPORT GtOperationExecutionContext
 {
 public:
-    GtOperationExecutionContext(GtObject* data,
-                                GtExecutionEventSink& events,
-                                GtCancellationToken cancellation = {},
-                                GtExecutionId executionId = {});
+    GtOperationExecutionContext(GtObject* data, GtExecutionEventStream& events,
+                                GtCancellationToken cancellation = {});
 
-    /// Returns borrowed mutable invocation data, or nullptr; do not retain it.
+    /// Returns the detached operation data, which remains owned by the caller.
     GtObject* data() noexcept;
-    /// Returns borrowed read-only invocation data, or nullptr; do not retain it.
+    /// Returns the detached operation data, which remains owned by the caller.
     GtObject const* data() const noexcept;
-    /// Returns the immutable identity shared by this complete invocation.
+    /// Returns the id owned by events().
     GtExecutionId const& executionId() const noexcept;
-    /// Returns the transport-neutral sink for execution-side observations.
-    GtExecutionEventSink& events() noexcept;
-    /// Returns shared state that can be observed while another thread requests cancellation.
+    /// Returns the concrete stream used to publish this execution's events.
+    GtExecutionEventStream& events() noexcept;
+    /// Returns the shared cancellation token for this invocation.
     GtCancellationToken& cancellation() noexcept;
-    /// Returns shared state that can be observed while another thread requests cancellation.
+    /// Returns the shared cancellation token for this invocation.
     GtCancellationToken const& cancellation() const noexcept;
 
 private:
     GtObject* m_data;
-    GtExecutionEventSink& m_events;
+    GtExecutionEventStream& m_events;
     GtCancellationToken m_cancellation;
-    GtExecutionId m_executionId;
 };
 
 #endif // GTOPERATIONEXECUTIONCONTEXT_H

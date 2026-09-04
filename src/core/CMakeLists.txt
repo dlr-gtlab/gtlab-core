@@ -78,10 +78,14 @@ set(headers
     states/gt_statecontainer.h
     gt_coreapplication.h
     gt_executioncontext.h
+    gt_executionevent.h
+    gt_executioneventstream.h
+    gt_executioneventfilewriter.h
     gt_executableoperation.h
     gt_operationapplyresult.h
     gt_operationexecutioncontext.h
     gt_operationinterface.h
+    gt_stdioexecutioneventencoder.h
     gt_projectexecutionguard.h
     gt_core_exports.h
     gt_footprint.h
@@ -193,8 +197,12 @@ set(sources
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
     gt_executioncontext.cpp
+    gt_executionevent.cpp
+    gt_executioneventstream.cpp
+    gt_executioneventfilewriter.cpp
     gt_operationapplyresult.cpp
     gt_operationexecutioncontext.cpp
+    gt_stdioexecutioneventencoder.cpp
     gt_projectexecutionguard.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp

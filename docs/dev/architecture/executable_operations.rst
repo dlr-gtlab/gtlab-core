@@ -13,10 +13,17 @@ Core foundation
 ---------------
 
 Core provides ``GtExecutableOperation`` together with ``GtOperationExecutionContext``,
-``GtExecutionId``, ``GtCancellationToken``, ``GtExecutionEventSink``, and the
-structured ``GtOperationApplyResult``. The context carries borrowed detached data,
-an invocation identity, the event-sink boundary, and shared cooperative cancellation
-state; it does not carry project state.
+``GtExecutionId``, ``GtCancellationToken``, and the structured
+``GtOperationApplyResult``. The context carries borrowed detached data, an
+invocation identity, direct access to the invocation-local
+``GtExecutionEventStream``, and shared cooperative cancellation state; it does
+not carry project state.
+
+The event stream is a concrete Qt-based publisher/observable object rather than
+an observer/sink interface hierarchy. Operations publish through
+``context.events().publish(...)``; local consumers and process-boundary adapters
+observe the resulting logical events through Qt signals/slots. The stream itself
+has no stdout, file, GUI, or remote-control-plane dependency.
 
 Use ``GtOperationInterface::operations()`` to declaratively contribute operation
 ``QMetaObject`` values. The normal module loader validates each declaration as an
@@ -89,20 +96,34 @@ Keep lifecycle boundaries separate:
 The runtime owns only the first. A future client ``GtOperationExecutor`` owns
 the second; the runtime never calls ``applyResult()`` on an originating project.
 
-Worker implementers
+Event observation
+-----------------
+
+``GtExecutionEventStream`` is the operation-facing event publisher and local
+observable stream for one invocation. It assigns execution identity and strict
+per-execution sequence order and emits logical ``GtExecutionEvent`` values via
+Qt signals/slots. Writers and adapters connect as ordinary Qt observers; there
+is no separate ``GtExecutionEventSink`` interface.
+
+Logical event payloads are JSON-only: absent, null, boolean, number, string,
+list, or string-keyed object. They are small status, progress, or domain
+observations and contain no process-local pointers. Larger GTlab data belongs in
+the detached result path or a future artifact/data channel.
+
+Worker event output
 -------------------
 
-The one-shot worker is an adapter, not a second runtime. Reconstruct project,
-operation, and optional detached data through normal Memento/ObjectFactory
-mechanisms, validate ``GtExecutableOperation`` before submission, configure the
-stdio adapter, and delegate lifecycle to ``GtHeadlessProjectRuntime``.
+The first concrete worker event channel is a worker-owned, exclusive
+``events.ndjson``-style file. Connect ``GtExecutionEventFileWriter`` to
+``GtExecutionEventStream::eventPublished``; it appends one compact JSON event
+record per line. Ordinary stdout, stderr, and log output use separate channels.
 
-Emit V1 protocol records as one UTF-8 line starting exactly with
-``@gtlab-operation-v1 `` and compact JSON containing ``kind`` and
+``GtStdioExecutionEventEncoder`` may be used as a compatibility or fallback
+adapter. It emits only its own V1 protocol records and cannot provide framing or
+atomicity guarantees for unrelated stdout writers. V1 records start exactly with
+``@gtlab-operation-v1 `` and contain compact JSON with ``kind`` and
 ``executionId``. Kinds are ``event``, ``result``, and ``failure``; result and
-failure are terminal, with no second terminal record. Non-prefixed stdout lines
-are ordinary output, never protocol. Decoders ignore or forward them separately
-and must not assume every stdout line is JSON protocol data.
+failure are terminal, with no second terminal record.
 
 Existing tasks
 --------------

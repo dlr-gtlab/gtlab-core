@@ -6,6 +6,8 @@
 
 #include "gt_operationexecutioncontext.h"
 
+#include "gt_executioneventstream.h"
+
 #include <utility>
 
 #include <QUuid>
@@ -20,71 +22,60 @@ GtExecutionId::GtExecutionId() :
 {
 }
 
-QString const&
-GtExecutionId::toString() const noexcept
+QString const& GtExecutionId::toString() const noexcept
 {
     return m_value;
 }
 
-GtCancellationToken::GtCancellationToken() :
-    m_state(std::make_shared<State>())
+GtCancellationToken::GtCancellationToken() : m_state(std::make_shared<State>())
 {
 }
 
-void
-GtCancellationToken::requestCancellation() noexcept
+void GtCancellationToken::requestCancellation() noexcept
 {
     m_state->requested.store(true, std::memory_order_release);
 }
 
-bool
-GtCancellationToken::isCancellationRequested() const noexcept
+bool GtCancellationToken::isCancellationRequested() const noexcept
 {
     return m_state->requested.load(std::memory_order_acquire);
 }
 
 GtOperationExecutionContext::GtOperationExecutionContext(
-    GtObject* data, GtExecutionEventSink& events,
-    GtCancellationToken cancellation, GtExecutionId executionId) :
+    GtObject* data, GtExecutionEventStream& events,
+    GtCancellationToken cancellation) :
     m_data(data),
     m_events(events),
-    m_cancellation(std::move(cancellation)),
-    m_executionId(std::move(executionId))
+    m_cancellation(std::move(cancellation))
 {
 }
 
-GtObject*
-GtOperationExecutionContext::data() noexcept
+GtObject* GtOperationExecutionContext::data() noexcept
 {
     return m_data;
 }
 
-GtObject const*
-GtOperationExecutionContext::data() const noexcept
+GtObject const* GtOperationExecutionContext::data() const noexcept
 {
     return m_data;
 }
 
-GtExecutionId const&
-GtOperationExecutionContext::executionId() const noexcept
+GtExecutionId const& GtOperationExecutionContext::executionId() const noexcept
 {
-    return m_executionId;
+    return m_events.executionId();
 }
 
-GtExecutionEventSink&
-GtOperationExecutionContext::events() noexcept
+GtExecutionEventStream& GtOperationExecutionContext::events() noexcept
 {
     return m_events;
 }
 
-GtCancellationToken&
-GtOperationExecutionContext::cancellation() noexcept
+GtCancellationToken& GtOperationExecutionContext::cancellation() noexcept
 {
     return m_cancellation;
 }
 
-GtCancellationToken const&
-GtOperationExecutionContext::cancellation() const noexcept
+GtCancellationToken const& GtOperationExecutionContext::cancellation() const noexcept
 {
     return m_cancellation;
 }
