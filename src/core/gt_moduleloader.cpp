@@ -201,16 +201,25 @@ public:
         m_lockFile(GtCoreApplication::localApplicationIniFilePath() +
                    QStringLiteral(".module-loading.lock"))
     {
-        m_lockFile.lock();
+        m_locked = m_lockFile.lock();
     }
 
     ~ModuleLoadingLock()
     {
-        m_lockFile.unlock();
+        if (m_locked)
+        {
+            m_lockFile.unlock();
+        }
+    }
+
+    bool locked() const
+    {
+        return m_locked;
     }
 
 private:
     QLockFile m_lockFile;
+    bool m_locked{false};
 };
 
 class GtModuleLoader::Impl
@@ -627,6 +636,11 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
     }
 
     ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return false;
+    }
 
     const auto moduleMeta = loadModuleMeta(moduleLocation);
     if (moduleMeta.moduleId().isEmpty())
@@ -675,6 +689,11 @@ void
 GtModuleLoader::load()
 {
     ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return;
+    }
 
     m_pimpl->m_metaData = loadModuleMeta();
 
@@ -694,6 +713,11 @@ QMap<QString, QString>
 GtModuleLoader::moduleEnvironmentVars()
 {
     ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return {};
+    }
 
     auto moduleMeta = loadModuleMeta();
 
