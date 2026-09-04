@@ -8,10 +8,15 @@
 
 #include <memory>
 
+#include <QBuffer>
 #include <QCoreApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <thread>
 
+#include "gt_executioneventstream.h"
 #include "gt_executableoperation.h"
+#include "gt_stdioexecutioneventencoder.h"
 #include "gt_coreapplication.h"
 #include "gt_moduleinterface.h"
 #include "gt_operationinterface.h"
@@ -199,6 +204,21 @@ private:
     std::unique_ptr<TestApplication> m_application;
 };
 
+
+QJsonObject protocolRecord(QByteArray const& line)
+{
+    constexpr auto prefix = "@gtlab-operation-v1 ";
+    EXPECT_TRUE(line.startsWith(prefix));
+    EXPECT_TRUE(line.endsWith('\n'));
+
+    QJsonParseError error;
+    auto const document = QJsonDocument::fromJson(
+        line.mid(static_cast<int>(std::char_traits<char>::length(prefix))).trimmed(),
+        &error);
+    EXPECT_EQ(error.error, QJsonParseError::NoError);
+    return document.object();
+}
+
 } // namespace
 
 TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
@@ -292,6 +312,128 @@ TEST(GtOperationApplyResult, exposesStructuredFailure)
     EXPECT_TRUE(success.isSuccess());
     EXPECT_FALSE(failure.isSuccess());
     EXPECT_EQ(failure.errorMessage(), QStringLiteral("error"));
+}
+
+
+TEST(GtExecutionEventStream, assignsSequenceAndNotifiesLocalObservers)
+{
+    GtExecutionId executionId;
+    GtExecutionEventStream stream(executionId);
+    QVector<GtExecutionEvent> observed;
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished,
+                     [&observed](GtExecutionEvent event) {
+                         observed.push_back(std::move(event));
+                     });
+
+    stream.publish(QStringLiteral("started"));
+    stream.publish(QStringLiteral("progress"), QJsonValue(0.5));
+    stream.publish(QStringLiteral("finished"), QJsonObject{{"count", 3}});
+
+    ASSERT_EQ(observed.size(), 3);
+    for (int index = 0; index < observed.size(); ++index) {
+        EXPECT_EQ(observed.at(index).sequence(), static_cast<quint64>(index));
+        EXPECT_EQ(observed.at(index).executionId().toString(),
+                  executionId.toString());
+    }
+    EXPECT_EQ(observed.at(1).jsonPayload(), QJsonValue(0.5));
+    EXPECT_EQ(observed.at(2).jsonPayload().toObject().value("count"), 3);
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    encoder.encodeEvent(GtExecutionEvent(executionId, 7, QStringLiteral("progress"),
+                                         QJsonObject{{"ratio", 0.5}}));
+
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_EQ(record.value("version"), 1);
+    EXPECT_EQ(record.value("kind"), "event");
+    EXPECT_EQ(record.value("executionId"), executionId.toString());
+    EXPECT_EQ(record.value("sequence"), 7);
+    EXPECT_EQ(record.value("eventType"), "progress");
+    EXPECT_EQ(record.value("payloadEncoding"), "json");
+    EXPECT_EQ(record.value("payload").toObject().value("ratio"), 0.5);
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesMementoPayloadWithoutRawNewlines)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtObject object;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    encoder.encodeEvent(GtExecutionEvent(executionId, 0, QStringLiteral("snapshot"),
+                                         object.toMemento().toByteArray()));
+
+    ASSERT_EQ(bytes.count('\n'), 1);
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_EQ(record.value("payloadEncoding"), "memento-xml-base64");
+    const QByteArray xml = QByteArray::fromBase64(
+        record.value("payload").toString().toLatin1());
+    EXPECT_EQ(xml, object.toMemento().toByteArray());
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesNullResultAndRejectsLaterRecords)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    EXPECT_TRUE(encoder.encodeResult(nullptr));
+    EXPECT_TRUE(encoder.isTerminal());
+    encoder.encodeEvent(GtExecutionEvent(executionId, 1, QStringLiteral("late")));
+    EXPECT_FALSE(encoder.encodeFailure(QStringLiteral("late"), QStringLiteral("late")));
+
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_EQ(record.value("kind"), "result");
+    EXPECT_EQ(record.value("resultEncoding"), "null");
+    EXPECT_TRUE(record.value("result").isNull());
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesMementoResult)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtObject result;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    ASSERT_TRUE(encoder.encodeResult(&result));
+
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_EQ(record.value("kind"), "result");
+    EXPECT_EQ(record.value("resultEncoding"), "memento-xml-base64");
+    EXPECT_EQ(QByteArray::fromBase64(record.value("result").toString().toLatin1()),
+              result.toMemento().toByteArray());
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesStructuredFailure)
+{
+    QByteArray bytes;
+    QBuffer output(&bytes);
+    ASSERT_TRUE(output.open(QIODevice::WriteOnly));
+
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    EXPECT_TRUE(encoder.encodeFailure(QStringLiteral("operation.failed"),
+                                      QStringLiteral("Calculation failed"),
+                                      QJsonObject{{"iteration", 4}}));
+
+    const QJsonObject record = protocolRecord(bytes);
+    EXPECT_EQ(record.value("kind"), "failure");
+    EXPECT_EQ(record.value("errorCode"), "operation.failed");
+    EXPECT_EQ(record.value("message"), "Calculation failed");
+    EXPECT_EQ(record.value("details").toObject().value("iteration"), 4);
 }
 
 #include "test_gt_executableoperation.moc"
