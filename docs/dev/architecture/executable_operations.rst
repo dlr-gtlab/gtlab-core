@@ -105,24 +105,25 @@ per-execution sequence order and emits logical ``GtExecutionEvent`` values via
 Qt signals/slots. Writers and adapters connect as ordinary Qt observers; there
 is no separate ``GtExecutionEventSink`` interface.
 
-Logical event payloads remain transport-neutral. A detached object payload is
-represented logically as Memento/XML; textual adapters such as stdio V1 may
-encode those bytes as Base64, but Base64 is not part of the logical event type.
+Logical event payloads are JSON-only: absent, null, boolean, number, string,
+list, or string-keyed object. They are small status, progress, or domain
+observations and contain no process-local pointers. Larger GTlab data belongs in
+the detached result path or a future artifact/data channel.
 
-Worker implementers
+Worker event output
 -------------------
 
-The one-shot worker is an adapter, not a second runtime. Reconstruct project,
-operation, and optional detached data through normal Memento/ObjectFactory
-mechanisms, validate ``GtExecutableOperation`` before submission, configure the
-stdio adapter, and delegate lifecycle to ``GtHeadlessProjectRuntime``.
+The first concrete worker event channel is a worker-owned, exclusive
+``events.ndjson``-style file. Connect ``GtExecutionEventFileWriter`` to
+``GtExecutionEventStream::eventPublished``; it appends one compact JSON event
+record per line. Ordinary stdout, stderr, and log output use separate channels.
 
-Emit V1 protocol records as one UTF-8 line starting exactly with
-``@gtlab-operation-v1 `` and compact JSON containing ``kind`` and
+``GtStdioExecutionEventEncoder`` may be used as a compatibility or fallback
+adapter. It emits only its own V1 protocol records and cannot provide framing or
+atomicity guarantees for unrelated stdout writers. V1 records start exactly with
+``@gtlab-operation-v1 `` and contain compact JSON with ``kind`` and
 ``executionId``. Kinds are ``event``, ``result``, and ``failure``; result and
-failure are terminal, with no second terminal record. Non-prefixed stdout lines
-are ordinary output, never protocol. Decoders ignore or forward them separately
-and must not assume every stdout line is JSON protocol data.
+failure are terminal, with no second terminal record.
 
 Existing tasks
 --------------

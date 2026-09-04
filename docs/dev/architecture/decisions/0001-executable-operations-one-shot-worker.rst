@@ -206,13 +206,13 @@ A transport-neutral logical event envelope has these required fields:
 * ``executionId``: invocation identity;
 * ``sequence``: zero-based, strictly increasing unsigned per-execution order;
 * ``eventType``: non-empty domain event key; and
-* ``payload``: absent, a JSON value tree (null, boolean, number, string, list,
-  or string-keyed object), or detached serializable ``GtObject`` Memento/XML.
+* ``payload``: absent or a JSON value tree (null, boolean, number, string,
+  list, or string-keyed object).
 
-Payloads contain no process-local pointers. The logical event representation
-must describe the payload itself, not a wire encoding: Memento payloads remain
-Memento/XML in the event model. A textual adapter such as stdio V1 may encode
-those bytes as Base64 at the process boundary.
+Payloads contain no process-local pointers. Worker Slice 1 events deliberately
+carry only small JSON status, progress, or domain observations. Detached
+``GtObject`` Mementos and other larger data use the result path or a future
+artifact/data channel; a wire encoding is not part of the logical event model.
 
 Qt signals/slots are the local observation mechanism; stdio is only one
 transport adapter. Events are ordered per execution, connections are established
@@ -231,24 +231,28 @@ may reuse the executor, but generic runtime state does not depend on it,
 
 Worker Slice 1 depends on the generic runtime from #1515. The batch command is
 a boundary adapter: it reconstructs serialized project, operation, and optional
-data, configures the process-boundary event adapter, and delegates lifecycle to
-``GtHeadlessProjectRuntime::submitOperation(...)``. It does not construct an
-execution context and invoke ``operation.execute()`` as an architectural path.
+data, configures the exclusive file-backed event observer, and delegates
+lifecycle to ``GtHeadlessProjectRuntime::submitOperation(...)``. It does not
+construct an execution context and invoke ``operation.execute()`` as an
+architectural path.
 
-Stdio V1
---------
+Event output and stdio V1 fallback
+----------------------------------
 
-V1 records are one UTF-8 stdout line beginning at byte zero with
-``@gtlab-operation-v1 `` followed by compact JSON; newline is the boundary. All
-records contain ``version`` (integer ``1``), ``kind``, and ``executionId``.
-``kind`` is exactly ``event``, ``result``, or ``failure``.
+The primary Worker Slice 1 event channel is the worker-owned, exclusive
+``events.ndjson``-style file observed by ``GtExecutionEventFileWriter``. It
+contains one compact JSON event envelope per line and never mixes ordinary
+stdout, stderr, or log output with structured events.
+
+Stdio V1 remains an optional compatibility/fallback adapter. Its records are one
+UTF-8 stdout line beginning at byte zero with ``@gtlab-operation-v1 `` followed
+by compact JSON; newline is the boundary. All records contain ``version``
+(integer ``1``), ``kind``, and ``executionId``. ``kind`` is exactly ``event``,
+``result``, or ``failure``.
 
 * ``event`` additionally contains ``sequence``, ``eventType``,
-  ``payloadEncoding``, and ``payload``. ``payloadEncoding`` is a stdio V1
-  wire-format field: ``json`` for the logical JSON value tree or
-  ``memento-xml-base64`` for logical UTF-8 Memento/XML bytes encoded with
-  standard Base64 by the stdio adapter. ``payload`` is respectively the JSON
-  value or a Base64 string.
+  ``payloadEncoding`` (always ``json``), and ``payload`` as the logical JSON
+  value.
 * ``result`` additionally contains ``resultEncoding`` and ``result``.
   ``resultEncoding`` is ``null`` for a valid null result or
   ``memento-xml-base64`` for a detached-result Memento. ``result`` is JSON null
