@@ -29,6 +29,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
+#include <QLockFile>
 #include <QDomElement>
 
 #include "gt_algorithms.h"
@@ -193,6 +194,25 @@ getMatchedModuleIds(const QString& dependency,
 
 } // namespace
 
+class ModuleLoadingLock
+{
+public:
+    ModuleLoadingLock() :
+        m_lockFile(GtCoreApplication::localApplicationIniFilePath() +
+                   QStringLiteral(".module-loading.lock"))
+    {
+        m_lockFile.lock();
+    }
+
+    ~ModuleLoadingLock()
+    {
+        m_lockFile.unlock();
+    }
+
+private:
+    QLockFile m_lockFile;
+};
+
 class GtModuleLoader::Impl
 {
 public:
@@ -202,7 +222,7 @@ public:
     /// Mapping of suppressed plugins to their suppressors
     QMap<QString, QSet<QString>> m_suppressedPlugins;
 
-    const std::map<QString, ModuleMetaData> m_metaData{loadModuleMeta()};
+    ModuleMetaMap m_metaData;
 
     /// Modules initialized indicator.
     bool m_modulesInitialized{false};
@@ -606,6 +626,8 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
         return false;
     }
 
+    ModuleLoadingLock moduleLoadingLock;
+
     const auto moduleMeta = loadModuleMeta(moduleLocation);
     if (moduleMeta.moduleId().isEmpty())
     {
@@ -616,6 +638,11 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
     }
 
     const QStringList modulesToLoad{moduleMeta.moduleId()};
+
+    if (m_pimpl->m_metaData.empty())
+    {
+        m_pimpl->m_metaData = loadModuleMeta();
+    }
 
     // the meta data from the module directory
     auto moduleMetaMap = m_pimpl->m_metaData;
@@ -647,6 +674,10 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 void
 GtModuleLoader::load()
 {
+    ModuleLoadingLock moduleLoadingLock;
+
+    m_pimpl->m_metaData = loadModuleMeta();
+
     auto allModulesIds = m_pimpl->getAllLoadableModuleIds();
     auto moduleMetaMap = m_pimpl->m_metaData;
 
@@ -662,6 +693,8 @@ GtModuleLoader::load()
 QMap<QString, QString>
 GtModuleLoader::moduleEnvironmentVars()
 {
+    ModuleLoadingLock moduleLoadingLock;
+
     auto moduleMeta = loadModuleMeta();
 
     QMap<QString, QString> retval;
