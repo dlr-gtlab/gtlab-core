@@ -97,7 +97,7 @@ GtProcessInfoPopup::GtProcessInfoPopup(
         addLine(tr("Contact"), processInfos.contact);
 
     if (processInfos.company != "-")
-        addLine(tr("Copany"), processInfos.company);
+        addLine(tr("Company"), processInfos.company);
 
     cardLayout->addWidget(header);
     cardLayout->addWidget(content);
