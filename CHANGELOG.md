@@ -31,6 +31,7 @@ As such, many functions needed to be deprecated and should be replaced according
     - Replace `gt::re::XXX` with `gt::rex::XXX` (just replace the namespace)
 
 ### Fixed
+ - Fixed modules being incorrectly disabled when multiple GTlab instances start concurrently. - #1538
  - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1379
  - Fixed Output Dock not resizing new rows correctly. - #1260
  - Fixed crash in Process Explorer, when no project is currently open. - #1393

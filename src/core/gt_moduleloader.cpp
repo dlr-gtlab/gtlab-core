@@ -29,6 +29,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
+#include <QLockFile>
+#include <QThread>
 #include <QDomElement>
 
 #include "gt_algorithms.h"
@@ -193,6 +195,50 @@ getMatchedModuleIds(const QString& dependency,
 
 } // namespace
 
+class ModuleLoadingLock
+{
+public:
+    ModuleLoadingLock() :
+        m_lockFile(GtCoreApplication::localApplicationIniFilePath() +
+                   QStringLiteral(".module-loading.lock"))
+    {
+        while (!m_lockFile.tryLock(0))
+        {
+            if (m_lockFile.error() != QLockFile::LockFailedError)
+            {
+                return;
+            }
+
+            QThread::msleep(10);
+        }
+
+        m_locked = true;
+    }
+
+    ~ModuleLoadingLock()
+    {
+        if (m_locked)
+        {
+            m_lockFile.unlock();
+        }
+    }
+
+    bool locked() const
+    {
+        return m_locked;
+    }
+
+private:
+    QLockFile m_lockFile;
+    bool m_locked{false};
+};
+
+enum class PreviousCrashPolicy
+{
+    Skip,
+    Ignore
+};
+
 class GtModuleLoader::Impl
 {
 public:
@@ -220,7 +266,9 @@ public:
     bool performLoading(GtModuleLoader& moduleLoader,
                         const QStringList& modulesToLoad,
                         const ModuleMetaMap &metaMap,
-                        QStringList& failedModules);
+                        QStringList& failedModules,
+                        PreviousCrashPolicy previousCrashPolicy =
+                            PreviousCrashPolicy::Skip);
     /**
      * @brief checkDependency
      * The dependencies of the module are given by a list and are compared
@@ -561,21 +609,6 @@ ModuleMetaMap loadModuleMeta()
         }
     }
 
-    const auto crashed_mods = CrashedModulesLog().crashedModules();
-
-    // Remove all modules, that have been crashed earlies
-    metaData = filterModules(metaData, [&](const ModuleMetaData& m){
-        if (crashed_mods.contains(m.location()))
-        {
-            logWarnOnce(
-                QObject::tr("Module '%1' caused a crash in a previous run. "
-                            "Skipping module!").arg(m.moduleId())
-            );
-            return false;
-        }
-        return true;
-    });
-
     // Remove all modules, that should be exluded
     const auto excludeList = getModulesToExclude();
     metaData = filterModules(metaData, [&](const ModuleMetaData& m){
@@ -591,6 +624,32 @@ ModuleMetaMap loadModuleMeta()
     });
 
     return metaData;
+}
+
+ModuleMetaMap
+loadModuleMetaExcludingCrashed()
+{
+    auto metaData = loadModuleMeta();
+
+    ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return {};
+    }
+
+    const auto crashedModules = CrashedModulesLog().crashedModules();
+    return filterModules(metaData, [&](const ModuleMetaData& moduleMeta){
+        if (crashedModules.contains(moduleMeta.location()))
+        {
+            logWarnOnce(
+                QObject::tr("Module '%1' caused a crash in a previous run. "
+                            "Skipping module!").arg(moduleMeta.moduleId())
+            );
+            return false;
+        }
+        return true;
+    });
 }
 
 } // namespace
@@ -634,7 +693,8 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 
     QStringList failedModules;
     if (!m_pimpl->performLoading(*this, modulesToLoad,
-                                 moduleMetaMap, failedModules))
+                                 moduleMetaMap, failedModules,
+                                 PreviousCrashPolicy::Ignore))
     {
         gtError().verbose() << QObject::tr("Some modules failed to load!");
         Impl::printDependencies(failedModules, moduleMetaMap);
@@ -662,7 +722,7 @@ GtModuleLoader::load()
 QMap<QString, QString>
 GtModuleLoader::moduleEnvironmentVars()
 {
-    auto moduleMeta = loadModuleMeta();
+    auto moduleMeta = loadModuleMetaExcludingCrashed();
 
     QMap<QString, QString> retval;
     for (const auto& mod : moduleMeta)
@@ -987,14 +1047,23 @@ bool
 GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
                                  const QStringList& moduleIds,
                                  const ModuleMetaMap& metaMap,
-                                 QStringList& failedModules)
+                                 QStringList& failedModules,
+                                 PreviousCrashPolicy previousCrashPolicy)
 {
-    // initialize loading fail log
-    CrashedModulesLog crashLog;
-
     auto sortedModuleIds = getSortedModulesToLoad(moduleIds, metaMap);
 
+    ModuleLoadingLock moduleLoadingLock;
+    if (!moduleLoadingLock.locked())
+    {
+        gtError() << QObject::tr("Cannot acquire the module loading lock.");
+        return false;
+    }
+
+    CrashedModulesLog crashLog;
+    const auto crashedModules = crashLog.crashedModules();
+
     QStringList successfullyLoaded{};
+    QStringList previouslyCrashed{};
 
     // loading procedure
     for (const auto& currentModuleId : qAsConst(sortedModuleIds))
@@ -1003,6 +1072,17 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
         assert(moduleIt != metaMap.end());
 
         const ModuleMetaData& moduleMeta = moduleIt->second;
+
+        if (previousCrashPolicy == PreviousCrashPolicy::Skip &&
+            crashedModules.contains(moduleMeta.location()))
+        {
+            logWarnOnce(
+                QObject::tr("Module '%1' caused a crash in a previous run. "
+                            "Skipping module!").arg(moduleMeta.moduleId())
+            );
+            previouslyCrashed.push_back(currentModuleId);
+            continue;
+        }
 
         if (isSuppressed(moduleMeta) || !dependenciesOkay(moduleMeta))
         {
@@ -1041,8 +1121,14 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
     failedModules = std::move(sortedModuleIds);
 
-    // remove successfully loaded from sortedModuleIds
+    // remove modules which were successfully loaded or skipped because
+    // they crashed during a previous run
     for (const auto& modId : qAsConst(successfullyLoaded))
+    {
+        failedModules.removeAll(modId);
+    }
+
+    for (const auto& modId : qAsConst(previouslyCrashed))
     {
         failedModules.removeAll(modId);
     }
