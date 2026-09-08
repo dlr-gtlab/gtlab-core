@@ -28,6 +28,9 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <qjsondocument.h>
+#include <qjsonobject.h>
+#include <qmetaobject.h>
 
 namespace
 {
@@ -39,6 +42,79 @@ namespace
         {
         }
     };
+
+    int
+    checkFiles(const QFileInfo projectFile,
+               const QFileInfo taskFile,
+               const QString outputProjectFile,
+               const QString outputTaskDiffFile,
+               const QString outputTaskStateFile,
+               const QString workingDirectory )
+    {
+
+        if (outputProjectFile == projectFile.absoluteFilePath() ||
+            outputProjectFile == taskFile.absoluteFilePath())
+        {
+            gtError() << QObject::tr(
+                "Output project diff must not overwrite an input Memento");
+            return 2;
+        }
+
+        if (outputTaskDiffFile == projectFile.absoluteFilePath() ||
+            outputTaskDiffFile == taskFile.absoluteFilePath())
+        {
+            gtError() << QObject::tr(
+                "Output task diff must not overwrite an input Memento");
+            return 2;
+        }
+
+        if (outputTaskStateFile == projectFile.absoluteFilePath() ||
+            outputTaskStateFile == taskFile.absoluteFilePath())
+        {
+            gtError() << QObject::tr(
+                "Output task state must not overwrite an input Memento");
+            return 2;
+        }
+
+
+        if (!outputTaskDiffFile.isEmpty() &&
+            QStringList{outputProjectFile, outputTaskStateFile}.contains(outputTaskDiffFile))
+        {
+            gtError() << QObject::tr(
+                "Output files cannot have the same name");
+            return 2;
+        }
+
+        if (!outputTaskStateFile.isEmpty() &&
+            QStringList{outputProjectFile, outputTaskDiffFile}.contains(outputTaskStateFile))
+        {
+            gtError() << QObject::tr(
+                "Output files cannot have the same name");
+            return 2;
+        }
+
+
+        if (!projectFile.isFile())
+        {
+            gtError() << QObject::tr("Project Memento does not exist: %1")
+            .arg(projectFile.absoluteFilePath());
+            return 3;
+        }
+        if (!taskFile.isFile())
+        {
+            gtError() << QObject::tr("Task Memento does not exist: %1")
+            .arg(taskFile.absoluteFilePath());
+            return 3;
+        }
+        if (!QFileInfo(workingDirectory).isDir())
+        {
+            gtError() << QObject::tr("Working directory does not exist: %1")
+            .arg(workingDirectory);
+            return 3;
+        }
+
+        return 0;
+    }
 
     std::unique_ptr<GtObjectGroup> restoreProjectData(QString const& fileName)
     {
@@ -161,6 +237,41 @@ namespace
         return true;
     }
 
+    bool writeTaskState(QString const& fileName, QJsonObject const& taskstate)
+    {
+        if (fileName.isEmpty())
+        {
+            return true;
+        }
+
+        QJsonDocument statusOutputDoc(taskstate);
+
+        QSaveFile file(fileName);
+        if (!file.open(QIODevice::WriteOnly))
+        {
+            gtError() << QObject::tr("Cannot write output task state json '%1': %2")
+                             .arg(fileName, file.errorString());
+            return false;
+        }
+
+        if (file.write(statusOutputDoc.toJson(QJsonDocument::Indented)) == -1)
+        {
+            gtError() << QObject::tr("Cannot write complete output task state json '%1': %2")
+                             .arg(fileName, file.errorString());
+            file.cancelWriting();
+            return false;
+        }
+
+        if (!file.commit())
+        {
+            gtError() << QObject::tr("Cannot publish output task state json '%1': %2")
+                             .arg(fileName, file.errorString());
+            return false;
+        }
+
+        return true;
+    }
+
     bool removeExistingOutput(QString const& fileName)
     {
         QFile outputFile(fileName);
@@ -186,11 +297,16 @@ gt::console::runTaskFromMementoOptions()
 {
     return {{{"project-memento", "p"}, "Serialized project-data Memento path"},
             {{"task-memento", "t"}, "Serialized task Memento path"},
-            {{"output-diff", "o"}, "Output Memento-Diff path"},
+            {{"output-diff", "o"}, "Output Project Memento-Diff path"},
+            {{"task-diff", "m"}, "Output Task Memento-Diff path"},
+            {{"task-state", "s"}, "Output Task State path"},
             {{"working-directory", "w"},
              "Execution working directory (defaults to project Memento "
              "directory)"}};
 }
+
+
+
 
 int
 gt::console::runTaskFromMemento(QStringList const& args)
@@ -207,14 +323,20 @@ gt::console::runTaskFromMemento(QStringList const& args)
                                         QObject::tr("Task Memento"),
                                         QObject::tr("path"));
     const QCommandLineOption outputOption({"o", "output-diff"},
-                                          QObject::tr("Output Memento-Diff"),
+                                          QObject::tr("Output Project Memento-Diff"),
                                           QObject::tr("path"));
+    const QCommandLineOption taskdiffOption({"m", "task-diff"},
+                                            QObject::tr("Output Task Memento-Diff"),
+                                            QObject::tr("path"));
+    const QCommandLineOption taskstateOption({"s", "task-state"},
+                                            QObject::tr("Output Task Memento-Diff"),
+                                            QObject::tr("path"));
     const QCommandLineOption workingDirectoryOption(
         {"w", "working-directory"}, QObject::tr("Execution working directory"),
         QObject::tr("path"));
 
     parser.addOptions(
-        {projectOption, taskOption, outputOption, workingDirectoryOption});
+        {projectOption, taskOption, outputOption, taskdiffOption, taskstateOption, workingDirectoryOption});
 
     QStringList commandLine{QStringLiteral("run_task_from_memento")};
     commandLine.append(args);
@@ -250,39 +372,24 @@ gt::console::runTaskFromMemento(QStringList const& args)
 
     const QFileInfo projectFile(parser.value(projectOption));
     const QFileInfo taskFile(parser.value(taskOption));
-    const QString outputFile =
-        QFileInfo(parser.value(outputOption)).absoluteFilePath();
+    const QString outputProjectFile = QFileInfo(parser.value(outputOption)).absoluteFilePath();
+
     const QString workingDirectory =
         parser.isSet(workingDirectoryOption)
             ? QFileInfo(parser.value(workingDirectoryOption)).absoluteFilePath()
             : projectFile.absolutePath();
 
-    if (outputFile == projectFile.absoluteFilePath() ||
-        outputFile == taskFile.absoluteFilePath())
+    const QString outputTaskDiffFile = parser.value(taskdiffOption);
+    const QString outputTaskStateFile = parser.value(taskstateOption);
+
+
+    int checkFilesReturn = checkFiles(projectFile, taskFile, outputProjectFile,
+                                      outputTaskDiffFile, outputTaskStateFile, workingDirectory);
+    if (checkFilesReturn != 0)
     {
-        gtError() << QObject::tr(
-            "Output diff must not overwrite an input Memento");
-        return 2;
+        return checkFilesReturn;
     }
 
-    if (!projectFile.isFile())
-    {
-        gtError() << QObject::tr("Project Memento does not exist: %1")
-                         .arg(projectFile.absoluteFilePath());
-        return 3;
-    }
-    if (!taskFile.isFile())
-    {
-        gtError() << QObject::tr("Task Memento does not exist: %1")
-                         .arg(taskFile.absoluteFilePath());
-        return 3;
-    }
-    if (!QFileInfo(workingDirectory).isDir())
-    {
-        gtError() << QObject::tr("Working directory does not exist: %1")
-                         .arg(workingDirectory);
-        return 3;
-    }
 
     auto projectData = restoreProjectData(projectFile.absoluteFilePath());
     auto task = restoreTask(taskFile.absoluteFilePath());
@@ -292,6 +399,8 @@ gt::console::runTaskFromMemento(QStringList const& args)
     }
 
     const GtObjectMemento initialProjectMemento = projectData->toMemento(true);
+    const GtObjectMemento initialTaskMemento = task->toMemento(true);
+    QJsonObject taskStateOutput;
 
     MementoExecutionProject project(workingDirectory);
     project.setObjectName(projectData->objectName());
@@ -310,7 +419,19 @@ gt::console::runTaskFromMemento(QStringList const& args)
     }
     task.release();
 
-    if (!removeExistingOutput(outputFile))
+    if (!removeExistingOutput(outputProjectFile))
+    {
+        return 6;
+    }
+    if (!removeExistingOutput(outputProjectFile))
+    {
+        return 6;
+    }
+    if (!removeExistingOutput(outputTaskDiffFile))
+    {
+        return 6;
+    }
+    if (!removeExistingOutput(outputTaskStateFile))
     {
         return 6;
     }
@@ -335,6 +456,17 @@ gt::console::runTaskFromMemento(QStringList const& args)
     }
 
     const auto taskState = executionTask->currentState();
+
+    taskStateOutput["taskStateNumeric"] = static_cast<int>(taskState);
+    taskStateOutput["taskStateString"] =  QString::fromLatin1(
+        QMetaEnum::fromType<GtProcessComponent::STATE>().valueToKey(taskState)
+        );
+    if(!writeTaskState(outputTaskStateFile, taskStateOutput))
+    {
+        gtWarning() <<  QObject::tr("Cannot write task state json: %1")
+                           .arg(outputTaskStateFile);
+    }
+
     if (state != GtCoreProcessExecutor::TaskExecState::Started ||
         (taskState != GtProcessComponent::FINISHED &&
          taskState != GtProcessComponent::WARN_FINISHED))
@@ -346,10 +478,19 @@ gt::console::runTaskFromMemento(QStringList const& args)
     GtObjectMemento resultProjectMemento = project.toProjectDataMemento();
     resultProjectMemento.setIdent(initialProjectMemento.ident());
     GtObjectMementoDiff diff(initialProjectMemento, resultProjectMemento);
-    if (!writeDiff(outputFile, diff))
+    if (!writeDiff(outputProjectFile, diff))
     {
         return 6;
     }
+
+    GtObjectMemento resultTaskMemento = executionTask->toMemento(true);
+    resultTaskMemento.setIdent(initialTaskMemento.ident());
+    GtObjectMementoDiff taskdiff(initialTaskMemento, resultTaskMemento);
+    if (!outputTaskDiffFile.isEmpty() && !writeDiff(outputTaskDiffFile, taskdiff))
+    {
+        return 6;
+    }
+
 
     return 0;
 }
