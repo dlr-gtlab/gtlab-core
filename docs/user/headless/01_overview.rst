@@ -23,9 +23,11 @@ process. The project input is the ``GtObjectGroup`` Memento produced by
        --project-memento project_memento.xml \
        --task-memento task.xml \
        --output-diff result.diff.xml \
+	   [--task-diff task.diff.xml] \
+	   [--task-state taskstate.json] \
        [--working-directory working_dir]
 
-The short option names are ``-p``, ``-t``, ``-o``, and ``-w``. If no working
+The short option names are ``-p``, ``-t``, ``-o``, ``-m``, ``-s`` and ``-w``. If no working
 directory is supplied, the directory containing the project Memento is used.
 During execution this directory is both the process working directory and the
 project path exposed by the execution context. Therefore existing calculators
