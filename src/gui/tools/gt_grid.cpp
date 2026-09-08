@@ -192,9 +192,9 @@ struct GtGrid::Impl
     }
 
     template <unsigned N>
-    static void paintVGridLinesImpl(const QRectF& sceneRect,
-                                    double lineDistance,
-                                    BufferedLineRender<N>& buffer)
+    static void paintLeftToRightGridLines(const QRectF& sceneRect,
+                                          double lineDistance,
+                                          BufferedLineRender<N>& buffer)
     {
         assert(lineDistance > 0);
 
@@ -212,9 +212,9 @@ struct GtGrid::Impl
     }
 
     template <unsigned N>
-    static void paintHGridLinesImpl(const QRectF& sceneRect,
-                                    double lineDistance,
-                                    BufferedLineRender<N>& buffer)
+    static void paintTopToBottomGridLines(const QRectF& sceneRect,
+                                          double lineDistance,
+                                          BufferedLineRender<N>& buffer)
     {
         assert(lineDistance > 0);
 
@@ -254,7 +254,7 @@ struct GtGrid::Impl
             if (majorHLineDistance >= cutoffHDistance)
             {
                 const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
-                paintHGridLinesImpl(rect, tmpHMinorSpacing, buffer);
+                paintLeftToRightGridLines(rect, tmpHMinorSpacing, buffer);
             }
 
             const double majorVLineDistance = cachedSpacing.vSpacing * pixelsPerSceneUnit;
@@ -262,14 +262,14 @@ struct GtGrid::Impl
             if (majorVLineDistance >= cutoffVDistance)
             {
                 const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
-                paintVGridLinesImpl(rect, tmpVMinorSpacing, buffer);
+                paintTopToBottomGridLines(rect, tmpVMinorSpacing, buffer);
             }
             buffer.flush();
         }
 
         painter.setPen(majorPen);
-        paintHGridLinesImpl(rect, cachedSpacing.hSpacing, buffer);
-        paintVGridLinesImpl(rect, cachedSpacing.vSpacing, buffer);
+        paintLeftToRightGridLines(rect, cachedSpacing.hSpacing, buffer);
+        paintTopToBottomGridLines(rect, cachedSpacing.vSpacing, buffer);
     }
 
     void paintAxis(QPainter& painter, const QRectF& rect) const

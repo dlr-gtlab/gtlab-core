@@ -197,7 +197,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     switch (orientation())
     {
     case Qt::Horizontal:
-        lineDistance = spacing.vSpacing;
+        lineDistance = spacing.hSpacing;
         left   = backgroundRect.left();
         right  = backgroundRect.right();
         height = cache().height();
@@ -209,7 +209,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
         painter.translate(cache().height(), 0); // move to end of pixmap
         painter.scale(-1, -1); // flip 180 degrees (so that the text is rotated correctly)
 
-        lineDistance = spacing.hSpacing;
+        lineDistance = spacing.vSpacing;
         left   = backgroundRect.top();
         right  = backgroundRect.bottom();
         height = cache().width();
@@ -291,5 +291,11 @@ void
 GtRuler::resizeEvent(QResizeEvent* e)
 {
     pimpl->cache = pimpl->cache.scaled(e->size(), Qt::IgnoreAspectRatio);
+
+    // need to fill entire pixmap too cover any area that may be unpainted by
+    // the ruler (e.g. due to scrollbars)
+    QPainter painter{&pimpl->cache};
+    painter.fillRect(cache().rect(), palette().color(QPalette::Window));
+
     invalidate();
 }
