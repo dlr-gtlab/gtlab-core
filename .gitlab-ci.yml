@@ -234,7 +234,7 @@ testWin:
   needs: ["windowsBuildDebug"]
   extends: 
     - .debugBuildRules
-    - .windocker
+    - .windocker_2.1
     - .testartifacts
   before_script:
    - !reference [.update_devtools_win, script]
