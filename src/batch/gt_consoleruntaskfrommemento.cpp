@@ -329,7 +329,7 @@ gt::console::runTaskFromMemento(QStringList const& args)
                                             QObject::tr("Output Task Memento-Diff"),
                                             QObject::tr("path"));
     const QCommandLineOption taskstateOption({"s", "task-state"},
-                                            QObject::tr("Output Task Memento-Diff"),
+                                            QObject::tr("Output Task State JSON"),
                                             QObject::tr("path"));
     const QCommandLineOption workingDirectoryOption(
         {"w", "working-directory"}, QObject::tr("Execution working directory"),
@@ -379,8 +379,19 @@ gt::console::runTaskFromMemento(QStringList const& args)
             ? QFileInfo(parser.value(workingDirectoryOption)).absoluteFilePath()
             : projectFile.absolutePath();
 
-    const QString outputTaskDiffFile = parser.value(taskdiffOption);
-    const QString outputTaskStateFile = parser.value(taskstateOption);
+    QString outputTaskDiffFile0 = "";
+    if (!parser.value(taskdiffOption).isEmpty())
+    {
+        outputTaskDiffFile0 = QFileInfo(parser.value(taskdiffOption)).absoluteFilePath();
+    }
+    const QString outputTaskDiffFile = outputTaskDiffFile0;
+
+    QString outputTaskStateFile0 = "";
+    if (!parser.value(taskstateOption).isEmpty())
+    {
+        outputTaskStateFile0 = QFileInfo(parser.value(taskstateOption)).absoluteFilePath();
+    }
+    const QString outputTaskStateFile = outputTaskStateFile0;
 
 
     int checkFilesReturn = checkFiles(projectFile, taskFile, outputProjectFile,
@@ -423,10 +434,6 @@ gt::console::runTaskFromMemento(QStringList const& args)
     {
         return 6;
     }
-    if (!removeExistingOutput(outputProjectFile))
-    {
-        return 6;
-    }
     if (!removeExistingOutput(outputTaskDiffFile))
     {
         return 6;
@@ -463,8 +470,9 @@ gt::console::runTaskFromMemento(QStringList const& args)
         );
     if(!writeTaskState(outputTaskStateFile, taskStateOutput))
     {
-        gtWarning() <<  QObject::tr("Cannot write task state json: %1")
+        gtError() <<  QObject::tr("Cannot write task state json: %1")
                            .arg(outputTaskStateFile);
+        return 6;
     }
 
     if (state != GtCoreProcessExecutor::TaskExecState::Started ||
