@@ -263,7 +263,7 @@ testLinux:
   needs: ["linuxBuildDebug"]
   extends: 
     - .debugBuildRules
-    - .linuxdocker
+    - .linuxdocker_2.1
     - .testartifacts
   before_script:
     - !reference [.update_devtools_linux, script]
