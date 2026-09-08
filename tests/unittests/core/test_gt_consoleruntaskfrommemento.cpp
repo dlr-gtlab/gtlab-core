@@ -475,6 +475,27 @@ namespace
                   4);
     }
 
+    TEST_F(TestGtConsoleRunTaskFromMemento, RejectsOutputfilesWithSameName)
+    {
+        ASSERT_TRUE(writeFile(projectPath, "input"));
+
+        EXPECT_NE(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputProjectPath, "-m", outputProjectPath}),
+                  0);
+        EXPECT_TRUE(QFileInfo::exists(projectPath));
+
+        EXPECT_NE(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputProjectPath, "-s", outputProjectPath}),
+                  0);
+        EXPECT_TRUE(QFileInfo::exists(projectPath));
+
+        EXPECT_NE(gt::console::runTaskFromMemento(
+                      {"-p", projectPath, "-t", taskPath, "-o", outputProjectPath, "-m", outputTaskdiffPath, "-s", outputTaskdiffPath}),
+                  0);
+        EXPECT_TRUE(QFileInfo::exists(projectPath));
+
+    }
+
     TEST_F(TestGtConsoleRunTaskFromMemento, ExposesAllCommandLineOptions)
     {
         EXPECT_EQ(gt::console::runTaskFromMementoOptions().size(), 6);
