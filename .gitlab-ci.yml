@@ -239,7 +239,7 @@ testWin:
   before_script:
    - !reference [.update_devtools_win, script]
   script:
-    - $env:path = "$env:GTLAB_DEV_TOOLS\binDebug;$env:path"
+    - $env:path = "$env:GTLAB_DEV_TOOLS\binDebug;$env:QT_INSTALL_PATH\bin;$env:path"
     - cd build
     - .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
 
