@@ -1,30 +1,5 @@
 # SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
 # SPDX-License-Identifier: CC0-1.0
 
-passedByValue:*
 unmatchedSuppression:*
 missingIncludeSystem:*
-# Contextually initialized aggregates and external DevTools implementation detail.
-uninitMemberVarNoCtor:src/core/gt_logmodel.h:323
-uninitMemberVarNoCtor:src/app/preferences/pages/gt_preferencesapp.cpp:35
-uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_taskhistorymodel.h:122
-uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_outputdock.cpp:54
-uninitMemberVarNoCtor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:191
-ignoredReturnValue:src/dataprocessor/gt_qtutilities.h:103
-ignoredReturnValue:src/batch/gt_consoleruntaskfrommemento.cpp:311
-
-# Intentional API specializations and byte-wise hashing.
-duplInheritedMember:src/dataprocessor/gt_labeldata.h:37
-duplInheritedMember:src/dataprocessor/gt_labeldata.cpp:28
-duplInheritedMember:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_group.h:173
-duplInheritedMember:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataset.h:168
-duplInheritedMember:src/dataprocessor/property/gt_colorproperty.h:123
-duplInheritedMember:src/dataprocessor/property/gt_colorproperty.cpp:71
-duplInheritedMember:src/dataprocessor/property/gt_enumproperty.h:161
-duplInheritedMember:src/core/gt_explorermodel.h:57
-duplInheritedMember:src/core/gt_explorermodel.cpp:55
-duplInheritedMember:src/gui/tools/gt_qmltoolbargroup.h:85
-duplInheritedMember:src/gui/tools/gt_qmltoolbargroup.cpp:98
-dangerousTypeCast:src/dataprocessor/gt_objectmemento.cpp:156
-dangerousTypeCast:src/dataprocessor/gt_objectmemento.cpp:165
-assertWithSideEffect:src/core/process_management/gt_taskgroup.cpp:192
