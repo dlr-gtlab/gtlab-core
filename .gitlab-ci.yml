@@ -385,7 +385,8 @@ cppcheck:
   needs: ["linuxBuildDebug"]
   script:
   - cmake -S . -B build -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF
-  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=all -j 16 -i build --project=build/compile_commands.json 2> cppcheck_out.xml || exit_code=$?
+  - sed -e "s|-isystem ${GTLAB_DEV_TOOLS}/include/logging|-I${GTLAB_DEV_TOOLS}/include/logging|g" -e "s|-isystem ${GTLAB_DEV_TOOLS}/include/h5|-I${GTLAB_DEV_TOOLS}/include/h5|g" build/compile_commands.json > build/cppcheck_compile_commands.json
+  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=warning -j 16 -i build --project=build/cppcheck_compile_commands.json 2> cppcheck_out.xml || exit_code=$?
   - more cppcheck_out.xml
   - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
   - exit $exit_code
