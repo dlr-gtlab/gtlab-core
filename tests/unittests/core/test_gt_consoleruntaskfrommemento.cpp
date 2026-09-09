@@ -288,10 +288,8 @@ namespace
 
             const QJsonObject obj = doc.object();
 
-            ASSERT_TRUE(obj.contains("taskStateNumeric"));
-            EXPECT_EQ(obj["taskStateNumeric"], 4);
-            ASSERT_TRUE(obj.contains("taskStateString"));
-            EXPECT_EQ(obj["taskStateString"], "FINISHED");
+            ASSERT_TRUE(obj.contains("taskState"));
+            EXPECT_EQ(obj["taskState"], "FINISHED");
         }
     }
 
@@ -401,10 +399,8 @@ namespace
 
             const QJsonObject obj = doc.object();
 
-            ASSERT_TRUE(obj.contains("taskStateNumeric"));
-            EXPECT_EQ(obj["taskStateNumeric"], 5);
-            ASSERT_TRUE(obj.contains("taskStateString"));
-            EXPECT_EQ(obj["taskStateString"], "WARN_FINISHED");
+            ASSERT_TRUE(obj.contains("taskState"));
+            EXPECT_EQ(obj["taskState"], "WARN_FINISHED");
         }
     }
 
@@ -552,10 +548,8 @@ namespace
 
             const QJsonObject obj = doc.object();
 
-            ASSERT_TRUE(obj.contains("taskStateNumeric"));
-            EXPECT_EQ(obj["taskStateNumeric"], 3);
-            ASSERT_TRUE(obj.contains("taskStateString"));
-            EXPECT_EQ(obj["taskStateString"], "FAILED");
+            ASSERT_TRUE(obj.contains("taskState"));
+            EXPECT_EQ(obj["taskState"], "FAILED");
         }
     }
 
