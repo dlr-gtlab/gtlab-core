@@ -146,6 +146,13 @@ GtModuleUpgrader::registerModuleConverter(const QString &modId,
                                           GtVersionNumber target,
                                           ConverterFunction func)
 {
+    if (func == nullptr)
+    {
+        gtErrorId("module data upgrader")
+            << "Cannot register null upgrade routine for module" << modId;
+        return;
+    }
+
     auto moduleUpgrader = m_pimpl->m_upgrader.find(modId.toStdString());
 
     if (moduleUpgrader != m_pimpl->m_upgrader.end())

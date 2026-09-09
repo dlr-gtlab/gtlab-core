@@ -10,3 +10,5 @@ uninitMemberVarNoCtor:src/app/preferences/pages/gt_preferencesapp.cpp:35
 uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_taskhistorymodel.h:122
 uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_outputdock.cpp:54
 uninitMemberVarNoCtor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:191
+ignoredReturnValue:src/dataprocessor/gt_qtutilities.h:103
+ignoredReturnValue:src/batch/gt_consoleruntaskfrommemento.cpp:311
