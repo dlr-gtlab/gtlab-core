@@ -385,7 +385,7 @@ cppcheck:
   needs: ["linuxBuildDebug"]
   script:
   - cmake -S . -B build -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF
-  - cppcheck --inline-suppr --xml --std=c++14 --suppress=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=all -j 16 -i build --project=build/compile_commands.json 2> cppcheck_out.xml || exit_code=$?
+  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=all -j 16 -i build --project=build/compile_commands.json 2> cppcheck_out.xml || exit_code=$?
   - more cppcheck_out.xml
   - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
   - exit $exit_code
