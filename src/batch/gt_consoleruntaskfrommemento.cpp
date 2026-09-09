@@ -123,14 +123,12 @@ namespace
             for (QString const& outputPath : outputPaths)
             {
                 // check if output would overwrite an input file
-                for (QString const& inputPath : inputPaths)
+                auto inputPath = std::find(inputPaths.begin(), inputPaths.end(), outputPath);
+                if (inputPath != inputPaths.end())
                 {
-                    if (outputPath == inputPath)
-                    {
-                        gtError() << QObject::tr("Output file must not overwrite the input file '%1'!")
-                        .arg(inputPath);
-                        return false;
-                    }
+                    gtError() << QObject::tr("Output file must not overwrite the input file '%1'!")
+                    .arg(*inputPath);
+                    return false;
                 }
 
                 // check if output would overwrite another output file
