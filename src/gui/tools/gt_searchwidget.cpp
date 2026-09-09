@@ -22,22 +22,22 @@
 struct GtSearchWidget::Impl
 {
     /// Search line
-    GtLineEdit* m_searchLine;
+    GtLineEdit* m_searchLine = nullptr;
 
     /// Search label
-    QLabel* m_searchLabel;
+    QLabel* m_searchLabel = nullptr;
 
     /// Search button
-    QPushButton* m_searchButton;
+    QPushButton* m_searchButton = nullptr;
 
     /// Clear search button
-    QPushButton* m_clearButton;
+    QPushButton* m_clearButton = nullptr;
 
     /// Next match button
-    QPushButton* m_nextButton;
+    QPushButton* m_nextButton = nullptr;
 
     /// Previous match button
-    QPushButton* m_prevButton;
+    QPushButton* m_prevButton = nullptr;
 
     bool m_useNextButtons = false;
 

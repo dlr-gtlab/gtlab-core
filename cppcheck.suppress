@@ -4,3 +4,9 @@
 passedByValue:*
 unmatchedSuppression:*
 missingIncludeSystem:*
+# Contextually initialized aggregates and external DevTools implementation detail.
+uninitMemberVarNoCtor:src/core/gt_logmodel.h:323
+uninitMemberVarNoCtor:src/app/preferences/pages/gt_preferencesapp.cpp:35
+uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_taskhistorymodel.h:122
+uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_outputdock.cpp:54
+uninitMemberVarNoCtor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:191

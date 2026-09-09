@@ -205,7 +205,7 @@ private:
     QString m_commandBrief;
     QList<GtCommandLineOption> m_options;
     QList<GtCommandLineArgument> m_args;
-    bool m_defaultHelp;
+    bool m_defaultHelp = true;
 };
 
 namespace gt
