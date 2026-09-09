@@ -303,7 +303,7 @@ valgrind:
   needs: ["linuxBuildDebug"]
   stage: test
   before_script:
-    - apt update -y && apt install -y xvfb
+    - apt update -y && apt install -y xvfb xauth
     - !reference [.update_devtools_linux, script]
     - chmod +x ./tests/memcheck/runValgrind.sh
     - chmod +x ./tests/memcheck/post.py
