@@ -30,7 +30,13 @@
 #include <memory>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
-#include <qmetaobject.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMetaObject>
+
+#include <algorithm>
+#include <array>
+#include <memory>
 
 namespace
 {
@@ -298,8 +304,8 @@ gt::console::runTaskFromMementoOptions()
     return {{{"project-memento", "p"}, "Serialized project-data Memento path"},
             {{"task-memento", "t"}, "Serialized task Memento path"},
             {{"output-diff", "o"}, "Output Project Memento-Diff path"},
-            {{"task-diff", "m"}, "Output Task Memento-Diff path"},
-            {{"task-state", "s"}, "Output Task State path"},
+            {{"task-diff", "m"}, "Optional: Output Task Memento-Diff path"},
+            {{"task-state", "s"}, "Optional: Output Task State path"},
             {{"working-directory", "w"},
              "Execution working directory (defaults to project Memento "
              "directory)"}};
@@ -464,10 +470,9 @@ gt::console::runTaskFromMemento(QStringList const& args)
 
     const auto taskState = executionTask->currentState();
 
-    taskStateOutput["taskStateNumeric"] = static_cast<int>(taskState);
-    taskStateOutput["taskStateString"] =  QString::fromLatin1(
+    taskStateOutput["taskState"] =  QString::fromLatin1(
         QMetaEnum::fromType<GtProcessComponent::STATE>().valueToKey(taskState)
-        );
+    );
     if(!writeTaskState(outputTaskStateFile, taskStateOutput))
     {
         gtError() <<  QObject::tr("Cannot write task state json: %1")
