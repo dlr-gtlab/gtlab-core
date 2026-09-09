@@ -4,3 +4,4 @@
 unmatchedSuppression:*
 missingInclude:*
 missingIncludeSystem:*
+normalCheckLevelMaxBranches:*
