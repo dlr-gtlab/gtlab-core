@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  * Source File: gt_abstractcollectionitem.h
  *
  *  Created on: 02.02.2017
@@ -17,6 +17,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QVariant>
+#include <QIcon>
 
 class GtCollectionLoader;
 
@@ -88,6 +89,18 @@ public:
     */
    QString localPath() const;
 
+   /**
+    * @brief icon
+    * @return
+    */
+   QIcon icon() const;
+
+   /**
+    * @brief setIcon
+    * @param val
+    */
+   void setIcon(const QIcon &val);
+
 private:
    /// Identification string.
     QString m_ident;
@@ -110,6 +123,7 @@ private:
     /// Property map
     QMap<QString, QVariant> m_properties;
 
+    QIcon m_icon;
 };
 
 #endif // GT_COLLECTIONITEM_H
