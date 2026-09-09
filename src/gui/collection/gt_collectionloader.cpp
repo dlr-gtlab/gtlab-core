@@ -195,6 +195,7 @@ GtCollectionLoader::collectionPath()
     const QString relativePath =
         QStringLiteral("Collections/%1").arg(m_collection->collectionId());
     if (!dataDirectory->mkpath(relativePath))
+
     {
         gtError() << QObject::tr("Could not create collection path!");
         return QString();
