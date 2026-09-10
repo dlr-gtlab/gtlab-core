@@ -11,6 +11,7 @@
 
 #include "gt_collectionloader.h"
 
+#include "gt_coreapplication.h"
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -162,7 +163,7 @@ GtCollectionLoader::collectionPath()
     }
 
 
-    QString collectionpathstr{""};
+    QString collectionpathstr{};
 
     if(!gtEnvironment->environmentVariableExists("COLLECTIONS_PATH"))
     {
@@ -173,9 +174,11 @@ GtCollectionLoader::collectionPath()
         collectionpathstr = gtEnvironment->value("COLLECTIONS_PATH").toString();
     }
 
+
+
     if(collectionpathstr.isEmpty())
     {
-        QDir dirtemp = qApp->applicationDirPath();
+        QDir dirtemp = gtApp->roamingPath(); //qApp->applicationDirPath();
 
         if (!dirtemp.cdUp())
         {
@@ -184,7 +187,7 @@ GtCollectionLoader::collectionPath()
         }
 
         dirtemp.setPath(dirtemp.absolutePath() + QDir::separator() +
-                        QStringLiteral("Collections"));
+                        QStringLiteral("collections"));
 
         collectionpathstr = dirtemp.absolutePath();
     }
