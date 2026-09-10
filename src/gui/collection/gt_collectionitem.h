@@ -123,6 +123,7 @@ private:
     /// Property map
     QMap<QString, QVariant> m_properties;
 
+    /// Item specific icon (defaults to gt::gui::icon::property())
     QIcon m_icon;
 };
 
