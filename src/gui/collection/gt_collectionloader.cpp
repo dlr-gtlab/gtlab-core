@@ -163,7 +163,7 @@ GtCollectionLoader::collectionPath()
     }
 
 
-    QString collectionpathstr{};
+    QString collectionpathstr{""};
 
     if(!gtEnvironment->environmentVariableExists("COLLECTIONS_PATH"))
     {
@@ -175,25 +175,13 @@ GtCollectionLoader::collectionPath()
     }
 
 
-
     if(collectionpathstr.isEmpty())
     {
-        QDir dirtemp = gtApp->roamingPath(); //qApp->applicationDirPath();
-
-        if (!dirtemp.cdUp())
-        {
-            gtError() << tr("Could not reach collection path!");
-            return QString();
-        }
-
-        dirtemp.setPath(dirtemp.absolutePath() + QDir::separator() +
-                        QStringLiteral("collections"));
-
-        collectionpathstr = dirtemp.absolutePath();
+        QDir dirtemp = gtApp->roamingPath();
+        collectionpathstr = dirtemp.absoluteFilePath("collections");
     }
 
     QDir dir{collectionpathstr};
-
 
     if (!dir.exists())
     {
