@@ -11,7 +11,11 @@
 
 #include "gt_collectionloader.h"
 
+<<<<<<< HEAD
 #include "gt_applicationpaths.h"
+=======
+#include "gt_coreapplication.h"
+>>>>>>> abded84e (Use gtApp->roamingPath() as the default location for the collections)
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
