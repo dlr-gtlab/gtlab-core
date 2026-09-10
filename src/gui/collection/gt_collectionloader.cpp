@@ -168,8 +168,6 @@ GtCollectionLoader::collectionPath()
     {
         gtEnvironment->addEnvironmentVariable("COLLECTIONS_PATH");
     }
-
-    //if (gtEnvironment->environmentVariableExists("COLLECTIONS_PATH"))
     else
     {
         collectionpathstr = gtEnvironment->value("COLLECTIONS_PATH").toString();

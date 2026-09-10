@@ -97,9 +97,12 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
 
     QVBoxLayout* colLay = new QVBoxLayout;
 
-    m_updateLocalButton = new QPushButton(gt::gui::icon::sync(), tr("Update local collection"));
-    m_updateLocalButton->setVisible(true);
-    colLay->addWidget(m_updateLocalButton);
+    if(m_collectionSettings->showUpdateLocalCollectionButton())
+    {
+        m_updateLocalButton = new QPushButton(gt::gui::icon::sync(), tr("Update local collection"));
+        m_updateLocalButton->setVisible(true);
+        colLay->addWidget(m_updateLocalButton);
+    }
 
     m_specificCollectionWidget = m_collectionSettings->localCollectionWidget(
                                      m_collectionWidget);
