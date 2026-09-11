@@ -10,6 +10,8 @@
 
 #include "gt_processmoduleloader.h"
 #include "gt_processinterface.h"
+#include "gt_operationinterface.h"
+#include "gt_executableoperation.h"
 #include "gt_processfactory.h"
 #include "gt_calculatorfactory.h"
 #include "gt_taskfactory.h"
@@ -87,6 +89,44 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
+    GtOperationInterface* operationInterface =
+        checkInterface<GtOperationInterface>(plugin->ident(), plugin);
+
+    if (operationInterface)
+    {
+        const QList<QMetaObject> operations = operationInterface->operations();
+
+        if (gtObjectFactory->containsDuplicates(operations))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("An operation is already defined!");
+            return false;
+        }
+
+        QSet<QString> declaredClassNames;
+        for (QMetaObject const& operation : operations)
+        {
+            const QString className = QString::fromLatin1(operation.className());
+            if (declaredClassNames.contains(className))
+            {
+                gtWarning() << errorString()
+                            << QObject::tr("An operation is declared more than once:")
+                            << gt::squoted(className);
+                return false;
+            }
+            declaredClassNames.insert(className);
+
+            std::unique_ptr<QObject> object(operation.newInstance());
+            if (!qobject_cast<GtExecutableOperation*>(object.get()))
+            {
+                gtWarning() << errorString()
+                            << QObject::tr("Invalid executable operation class:")
+                            << gt::squoted(className);
+                return false;
+            }
+        }
+    }
+
     GtCalculatorExecInterface* cexecp = checkInterface<GtCalculatorExecInterface>(
         plugin->ident(), plugin);
 
@@ -152,6 +192,15 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
             // includes registration in objectFactory
             gtTaskFactory->registerTaskData(taskData, plugin->ident());
         }
+    }
+
+    GtOperationInterface* operationInterface =
+        checkInterface<GtOperationInterface>(plugin->ident(), plugin);
+
+    if (operationInterface)
+    {
+        gtObjectFactory->registerClasses(operationInterface->operations(),
+                                         plugin->ident());
     }
 
     GtCalculatorExecInterface* cexecp =

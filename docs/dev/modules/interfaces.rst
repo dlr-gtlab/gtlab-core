@@ -32,6 +32,9 @@ Choose interfaces by feature
    * - :ref:`processinterface`
      - Calculators or workflow tasks
      - Calculator and task descriptors
+   * - :ref:`operationinterface`
+     - Transport-neutral executable operations
+     - Executable-operation class metadata registered in ``GtObjectFactory``
    * - :ref:`mdiinterface`
      - Object editors, viewers, dock widgets, or post-processing views
      - GUI class metadata and object-to-UI mappings
@@ -99,6 +102,7 @@ subsystems. Add them only when the relevant basic feature is already working.
    interfaces/module
    interfaces/datamodel
    interfaces/process
+   interfaces/operation
    interfaces/mdi
    interfaces/importer
    interfaces/exporter

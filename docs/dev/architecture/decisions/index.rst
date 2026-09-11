@@ -9,4 +9,4 @@ implementation design.
 .. toctree::
    :maxdepth: 1
 
-   0001-executable-operations-one-shot-worker
+   0001-executable-operations
