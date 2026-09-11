@@ -1,10 +1,9 @@
 Architecture
 ============
 
-This section records architectural contracts for GTlab Core contributors. It
-contains cross-cutting architecture guidance and accepted technology decisions.
-These documents guide implementation work; they do not replace the public API
-reference.
+This section explains the main GTlab Core concepts and how they fit together.
+The topic guides provide an introduction. Technology decisions record the
+constraints that implementations must preserve.
 
 .. toctree::
    :maxdepth: 2
