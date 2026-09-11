@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  * Source File: gt_collectionloader.h
  *
  *  Created on: 09.02.2017
@@ -13,6 +13,7 @@
 #define GT_COLLECTIONLOADER_H
 
 #include "gt_gui_exports.h"
+#include "gt_environment.h"
 
 #include <QObject>
 
@@ -57,10 +58,6 @@ public:
      */
     void downloadCollectionItems(const QList<GtCollectionNetworkItem>& items);
 
-private:
-    /// Collection pointer.
-    GtCollectionInterface* m_collection;
-
     /**
      * @brief Returns collection path based on given collection. If path
      * does not exists, a new directory will be created. If path could not
@@ -68,6 +65,10 @@ private:
      * @return Collection path.
      */
     QString collectionPath();
+
+private:
+    /// Collection pointer.
+    GtCollectionInterface* m_collection;
 
     /**
      * @brief loadLocalCollectionItem

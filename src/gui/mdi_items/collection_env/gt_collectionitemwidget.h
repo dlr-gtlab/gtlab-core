@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  * Source File: gt_collectionitemwidget.h
  *
  *  Created on: 10.02.2017
@@ -12,15 +12,19 @@
 #ifndef GT_COLLECTIONITEMWIDGET_H
 #define GT_COLLECTIONITEMWIDGET_H
 
+#include "gt_gui_exports.h"
+
 #include <QWidget>
 #include <QDialog>
+
 class QFrame;
 class GtCollectionItem;
+
 
 /**
  * @brief The GtCollectionItemWidget class
  */
-class GtCollectionItemWidget : public QDialog
+class GT_GUI_EXPORT GtCollectionItemWidget : public QDialog
 {
     Q_OBJECT
 
