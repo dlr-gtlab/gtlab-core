@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
 # SPDX-License-Identifier: CC0-1.0
 
-# Cppcheck 2.21 migration baseline. Findings remain visible in the report but
-# do not fail CI; new findings are not covered by this file.
+# Cppcheck 2.21 migration baseline. Existing findings are intentionally fully
+# suppressed so that only new findings appear in CI.
 assertWithSideEffect:src/core/process_management/gt_taskgroup.cpp:192
 checkersReport
 constParameterPointer:src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp:40

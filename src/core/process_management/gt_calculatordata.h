@@ -74,6 +74,12 @@ public:
      */
     const QStringList& environmentVariables();
 
+protected:
+    GtCalculatorDataImpl(const GtCalculatorDataImpl&) = default;
+    GtCalculatorDataImpl& operator=(const GtCalculatorDataImpl&) = default;
+    GtCalculatorDataImpl(GtCalculatorDataImpl&&) = default;
+    GtCalculatorDataImpl& operator=(GtCalculatorDataImpl&&) = default;
+
 private:
     /// Calculator meta data.
     QMetaObject m_metaData;

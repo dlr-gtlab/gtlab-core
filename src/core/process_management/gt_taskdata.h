@@ -63,6 +63,12 @@ public:
      */
     static GtTaskData newTaskData(const QMetaObject& metaData);
 
+protected:
+    GtTaskDataImpl(const GtTaskDataImpl&) = default;
+    GtTaskDataImpl& operator=(const GtTaskDataImpl&) = default;
+    GtTaskDataImpl(GtTaskDataImpl&&) = default;
+    GtTaskDataImpl& operator=(GtTaskDataImpl&&) = default;
+
 private:
     /// Task meta data.
     QMetaObject m_metaData;
