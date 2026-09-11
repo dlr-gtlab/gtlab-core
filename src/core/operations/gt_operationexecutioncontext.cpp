@@ -36,6 +36,11 @@ GtExecutionId::GtExecutionId() :
 {
 }
 
+bool GtExecutionId::operator==(GtExecutionId const& other) const
+{
+    return m_value == other.m_value;
+}
+
 QString const&
 GtExecutionId::toString() const noexcept
 {

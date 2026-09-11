@@ -308,6 +308,17 @@ TEST(GtOperationExecutionContext, preservesValueSemantics)
     EXPECT_EQ(assigned.executionId().toString(), executionId.toString());
 }
 
+TEST(GtExecutionId, comparesExecutionIdentities)
+{
+    const GtExecutionId first;
+    const GtExecutionId same = first;
+    const GtExecutionId second;
+
+    EXPECT_TRUE(first == same);
+    EXPECT_FALSE(first != same);
+    EXPECT_TRUE(first != second);
+}
+
 TEST(GtOperationApplyStatus, exposesStructuredFailure)
 {
     const auto success = GtOperationApplyStatus::success();

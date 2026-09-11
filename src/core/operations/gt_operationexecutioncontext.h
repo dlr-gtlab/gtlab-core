@@ -28,6 +28,19 @@ public:
     GtExecutionId();
 
     /**
+     * @brief Returns whether two execution identities are equal.
+     * @return True if both identities represent the same execution.
+     */
+    bool operator==(GtExecutionId const& other) const;
+    /**
+     * @brief Returns whether two execution identities differ.
+     * @return True if the identities represent different executions.
+     */
+    bool operator!=(GtExecutionId const& other) const
+    {
+        return !(*this == other);
+    }
+    /**
      * @brief Returns the stable text representation used by logs and protocols.
      * @return The execution identity.
      */
