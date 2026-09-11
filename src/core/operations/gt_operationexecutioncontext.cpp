@@ -6,6 +6,8 @@
 
 #include "gt_operationexecutioncontext.h"
 
+#include "gt_executioneventstream.h"
+
 #include <utility>
 
 #include <QUuid>
@@ -17,18 +19,16 @@ struct GtCancellationToken::State
 
 struct GtOperationExecutionContext::Impl
 {
-    Impl(GtObject* data, GtExecutionEventSink& events,
-         GtCancellationToken cancellation, GtExecutionId executionId) :
+    Impl(GtObject* data, GtExecutionEventStream& events,
+         GtCancellationToken cancellation) :
         data(data),
-        events(&events), cancellation(std::move(cancellation)),
-        executionId(std::move(executionId))
+        events(&events), cancellation(std::move(cancellation))
     {
     }
 
     GtObject* data;
-    GtExecutionEventSink* events;
+    GtExecutionEventStream* events;
     GtCancellationToken cancellation;
-    GtExecutionId executionId;
 };
 
 GtExecutionId::GtExecutionId() :
@@ -64,10 +64,9 @@ GtCancellationToken::isCancellationRequested() const noexcept
 }
 
 GtOperationExecutionContext::GtOperationExecutionContext(
-    GtObject* data, GtExecutionEventSink& events,
-    GtCancellationToken cancellation, GtExecutionId executionId) :
-    m_impl(std::make_unique<Impl>(data, events, std::move(cancellation),
-                                  std::move(executionId)))
+    GtObject* data, GtExecutionEventStream& events,
+    GtCancellationToken cancellation) :
+    m_impl(std::make_unique<Impl>(data, events, std::move(cancellation)))
 {
 }
 
@@ -111,10 +110,10 @@ GtOperationExecutionContext::data() const noexcept
 GtExecutionId const&
 GtOperationExecutionContext::executionId() const noexcept
 {
-    return m_impl->executionId;
+    return m_impl->events->executionId();
 }
 
-GtExecutionEventSink&
+GtExecutionEventStream&
 GtOperationExecutionContext::events() noexcept
 {
     return *m_impl->events;

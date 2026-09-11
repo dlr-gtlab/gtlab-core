@@ -14,16 +14,20 @@
 
 #include <QString>
 
+class GtExecutionEventStream;
 class GtObject;
 
 /**
- * @brief Opaque, globally unique identity of one operation execution.
+ * @brief Stable identity of one operation invocation.
+ *
+ * A default-constructed id is a new UUID. The execution event stream owns the
+ * id used by an operation execution context and its published events.
  */
 class GT_CORE_EXPORT GtExecutionId
 {
 public:
     /**
-     * @brief Creates a new execution identity.
+     * @brief Creates a new UUID-based execution identity.
      */
     GtExecutionId();
 
@@ -41,7 +45,7 @@ public:
         return !(*this == other);
     }
     /**
-     * @brief Returns the stable text representation used by logs and protocols.
+     * @brief Returns the UUID representation without enclosing braces.
      * @return The execution identity.
      */
     QString const& toString() const noexcept;
@@ -57,19 +61,15 @@ class GT_CORE_EXPORT GtCancellationToken
 {
 public:
     /**
-     * @brief Creates a cancellation token with no cancellation request.
+     * @brief Creates a token whose cancellation has not been requested.
      */
     GtCancellationToken();
-
     /**
-     * @brief Requests cooperative cancellation.
-     *
-     * This function is safe to call from another thread.
+     * @brief Requests cancellation for every copy of this token.
      */
     void requestCancellation() noexcept;
-
     /**
-     * @brief Returns whether cancellation was requested.
+     * @brief Returns whether cancellation was requested for this shared token state.
      *
      * This function is safe to call while another thread requests cancellation.
      *
@@ -83,27 +83,11 @@ private:
 };
 
 /**
- * @brief Temporary transport-neutral boundary for execution-side observations.
- *
- * This foundation intentionally does not define an event envelope, event type,
- * or payload contract. Those contracts are follow-up runtime work.
- */
-class GT_CORE_EXPORT GtExecutionEventSink
-{
-public:
-    virtual ~GtExecutionEventSink() = default;
-
-    /**
-     * @brief Publishes an observation from the execution location.
-     */
-    virtual void publish() = 0;
-};
-
-/**
  * @brief Context passed to GtExecutableOperation::execute().
  *
  * The caller owns the detached data object for the complete invocation. The
- * context never owns that data or project state, and operations must not retain it.
+ * context borrows the event stream and never owns project state. The stream is
+ * the only source of the execution identity for this context and its events.
  */
 class GT_CORE_EXPORT GtOperationExecutionContext
 {
@@ -111,14 +95,11 @@ public:
     /**
      * @brief Creates the context for one operation execution.
      * @param data Optional detached data borrowed from the caller.
-     * @param events Observation sink borrowed from the caller.
+     * @param events Event stream borrowed from the caller.
      * @param cancellation Shared cancellation state for this execution.
-     * @param executionId Identity for this execution.
      */
-    GtOperationExecutionContext(GtObject* data,
-                                GtExecutionEventSink& events,
-                                GtCancellationToken cancellation = {},
-                                GtExecutionId executionId = {});
+    GtOperationExecutionContext(GtObject* data, GtExecutionEventStream& events,
+                                GtCancellationToken cancellation = {});
     ~GtOperationExecutionContext();
 
     GtOperationExecutionContext(GtOperationExecutionContext const& other);
@@ -129,35 +110,30 @@ public:
         GtOperationExecutionContext&& other) noexcept;
 
     /**
-     * @brief Returns the mutable detached data.
+     * @brief Returns the mutable detached operation data.
      * @return Borrowed data, or nullptr. Do not retain the pointer.
      */
     GtObject* data() noexcept;
-
     /**
-     * @brief Returns the read-only detached data.
+     * @brief Returns the read-only detached operation data.
      * @return Borrowed data, or nullptr. Do not retain the pointer.
      */
     GtObject const* data() const noexcept;
-
     /**
-     * @brief Returns the identity of this execution.
+     * @brief Returns the identity owned by events().
      * @return The stable execution identity.
      */
     GtExecutionId const& executionId() const noexcept;
-
     /**
-     * @brief Returns the observation sink for this execution.
-     * @return The borrowed observation sink.
+     * @brief Returns the event stream for this execution.
+     * @return The borrowed event stream.
      */
-    GtExecutionEventSink& events() noexcept;
-
+    GtExecutionEventStream& events() noexcept;
     /**
      * @brief Returns the shared cancellation state.
      * @return The cancellation token for this execution.
      */
     GtCancellationToken& cancellation() noexcept;
-
     /**
      * @brief Returns the shared cancellation state.
      * @return The cancellation token for this execution.

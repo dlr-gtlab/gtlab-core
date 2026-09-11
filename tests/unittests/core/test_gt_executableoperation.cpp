@@ -6,12 +6,28 @@
 
 #include "gtest/gtest.h"
 
+#include <algorithm>
+
+#include <functional>
+#include <future>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSet>
+#include <QTemporaryDir>
+#include <QThread>
 #include <thread>
+#include <vector>
 
+#include "gt_executioneventfilewriter.h"
+#include "gt_executioneventstream.h"
 #include "gt_executableoperation.h"
+#include "gt_stdioexecutioneventencoder.h"
 #include "gt_coreapplication.h"
 #include "gt_moduleinterface.h"
 #include "gt_operationinterface.h"
@@ -23,183 +39,241 @@
 namespace
 {
 
-class TestEventSink : public GtExecutionEventSink
-{
-public:
-    void publish() override
+    class TestNonOperation : public GtObject
     {
-        ++publishedEvents;
-    }
+        Q_OBJECT
 
-    int publishedEvents = 0;
-};
+    public:
+        Q_INVOKABLE explicit TestNonOperation(GtObject* parent = nullptr) :
+            GtObject(parent)
+        {
+        }
+    };
 
-class TestNonOperation : public GtObject
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit TestNonOperation(GtObject* parent = nullptr) :
-        GtObject(parent)
+    class TestOperation : public GtExecutableOperation
     {
-    }
-};
+        Q_OBJECT
+        Q_PROPERTY(int savedValue READ savedValue WRITE setSavedValue)
 
-class TestOperation : public GtExecutableOperation
-{
-    Q_OBJECT
-    Q_PROPERTY(int savedValue READ savedValue WRITE setSavedValue)
+    public:
+        Q_INVOKABLE explicit TestOperation(GtObject* parent = nullptr) :
+            GtExecutableOperation(parent)
+        {
+        }
 
-public:
-    Q_INVOKABLE explicit TestOperation(GtObject* parent = nullptr) :
-        GtExecutableOperation(parent)
+        int savedValue() const
+        {
+            return m_savedValue;
+        }
+
+        void setSavedValue(int value)
+        {
+            m_savedValue = value;
+        }
+
+        bool requiresProject() const override
+        {
+            return false;
+        }
+
+        std::unique_ptr<GtObject> createData(
+            GtExecutionContext const&) const override
+        {
+            return std::make_unique<GtObject>();
+        }
+
+        std::unique_ptr<GtObject> execute(
+            GtOperationExecutionContext& context) override
+        {
+            observedData = context.data() != nullptr;
+            observedCancellation =
+                context.cancellation().isCancellationRequested();
+            observedExecutionId = context.executionId().toString();
+            context.events().publish(QStringLiteral("test"));
+            return std::make_unique<GtObject>();
+        }
+
+        GtOperationApplyStatus applyResult(GtObject const* executionResult,
+                                           GtExecutionContext&) const override
+        {
+            return executionResult ? GtOperationApplyStatus::success()
+                                   : GtOperationApplyStatus::failure(
+                                         QStringLiteral("Missing result"));
+        }
+
+        bool observedData{false};
+        bool observedCancellation{false};
+        QString observedExecutionId;
+
+    private:
+        int m_savedValue{0};
+    };
+
+    class RegisteredTestOperation
     {
-    }
+    public:
+        RegisteredTestOperation()
+        {
+            gtObjectFactory->registerClass(GT_METADATA(TestOperation));
+        }
 
-    int savedValue() const
+        ~RegisteredTestOperation()
+        {
+            gtObjectFactory->unregisterClass(GT_METADATA(TestOperation));
+        }
+    };
+
+    class TestOperationModule : public QObject,
+                                public GtModuleInterface,
+                                public GtOperationInterface
     {
-        return m_savedValue;
-    }
+        Q_OBJECT
+        Q_INTERFACES(GtModuleInterface GtOperationInterface)
 
-    void setSavedValue(int value)
+    public:
+        explicit TestOperationModule(QList<QMetaObject> operations) :
+            m_operations(std::move(operations))
+        {
+        }
+
+        QString ident() const override
+        {
+            return QStringLiteral("TestOperationModule");
+        }
+
+        GtVersionNumber version() override
+        {
+            return {1, 0, 0};
+        }
+
+        QString description() const override
+        {
+            return {};
+        }
+
+        QList<QMetaObject> operations() const override
+        {
+            return m_operations;
+        }
+
+    private:
+        QList<QMetaObject> m_operations;
+    };
+
+    class TestProcessModuleLoader : public GtProcessModuleLoader
     {
-        m_savedValue = value;
-    }
+    public:
+        bool validate(GtModuleInterface* module) const
+        {
+            return check(module);
+        }
 
-    bool requiresProject() const override
+        void registerModule(GtModuleInterface* module)
+        {
+            insert(module);
+        }
+    };
+
+    class TestApplication : public GtCoreApplication
     {
-        return false;
-    }
+    public:
+        TestApplication() :
+            GtCoreApplication(QCoreApplication::instance(), AppMode::Batch)
+        {
+            init();
+        }
 
-    std::unique_ptr<GtObject>
-    createData(GtExecutionContext const&) const override
+    protected:
+        bool initFirstRun() override
+        {
+            return true;
+        }
+    };
+
+    class OperationModuleLoaderTest : public ::testing::Test
     {
-        return std::make_unique<GtObject>();
-    }
+    protected:
+        void SetUp() override
+        {
+            m_application = std::make_unique<TestApplication>();
+        }
 
-    std::unique_ptr<GtObject>
-    execute(GtOperationExecutionContext& context) override
+        void TearDown() override
+        {
+            m_application.reset();
+        }
+
+    private:
+        std::unique_ptr<TestApplication> m_application;
+    };
+
+
+    class ShortWritingFile final : public QFile
     {
-        observedData = (context.data() != nullptr);
-        observedCancellation = context.cancellation().isCancellationRequested();
-        observedExecutionId = context.executionId().toString();
-        context.events().publish();
-        return std::make_unique<GtObject>();
-    }
+    public:
+        ShortWritingFile(QString filePath, qint64 maximumWriteSize) :
+            QFile(std::move(filePath)), m_maximumWriteSize(maximumWriteSize)
+        {
+        }
 
-    GtOperationApplyStatus
-    applyResult(GtObject const* executionResult, GtExecutionContext&) const override
+    protected:
+        qint64 writeData(char const* data, qint64 length) override
+        {
+            return QFile::writeData(data, length > m_maximumWriteSize
+                                              ? m_maximumWriteSize
+                                              : length);
+        }
+
+    private:
+        qint64 m_maximumWriteSize;
+    };
+
+    class TestExecutionEventFileWriter : public GtExecutionEventFileWriter
     {
-        return executionResult ? GtOperationApplyStatus::success() :
-                        GtOperationApplyStatus::failure(
-                            QStringLiteral("Missing result"));
-    }
+    public:
+        TestExecutionEventFileWriter(std::unique_ptr<QFile> file,
+                                     QString filePath) :
+            GtExecutionEventFileWriter(std::move(file), std::move(filePath))
+        {
+        }
+    };
 
-    bool observedData {false};
-    bool observedCancellation {false};
-    QString observedExecutionId;
-
-private:
-    int m_savedValue {0};
-};
-
-class RegisteredTestOperation
-{
-public:
-    RegisteredTestOperation()
+    class PartiallyFailingStreamBuffer final : public std::streambuf
     {
-        gtObjectFactory->registerClass(GT_METADATA(TestOperation));
-    }
+    public:
+        std::string const& data() const noexcept
+        {
+            return m_data;
+        }
 
-    ~RegisteredTestOperation()
+    protected:
+        std::streamsize xsputn(char const* data,
+                               std::streamsize length) override
+        {
+            const std::streamsize written =
+                std::min<std::streamsize>(length, 1);
+            m_data.append(data, static_cast<size_t>(written));
+            return written;
+        }
+
+    private:
+        std::string m_data;
+    };
+
+    QJsonObject protocolRecord(QByteArray const& line)
     {
-        gtObjectFactory->unregisterClass(GT_METADATA(TestOperation));
+        constexpr auto prefix = "@gtlab-operation-v1 ";
+        EXPECT_TRUE(line.startsWith(prefix));
+        EXPECT_TRUE(line.endsWith('\n'));
+
+        QJsonParseError error;
+        auto const document = QJsonDocument::fromJson(
+            line.mid(static_cast<int>(std::char_traits<char>::length(prefix)))
+                .trimmed(),
+            &error);
+        EXPECT_EQ(error.error, QJsonParseError::NoError);
+        return document.object();
     }
-};
-
-class TestOperationModule : public QObject,
-                            public GtModuleInterface,
-                            public GtOperationInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(GtModuleInterface GtOperationInterface)
-
-public:
-    explicit TestOperationModule(QList<QMetaObject> operations) :
-        m_operations(std::move(operations))
-    {
-    }
-
-    QString ident() const override
-    {
-        return QStringLiteral("TestOperationModule");
-    }
-
-    GtVersionNumber version() override
-    {
-        return {1, 0, 0};
-    }
-
-    QString description() const override
-    {
-        return {};
-    }
-
-    QList<QMetaObject> operations() const override
-    {
-        return m_operations;
-    }
-
-private:
-    QList<QMetaObject> m_operations;
-};
-
-class TestProcessModuleLoader : public GtProcessModuleLoader
-{
-public:
-    bool validate(GtModuleInterface* module) const
-    {
-        return check(module);
-    }
-
-    void registerModule(GtModuleInterface* module)
-    {
-        insert(module);
-    }
-};
-
-class TestApplication : public GtCoreApplication
-{
-public:
-    TestApplication() :
-        GtCoreApplication(QCoreApplication::instance(), AppMode::Batch)
-    {
-        init();
-    }
-
-protected:
-    bool initFirstRun() override
-    {
-        return true;
-    }
-};
-
-class OperationModuleLoaderTest : public ::testing::Test
-{
-protected:
-    void SetUp() override
-    {
-        m_application = std::make_unique<TestApplication>();
-    }
-
-    void TearDown() override
-    {
-        m_application.reset();
-    }
-
-private:
-    std::unique_ptr<TestApplication> m_application;
-};
 
 } // namespace
 
@@ -219,22 +293,26 @@ TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
     EXPECT_EQ(testOperation->savedValue(), 42);
 
     auto data = testOperation->createData(GtExecutionContext{});
-    TestEventSink events;
+    GtExecutionId streamExecutionId;
+    GtExecutionEventStream events(streamExecutionId);
     GtCancellationToken cancellation;
-    std::thread cancellationThread([&]() { cancellation.requestCancellation(); });
+    std::thread cancellationThread(
+        [&]() { cancellation.requestCancellation(); });
     cancellationThread.join();
     GtOperationExecutionContext context(data.get(), events, cancellation);
 
-    const QString executionId = context.executionId().toString();
+    const QString executionIdText = context.executionId().toString();
     auto result = testOperation->execute(context);
 
     EXPECT_TRUE(testOperation->observedData);
     EXPECT_TRUE(testOperation->observedCancellation);
-    EXPECT_EQ(testOperation->observedExecutionId, executionId);
-    EXPECT_EQ(events.publishedEvents, 1);
+    EXPECT_EQ(testOperation->observedExecutionId, executionIdText);
+    EXPECT_EQ(context.executionId().toString(),
+              events.executionId().toString());
     EXPECT_NE(result, nullptr);
     GtExecutionContext clientContext;
-    EXPECT_TRUE(testOperation->applyResult(result.get(), clientContext).succeeded());
+    EXPECT_TRUE(
+        testOperation->applyResult(result.get(), clientContext).succeeded());
 }
 
 TEST(GtExecutableOperation, rejectsReconstructedNonOperationBeforeExecution)
@@ -244,7 +322,8 @@ TEST(GtExecutableOperation, rejectsReconstructedNonOperationBeforeExecution)
 
     auto reconstructed = memento.toObject(*gtObjectFactory);
     ASSERT_NE(reconstructed, nullptr);
-    EXPECT_EQ(qobject_cast<GtExecutableOperation*>(reconstructed.get()), nullptr);
+    EXPECT_EQ(qobject_cast<GtExecutableOperation*>(reconstructed.get()),
+              nullptr);
 }
 
 TEST(GtOperationInterface, defaultDeclarationIsEmpty)
@@ -289,10 +368,14 @@ TEST_F(OperationModuleLoaderTest, rejectsDuplicateOperationDeclaration)
 TEST(GtOperationExecutionContext, preservesValueSemantics)
 {
     GtObject data;
-    TestEventSink events;
-    GtCancellationToken cancellation;
     GtExecutionId executionId;
-    GtOperationExecutionContext context(&data, events, cancellation, executionId);
+    GtExecutionEventStream events(executionId);
+    GtCancellationToken cancellation;
+    GtOperationExecutionContext context(&data, events, cancellation);
+
+    GtOperationExecutionContext const& constContext = context;
+    EXPECT_EQ(constContext.data(), &data);
+    EXPECT_FALSE(constContext.cancellation().isCancellationRequested());
 
     GtOperationExecutionContext copied(context);
     EXPECT_EQ(copied.data(), &data);
@@ -302,10 +385,18 @@ TEST(GtOperationExecutionContext, preservesValueSemantics)
     copied.cancellation().requestCancellation();
     EXPECT_TRUE(context.cancellation().isCancellationRequested());
 
+    GtOperationExecutionContext moved(std::move(copied));
+    EXPECT_EQ(moved.data(), &data);
+
     GtOperationExecutionContext assigned(nullptr, events);
     assigned = context;
     EXPECT_EQ(assigned.data(), &data);
     EXPECT_EQ(assigned.executionId().toString(), executionId.toString());
+
+
+    GtOperationExecutionContext moveAssigned(nullptr, events);
+    moveAssigned = std::move(assigned);
+    EXPECT_EQ(moveAssigned.data(), &data);
 }
 
 TEST(GtExecutionId, comparesExecutionIdentities)
@@ -322,11 +413,370 @@ TEST(GtExecutionId, comparesExecutionIdentities)
 TEST(GtOperationApplyStatus, exposesStructuredFailure)
 {
     const auto success = GtOperationApplyStatus::success();
-    const auto failure = GtOperationApplyStatus::failure(QStringLiteral("error"));
+    const auto failure =
+        GtOperationApplyStatus::failure(QStringLiteral("error"));
 
     EXPECT_TRUE(success.succeeded());
     EXPECT_FALSE(failure.succeeded());
     EXPECT_EQ(failure.errorMessage(), QStringLiteral("error"));
+}
+
+
+TEST(GtExecutionEventStream, assignsSequenceAndNotifiesLocalObservers)
+{
+    GtExecutionId executionId;
+    GtExecutionEventStream stream(executionId);
+    QVector<GtExecutionEvent> observed;
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished,
+                     [&observed](GtExecutionEvent event) {
+                         observed.push_back(std::move(event));
+                     });
+
+    stream.publish(QStringLiteral("started"));
+    stream.publish(QStringLiteral("progress"), QJsonValue(0.5));
+    stream.publish(QStringLiteral("finished"), QJsonObject{{"count", 3}});
+
+    ASSERT_EQ(observed.size(), 3);
+    for (int index = 0; index < observed.size(); ++index)
+    {
+        EXPECT_EQ(observed.at(index).sequence(), static_cast<quint64>(index));
+        EXPECT_EQ(observed.at(index).executionId().toString(),
+                  executionId.toString());
+    }
+    EXPECT_EQ(observed.at(1).payload(), QJsonValue(0.5));
+}
+
+TEST(GtExecutionEventStream, rejectsEmptyEventType)
+{
+    GtExecutionEventStream stream(GtExecutionId{});
+
+    EXPECT_THROW(stream.publish({}), std::invalid_argument);
+}
+
+TEST(GtExecutionEventStream, preservesObserverOrderDuringReentrantPublication)
+{
+    GtExecutionEventStream stream(GtExecutionId{});
+    QVector<quint64> firstObserver;
+    QVector<quint64> secondObserver;
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished,
+                     [&stream, &firstObserver](GtExecutionEvent event) {
+                         firstObserver.push_back(event.sequence());
+                         if (event.sequence() == 0)
+                         {
+                             stream.publish(QStringLiteral("reentrant"));
+                         }
+                     });
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished,
+                     [&secondObserver](GtExecutionEvent event) {
+                         secondObserver.push_back(event.sequence());
+                     });
+
+    stream.publish(QStringLiteral("initial"));
+
+    EXPECT_EQ(firstObserver, QVector<quint64>({0, 1}));
+    EXPECT_EQ(secondObserver, QVector<quint64>({0, 1}));
+}
+
+TEST(GtExecutionEventStream, publishesConcurrentlyWithOneGapFreeSequence)
+{
+    constexpr quint64 eventsPerThread = 50;
+    constexpr int threadCount = 4;
+    constexpr quint64 eventCount = eventsPerThread * threadCount;
+
+    GtExecutionId executionId;
+    GtExecutionEventStream stream(executionId);
+    QVector<GtExecutionEvent> observed;
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished,
+                     [&observed](GtExecutionEvent event) {
+                         observed.push_back(std::move(event));
+                     });
+
+    std::vector<std::thread> publishers;
+    publishers.reserve(threadCount);
+    for (int threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        publishers.emplace_back([&stream, threadIndex, eventsPerThread] {
+            for (quint64 index = 0; index < eventsPerThread; ++index)
+            {
+                stream.publish(
+                    QStringLiteral("progress"),
+                    QJsonObject{
+                        {QStringLiteral("thread"), threadIndex},
+                        {QStringLiteral("index"), static_cast<qint64>(index)}});
+            }
+        });
+    }
+
+    for (std::thread& publisher : publishers)
+    {
+        publisher.join();
+    }
+
+    ASSERT_EQ(observed.size(), static_cast<int>(eventCount));
+    QSet<quint64> sequences;
+    for (GtExecutionEvent const& event : observed)
+    {
+        EXPECT_EQ(event.executionId().toString(), executionId.toString());
+        EXPECT_FALSE(sequences.contains(event.sequence()));
+        sequences.insert(event.sequence());
+    }
+
+    ASSERT_EQ(sequences.size(), static_cast<int>(eventCount));
+    for (quint64 sequence = 0; sequence < eventCount; ++sequence)
+    {
+        EXPECT_TRUE(sequences.contains(sequence));
+    }
+}
+
+TEST(GtExecutionEventStream, deliversQueuedEventAcrossThreads)
+{
+    GtExecutionId executionId;
+    GtExecutionEventStream stream(executionId);
+    QThread observerThread;
+    QObject observer;
+    observer.moveToThread(&observerThread);
+    std::promise<GtExecutionEvent> delivered;
+    auto future = delivered.get_future();
+    QObject::connect(
+        &stream, &GtExecutionEventStream::eventPublished, &observer,
+        [&delivered](GtExecutionEvent event) {
+            delivered.set_value(std::move(event));
+        },
+        Qt::QueuedConnection);
+    observerThread.start();
+
+    stream.publish(QStringLiteral("cross-thread"), QJsonValue(42));
+    ASSERT_EQ(future.wait_for(std::chrono::seconds(2)),
+              std::future_status::ready);
+    const GtExecutionEvent event = future.get();
+    EXPECT_EQ(event.executionId().toString(), executionId.toString());
+    EXPECT_EQ(event.sequence(), 0U);
+    EXPECT_EQ(event.payload(), QJsonValue(42));
+
+    QMetaObject::invokeMethod(
+        &observer,
+        [&observer] {
+            observer.moveToThread(QCoreApplication::instance()->thread());
+        },
+        Qt::BlockingQueuedConnection);
+    observerThread.quit();
+    observerThread.wait();
+}
+
+TEST(GtExecutionEventFileWriter, writesOneCompactJsonLinePerEvent)
+{
+    QTemporaryDir directory;
+    ASSERT_TRUE(directory.isValid());
+    const QString eventPath =
+        directory.filePath(QStringLiteral("events.ndjson"));
+    const QString logPath = directory.filePath(QStringLiteral("worker.log"));
+    GtExecutionEventStream stream(GtExecutionId{});
+    GtExecutionEventFileWriter writer(eventPath);
+    ASSERT_TRUE(writer.isOpen());
+    QObject::connect(&stream, &GtExecutionEventStream::eventPublished, &writer,
+                     &GtExecutionEventFileWriter::writeEvent);
+
+    stream.publish(QStringLiteral("started"));
+    stream.publish(QStringLiteral("progress"), QJsonObject{{"ratio", 0.5}});
+    QFile log(logPath);
+    ASSERT_TRUE(log.open(QIODevice::WriteOnly));
+    log.write("ordinary worker output\n");
+    log.close();
+
+    QFile events(eventPath);
+    ASSERT_TRUE(events.open(QIODevice::ReadOnly));
+    const QList<QByteArray> lines = events.readAll().split('\n');
+    ASSERT_EQ(lines.size(), 3);
+    for (int index = 0; index < 2; ++index)
+    {
+        QJsonParseError error;
+        const QJsonObject record =
+            QJsonDocument::fromJson(lines.at(index), &error).object();
+        EXPECT_EQ(error.error, QJsonParseError::NoError);
+        EXPECT_EQ(record.value("sequence"), index);
+        EXPECT_FALSE(lines.at(index).contains("ordinary worker output"));
+    }
+}
+
+TEST(GtExecutionEventFileWriter, exposesFailedOpen)
+{
+    QTemporaryDir directory;
+    ASSERT_TRUE(directory.isValid());
+
+    GtExecutionEventFileWriter writer(
+        directory.filePath(QStringLiteral("missing/events.ndjson")));
+
+    EXPECT_FALSE(writer.isOpen());
+    EXPECT_TRUE(writer.hasError());
+    EXPECT_FALSE(writer.errorString().isEmpty());
+}
+
+TEST(GtExecutionEventFileWriter, rollsBackIncompleteEventRecord)
+{
+    QTemporaryDir directory;
+    ASSERT_TRUE(directory.isValid());
+    const QString eventPath =
+        directory.filePath(QStringLiteral("events.ndjson"));
+    const QByteArray existingRecord("{\"existing\":true}\n");
+    {
+        QFile events(eventPath);
+        ASSERT_TRUE(events.open(QIODevice::WriteOnly));
+        ASSERT_EQ(events.write(existingRecord), existingRecord.size());
+    }
+
+    auto file = std::make_unique<ShortWritingFile>(eventPath, 1);
+    ASSERT_TRUE(file->open(QIODevice::WriteOnly | QIODevice::Append));
+    TestExecutionEventFileWriter writer(std::move(file), eventPath);
+    int failureCount = 0;
+    QObject::connect(&writer, &GtExecutionEventFileWriter::writeFailed,
+                     [&failureCount](QString const&) { ++failureCount; });
+
+    GtExecutionId executionId;
+    writer.writeEvent(
+        GtExecutionEvent(executionId, 0, QStringLiteral("started")));
+
+    EXPECT_TRUE(writer.hasError());
+    EXPECT_EQ(failureCount, 1);
+    QFile events(eventPath);
+    ASSERT_TRUE(events.open(QIODevice::ReadOnly));
+    EXPECT_EQ(events.readAll(), existingRecord);
+
+    writer.writeEvent(
+        GtExecutionEvent(executionId, 1, QStringLiteral("ignored")));
+    EXPECT_EQ(failureCount, 1);
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesJsonEventAsV1Record)
+{
+    std::ostringstream output;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    encoder.encodeEvent(GtExecutionEvent(executionId, 7,
+                                         QStringLiteral("progress"),
+                                         QJsonObject{{"ratio", 0.5}}));
+
+    const QByteArray line = QByteArray::fromStdString(output.str());
+    const QByteArray expected =
+        "@gtlab-operation-v1 {\"eventType\":\"progress\",\"executionId\":\"" +
+        executionId.toString().toUtf8() +
+        "\",\"kind\":\"event\",\"payload\":{\"ratio\":0.5},"
+        "\"payloadEncoding\":\"json\",\"sequence\":7,\"version\":1}\n";
+    EXPECT_EQ(line, expected);
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesDetachedResult)
+{
+    std::ostringstream output;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+    GtObject result;
+
+    EXPECT_TRUE(encoder.encodeResult(&result));
+    const QJsonObject record =
+        protocolRecord(QByteArray::fromStdString(output.str()));
+    EXPECT_EQ(record.value(QStringLiteral("kind")).toString(),
+              QStringLiteral("result"));
+    EXPECT_EQ(record.value(QStringLiteral("resultEncoding")).toString(),
+              QStringLiteral("memento-xml-base64"));
+}
+
+TEST(GtStdioExecutionEventEncoder, encodesStructuredFailure)
+{
+    std::ostringstream output;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+
+    EXPECT_TRUE(encoder.encodeFailure(
+        QStringLiteral("failed"), QStringLiteral("message"),
+        QJsonObject{{QStringLiteral("retryable"), false}}));
+    const QJsonObject record =
+        protocolRecord(QByteArray::fromStdString(output.str()));
+    EXPECT_EQ(record.value(QStringLiteral("kind")).toString(),
+              QStringLiteral("failure"));
+    EXPECT_EQ(record.value(QStringLiteral("errorCode")).toString(),
+              QStringLiteral("failed"));
+    EXPECT_FALSE(record.value(QStringLiteral("details"))
+                     .toObject()
+                     .value(QStringLiteral("retryable"))
+                     .toBool());
+}
+
+TEST(GtStdioExecutionEventEncoder, ignoresInvalidAndUnexpectedRecords)
+{
+    std::ostringstream output;
+    GtExecutionId executionId;
+    GtStdioExecutionEventEncoder encoder(executionId, output);
+
+    EXPECT_FALSE(encoder.encodeFailure({}, QStringLiteral("message")));
+    EXPECT_FALSE(encoder.encodeFailure(QStringLiteral("error"), {}));
+    encoder.encodeEvent(
+        GtExecutionEvent(GtExecutionId{}, 0, QStringLiteral("unexpected")));
+    EXPECT_TRUE(output.str().empty());
+
+    EXPECT_TRUE(encoder.encodeResult(nullptr));
+    const std::string terminalOutput = output.str();
+    encoder.encodeEvent(
+        GtExecutionEvent(executionId, 0, QStringLiteral("ignored")));
+    EXPECT_EQ(output.str(), terminalOutput);
+}
+
+TEST(GtStdioExecutionEventEncoder, doesNotFinishWhenWritingFails)
+{
+    std::ostringstream output;
+    output.setstate(std::ios_base::badbit);
+    GtStdioExecutionEventEncoder encoder(GtExecutionId{}, output);
+
+    EXPECT_FALSE(encoder.encodeResult(nullptr));
+    EXPECT_FALSE(encoder.isTerminal());
+}
+
+TEST(GtStdioExecutionEventEncoder, stopsAfterPartialProtocolWrite)
+{
+    PartiallyFailingStreamBuffer buffer;
+    std::ostream output(&buffer);
+    GtStdioExecutionEventEncoder encoder(GtExecutionId{}, output);
+
+    EXPECT_FALSE(encoder.encodeResult(nullptr));
+    EXPECT_FALSE(encoder.isTerminal());
+    const std::string partialRecord = buffer.data();
+    EXPECT_FALSE(partialRecord.empty());
+
+    output.clear();
+    EXPECT_FALSE(encoder.encodeResult(nullptr));
+    EXPECT_EQ(buffer.data(), partialRecord);
+}
+
+TEST(GtStdioExecutionEventEncoder, serializesConcurrentProtocolRecords)
+{
+    std::ostringstream output;
+    GtExecutionId firstId;
+    GtExecutionId secondId;
+    GtStdioExecutionEventEncoder first(firstId, output);
+    GtStdioExecutionEventEncoder second(secondId, output);
+    auto publish = [](GtStdioExecutionEventEncoder& encoder,
+                      GtExecutionId const& id) {
+        for (quint64 sequence = 0; sequence < 20; ++sequence)
+        {
+            encoder.encodeEvent(
+                GtExecutionEvent(id, sequence, QStringLiteral("progress"),
+                                 QJsonValue(static_cast<int>(sequence))));
+        }
+    };
+    std::thread firstThread(publish, std::ref(first), std::cref(firstId));
+    std::thread secondThread(publish, std::ref(second), std::cref(secondId));
+    firstThread.join();
+    secondThread.join();
+
+    const QList<QByteArray> lines =
+        QByteArray::fromStdString(output.str()).split('\n');
+    ASSERT_EQ(lines.size(), 41);
+    for (int index = 0; index < 40; ++index)
+    {
+        EXPECT_TRUE(lines.at(index).startsWith("@gtlab-operation-v1 {"));
+        QJsonParseError error;
+        QJsonDocument::fromJson(lines.at(index).mid(20), &error);
+        EXPECT_EQ(error.error, QJsonParseError::NoError);
+    }
 }
 
 #include "test_gt_executableoperation.moc"
