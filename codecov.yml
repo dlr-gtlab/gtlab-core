@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 # Coverage remains visible in pull requests, but does not block changes.
 coverage:
   status:
