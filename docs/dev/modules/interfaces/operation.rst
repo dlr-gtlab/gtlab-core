@@ -38,7 +38,7 @@ operation class contributed by the module. Each declared type must derive from
 ``GtObjectFactory``/Memento reconstruction can create it.
 
 The module loader validates and registers these types in ``GtObjectFactory``.
-Do not add a second operation factory or a separate registration call. The
+Do not register the operation types manually in this or any other factory, as this may cause the module to fail to load. The
 module declaration only makes the operation type available; it neither creates
 an operation instance nor starts execution.
 
