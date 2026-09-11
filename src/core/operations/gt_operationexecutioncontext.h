@@ -22,9 +22,15 @@ class GtObject;
 class GT_CORE_EXPORT GtExecutionId
 {
 public:
+    /**
+     * @brief Creates a new execution identity.
+     */
     GtExecutionId();
 
-    /// Returns the stable text representation used by logs and protocols.
+    /**
+     * @brief Returns the stable text representation used by logs and protocols.
+     * @return The execution identity.
+     */
     QString const& toString() const noexcept;
 
 private:
@@ -37,11 +43,25 @@ private:
 class GT_CORE_EXPORT GtCancellationToken
 {
 public:
+    /**
+     * @brief Creates a cancellation token with no cancellation request.
+     */
     GtCancellationToken();
 
-    /// Requests cooperative cancellation; safe to call from another thread.
+    /**
+     * @brief Requests cooperative cancellation.
+     *
+     * This function is safe to call from another thread.
+     */
     void requestCancellation() noexcept;
-    /// Returns the shared request state; safe to observe during execution.
+
+    /**
+     * @brief Returns whether cancellation was requested.
+     *
+     * This function is safe to call while another thread requests cancellation.
+     *
+     * @return True if cancellation was requested.
+     */
     bool isCancellationRequested() const noexcept;
 
 private:
@@ -60,19 +80,28 @@ class GT_CORE_EXPORT GtExecutionEventSink
 public:
     virtual ~GtExecutionEventSink() = default;
 
-    /// Publishes an execution-side observation without defining its event data.
+    /**
+     * @brief Publishes an observation from the execution location.
+     */
     virtual void publish() = 0;
 };
 
 /**
- * @brief Invocation-local services passed to one GtExecutableOperation::execute call.
+ * @brief Context passed to GtExecutableOperation::execute().
  *
- * The context never owns project state or the detached data object. The caller
- * owns the data for the complete invocation; operations must not retain it.
+ * The caller owns the detached data object for the complete invocation. The
+ * context never owns that data or project state, and operations must not retain it.
  */
 class GT_CORE_EXPORT GtOperationExecutionContext
 {
 public:
+    /**
+     * @brief Creates the context for one operation execution.
+     * @param data Optional detached data borrowed from the caller.
+     * @param events Observation sink borrowed from the caller.
+     * @param cancellation Shared cancellation state for this execution.
+     * @param executionId Identity for this execution.
+     */
     GtOperationExecutionContext(GtObject* data,
                                 GtExecutionEventSink& events,
                                 GtCancellationToken cancellation = {},
@@ -86,17 +115,40 @@ public:
     GtOperationExecutionContext& operator=(
         GtOperationExecutionContext&& other) noexcept;
 
-    /// Returns borrowed mutable invocation data, or nullptr; do not retain it.
+    /**
+     * @brief Returns the mutable detached data.
+     * @return Borrowed data, or nullptr. Do not retain the pointer.
+     */
     GtObject* data() noexcept;
-    /// Returns borrowed read-only invocation data, or nullptr; do not retain it.
+
+    /**
+     * @brief Returns the read-only detached data.
+     * @return Borrowed data, or nullptr. Do not retain the pointer.
+     */
     GtObject const* data() const noexcept;
-    /// Returns the immutable identity shared by this complete invocation.
+
+    /**
+     * @brief Returns the identity of this execution.
+     * @return The stable execution identity.
+     */
     GtExecutionId const& executionId() const noexcept;
-    /// Returns the transport-neutral sink for execution-side observations.
+
+    /**
+     * @brief Returns the observation sink for this execution.
+     * @return The borrowed observation sink.
+     */
     GtExecutionEventSink& events() noexcept;
-    /// Returns shared state that can be observed while another thread requests cancellation.
+
+    /**
+     * @brief Returns the shared cancellation state.
+     * @return The cancellation token for this execution.
+     */
     GtCancellationToken& cancellation() noexcept;
-    /// Returns shared state that can be observed while another thread requests cancellation.
+
+    /**
+     * @brief Returns the shared cancellation state.
+     * @return The cancellation token for this execution.
+     */
     GtCancellationToken const& cancellation() const noexcept;
 
 private:

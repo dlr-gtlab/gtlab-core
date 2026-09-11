@@ -21,12 +21,13 @@ public:
     virtual ~GtOperationInterface() = default;
 
     /**
-     *  Returns executable operation types contributed by this module.
+     * @brief Returns the executable operation types provided by this module.
      *
-     * Each meta object must describe a reconstructable GtExecutableOperation
-     * with an invokable constructor. The normal module loader validates the
-     * declaration and registers valid types in GtObjectFactory. Module authors
-     * must not perform a separate operation registration step.
+     * Each meta object must describe a GtExecutableOperation with an invokable
+     * constructor. The module loader validates the declaration and registers
+     * valid types in GtObjectFactory. Do not register them a second time.
+     *
+     * @return Meta objects for the operations provided by this module.
      */
     virtual QList<QMetaObject> operations() const { return {}; }
 };

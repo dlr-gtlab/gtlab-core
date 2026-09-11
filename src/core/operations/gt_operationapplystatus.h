@@ -32,6 +32,7 @@ public:
 
     /**
      * @brief Returns whether the result was applied successfully.
+     * @return True if the result was applied.
      */
     bool succeeded() const noexcept;
 
