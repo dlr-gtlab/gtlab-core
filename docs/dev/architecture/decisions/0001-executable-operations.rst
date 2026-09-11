@@ -11,8 +11,9 @@ Context
 
 GTlab needs to run computational work in different execution locations without
 duplicating domain logic or coupling modules to communication between processes
-or machines. The :doc:`../executable_operations` guide introduces the operation
-model. This decision records the constraints that implementations must preserve.
+or machines.
+The :doc:`../executable_operations` guide introduces the operation model. This
+decision records the constraints that implementations must preserve.
 
 Decision
 --------
@@ -41,9 +42,10 @@ The originating operation, an execution-local reconstructed operation, and the
 detached input/result are separate objects with separate lifetimes. Detached
 objects must not contain borrowed pointers into the originating project.
 
-``GtOperationExecutionContext`` contains invocation data, execution identity,
-cancellation, and event publication. It does not own project state. A project
-at the execution location remains available through ``GtExecutionContext``.
+``GtOperationExecutionContext`` contains input data, the execution identity,
+the cancellation state, and the event stream. It does not own project state. A
+project at the execution location remains available through
+``GtExecutionContext``.
 
 Operation submission is asynchronous for the caller, while ``execute()`` stays
 synchronous. The runtime owns scheduling, status, cancellation, and completion.
@@ -58,15 +60,53 @@ completion.
 Events
 ~~~~~~
 
-An operation can report events while ``execute()`` is running. These events tell
-the client what is happening before the final result is available. The client
-can use them to update its status display or start a follow-up action. Events do
-not update the originating project and do not replace the operation result.
+An operation can report events while ``execute()`` is running. For example, it
+can report that it started, provide progress, or report that one step finished.
+The application that started the operation can show this information before
+the final result is available.
 
-The #1528 Core foundation exposes ``GtExecutionEventSink`` through
-``GtOperationExecutionContext``. This is only the publication boundary. The
-event type, payload, local observation, and transport are defined by #1529.
-Operation code does not write directly to a transport or GUI.
+Events do not change the originating project and do not replace the operation
+result.
+
+During ``execute()``, the operation publishes events through
+``GtOperationExecutionContext::events()``. The returned
+``GtExecutionEventStream`` adds the execution identity and sequence number.
+Local observers receive the events through Qt signals and slots. If the
+operation runs in another process or on another machine, an adapter can store
+or forward the same events. The operation code does not depend on that adapter.
+
+Each event contains:
+
+* ``executionId`` identifies one execution of the operation;
+* ``sequence`` starts at zero and increases for each event;
+* ``eventType`` is a short name for what happened; and
+* ``payload`` contains optional JSON data for the event.
+
+Use events for small status and progress messages. Send larger GTlab data as
+the operation result or through a separate data channel.
+
+Event file
+^^^^^^^^^^
+
+The file writer stores events in ``events.ndjson``. The file uses NDJSON: each
+line contains one complete JSON object. For example:
+
+.. code-block:: json
+
+   {"eventType":"started","executionId":"d68ad56f-6b55-4b67-b170-ccb9a42a7548","payload":null,"sequence":0}
+   {"eventType":"progress","executionId":"d68ad56f-6b55-4b67-b170-ccb9a42a7548","payload":{"ratio":0.5},"sequence":1}
+
+Both lines belong to the same execution. The sequence numbers define their
+order. The file contains only events. GTlab writes normal log output to a
+separate file.
+
+If several threads publish events at the same time, the stream puts them into
+one order. All observers receive the events in that order. An observer can also
+publish another event while it handles an event. The stream does not call
+observer code while its internal lock is held.
+
+An optional encoder can write event records to standard output for
+compatibility. The file writer remains the primary event channel.
 
 Task and worker integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,8 +124,8 @@ lifecycle.
 Consequences
 ------------
 
-* Module code can use one operation implementation in different execution
-  locations.
+* Module code can use one operation implementation for local and remote
+  execution.
 * Operations continue to use the existing GTlab object registration and
   serialization mechanisms.
 * Runtime, transport, and GUI integrations can evolve without changing domain

@@ -70,10 +70,10 @@ No operation-specific object model or serializer is needed.
 Modules declare their operation classes through ``GtOperationInterface``. See
 the :ref:`operationinterface` documentation for registration details.
 
-Each execution receives a ``GtOperationExecutionContext`` with its detached
-input, execution identity, cancellation state, and event publication.
-Project access continues to use ``GtExecutionContext``; project state is not part of the
-operation context.
+Each execution receives a ``GtOperationExecutionContext``. It provides the
+detached input, execution identity, cancellation state, and event stream.
+Project access continues to use ``GtExecutionContext``; project state is not
+part of the operation context.
 
 The accepted :doc:`architecture decision
 <decisions/0001-executable-operations>` records the technical constraints for
