@@ -77,6 +77,14 @@ public:
                                 GtExecutionEventSink& events,
                                 GtCancellationToken cancellation = {},
                                 GtExecutionId executionId = {});
+    ~GtOperationExecutionContext();
+
+    GtOperationExecutionContext(GtOperationExecutionContext const& other);
+    GtOperationExecutionContext& operator=(
+        GtOperationExecutionContext const& other);
+    GtOperationExecutionContext(GtOperationExecutionContext&& other) noexcept;
+    GtOperationExecutionContext& operator=(
+        GtOperationExecutionContext&& other) noexcept;
 
     /// Returns borrowed mutable invocation data, or nullptr; do not retain it.
     GtObject* data() noexcept;
@@ -92,10 +100,8 @@ public:
     GtCancellationToken const& cancellation() const noexcept;
 
 private:
-    GtObject* m_data;
-    GtExecutionEventSink& m_events;
-    GtCancellationToken m_cancellation;
-    GtExecutionId m_executionId;
+    struct Impl;
+    std::unique_ptr<Impl> m_impl;
 };
 
 #endif // GTOPERATIONEXECUTIONCONTEXT_H

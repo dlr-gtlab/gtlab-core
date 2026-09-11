@@ -286,6 +286,28 @@ TEST_F(OperationModuleLoaderTest, rejectsDuplicateOperationDeclaration)
     EXPECT_FALSE(loader.validate(&module));
 }
 
+TEST(GtOperationExecutionContext, preservesValueSemantics)
+{
+    GtObject data;
+    TestEventSink events;
+    GtCancellationToken cancellation;
+    GtExecutionId executionId;
+    GtOperationExecutionContext context(&data, events, cancellation, executionId);
+
+    GtOperationExecutionContext copied(context);
+    EXPECT_EQ(copied.data(), &data);
+    EXPECT_EQ(&copied.events(), &events);
+    EXPECT_EQ(copied.executionId().toString(), executionId.toString());
+
+    copied.cancellation().requestCancellation();
+    EXPECT_TRUE(context.cancellation().isCancellationRequested());
+
+    GtOperationExecutionContext assigned(nullptr, events);
+    assigned = context;
+    EXPECT_EQ(assigned.data(), &data);
+    EXPECT_EQ(assigned.executionId().toString(), executionId.toString());
+}
+
 TEST(GtOperationApplyStatus, exposesStructuredFailure)
 {
     const auto success = GtOperationApplyStatus::success();

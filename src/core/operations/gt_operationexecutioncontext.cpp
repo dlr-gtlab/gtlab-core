@@ -12,7 +12,23 @@
 
 struct GtCancellationToken::State
 {
-    std::atomic_bool requested {false};
+    std::atomic_bool requested{false};
+};
+
+struct GtOperationExecutionContext::Impl
+{
+    Impl(GtObject* data, GtExecutionEventSink& events,
+         GtCancellationToken cancellation, GtExecutionId executionId) :
+        data(data),
+        events(&events), cancellation(std::move(cancellation)),
+        executionId(std::move(executionId))
+    {
+    }
+
+    GtObject* data;
+    GtExecutionEventSink* events;
+    GtCancellationToken cancellation;
+    GtExecutionId executionId;
 };
 
 GtExecutionId::GtExecutionId() :
@@ -26,8 +42,7 @@ GtExecutionId::toString() const noexcept
     return m_value;
 }
 
-GtCancellationToken::GtCancellationToken() :
-    m_state(std::make_shared<State>())
+GtCancellationToken::GtCancellationToken() : m_state(std::make_shared<State>())
 {
 }
 
@@ -46,45 +61,68 @@ GtCancellationToken::isCancellationRequested() const noexcept
 GtOperationExecutionContext::GtOperationExecutionContext(
     GtObject* data, GtExecutionEventSink& events,
     GtCancellationToken cancellation, GtExecutionId executionId) :
-    m_data(data),
-    m_events(events),
-    m_cancellation(std::move(cancellation)),
-    m_executionId(std::move(executionId))
+    m_impl(std::make_unique<Impl>(data, events, std::move(cancellation),
+                                  std::move(executionId)))
 {
 }
+
+GtOperationExecutionContext::~GtOperationExecutionContext() = default;
+
+GtOperationExecutionContext::GtOperationExecutionContext(
+    GtOperationExecutionContext const& other) :
+    m_impl(std::make_unique<Impl>(*other.m_impl))
+{
+}
+
+GtOperationExecutionContext&
+GtOperationExecutionContext::operator=(GtOperationExecutionContext const& other)
+{
+    if (this != &other)
+    {
+        m_impl = std::make_unique<Impl>(*other.m_impl);
+    }
+
+    return *this;
+}
+
+GtOperationExecutionContext::GtOperationExecutionContext(
+    GtOperationExecutionContext&& other) noexcept = default;
+
+GtOperationExecutionContext& GtOperationExecutionContext::operator=(
+    GtOperationExecutionContext&& other) noexcept = default;
 
 GtObject*
 GtOperationExecutionContext::data() noexcept
 {
-    return m_data;
+    return m_impl->data;
 }
 
 GtObject const*
 GtOperationExecutionContext::data() const noexcept
 {
-    return m_data;
+    return m_impl->data;
 }
 
 GtExecutionId const&
 GtOperationExecutionContext::executionId() const noexcept
 {
-    return m_executionId;
+    return m_impl->executionId;
 }
 
 GtExecutionEventSink&
 GtOperationExecutionContext::events() noexcept
 {
-    return m_events;
+    return *m_impl->events;
 }
 
 GtCancellationToken&
 GtOperationExecutionContext::cancellation() noexcept
 {
-    return m_cancellation;
+    return m_impl->cancellation;
 }
 
 GtCancellationToken const&
 GtOperationExecutionContext::cancellation() const noexcept
 {
-    return m_cancellation;
+    return m_impl->cancellation;
 }
