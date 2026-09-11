@@ -80,7 +80,7 @@ public:
     std::unique_ptr<GtObject>
     execute(GtOperationExecutionContext& context) override
     {
-        observedData = context.data() != nullptr;
+        observedData = (context.data() != nullptr);
         observedCancellation = context.cancellation().isCancellationRequested();
         observedExecutionId = context.executionId().toString();
         context.events().publish();
