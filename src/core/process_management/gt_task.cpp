@@ -16,9 +16,15 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
+#include "gt_objectmemento.h"
+#include "gt_objectfactory.h"
 
 #include <QDebug>
 #include <QThreadPool>
+#include <QFuture>
+#include <QFutureSynchronizer>
+#include <QtConcurrent/QtConcurrent>
+#include <QDir>
 
 #include <algorithm>
 
@@ -315,6 +321,13 @@ GtTask::maxIterationSteps() const
     return m_maxIter;
 }
 
+void
+GtTask::setMaxIteration(int maxIterations)
+{
+    enableMaxIterationProperty();
+    m_maxIter = maxIterations;
+}
+
 int
 GtTask::currentIterationStep() const
 {
@@ -541,11 +554,11 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
 bool
 GtTask::childHasWarnings() const
 {
-    auto const childs = findDirectChildren<GtProcessComponent*>();
+    auto const childs = this->findDirectChildren<GtProcessComponent*>();
     return std::any_of(std::begin(childs), std::end(childs),
-                       [](const GtProcessComponent* child) {
-        return child->currentState() == WARN_FINISHED;
-    });
+                        [](const GtProcessComponent* child) {
+         return child->currentState() == WARN_FINISHED;
+     });
 }
 
 void

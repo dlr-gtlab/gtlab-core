@@ -49,16 +49,40 @@ public:
     const QList<GtObject*>& linkedObjects() const;
 
     /**
+     * @brief setLinkedObjects
+     * @param objects
+     */
+    void setLinkedObjects(const QList<GtObject*>& objects);
+
+    /**
+     * @brief addLinkedObject
+     * @param object
+     */
+    void addLinkedObject(GtObject* object);
+
+    /**
      * @brief appendSourceData
      * @param memento
      */
     void appendSourceData(const GtObjectMemento& memento);
 
     /**
+     * @brief setInputData
+     * @param data
+     */
+    void setInputData(const QList<GtObjectMemento>& data);
+
+    /**
      * @brief sourceData
      * @return
      */
     const QList<GtObjectMemento>& outputData() const;
+
+    /**
+     * @brief inputData
+     * @return
+     */
+    const QList<GtObjectMemento>& inputData() const;
 
     /**
      * @brief Appends additional process component to runnable queue.
@@ -99,6 +123,30 @@ public:
      * @return
      */
     bool successful();
+
+    /**
+     * @brief DOE execution context structure
+     * Contains metadata for tracking parallel execution runs
+     */
+    struct DOEContext
+    {
+        int iteration{0};
+        int runIndex{0};
+        int totalRuns{0};
+        QString runId;
+    };
+
+    /**
+     * @brief setDOEContext
+     * @param context
+     */
+    void setDOEContext(const DOEContext& context);
+
+    /**
+     * @brief doeContext
+     * @return
+     */
+    DOEContext doeContext() const;
 
     /**
      * @brief Returns datamodel object based on given object uuid. If no
@@ -175,6 +223,9 @@ protected:
 
     ///
     bool m_successfulRun;
+
+    /// DOE execution context for parallel runs
+    DOEContext m_doeContext;
 
 signals:
     /**
