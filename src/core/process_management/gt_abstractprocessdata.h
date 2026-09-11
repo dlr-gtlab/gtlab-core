@@ -83,6 +83,11 @@ protected:
      */
     GtAbstractProcessData();
 
+    GtAbstractProcessData(const GtAbstractProcessData&) = default;
+    GtAbstractProcessData& operator=(const GtAbstractProcessData&) = default;
+    GtAbstractProcessData(GtAbstractProcessData&&) = default;
+    GtAbstractProcessData& operator=(GtAbstractProcessData&&) = default;
+
 };
 
 #endif // GTABSTRACTPROCESSDATA_H

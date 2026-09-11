@@ -56,17 +56,7 @@ stages:
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
 
-
-# build on Windows system
-windowsBuildDebug:
-  stage: build
-  extends: 
-    - .build-win_20
-    - .debugBuildRules
-  script:
-    - $env:PATH+=(";.\build;"+$env:GTLAB_DEV_TOOLS+"\binDebug;"+$env:GTLAB_DEV_TOOLS+"\binDebug\modules;")
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
-    - cmake --build build --target install
+.winartifacts:
   artifacts:
     paths:
       - install*
@@ -81,28 +71,33 @@ windowsBuildDebug:
       - build/**/*.log
       - build/_deps/*-src
 
+# build on Windows system
+windowsBuildDebug:
+  stage: build
+  extends: 
+    - .build-win_21
+    - .debugBuildRules
+    - .winartifacts
+  script:
+    - $env:PATH+=(";.\build;"+$env:GTLAB_DEV_TOOLS+"\binDebug;"+$env:GTLAB_DEV_TOOLS+"\binDebug\modules;")
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2026-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
+    - cmake --build build --target install
+
+
 windowsBuildRelease:
   stage: build
   extends: 
-    - .build-win_20
+    - .build-win_21
     - .releaseBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2026
     - cmake --build build --target install
   artifacts:
     paths:
       - install*
 
 
-# Linux build
-linuxBuildDebug:
-  stage: build
-  extends: 
-    - .build-linux_20
-    - .debugBuildRules
-  script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    - cmake --build build --target install
+.linuxartifacts:
   artifacts:
     paths:
       - install*
@@ -117,10 +112,31 @@ linuxBuildDebug:
       - build/_deps/*-src
       - build/compile_commands.json
 
-linuxBuildRelease:
+# Linux build
+linuxBuildDebug_2.0:
   stage: build
   extends: 
     - .build-linux_20
+    - .debugBuildRules
+    - .linuxartifacts
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - cmake --build build --target install
+
+linuxBuildDebug:
+  stage: build
+  extends: 
+    - .build-linux_21
+    - .debugBuildRules
+    - .linuxartifacts
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - cmake --build build --target install
+
+linuxBuildRelease:
+  stage: build
+  extends: 
+    - .build-linux_21
     - .releaseBuildRules
   script:
     - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux
@@ -165,11 +181,11 @@ guiTests:
       when: never
     - if: $CI_COMMIT_TAG == null
   needs:
-      - linuxBuildDebug
-      - job: "testLinux"
+      - linuxBuildDebug_2.0
+      - job: "testLinux_2.0"
         artifacts: false
   dependencies:
-    - linuxBuildDebug
+    - linuxBuildDebug_2.0
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable      
 
@@ -184,28 +200,15 @@ guiTestsTag:
       when: never
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
   needs:
-      - linuxBuildDebug
-      - job: "testLinux"
+      - linuxBuildDebug_2.0
+      - job: "testLinux_2.0"
         artifacts: false
   dependencies:
-    - linuxBuildDebug
+    - linuxBuildDebug_2.0
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable
 
-# run tests using the binary built before
-testWin:
-  stage: test
-  tags: ["windows", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-win
-  needs: ["windowsBuildDebug"]
-  extends: 
-    - .debugBuildRules
-  before_script:
-    - '& $env:GTLAB_UPDATE_TOOL up --confirm-command; $null'
-  script:
-    - $env:path = "$env:GTLAB_DEV_TOOLS\binDebug;$env:path"
-    - cd build
-    - .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+.testartifacts:
   artifacts:
     paths:
       - "build/unittests.xml"
@@ -213,38 +216,61 @@ testWin:
     reports:
       junit: build/unittests.xml
 
-testLinux:
+# run tests using the binary built before
+testWin:
   stage: test
-  needs: ["linuxBuildDebug"]
+  needs: ["windowsBuildDebug"]
+  extends: 
+    - .debugBuildRules
+    - .windocker_2.1
+    - .testartifacts
+  before_script:
+   - !reference [.update_devtools_win, script]
+  script:
+    - $env:path = "$env:GTLAB_DEV_TOOLS\binDebug;$env:QT_INSTALL_PATH\bin;$env:path"
+    - cd build
+    - .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+
+testLinux_2.0:
+  stage: test
+  needs: ["linuxBuildDebug_2.0"]
   extends: 
     - .debugBuildRules
     - .linuxdocker
+    - .testartifacts
   before_script:
-    # update to latest dev tools
-    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
+    - !reference [.update_devtools_linux, script]
   script:
     - cd build
     - ./GTlabUnitTest --gtest_output=xml:unittests.xml
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
-  artifacts:
-    paths:
-      - "build/unittests.xml"
-    expire_in: 1 week
-    reports:
-      junit: build/unittests.xml  
+
+testLinux:
+  stage: test
+  needs: ["linuxBuildDebug"]
+  extends: 
+    - .debugBuildRules
+    - .linuxdocker_2.1
+    - .testartifacts
+  before_script:
+    - !reference [.update_devtools_linux, script]
+  script:
+    - cd build
+    - ./GTlabUnitTest --gtest_output=xml:unittests.xml
+  variables:
+    GIT_SUBMODULE_STRATEGY: "none"
+
 
 code-coverage:
   stage: codequality
   extends: 
-    - .linuxdocker
+    - .linuxdocker_2.1
     - .debugBuildRules
-    - .linuxdocker
   needs: 
     - linuxBuildDebug
   before_script:
-    # update to latest dev tools
-    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
+    - !reference [.update_devtools_linux, script]
   script:
     - cd build
     - ninja test-coverage
@@ -261,12 +287,12 @@ code-coverage:
 valgrind:
   extends: 
     - .debugBuildRules
-    - .linuxdocker
+    - .linuxdocker_2.1
   needs: ["linuxBuildDebug"]
   stage: test
   before_script:
-    - apt update -y && apt install -y xvfb
-    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
+    - apt update -y && apt install -y xvfb xauth
+    - !reference [.update_devtools_linux, script]
     - chmod +x ./tests/memcheck/runValgrind.sh
     - chmod +x ./tests/memcheck/post.py
     - python3 -m venv env
@@ -320,13 +346,13 @@ valgrind:
     toolchain: msvc2019
     GIT_STRATEGY: "none"
 
-package-win:
+package-win_2.1:
   extends: [".package"]
   needs: ["windowsBuildRelease", "windowsBuildDebug"]
   variables:
-    toolchain: msvc2019
+    toolchain: msvc2026
 
-package-linux:
+package-linux_2.1:
   extends: [".package"]
   needs: ["linuxBuildRelease", "linuxBuildDebug"]
   variables:
@@ -342,12 +368,15 @@ package-linux:
 cppcheck:
   stage: codequality
   extends:
-    - .linuxdocker
+    - .linuxdocker_2.1
   allow_failure: false
   needs: ["linuxBuildDebug"]
   script:
   - cmake -S . -B build -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF
-  - cppcheck --inline-suppr --xml --std=c++14 --suppress=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=all -j 16 -i build --project=build/compile_commands.json 2> cppcheck_out.xml || exit_code=$?
+  # Cppcheck 2.21 ignores -isystem entries from GTLAB_DEV_TOOLS.
+  # Retain CMake's database and make only those includes normal for analysis.
+  - perl -pe 's{\Q-isystem $ENV{GTLAB_DEV_TOOLS}\E}{-I$ENV{GTLAB_DEV_TOOLS}}g' build/compile_commands.json > build/cppcheck_compile_commands.json
+  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --suppressions-list=cppcheck-baseline.suppress --library=qt.cfg --error-exitcode=255 --enable=all -j 16 -i build --project=build/cppcheck_compile_commands.json 2> cppcheck_out.xml || exit_code=$?
   - more cppcheck_out.xml
   - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
   - exit $exit_code

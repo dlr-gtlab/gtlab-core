@@ -48,6 +48,9 @@ public:
      */
     ~GtExtendedCalculatorDataImpl() override;
 
+    GtExtendedCalculatorDataImpl(const GtExtendedCalculatorDataImpl&) = delete;
+    GtExtendedCalculatorDataImpl& operator=(const GtExtendedCalculatorDataImpl&) = delete;
+
     /// Calculator icon
     QIcon icon;
 

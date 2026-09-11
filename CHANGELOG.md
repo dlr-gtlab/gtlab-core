@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Search functionality for the Memento-Viewer - #380
 
 ### Changed
+ - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
  - Core-managed process execution now resolves `currentProject()` through an
    execution-scoped project context. Existing calculators remain compatible;

@@ -49,6 +49,9 @@ public:
      */
     ~GtExtendedTaskDataImpl() override;
 
+    GtExtendedTaskDataImpl(const GtExtendedTaskDataImpl&) = delete;
+    GtExtendedTaskDataImpl& operator=(const GtExtendedTaskDataImpl&) = delete;
+
     /// Task icon
     QIcon icon;
 

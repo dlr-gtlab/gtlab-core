@@ -70,7 +70,7 @@ struct VersionUpgradeRoutine
     GtVersionNumber target;
 
     /// specific upgrade function
-    ConverterFunction f;
+    ConverterFunction f = nullptr;
 };
 
 } // namespace gt
