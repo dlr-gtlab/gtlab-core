@@ -141,6 +141,35 @@ GtPerspective::saveGeometry(const QByteArray& data)
 }
 
 void
+GtPerspective::saveDockState(const QByteArray& data)
+{
+    QString path = gtApp->roamingPath() + QDir::separator() +
+                   QStringLiteral("perspective");
+
+    QDir dir(path);
+
+    if (!dir.exists())
+    {
+        gtError() << tr("roaming path not found!");
+        return;
+    }
+
+    QString persFilename = objectName() + QStringLiteral(".dock_state");
+
+    QFile file(dir.absoluteFilePath(persFilename));
+
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        gtError() << tr("could not create perspective file!");
+        return;
+    }
+
+    file.write(data);
+
+    file.close();
+}
+
+void
 GtPerspective::saveState(const QByteArray& data)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
@@ -170,7 +199,7 @@ GtPerspective::saveState(const QByteArray& data)
 }
 
 QByteArray
-GtPerspective::loadGeometry()
+GtPerspective::loadGeometry() const
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("perspective");
@@ -201,7 +230,38 @@ GtPerspective::loadGeometry()
 }
 
 QByteArray
-GtPerspective::loadState()
+GtPerspective::loadDockState() const
+{
+    QString path = gtApp->roamingPath() + QDir::separator() +
+                   QStringLiteral("perspective");
+
+    QDir dir(path);
+
+    if (!dir.exists())
+    {
+        gtFatal() << tr("roaming path not found!");
+        return QByteArray();
+    }
+
+    QString persFilename = objectName() + QStringLiteral(".dock_state");
+
+    QFile file(dir.absoluteFilePath(persFilename));
+
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        gtError() << tr("Could not create perspective file!");
+        return QByteArray();
+    }
+
+    QByteArray data = file.readAll();
+
+    file.close();
+
+    return data;
+}
+
+QByteArray
+GtPerspective::loadState() const
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("perspective");
