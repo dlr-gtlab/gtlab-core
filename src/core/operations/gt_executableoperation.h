@@ -9,7 +9,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_executioncontext.h"
-#include "gt_operationapplyresult.h"
+#include "gt_operationapplystatus.h"
 #include "gt_operationexecutioncontext.h"
 
 #include "gt_object.h"
@@ -43,8 +43,8 @@ public:
      * and may be nullptr. It must not borrow authoritative-project objects; an
      * execution target receives this data and must not call createData() again.
      */
-    virtual std::unique_ptr<GtObject>
-    createData(GtExecutionContext const& context) const = 0;
+    virtual std::unique_ptr<GtObject> createData(
+        GtExecutionContext const& context) const = 0;
 
     /**
      *  Performs synchronous execution-side computation.
@@ -54,20 +54,23 @@ public:
      * project. The returned detached serializable result is independently owned
      * by the caller and may be nullptr according to the concrete contract.
      */
-    virtual std::unique_ptr<GtObject>
-    execute(GtOperationExecutionContext& context) = 0;
+    virtual std::unique_ptr<GtObject> execute(
+        GtOperationExecutionContext& context) = 0;
 
     /**
      *  Applies a detached result on the originating side.
      *
      * Called on the originating project/application thread and must remain
-     * lightweight. result is a nullable, non-owning read-only view that must
-     * not be retained. This is the only operation step allowed to make a result
-     * authoritative in the originating project; failures are reported through
-     * the returned structured result.
+     * lightweight. executionResult is the nullable, non-owning result created
+     * by execute() and must not be retained. This is the only operation step
+     * allowed to make a result authoritative in the originating project.
+     *
+     * @param executionResult Optional result from execute().
+     * @param context Context of the originating-side execution.
+     * @return The status of applying executionResult.
      */
-    virtual GtOperationApplyResult
-    applyResult(GtObject const* result, GtExecutionContext& context) const = 0;
+    virtual GtOperationApplyStatus applyResult(
+        GtObject const* executionResult, GtExecutionContext& context) const = 0;
 };
 
 #endif // GTEXECUTABLEOPERATION_H

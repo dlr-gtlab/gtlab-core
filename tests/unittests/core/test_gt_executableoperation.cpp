@@ -87,11 +87,11 @@ public:
         return std::make_unique<GtObject>();
     }
 
-    GtOperationApplyResult
-    applyResult(GtObject const* result, GtExecutionContext&) const override
+    GtOperationApplyStatus
+    applyResult(GtObject const* executionResult, GtExecutionContext&) const override
     {
-        return result ? GtOperationApplyResult::success() :
-                        GtOperationApplyResult::failure(
+        return executionResult ? GtOperationApplyStatus::success() :
+                        GtOperationApplyStatus::failure(
                             QStringLiteral("Missing result"));
     }
 
@@ -234,7 +234,7 @@ TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
     EXPECT_EQ(events.publishedEvents, 1);
     EXPECT_NE(result, nullptr);
     GtExecutionContext clientContext;
-    EXPECT_TRUE(testOperation->applyResult(result.get(), clientContext).isSuccess());
+    EXPECT_TRUE(testOperation->applyResult(result.get(), clientContext).succeeded());
 }
 
 TEST(GtExecutableOperation, rejectsReconstructedNonOperationBeforeExecution)
@@ -286,13 +286,13 @@ TEST_F(OperationModuleLoaderTest, rejectsDuplicateOperationDeclaration)
     EXPECT_FALSE(loader.validate(&module));
 }
 
-TEST(GtOperationApplyResult, exposesStructuredFailure)
+TEST(GtOperationApplyStatus, exposesStructuredFailure)
 {
-    const auto success = GtOperationApplyResult::success();
-    const auto failure = GtOperationApplyResult::failure(QStringLiteral("error"));
+    const auto success = GtOperationApplyStatus::success();
+    const auto failure = GtOperationApplyStatus::failure(QStringLiteral("error"));
 
-    EXPECT_TRUE(success.isSuccess());
-    EXPECT_FALSE(failure.isSuccess());
+    EXPECT_TRUE(success.succeeded());
+    EXPECT_FALSE(failure.succeeded());
     EXPECT_EQ(failure.errorMessage(), QStringLiteral("error"));
 }
 

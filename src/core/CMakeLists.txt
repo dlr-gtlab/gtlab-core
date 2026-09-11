@@ -78,10 +78,10 @@ set(headers
     states/gt_statecontainer.h
     gt_coreapplication.h
     gt_executioncontext.h
-    gt_executableoperation.h
-    gt_operationapplyresult.h
-    gt_operationexecutioncontext.h
-    gt_operationinterface.h
+    operations/gt_executableoperation.h
+    operations/gt_operationapplystatus.h
+    operations/gt_operationexecutioncontext.h
+    operations/gt_operationinterface.h
     gt_projectexecutionguard.h
     gt_core_exports.h
     gt_footprint.h
@@ -193,8 +193,8 @@ set(sources
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
     gt_executioncontext.cpp
-    gt_operationapplyresult.cpp
-    gt_operationexecutioncontext.cpp
+    operations/gt_operationapplystatus.cpp
+    operations/gt_operationexecutioncontext.cpp
     gt_projectexecutionguard.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
@@ -245,6 +245,7 @@ target_include_directories(GTlabCore
     PUBLIC
     # includes during local build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/operations>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management/calculators>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management/process_runner>
