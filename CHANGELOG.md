@@ -48,6 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 
+## [2.0.13] - 2026-09-07
+### Fixed
+ - Fixed modules being incorrectly disabled when multiple GTlab instances start concurrently. - #1538
+ - Fixed the explorer and process views not marking the next object as selected when deleting an object. - #1486
+ - Performance improvement when jumping to an object in the explorer widget (e.g. when jumping to the linked object of an object link property). - #1480
+
 ## [2.0.12] - 2026-03-18
 
 GTlab 2.0.12 is a release to prepare the migration to GTlab 2.1.
