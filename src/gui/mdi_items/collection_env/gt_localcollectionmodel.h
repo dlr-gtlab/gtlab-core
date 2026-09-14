@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  * Source File: gt_localcollectionmodel.h
  *
  *  Created on: 08.02.2017
@@ -15,11 +15,12 @@
 #include <QAbstractListModel>
 
 #include "gt_collectionitem.h"
+#include "gt_gui_exports.h"
 
 /**
  * @brief The GtLocalCollectionModel class
  */
-class GtLocalCollectionModel : public QAbstractListModel
+class GT_GUI_EXPORT GtLocalCollectionModel : public QAbstractListModel
 {
     Q_OBJECT
 

@@ -1,7 +1,7 @@
 ﻿/* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  * Source File: gt_collectioneditor.cpp
  *
  *  Created on: 02.02.2017
@@ -46,7 +46,8 @@ GtCollectionEditor::GtCollectionEditor() :
     m_updateAllButton(nullptr),
     m_selectAllCheckBox(nullptr),
     m_loader(nullptr),
-    m_fetchMovie(nullptr)
+    m_fetchMovie(nullptr),
+    m_updateLocalButton(nullptr)
 {
     setObjectName(tr("Collection"));
 
@@ -95,6 +96,13 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     }
 
     QVBoxLayout* colLay = new QVBoxLayout;
+
+    if(m_collectionSettings->showUpdateLocalCollectionButton())
+    {
+        m_updateLocalButton = new QPushButton(gt::gui::icon::sync(), tr("Update local collection"));
+        m_updateLocalButton->setVisible(true);
+        colLay->addWidget(m_updateLocalButton);
+    }
 
     m_specificCollectionWidget = m_collectionSettings->localCollectionWidget(
                                      m_collectionWidget);
@@ -169,7 +177,10 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
             SLOT(downloadSelectedItems()));
     connect(m_selectAllCheckBox, SIGNAL(toggled(bool)),
             SLOT(onSelectAllCheckToggled(bool)));
-    connect(m_updateAllButton, SIGNAL(clicked(bool)), SLOT(updateAllItems()));
+    connect(m_updateAllButton, SIGNAL(clicked(bool)),
+            SLOT(updateAllItems()));
+    connect(m_updateLocalButton, SIGNAL(clicked(bool)),
+            SLOT(updateLocalCollection()));
 }
 
 void
@@ -538,4 +549,10 @@ GtCollectionEditor::updateAllItems()
     loadLocalCollection();
 
     m_tabWidget->setCurrentIndex(0);
+}
+
+void
+GtCollectionEditor::updateLocalCollection()
+{
+    loadLocalCollection();
 }
