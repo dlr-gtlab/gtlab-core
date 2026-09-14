@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.13] - 2026-09-07
 ### Fixed
+ - Fixed modules being incorrectly disabled when multiple GTlab instances start concurrently. - #1538
  - Fixed the explorer and process views not marking the next object as selected when deleting an object. - #1486
  - Performance improvement when jumping to an object in the explorer widget (e.g. when jumping to the linked object of an object link property). - #1480
 
@@ -31,7 +32,6 @@ As such, many functions needed to be deprecated and should be replaced according
     - Replace `gt::re::XXX` with `gt::rex::XXX` (just replace the namespace)
 
 ### Fixed
- - Fixed modules being incorrectly disabled when multiple GTlab instances start concurrently. - #1538
  - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1379
  - Fixed Output Dock not resizing new rows correctly. - #1260
  - Fixed crash in Process Explorer, when no project is currently open. - #1393
