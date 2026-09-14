@@ -14,7 +14,6 @@ GtExecutionEventStream::GtExecutionEventStream(GtExecutionId executionId,
     QObject(parent),
     m_executionId(std::move(executionId))
 {
-    qRegisterMetaType<GtExecutionEvent>();
 }
 
 GtExecutionId const&

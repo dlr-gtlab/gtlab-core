@@ -56,6 +56,8 @@ public:
     QJsonValue const& payload() const noexcept;
 
 private:
+    static void registerMetaType();
+
     GtExecutionId m_executionId;
     quint64 m_sequence;
     QString m_eventType;

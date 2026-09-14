@@ -6,10 +6,12 @@
 
 #include "gt_executionevent.h"
 
+#include <mutex>
 #include <utility>
 
 GtExecutionEvent::GtExecutionEvent() : m_sequence(0)
 {
+    registerMetaType();
 }
 
 GtExecutionEvent::GtExecutionEvent(GtExecutionId executionId, quint64 sequence,
@@ -18,6 +20,14 @@ GtExecutionEvent::GtExecutionEvent(GtExecutionId executionId, quint64 sequence,
     m_sequence(sequence), m_eventType(std::move(eventType)),
     m_payload(std::move(payload))
 {
+    registerMetaType();
+}
+
+void
+GtExecutionEvent::registerMetaType()
+{
+    static std::once_flag registered;
+    std::call_once(registered, [] { qRegisterMetaType<GtExecutionEvent>(); });
 }
 
 GtExecutionId const&
