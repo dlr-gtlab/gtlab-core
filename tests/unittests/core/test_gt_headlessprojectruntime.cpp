@@ -500,7 +500,7 @@ TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
     const auto status = handle.wait(5000);
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Cancelled);
     EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::Cancelled);
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
     EXPECT_EQ(handle.cancel().code,
               GtHeadlessTaskCancellationResult::Code::AlreadyCompleted);
 }
@@ -551,7 +551,7 @@ TEST_F(TestGtHeadlessProjectRuntime, FailedTaskReleasesProjectGuard)
     const auto status = handle.wait(5000);
     EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
     EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
 }
 
 TEST_F(TestGtHeadlessProjectRuntime, MergeFailureBecomesTerminalExecutionFailure)
@@ -620,7 +620,7 @@ TEST_F(TestGtHeadlessProjectRuntime, MergeFailureBecomesTerminalExecutionFailure
 
     ASSERT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
     EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
-    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(project));
+    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
     EXPECT_EQ(copiedHandle.status().state, GtHeadlessTaskStatus::State::Failed);
     EXPECT_EQ(copiedHandle.status().result,
               GtHeadlessTaskStatus::Result::ExecutionFailed);

@@ -598,7 +598,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
         }
     }
 
-    if (GtProjectExecutionGuard::isBusy(m_private->project))
+    if (GtProjectExecutionGuard::isLocked(m_private->project))
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                        QStringLiteral("Project execution is still active"));
@@ -609,7 +609,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::saveProject()
         return success();
     }
 
-    return GtProjectExecutionGuard::isBusy(m_private->project) ?
+    return GtProjectExecutionGuard::isLocked(m_private->project) ?
                failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                        QStringLiteral("Project execution started during save")) :
                failure(GtHeadlessRuntimeResult::Code::SaveFailed,
@@ -662,7 +662,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
         return success();
     }
 
-    if (GtProjectExecutionGuard::isBusy(project))
+    if (GtProjectExecutionGuard::isLocked(project))
     {
         return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                        QStringLiteral("Project execution is still active"));
@@ -670,7 +670,7 @@ GtHeadlessRuntimeResult GtHeadlessProjectRuntime::closeProject()
 
     if (!gtDataModel->closeProject(project))
     {
-        if (GtProjectExecutionGuard::isBusy(project))
+        if (GtProjectExecutionGuard::isLocked(project))
         {
             return failure(GtHeadlessRuntimeResult::Code::ProjectBusy,
                            QStringLiteral("Project execution started during close"));
@@ -939,12 +939,12 @@ GtHeadlessTaskHandle GtHeadlessProjectRuntime::submitTask(
     auto flags = executor->coreExecutorFlags();
     flags.setFlag(gt::NonBlockingExecution, true);
     executor->setCoreExecutorFlags(flags);
-    const auto runResult = executor->runTaskWithResult(task);
-    if (runResult != GtCoreProcessExecutor::RunTaskResult::Started &&
-        runResult != GtCoreProcessExecutor::RunTaskResult::Queued)
+    const auto runResult = executor->startTask(task);
+    if (runResult != GtCoreProcessExecutor::TaskExecState::Started &&
+        runResult != GtCoreProcessExecutor::TaskExecState::Queued)
     {
         restoreExecutorFlags();
-        const auto code = runResult == GtCoreProcessExecutor::RunTaskResult::Busy ?
+        const auto code = runResult == GtCoreProcessExecutor::TaskExecState::Busy ?
                               GtHeadlessRuntimeResult::Code::ProjectBusy :
                               GtHeadlessRuntimeResult::Code::ExecutionRejected;
         setResult(failure(code,
