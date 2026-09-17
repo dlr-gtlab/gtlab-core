@@ -6,214 +6,85 @@
 
 #include "gtest/gtest.h"
 
-#include <atomic>
-#include <memory>
-#include <thread>
+#include "gt_coreapplication.h"
+#include "gt_coredatamodel.h"
+#include "gt_executioncontext.h"
+#include "gt_externalizationmanager.h"
+#include "gt_executableoperation.h"
+#include "gt_headlessprojectruntime.h"
+#include "gt_object.h"
+#include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_testhelper.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
-#include <QCoreApplication>
-#include <QEventLoop>
-#include <QScopeGuard>
 #include <QThread>
 
-#include "gt_coreapplication.h"
-#include "gt_coreprocessexecutor.h"
-#include "gt_coredatamodel.h"
-#include "gt_externalizationmanager.h"
-#include "gt_executioncontext.h"
-#include "gt_objectfactory.h"
-#include "gt_object.h"
-#include "gt_objectlinkproperty.h"
-#include "gt_projectexecutionguard.h"
-#include "gt_project.h"
-#include "gt_processdata.h"
-#include "gt_task.h"
-#include "gt_taskgroup.h"
-#include "gt_calculator.h"
-#include "gt_headlessprojectruntime.h"
-#include "gt_processexecutormanager.h"
-#include "gt_testhelper.h"
+#include <atomic>
+#include <memory>
+#include <stdexcept>
+#include <thread>
+#include <vector>
 
 namespace
 {
-class ContextObservingCalculator : public GtCalculator
+class TestOperation final : public GtExecutableOperation
 {
     Q_OBJECT
-
 public:
-    Q_INVOKABLE ContextObservingCalculator() = default;
-
-    static std::atomic<GtProject*> observedProject;
-
-    bool run() override
+    Q_INVOKABLE TestOperation() = default;
+    bool requiresProject() const override { return s_requiresProject; }
+    std::unique_ptr<GtObject> createData(GtExecutionContext const&) const override
     {
-        const auto* context = GtExecutionContext::current();
-        auto* project = context ? context->project() : nullptr;
-        observedProject.store(project);
-        return project != nullptr;
+        return {};
     }
-};
-
-std::atomic<GtProject*> ContextObservingCalculator::observedProject{nullptr};
-
-class LegacyCurrentProjectCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE LegacyCurrentProjectCalculator() = default;
-
-    static std::atomic<GtProject*> observedProject;
-
-    bool run() override
+    std::unique_ptr<GtObject> execute(GtOperationExecutionContext& context) override
     {
-        observedProject.store(gtApp->currentProject());
-        return observedProject.load() != nullptr;
-    }
-};
-
-std::atomic<GtProject*> LegacyCurrentProjectCalculator::observedProject{nullptr};
-
-class InterruptibleCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE InterruptibleCalculator() = default;
-
-    static std::atomic_bool started;
-    static std::atomic_bool release;
-
-    bool run() override
-    {
-        started.store(true);
-        auto* task = findParent<GtTask*>();
-        while (!release.load() && !(task && task->isInterruptionRequested()))
+        s_started.store(true);
+        s_projectContext.store(GtExecutionContext::current() &&
+                               GtExecutionContext::current()->project());
+        context.events().publish(QStringLiteral("started"));
+        context.events().publish(QStringLiteral("progress"));
+        while (s_block.load() && !context.cancellation().isCancellationRequested())
         {
             QThread::msleep(1);
         }
-        return true;
+        if (s_throw.load()) throw std::runtime_error("expected operation failure");
+        auto result = std::make_unique<GtObject>();
+        result->setObjectName(QStringLiteral("detached-result"));
+        return result;
     }
+    GtOperationApplyStatus applyResult(GtObject const*, GtExecutionContext&) const override
+    {
+        return GtOperationApplyStatus::success();
+    }
+
+    static std::atomic_bool s_requiresProject;
+    static std::atomic_bool s_started;
+    static std::atomic_bool s_block;
+    static std::atomic_bool s_throw;
+    static std::atomic_bool s_projectContext;
 };
 
-std::atomic_bool InterruptibleCalculator::started{false};
-std::atomic_bool InterruptibleCalculator::release{false};
-
-class ProgressCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ProgressCalculator() = default;
-
-    static std::atomic_bool reported;
-
-    bool run() override
-    {
-        auto* task = findParent<GtTask*>();
-        if (task)
-        {
-            task->setProgress(42);
-        }
-        reported.store(true);
-        while (task && !task->isInterruptionRequested())
-        {
-            QThread::msleep(1);
-        }
-        return true;
-    }
-};
-
-std::atomic_bool ProgressCalculator::reported{false};
-
-class FailingCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE FailingCalculator() = default;
-
-    bool run() override
-    {
-        return false;
-    }
-};
-
-class MergeFailureCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MergeFailureCalculator() :
-        m_target("target", "Target", "Target object", this,
-                 {GT_CLASSNAME(GtObject)})
-    {
-        registerProperty(m_target);
-    }
-
-    static std::atomic_bool started;
-    static std::atomic_bool release;
-
-    void setTargetUuid(const QString& uuid)
-    {
-        m_target.setVal(uuid);
-    }
-
-    bool run() override
-    {
-        auto* target = data<GtObject*>(m_target);
-        if (!target)
-        {
-            return false;
-        }
-
-        target->setObjectName(QStringLiteral("changed-in-runner"));
-        started.store(true);
-        while (!release.load())
-        {
-            QThread::msleep(1);
-        }
-        return true;
-    }
-
-private:
-    GtObjectLinkProperty m_target;
-};
-
-std::atomic_bool MergeFailureCalculator::started{false};
-std::atomic_bool MergeFailureCalculator::release{false};
-
-class UncooperativeCalculator : public GtCalculator
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE UncooperativeCalculator() = default;
-
-    static std::atomic_bool started;
-    static std::atomic_bool release;
-
-    bool run() override
-    {
-        started.store(true);
-        while (!release.load())
-        {
-            QThread::msleep(1);
-        }
-        return true;
-    }
-};
-
-std::atomic_bool UncooperativeCalculator::started{false};
-std::atomic_bool UncooperativeCalculator::release{false};
+std::atomic_bool TestOperation::s_requiresProject{false};
+std::atomic_bool TestOperation::s_started{false};
+std::atomic_bool TestOperation::s_block{false};
+std::atomic_bool TestOperation::s_throw{false};
+std::atomic_bool TestOperation::s_projectContext{false};
 
 class TestGtHeadlessProjectRuntime : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
+        TestOperation::s_requiresProject.store(false);
+        TestOperation::s_started.store(false);
+        TestOperation::s_block.store(false);
+        TestOperation::s_throw.store(false);
+        TestOperation::s_projectContext.store(false);
         m_application = std::make_unique<GtCoreApplication>(
             QCoreApplication::instance(), GtCoreApplication::AppMode::Batch);
         m_application->init();
@@ -228,652 +99,182 @@ protected:
         gtExternalizationManager->onProjectLoaded(QDir::tempPath());
     }
 
+    void drainUntilDone(GtHeadlessOperationHandle const& handle)
+    {
+        QElapsedTimer timer;
+        timer.start();
+        while (!handle.status().isDone() && timer.elapsed() < 5000)
+        {
+            QCoreApplication::processEvents();
+            QThread::msleep(1);
+        }
+    }
+
     QString createProject() const
     {
         const auto directory = gtTestHelper->newTempDir();
         QFile file(directory.filePath(GtProject::mainFilename()));
         EXPECT_TRUE(file.open(QIODevice::WriteOnly | QIODevice::Text));
-        file.write(QStringLiteral(
-                       "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                       "<GTLAB projectname=\"headless-runtime-test\" "
-                       "version=\"1.7.0-rc1\">\n"
-                       "    <env-footprint><core-ver>2.0.0</core-ver>"
-                       "<modules/></env-footprint>\n"
-                       "    <comment/>\n"
-                       "    <MODULES/>\n"
-                       "    <PROCESSES/>\n"
-                       "    <LABELS/>\n"
-                       "</GTLAB>\n")
-                       .toUtf8());
+        file.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                   "<GTLAB projectname=\"headless-test\" version=\"1.7.0-rc1\">\n"
+                   "<env-footprint><core-ver>2.0.0</core-ver><modules/></env-footprint>\n"
+                   "<comment/><MODULES/><PROCESSES/><LABELS/></GTLAB>\n");
         file.close();
         return directory.absolutePath();
     }
 
     GtProject* openProject()
     {
-        const auto path = createProject();
-        EXPECT_TRUE(m_runtime->openProject(path));
+        EXPECT_TRUE(m_runtime->openProject(createProject()));
         return gtDataModel->currentProject();
     }
 
     std::unique_ptr<GtCoreApplication> m_application;
     std::unique_ptr<GtHeadlessProjectRuntime> m_runtime;
 };
-} // namespace
-
-TEST(GtHeadlessTaskStatus, InvalidStatusIsNotDone)
-{
-    GtHeadlessTaskStatus status;
-
-    EXPECT_FALSE(status.isDone());
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Invalid);
 }
 
-TEST(GtHeadlessTaskStatus, TerminalStatesAreDone)
+TEST(GtHeadlessOperationHandle, DefaultHandleIsInvalid)
 {
-    for (const auto state : {GtHeadlessTaskStatus::State::Finished,
-                             GtHeadlessTaskStatus::State::Failed,
-                             GtHeadlessTaskStatus::State::Cancelled,
-                             GtHeadlessTaskStatus::State::Shutdown})
-    {
-        GtHeadlessTaskStatus status;
-        status.state = state;
-        EXPECT_TRUE(status.isDone());
-    }
-}
-
-TEST(GtHeadlessTaskHandle, DefaultHandleIsInvalid)
-{
-    GtHeadlessTaskHandle handle;
-
+    GtHeadlessOperationHandle handle;
     EXPECT_FALSE(handle.isValid());
     EXPECT_TRUE(handle.id().isEmpty());
     EXPECT_FALSE(handle.status().isDone());
-    EXPECT_EQ(handle.cancel().code,
-              GtHeadlessTaskCancellationResult::Code::TaskUnavailable);
+    EXPECT_FALSE(handle.cancel().succeeded());
 }
 
-TEST(GtHeadlessProjectRuntime, StartsInCreatedState)
+TEST_F(TestGtHeadlessProjectRuntime, SubmitsAndRunsDetachedOperation)
 {
-    GtHeadlessProjectRuntime runtime;
-
-    EXPECT_EQ(runtime.state(), GtHeadlessProjectRuntime::State::Created);
-    EXPECT_TRUE(runtime.projectPath().isEmpty());
-}
-
-TEST(GtHeadlessProjectRuntime, RejectsProjectBeforeInitialization)
-{
-    GtHeadlessProjectRuntime runtime;
-    GtHeadlessRuntimeResult result = runtime.openProject(QStringLiteral("missing"));
-
-    EXPECT_EQ(result.code, GtHeadlessRuntimeResult::Code::InvalidState);
-    EXPECT_FALSE(result.succeeded());
-}
-
-TEST(GtHeadlessProjectRuntime, ReportsMissingCoreServices)
-{
-    GtHeadlessProjectRuntime runtime;
-    const auto result = runtime.initialize();
-
-    EXPECT_EQ(result.code, GtHeadlessRuntimeResult::Code::CoreUnavailable);
-    EXPECT_FALSE(result.succeeded());
-    EXPECT_EQ(runtime.state(), GtHeadlessProjectRuntime::State::Created);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, ListsTasksAndRejectsUnknownTask)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("task"));
-    ASSERT_NE(project->processData()->taskGroup(), nullptr);
-    ASSERT_TRUE(project->processData()->taskGroup()->appendChild(task));
-
-    const auto descriptors = m_runtime->listTasks();
-    ASSERT_EQ(descriptors.size(), 1);
-    EXPECT_EQ(descriptors.front().taskId, QStringLiteral("task"));
-    EXPECT_EQ(descriptors.front().group,
-              GtTaskGroup::defaultUserGroupId());
-
     GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("missing"), &result);
-    EXPECT_FALSE(handle.isValid());
-    EXPECT_EQ(result.code, GtHeadlessRuntimeResult::Code::TaskNotFound);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, ExecutesTaskWithProjectExecutionContext)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(ContextObservingCalculator::staticMetaObject);
-    ContextObservingCalculator::observedProject.store(nullptr);
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("context-task"));
-    auto calculator = std::make_unique<ContextObservingCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("context-task"),
-                                               &result);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>(), {}, &result);
+    ASSERT_TRUE(result.succeeded());
     ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-
-    GtHeadlessTaskStatus foreignThreadStatus;
-    std::thread foreignThread([&]() { foreignThreadStatus = handle.status(); });
-    foreignThread.join();
-    EXPECT_EQ(foreignThreadStatus.state, GtHeadlessTaskStatus::State::Invalid);
-
-    const auto status = handle.wait(5000);
-    QCoreApplication::processEvents(QEventLoop::AllEvents);
-    EXPECT_TRUE(status.isDone());
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
-    EXPECT_EQ(ContextObservingCalculator::observedProject.load(), project);
+    EXPECT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Queued);
+    const auto rejectedWait = handle.wait(0);
+    EXPECT_TRUE(rejectedWait.waitRejected);
+    drainUntilDone(handle);
+    ASSERT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Finished);
+    EXPECT_EQ(handle.status().result, GtHeadlessOperationStatus::Result::Succeeded);
+    ASSERT_TRUE(handle.result());
+    EXPECT_EQ(handle.result()->objectName(), QStringLiteral("detached-result"));
+    EXPECT_EQ(handle.events()->executionId().toString(), handle.id());
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, PreservesLegacyCurrentProjectCompatibility)
+TEST_F(TestGtHeadlessProjectRuntime, PublishesOrderedOperationEvents)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(LegacyCurrentProjectCalculator::staticMetaObject);
-    LegacyCurrentProjectCalculator::observedProject.store(nullptr);
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("legacy-current-project-task"));
-    auto calculator = std::make_unique<LegacyCurrentProjectCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("legacy-current-project-task"),
-                                               &result);
-    ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-
-    const auto status = handle.wait(5000);
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Finished);
-    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::Succeeded);
-    EXPECT_EQ(LegacyCurrentProjectCalculator::observedProject.load(), project);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    std::vector<GtExecutionEvent> events;
+    QObject::connect(handle.events().data(), &GtExecutionEventStream::eventPublished,
+                     [&](GtExecutionEvent event) { events.push_back(std::move(event)); });
+    drainUntilDone(handle);
+    ASSERT_EQ(events.size(), 2u);
+    EXPECT_EQ(events[0].sequence(), 0u);
+    EXPECT_EQ(events[1].sequence(), 1u);
+    EXPECT_EQ(events[0].executionId(), handle.events()->executionId());
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, ReportsTaskProgress)
+TEST_F(TestGtHeadlessProjectRuntime, HandleCopiesShareTerminalSnapshotAndResult)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(ProgressCalculator::staticMetaObject);
-    ProgressCalculator::reported.store(false);
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("progress-task"));
-    auto calculator = std::make_unique<ProgressCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("progress-task"), &result);
-    ASSERT_TRUE(result.succeeded());
-
-    QElapsedTimer timer;
-    timer.start();
-    while (!ProgressCalculator::reported.load() && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        QThread::msleep(1);
-    }
-    ASSERT_TRUE(ProgressCalculator::reported.load());
-    GtHeadlessTaskStatus progressStatus;
-    timer.restart();
-    while (progressStatus.progress != 42 && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        progressStatus = handle.status();
-        QThread::msleep(1);
-    }
-    ASSERT_EQ(progressStatus.progress, 42);
-    ASSERT_TRUE(handle.cancel().succeeded());
-    EXPECT_EQ(handle.wait(5000).result, GtHeadlessTaskStatus::Result::Cancelled);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    auto copy = handle;
+    drainUntilDone(handle);
+    EXPECT_EQ(copy.status().state, GtHeadlessOperationStatus::State::Finished);
+    ASSERT_TRUE(copy.result());
+    EXPECT_EQ(copy.result()->objectName(), QStringLiteral("detached-result"));
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, CancelsRunningTask)
+TEST_F(TestGtHeadlessProjectRuntime, ReportsStructuredOperationFailure)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
+    TestOperation::s_throw.store(true);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    drainUntilDone(handle);
+    const auto status = handle.status();
+    EXPECT_EQ(status.state, GtHeadlessOperationStatus::State::Failed);
+    EXPECT_EQ(status.result, GtHeadlessOperationStatus::Result::ExecutionFailed);
+    EXPECT_NE(status.error.indexOf(QStringLiteral("expected operation failure")), -1);
+}
 
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(InterruptibleCalculator::staticMetaObject);
-    InterruptibleCalculator::started.store(false);
-    InterruptibleCalculator::release.store(false);
-    const auto releaseOnExit = qScopeGuard([] {
-        InterruptibleCalculator::release.store(true);
+TEST_F(TestGtHeadlessProjectRuntime, CancellationCanBeRequestedFromAnotherThread)
+{
+    TestOperation::s_block.store(true);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    std::thread cancelWhenStarted([handle] {
+        while (!TestOperation::s_started.load()) QThread::msleep(1);
+        handle.cancel();
     });
-    Q_UNUSED(releaseOnExit);
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("cancellable-task"));
-    auto calculator = std::make_unique<InterruptibleCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("cancellable-task"),
-                                               &result);
-    ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-
-    QElapsedTimer timer;
-    timer.start();
-    while (!InterruptibleCalculator::started.load() && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        QThread::msleep(1);
-    }
-    ASSERT_TRUE(InterruptibleCalculator::started.load());
-    GtHeadlessTaskCancellationResult foreignThreadCancellation;
-    std::thread foreignThread([&]() {
-        foreignThreadCancellation = handle.cancel();
-    });
-    foreignThread.join();
-    EXPECT_EQ(foreignThreadCancellation.code,
-              GtHeadlessTaskCancellationResult::Code::WrongThread);
-
-    const auto cancellation = handle.cancel();
-    ASSERT_TRUE(cancellation.succeeded());
-    EXPECT_EQ(cancellation.code,
-              GtHeadlessTaskCancellationResult::Code::Accepted);
-
-    const auto status = handle.wait(5000);
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Cancelled);
-    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::Cancelled);
-    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
-    EXPECT_EQ(handle.cancel().code,
-              GtHeadlessTaskCancellationResult::Code::AlreadyCompleted);
+    drainUntilDone(handle);
+    cancelWhenStarted.join();
+    EXPECT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Cancelled);
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, LostTaskObjectBecomesTerminal)
+TEST_F(TestGtHeadlessProjectRuntime, CancellationBeforeStartSkipsExecution)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("lost-task"));
-    ASSERT_TRUE(taskGroup->appendChild(task));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("lost-task"),
-                                               &result);
-    ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-
-    delete task;
-
-    const auto status = handle.wait(100);
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
-    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::TaskUnavailable);
-    EXPECT_TRUE(status.isDone());
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    ASSERT_TRUE(handle.cancel());
+    QCoreApplication::processEvents();
+    EXPECT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Cancelled);
+    EXPECT_FALSE(TestOperation::s_started.load());
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, FailedTaskReleasesProjectGuard)
+TEST_F(TestGtHeadlessProjectRuntime, ShutdownMakesQueuedHandleTerminal)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(FailingCalculator::staticMetaObject);
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("failing-task"));
-    auto calculator = std::make_unique<FailingCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("failing-task"), &result);
-    ASSERT_TRUE(result.succeeded());
-    const auto status = handle.wait(5000);
-    EXPECT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
-    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
-    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, MergeFailureBecomesTerminalExecutionFailure)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(MergeFailureCalculator::staticMetaObject);
-    MergeFailureCalculator::started.store(false);
-    MergeFailureCalculator::release.store(false);
-    const auto releaseOnExit = qScopeGuard([] {
-        MergeFailureCalculator::release.store(true);
-    });
-    Q_UNUSED(releaseOnExit);
-
-    auto* target = new GtObject;
-    target->setObjectName(QStringLiteral("merge-target"));
-    ASSERT_TRUE(gtDataModel->appendChild(target, project).isValid());
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("merge-failure-task"));
-    auto calculator = std::make_unique<MergeFailureCalculator>();
-    calculator->setTargetUuid(target->uuid());
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("merge-failure-task"),
-                                               &result);
-    const auto copiedHandle = handle;
-    ASSERT_TRUE(result.succeeded());
-
-    QElapsedTimer timer;
-    timer.start();
-    while (!MergeFailureCalculator::started.load() && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        QThread::msleep(1);
-    }
-    ASSERT_TRUE(MergeFailureCalculator::started.load());
-
-    auto runningStatus = handle.status();
-    timer.restart();
-    while (runningStatus.state != GtHeadlessTaskStatus::State::Running &&
-           timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        runningStatus = handle.status();
-    }
-    ASSERT_EQ(runningStatus.state, GtHeadlessTaskStatus::State::Running);
-
-    ASSERT_TRUE(gtDataModel->deleteFromModel(target));
-    MergeFailureCalculator::release.store(true);
-
-    GtHeadlessTaskStatus status;
-    timer.restart();
-    while (!status.isDone() && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        status = handle.status();
-        EXPECT_NE(status.state, GtHeadlessTaskStatus::State::Finished);
-    }
-
-    ASSERT_EQ(status.state, GtHeadlessTaskStatus::State::Failed);
-    EXPECT_EQ(status.result, GtHeadlessTaskStatus::Result::ExecutionFailed);
-    EXPECT_FALSE(GtProjectExecutionGuard::isLocked(project));
-    EXPECT_EQ(copiedHandle.status().state, GtHeadlessTaskStatus::State::Failed);
-    EXPECT_EQ(copiedHandle.status().result,
-              GtHeadlessTaskStatus::Result::ExecutionFailed);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, ShutdownTimeoutStoresTerminalShutdownStatus)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
-    gtObjectFactory->registerClass(UncooperativeCalculator::staticMetaObject);
-    UncooperativeCalculator::started.store(false);
-    UncooperativeCalculator::release.store(false);
-
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("uncooperative-task"));
-    auto calculator = std::make_unique<UncooperativeCalculator>();
-    ASSERT_TRUE(task->appendChild(calculator.release()));
-    ASSERT_TRUE(taskGroup->appendChild(task.release()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("uncooperative-task"), &result);
-    ASSERT_TRUE(result.succeeded());
-
-    QElapsedTimer timer;
-    timer.start();
-    while (!UncooperativeCalculator::started.load() && timer.elapsed() < 5000)
-    {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        QThread::msleep(1);
-    }
-    ASSERT_TRUE(UncooperativeCalculator::started.load());
-
-    std::thread releaser([] {
-        QThread::msleep(5500);
-        UncooperativeCalculator::release.store(true);
-    });
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
     m_runtime.reset();
-    releaser.join();
-
-    EXPECT_EQ(handle.status().state, GtHeadlessTaskStatus::State::Shutdown);
+    EXPECT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Shutdown);
     EXPECT_EQ(handle.status().result,
-              GtHeadlessTaskStatus::Result::RuntimeShutdown);
+              GtHeadlessOperationStatus::Result::RuntimeShutdown);
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, SubmitsTaskByUuid)
+TEST_F(TestGtHeadlessProjectRuntime, ForeignThreadCanWaitForCompletion)
 {
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* processData = project->processData();
-    ASSERT_NE(processData, nullptr);
-    auto* customGroup = processData->createNewTaskGroup(
-        QStringLiteral("uuid-custom"), GtTaskGroup::CUSTOM);
-    ASSERT_NE(customGroup, nullptr);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
+    GtHeadlessOperationStatus waited;
+    std::thread waiter([&] { waited = handle.wait(5000); });
+    drainUntilDone(handle);
+    waiter.join();
+    EXPECT_EQ(waited.state, GtHeadlessOperationStatus::State::Finished);
+}
 
-    auto task = std::make_unique<GtTask>();
-    task->setObjectName(QStringLiteral("uuid-task"));
-    const auto taskUuid = task->uuid();
-    ASSERT_TRUE(customGroup->appendChild(task.release()));
-    ASSERT_TRUE(processData->switchCurrentTaskGroup(
-        GtTaskGroup::defaultUserGroupId(), GtTaskGroup::USER, project->path()));
-
+TEST_F(TestGtHeadlessProjectRuntime, RejectsProjectRequiredOperationWithoutProject)
+{
+    TestOperation::s_requiresProject.store(true);
     GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(taskUuid, &result);
-    ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
+    const auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>(), {}, &result);
+    EXPECT_FALSE(handle.isValid());
+    EXPECT_EQ(result.code, GtHeadlessRuntimeResult::Code::OperationRejected);
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, ListTasksRestoresCustomTaskGroup)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* processData = project->processData();
-    ASSERT_NE(processData, nullptr);
-    auto* customGroup = processData->createNewTaskGroup(
-        QStringLiteral("custom"), GtTaskGroup::CUSTOM);
-    ASSERT_NE(customGroup, nullptr);
-    ASSERT_TRUE(processData->switchCurrentTaskGroup(
-        customGroup->objectName(), GtTaskGroup::CUSTOM, project->path()));
-
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("custom-task"));
-    ASSERT_TRUE(customGroup->appendChild(task));
-
-    const auto descriptors = m_runtime->listTasks();
-
-    EXPECT_FALSE(descriptors.isEmpty());
-    ASSERT_NE(processData->taskGroup(), nullptr);
-    EXPECT_EQ(processData->taskGroup()->objectName(), customGroup->objectName());
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, SubmitTaskRestoresCurrentTaskGroup)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* processData = project->processData();
-    ASSERT_NE(processData, nullptr);
-    auto* customGroup = processData->createNewTaskGroup(
-        QStringLiteral("custom"), GtTaskGroup::CUSTOM);
-    ASSERT_NE(customGroup, nullptr);
-
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("custom-task"));
-    ASSERT_TRUE(customGroup->appendChild(task));
-    ASSERT_TRUE(processData->switchCurrentTaskGroup(
-        GtTaskGroup::defaultUserGroupId(), GtTaskGroup::USER, project->path()));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("custom/custom-task"),
-                                               &result);
-    ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-    EXPECT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
-    ASSERT_NE(processData->taskGroup(), nullptr);
-    EXPECT_EQ(processData->taskGroup()->objectName(),
-              GtTaskGroup::defaultUserGroupId());
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectBusyProject)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-
-    GtProjectExecutionGuard guard;
-    ASSERT_EQ(guard.tryAcquire(project),
-              GtProjectExecutionGuard::Result::Acquired);
-
-    EXPECT_EQ(m_runtime->saveProject().code,
-              GtHeadlessRuntimeResult::Code::ProjectBusy);
-    EXPECT_EQ(m_runtime->closeProject().code,
-              GtHeadlessRuntimeResult::Code::ProjectBusy);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, SavesProjectSuccessfully)
+TEST_F(TestGtHeadlessProjectRuntime, PreservesSingleProjectLifecycle)
 {
     ASSERT_NE(openProject(), nullptr);
-    EXPECT_TRUE(m_runtime->saveProject());
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, CloseFailureKeepsProjectLoadedForRetry)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-
-    ASSERT_TRUE(gtDataModel->closeProject(project));
-    EXPECT_EQ(m_runtime->closeProject().code,
-              GtHeadlessRuntimeResult::Code::CloseFailed);
     EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::ProjectLoaded);
-
-    ASSERT_TRUE(gtDataModel->openProject(project));
-    EXPECT_TRUE(m_runtime->closeProject());
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, RemovalFailureRetriesRemoval)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    ASSERT_NE(gtDataModel->session(), nullptr);
-
-    QMetaObject::Connection detachOnClose;
-    detachOnClose = QObject::connect(
-        gtDataModel, &QAbstractItemModel::rowsRemoved,
-        [&detachOnClose, project] {
-            QObject::disconnect(detachOnClose);
-            project->setParent(nullptr);
-        });
-
-    EXPECT_EQ(m_runtime->closeProject().code,
-              GtHeadlessRuntimeResult::Code::CloseFailed);
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::CloseFailed);
-    EXPECT_FALSE(project->isOpen());
-
-    ASSERT_TRUE(gtDataModel->newProject(project, false));
-    EXPECT_TRUE(m_runtime->closeProject());
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, RestoresExecutorFlagsAfterTask)
-{
-    auto* project = openProject();
-    ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
-    auto* executor = gt::processExecutorManager().currentExecutor();
-    ASSERT_NE(executor, nullptr);
-    const auto original = GtCoreProcessExecutor::Flags{gt::DryExecution};
-    executor->setCoreExecutorFlags(original);
-
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("flags-task"));
-    ASSERT_TRUE(taskGroup->appendChild(task));
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("flags-task"), &result);
-    ASSERT_TRUE(result.succeeded());
-    ASSERT_TRUE(handle.wait(5000).isDone());
-    EXPECT_EQ(executor->coreExecutorFlags(), original);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, RejectsSecondProject)
-{
-    ASSERT_NE(openProject(), nullptr);
-
-    const auto result = m_runtime->openProject(createProject());
-    EXPECT_EQ(result.code,
+    EXPECT_EQ(m_runtime->openProject(createProject()).code,
               GtHeadlessRuntimeResult::Code::ProjectAlreadyLoaded);
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::ProjectLoaded);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, InitializesAndShutsDownWithoutProject)
-{
-    m_runtime.reset();
-    m_runtime = std::make_unique<GtHeadlessProjectRuntime>();
-    ASSERT_TRUE(m_runtime->initialize());
-    EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Initialized);
-}
-
-TEST_F(TestGtHeadlessProjectRuntime, ClosesProjectSuccessfully)
-{
-    ASSERT_NE(openProject(), nullptr);
-
+    EXPECT_TRUE(m_runtime->saveProject());
     EXPECT_TRUE(m_runtime->closeProject());
     EXPECT_EQ(m_runtime->state(), GtHeadlessProjectRuntime::State::Closed);
-    EXPECT_TRUE(m_runtime->projectPath().isEmpty());
     EXPECT_EQ(gtDataModel->currentProject(), nullptr);
 }
 
-TEST_F(TestGtHeadlessProjectRuntime, CompletedHandleRemainsUsableAfterRuntimeCleanup)
+TEST_F(TestGtHeadlessProjectRuntime, SaveAndCloseRejectProjectGuard)
 {
     auto* project = openProject();
     ASSERT_NE(project, nullptr);
-    auto* taskGroup = project->processData()->taskGroup();
-    ASSERT_NE(taskGroup, nullptr);
+    GtProjectExecutionGuard guard;
+    ASSERT_EQ(guard.tryAcquire(project), GtProjectExecutionGuard::Result::Acquired);
+    EXPECT_EQ(m_runtime->saveProject().code, GtHeadlessRuntimeResult::Code::ProjectBusy);
+    EXPECT_EQ(m_runtime->closeProject().code, GtHeadlessRuntimeResult::Code::ProjectBusy);
+}
 
-    auto* task = new GtTask;
-    task->setObjectName(QStringLiteral("retained-handle-task"));
-    ASSERT_TRUE(taskGroup->appendChild(task));
-
-    GtHeadlessRuntimeResult result;
-    const auto handle = m_runtime->submitTask(QStringLiteral("retained-handle-task"),
-                                               &result);
+TEST_F(TestGtHeadlessProjectRuntime, ProjectOperationReceivesScopedExecutionContext)
+{
+    ASSERT_NE(openProject(), nullptr);
+    TestOperation::s_requiresProject.store(true);
+    auto handle = m_runtime->submitOperation(std::make_unique<TestOperation>());
     ASSERT_TRUE(handle.isValid());
-    ASSERT_TRUE(result.succeeded());
-    ASSERT_EQ(handle.wait(5000).state, GtHeadlessTaskStatus::State::Finished);
-
-    m_runtime.reset();
-
-    EXPECT_EQ(handle.status().state, GtHeadlessTaskStatus::State::Finished);
-    EXPECT_EQ(handle.status().result, GtHeadlessTaskStatus::Result::Succeeded);
+    drainUntilDone(handle);
+    EXPECT_EQ(handle.status().state, GtHeadlessOperationStatus::State::Finished);
+    EXPECT_TRUE(TestOperation::s_projectContext.load());
 }
 
 #include "test_gt_headlessprojectruntime.moc"

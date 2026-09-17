@@ -8,247 +8,142 @@
 #define GTHEADLESSPROJECTRUNTIME_H
 
 #include "gt_core_exports.h"
-#include "process_management/gt_processcomponent.h"
+#include "operations/gt_executioneventstream.h"
 
 #include <QObject>
+#include <QMutex>
+#include <QPointer>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QString>
-#include <QVector>
+#include <QWaitCondition>
 
-class GtCoreProcessExecutor;
+#include <memory>
+
+class GtExecutableOperation;
+class GtObject;
 class GtProject;
 
-/**
- * @brief Value-based status returned by a headless task execution.
- */
-struct GT_CORE_EXPORT GtHeadlessTaskStatus
+struct GT_CORE_EXPORT GtHeadlessOperationStatus
 {
-    enum class State
-    {
-        Invalid,
-        Queued,
-        Running,
-        Finished,
-        Failed,
-        Cancelled,
-        Shutdown
-    };
+    enum class State { Invalid, Queued, Running, Finished, Failed, Cancelled, Shutdown };
+    enum class Result { None, Succeeded, Cancelled, ExecutionFailed, RuntimeShutdown };
 
-    enum class Result
-    {
-        None,
-        Succeeded,
-        Cancelled,
-        TaskUnavailable,
-        ExecutionFailed,
-        RuntimeShutdown
-    };
-
-    /// Stable opaque identifier assigned at submission time.
     QString id;
-    /// Current lifecycle state. Finished includes executor post-processing.
     State state{State::Invalid};
-    /// Underlying Core process state, when the task object is available.
-    GtProcessComponent::STATE processState{GtProcessComponent::NONE};
-    /// Current task progress in percent, or -1 when unavailable.
-    int progress{-1};
-    /// Human-readable diagnostic for a failed, cancelled or shutdown task.
-    QString error;
-    /// Structured terminal outcome; None is used for non-terminal snapshots.
     Result result{Result::None};
+    QString error;
+    bool waitRejected{false};
 
-    /// Returns true for Finished, Failed, Cancelled and Shutdown states.
+    /** Returns true for every terminal state. */
     bool isDone() const;
 };
 
-/**
- * @brief Outcome of a headless task cancellation request.
- */
-struct GT_CORE_EXPORT GtHeadlessTaskCancellationResult
+struct GT_CORE_EXPORT GtHeadlessOperationCancellationResult
 {
-    enum class Code
-    {
-        Accepted,
-        AlreadyCompleted,
-        RuntimeShutdown,
-        TaskUnavailable,
-        WrongThread,
-        ExecutorUnavailable,
-        ExecutorRejected
-    };
-
-    /// Exact outcome of the cancellation request.
-    Code code{Code::TaskUnavailable};
-    /// Human-readable explanation for a rejected request.
+    enum class Code { Accepted, AlreadyCompleted, RuntimeShutdown, InvalidHandle };
+    Code code{Code::InvalidHandle};
     QString message;
-
-    /// Returns true only when the executor accepted cancellation.
     bool succeeded() const;
     explicit operator bool() const { return succeeded(); }
 };
 
-/**
- * @brief Copyable handle for a task submitted to a headless runtime.
- *
- * The handle contains no public Qt or GTlab object pointer. All methods must
- * be called from the thread owning the GTlab application and event loop.
- */
-class GT_CORE_EXPORT GtHeadlessTaskHandle
+class GT_CORE_EXPORT GtHeadlessOperationHandle
 {
 public:
-    GtHeadlessTaskHandle();
-    ~GtHeadlessTaskHandle();
+    GtHeadlessOperationHandle();
+    ~GtHeadlessOperationHandle();
+    GtHeadlessOperationHandle(const GtHeadlessOperationHandle&) = default;
+    GtHeadlessOperationHandle& operator=(const GtHeadlessOperationHandle&) = default;
+    GtHeadlessOperationHandle(GtHeadlessOperationHandle&&) noexcept = default;
+    GtHeadlessOperationHandle& operator=(GtHeadlessOperationHandle&&) noexcept = default;
 
-    GtHeadlessTaskHandle(const GtHeadlessTaskHandle&) = default;
-    GtHeadlessTaskHandle& operator=(const GtHeadlessTaskHandle&) = default;
-    GtHeadlessTaskHandle(GtHeadlessTaskHandle&&) noexcept = default;
-    GtHeadlessTaskHandle& operator=(GtHeadlessTaskHandle&&) noexcept = default;
-
-    /// Returns the stable opaque task identifier.
+    /** Returns the stable execution ID, or an empty string for an invalid handle. */
     QString id() const;
-    /// Returns whether this handle refers to a submitted task.
+    /** Returns whether this handle refers to a submitted operation. */
     bool isValid() const;
-    /// Returns the latest value snapshot. Must be called on the owner thread.
-    GtHeadlessTaskStatus status() const;
-
+    /** Returns a synchronized value snapshot and is safe from any thread. */
+    GtHeadlessOperationStatus status() const;
+    /** Requests cooperative cancellation; safe from any thread. */
+    GtHeadlessOperationCancellationResult cancel() const;
+    /** Waits off the owner thread; owner-thread waiting while active is rejected. */
+    GtHeadlessOperationStatus wait(int timeoutMs = -1) const;
+    /** Returns shared access to the invocation event stream. */
+    QSharedPointer<GtExecutionEventStream> events() const;
     /**
-     * @brief Request cancellation of the associated task.
-     * @return Structured result describing whether cancellation was accepted.
+     * Returns the non-consuming detached result, or null before success.
+     * Inspect and release the GTlab object on the GTlab owner thread.
      */
-    GtHeadlessTaskCancellationResult cancel() const;
-
-    /**
-     * @brief Wait for completion while processing the Qt event loop.
-     * @param timeoutMs Negative values wait without a timeout.
-     * @return Final status, or the latest non-terminal status after a timeout.
-     * Finished is returned only after complete executor processing, including
-     * post-processing and result merging.
-     */
-    GtHeadlessTaskStatus wait(int timeoutMs = -1) const;
+    QSharedPointer<GtObject const> result() const;
 
 private:
     struct State;
-    explicit GtHeadlessTaskHandle(const QSharedPointer<State>& state);
-
+    explicit GtHeadlessOperationHandle(QSharedPointer<State> const& state);
     QSharedPointer<State> m_state;
-
     friend class GtHeadlessProjectRuntime;
 };
 
-/**
- * @brief Lightweight task metadata exposed by a headless runtime.
- */
-struct GT_CORE_EXPORT GtHeadlessTaskDescriptor
-{
-    /// Display name of the task.
-    QString name;
-    /// Task-group identifier.
-    QString group;
-    /// Task identifier used for name-based lookup.
-    QString taskId;
-    /// Stable task UUID used for group-independent lookup.
-    QString uuid;
-    /// Project path containing the task.
-    QString path;
-    /// Current underlying Core process state.
-    GtProcessComponent::STATE state{GtProcessComponent::NONE};
-};
-
-/**
- * @brief Result code for runtime operations.
- */
 struct GT_CORE_EXPORT GtHeadlessRuntimeResult
 {
     enum class Code
     {
-        Success,
-        InvalidState,
-        CoreUnavailable,
-        InvalidProject,
-        ProjectAlreadyLoaded,
-        ProjectBusy,
-        TaskNotFound,
-        ExecutionRejected,
-        ExecutionFailed,
-        SaveFailed,
-        CloseFailed
+        Success, InvalidState, CoreUnavailable, InvalidProject,
+        ProjectAlreadyLoaded, ProjectBusy, OperationRejected,
+        SaveFailed, CloseFailed
     };
-
-    /// Exact outcome of the runtime operation.
     Code code{Code::Success};
-    /// Human-readable explanation for a failed operation.
     QString message;
-
-    /// Returns true only for Code::Success.
     bool succeeded() const;
     explicit operator bool() const { return succeeded(); }
 };
 
 /**
- * @brief Single-project application boundary for a headless GTlab worker.
+ * @brief Single-project application and operation-execution boundary.
  *
- * The runtime owns the lifecycle boundary around one explicitly loaded project
- * and its owner-thread execution context. Asynchronous task execution is the
- * first supported capability, not the complete purpose of the abstraction.
- * Future short-lived project queries and mutations, including Memento-based
- * read/apply operations, should use the same project and execution context but
- * do not have to be represented by task handles. Their APIs, as well as project
- * revisions, project events, and IPC contracts, are follow-up work.
- *
- * The runtime uses the existing Core datamodel and process executor. It does
- * not own QCoreApplication. The project added by openProject() is removed from
- * the current session again by closeProject(). The runtime must be destroyed
- * on the GTlab owner thread while the application is running; destruction from
- * another thread is marshalled only while that thread is available.
+ * Lifecycle methods and submission run on the GTlab owner thread. Operation
+ * execute() is queued on that thread; handle status and cancellation are
+ * independently synchronized. The runtime owns one loaded project and never
+ * applies an operation result to the originating project.
  */
 class GT_CORE_EXPORT GtHeadlessProjectRuntime : public QObject
 {
     Q_OBJECT
-
 public:
-    /// Runtime lifecycle. CloseFailed can be retried; Closed is terminal.
-    enum class State
-    {
-        Created,
-        Initialized,
-        ProjectLoaded,
-        CloseFailed,
-        Closed
-    };
+    enum class State { Created, Initialized, ProjectLoaded, CloseFailed, Closed };
     Q_ENUM(State)
 
     explicit GtHeadlessProjectRuntime(QObject* parent = nullptr);
-    /// Destroys the runtime and performs bounded owner-thread shutdown.
     ~GtHeadlessProjectRuntime() override;
 
-    /// Initializes Core services. Must be called from the owner thread.
+    /** Initializes the required Core services on the owner thread. */
     GtHeadlessRuntimeResult initialize();
-    /// Opens exactly one project. A second project is rejected.
-    GtHeadlessRuntimeResult openProject(const QString& projectPath);
-    /// Saves the loaded project, rejecting concurrent task execution.
+    /** Opens exactly one project into the current Core session. */
+    GtHeadlessRuntimeResult openProject(QString const& projectPath);
+    /** Saves the project, rejecting active project-bound execution. */
     GtHeadlessRuntimeResult saveProject();
-    /// Closes and removes the loaded project. CloseFailed remains retryable;
-    /// Closed is terminal.
+    /** Closes and removes the project, rejecting active project-bound execution. */
     GtHeadlessRuntimeResult closeProject();
-
-    /// Returns the current lifecycle state.
+    /** Returns the current runtime lifecycle state. */
     State state() const;
-    /// Returns the path of the explicitly loaded project, if any.
+    /** Returns the explicitly loaded project's path, or an empty string. */
     QString projectPath() const;
-    /// Lists tasks without changing the selected task-group state.
-    QVector<GtHeadlessTaskDescriptor> listTasks() const;
-    /// Submits a task reference and optionally returns a structured error.
-    GtHeadlessTaskHandle submitTask(const QString& taskReference,
-                                    GtHeadlessRuntimeResult* result = nullptr);
+
+    /**
+     * @brief Takes ownership and queues one execution-local operation.
+     *
+     * Submission must run on the GTlab owner thread and returns before
+     * execute() begins. The optional data must be detached from the originating
+     * project. A project-required operation is rejected when no project is
+     * loaded. The result output describes submission, not operation completion.
+     */
+    GtHeadlessOperationHandle submitOperation(
+        std::unique_ptr<GtExecutableOperation> operation,
+        std::unique_ptr<GtObject> data = {},
+        GtHeadlessRuntimeResult* result = nullptr);
 
 private:
     Q_DISABLE_COPY(GtHeadlessProjectRuntime)
-
     void shutdown();
-    void cleanupCompletedTasks();
-    void restoreExecutorFlags();
-
     struct Private;
     QScopedPointer<Private> m_private;
 };
