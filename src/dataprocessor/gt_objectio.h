@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Created on: 29.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -44,10 +44,24 @@ public:
     void setFactory(GtAbstractObjectFactory* factory);
 
     /** Creates Memento from given GtObject.
-        @param o GtObject pointer
-        @param clone Wether identiy information should be cloned or not
+        @param obj Object to serialize, or nullptr for a null memento
+        @param clone Whether to preserve UUIDs (true) or generate new ones
+        (false)
         @return GtObjectMemento memento */
     GtObjectMemento toMemento(const GtObject* o, bool clone = true);
+
+    /** Creates Memento from given GtObject.
+        @param obj Object to serialize, or nullptr for a null memento
+        @param clone Whether to preserve UUIDs (true) or generate new ones
+        (false)
+        @param uuidMap If not null given, maps original UUIDs to the new UUIDs
+        of the copied objects, including this object and all copied descendants.
+        Existing entries are replaced. The map is empty if operation fails.
+        Original UUIDs must be unique in the tree.
+        @return GtObjectMemento memento */
+    GtObjectMemento toMemento(const GtObject* o,
+                              bool clone,
+                              QHash<QString, QString>* uuidMap);
 
     /** Creates QDomElement from given GtObjectMemento.
         @param m GtObjectMemento

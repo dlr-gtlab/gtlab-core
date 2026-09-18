@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Created on: 29.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -224,9 +224,14 @@ GtObjectIO::setFactory(GtAbstractObjectFactory* factory)
 GtObjectMemento
 GtObjectIO::toMemento(const GtObject* o, bool clone)
 {
+    return toMemento(o, clone, nullptr);
+}
+
+GtObjectMemento
+GtObjectIO::toMemento(const GtObject* o, bool clone, QHash<QString, QString>* uuidMap)
+{
     // global object element
     GtObjectMemento memento;
-
 
     // class name
     if (o->isDummy())
@@ -248,6 +253,11 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
         uuid = QUuid::createUuid().toString();
     }
 
+    if(uuidMap)
+    {
+        uuidMap->insert(o->uuid(), uuid);
+    }
+
     memento.setUuid(uuid);
 
     // object name
@@ -262,7 +272,7 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     for (const GtObject* child : directChildren)
     {
         // recursion through GtObjectMemento constructor
-        memento.childObjects.push_back(GtObjectMemento(child, clone));
+        memento.childObjects.push_back(GtObjectMemento(child, clone, uuidMap));
     }
 
     return memento;

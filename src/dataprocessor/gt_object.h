@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Created on: 24.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -17,9 +17,11 @@
 #include <gt_version.h>
 
 #include <QObject>
+#include <QHash>
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 
 class GtObjectMemento;
 class GtAbstractObjectFactory;
@@ -161,9 +163,13 @@ public:
     /**
      * @brief Creates a memento of the internal object state.
      * @param clone
+     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
+     * including this object and all copied descendants. Existing entries are
+     * replaced. The map is empty if operation fails. Original UUIDs must be
+     * unique in the tree.
      * @return
      */
-    GtObjectMemento toMemento(bool clone = true) const;
+    GtObjectMemento toMemento(bool clone = true, QHash<QString, QString>* uuidMap = nullptr) const;
 
     /**
      * @brief fromMemento
@@ -192,6 +198,21 @@ public:
      * @return a copy of the object.
      */
     GtObject* copy() const;
+
+    /**
+     * @brief copy
+     * Copies the object and its children, recording the new UUIDs.
+     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
+     * including this object and all copied descendants. Existing entries are
+     * replaced. The map is empty if operation fails. Original UUIDs must be
+     * unique in the tree.
+     * @return a copy of the object.
+     *
+     * Use copy->getObjectByUuid(uuidMap.value(original->uuid()) to and
+     * original object's copy. Property references (e.g. Object Link) are
+     * copied unchanged.
+     */
+    GtObject* copy(QHash<QString, QString>* uuidMap) const;
 
     /**
      * @brief clone

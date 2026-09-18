@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Created on: 29.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -27,15 +27,21 @@
 
 using PD = GtObjectMemento::PropertyData;
 
-GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
+GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone):
+    GtObjectMemento(obj, clone, nullptr)
+{
+}
+
+GtObjectMemento::GtObjectMemento(const GtObject* obj,
+                                 bool clone,
+                                 QHash<QString, QString>* uuidMap)
 {
     if (obj)
     {
         GtObjectIO oio;
-        *this = oio.toMemento(obj, clone);
+        *this = oio.toMemento(obj, clone, uuidMap);
     }
 }
-
 
 GtObjectMemento::GtObjectMemento(const QDomElement& element)
 {

@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Created on: 24.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -142,9 +142,9 @@ GtObject::hasDummyParents() const
 }
 
 GtObjectMemento
-GtObject::toMemento(bool clone) const
+GtObject::toMemento(bool clone, QHash<QString, QString>* uuidMap) const
 {
-    return GtObjectMemento(this, clone);
+    return GtObjectMemento(this, clone, uuidMap);
 }
 
 void
@@ -184,7 +184,8 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
 namespace {
 GtObject* copyCloneHelper(const GtObject* toCopy,
                           GtAbstractObjectFactory* fac,
-                          bool clone)
+                          bool clone,
+                          QHash<QString, QString>* uuidMap = nullptr)
 {
     // check for factory
     if (!fac)
@@ -200,7 +201,7 @@ GtObject* copyCloneHelper(const GtObject* toCopy,
     }
 
     // generate memento
-    GtObjectMemento memento = toCopy->toMemento(clone);
+    GtObjectMemento memento = toCopy->toMemento(clone, uuidMap);
 
     if (memento.isNull())
     {
@@ -215,6 +216,27 @@ GtObject*
 GtObject::copy() const
 {
     return copyCloneHelper(this, pimpl->factory, false);
+}
+
+GtObject*
+GtObject::copy(QHash<QString, QString>* uuidMap) const
+{
+    if(uuidMap)
+    {
+        uuidMap->clear();
+    }
+
+    auto* result = copyCloneHelper(this, pimpl->factory, false, uuidMap);
+
+    if(!result)
+    {
+        if(uuidMap)
+        {
+            uuidMap->clear();
+        }
+    }
+
+    return result;
 }
 
 GtObject*
@@ -316,7 +338,7 @@ GtObject::setUuid(const QString& val)
 void
 GtObject::newUuid(bool renewChildUUIDs)
 {
-    pimpl->uuid = QUuid::createUuid().toString();
+    setUuid(QUuid::createUuid().toString());
 
     if (renewChildUUIDs)
     {
