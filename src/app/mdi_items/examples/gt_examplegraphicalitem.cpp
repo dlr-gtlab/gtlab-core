@@ -97,7 +97,6 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
     QFont fnt("Helvetica", 9);
     fnt.setBold(true);
 
-    nameLabel->setFrameStyle(QFrame::NoFrame);
     nameLabel->setStyleSheet("background-color: rgba(0,0,0,0%);"
                              "border: 0px solid gray");
     nameLabel->setFrameStyle(QFrame::NoFrame);
