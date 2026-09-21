@@ -162,7 +162,8 @@ public:
 
     /**
      * @brief Creates a memento of the internal object state.
-     * @param clone
+     * @param clone If true, UUIDs are preserved. If false, new UUIDs are
+     * generated.
      * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
      * including this object and all copied descendants. Existing entries are
      * replaced. The map is empty if operation fails. Original UUIDs must be
@@ -208,9 +209,9 @@ public:
      * unique in the tree.
      * @return a copy of the object.
      *
-     * Use copy->getObjectByUuid(uuidMap.value(original->uuid()) to and
-     * original object's copy. Property references (e.g. Object Link) are
-     * copied unchanged.
+     * Use copy->getObjectByUuid(uuidMap.value(original->uuid())) to obtain the
+     * returned pointer, which identifies the copied object. Property references
+     * (e.g. Object Link) are copied unchanged.
      */
     GtObject* copy(QHash<QString, QString>* uuidMap) const;
 

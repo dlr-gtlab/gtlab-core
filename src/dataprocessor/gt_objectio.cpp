@@ -233,6 +233,11 @@ GtObjectIO::toMemento(const GtObject* o, bool clone, QHash<QString, QString>* uu
     // global object element
     GtObjectMemento memento;
 
+    if (!o)
+    {
+        return memento;
+    }
+
     // class name
     if (o->isDummy())
     {
