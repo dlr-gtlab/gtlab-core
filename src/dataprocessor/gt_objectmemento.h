@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Created on: 29.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -40,19 +40,6 @@ public:
      * (false)
      */
     explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
-
-    /**
-     * @brief Creates a memento of a GtObject and records the UUIDs of its objects
-     * @param obj Object to serialize, or nullptr for a null memento
-     * @param clone Whether to preserve UUIDs (true) or generate new ones
-     * (false)
-     * @param uuidMap If not null given, maps original UUIDs to the new UUIDs
-     * of the copied objects, including this object and all copied descendants.
-     * Existing entries are replaced. The map is empty if operation fails.
-     * Original UUIDs must be unique in the tree.
-     */
-    explicit GtObjectMemento(const GtObject* obj, bool clone,
-                             QHash<QString, QString>* uuidMap);
 
     /**
      * @brief GtObjectMemento

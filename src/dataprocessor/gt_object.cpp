@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Created on: 24.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -142,9 +142,9 @@ GtObject::hasDummyParents() const
 }
 
 GtObjectMemento
-GtObject::toMemento(bool clone, QHash<QString, QString>* uuidMap) const
+GtObject::toMemento(bool clone) const
 {
-    return GtObjectMemento(this, clone, uuidMap);
+    return GtObjectMemento(this, clone);
 }
 
 void
@@ -181,19 +181,18 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
     return GtObjectIO::revertDiff(diff, this);
 }
 
-namespace {
-GtObject* copyCloneHelper(const GtObject* toCopy,
-                          GtAbstractObjectFactory* fac,
-                          bool clone,
-                          QHash<QString, QString>* uuidMap = nullptr)
+GtObject*
+GtObject::copyClone(bool clone, GtObjectUUIDMap* uuidMap) const
 {
+    auto* fac = pimpl->factory;
+
     // check for factory
     if (!fac)
     {
         gtWarning().verbose()
-                << QObject::tr("No factory set for %1 object '%2'! (Using default)")
-                   .arg(clone ? QStringLiteral("copying") : QStringLiteral("cloning"),
-                        toCopy->objectName());
+        << QObject::tr("No factory set for %1 object '%2'! (Using default)")
+                .arg(clone ? QStringLiteral("copying") : QStringLiteral("cloning"),
+                     this->objectName());
 
         assert(gtObjectFactory);
 
@@ -201,7 +200,8 @@ GtObject* copyCloneHelper(const GtObject* toCopy,
     }
 
     // generate memento
-    GtObjectMemento memento = toCopy->toMemento(clone, uuidMap);
+    GtObjectIO objectIO;
+    GtObjectMemento memento = objectIO.toMementoImpl(this, clone, uuidMap);
 
     if (memento.isNull())
     {
@@ -210,30 +210,24 @@ GtObject* copyCloneHelper(const GtObject* toCopy,
 
     return memento.restore(fac);
 }
-}
+
 
 GtObject*
 GtObject::copy() const
 {
-    return copyCloneHelper(this, pimpl->factory, false);
+    return copyClone(false, nullptr);
 }
 
 GtObject*
-GtObject::copy(QHash<QString, QString>* uuidMap) const
+GtObject::copy(GtObjectUUIDMap& uuidMap) const
 {
-    if(uuidMap)
-    {
-        uuidMap->clear();
-    }
+    uuidMap.clear();
 
-    auto* result = copyCloneHelper(this, pimpl->factory, false, uuidMap);
+    auto* result = copyClone(false, &uuidMap);
 
     if(!result)
     {
-        if(uuidMap)
-        {
-            uuidMap->clear();
-        }
+        uuidMap.clear();
     }
 
     return result;
@@ -242,7 +236,7 @@ GtObject::copy(QHash<QString, QString>* uuidMap) const
 GtObject*
 GtObject::clone() const
 {
-    return copyCloneHelper(this, pimpl->factory, true);
+    return copyClone(true, nullptr);
 }
 
 bool

@@ -204,25 +204,25 @@ TEST_F(TestCopyGtObjectWithUuidMapping, copyWithMapping)
 {
     this->fillObjGroup(2, 2);
 
-    QHash<QString, QString> uuidMap;
-    auto newobj = objgroup->copy(&uuidMap);
+    GtObjectUUIDMap uuidMap;
+    auto newobj = objgroup->copy(uuidMap);
 
     auto cOrig = this->objgroup->findDirectChildren();
     auto cNew = newobj->findDirectChildren();
 
-    auto cOrig0 = this->objgroup->findDirectChildren()[0];
-    auto cOrig00 = this->objgroup->findDirectChildren()[0]->findDirectChildren()[0];
-    auto cOrig01 = this->objgroup->findDirectChildren()[0]->findDirectChildren()[1];
-    auto cOrig1 = this->objgroup->findDirectChildren()[1];
-    auto cOrig10 = this->objgroup->findDirectChildren()[1]->findDirectChildren()[0];
-    auto cOrig11 = this->objgroup->findDirectChildren()[1]->findDirectChildren()[1];
+    auto cOrig0 = this->objgroup->findDirectChildren().at(0);
+    auto cOrig00 = this->objgroup->findDirectChildren().at(0)->findDirectChildren().at(0);
+    auto cOrig01 = this->objgroup->findDirectChildren().at(0)->findDirectChildren().at(1);
+    auto cOrig1 = this->objgroup->findDirectChildren().at(1);
+    auto cOrig10 = this->objgroup->findDirectChildren().at(1)->findDirectChildren().at(0);
+    auto cOrig11 = this->objgroup->findDirectChildren().at(1)->findDirectChildren().at(1);
 
-    auto cNew0 = newobj->findDirectChildren()[0];
-    auto cNew00 = newobj->findDirectChildren()[0]->findDirectChildren()[0];
-    auto cNew01 = newobj->findDirectChildren()[0]->findDirectChildren()[1];
-    auto cNew1 = newobj->findDirectChildren()[1];
-    auto cNew10 = newobj->findDirectChildren()[1]->findDirectChildren()[0];
-    auto cNew11 = newobj->findDirectChildren()[1]->findDirectChildren()[1];
+    auto cNew0 = newobj->findDirectChildren().at(0);
+    auto cNew00 = newobj->findDirectChildren().at(0)->findDirectChildren().at(0);
+    auto cNew01 = newobj->findDirectChildren().at(0)->findDirectChildren().at(1);
+    auto cNew1 = newobj->findDirectChildren().at(1);
+    auto cNew10 = newobj->findDirectChildren().at(1)->findDirectChildren().at(0);
+    auto cNew11 = newobj->findDirectChildren().at(1)->findDirectChildren().at(1);
 
 
     ASSERT_EQ(cOrig0->objectName(), cNew0->objectName() );
@@ -235,26 +235,26 @@ TEST_F(TestCopyGtObjectWithUuidMapping, copyWithMapping)
     ASSERT_EQ(cOrig11->objectName(), cNew11->objectName() );
 
 
-    ASSERT_EQ(uuidMap[this->objgroup->uuid()], newobj->uuid());
+    ASSERT_EQ(uuidMap.newUuid(this->objgroup->uuid()), newobj->uuid());
 
-    ASSERT_EQ(uuidMap[cOrig0->uuid()], cNew0->uuid() );
-    ASSERT_EQ(uuidMap[cOrig1->uuid()], cNew1->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig0->uuid()), cNew0->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig1->uuid()), cNew1->uuid() );
 
-    ASSERT_EQ(uuidMap[cOrig00->uuid()], cNew00->uuid() );
-    ASSERT_EQ(uuidMap[cOrig01->uuid()], cNew01->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig00->uuid()), cNew00->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig01->uuid()), cNew01->uuid() );
 
-    ASSERT_EQ(uuidMap[cOrig10->uuid()], cNew10->uuid() );
-    ASSERT_EQ(uuidMap[cOrig11->uuid()], cNew11->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig10->uuid()), cNew10->uuid() );
+    ASSERT_EQ(uuidMap.newUuid(cOrig11->uuid()), cNew11->uuid() );
 
 
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig0->uuid()])->objectName(), cNew0->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig1->uuid()])->objectName(), cNew1->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig0->uuid()))->objectName(), cNew0->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig1->uuid()))->objectName(), cNew1->objectName() );
 
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig00->uuid()])->objectName(), cNew00->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig01->uuid()])->objectName(), cNew01->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig00->uuid()))->objectName(), cNew00->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig01->uuid()))->objectName(), cNew01->objectName() );
 
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig10->uuid()])->objectName(), cNew10->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap[cOrig11->uuid()])->objectName(), cNew11->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig10->uuid()))->objectName(), cNew10->objectName() );
+    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig11->uuid()))->objectName(), cNew11->objectName() );
 
 
 }

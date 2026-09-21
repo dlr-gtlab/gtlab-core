@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Created on: 24.07.2015
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -13,15 +13,14 @@
 
 #include "gt_datamodel_exports.h"
 #include "gt_typetraits.h"
+#include "gt_objectuuidmap.h"
 
 #include <gt_version.h>
 
 #include <QObject>
-#include <QHash>
 
 #include <algorithm>
 #include <memory>
-#include <optional>
 
 class GtObjectMemento;
 class GtAbstractObjectFactory;
@@ -162,15 +161,10 @@ public:
 
     /**
      * @brief Creates a memento of the internal object state.
-     * @param clone If true, UUIDs are preserved. If false, new UUIDs are
-     * generated.
-     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
-     * including this object and all copied descendants. Existing entries are
-     * replaced. The map is empty if operation fails. Original UUIDs must be
-     * unique in the tree.
+     * @param clone
      * @return
      */
-    GtObjectMemento toMemento(bool clone = true, QHash<QString, QString>* uuidMap = nullptr) const;
+    GtObjectMemento toMemento(bool clone = true) const;
 
     /**
      * @brief fromMemento
@@ -213,7 +207,7 @@ public:
      * returned pointer, which identifies the copied object. Property references
      * (e.g. Object Link) are copied unchanged.
      */
-    GtObject* copy(QHash<QString, QString>* uuidMap) const;
+    GtObject* copy(GtObjectUUIDMap& uuidMap) const;
 
     /**
      * @brief clone
@@ -819,6 +813,23 @@ private:
      * @param parent parent object
      */
     void newChildUUIDs(GtObject* parent) const;
+
+    /**
+     * @brief Helper function for copying and cloning an object
+     */
+    GtObject* copyClone(bool clone, GtObjectUUIDMap* uuidMap) const;
+
+    /**
+     * @brief Private backend function for serializing an object
+     * @param clone If true, UUIDs are preserved. If false, new UUIDs are
+     * generated.
+     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
+     * including this object and all copied descendants. Existing entries are
+     * replaced. The map is empty if operation fails. Original UUIDs must be
+     * unique in the tree.
+     * @return
+     */
+   // GtObjectMemento toMementoImpl(bool clone = true, GtObjectUUIDMap* uuidMap = nullptr) const;
 
     /**
      * @brief Converts the object into a dummy object
