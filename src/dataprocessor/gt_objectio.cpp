@@ -34,6 +34,7 @@
 #include "gt_exceptions.h"
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
+#include "gt_objectuuidmap.h"
 
 #include "gt_objectio.h"
 

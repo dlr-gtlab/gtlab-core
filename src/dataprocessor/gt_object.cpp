@@ -21,6 +21,7 @@
 
 #include "gt_object.h"
 #include "gt_qtutilities.h"
+#include "gt_objectuuidmap.h"
 
 #include <QUuid>
 #include <QThread>

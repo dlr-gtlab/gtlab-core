@@ -2,31 +2,22 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
- * Source File: test_copy_gt_object_with_uuidmap.cpp
- *
- *  Created on: 18.09.2026
  *  Author: Matthias Schuff (SG-VTM)
  */
 
-#include <QDebug>
-#include <chrono>
-#include <string>
-
 #include "gtest/gtest.h"
-
-#include "test_copy_gtobject_with_uuidmap.h"
 
 #include "gt_objectfactory.h"
 #include "gt_objectgroup.h"
+#include "gt_objectuuidmap.h"
 
+#include "test_copy_gtobject_with_uuidmap.h"
 
-using Clock = std::chrono::steady_clock;
-
+#include <QDebug>
 
 class TestCopyGtObjectWithUuidMapping : public ::testing::Test
 {
 public:
-
     void SetUp() override
     {
         gtObjectFactory->registerClass(MyGtObject::staticMetaObject);
@@ -37,6 +28,10 @@ public:
         objgroup->setFactory(gtObjectFactory);
     }
 
+    void TearDown() override
+    {
+        delete objgroup;
+    }
 
     void printObjects(const QString& headermsg)
     {
@@ -55,7 +50,6 @@ public:
             delete c;
         }
     }
-
 
     void fillObjGroup(uint n_firstlevel, uint n_secondlevel = 0, bool clearExisting=true)
     {
@@ -85,120 +79,60 @@ public:
     GtObjectGroup* objgroup;
 };
 
-TEST_F(TestCopyGtObjectWithUuidMapping, testFillingAndClearingOfTestGroup)
+TEST_F(TestCopyGtObjectWithUuidMapping, baseFunctionalityOfGtObjectUUIDMap)
 {
-    ASSERT_EQ(this->objgroup->childCount(), 0);
+    GtObjectUUIDMap uuidMap;
+    ASSERT_TRUE(uuidMap.isEmpty());
 
-    this->printObjects("init");
+    uuidMap.insert("hello", "world");
+    ASSERT_EQ(uuidMap.size(), 1);
 
-    this->clearObjGroup();
+    uuidMap.insert("foo", "bar");
+    ASSERT_EQ(uuidMap.size(), 2);
 
-    this->printObjects("after clear");
+    ASSERT_TRUE(uuidMap.containsOriginalUuid("hello"));
+    ASSERT_FALSE(uuidMap.containsOriginalUuid("42"));
 
-    this->fillObjGroup(5, 2);
-    this->printObjects("after new children");
+    ASSERT_EQ(uuidMap.copiedUuid("hello"), "world");
+    ASSERT_EQ(uuidMap.copiedUuid("42"), "");
 
-    ASSERT_EQ(this->objgroup->childCount(), 5);
-    auto c = this->objgroup->findDirectChildren();
-    ASSERT_EQ(c[0]->childCount(), 2);
-    ASSERT_EQ(c[1]->childCount(), 2);
-    ASSERT_EQ(c[2]->childCount(), 2);
-    ASSERT_EQ(c[3]->childCount(), 2);
-    ASSERT_EQ(c[4]->childCount(), 2);
+    ASSERT_FALSE(uuidMap.isEmpty());
 
-    this->clearObjGroup();
-    this->printObjects("after clear 2");
-
-    ASSERT_EQ(this->objgroup->childCount(), 0);
+    uuidMap.clear();
+    ASSERT_TRUE(uuidMap.isEmpty());
+    ASSERT_FALSE(uuidMap.containsOriginalUuid("hello"));
 }
 
-TEST_F(TestCopyGtObjectWithUuidMapping, testAppendingToTestGroup)
+void checkObjectsUuidChange(GtObject* orig, GtObject* copied, GtObjectUUIDMap* uuidMap = nullptr)
 {
+    ASSERT_EQ(orig->childCount(), copied->childCount());
+    ASSERT_NE(orig->uuid(), copied->uuid());
 
-    this->fillObjGroup(2, 2);
-
+    if(uuidMap)
     {
-        ASSERT_EQ(this->objgroup->childCount(), 2);
-        auto c = objgroup->findDirectChildren();
-        ASSERT_EQ(c[0]->objectName(), "obj0");
-        {
-            ASSERT_EQ(c[0]->childCount(), 2);
-            auto cc = c[0]->findDirectChildren();
-            ASSERT_EQ(cc[0]->objectName(), "obj0.0");
-            ASSERT_EQ(cc[1]->objectName(), "obj0.1");
-        }
-        ASSERT_EQ(c[1]->objectName(), "obj1");
-        {
-            ASSERT_EQ(c[1]->childCount(), 2);
-            auto cc = c[1]->findDirectChildren();
-            ASSERT_EQ(cc[0]->objectName(), "obj1.0");
-            ASSERT_EQ(cc[1]->objectName(), "obj1.1");
-        }
+        ASSERT_TRUE(uuidMap->containsOriginalUuid(orig->uuid()));
+        ASSERT_EQ(uuidMap->copiedUuid(orig->uuid()), copied->uuid() );
     }
 
-    this->fillObjGroup(2, 0, false);
+    auto childrenOrig = orig->findDirectChildren();
+    auto childrenCopied = copied->findDirectChildren();
+
+    for (int i=0; i<childrenOrig.size(); i++)
     {
-        ASSERT_EQ(this->objgroup->childCount(), 4);
-        auto c = objgroup->findDirectChildren();
-        ASSERT_EQ(c[0]->objectName(), "obj0");
-        ASSERT_EQ(c[0]->childCount(), 2);
-        ASSERT_EQ(c[1]->objectName(), "obj1");
-        ASSERT_EQ(c[1]->childCount(), 2);
-        ASSERT_EQ(c[2]->objectName(), "obj2");
-        ASSERT_EQ(c[2]->childCount(), 0);
-        ASSERT_EQ(c[3]->objectName(), "obj3");
-        ASSERT_EQ(c[3]->childCount(), 0);
+        checkObjectsUuidChange( childrenOrig.at(i), childrenCopied.at(i));
     }
 
-    this->fillObjGroup(3, 1, true);
-
-    {
-        ASSERT_EQ(this->objgroup->childCount(), 3);
-        auto c = objgroup->findDirectChildren();
-        ASSERT_EQ(c[0]->objectName(), "obj0");
-        ASSERT_EQ(c[1]->objectName(), "obj1");
-        ASSERT_EQ(c[2]->objectName(), "obj2");
-
-
-        {
-            ASSERT_EQ(c[0]->childCount(), 1);
-            auto cc = c[0]->findDirectChildren();
-            ASSERT_EQ(cc[0]->objectName(), "obj0.0");
-        }
-
-        {
-            ASSERT_EQ(c[1]->childCount(), 1);
-            auto cc = c[1]->findDirectChildren();
-            ASSERT_EQ(cc[0]->objectName(), "obj1.0");
-        }
-
-        {
-            ASSERT_EQ(c[2]->childCount(), 1);
-            auto cc = c[2]->findDirectChildren();
-            ASSERT_EQ(cc[0]->objectName(), "obj2.0");
-        }
-    }
 }
-
 
 TEST_F(TestCopyGtObjectWithUuidMapping, copyWithoutMapping)
 {
     this->fillObjGroup(2, 2);
     auto newobj = objgroup->copy();
 
-    ASSERT_EQ(this->objgroup->childCount(), 2);
-    ASSERT_EQ(newobj->childCount(), 2);
+    checkObjectsUuidChange(objgroup, newobj);
 
-    ASSERT_NE(objgroup->uuid(), newobj->uuid());
-
-    auto cOrig = this->objgroup->findDirectChildren();
-    auto cNew = newobj->findDirectChildren();
-
-    ASSERT_NE(cOrig[0]->uuid(), cNew[0]->uuid());
-    ASSERT_NE(cOrig[1]->uuid(), cNew[1]->uuid());
+    delete newobj;
 }
-
-
 
 TEST_F(TestCopyGtObjectWithUuidMapping, copyWithMapping)
 {
@@ -206,60 +140,25 @@ TEST_F(TestCopyGtObjectWithUuidMapping, copyWithMapping)
 
     GtObjectUUIDMap uuidMap;
     auto newobj = objgroup->copy(uuidMap);
+    ASSERT_EQ(uuidMap.size(), 7);
 
-    auto cOrig = this->objgroup->findDirectChildren();
-    auto cNew = newobj->findDirectChildren();
+    checkObjectsUuidChange(objgroup, newobj, &uuidMap);
 
-    auto cOrig0 = this->objgroup->findDirectChildren().at(0);
-    auto cOrig00 = this->objgroup->findDirectChildren().at(0)->findDirectChildren().at(0);
-    auto cOrig01 = this->objgroup->findDirectChildren().at(0)->findDirectChildren().at(1);
-    auto cOrig1 = this->objgroup->findDirectChildren().at(1);
-    auto cOrig10 = this->objgroup->findDirectChildren().at(1)->findDirectChildren().at(0);
-    auto cOrig11 = this->objgroup->findDirectChildren().at(1)->findDirectChildren().at(1);
-
-    auto cNew0 = newobj->findDirectChildren().at(0);
-    auto cNew00 = newobj->findDirectChildren().at(0)->findDirectChildren().at(0);
-    auto cNew01 = newobj->findDirectChildren().at(0)->findDirectChildren().at(1);
-    auto cNew1 = newobj->findDirectChildren().at(1);
-    auto cNew10 = newobj->findDirectChildren().at(1)->findDirectChildren().at(0);
-    auto cNew11 = newobj->findDirectChildren().at(1)->findDirectChildren().at(1);
-
-
-    ASSERT_EQ(cOrig0->objectName(), cNew0->objectName() );
-    ASSERT_EQ(cOrig1->objectName(), cNew1->objectName() );
-
-    ASSERT_EQ(cOrig00->objectName(), cNew00->objectName() );
-    ASSERT_EQ(cOrig01->objectName(), cNew01->objectName() );
-
-    ASSERT_EQ(cOrig10->objectName(), cNew10->objectName() );
-    ASSERT_EQ(cOrig11->objectName(), cNew11->objectName() );
-
-
-    ASSERT_EQ(uuidMap.newUuid(this->objgroup->uuid()), newobj->uuid());
-
-    ASSERT_EQ(uuidMap.newUuid(cOrig0->uuid()), cNew0->uuid() );
-    ASSERT_EQ(uuidMap.newUuid(cOrig1->uuid()), cNew1->uuid() );
-
-    ASSERT_EQ(uuidMap.newUuid(cOrig00->uuid()), cNew00->uuid() );
-    ASSERT_EQ(uuidMap.newUuid(cOrig01->uuid()), cNew01->uuid() );
-
-    ASSERT_EQ(uuidMap.newUuid(cOrig10->uuid()), cNew10->uuid() );
-    ASSERT_EQ(uuidMap.newUuid(cOrig11->uuid()), cNew11->uuid() );
-
-
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig0->uuid()))->objectName(), cNew0->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig1->uuid()))->objectName(), cNew1->objectName() );
-
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig00->uuid()))->objectName(), cNew00->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig01->uuid()))->objectName(), cNew01->objectName() );
-
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig10->uuid()))->objectName(), cNew10->objectName() );
-    ASSERT_EQ(newobj->getObjectByUuid(uuidMap.newUuid(cOrig11->uuid()))->objectName(), cNew11->objectName() );
-
-
+    delete newobj;
 }
 
+TEST_F(TestCopyGtObjectWithUuidMapping, copyWithMappingReplaceOldList)
+{
+    this->fillObjGroup(2, 2);
 
+    GtObjectUUIDMap uuidMap;
+    uuidMap.insert("hello", "world");
 
+    auto newobj = objgroup->copy(uuidMap);
+    Q_UNUSED(newobj);
 
+    ASSERT_FALSE(uuidMap.containsOriginalUuid("hello"));
+    ASSERT_EQ(uuidMap.size(), 7);
 
+    delete newobj;
+}

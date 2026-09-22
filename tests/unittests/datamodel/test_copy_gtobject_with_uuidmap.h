@@ -2,10 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
- * Source File: test_copy_gt_object_with_uuidmap.h
- *
- *  Created on: 18.09.2026
- *  Author: Matthias Schuff (SG-VTM)
+ * Author: Matthias Schuff (SG-VTM)
  */
 
 #ifndef TEST_COPY_GTOBJECT_WITH_UUIDMAP_H

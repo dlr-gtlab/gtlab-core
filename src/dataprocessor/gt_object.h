@@ -13,7 +13,6 @@
 
 #include "gt_datamodel_exports.h"
 #include "gt_typetraits.h"
-#include "gt_objectuuidmap.h"
 
 #include <gt_version.h>
 
@@ -28,6 +27,7 @@ class GtAbstractProperty;
 class GtObjectIO;
 class GtObjectMementoDiff;
 class GtPropertyStructContainer;
+class GtObjectUUIDMap;
 
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
@@ -203,7 +203,7 @@ public:
      * unique in the tree.
      * @return a copy of the object.
      *
-     * Use copy->getObjectByUuid(uuidMap.value(original->uuid())) to obtain the
+     * Use copy->getObjectByUuid(uuidMap.copiedUuid(original->uuid())) to obtain the
      * returned pointer, which identifies the copied object. Property references
      * (e.g. Object Link) are copied unchanged.
      */
@@ -818,18 +818,6 @@ private:
      * @brief Helper function for copying and cloning an object
      */
     GtObject* copyClone(bool clone, GtObjectUUIDMap* uuidMap) const;
-
-    /**
-     * @brief Private backend function for serializing an object
-     * @param clone If true, UUIDs are preserved. If false, new UUIDs are
-     * generated.
-     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
-     * including this object and all copied descendants. Existing entries are
-     * replaced. The map is empty if operation fails. Original UUIDs must be
-     * unique in the tree.
-     * @return
-     */
-   // GtObjectMemento toMementoImpl(bool clone = true, GtObjectUUIDMap* uuidMap = nullptr) const;
 
     /**
      * @brief Converts the object into a dummy object

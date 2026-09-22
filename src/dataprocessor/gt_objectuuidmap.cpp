@@ -2,16 +2,13 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
- * Source File: gt_objectuuidmap.cpp
- *
- *  Created on: 21.09.2026
- *  Author: Matthias Schuff (SG-VTM)
+ * Author: Matthias Schuff (SG-VTM)
  */
 
 #include "gt_objectuuidmap.h"
 
 
-QString GtObjectUUIDMap::newUuid(const QString &originalUuid) const
+QString GtObjectUUIDMap::copiedUuid(const QString &originalUuid) const
 {
     return m_uuidMap.value(originalUuid);
 }
