@@ -333,7 +333,7 @@ GtObject::setUuid(const QString& val)
 void
 GtObject::newUuid(bool renewChildUUIDs)
 {
-    setUuid(QUuid::createUuid().toString());
+    pimpl->uuid = QUuid::createUuid().toString();
 
     if (renewChildUUIDs)
     {
