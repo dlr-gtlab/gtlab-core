@@ -20,6 +20,79 @@
 #include <QIcon>
 #include <QKeySequence>
 
+
+namespace gt
+{
+namespace gui
+{
+
+/// Predefined order priority values for context menus in GTlab
+struct OrderPriority
+{
+    // using struct for tighter naming schemes while allowing implicit int conversions
+    enum Value : int
+    {
+        /// default order priority
+        Default = 0,
+
+        /// order priority of the "open with" action in the explorer
+        OpenWithAction = -50,
+        /// order priority of the "import" action
+        ImportAction = 50,
+        /// order priority of the "export" action
+        ExportAction = 100,
+        /// order priority of the "rename" action
+        RenameAction = 150,
+        /// order priority of the "delete" action
+        DeleteAction = 200,
+
+        /// denotes that this action should be placed last in a menu.
+        Last = 999,
+        /// Denotes that this action should be placed first in a meenu.
+        First = -999,
+
+        /// order priority to insert before the "open with" actions in the explorer
+        /// (but still in the same section)
+        BeforeOpenWithAction = OpenWithAction - 1,
+        /// order priority to insert after the "open with" actions in the explorer
+        /// (in a new section)
+        AfterOpenWithAction  = OpenWithAction + 1,
+
+        /// order priority to insert before the "import" action
+        /// (but still in the same section)
+        BeforeImportAction = ImportAction - 1,
+        /// order priority to insert after the "import" action
+        /// (in a new section)
+        AfterImportAction  = ImportAction + 1,
+
+
+        /// order priority to insert before the "export" action
+        /// (but still in the same section)
+        BeforeExportAction = ExportAction - 1,
+        /// order priority to insert after the "export" action
+        /// (in a new section)
+        AfterExportAction  = ExportAction + 1,
+
+        /// order priority to insert before the "rename" action
+        /// (but still in the same section)
+        BeforeRenameAction = RenameAction - 1,
+        /// order priority to insert after the "rename" action
+        /// (in a new section)
+        AfterRenameAction  = RenameAction + 1,
+
+        /// order priority to insert before the "delete" action
+        /// (but still in the same section)
+        BeforeDeleteAction = DeleteAction - 1,
+        /// order priority to insert after the "delete" action
+        /// (in a new section)
+        AfterDeleteAction  = DeleteAction + 1,
+    };
+};
+
+} // namespace gui
+
+} // namespace gt
+
 /**
  * @brief The GtObjectUIAction class
  */
@@ -75,6 +148,12 @@ public:
     bool isEmpty() const;
 
     /**
+     * @brief Returns whether this action is a separator
+     * @return is separator
+     */
+    bool isSeparator() const;
+
+    /**
      * @brief Returns the action text
      * @return Action text
      */
@@ -114,6 +193,14 @@ public:
      * @return Short cut connected to the action
      */
     const QKeySequence& shortCut() const;
+
+    /**
+     * @brief Returns the priority according to which this action is sorted
+     * in a menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @return Order priority
+     */
+    int orderPriority() const;
 
     /**
      * @brief Dedicated setter for the UI icon
@@ -232,6 +319,16 @@ public:
         return registerShortCut(id, GT_MODULENAME(), k, readOnly);
     }
 
+    /**
+     * @brief Sets the order priority according to which the action is sorted
+     * in the menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @param priority Order priority
+     * @return This
+     */
+    GtObjectUIAction& setOrderPriority(int priority);
+
+
 private:
     /// Action text
     QString m_text{};
@@ -250,6 +347,8 @@ private:
 
     /// Shortcut
     QKeySequence m_shortCut{};
+
+    int m_priority{gt::gui::OrderPriority::Default};
 
     /**
      * @brief helper function to set action method suing the name of a
@@ -270,6 +369,12 @@ inline GtObjectUIAction
 makeAction(const QString& actionText, GtObjectUIAction::ActionMethod actionMethod)
 {
     return GtObjectUIAction(actionText, std::move(actionMethod));
+}
+
+inline GtObjectUIAction
+makeSeparator(int priority = OrderPriority::Default)
+{
+    return GtObjectUIAction().setOrderPriority(priority);
 }
 
 } // namespace gui

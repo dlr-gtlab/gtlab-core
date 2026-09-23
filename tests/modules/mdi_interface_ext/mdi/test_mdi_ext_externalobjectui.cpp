@@ -34,11 +34,12 @@ TestMdiExtExternalObjectUI::TestMdiExtExternalObjectUI()
     addSingleAction(tr("Append data"), addData)
             .setIcon(gt::gui::icon::mathPlus());
     addSingleAction(tr("Info"), [](GtObject* obj){
-        if (auto* extObj = qobject_cast<TestDmiExternalObject*>(obj))
-        {
-            gtInfo() << "Reference Count:" << extObj->refCount();
-        }
-    }).setIcon(gt::gui::icon::info2());
+            if (auto* extObj = qobject_cast<TestDmiExternalObject*>(obj))
+            {
+                gtInfo() << "Reference Count:" << extObj->refCount();
+            }
+        })
+        .setIcon(gt::gui::icon::info2());
 
     setRegExpHint(gt::re::onlyLettersAndNumbersAndSpaceHint());
 }
