@@ -60,6 +60,12 @@ GtObjectUIAction::isEmpty() const
     return m_text.isEmpty();
 }
 
+bool
+GtObjectUIAction::isSeparator() const
+{
+    return isEmpty();
+}
+
 const QString&
 GtObjectUIAction::text() const
 {
@@ -94,6 +100,12 @@ const QKeySequence&
 GtObjectUIAction::shortCut() const
 {
     return m_shortCut;
+}
+
+int
+GtObjectUIAction::orderPriority() const
+{
+    return m_priority;
 }
 
 GtObjectUIAction&
@@ -219,6 +231,13 @@ GtObjectUIAction::registerShortCut(const QString& id,
 {
     gtApp->extendShortCuts({id, cat, k.toString(), readOnly});
     m_shortCut = gtApp->getShortCutSequence(id, cat);
+    return *this;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setOrderPriority(int priority)
+{
+    m_priority = priority;
     return *this;
 }
 

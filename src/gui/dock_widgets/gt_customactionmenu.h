@@ -37,6 +37,7 @@ public:
      * @param parentObject Parent object
      * @param menu Menu
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `gt::gui::addToMenu` instead")
     GtCustomActionMenu(const QList<GtObjectUIAction>& list,
                        GtObject* targetObject,
                        QObject* parentObject,
@@ -51,14 +52,6 @@ private:
 
     /// Parent object
     QObject* m_parentObj;
-
-private slots:
-    /**
-     * @brief Called after trigger of an action
-     * @param returned Action
-     */
-    void onActionTrigger(QObject* obj);
-
 };
 
 #endif // GTCUSTOMACTIONMENU_H
