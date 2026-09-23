@@ -107,6 +107,33 @@ Since ``GtObject`` is based on ``QObject``, it follows the same ownership model 
 More information can be found in the Qt documentation https://doc.qt.io/qt-6/objecttrees.html.
 
 
+Copying Objects
+^^^^^^^^^
+
+There are two ways to duplicate an object (including its children).
+Using the ``copy()`` function, new UUIDs are generated for the complete hierarchy of the copied object .
+The overload ``copy(GtObjectUUIDMap&)`` can be used if the caller needs a mapping of original -> copied UUIDs for the complete hierarchy.
+The ``clone()`` function makes an exact clone and preservers the UUIDs.
+
+.. code-block:: cpp
+   
+   #include "gt_objectuuidmap.h"
+   
+   GtObject* obj = new MyDataClass();   
+   GtObject* objCopy;
+
+   objCopy = obj->copy();
+   //--> obj->uuid() != objCopy->uuid()
+   
+   GtObjectUUIDMap uuidMap;
+   objCopy = obj->copy(uuidMap);
+   //--> obj->uuid() != objCopy->uuid()
+   //--> uuidMap.copiedUuid(obj->uuid()) == objCopy->uuid()
+      
+   objCopy = obj->clone();
+   //--> obj->uuid() == objCopy->uuid()
+      
+   
 Properties
 ----------
 
