@@ -113,7 +113,7 @@ Copying Objects
 There are two ways to duplicate an object (including its children).
 Using the ``copy()`` function, new UUIDs are generated for the complete hierarchy of the copied object .
 The overload ``copy(GtObjectUUIDMap&)`` can be used if the caller needs a mapping of original -> copied UUIDs for the complete hierarchy.
-The ``clone()`` function makes an exact clone and preservers the UUIDs.
+The ``clone()`` function makes an exact clone and preserves the UUIDs.
 
 .. code-block:: cpp
    
