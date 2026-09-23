@@ -24,6 +24,7 @@ class GtObject;
 class GtAbstractObjectFactory;
 class GtObjectMementoDiff;
 class GtAbstractProperty;
+class GtObjectUUIDMap;
 
 /**
  * @brief The GtObjectIO class

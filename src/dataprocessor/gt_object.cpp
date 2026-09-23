@@ -183,7 +183,7 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
 }
 
 GtObject*
-GtObject::copyClone(bool clone, GtObjectUUIDMap* uuidMap) const
+GtObject::copyClone(bool cloneObject, GtObjectUUIDMap* uuidMap) const
 {
     auto* fac = pimpl->factory;
 
@@ -192,7 +192,7 @@ GtObject::copyClone(bool clone, GtObjectUUIDMap* uuidMap) const
     {
         gtWarning().verbose()
         << QObject::tr("No factory set for %1 object '%2'! (Using default)")
-                .arg(clone ? QStringLiteral("copying") : QStringLiteral("cloning"),
+                .arg(cloneObject ? QStringLiteral("copying") : QStringLiteral("cloning"),
                      this->objectName());
 
         assert(gtObjectFactory);
@@ -202,7 +202,7 @@ GtObject::copyClone(bool clone, GtObjectUUIDMap* uuidMap) const
 
     // generate memento
     GtObjectIO objectIO;
-    GtObjectMemento memento = objectIO.toMementoImpl(this, clone, uuidMap);
+    GtObjectMemento memento = objectIO.toMementoImpl(this, cloneObject, uuidMap);
 
     if (memento.isNull())
     {

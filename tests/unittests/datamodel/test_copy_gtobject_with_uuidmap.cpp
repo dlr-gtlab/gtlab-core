@@ -13,8 +13,6 @@
 
 #include "test_copy_gtobject_with_uuidmap.h"
 
-#include <QDebug>
-
 class TestCopyGtObjectWithUuidMapping : public ::testing::Test
 {
 public:
@@ -32,16 +30,6 @@ public:
     {
         delete objgroup;
     }
-
-    void printObjects(const QString& headermsg)
-    {
-        qDebug().noquote() << ":: " << headermsg;
-        qDebug().noquote() << "has children ("+QString::number(objgroup->childCount())+")";
-        for(auto c: objgroup->findDirectChildren())
-        {
-            qDebug().noquote() << c->objectName() << "->" << c;
-        }
-    };
 
     void clearObjGroup()
     {
@@ -119,7 +107,7 @@ void checkObjectsUuidChange(GtObject* orig, GtObject* copied, GtObjectUUIDMap* u
 
     for (int i=0; i<childrenOrig.size(); i++)
     {
-        checkObjectsUuidChange( childrenOrig.at(i), childrenCopied.at(i));
+        checkObjectsUuidChange( childrenOrig.at(i), childrenCopied.at(i), uuidMap);
     }
 
 }
