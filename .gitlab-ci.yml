@@ -376,10 +376,10 @@ cppcheck:
   # Cppcheck ignores -isystem entries from GTLAB_DEV_TOOLS.
   # Retain CMake's database and make only those includes normal for analysis.
   - perl -pe 's{\Q-isystem $ENV{GTLAB_DEV_TOOLS}\E}{-I$ENV{GTLAB_DEV_TOOLS}}g' build/compile_commands.json > build/cppcheck_compile_commands.json
-  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --suppress-xml=cppcheck-baseline.suppress --library=qt.cfg --error-exitcode=255 --enable=all -j 16 -i build --project=build/cppcheck_compile_commands.json 2> cppcheck_out.xml || exit_code=$?
+  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --suppress-xml=cppcheck-baseline.suppress --library=qt.cfg --error-exitcode=0 --enable=all -j 16 -i build --project=build/cppcheck_compile_commands.json 2> cppcheck_out.xml
   - more cppcheck_out.xml
   - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
-  - exit $exit_code
+  - if grep -q '<error ' cppcheck_out.xml; then exit 255; fi
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
   artifacts:
@@ -387,6 +387,7 @@ cppcheck:
       codequality: codequality.json
     paths:
       - codequality.json
+    when: always
 
    
 check-license:
