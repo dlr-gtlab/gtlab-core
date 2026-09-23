@@ -1,660 +1,3735 @@
-# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
-# SPDX-License-Identifier: CC0-1.0
-
-# Cppcheck 2.21 migration baseline. Existing findings are intentionally fully
-# suppressed so that only new findings appear in CI.
-assertWithSideEffect:src/core/process_management/gt_taskgroup.cpp:192
-checkersReport
-constParameterPointer:src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp:40
-constParameterPointer:src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp:51
-constParameterPointer:src/core/gt_projectexecutionguard.cpp:39
-constParameterPointer:src/core/process_management/process_runner/gt_processrunnerglobals.cpp:35
-constParameterPointer:src/dataprocessor/gt_object.cpp:980
-constParameterPointer:src/dataprocessor/gt_objectpath.cpp:26
-constParameterReference:src/core/process_management/gt_processcomponent.cpp:374
-constParameterReference:src/core/process_management/gt_processcomponent.cpp:380
-constParameterReference:src/dataprocessor/gt_h5externalizehelper.cpp:46
-constParameterReference:src/dataprocessor/gt_objectmemento.cpp:420
-constParameterReference:src/gui/gt_guiutilities.cpp:197
-constParameterReference:src/gui/gt_guiutilities.cpp:217
-constParameterReference:src/gui/gt_guiutilities.cpp:283
-constParameterReference:src/gui/gt_guiutilities.cpp:296
-constVariablePointer:src/app/dock_widgets/explorer/gt_explorerdock.cpp:230
-constVariablePointer:src/app/dock_widgets/explorer/gt_explorerdock.cpp:231
-constVariablePointer:src/app/dock_widgets/explorer/gt_explorerdock.cpp:245
-constVariablePointer:src/app/dock_widgets/explorer/gt_explorerdock.cpp:621
-constVariablePointer:src/app/dock_widgets/labels/gt_labelsdock.cpp:300
-constVariablePointer:src/app/dock_widgets/labels/gt_labelsdock.cpp:388
-constVariablePointer:src/app/dock_widgets/labels/gt_labelsdock.cpp:582
-constVariablePointer:src/app/dock_widgets/labels/gt_labelsdock.cpp:615
-constVariablePointer:src/app/dock_widgets/output/gt_outputdock.cpp:723
-constVariablePointer:src/app/dock_widgets/output/gt_outputdock.cpp:725
-constVariablePointer:src/app/dock_widgets/output/gt_outputdock.cpp:728
-constVariablePointer:src/app/dock_widgets/output/gt_outputdock.cpp:755
-constVariablePointer:src/app/dock_widgets/post/gt_postdock.cpp:326
-constVariablePointer:src/app/dock_widgets/post/gt_postdock.cpp:346
-constVariablePointer:src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp:33
-constVariablePointer:src/app/dock_widgets/process/gt_processdock.cpp:2600
-constVariablePointer:src/app/dock_widgets/process/gt_processdock.cpp:2811
-constVariablePointer:src/app/dock_widgets/process/gt_processdock.cpp:846
-constVariablePointer:src/app/dock_widgets/properties/gt_propertycontainerwidget.cpp:121
-constVariablePointer:src/app/gt_mainwin.cpp:748
-constVariablePointer:src/app/gt_mainwin.cpp:761
-constVariablePointer:src/app/gt_mainwin.cpp:939
-constVariablePointer:src/app/mdi_items/label_usages/gt_labelcontainer.cpp:49
-constVariablePointer:src/app/mdi_items/label_usages/gt_labelusagemodel.cpp:58
-constVariablePointer:src/app/mdi_items/memento_viewer/gt_mementoeditor.cpp:50
-constVariablePointer:src/app/mdi_items/memento_viewer/gt_mementoeditor.cpp:52
-constVariablePointer:src/app/mdi_items/process_env/entities/gt_processconnectionview.cpp:90
-constVariablePointer:src/app/mdi_items/process_env/entities/gt_processpropertyconnectionentity.cpp:250
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionitem.cpp:164
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionitem.cpp:175
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:361
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:368
-constVariablePointer:src/app/mdi_items/state_viewer/gt_statemodel.cpp:104
-constVariablePointer:src/app/mdi_items/state_viewer/gt_statemodel.cpp:122
-constVariablePointer:src/app/mdi_items/state_viewer/gt_statemodel.cpp:145
-constVariablePointer:src/app/models/gt_processqueuemodel.cpp:92
-constVariablePointer:src/app/preferences/pages/gt_preferencesaccess.cpp:112
-constVariablePointer:src/app/preferences/pages/gt_preferencesshortcuts.cpp:66
-constVariablePointer:src/app/preferences/pages/gt_preferencesshortcuts.cpp:78
-constVariablePointer:src/app/tools/gt_maintoolbar.cpp:148
-constVariablePointer:src/app/widgets/gt_processqueuewidget.cpp:201
-constVariablePointer:src/app/widgets/gt_processqueuewidget.cpp:288
-constVariablePointer:src/app/widgets/gt_processqueuewidget.cpp:320
-constVariablePointer:src/batch/batch.cpp:260
-constVariablePointer:src/batch/batch.cpp:282
-constVariablePointer:src/batch/batchremote.cpp:399
-constVariablePointer:src/core/gt_coreapplication.cpp:992
-constVariablePointer:src/core/gt_coredatamodel.cpp:50
-constVariablePointer:src/core/gt_coredatamodel.cpp:717
-constVariablePointer:src/core/gt_explorermodel.cpp:85
-constVariablePointer:src/core/gt_objectfiltermodel.cpp:54
-constVariablePointer:src/core/gt_project.cpp:1000
-constVariablePointer:src/core/gt_project.cpp:981
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:178
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:180
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:340
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:342
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:412
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:414
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:509
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:512
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:626
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:635
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:645
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:91
-constVariablePointer:src/core/gt_propertyconnectionfunctions.cpp:92
-constVariablePointer:src/core/gt_runnable.cpp:113
-constVariablePointer:src/core/gt_runnable.cpp:179
-constVariablePointer:src/core/gt_session.cpp:380
-constVariablePointer:src/core/process_management/gt_calculator.cpp:108
-constVariablePointer:src/core/process_management/gt_calculator.cpp:91
-constVariablePointer:src/core/process_management/gt_processcomponent.cpp:460
-constVariablePointer:src/core/process_management/gt_task.cpp:493
-constVariablePointer:src/core/process_management/gt_task.cpp:522
-constVariablePointer:src/core/process_management/gt_taskrunner.cpp:343
-constVariablePointer:src/core/provider/gt_projectprovider.cpp:730
-constVariablePointer:src/core/settings/gt_abstractsettings.cpp:42
-constVariablePointer:src/core/states/gt_stategroup.cpp:178
-constVariablePointer:src/core/states/gt_stategroup.cpp:91
-constVariablePointer:src/dataprocessor/gt_batchsaver.cpp:126
-constVariablePointer:src/dataprocessor/gt_batchsaver.cpp:137
-constVariablePointer:src/dataprocessor/gt_factorygroup.cpp:57
-constVariablePointer:src/dataprocessor/gt_factorygroup.cpp:74
-constVariablePointer:src/dataprocessor/gt_package.cpp:78
-constVariablePointer:src/dataprocessor/property/gt_objectlinkproperty.cpp:69
-constVariablePointer:src/dataprocessor/property/gt_structproperty.cpp:80
-constVariablePointer:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:102
-constVariablePointer:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:121
-constVariablePointer:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:143
-constVariablePointer:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:58
-constVariablePointer:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:668
-constVariablePointer:src/gui/dock_widgets/process/pages/gt_taskoverviewmodel.cpp:110
-constVariablePointer:src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp:38
-constVariablePointer:src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp:75
-constVariablePointer:src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp:102
-constVariablePointer:src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp:56
-constVariablePointer:src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp:72
-constVariablePointer:src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp:163
-constVariablePointer:src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp:178
-constVariablePointer:src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp:294
-constVariablePointer:src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp:305
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertymodel.cpp:108
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertymodel.cpp:119
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertymodel.cpp:483
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertymodel.cpp:734
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertymodel.cpp:796
-constVariablePointer:src/gui/dock_widgets/properties/gt_propertytreeview.cpp:366
-constVariablePointer:src/gui/dock_widgets/properties/items/gt_propertydoublelistitem.cpp:30
-constVariablePointer:src/gui/dock_widgets/properties/items/gt_propertylabelitem.cpp:155
-constVariablePointer:src/gui/dock_widgets/properties/items/gt_propertymodeitem.cpp:27
-constVariablePointer:src/gui/dock_widgets/properties/items/gt_propertymodeitem.cpp:73
-constVariablePointer:src/gui/dock_widgets/properties/items/gt_propertyobjectlinkitem.cpp:144
-constVariablePointer:src/gui/exporter/gt_exportmenu.cpp:58
-constVariablePointer:src/gui/exporter/processExporter/gt_processexporter.cpp:64
-constVariablePointer:src/gui/gt_application.cpp:607
-constVariablePointer:src/gui/gt_application.cpp:624
-constVariablePointer:src/gui/gt_datamodel.cpp:53
-constVariablePointer:src/gui/gt_finishedprocessloadinghelper.cpp:33
-constVariablePointer:src/gui/gt_guimoduleloader.cpp:184
-constVariablePointer:src/gui/gt_guimoduleloader.cpp:205
-constVariablePointer:src/gui/gt_guimoduleloader.cpp:249
-constVariablePointer:src/gui/gt_guimoduleloader.cpp:300
-constVariablePointer:src/gui/gt_guimoduleloader.cpp:309
-constVariablePointer:src/gui/gt_mdilauncher.cpp:397
-constVariablePointer:src/gui/gt_mdilauncher.cpp:415
-constVariablePointer:src/gui/gt_styledmodel.cpp:41
-constVariablePointer:src/gui/importer/gt_importmenu.cpp:63
-constVariablePointer:src/gui/mdi_items/collection_env/gt_localcollectionwidget.cpp:162
-constVariablePointer:src/gui/mdi_items/collection_env/gt_localcollectionwidget.cpp:165
-constVariablePointer:src/gui/object_ui/gt_projectui.cpp:416
-constVariablePointer:src/gui/object_ui/gt_projectui.cpp:434
-constVariablePointer:src/gui/post/gt_abstractitemui.cpp:253
-constVariablePointer:src/gui/post/gt_templateviewer.cpp:729
-constVariablePointer:src/gui/process_runner/gt_processrunner.cpp:338
-constVariablePointer:src/gui/process_runner/gt_processrunner.cpp:96
-constVariableReference:src/batch/gt_remoteprocessrunner.cpp:291
-constVariableReference:src/core/internal/gt_moduleupgrader.cpp:232
-constVariableReference:src/dataprocessor/gt_batchsaver.cpp:220
-constVariableReference:src/dataprocessor/gt_batchsaver.cpp:239
-constVariableReference:src/gui/dock_widgets/properties/gt_propertymodel.cpp:541
-dangerousTypeCast:src/dataprocessor/gt_objectmemento.cpp:156
-dangerousTypeCast:src/dataprocessor/gt_objectmemento.cpp:165
-duplInheritedMember:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataset.h:168
-duplInheritedMember:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_group.h:173
-duplInheritedMember:src/core/gt_explorermodel.cpp:55
-duplInheritedMember:src/core/gt_explorermodel.h:57
-duplInheritedMember:src/dataprocessor/gt_labeldata.cpp:28
-duplInheritedMember:src/dataprocessor/gt_labeldata.h:37
-duplInheritedMember:src/dataprocessor/property/gt_colorproperty.cpp:71
-duplInheritedMember:src/dataprocessor/property/gt_colorproperty.h:123
-duplInheritedMember:src/dataprocessor/property/gt_enumproperty.h:161
-duplInheritedMember:src/gui/tools/gt_qmltoolbargroup.cpp:98
-duplInheritedMember:src/gui/tools/gt_qmltoolbargroup.h:85
-duplicateBreak:src/dataprocessor/property/gt_propertystructcontainer.cpp:219
-duplicateBreak:src/dataprocessor/property/gt_propertystructcontainer.cpp:242
-functionStatic:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/buffer.h:83
-functionStatic:src/app/dialogs/gt_aboutdialog.cpp:265
-functionStatic:src/app/dock_widgets/output/gt_outputdock.cpp:503
-functionStatic:src/app/dock_widgets/process/gt_processdock.cpp:2035
-functionStatic:src/app/gt_mainwin.cpp:1148
-functionStatic:src/app/gt_mainwin.cpp:1154
-functionStatic:src/app/gt_mainwin.cpp:583
-functionStatic:src/app/gt_mainwin.cpp:592
-functionStatic:src/app/gt_mainwin.cpp:600
-functionStatic:src/app/gt_mainwin.cpp:786
-functionStatic:src/app/gt_mainwin.cpp:792
-functionStatic:src/app/gt_mainwin.cpp:798
-functionStatic:src/app/gt_mainwin.cpp:891
-functionStatic:src/app/gt_mainwin.cpp:899
-functionStatic:src/app/gt_mainwin.cpp:907
-functionStatic:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:230
-functionStatic:src/app/preferences/pages/gt_preferencespathsettings.cpp:52
-functionStatic:src/app/preferences/pages/gt_preferencessession.cpp:103
-functionStatic:src/app/preferences/pages/gt_preferencessession.cpp:175
-functionStatic:src/app/preferences/pages/gt_preferencessession.cpp:181
-functionStatic:src/app/preferences/pages/gt_preferencessession.cpp:97
-functionStatic:src/app/widgets/gt_startuppage.cpp:98
-functionStatic:src/core/gt_coreapplication.cpp:231
-functionStatic:src/core/gt_coreapplication.cpp:237
-functionStatic:src/core/gt_coreapplication.cpp:879
-functionStatic:src/core/gt_footprint.cpp:391
-functionStatic:src/core/gt_moduleloader.cpp:139
-functionStatic:src/core/process_management/gt_abstractprocessdata.cpp:22
-functionStatic:src/core/process_management/gt_processcomponent.cpp:374
-functionStatic:src/core/process_management/gt_processcomponent.cpp:380
-functionStatic:src/core/process_management/gt_processfactory.cpp:37
-functionStatic:src/core/process_management/gt_processfactory.cpp:43
-functionStatic:src/core/process_management/gt_taskgroup.cpp:594
-functionStatic:src/core/provider/gt_projectprovider.cpp:783
-functionStatic:src/core/settings/gt_settings.cpp:199
-functionStatic:src/core/settings/gt_settings.cpp:205
-functionStatic:src/core/states/gt_stategroup.cpp:196
-functionStatic:src/dataprocessor/gt_h5externalizehelper.cpp:176
-functionStatic:src/dataprocessor/gt_object.cpp:821
-functionStatic:src/dataprocessor/gt_objectio.cpp:568
-functionStatic:src/dataprocessor/gt_objectio.cpp:696
-functionStatic:src/dataprocessor/gt_objectio.cpp:931
-functionStatic:src/dataprocessor/gt_objectio.cpp:941
-functionStatic:src/dataprocessor/gt_objectio.cpp:958
-functionStatic:src/gui/gt_application.cpp:947
-functionStatic:src/gui/gt_application.cpp:963
-functionStatic:src/gui/gt_application.cpp:98
-functionStatic:src/gui/gt_customprocesswizard.cpp:87
-functionStatic:src/gui/gt_datamodel.cpp:320
-functionStatic:src/gui/gt_dockwidget.cpp:88
-functionStatic:src/gui/gt_mdiitem.cpp:180
-functionStatic:src/gui/gt_objectui.cpp:120
-functionStatic:src/gui/gt_objectui.cpp:67
-functionStatic:src/gui/internal/gt_openwithmenu.cpp:57
-functionStatic:src/gui/object_ui/gt_projectui.cpp:881
-functionStatic:src/gui/object_ui/gt_projectui.cpp:931
-functionStatic:src/gui/post/gt_abstractchartprovider.cpp:256
-functionStatic:src/gui/post/gt_abstractitemui.cpp:189
-functionStatic:src/gui/post/gt_abstractitemui.cpp:324
-functionStatic:src/gui/post/gt_templateviewer.cpp:555
-functionStatic:src/gui/post/gt_templateviewer.cpp:592
-ignoredReturnErrorCode:src/app/dialogs/gt_aboutdialog.cpp:321
-ignoredReturnErrorCode:src/app/gt_mainwin.cpp:1079
-ignoredReturnErrorCode:src/app/gt_mainwin.cpp:852
-ignoredReturnErrorCode:src/app/mdi_items/examples/gt_examplesmdiwidget.cpp:328
-ignoredReturnErrorCode:src/core/gt_coreapplication.cpp:1010
-ignoredReturnErrorCode:src/core/gt_coreapplication.cpp:1057
-ignoredReturnErrorCode:src/core/gt_coreapplication.cpp:1104
-ignoredReturnErrorCode:src/core/gt_coreapplication.cpp:1115
-ignoredReturnErrorCode:src/core/gt_coreapplication.cpp:1116
-ignoredReturnErrorCode:src/core/gt_filesystem.cpp:78
-ignoredReturnErrorCode:src/gui/object_ui/gt_projectui.cpp:544
-ignoredReturnValue:src/batch/gt_consoleruntaskfrommemento.cpp:311
-ignoredReturnValue:src/dataprocessor/gt_qtutilities.h:103
-iterateByValue:src/app/mdi_items/examples/gt_examplesmdiwidget.cpp:200
-iterateByValue:src/app/mdi_items/examples/gt_examplesmdiwidget.cpp:86
-iterateByValue:src/batch/batchremote.cpp:383
-iterateByValue:src/core/gt_filesystem.cpp:83
-iterateByValue:src/core/network/gt_accessmanager.cpp:274
-iterateByValue:src/core/process_management/gt_calculatorhelperfactory.cpp:83
-iterateByValue:src/gui/collection/gt_collectionhelper.cpp:50
-iterateByValue:src/gui/collection/gt_collectionloader.cpp:129
-iterateByValue:src/gui/collection/gt_collectionloader.cpp:449
-iterateByValue:src/gui/dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp:226
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:427
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:432
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:437
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:611
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:619
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:635
-iterateByValue:src/gui/mdi_items/collection_env/gt_collectioneditor.cpp:206
-iterateByValue:src/gui/post/gt_templateviewer.cpp:689
-knownConditionTrueFalse:src/app/dock_widgets/output/gt_filterheaderview.cpp:287
-knownConditionTrueFalse:src/app/preferences/pages/gt_preferencesshortcuts.cpp:171
-knownConditionTrueFalse:src/core/gt_project.cpp:891
-knownConditionTrueFalse:src/core/gt_project.cpp:898
-knownConditionTrueFalse:src/core/gt_project.cpp:903
-knownConditionTrueFalse:src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp:38
-knownConditionTrueFalse:src/gui/dock_widgets/properties/items/gt_propertyobjectlinkitem.cpp:149
-missingOverride:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/logging/gt_logdestfile.h:105
-missingOverride:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/logging/gt_logdestfile.h:165
-missingOverride:src/dataprocessor/gt_externalizedobject.h:118
-missingOverride:src/gui/gt_finishedprocessloadinghelper.h:47
-missingOverride:src/gui/gt_mdilauncher.h:204
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_conversion/bindings.h:19
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_conversion/bindings.h:35
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_conversion/bindings.h:39
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:225
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:245
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:255
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:266
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:280
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:415
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:417
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:419
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:420
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:422
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:423
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:424
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:425
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:426
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:428
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:429
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:430
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:431
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:432
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:434
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:435
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:437
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:442
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_idcomponent.h:62
-noExplicitConstructor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/logging/gt_logdestfile.h:103
-noExplicitConstructor:src/app/dock_widgets/process/gt_taskgroupmodel.h:32
-noExplicitConstructor:src/app/widgets/gt_splashscreen.h:30
-noExplicitConstructor:src/core/process_management/process_runner/commands/gt_processrunnercommand.h:73
-noExplicitConstructor:src/core/process_management/process_runner/commands/gt_processrunnercommand.h:99
-noExplicitConstructor:src/core/process_management/process_runner/commands/gt_processrunnernotification.h:24
-noExplicitConstructor:src/core/process_management/process_runner/commands/gt_processrunnerresponse.h:22
-noExplicitConstructor:src/core/process_management/process_runner/gt_processrunnercommandfactory.cpp:27
-noExplicitConstructor:src/core/process_management/process_runner/gt_processrunnertcpconnection.h:34
-noExplicitConstructor:src/gui/tools/gt_switchprojectmessagebox.h:31
-noExplicitConstructor:src/gui/widgets/gt_tabwidget.h:29
-passedByValue:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:230
-passedByValue:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:231
-passedByValue:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:232
-passedByValue:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:233
-passedByValue:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/logging/gt_logstream.h:344
-passedByValue:src/core/process_management/gt_abstractrunnable.h:111
-passedByValue:src/core/process_management/gt_stringmonitoringproperty.cpp:29
-passedByValue:src/dataprocessor/property/gt_propertystructcontainer.cpp:102
-returnByReference:src/app/dock_widgets/output/gt_filteredlogmodel.h:56
-returnByReference:src/app/dock_widgets/output/gt_filteredlogmodel.h:57
-returnByReference:src/app/dock_widgets/output/gt_filteredlogmodel.h:68
-returnByReference:src/app/mdi_items/examples/gt_examplesentry.h:39
-returnByReference:src/app/mdi_items/examples/gt_examplesentry.h:51
-returnByReference:src/app/mdi_items/examples/gt_examplesentry.h:63
-returnByReference:src/app/mdi_items/examples/gt_examplesentry.h:75
-returnByReference:src/app/mdi_items/examples/gt_examplesentry.h:87
-returnByReference:src/core/gt_command.h:38
-returnByReference:src/core/gt_footprint.h:139
-returnByReference:src/core/gt_moduleloader.cpp:465
-returnByReference:src/core/gt_project.h:189
-returnByReference:src/core/gt_projectanalyzer.h:54
-returnByReference:src/core/gt_projectexecutionguard.h:67
-returnByReference:src/core/gt_updatechecker.h:52
-returnByReference:src/core/process_management/gt_environment.h:128
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnercommand.h:101
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnercommand.h:32
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnercommand.h:80
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnernotification.h:31
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnernotification.h:33
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnerresponse.h:31
-returnByReference:src/core/process_management/process_runner/commands/gt_processrunnerresponse.h:39
-returnByReference:src/core/process_management/process_runner/gt_processrunnerglobals.h:103
-returnByReference:src/core/process_management/process_runner/gt_processrunnerglobals.h:105
-returnByReference:src/dataprocessor/gt_batchsaver.h:145
-returnByReference:src/dataprocessor/gt_object.h:233
-returnByReference:src/dataprocessor/gt_objectpath.h:68
-returnByReference:src/dataprocessor/gt_versionnumber.h:125
-returnByReference:src/dataprocessor/gt_versionnumber.h:131
-returnByReference:src/dataprocessor/property/gt_property.h:41
-returnByReference:src/dataprocessor/property/gt_propertyconnection.h:45
-returnByReference:src/dataprocessor/property/gt_propertyconnection.h:57
-returnByReference:src/dataprocessor/property/gt_propertyconnection.h:69
-returnByReference:src/dataprocessor/property/gt_propertyconnection.h:81
-returnByReference:src/dataprocessor/property/gt_propertystructcontainer.h:138
-returnByReference:src/dataprocessor/property/gt_propertystructcontainer.h:140
-returnByReference:src/dataprocessor/property/gt_propertystructcontainer.h:152
-returnByReference:src/dataprocessor/property/gt_structproperty.h:119
-returnByReference:src/gui/collection/gt_collectionhelper.h:49
-returnByReference:src/gui/collection/gt_collectionitem.h:40
-returnByReference:src/gui/collection/gt_collectionitem.h:46
-returnByReference:src/gui/collection/gt_collectionitem.h:58
-returnByReference:src/gui/collection/gt_collectionitem.h:71
-returnByReference:src/gui/collection/gt_collectionitem.h:89
-returnByReference:src/gui/collection/gt_collectionreply.h:36
-returnByReference:src/gui/collection/gt_collectionreply.h:42
-returnByReference:src/gui/collection/gt_collectionreply.h:48
-returnByReference:src/gui/dialogs/gt_generatebackupdialog.h:38
-returnByReference:src/gui/dialogs/gt_inputdialog.h:134
-returnByReference:src/gui/dialogs/gt_projectrestorebackupdialog.h:43
-returnByReference:src/gui/dialogs/project_upgrader/gt_projectupgradedialog.h:71
-returnByReference:src/gui/dialogs/project_upgrader/gt_projectupgradedialog.h:78
-returnByReference:src/gui/gt_application.h:319
-returnByReference:src/gui/gt_objectui.h:150
-returnByReference:src/gui/gt_objectui.h:99
-returnByReference:src/gui/gt_qmlaction.h:100
-returnByReference:src/gui/gt_qmlaction.h:107
-returnByReference:src/gui/gt_shortcut.h:50
-returnByReference:src/gui/gt_shortcut.h:62
-returnByReference:src/gui/gt_shortcut.h:74
-returnByReference:src/gui/mdi_items/collection_env/gt_collectionbrowsermodelitem.h:33
-returnByReference:src/gui/post/gt_abstractchartprovider.h:49
-returnByReference:src/gui/post/gt_abstractchartprovider.h:61
-returnByReference:src/gui/post/gt_abstractpostwidget.h:47
-returnByReference:src/gui/post/gt_stringcontainer.h:31
-returnByReference:src/gui/post/gt_stringmapcontainer.h:31
-returnByReference:src/gui/post/gt_stringmapcontainer.h:35
-returnByReference:src/gui/tools/gt_changelogparser.h:93
-returnByReference:src/gui/tools/gt_qmltoolbargroup.h:60
-returnByReference:src/gui/widgets/gt_preferencespage.h:39
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/common.h:185
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/common.h:412
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/common.h:416
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/comp.h:178
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_data/comp.h:203
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:150
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:156
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:162
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:168
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_dataspace.h:174
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_optional.h:69
-shadowFunction:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/logging/gt_logdest.h:77
-shadowFunction:src/app/dock_widgets/labels/gt_labelsdock.cpp:142
-shadowFunction:src/app/dock_widgets/output/gt_filteredlogmodel.cpp:357
-shadowFunction:src/app/dock_widgets/output/gt_filteredlogmodel.cpp:394
-shadowFunction:src/app/dock_widgets/output/gt_filteredlogmodel.cpp:436
-shadowFunction:src/app/dock_widgets/output/gt_filteredlogmodel.cpp:468
-shadowFunction:src/app/dock_widgets/output/gt_taskhistorymodel.cpp:131
-shadowFunction:src/app/dock_widgets/output/gt_taskhistorymodel.cpp:30
-shadowFunction:src/app/dock_widgets/output/gt_taskhistorymodel.cpp:36
-shadowFunction:src/app/dock_widgets/output/gt_taskhistorymodel.cpp:42
-shadowFunction:src/app/dock_widgets/process/gt_processdock.cpp:1083
-shadowFunction:src/app/dock_widgets/process/gt_processdock.cpp:1087
-shadowFunction:src/app/dock_widgets/process/gt_processdock.cpp:1091
-shadowFunction:src/app/dock_widgets/process/gt_processdock.cpp:1095
-shadowFunction:src/app/mdi_items/examples/gt_examplesentry.cpp:34
-shadowFunction:src/app/mdi_items/examples/gt_examplesentry.cpp:46
-shadowFunction:src/app/mdi_items/examples/gt_examplesentry.cpp:58
-shadowFunction:src/app/mdi_items/examples/gt_examplesentry.cpp:70
-shadowFunction:src/app/mdi_items/examples/gt_examplesentry.cpp:82
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:120
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:153
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:199
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:230
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:440
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:482
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:62
-shadowFunction:src/app/mdi_items/process_env/gt_processconnectionmodel.cpp:86
-shadowFunction:src/app/models/gt_processqueuemodel.cpp:131
-shadowFunction:src/app/models/gt_processqueuemodel.cpp:169
-shadowFunction:src/app/models/gt_processqueuemodel.cpp:35
-shadowFunction:src/app/models/gt_processqueuemodel.cpp:42
-shadowFunction:src/app/models/gt_processqueuemodel.cpp:54
-shadowFunction:src/app/widgets/gt_sessionlistwidget.cpp:101
-shadowFunction:src/app/widgets/gt_sessionlistwidget.cpp:129
-shadowFunction:src/core/gt_coredatamodel.cpp:1103
-shadowFunction:src/core/gt_coredatamodel.cpp:1110
-shadowFunction:src/core/gt_coredatamodel.cpp:125
-shadowFunction:src/core/gt_coredatamodel.cpp:297
-shadowFunction:src/core/gt_coredatamodel.cpp:38
-shadowFunction:src/core/gt_coredatamodel.cpp:561
-shadowFunction:src/core/gt_coredatamodel.cpp:592
-shadowFunction:src/core/gt_coredatamodel.cpp:597
-shadowFunction:src/core/gt_coredatamodel.cpp:650
-shadowFunction:src/core/gt_coredatamodel.cpp:68
-shadowFunction:src/core/gt_coredatamodel.cpp:686
-shadowFunction:src/core/gt_coredatamodel.cpp:736
-shadowFunction:src/core/gt_coredatamodel.cpp:799
-shadowFunction:src/core/gt_coredatamodel.cpp:824
-shadowFunction:src/core/gt_coredatamodel.cpp:869
-shadowFunction:src/core/gt_coredatamodel.cpp:888
-shadowFunction:src/core/gt_coredatamodel.cpp:910
-shadowFunction:src/core/gt_coredatamodel.cpp:950
-shadowFunction:src/core/gt_coredatamodel.cpp:997
-shadowFunction:src/core/gt_moduleloader.cpp:1001
-shadowFunction:src/core/gt_moduleloader.cpp:261
-shadowFunction:src/core/gt_moduleloader.cpp:599
-shadowFunction:src/core/gt_project.cpp:1046
-shadowFunction:src/core/gt_project.cpp:146
-shadowFunction:src/core/gt_projectsettings.cpp:49
-shadowFunction:src/core/gt_session.cpp:419
-shadowFunction:src/core/network/gt_accessmanager.cpp:39
-shadowFunction:src/core/network/gt_tcpsocket.cpp:69
-shadowFunction:src/core/process_management/gt_calculator.cpp:128
-shadowFunction:src/core/process_management/gt_calculator.cpp:201
-shadowFunction:src/core/process_management/gt_calculatorexecutorlist.cpp:26
-shadowFunction:src/core/process_management/gt_processdata.cpp:398
-shadowFunction:src/core/process_management/gt_processdata.cpp:610
-shadowFunction:src/core/process_management/gt_taskfactory.cpp:73
-shadowFunction:src/core/process_management/gt_taskfactory.cpp:79
-shadowFunction:src/core/process_management/gt_taskgroup.cpp:221
-shadowFunction:src/core/process_management/gt_taskgroup.cpp:299
-shadowFunction:src/core/process_management/gt_taskgroup.cpp:316
-shadowFunction:src/core/process_management/gt_taskgroup.cpp:594
-shadowFunction:src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp:107
-shadowFunction:src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp:116
-shadowFunction:src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp:33
-shadowFunction:src/core/provider/gt_projectprovider.cpp:56
-shadowFunction:src/core/settings/gt_settings.cpp:348
-shadowFunction:src/core/states/gt_stategroup.cpp:32
-shadowFunction:src/dataprocessor/gt_abstractobjectfactory.cpp:120
-shadowFunction:src/dataprocessor/gt_abstractobjectfactory.cpp:165
-shadowFunction:src/dataprocessor/gt_eventloop.cpp:36
-shadowFunction:src/dataprocessor/gt_exceptions.cpp:60
-shadowFunction:src/dataprocessor/gt_externalizationmanager.cpp:57
-shadowFunction:src/dataprocessor/gt_externalizationmanager.cpp:91
-shadowFunction:src/dataprocessor/gt_object.cpp:145
-shadowFunction:src/dataprocessor/gt_object.cpp:391
-shadowFunction:src/dataprocessor/gt_object.cpp:669
-shadowFunction:src/dataprocessor/gt_object.cpp:704
-shadowFunction:src/dataprocessor/gt_object.cpp:772
-shadowFunction:src/dataprocessor/gt_object.cpp:779
-shadowFunction:src/dataprocessor/gt_object.cpp:821
-shadowFunction:src/dataprocessor/gt_objectmemento.cpp:106
-shadowFunction:src/dataprocessor/gt_objectmemento.cpp:119
-shadowFunction:src/dataprocessor/gt_objectmemento.cpp:132
-shadowFunction:src/dataprocessor/gt_objectmemento.cpp:302
-shadowFunction:src/dataprocessor/gt_objectmodel.cpp:102
-shadowFunction:src/dataprocessor/gt_objectmodel.cpp:127
-shadowFunction:src/dataprocessor/gt_objectmodel.cpp:161
-shadowFunction:src/dataprocessor/gt_objectmodel.cpp:43
-shadowFunction:src/dataprocessor/gt_objectmodel.cpp:66
-shadowFunction:src/dataprocessor/gt_versionnumber.cpp:193
-shadowFunction:src/dataprocessor/gt_versionnumber.cpp:197
-shadowFunction:src/dataprocessor/gt_versionnumber.cpp:201
-shadowFunction:src/dataprocessor/property/gt_objectlinkproperty.cpp:65
-shadowFunction:src/dataprocessor/property/gt_objectlinkproperty.h:142
-shadowFunction:src/dataprocessor/property/gt_propertyconnection.cpp:32
-shadowFunction:src/dataprocessor/property/gt_propertyconnection.cpp:44
-shadowFunction:src/dataprocessor/property/gt_propertyconnection.cpp:56
-shadowFunction:src/dataprocessor/property/gt_propertyconnection.cpp:68
-shadowFunction:src/gui/collection/gt_collectionhelper.cpp:152
-shadowFunction:src/gui/collection/gt_collectionhelper.cpp:179
-shadowFunction:src/gui/collection/gt_collectionhelper.cpp:240
-shadowFunction:src/gui/collection/gt_collectionhelper.cpp:84
-shadowFunction:src/gui/dialogs/gt_inputdialog.cpp:158
-shadowFunction:src/gui/dialogs/gt_inputdialog.cpp:195
-shadowFunction:src/gui/dock_widgets/post/gt_postmodel.cpp:238
-shadowFunction:src/gui/dock_widgets/process/gt_processcomponentmodel.cpp:400
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processcategoryitem.cpp:53
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:145
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:167
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:194
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:210
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:220
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:35
-shadowFunction:src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp:53
-shadowFunction:src/gui/dock_widgets/properties/gt_abstractpropertyitem.cpp:88
-shadowFunction:src/gui/dock_widgets/properties/gt_abstractpropertyitem.cpp:96
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:101
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:146
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:203
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:272
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:316
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:513
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:569
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:585
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:609
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:67
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:719
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:722
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:740
-shadowFunction:src/gui/dock_widgets/properties/gt_propertymodel.cpp:743
-shadowFunction:src/gui/dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp:226
-shadowFunction:src/gui/dock_widgets/properties/items/gt_propertycategoryitem.cpp:57
-shadowFunction:src/gui/gt_application.cpp:850
-shadowFunction:src/gui/gt_customprocesswizard.cpp:75
-shadowFunction:src/gui/gt_icons.h:144
-shadowFunction:src/gui/gt_mdiitem.cpp:157
-shadowFunction:src/gui/gt_objectui.cpp:113
-shadowFunction:src/gui/gt_objectuiaction.cpp:100
-shadowFunction:src/gui/gt_objectuiaction.cpp:107
-shadowFunction:src/gui/gt_objectuiaction.cpp:113
-shadowFunction:src/gui/gt_objectuiaction.cpp:120
-shadowFunction:src/gui/gt_objectuiaction.cpp:161
-shadowFunction:src/gui/gt_objectuiaction.cpp:168
-shadowFunction:src/gui/gt_objectuiaction.cpp:208
-shadowFunction:src/gui/gt_objectuiactiongroup.cpp:55
-shadowFunction:src/gui/gt_objectuiactiongroup.cpp:62
-shadowFunction:src/gui/gt_qmlaction.cpp:120
-shadowFunction:src/gui/gt_qmlaction.cpp:65
-shadowFunction:src/gui/gt_qmlaction.cpp:96
-shadowFunction:src/gui/gt_shortcut.cpp:35
-shadowFunction:src/gui/gt_shortcut.cpp:47
-shadowFunction:src/gui/gt_shortcut.cpp:65
-shadowFunction:src/gui/gt_shortcut.cpp:71
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:26
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:292
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:449
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:491
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:517
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:543
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:555
-shadowFunction:src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp:62
-shadowFunction:src/gui/post/gt_abstractchartprovider.cpp:287
-shadowFunction:src/gui/post/gt_abstractchartprovider.cpp:47
-shadowFunction:src/gui/post/gt_abstractitemui.cpp:152
-shadowFunction:src/gui/post/gt_abstractpostwidget.cpp:104
-shadowFunction:src/gui/post/gt_scaleproperty.cpp:28
-shadowFunction:src/gui/post/gt_scaleproperty.cpp:40
-shadowFunction:src/gui/post/gt_scaleproperty.cpp:52
-shadowFunction:src/gui/post/gt_stringcontainer.cpp:27
-shadowFunction:src/gui/post/gt_stringmapcontainer.cpp:23
-shadowFunction:src/gui/post/gt_stringmapcontainer.cpp:35
-shadowFunction:src/gui/process_runner/gt_processrunnertransceiver.cpp:505
-shadowFunction:src/gui/tools/graphic_items/gt_graphicsanimatedpathitem.cpp:29
-shadowFunction:src/gui/tools/gt_jshighlighter.cpp:506
-shadowFunction:src/gui/tools/gt_qmltoolbar.cpp:90
-shadowFunction:src/gui/tools/gt_qmltoolbargroup.cpp:38
-shadowFunction:src/gui/tools/gt_searchwidget.cpp:162
-shadowFunction:src/gui/widgets/gt_preferencespage.cpp:38
-uninitMemberVarNoCtor:/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/h5/genh5_datatype.h:191
-uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_outputdock.cpp:54
-uninitMemberVarNoCtor:src/app/dock_widgets/output/gt_taskhistorymodel.h:122
-uninitMemberVarNoCtor:src/app/preferences/pages/gt_preferencesapp.cpp:35
-uninitMemberVarNoCtor:src/core/gt_logmodel.h:323
-unreadVariable:src/app/dock_widgets/output/gt_filterpopupwidget.cpp:276
-unreadVariable:src/dataprocessor/gt_objectio.cpp:1178
-unreadVariable:src/dataprocessor/gt_objectio.cpp:1183
-unreadVariable:src/gui/tools/gt_jshighlighter.cpp:448
-useStlAlgorithm:src/core/gt_moduleloader.cpp:1177
-useStlAlgorithm:src/core/gt_moduleloader.cpp:1315
-useStlAlgorithm:src/core/gt_project.cpp:433
-useStlAlgorithm:src/core/process_management/gt_processdata.cpp:227
-useStlAlgorithm:src/core/process_management/gt_processdata.cpp:494
-useStlAlgorithm:src/core/provider/gt_projectprovider.cpp:453
-useStlAlgorithm:src/dataprocessor/gt_abstractobjectfactory.cpp:213
-useStlAlgorithm:src/dataprocessor/property/gt_propertystructcontainer.cpp:95
-useStlAlgorithm:src/gui/gt_mdilauncher.cpp:509
-uselessOverride:src/batch/gt_remoteprocessrunnerstates.h:246
-uselessOverride:src/core/gt_coremoduleloader.h:42
-uselessOverride:src/core/gt_coremoduleloader.h:48
-uselessOverride:src/dataprocessor/gt_externalizedobject.h:211
-uselessOverride:src/gui/gt_extendedcalculatordata.h:66
-uselessOverride:src/gui/gt_extendedtaskdata.h:66
-variableScope:src/app/dock_widgets/labels/gt_labeldelegate.cpp:111
-variableScope:src/batch/batchremote.cpp:305
-variableScope:src/core/process_management/gt_calculatorhelperfactory.cpp:78
-variableScope:src/dataprocessor/gt_xmlutilities.cpp:860
-variableScope:src/dataprocessor/gt_xmlutilities.cpp:861
-variableScope:src/gui/mdi_items/collection_env/gt_localcollectionmodel.cpp:108
-virtualCallInConstructor:src/gui/dock_widgets/process/pages/gt_calculatoroverviewpage.h:52
-virtualCallInConstructor:src/gui/dock_widgets/process/pages/gt_taskoverviewpage.h:44
-virtualCallInConstructor:src/gui/exporter/gt_selectfiletoexportpage.h:62
-virtualCallInConstructor:src/gui/gt_dockwidget.h:52
-virtualCallInConstructor:src/gui/gt_dockwidget.h:62
-virtualCallInConstructor:src/gui/gt_mdiitem.h:80
-virtualCallInConstructor:src/gui/importer/gt_selectfiletoimportpage.h:67
-virtualCallInConstructor:src/gui/post/gt_templateviewer.h:204
-
-noExplicitConstructor:build/_deps/logging-src/src/gt_logdestfile.h:103
-missingOverride:build/_deps/logging-src/src/gt_logdestfile.h:105
-missingOverride:build/_deps/logging-src/src/gt_logdestfile.h:165
-shadowFunction:build/_deps/logging-src/src/gt_logdest.h:77
-shadowFunction:build/_deps/logging-src/src/gt_logging.h:199
-passedByValue:build/_deps/logging-src/src/gt_logstream.h:344
-constVariablePointer:src/core/process_management/gt_processmoduleloader.cpp:92
-constVariablePointer:src/core/process_management/gt_processmoduleloader.cpp:130
-constVariablePointer:src/core/process_management/gt_processmoduleloader.cpp:197
-functionStatic:src/gui/tools/gt_grid.cpp:295
-shadowFunction:src/gui/tools/gt_grid.h:301
-uninitMemberVarNoCtor:src/gui/tools/gt_graphicsview.cpp:47
-shadowFunction:src/gui/tools/gt_graphicsview.cpp:101
-shadowFunction:src/gui/tools/gt_graphicsview.cpp:125
-shadowFunction:src/gui/tools/gt_graphicsview.cpp:267
-shadowFunction:src/gui/tools/gt_graphicsview.cpp:265
-shadowFunction:src/gui/tools/gt_graphicsview.cpp:329
-functionStatic:src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp:237
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp:86
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp:136
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp:263
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionscene.cpp:275
-constVariablePointer:src/app/mdi_items/process_env/gt_processconnectionscene.cpp:378
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR) -->
+<!-- SPDX-License-Identifier: CC0-1.0 -->
+<suppressions>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_exceptions.cpp</fileName>
+    <hash>5331742531465058326</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_eventloop.cpp</fileName>
+    <hash>10347562007218120467</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/gt_factorygroup.cpp</fileName>
+    <hash>4222815055602737079</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/gt_factorygroup.cpp</fileName>
+    <hash>11989798875272516667</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_factorygroup.cpp</fileName>
+    <hash>16441253805755063901</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/gt_labeldata.h</fileName>
+    <hash>14681336710960259817</hash>
+  </suppress>
+  <suppress>
+    <id>missingOverride</id>
+    <fileName>src/dataprocessor/gt_externalizedobject.h</fileName>
+    <hash>7696943109368346036</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_externalizationmanager.cpp</fileName>
+    <hash>13351405366527022219</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_externalizationmanager.cpp</fileName>
+    <hash>15710752173013838612</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnValue</id>
+    <fileName>src/dataprocessor/gt_qtutilities.h</fileName>
+    <hash>15452529205399950492</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_h5externalizehelper.cpp</fileName>
+    <hash>10273894870651658962</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_abstractobjectfactory.cpp</fileName>
+    <hash>4426382690683337101</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_abstractobjectfactory.cpp</fileName>
+    <hash>4743715393997467260</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_abstractobjectfactory.cpp</fileName>
+    <hash>9647559163934166991</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/gt_package.cpp</fileName>
+    <hash>4530997739031900476</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/property/gt_abstractproperty.cpp</fileName>
+    <hash>14799434890204226563</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/gt_batchsaver.h</fileName>
+    <hash>9188094064451741554</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/dataprocessor/gt_batchsaver.cpp</fileName>
+    <hash>15424050612193778890</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/dataprocessor/gt_batchsaver.cpp</fileName>
+    <hash>7432463688518650006</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/gt_batchsaver.cpp</fileName>
+    <hash>1353000977557975932</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/gt_batchsaver.cpp</fileName>
+    <hash>4813428586056756758</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/dataprocessor/gt_xmlutilities.cpp</fileName>
+    <hash>17568160693188684515</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/dataprocessor/gt_xmlutilities.cpp</fileName>
+    <hash>16254650212719138489</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_objectmementodiff.cpp</fileName>
+    <hash>12999564543627209120</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_objectmementodiff.cpp</fileName>
+    <hash>16564739595563247600</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_objectmementodiff.cpp</fileName>
+    <hash>17324425334826005095</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_objectmementodiff.cpp</fileName>
+    <hash>15215170414552706391</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_objectmementodiff.cpp</fileName>
+    <hash>8317255152655811103</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_property.h</fileName>
+    <hash>9164892702837691633</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_objectlinkproperty.h</fileName>
+    <hash>3340049744623975901</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_objectlinkproperty.cpp</fileName>
+    <hash>2647552641726386106</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/property/gt_objectlinkproperty.cpp</fileName>
+    <hash>7041421475949908893</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/gt_labeldata.cpp</fileName>
+    <hash>16261837998384195644</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmodel.cpp</fileName>
+    <hash>11976431966475755922</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmodel.cpp</fileName>
+    <hash>14221321227209620904</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmodel.cpp</fileName>
+    <hash>5498462584157842540</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmodel.cpp</fileName>
+    <hash>4007844548695423033</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmodel.cpp</fileName>
+    <hash>612743510454987501</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.h</fileName>
+    <hash>11726411622909226252</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.h</fileName>
+    <hash>503254473843964438</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.h</fileName>
+    <hash>17083050798697850308</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.h</fileName>
+    <hash>5859893649632588494</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.cpp</fileName>
+    <hash>10851305405726127299</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.cpp</fileName>
+    <hash>273085927981316547</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.cpp</fileName>
+    <hash>13094097281457017027</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/property/gt_propertyconnection.cpp</fileName>
+    <hash>2515877803712206275</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/gt_objectpath.h</fileName>
+    <hash>3566801499157510721</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_objectpath.cpp</fileName>
+    <hash>396828336004393786</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>14258614219686830303</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/gt_object.h</fileName>
+    <hash>681667368423294233</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>3891050905356649567</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>5564456480979560814</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>6534025210378289556</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>17820166770506188698</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>9335244610356741018</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>15031633284378294176</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>14524415209312336138</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>11249577232804441238</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/dataprocessor/gt_object.cpp</fileName>
+    <hash>1037019300683392519</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/gt_versionnumber.h</fileName>
+    <hash>7001652160281023849</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/gt_versionnumber.h</fileName>
+    <hash>6137250543950445038</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_versionnumber.cpp</fileName>
+    <hash>16176845477081847446</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_versionnumber.cpp</fileName>
+    <hash>17129785494898330280</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_versionnumber.cpp</fileName>
+    <hash>5915336099771002618</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_colorproperty.cpp</fileName>
+    <hash>13296075411165838870</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_structproperty.h</fileName>
+    <hash>17814166382528282458</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/dataprocessor/property/gt_structproperty.cpp</fileName>
+    <hash>12434242662838932210</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_regexp.h</fileName>
+    <hash>13612238052014057742</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.h</fileName>
+    <hash>10777477072180556575</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.h</fileName>
+    <hash>15096959470674005865</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.h</fileName>
+    <hash>3949560286307178550</hash>
+  </suppress>
+  <suppress>
+    <id>duplicateBreak</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.cpp</fileName>
+    <hash>9610190848487346175</hash>
+  </suppress>
+  <suppress>
+    <id>duplicateBreak</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.cpp</fileName>
+    <hash>9131369444487876257</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.cpp</fileName>
+    <hash>15201645506767116343</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.cpp</fileName>
+    <hash>3078786398625677367</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_commandlineparser.cpp</fileName>
+    <hash>3750823392742849056</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_filesystem.cpp</fileName>
+    <hash>8286775058641251556</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/property/gt_propertystructcontainer.cpp</fileName>
+    <hash>15787214818311726446</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/core/gt_filesystem.cpp</fileName>
+    <hash>666113013167939780</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>16517676930826905603</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>3165430899235726095</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>1150664022825070658</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>4401289712847991346</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>15156609276551277994</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>7869875726247015809</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>1528832393188620375</hash>
+  </suppress>
+  <suppress>
+    <id>uninitMemberVarNoCtor</id>
+    <fileName>src/core/gt_logmodel.h</fileName>
+    <hash>14876127187127827606</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_processfactory.cpp</fileName>
+    <hash>4219146451376863284</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_processfactory.cpp</fileName>
+    <hash>6564579730002947927</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/network/gt_tcpsocket.cpp</fileName>
+    <hash>10302065089977600516</hash>
+  </suppress>
+  <suppress>
+    <id>unreadVariable</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>18313442133187338611</hash>
+  </suppress>
+  <suppress>
+    <id>unreadVariable</id>
+    <fileName>src/dataprocessor/gt_objectio.cpp</fileName>
+    <hash>14459766152981960561</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_processmoduleloader.cpp</fileName>
+    <hash>3278548391661931149</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_processmoduleloader.cpp</fileName>
+    <hash>6836765520117340113</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_processmoduleloader.cpp</fileName>
+    <hash>8112821873232251835</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/dataprocessor/gt_externalizedobject.h</fileName>
+    <hash>16543415254574529447</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_calculatorexecutorlist.cpp</fileName>
+    <hash>17723143001350596835</hash>
+  </suppress>
+  <suppress>
+    <id>dangerousTypeCast</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>12982180451308959258</hash>
+  </suppress>
+  <suppress>
+    <id>dangerousTypeCast</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>9026285458391726404</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>17818841669207668528</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>9054803187708850104</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>11705499697844750896</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>8439213690964939082</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/dataprocessor/gt_objectmemento.cpp</fileName>
+    <hash>2510696829384107875</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>src/core/process_management/gt_abstractrunnable.h</fileName>
+    <hash>6776742552869961149</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_abstractprocessdata.cpp</fileName>
+    <hash>9882150726183179920</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>8302572761984068890</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/network/gt_accessmanager.cpp</fileName>
+    <hash>4920915429412681364</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/core/network/gt_accessmanager.cpp</fileName>
+    <hash>12941609712301194885</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_calculator.cpp</fileName>
+    <hash>14053682366660023119</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_calculator.cpp</fileName>
+    <hash>7239628400586522490</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_calculator.cpp</fileName>
+    <hash>2387493778385712728</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_calculator.cpp</fileName>
+    <hash>7060983938061187493</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/gt_environment.h</fileName>
+    <hash>9004740736171383075</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/core/process_management/gt_calculatorhelperfactory.cpp</fileName>
+    <hash>18001915618965108858</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/core/process_management/gt_calculatorhelperfactory.cpp</fileName>
+    <hash>5544584442147626103</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/process_management/gt_calculatorprovider.cpp</fileName>
+    <hash>5615742305752575659</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>src/core/process_management/gt_stringmonitoringproperty.cpp</fileName>
+    <hash>302377055618041581</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_task.cpp</fileName>
+    <hash>14346062793666474712</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_task.cpp</fileName>
+    <hash>14404787352519460362</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>438749100607803615</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>13384354248255711583</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>2280283802465085944</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>1526179984746065668</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>15288923089551913784</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>17762135403364840480</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>277605796921140060</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>15421976423179373118</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>18213968543498565508</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>18237209868303927842</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>16509282554317523136</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>6171001945234462226</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>7516781281986533283</hash>
+  </suppress>
+  <suppress>
+    <id>assertWithSideEffect</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>12205038165235325462</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>3375272086424332897</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>1636192702849675171</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>16830989611814117435</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_processdata.cpp</fileName>
+    <hash>12305265889029095845</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_processdata.cpp</fileName>
+    <hash>2956021564799838936</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/process_management/gt_processdata.cpp</fileName>
+    <hash>16406191119419051984</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/process_management/gt_processdata.cpp</fileName>
+    <hash>3181343395913872370</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>13473072684082519459</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>6134464964695794584</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>13266999754498110308</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskgroup.cpp</fileName>
+    <hash>5645865346026527795</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/process_management/gt_taskprovider.cpp</fileName>
+    <hash>7443768182384003854</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>5985064236785056876</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnernotification.h</fileName>
+    <hash>8866518042145842218</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnernotification.h</fileName>
+    <hash>6317266920495617241</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnernotification.h</fileName>
+    <hash>2705011728196431601</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_processcomponent.cpp</fileName>
+    <hash>12166958055956374473</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/process_management/gt_processcomponent.cpp</fileName>
+    <hash>55497067544719392</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/core/process_management/gt_processcomponent.cpp</fileName>
+    <hash>727020444798261977</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/core/process_management/gt_processcomponent.cpp</fileName>
+    <hash>16811243760811655896</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_processcomponent.cpp</fileName>
+    <hash>18113525435504916312</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskfactory.cpp</fileName>
+    <hash>17000441753897367480</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/gt_taskfactory.cpp</fileName>
+    <hash>10437328232766711616</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/process_management/gt_taskrunner.cpp</fileName>
+    <hash>15075742761273211321</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/states/gt_stategroup.cpp</fileName>
+    <hash>2545212825572420271</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/states/gt_stategroup.cpp</fileName>
+    <hash>2679149702058648978</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/states/gt_stategroup.cpp</fileName>
+    <hash>7820712501480398565</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/states/gt_stategroup.cpp</fileName>
+    <hash>10724042665145398462</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/states/gt_stategroup.cpp</fileName>
+    <hash>8093989530505992768</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>18412631772696174064</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>9868296933128877506</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnerresponse.h</fileName>
+    <hash>6381120036901674372</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.h</fileName>
+    <hash>12202295518568885805</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.h</fileName>
+    <hash>15845503511878242877</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnercommandfactory.cpp</fileName>
+    <hash>12079198181524329407</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.h</fileName>
+    <hash>4380488825760881724</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.h</fileName>
+    <hash>6317266920495617241</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.h</fileName>
+    <hash>3355852058073366368</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/gt_footprint.cpp</fileName>
+    <hash>3409962127657041152</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_footprint.h</fileName>
+    <hash>8537933911210458504</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnertcpconnection.h</fileName>
+    <hash>15231869529044229826</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_projectsettings.cpp</fileName>
+    <hash>15625340116643593083</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp</fileName>
+    <hash>15518181787089228441</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp</fileName>
+    <hash>12511294557407772567</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnercommand.cpp</fileName>
+    <hash>9792388499396541212</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/settings/gt_settings.cpp</fileName>
+    <hash>5087331790428307020</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/settings/gt_settings.cpp</fileName>
+    <hash>3058763567499201653</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/settings/gt_settings.cpp</fileName>
+    <hash>2842325797303018544</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/settings/gt_abstractsettings.cpp</fileName>
+    <hash>466499043289689844</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/settings/gt_settings.cpp</fileName>
+    <hash>11610027132625312081</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnerglobals.h</fileName>
+    <hash>16408955992651917934</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnerglobals.h</fileName>
+    <hash>17314974124103553331</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/core/gt_explorermodel.cpp</fileName>
+    <hash>8140326241011329657</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_explorermodel.cpp</fileName>
+    <hash>6935148064971958406</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnerglobals.cpp</fileName>
+    <hash>4383567675173197047</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/process_management/process_runner/gt_processrunnerglobals.cpp</fileName>
+    <hash>13125468196055226794</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_objectfiltermodel.cpp</fileName>
+    <hash>4598862886878128440</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_projectexecutionguard.h</fileName>
+    <hash>17186841944597217049</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/core/gt_coremoduleloader.h</fileName>
+    <hash>8267954045911175543</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/core/gt_coremoduleloader.h</fileName>
+    <hash>11110775146115802952</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_projectexecutionguard.cpp</fileName>
+    <hash>15809918544942241694</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnerresponse.h</fileName>
+    <hash>6317266920495617241</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/process_management/process_runner/commands/gt_processrunnerresponse.h</fileName>
+    <hash>4381954055364301598</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_updatechecker.h</fileName>
+    <hash>15638424184191677957</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_command.h</fileName>
+    <hash>16574791483735250599</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_projectanalyzer.h</fileName>
+    <hash>8678638531220387788</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>2405833868361171814</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>7152079800590086104</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>15644484155078729977</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>15055272337725771643</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>2171829928343541175</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>13999441014726630308</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>17151022235573278634</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>14760077352363596526</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/core/internal/gt_moduleupgrader.cpp</fileName>
+    <hash>11483289333701893880</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_session.cpp</fileName>
+    <hash>2115166332051611601</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_session.cpp</fileName>
+    <hash>3064052956053948705</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_session.cpp</fileName>
+    <hash>17473796561047938913</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>11041922394026586986</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_coreapplication.cpp</fileName>
+    <hash>2049996409283282533</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/dialogs/gt_generatebackupdialog.h</fileName>
+    <hash>17843846703364142407</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>6787549478686358695</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>17756593214862248620</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>429034569502567388</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>5911379544744150881</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>6323278438706004507</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_svgiconengine.h</fileName>
+    <hash>11805623413947588000</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_icons.h</fileName>
+    <hash>5902541683526598429</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>7047585781376146386</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>129330264408667379</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>15170348339192310532</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>1807931703517250016</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>16909562702360518119</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>10431512502131272078</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>15626724398819416493</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_moduleloader.cpp</fileName>
+    <hash>15447474504433792754</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>15595761716442266735</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>4234202857178032238</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>1028970728430587233</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>18112620720298002972</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>6141079719041474797</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/provider/gt_projectprovider.cpp</fileName>
+    <hash>385545086920730612</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>17298838849751903474</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>2409896720432173708</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>8794944719869772768</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>4076816844687044587</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>2695158320913020648</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>15753160386425012606</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>4304766924657475657</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>8472431301654154818</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>2893754005923802639</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>18247322808187537214</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>16513454222482692276</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>5585139585096693145</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>5276487199530593303</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>6871420982818380604</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>2237263610702674758</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>9114563137554967952</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>10819852050786572410</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>2099057054403804663</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>7449985688677176452</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>10086350978023071402</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>4510759239321105717</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_coredatamodel.cpp</fileName>
+    <hash>14410338894286464237</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/dialogs/project_upgrader/gt_projectupgradedialog.h</fileName>
+    <hash>14451864536459029433</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/dialogs/project_upgrader/gt_projectupgradedialog.h</fileName>
+    <hash>5899292898669469187</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/dialogs/gt_projectrestorebackupdialog.h</fileName>
+    <hash>14799529658012586990</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_mdiitem.cpp</fileName>
+    <hash>9397407395552642889</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/gt_mdiitem.h</fileName>
+    <hash>3279153609049883021</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_mdiitem.cpp</fileName>
+    <hash>13580715613079640591</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_qmlaction.h</fileName>
+    <hash>7295373598665910389</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_qmlaction.h</fileName>
+    <hash>7785557874012057123</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_qmlaction.cpp</fileName>
+    <hash>11252464563110315828</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_qmlaction.cpp</fileName>
+    <hash>18080812919903903273</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_qmlaction.cpp</fileName>
+    <hash>7103587129696257899</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/gui/widgets/gt_tabwidget.h</fileName>
+    <hash>17707420510521459780</hash>
+  </suppress>
+  <suppress>
+    <id>missingOverride</id>
+    <fileName>src/gui/gt_mdilauncher.h</fileName>
+    <hash>3887795528169477758</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_shortcut.h</fileName>
+    <hash>5012129355120842585</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_shortcut.h</fileName>
+    <hash>12789824602380148327</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_shortcut.h</fileName>
+    <hash>1006559821658308502</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_shortcut.cpp</fileName>
+    <hash>8748764504069813360</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_shortcut.cpp</fileName>
+    <hash>8156437158233718268</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_shortcut.cpp</fileName>
+    <hash>14252266331645260641</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_shortcut.cpp</fileName>
+    <hash>933825833027449038</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterCallback</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>8271609138508913894</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>16666979286102065688</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>4881425679829707014</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>16462549414356642357</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>17462822486546869726</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>1632290197760743548</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/gt_mdilauncher.cpp</fileName>
+    <hash>9015061226931824352</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/tools/gt_changelogparser.h</fileName>
+    <hash>15490769219945526628</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/tools/gt_changelogparser.cpp</fileName>
+    <hash>16493909423786641180</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/gui/tools/gt_switchprojectmessagebox.h</fileName>
+    <hash>12260459584900576228</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/widgets/gt_preferencespage.h</fileName>
+    <hash>453711116114358808</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/widgets/gt_preferencespage.cpp</fileName>
+    <hash>9207185722854535507</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_dockwidget.cpp</fileName>
+    <hash>6861756426249224465</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/gt_dockwidget.h</fileName>
+    <hash>7536800634856468831</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/gt_dockwidget.h</fileName>
+    <hash>13646379246460345560</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_styledmodel.cpp</fileName>
+    <hash>5142172027850142032</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/gui/gt_guiutilities.cpp</fileName>
+    <hash>11173107071891795889</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/gui/gt_guiutilities.cpp</fileName>
+    <hash>10722436530808554720</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/gui/gt_guiutilities.cpp</fileName>
+    <hash>12269014009782807412</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>src/gui/gt_guiutilities.cpp</fileName>
+    <hash>10636199659476472013</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/tools/gt_grid.cpp</fileName>
+    <hash>56463091166111848</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_grid.h</fileName>
+    <hash>11441644975570777388</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.h</fileName>
+    <hash>12068934745467062146</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_runnable.cpp</fileName>
+    <hash>1971458674153207440</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_coreprocessexecutor.cpp</fileName>
+    <hash>17193997572002716634</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_runnable.cpp</fileName>
+    <hash>15061290657944947119</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_coreprocessexecutor.cpp</fileName>
+    <hash>16146782729327225047</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_coreprocessexecutor.cpp</fileName>
+    <hash>14285742257676219959</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/core/gt_coreprocessexecutor.cpp</fileName>
+    <hash>6797499347310776766</hash>
+  </suppress>
+  <suppress>
+    <id>uninitMemberVarNoCtor</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>2969293040639871069</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>4856111469415688727</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>17875335665677777678</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>2119544077626674636</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>15948053407821509738</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_graphicsview.cpp</fileName>
+    <hash>7636098357980633201</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_searchwidget.cpp</fileName>
+    <hash>10178607258731230791</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/graphic_items/gt_graphicsanimatedpathitem.cpp</fileName>
+    <hash>12061014473839063385</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/tools/gt_pyhighlighter.cpp</fileName>
+    <hash>4760063690911280047</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/tools/gt_pyhighlighter.cpp</fileName>
+    <hash>16079855138131675617</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/tools/gt_pyhighlighter.cpp</fileName>
+    <hash>6107043375762427607</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/core/gt_project.h</fileName>
+    <hash>12778192685499106303</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/batch/batchremote.cpp</fileName>
+    <hash>12869994588991242872</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_jshighlighter.cpp</fileName>
+    <hash>7666012470870639970</hash>
+  </suppress>
+  <suppress>
+    <id>unreadVariable</id>
+    <fileName>src/gui/tools/gt_jshighlighter.cpp</fileName>
+    <hash>14121778613878141979</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/batch/batchremote.cpp</fileName>
+    <hash>16620221162854896445</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/batch/batchremote.cpp</fileName>
+    <hash>945226221773549148</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>17134479536089988421</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>1076044743294508583</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>17071082024301678180</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/batch/gt_remoteprocessrunner.cpp</fileName>
+    <hash>17385205066415657461</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnValue</id>
+    <fileName>src/batch/gt_consoleruntaskfrommemento.cpp</fileName>
+    <hash>2691421044952836193</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/gui/tools/gt_qmltoolbargroup.h</fileName>
+    <hash>17018502538996914984</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_qmltoolbar.cpp</fileName>
+    <hash>17922960552473401771</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/models/gt_listmodel.h</fileName>
+    <hash>2771563809856784082</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>14737824597043212809</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>2958762948206034070</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>12554740128314374609</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>12077498685916815208</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/gui/tools/gt_qmltoolbargroup.cpp</fileName>
+    <hash>3977617361052079659</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/tools/gt_qmltoolbargroup.h</fileName>
+    <hash>3217344213173795256</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/tools/gt_qmltoolbargroup.cpp</fileName>
+    <hash>5153868345159534877</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/batch/gt_consoleruntaskfrommemento.cpp</fileName>
+    <hash>6733063460370317599</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/tools/gt_environmentmodel.cpp</fileName>
+    <hash>16708411211607163003</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>10825839088929482832</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>1960491219107755690</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/core/gt_project.cpp</fileName>
+    <hash>14153282547182165516</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/batch/gt_remoteprocessrunnerstates.h</fileName>
+    <hash>11437393293437881069</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/internal/gt_openwithmenu.cpp</fileName>
+    <hash>15148713145858414878</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_objectui.cpp</fileName>
+    <hash>16077726948383552657</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_objectui.cpp</fileName>
+    <hash>3488707691780400401</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_objectui.h</fileName>
+    <hash>2117208255935433352</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_objectui.h</fileName>
+    <hash>8825559927228166950</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectui.cpp</fileName>
+    <hash>1851782038718864749</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processcategoryitem.cpp</fileName>
+    <hash>7604395126737583003</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_calculatoroverviewpage.h</fileName>
+    <hash>8650017027247784337</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>1119015672667825861</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>3897509574722586702</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>1295037138688527131</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>8403269075591657541</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>6096984396348965505</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>7876831274328285439</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_processoverviewmodel.cpp</fileName>
+    <hash>13230795384844569210</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_taskoverviewmodel.cpp</fileName>
+    <hash>10685018010941829272</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/dock_widgets/process/pages/gt_taskoverviewpage.h</fileName>
+    <hash>4155387298391205900</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp</fileName>
+    <hash>6975336101251883852</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp</fileName>
+    <hash>8707518323329884262</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyvaluedelegate.cpp</fileName>
+    <hash>14120861270564498313</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/batch/batch.cpp</fileName>
+    <hash>14572889708612911461</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/batch/batch.cpp</fileName>
+    <hash>15303621143173947405</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertycategoryitem.cpp</fileName>
+    <hash>2175143780608137007</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertytreeview.cpp</fileName>
+    <hash>1568530916295985618</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp</fileName>
+    <hash>11923741994464064590</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp</fileName>
+    <hash>1806777664885364530</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp</fileName>
+    <hash>9696572247738749826</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>1001399334706775483</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>9623898769418829846</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>18225726288358064622</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/gt_application.h</fileName>
+    <hash>4678329286553651436</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_abstractpropertyitem.cpp</fileName>
+    <hash>14563129532268500788</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_abstractpropertyitem.cpp</fileName>
+    <hash>17494945384149989243</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>17457958238882171779</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>13774907637073231646</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>1282351781085393084</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/gt_application.cpp</fileName>
+    <hash>17123892586954232441</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertymodeitem.cpp</fileName>
+    <hash>1292697504482579337</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertymodeitem.cpp</fileName>
+    <hash>1450073707316402374</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertyobjectlinkitem.cpp</fileName>
+    <hash>2170747235401162948</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertyobjectlinkitem.cpp</fileName>
+    <hash>9215628080974775543</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>17650104322394871814</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>2833655524758658044</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>3295697397871543075</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>711493008488289798</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>8047939164992322858</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>6309862210553364114</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>17475877199492057942</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>18237956249897755907</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>6460624128034495256</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>2667702798355918775</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>2923708872239336408</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>8462663455046122120</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>1296556250893504265</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>10182686026762309009</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp</fileName>
+    <hash>18008421161568503919</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>10502031311180012978</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp</fileName>
+    <hash>5175570140476181170</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>10749640999925191401</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>16597791162781939495</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>17937613805235821351</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>4465925598721830127</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>12883108548624847235</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/gt_propertymodel.cpp</fileName>
+    <hash>12755478658037674043</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertydoublelistitem.cpp</fileName>
+    <hash>7495749556570270982</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/items/gt_propertylabelitem.cpp</fileName>
+    <hash>7865894740010511233</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>7431411505262938450</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>3358669891048585882</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>11463269237349487498</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>17264749430469314852</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>7388328668410881907</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>3834183896968333837</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiaction.cpp</fileName>
+    <hash>10390438070948183848</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_colorproperty.h</fileName>
+    <hash>10550580226093685767</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_abstractpostwidget.h</fileName>
+    <hash>5742503728376282656</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/post/gt_abstractitemui.cpp</fileName>
+    <hash>4709685785954065458</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/post/gt_abstractitemui.cpp</fileName>
+    <hash>13767624910053996930</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_abstractpostwidget.cpp</fileName>
+    <hash>14662116960304335725</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_abstractitemui.cpp</fileName>
+    <hash>13617214767202948081</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/post/gt_abstractitemui.cpp</fileName>
+    <hash>15056467745228797224</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_stringmapcontainer.h</fileName>
+    <hash>3274870664545216439</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_stringmapcontainer.h</fileName>
+    <hash>7795665878249897705</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_stringmapcontainer.cpp</fileName>
+    <hash>715728781932300064</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_stringmapcontainer.cpp</fileName>
+    <hash>6662006442376485536</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/post/gt_stringmapcontainer.cpp</fileName>
+    <hash>11953116510327060807</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_stringcontainer.h</fileName>
+    <hash>13025900775991898834</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.cpp</fileName>
+    <hash>7145650915335931671</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.h</fileName>
+    <hash>14520163461659114569</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.h</fileName>
+    <hash>13239359458830548419</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_stringcontainer.cpp</fileName>
+    <hash>11315334005992684530</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.cpp</fileName>
+    <hash>1959718436550520419</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.cpp</fileName>
+    <hash>7217317994221466276</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/post/gt_abstractchartprovider.cpp</fileName>
+    <hash>13456282278237053715</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/gui/gt_extendedcalculatordata.h</fileName>
+    <hash>908834017361389071</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_customprocesswizard.cpp</fileName>
+    <hash>6890145483470453975</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_customprocesswizard.cpp</fileName>
+    <hash>7505003943807137992</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp</fileName>
+    <hash>12295536446218606439</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp</fileName>
+    <hash>5067427689513725244</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp</fileName>
+    <hash>16770738697172222289</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp</fileName>
+    <hash>5165316846990898709</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp</fileName>
+    <hash>14904314654492604598</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/post/gt_postmodel.cpp</fileName>
+    <hash>18249821220444748141</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/exporter/gt_selectfiletoexportpage.h</fileName>
+    <hash>7748483940621474723</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_localcollectionwidget.cpp</fileName>
+    <hash>1919819045725446635</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_localcollectionwidget.cpp</fileName>
+    <hash>10172145943252004347</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_localcollectionmodel.cpp</fileName>
+    <hash>8004249896501387907</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_guimoduleloader.cpp</fileName>
+    <hash>829842245721696619</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_guimoduleloader.cpp</fileName>
+    <hash>950242720292098506</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_guimoduleloader.cpp</fileName>
+    <hash>10253665096238735091</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_guimoduleloader.cpp</fileName>
+    <hash>18389258770387984026</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_guimoduleloader.cpp</fileName>
+    <hash>11297690787613141439</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectioneditor.cpp</fileName>
+    <hash>16894627917592178172</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionitem.h</fileName>
+    <hash>1622481864645400400</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionitem.h</fileName>
+    <hash>5569725609480050279</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionitem.h</fileName>
+    <hash>2042718461597403104</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionitem.h</fileName>
+    <hash>7351500208106608348</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionitem.h</fileName>
+    <hash>6102845702470737616</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionreply.h</fileName>
+    <hash>1660322174906137386</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionreply.h</fileName>
+    <hash>8007869227777882662</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionreply.h</fileName>
+    <hash>16296234674651195583</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/collection/gt_collectionhelper.h</fileName>
+    <hash>12161617277068839312</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/collection/gt_collectionhelper.cpp</fileName>
+    <hash>16017634612582052773</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/collection/gt_collectionhelper.cpp</fileName>
+    <hash>3055028818048321324</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/collection/gt_collectionhelper.cpp</fileName>
+    <hash>8262900087067483963</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/collection/gt_collectionhelper.cpp</fileName>
+    <hash>8872269213700253618</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/collection/gt_collectionhelper.cpp</fileName>
+    <hash>15914035679012020599</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/importer/gt_selectfiletoimportpage.h</fileName>
+    <hash>18123296169010531606</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/post/gt_templateviewer.cpp</fileName>
+    <hash>12126297372126838815</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/post/gt_templateviewer.cpp</fileName>
+    <hash>7733200012897684851</hash>
+  </suppress>
+  <suppress>
+    <id>virtualCallInConstructor</id>
+    <fileName>src/gui/post/gt_templateviewer.h</fileName>
+    <hash>2744112885980016410</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>5711450069243258275</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>15610263077169978236</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>10099768080649593613</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>8434318947897971369</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>11839762940879374767</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>8436476099255712601</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>17869205757302688038</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>7123258277446283193</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>8772727179679013533</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>1403110441473557627</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>15519638032446204633</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>9117699952507663843</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>9159127356067207233</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodel.cpp</fileName>
+    <hash>17962398075202553750</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/mdi_items/collection_env/gt_collectionbrowsermodelitem.h</fileName>
+    <hash>7784459630764760099</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/post/gt_templateviewer.cpp</fileName>
+    <hash>12199023843398173195</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/post/gt_templateviewer.cpp</fileName>
+    <hash>2980158643239816019</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>12120349957676473843</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/collection/gt_collectionloader.cpp</fileName>
+    <hash>5244604090808104402</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/gui/collection/gt_collectionloader.cpp</fileName>
+    <hash>2610207745358333580</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>6828571029416909879</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>14157453955414107257</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>12276672908622915267</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>11983873580605816381</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>409724802111001250</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>16772887880008241163</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>14539861858237099792</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>1231646893928269392</hash>
+  </suppress>
+  <suppress>
+    <id>uselessOverride</id>
+    <fileName>src/gui/gt_extendedtaskdata.h</fileName>
+    <hash>908834017361389071</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/dock_widgets/process/gt_processcomponentmodel.cpp</fileName>
+    <hash>14114114366701754166</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>8152100193038292452</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/gui/dialogs/gt_inputdialog.h</fileName>
+    <hash>450578597781106905</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dialogs/gt_inputdialog.cpp</fileName>
+    <hash>14157743883520741885</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/dialogs/gt_inputdialog.cpp</fileName>
+    <hash>3155078907292021278</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiactiongroup.cpp</fileName>
+    <hash>4685940412770362992</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/gt_objectuiactiongroup.cpp</fileName>
+    <hash>3945332643520832440</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/gui/gt_objectuiactiongroup.cpp</fileName>
+    <hash>18344210832336948730</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/exporter/gt_exportmenu.cpp</fileName>
+    <hash>13653570895658387925</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/gui/gt_datamodel.cpp</fileName>
+    <hash>10763066641877466343</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_scaleproperty.cpp</fileName>
+    <hash>873709036203946978</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_scaleproperty.cpp</fileName>
+    <hash>14145416955281020054</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/post/gt_scaleproperty.cpp</fileName>
+    <hash>12382151261657317106</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/importer/gt_importmenu.cpp</fileName>
+    <hash>9341502060183732806</hash>
+  </suppress>
+  <suppress>
+    <id>missingOverride</id>
+    <fileName>src/gui/gt_finishedprocessloadinghelper.h</fileName>
+    <hash>17092659978534517788</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/exporter/processExporter/gt_processexporter.cpp</fileName>
+    <hash>11172514338957743158</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_datamodel.cpp</fileName>
+    <hash>7692818464341996355</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/gt_finishedprocessloadinghelper.cpp</fileName>
+    <hash>17799842592084141030</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>194256366210138114</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>15431895776895561795</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/object_ui/gt_projectui.cpp</fileName>
+    <hash>15217061990948358140</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/app/dock_widgets/process/gt_taskgroupmodel.h</fileName>
+    <hash>13509545404802017233</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/app/widgets/gt_splashscreen.h</fileName>
+    <hash>16844008167932778022</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/preferences/pages/gt_preferencessession.cpp</fileName>
+    <hash>13888693260947615972</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/preferences/pages/gt_preferencessession.cpp</fileName>
+    <hash>6428743557540482224</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/preferences/pages/gt_preferencessession.cpp</fileName>
+    <hash>4037859585602492021</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/preferences/pages/gt_preferencessession.cpp</fileName>
+    <hash>7017799152953687550</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/widgets/gt_sessionlistwidget.cpp</fileName>
+    <hash>15083612932286157307</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/widgets/gt_sessionlistwidget.cpp</fileName>
+    <hash>14957697584846828452</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/app/preferences/pages/gt_preferencesshortcuts.cpp</fileName>
+    <hash>12406061929018358184</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/preferences/pages/gt_preferencesshortcuts.cpp</fileName>
+    <hash>16919138277533635350</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/preferences/pages/gt_preferencesshortcuts.cpp</fileName>
+    <hash>16470039448927407362</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/dialogs/gt_aboutdialog.cpp</fileName>
+    <hash>13340465699845144549</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/preferences/pages/gt_preferencesaccess.cpp</fileName>
+    <hash>13944581303879594065</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/app/dialogs/gt_aboutdialog.cpp</fileName>
+    <hash>3377436869307183080</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/app/dialogs/gt_aboutdialog.cpp</fileName>
+    <hash>952804910610231719</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/preferences/pages/gt_preferencespathsettings.cpp</fileName>
+    <hash>9942392782473897856</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/widgets/gt_startuppage.cpp</fileName>
+    <hash>711119339818218840</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/memento_viewer/gt_mementoeditor.cpp</fileName>
+    <hash>14358376088687517384</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/memento_viewer/gt_mementoeditor.cpp</fileName>
+    <hash>12221335718136075524</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.h</fileName>
+    <hash>11928274814788905746</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.h</fileName>
+    <hash>16443913708922028960</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.h</fileName>
+    <hash>5788096501971035748</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.h</fileName>
+    <hash>16475741498498611383</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.h</fileName>
+    <hash>7351500208106608348</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.cpp</fileName>
+    <hash>8776999019477120665</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.cpp</fileName>
+    <hash>7924573370351716625</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.cpp</fileName>
+    <hash>15559962603168297745</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.cpp</fileName>
+    <hash>2263521062680843153</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesentry.cpp</fileName>
+    <hash>7688152909956141209</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/state_viewer/gt_statemodel.cpp</fileName>
+    <hash>1557648299838947558</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/state_viewer/gt_statemodel.cpp</fileName>
+    <hash>3434396287910773822</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/state_viewer/gt_statemodel.cpp</fileName>
+    <hash>17992290984612999682</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/label_usages/gt_labelusagemodel.cpp</fileName>
+    <hash>15696131660477943379</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/properties/gt_propertycontainerwidget.cpp</fileName>
+    <hash>2315349951811186642</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/entities/gt_processconnectionview.cpp</fileName>
+    <hash>2094545304913028717</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/tools/gt_maintoolbar.cpp</fileName>
+    <hash>11657701562565057067</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/entities/gt_processpropertyconnectionentity.cpp</fileName>
+    <hash>9193707430565937216</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/gui/process_runner/gt_processrunnertransceiver.cpp</fileName>
+    <hash>16940285000384291495</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/label_usages/gt_labelcontainer.cpp</fileName>
+    <hash>14154034615474727117</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/process_runner/gt_processrunner.cpp</fileName>
+    <hash>2580714837222445899</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/gui/process_runner/gt_processrunner.cpp</fileName>
+    <hash>10592741135373160239</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/gui/process_runner/gt_processrunner.cpp</fileName>
+    <hash>4635312668837907731</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.h</fileName>
+    <hash>13383895757973854141</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.h</fileName>
+    <hash>5527782663625804327</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.h</fileName>
+    <hash>16171620635290189112</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.cpp</fileName>
+    <hash>15153221058234612102</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.cpp</fileName>
+    <hash>6625491954826826248</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.cpp</fileName>
+    <hash>809137949716425561</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_filteredlogmodel.cpp</fileName>
+    <hash>10447378973127176781</hash>
+  </suppress>
+  <suppress>
+    <id>unreadVariable</id>
+    <fileName>src/app/dock_widgets/output/gt_filterpopupwidget.cpp</fileName>
+    <hash>11889591417038960656</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>5771641115991888692</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>18427143273763515074</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>134377554117208848</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>18127898527224835484</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>16588406284381643122</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>7236115986651592177</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>6740199469373309662</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>11788175919871278313</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>1256113537167429573</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>956082997451063080</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>9431705252306975837</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>8605445231014745410</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>12473011498244769520</hash>
+  </suppress>
+  <suppress>
+    <id>knownConditionTrueFalse</id>
+    <fileName>src/app/dock_widgets/output/gt_filterheaderview.cpp</fileName>
+    <hash>5324702108046188768</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>11993744184086551605</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>8026582024507244981</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>7757024505973256469</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/gt_mainwin.cpp</fileName>
+    <hash>11655251892847883832</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesmdiwidget.cpp</fileName>
+    <hash>9597552269451680396</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesmdiwidget.cpp</fileName>
+    <hash>4688787839501521986</hash>
+  </suppress>
+  <suppress>
+    <id>iterateByValue</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesmdiwidget.cpp</fileName>
+    <hash>1184523249230157956</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/app/mdi_items/examples/gt_examplesmdiwidget.cpp</fileName>
+    <hash>4375679908538687665</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/mdi_items/process_env/entities/gt_processpropertyportentity.cpp</fileName>
+    <hash>4091299933605465596</hash>
+  </suppress>
+  <suppress>
+    <id>uninitMemberVarNoCtor</id>
+    <fileName>src/app/dock_widgets/output/gt_taskhistorymodel.h</fileName>
+    <hash>15192883758673388777</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_taskhistorymodel.cpp</fileName>
+    <hash>418865209302145342</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_taskhistorymodel.cpp</fileName>
+    <hash>7109711824583865290</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_taskhistorymodel.cpp</fileName>
+    <hash>11351325405426091975</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/output/gt_taskhistorymodel.cpp</fileName>
+    <hash>6894028893785970685</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/dock_widgets/output/gt_outputdock.cpp</fileName>
+    <hash>13095043820543288575</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/output/gt_outputdock.cpp</fileName>
+    <hash>16219619238007543108</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/output/gt_outputdock.cpp</fileName>
+    <hash>9473198208485769001</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/output/gt_outputdock.cpp</fileName>
+    <hash>11349343463035053320</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/output/gt_outputdock.cpp</fileName>
+    <hash>14338399069407882528</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.h</fileName>
+    <hash>17146709560956863165</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>4158162719174985090</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>12786516988012345500</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>7517803235459901126</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>16845778982220939364</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>7828405564208898495</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>7943024596521821791</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>16487721816197551520</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>6128924672303574040</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>tests/unittests/datamodel/test_externalizedobject.cpp</fileName>
+    <hash>14563708181661524432</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/core/gt_explorermodel.h</fileName>
+    <hash>1213886798095054867</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/explorer/gt_explorerdock.cpp</fileName>
+    <hash>12834153176246643884</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/explorer/gt_explorerdock.cpp</fileName>
+    <hash>916983071558812415</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/explorer/gt_explorerdock.cpp</fileName>
+    <hash>17454141668329610230</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/explorer/gt_explorerdock.cpp</fileName>
+    <hash>639619896127942490</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/widgets/gt_processqueuewidget.cpp</fileName>
+    <hash>7701012606800935205</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/widgets/gt_processqueuewidget.cpp</fileName>
+    <hash>10441517586277032309</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/widgets/gt_processqueuewidget.cpp</fileName>
+    <hash>1333751143979701843</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>10000684073305380249</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>17575420744663554297</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>1013528526616184486</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>18124349972708256521</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>5748564865658242375</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/models/gt_processqueuemodel.cpp</fileName>
+    <hash>12435174465809438546</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>6404464368089044740</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp</fileName>
+    <hash>6027124192089873318</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>1413580047820108675</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>4208260067003018272</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>2774525390266386729</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>11538114451557223712</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>6978350824623012188</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>6769931770618242330</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>9813888567699023280</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>7808149075839665190</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>14701661946884639333</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionmodel.cpp</fileName>
+    <hash>14145306218954846479</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp</fileName>
+    <hash>13210770627962924453</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp</fileName>
+    <hash>8974283903644244353</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp</fileName>
+    <hash>7667587726294506718</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/post/gt_postdock.cpp</fileName>
+    <hash>1402116572705531740</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/post/gt_postdock.cpp</fileName>
+    <hash>12803817577214513758</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectiongraphicsview.cpp</fileName>
+    <hash>7994633040090608759</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionscene.cpp</fileName>
+    <hash>10660616051721583208</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionscene.cpp</fileName>
+    <hash>13961928706892712334</hash>
+  </suppress>
+  <suppress>
+    <id>shadowVariable</id>
+    <fileName>src/dataprocessor/gt_eventloop.h</fileName>
+    <hash>7632220352347899712</hash>
+  </suppress>
+  <suppress>
+    <id>shadowVariable</id>
+    <fileName>src/dataprocessor/gt_eventloop.h</fileName>
+    <hash>4010725108195044072</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/labels/gt_labelsdock.cpp</fileName>
+    <hash>12526768544230837636</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/labels/gt_labelsdock.cpp</fileName>
+    <hash>11696611329360669282</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/labels/gt_labelsdock.cpp</fileName>
+    <hash>10354656664801300191</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/labels/gt_labelsdock.cpp</fileName>
+    <hash>6116092597665753334</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/labels/gt_labelsdock.cpp</fileName>
+    <hash>8723577497736885788</hash>
+  </suppress>
+  <suppress>
+    <id>variableScope</id>
+    <fileName>src/app/dock_widgets/labels/gt_labeldelegate.cpp</fileName>
+    <hash>18394420109989714316</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>tests/unittests/gt_testhelper.h</fileName>
+    <hash>11459324929976500985</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>tests/unittests/gt_testhelper.h</fileName>
+    <hash>12375368225569884881</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>9714297516470529977</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>6616391608935779545</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_objectpath.cpp</fileName>
+    <hash>9309949837623990577</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_gt_polyvector.cpp</fileName>
+    <hash>9731636241509364085</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_gt_polyvector.cpp</fileName>
+    <hash>4021473739067490929</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_gt_sharedfunction.cpp</fileName>
+    <hash>206825210746614159</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_gt_sharedfunction.cpp</fileName>
+    <hash>15660565598729736031</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionitem.cpp</fileName>
+    <hash>7860454214370212227</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionitem.cpp</fileName>
+    <hash>7304705291968209768</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/mdi_items/process_env/gt_processconnectionitem.cpp</fileName>
+    <hash>7778200474899119482</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp</fileName>
+    <hash>14429848989670623581</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp</fileName>
+    <hash>5742356750760757555</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processcomponentsettingsbutton.cpp</fileName>
+    <hash>10286914397456136640</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_propertycontainerobject.h</fileName>
+    <hash>5864461488923561698</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/datamodel/test_propertycontainerobject.h</fileName>
+    <hash>15380871558844073516</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>tests/unittests/datamodel/test_gt_structproperty.cpp</fileName>
+    <hash>15932297918579394309</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_structproperty.cpp</fileName>
+    <hash>14155889939458149536</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_structproperty.cpp</fileName>
+    <hash>905902759034851259</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_structproperty.cpp</fileName>
+    <hash>7578321416897870560</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_structproperty.cpp</fileName>
+    <hash>15696640145564155547</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>3304233340635788120</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>17025256569564424057</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>1490023281981612953</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>16317926809279501099</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>12011740496514221601</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>10890791046725523239</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>4571758657472716368</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_commandlineparser.cpp</fileName>
+    <hash>11414204720714942792</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>5296694873559125996</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>9732747957094633178</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>8896136211460160706</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>12659051385288091426</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>4649963286080916944</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>16566242619621211235</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterPointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>16322320850378375991</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>9973429534850924425</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>14559020494868360491</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>2880712502636625695</hash>
+  </suppress>
+  <suppress>
+    <id>useStlAlgorithm</id>
+    <fileName>src/app/dock_widgets/process/gt_processdock.cpp</fileName>
+    <hash>6003836190169505864</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>tests/unittests/datamodel/test_gt_object.h</fileName>
+    <hash>8968322233504796018</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>tests/unittests/datamodel/test_gt_dummyobject.cpp</fileName>
+    <hash>8065214939708142899</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_coredatamodel.cpp</fileName>
+    <hash>2309749356991131312</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_coredatamodel.cpp</fileName>
+    <hash>2098207549875261862</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>tests/unittests/core/test_gt_project.cpp</fileName>
+    <hash>15101595619761395535</hash>
+  </suppress>
+  <suppress>
+    <id>ignoredReturnErrorCode</id>
+    <fileName>tests/unittests/core/test_gt_project.cpp</fileName>
+    <hash>3519882607002926011</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/gui/test_gt_changelogparser.cpp</fileName>
+    <hash>5269643766484544924</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/gui/test_gt_changelogparser.cpp</fileName>
+    <hash>8856676237400893368</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/gui/test_gt_changelogparser.cpp</fileName>
+    <hash>14166123307806132715</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>tests/unittests/gui/test_gt_svgiconengine.cpp</fileName>
+    <hash>3958501967913684877</hash>
+  </suppress>
+  <suppress>
+    <id>shadowVariable</id>
+    <fileName>tests/unittests/gui/test_gt_grid.cpp</fileName>
+    <hash>12065708827533899973</hash>
+  </suppress>
+  <suppress>
+    <id>constParameterReference</id>
+    <fileName>tests/unittests/gui/test_gt_grid.cpp</fileName>
+    <hash>11691133060976756669</hash>
+  </suppress>
+  <suppress>
+    <id>returnByReference</id>
+    <fileName>tests/unittests/core/test_gt_session.cpp</fileName>
+    <hash>12635033572895240475</hash>
+  </suppress>
+  <suppress>
+    <id>uninitMemberVarNoCtor</id>
+    <fileName>tests/unittests/network/test_gt_accessdata.cpp</fileName>
+    <hash>13865060844207184967</hash>
+  </suppress>
+  <suppress>
+    <id>unusedStructMember</id>
+    <fileName>tests/unittests/core/test_gt_session.cpp</fileName>
+    <hash>1916384412633407656</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>tests/unittests/gt_testhelper.cpp</fileName>
+    <hash>3422487178596639084</hash>
+  </suppress>
+  <suppress>
+    <id>functionStatic</id>
+    <fileName>tests/unittests/gt_testhelper.cpp</fileName>
+    <hash>5625743241588982515</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_gt_object.cpp</fileName>
+    <hash>2282143520873460077</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/dataprocessor/thirdparty/mpark/variant.hpp</fileName>
+    <hash>11315219614168997578</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/dataprocessor/thirdparty/mpark/variant.hpp</fileName>
+    <hash>6771925026906591106</hash>
+  </suppress>
+  <suppress>
+    <id>noExplicitConstructor</id>
+    <fileName>src/dataprocessor/thirdparty/mpark/variant.hpp</fileName>
+    <hash>705987550333702750</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>src/dataprocessor/thirdparty/mpark/variant.hpp</fileName>
+    <hash>5879388062583094749</hash>
+  </suppress>
+  <suppress>
+    <id>shadowFunction</id>
+    <fileName>tests/modules/datamodel_interface/data/test_dmi_externalobject.cpp</fileName>
+    <hash>4304515392499525916</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>tests/unittests/datamodel/test_unresolved_linked_object_restore.cpp</fileName>
+    <hash>12986864491209936444</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>tests/unittests/datamodel/test_unresolved_linked_object_restore.cpp</fileName>
+    <hash>8961667354721226706</hash>
+  </suppress>
+  <suppress>
+    <id>constVariableReference</id>
+    <fileName>tests/unittests/datamodel/test_unresolved_linked_object_restore.cpp</fileName>
+    <hash>3143051175905091385</hash>
+  </suppress>
+  <suppress>
+    <id>missingOverride</id>
+    <fileName>tests/unittests/core/test_gt_processtestclasses.h</fileName>
+    <hash>1736022440439749769</hash>
+  </suppress>
+  <suppress>
+    <id>passedByValue</id>
+    <fileName>tests/unittests/core/test_gt_processtestclasses.h</fileName>
+    <hash>9330900751172071398</hash>
+  </suppress>
+  <suppress>
+    <id>redundantInitialization</id>
+    <fileName>tests/unittests/datamodel/test_propertyreference.cpp</fileName>
+    <hash>7002316336118938521</hash>
+  </suppress>
+  <suppress>
+    <id>redundantAssignment</id>
+    <fileName>tests/unittests/datamodel/test_propertyreference.cpp</fileName>
+    <hash>7992780249137116918</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_propertyreference.cpp</fileName>
+    <hash>13905393018554210488</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_propertyreference.cpp</fileName>
+    <hash>14427786283166212602</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/datamodel/test_propertyreference.cpp</fileName>
+    <hash>1271339279757526817</hash>
+  </suppress>
+  <suppress>
+    <id>missingOverride</id>
+    <fileName>tests/modules/mdi_interface_ext/mdi/test_mdi_ext_externalobjectviewer.h</fileName>
+    <hash>6505928603660683648</hash>
+  </suppress>
+  <suppress>
+    <id>duplInheritedMember</id>
+    <fileName>src/dataprocessor/property/gt_enumproperty.h</fileName>
+    <hash>11328286355827058095</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>10324039581139517005</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>1703004027079174149</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>1729523968295018168</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>1738397578162978663</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>12757207013426013590</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>7181207354343291589</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>17957343146170102329</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>17425084271733447691</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>4517799174760249796</hash>
+  </suppress>
+  <suppress>
+    <id>constVariablePointer</id>
+    <fileName>tests/unittests/core/test_gt_propertyconnectionfunctions.cpp</fileName>
+    <hash>13305854251056272769</hash>
+  </suppress>
+</suppressions>
