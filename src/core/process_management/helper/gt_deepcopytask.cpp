@@ -96,7 +96,6 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     }
 
 
-
     if(!transferRelativeObjectLinkPropertyViaMapping(copiedTask, &uuidMap))
     {
         gtError() << "Could not transfer the relative object link properties";

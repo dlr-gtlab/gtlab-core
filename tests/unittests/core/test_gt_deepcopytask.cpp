@@ -14,13 +14,10 @@
 #include "gt_deepcopytask.h"
 #include "gt_taskanalysis.h"
 #include "gt_makepropertyconnection.h"
-
 #include "gt_processdata.h"
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_objectfactory.h"
 #include "gt_taskfactory.h"
-
-
 
 
 class TestGtTaskPropertyConnections : public ::testing::Test
@@ -100,8 +97,6 @@ protected:
         roottask->appendChild(con_stale1);
         roottask->appendChild(con_stale2);
 
-        //gt::debug::helper::printTaskStructure(roottask, 0, "The tested task structure:");
-
         con1->setObjectName("con1");
         con2->setObjectName("con2");
         con3->setObjectName("con3");
@@ -137,7 +132,6 @@ protected:
 
     virtual void TearDown()
     {
-        gtDebug() << "---- END OF TEST ----";
         delete taskgroup;
     }
 
@@ -192,7 +186,6 @@ protected:
 };
 
 
-
 TEST_F(TestGtTaskPropertyConnections, highestParent)
 {
     ASSERT_EQ(gt::utils::process::findRootTask(roottask), roottask);
@@ -206,7 +199,7 @@ TEST_F(TestGtTaskPropertyConnections, highestParent)
     ASSERT_EQ(gt::utils::process::findRootTask(standaloneCalc), nullptr);
 
     delete standaloneTask;
-    delete standaloneCalc;        
+    delete standaloneCalc;   
 }
 
 TEST_F(TestGtTaskPropertyConnections, checkTaskPropertyConnectionsErrorBehavior)
@@ -305,10 +298,6 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask2)
 TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
 {
     auto roottask_copied = gt::utils::process::deepCopyTask(roottask);
-
-    //gt::debug::helper::printTaskStructure(roottask_copied, 0, "The copied task structure:");
-    //gt::utils::process::printWarningForLostPropertyConnections(roottask_copied, true);
-
     ASSERT_NE(roottask_copied, nullptr);
 
     // get the copied sub components
@@ -456,6 +445,7 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     bool ok=false;
     auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask2_copied, &ok);
     ASSERT_TRUE(ok);
+
 
     ASSERT_EQ(retval.internal.size(), 1);
     ASSERT_EQ(retval.external.size(), 0);
