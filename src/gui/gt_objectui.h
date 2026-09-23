@@ -72,31 +72,25 @@ public:
      * @brief actions
      * @return
      */
-    const QList<GtObjectUIAction>& actions();
+    const QList<GtObjectUIAction>& actions() const;
 
     /**
      * @brief hasActions
      * @return
      */
-    bool hasActions();
-
-    /**
-     * @brief groupActions
-     * @return
-     */
-    const QHash<QString, QList<GtObjectUIAction> > groupActions();
+    bool hasActions() const;
 
     /**
      * @brief hasGroupActions
      * @return
      */
-    bool hasActionGroups();
+    bool hasActionGroups() const;
 
     /**
      * @brief actionGroup
      * @return
      */
-    const QList<GtObjectUIActionGroup> actionGroups();
+    const QList<GtObjectUIActionGroup>& actionGroups() const;
 
     /**
      * @brief doubleClicked
@@ -147,8 +141,7 @@ public:
      * @return a string to help the user which regular expression is used to
      * restrict renaming and how to avoid problems
      */
-    QString regExpHint(GtObject* obj);
-
+    QString const& regExpHint(GtObject* obj);
 
 protected:
 
@@ -189,8 +182,8 @@ protected:
      * @param actionMethod Action method to invoke. Must be invokable from MOS.
      * @return Action
      */
-    GtObjectUIAction makeSingleAction(const QString& actionText,
-                                      const QString& actionMethod);
+    static GtObjectUIAction makeSingleAction(const QString& actionText,
+                                             const QString& actionMethod);
 
     /**
      * @brief Overload.Accepts a lambda or function pointer.
@@ -198,8 +191,8 @@ protected:
      * @param actionMethod Method/Function/lambda to invoke
      * @return Action
      */
-    GtObjectUIAction makeSingleAction(const QString& actionText,
-                                      ActionFunction actionMethod);
+    static GtObjectUIAction makeSingleAction(const QString& actionText,
+                                             ActionFunction actionMethod);
 
     /**
      * @brief Constructs an empty group action object and returns it as a
@@ -220,9 +213,20 @@ protected:
     void addActionGroup(const GtObjectUIActionGroup& actionGroup);
 
     /**
-     * @brief addSeparator
+     * @brief adds a separator
+     * @param priority Sets the order priority according to which the action is
+     * sorted in the menu. An action with a lower priority 'x' prepends all
+     * actions with a higher prority > x.
      */
-    void addSeparator();
+    void addSeparator(int priority = gt::gui::OrderPriority::Default);
+
+    /**
+     * @brief Constructs a separator
+     * @param priority Sets the order priority according to which the action is
+     * sorted in the menu. An action with a lower priority 'x' prepends all
+     * actions with a higher prority > x.
+     */
+    static GtObjectUIAction makeSeparator(int priority = gt::gui::OrderPriority::Default);
 
     /**
      * @brief registerShortCut
@@ -257,7 +261,7 @@ protected:
      * @param id - identification string of the short cut to read
      * @return short cut for this id registered in this object
      */
-    QKeySequence getShortCut(const QString& id);
+    QKeySequence getShortCut(const QString& id) const;
 
     /**
      * @brief setRegExpHint
@@ -269,15 +273,9 @@ protected:
 
 private:
 
-    /// List of custom actions
-    QList<GtObjectUIAction> m_singleActions;
-
-    /// List of custom menus
-    QList<GtObjectUIActionGroup> m_actionGroups;
-
     /// Private implementation
-    class Impl;
-    std::unique_ptr<Impl> m_pimpl;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // GTOBJECTUI_H

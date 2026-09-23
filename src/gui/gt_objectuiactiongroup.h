@@ -60,6 +60,14 @@ public:
     void reserve(int size);
 
     /**
+     * @brief Returns the priority according to which this action is sorted
+     * in a menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @return Order priority
+     */
+    int orderPriority() const;
+
+    /**
      * @brief Dedicated setter for the UI icon
      * @param icon Icon
      * @return This
@@ -72,6 +80,15 @@ public:
      * @return This
      */
     GtObjectUIActionGroup& setIcon(const QString& icon);
+
+    /**
+     * @brief Sets the order priority according to which the action is sorted
+     * in the menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @param priority Order priority
+     * @return This
+     */
+    GtObjectUIActionGroup& setOrderPriority(int priority);
 
     /**
      * @brief Appends the action to the group
@@ -89,6 +106,8 @@ private:
 
     /// Group action icon
     QIcon m_icon;
+
+    int m_priority{0};
 };
 
 namespace gt

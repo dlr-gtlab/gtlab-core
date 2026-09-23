@@ -51,6 +51,12 @@ GtObjectUIActionGroup::reserve(int size)
     if (size > 0) m_actions.reserve(size);
 }
 
+int
+GtObjectUIActionGroup::orderPriority() const
+{
+    return m_priority;
+}
+
 GtObjectUIActionGroup&
 GtObjectUIActionGroup::setIcon(const QIcon& icon)
 {
@@ -62,6 +68,13 @@ GtObjectUIActionGroup&
 GtObjectUIActionGroup::setIcon(const QString& icon)
 {
     return setIcon(gt::gui::getIcon(icon));
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::setOrderPriority(int priority)
+{
+    m_priority = priority;
+    return *this;
 }
 
 GtObjectUIActionGroup&
