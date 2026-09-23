@@ -5,3 +5,4 @@ unmatchedSuppression:*
 missingInclude:*
 missingIncludeSystem:*
 normalCheckLevelMaxBranches:*
+checkersReport
