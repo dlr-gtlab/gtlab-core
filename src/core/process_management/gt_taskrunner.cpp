@@ -19,7 +19,6 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
-#include "gt_structproperty.h"
 
 #include "gt_taskrunner.h"
 
@@ -276,12 +275,6 @@ GtTaskRunner::handleRunnableFinished()
     m_dataToMerge.append(m_runnable->outputData());
 
     delete m_runnable;
-
-    if (m_task)
-    {
-        gtDebug() << "monitoring data table size = " <<
-                 m_task->monitoringDataSize();
-    }
 
     emit finished();
 }
