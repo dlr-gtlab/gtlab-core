@@ -826,6 +826,8 @@ GtCoreDatamodel::mimeDataFromObject(GtObject* obj, bool newUuid) const
     // append memento to mime data
     mimeData->setData(QStringLiteral("GtObject"), memento.toByteArray());
 
+    gtInfo() << "mimeDataFromObject:" << memento.toByteArray();
+
     // return mime data
     return mimeData;
 }
