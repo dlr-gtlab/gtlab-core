@@ -95,11 +95,6 @@ public:
     }
 
     /**
-     * @brief Returns the currently configured executor flags.
-     */
-    Flags coreExecutorFlags() const;
-
-    /**
      * @brief Runs a task and reports the outcome.
      *
      * Queues the task and then starts it via ::startNextTask().

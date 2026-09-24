@@ -3,7 +3,7 @@ Architecture decision 0001 — Executable operations
 
 :Status: Accepted
 :Date: 2026-09-03
-:Normative source: GitHub issue `#1526 <https://github.com/dlr-gtlab/gtlab-core/issues/1526>`_
+:Normative source: GitHub issues `#1526 <https://github.com/dlr-gtlab/gtlab-core/issues/1526>`_ (operation model) and `#1515 <https://github.com/dlr-gtlab/gtlab-core/issues/1515>`_ (runtime)
 :Related: `#1515 <https://github.com/dlr-gtlab/gtlab-core/issues/1515>`_, `#1528 <https://github.com/dlr-gtlab/gtlab-core/issues/1528>`_, `#1529 <https://github.com/dlr-gtlab/gtlab-core/issues/1529>`_, `#1530 <https://github.com/dlr-gtlab/gtlab-core/issues/1530>`_, and `#1531 <https://github.com/dlr-gtlab/gtlab-core/issues/1531>`_
 
 Context
@@ -47,15 +47,50 @@ the cancellation state, and the event stream. It does not own project state. A
 project at the execution location remains available through
 ``GtExecutionContext``.
 
-Operation submission is asynchronous for the caller, while ``execute()`` stays
-synchronous. The runtime owns scheduling, status, cancellation, and completion.
-These controls must remain usable while ``execute()`` is running. Project and
-Qt thread-affinity rules still apply.
+``GtProjectRuntime`` executes the operation synchronously where the host places it.
+It opens, saves, and closes one project and calls ``execute()`` directly.
+It constructs the operation context, installs the project context and guard
+when required, catches execution failures, and returns a detached result.
+It does not schedule, marshal, or spawn work. The host must provide compatible
+execution-local Core services and Qt thread affinity.
 
-``GtHeadlessProjectRuntime`` is the execution-side boundary for one project. It
-owns the execution-local operation and its result. A client-side executor owns
-preparation, transfer, reconstruction, ``applyResult()``, and client-visible
-completion.
+The future ``GtOperationExecutor`` owns client-side preparation, scheduling,
+status, cancellation requests, result transport, ``applyResult()``, and
+client-visible completion. Its backend chooses a local thread, local process,
+or remote worker. The backend provides the event stream and cancellation token
+before entering ``GtProjectRuntime::executeOperation()`` so observers can
+receive events and request cancellation while that call is blocked. Hard
+interruption of uncooperative work belongs to the backend.
+
+.. code-block:: text
+
+   GUI or HTTP client
+          |
+          v
+   GtOperationExecutor (future: scheduling, status, result application)
+          |
+          v
+   backend (future: local thread / local process / remote worker)
+          |
+          v
+   GtProjectRuntime (one project, synchronous execute)
+
+For local-thread placement, the originating project stays with the caller;
+the backend provisions a distinct execution-local project and runtime:
+
+.. code-block:: text
+
+   origin thread                     execution thread
+   -------------                     ----------------
+   project -> createData()           GtProjectRuntime -> execute()
+         ^          |                         |             |
+         |          +---- detached input ----+             |
+         +-- applyResult() <-- detached result ------------+
+
+
+Runtime completion means ``execute()`` returned with a detached result or
+failure. Client completion occurs later, after result transport and
+``applyResult()`` on the originating side. These are distinct events.
 
 Events
 ~~~~~~
@@ -116,10 +151,11 @@ Existing ``GtTask`` and calculator code remains unchanged. A
 may reuse ``GtCoreProcessExecutor`` internally. Generic operation code does not
 depend on task lookup or task-specific state.
 
-A worker is an adapter around ``GtHeadlessProjectRuntime``. It reconstructs
+A one-shot worker is an adapter around ``GtProjectRuntime``. It reconstructs
 GTlab objects through the normal factories, configures boundary adapters, and
-submits the operation to the runtime. It does not introduce another execution
-lifecycle.
+calls ``executeOperation()`` directly. It does not introduce another execution
+lifecycle. GUI and HTTP entry points are equivalent clients of the future
+executor; neither changes the runtime contract.
 
 Consequences
 ------------
