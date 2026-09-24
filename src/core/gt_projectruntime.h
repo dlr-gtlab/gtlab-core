@@ -18,6 +18,7 @@
 #include <memory>
 
 class GtExecutableOperation;
+class GtObjectGroup;
 class GtExecutionEventStream;
 
 /** Outcome of a project lifecycle request. */
@@ -68,6 +69,15 @@ public:
     explicit GtProjectRuntime(QObject* parent = nullptr);
     ~GtProjectRuntime() override;
 
+    /**
+     * @brief Opens execution-local project data restored from a project Memento.
+     *
+     * The Memento must use the format returned by
+     * GtProject::toProjectDataMemento(). The runtime takes ownership of the
+     * object group and keeps the in-memory project alive until closeProject().
+     */
+    GtProjectRuntimeResult openProjectFromMemento(
+        std::unique_ptr<GtObjectGroup> projectData, QString const& workingDirectory);
     /** Initializes Core services at the host-selected execution location. */
     GtProjectRuntimeResult initialize();
     /** Opens one project in the current execution-local Core session. */

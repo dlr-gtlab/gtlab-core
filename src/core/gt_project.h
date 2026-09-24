@@ -31,6 +31,7 @@ class GtProjectProvider;
 class GtPackage;
 class GtLabelData;
 class GtLabel;
+class GtProjectRuntime;
 class GtVersionNumber;
 
 /**
@@ -40,6 +41,7 @@ class GT_CORE_EXPORT GtProject : public GtObject
 {
     Q_OBJECT
 
+    friend class GtProjectRuntime;
     friend class GtSession;
     friend class GtProjectProvider;
     friend class GtCoreDatamodel;

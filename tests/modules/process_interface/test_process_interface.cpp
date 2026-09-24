@@ -9,6 +9,7 @@
  */
 
 #include "test_calculator.h"
+#include "operation/test_operation.h"
 #include "test_mementoprojectcalculator.h"
 #include "test_processstatescalculator.h"
 #include "test_crashonexecutecalculator.h"
@@ -27,6 +28,11 @@ QString
 TestProcessInterface::description() const
 {
     return "Test Process Interface Description";
+}
+
+QList<QMetaObject> TestProcessInterface::operations() const
+{
+    return {TestOperation::staticMetaObject};
 }
 
 QList<GtCalculatorData>

@@ -7,11 +7,13 @@
 #include "gt_projectruntime.h"
 
 #include "gt_coreapplication.h"
+#include "gt_objectgroup.h"
 #include "gt_coredatamodel.h"
 #include "gt_executioncontext.h"
 #include "gt_executableoperation.h"
 #include "gt_object.h"
 #include "gt_project.h"
+#include "gt_package.h"
 #include "gt_projectexecutionguard.h"
 #include "provider/gt_projectprovider.h"
 
@@ -25,6 +27,12 @@
 
 namespace
 {
+class MementoExecutionProject final : public GtProject
+{
+public:
+    explicit MementoExecutionProject(QString const& path) : GtProject(path) {}
+};
+
 GtProjectRuntimeResult failure(GtProjectRuntimeResult::Code code, QString message)
 {
     return {code, std::move(message)};
@@ -41,6 +49,7 @@ struct GtProjectRuntime::Private
 {
     State state{State::Created};
     QPointer<GtProject> project;
+    std::unique_ptr<GtProject> mementoProject;
 };
 
 bool GtProjectRuntimeResult::succeeded() const
@@ -126,6 +135,56 @@ GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& projectPath)
     return {};
 }
 
+GtProjectRuntimeResult GtProjectRuntime::openProjectFromMemento(
+    std::unique_ptr<GtObjectGroup> projectData, QString const& workingDirectory)
+{
+    if (thread() != QThread::currentThread())
+        return failure(GtProjectRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime must be used on its execution thread"));
+    if (m_private->state != State::Initialized)
+        return failure(GtProjectRuntimeResult::Code::InvalidState,
+                       QStringLiteral("Runtime is not initialized"));
+    if (!gtDataModel || m_private->project || gtDataModel->currentProject())
+        return failure(GtProjectRuntimeResult::Code::ProjectAlreadyLoaded,
+                       QStringLiteral("A project is already loaded or Core is unavailable"));
+    if (!projectData || !QFileInfo(workingDirectory).isDir())
+        return failure(GtProjectRuntimeResult::Code::InvalidProject,
+                       QStringLiteral("Project data or working directory is invalid"));
+
+    const auto objects = projectData->findDirectChildren<GtObject*>();
+    for (GtObject* object : objects)
+    {
+        if (!qobject_cast<GtPackage*>(object))
+            return failure(GtProjectRuntimeResult::Code::InvalidProject,
+                           QStringLiteral("Project Memento contains a non-package root object"));
+    }
+
+    auto project = std::make_unique<MementoExecutionProject>(workingDirectory);
+    project->setObjectName(projectData->objectName().isEmpty()
+                               ? QStringLiteral("Execution Project")
+                               : projectData->objectName());
+    project->setUuid(projectData->uuid());
+    for (GtObject* object : objects)
+    {
+        object->disconnectFromParent();
+        if (!project->appendChild(object))
+        {
+            delete object;
+            return failure(GtProjectRuntimeResult::Code::InvalidProject,
+                           QStringLiteral("Project data could not be attached"));
+        }
+    }
+
+    // Project-data Mementos have no on-disk project metadata. Keep this
+    // execution-local project under runtime ownership, outside the session.
+    project->m_valid = true;
+    project->markOpen();
+    m_private->project = project.get();
+    m_private->mementoProject = std::move(project);
+    m_private->state = State::ProjectLoaded;
+    return {};
+}
+
 GtProjectRuntimeResult GtProjectRuntime::saveProject()
 {
     if (thread() != QThread::currentThread())
@@ -156,6 +215,14 @@ GtProjectRuntimeResult GtProjectRuntime::closeProject()
                        QStringLiteral("Cannot close while project execution is active"));
 
     auto* project = m_private->project.data();
+    if (m_private->mementoProject)
+    {
+        project->markClosed();
+        m_private->project.clear();
+        m_private->mementoProject.reset();
+        m_private->state = State::Closed;
+        return {};
+    }
     if (m_private->state != State::CloseFailed && !gtDataModel->closeProject(project))
         return failure(GtProjectRuntimeResult::Code::CloseFailed,
                        QStringLiteral("Project could not be closed"));
