@@ -21,7 +21,7 @@
 #include "test_datamodel_interface.h"
 
 GtVersionNumber
-TestDatamodelInterface::version()
+TestDatamodelInterface::version() const
 {
     return GtVersionNumber(1);
 }
