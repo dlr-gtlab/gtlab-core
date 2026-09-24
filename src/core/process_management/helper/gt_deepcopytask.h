@@ -11,12 +11,15 @@
 #include "gt_core_exports.h"
 #include "gt_task.h"
 
+class GtTask;
+class GtObjectUUIDMap;
 
 namespace gt {
-namespace core {
-namespace processmanagement {
+namespace utils {
+namespace process {
 
 
+struct PropertyConnectionsRelationshipReturn;
 
 /**
  * @brief Perform a deep copy of a task, assigning new UUIDs to the copied task's process components
@@ -26,7 +29,7 @@ namespace processmanagement {
  * sub-components) are transferred. Connections to other process components outside of this task will trigger a
  * lost connection warning.
  * @param taskOrig
- * @param strict If true, the operation fails when property connections could not be transferred
+ * @param strict If true, the operation fails when property connections could not be transferred (does not count for stale or obsolete properties)
  * @return
  */
 GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
@@ -35,45 +38,28 @@ GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
 
 
 /**
- * @brief Helper datatype for returning the relation of property connections to a task
- * @param internal Referring only to process components within this task (including itself).
- * @param external Connections within this task or its children connected to an outside process component.
- * @param foreign Connections that are not connected to this task or its children. (For a subtask this can include stale connections
- * of the root task, but they are irrelevant for the investigated sub task. Perform check on root task to find all stale connections.)
- * @param stale Connections that have a connection inside the task but the partner is not found (in the root task).
- * @param obsolete Connections do not connect to any process component (even in the root task).
- */
-struct GT_CORE_EXPORT TaskPropertyConnectionsRelationshipReturn
-{
-    QList<GtPropertyConnection*> internal;
-    QList<GtPropertyConnection*> external;
-    QList<GtPropertyConnection*> foreign;
-    QList<GtPropertyConnection*> stale;
-    QList<GtPropertyConnection*> obsolete;
-};
-
-
-GT_CORE_EXPORT GtTask* highestParentTask(GtProcessComponent* processComponent);
-
-/**
- * @brief Check the property connections for this task and return the analysis in a struct (see return datatype for more).
- * @param task
+ * @brief In a copied task, the property connections are st to the new UUIDs of source/target with the mapping received
+ * through GtObject::copy(GtObjectUUIDMap&)
+ * @param copy
+ * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT TaskPropertyConnectionsRelationshipReturn analyzeTaskPropertyConnectionsRelationship(GtTask *task, bool* ok = nullptr);
+GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, GtObjectUUIDMap* uuidMap);
 
 
-GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* copy, GtObjectUUIDMap* mappingUuidOldToNew);
+/**
+ * @brief Remove stale or obsolete property connections from a task
+ * As the property connections are only stored in the root task, it can only be applied to root tasks.
+ * If tasks is no root task, a warning will be issued and the function returns false.
+ * @param task
+ * @return Whether cleanup was successful
+ */
+GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
 
 
 
-GT_CORE_EXPORT GtPropertyConnection* makePropertyConnection(GtProcessComponent* sourceComponent, const QString &sourceProperty, GtProcessComponent* targetComponent, const QString &targetProperty, bool *ok=nullptr);
-
-
-
-
-}
-}
+} // namespace process
+} // namespace utils
 } // namespace gt
 
 

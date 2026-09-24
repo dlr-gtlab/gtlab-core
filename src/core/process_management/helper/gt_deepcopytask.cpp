@@ -8,22 +8,33 @@
 #include "gt_deepcopytask.h"
 #include "gt_objectuuidmap.h"
 #include "gt_taskgroup.h"
+#include "gt_taskanalysis.h"
+
 
 namespace gt {
-namespace core {
-namespace processmanagement {
+namespace utils {
+namespace process {
 
 
-
-GtTask* deepCopyTask(GtTask* taskOrig, bool strict)
+GtTask*
+deepCopyTask(GtTask* taskOrig, bool strict)
 {
     GtObjectUUIDMap uuidMap;
-    auto copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
 
-    auto highestParent = highestParentTask(taskOrig);
-    if(!highestParent)
+
+    //TODO: copy will fire a gtError: "Property connection could not be established!   Source object not found! "
+    //During restoring from memento, GtTask::onObjectDataMerged() will trigger makeConnection() of each property connection
+    //This error needs to be suppressed
+    gtError() << "TODO: The possible following error(s) 'Property connection could not be established!   Source object not found!' are misleading and need suppression.";
+    auto copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
+    gtError() << "<<< END TODO misleading error(s)";
+
+
+
+    auto rootTask = findRootTask(taskOrig);
+    if(!rootTask)
     {
-        gtError() << "Could not find highest parent task";
+        gtError() << "Could not find root task";
         if(strict)
         {
             delete copiedTask;
@@ -35,27 +46,29 @@ GtTask* deepCopyTask(GtTask* taskOrig, bool strict)
         }
     }
 
-    // not root task, take with internal property connections
-    if(highestParent != taskOrig)
+    bool ok1=false;
+    auto allCons = analyzePropertyConnectionsRelationship(taskOrig, &ok1);
+    if(!ok1)
     {
-        bool ok1=false;
-        auto allCons1 = analyzeTaskPropertyConnectionsRelationship(taskOrig, &ok1);
-        if(!ok1)
+        gtError() << "Analyzing the task property connections of original task failed.";
+
+        if(strict)
         {
-            gtError() << "Analyzing the task property connections of original task failed.";
-
-            if(strict)
-            {
-                delete copiedTask;
-                return nullptr;
-            }
-            else
-            {
-                return copiedTask;
-            }
+            delete copiedTask;
+            return nullptr;
         }
+        else
+        {
+            return copiedTask;
+        }
+    }
 
-        for(auto* c: allCons1.internal)
+    printWarningForLostPropertyConnections(taskOrig, &allCons, true);
+
+    // not root task, take with the internal property connections
+    if(rootTask != taskOrig)
+    {
+        for(auto* c: allCons.internal)
         {
             auto newCon = c->copy();
             copiedTask->appendChild(newCon);
@@ -80,49 +93,45 @@ GtTask* deepCopyTask(GtTask* taskOrig, bool strict)
     return copiedTask;
 }
 
-
-void printPropConAnalysis(gt::core::processmanagement::TaskPropertyConnectionsRelationshipReturn& x)
+bool
+transferPropertyConnectionsViaMapping(GtTask* taskCopy, GtObjectUUIDMap* uuidMap)
 {
-    qDebug() << "internal:" << x.internal;
-    qDebug() << "external:" << x.external;
-    qDebug() << "foreign: " << x.foreign;
-    qDebug() << "stale:   " << x.stale;
-    qDebug() << "obsolete:" << x.obsolete;
-}
-
-bool transferPropertyConnectionsViaMapping(GtTask* copy, GtObjectUUIDMap* mappingUuidOldToNew)
-{
-    QList<GtPropertyConnection*> allCons = copy->findChildren<GtPropertyConnection*>();
+    QList<GtPropertyConnection*> allCons = taskCopy->findChildren<GtPropertyConnection*>();
 
     bool transferAllOk = true;
 
-    for(auto* con: allCons)
+    for(auto con: qAsConst(allCons))
     {
+        gtError() << "Connection: " + con->objectName()
+                      + "\n      |-> " + con->sourceUuid() + "("+con->sourceProp()+")"
+                      + " -> "
+                      + con->targetUuid() + "("+con->targetProp()+")";
+
         auto origSrcUuid = con->sourceUuid();
         auto origTargetUuid = con->targetUuid();
 
         bool ok2 = true;
 
-        if (mappingUuidOldToNew->containsOriginalUuid(origSrcUuid))
+        if (uuidMap->containsOriginalUuid(origSrcUuid))
         {
-            QString newUuid = mappingUuidOldToNew->copiedUuid(origSrcUuid);
+            QString newUuid = uuidMap->copiedUuid(origSrcUuid);
             con->setSourceUuid( newUuid );
         }
         else
         {
-            gtInfo() << "Could not update property connection: source!";
+            gtInfo() << "Could not update property connection source!";
             con->setSourceUuid("");
             ok2 = false;
         }
 
-        if (mappingUuidOldToNew->containsOriginalUuid(origTargetUuid))
+        if (uuidMap->containsOriginalUuid(origTargetUuid))
         {
-            QString newUuid = mappingUuidOldToNew->copiedUuid(origTargetUuid);
+            QString newUuid = uuidMap->copiedUuid(origTargetUuid);
             con->setTargetUuid( newUuid );
         }
         else
         {
-            gtInfo() << "Could not update property connection: target!";
+            gtInfo() << "Could not update property connection target!";
             con->setTargetUuid("");
             ok2 = false;
         }
@@ -141,231 +150,35 @@ bool transferPropertyConnectionsViaMapping(GtTask* copy, GtObjectUUIDMap* mappin
     return transferAllOk;
 }
 
-
-GtTask*
-highestParentTask(GtProcessComponent *processComponent)
+bool
+cleanupPropertyConnections(GtTask *task)
 {
-    if (!processComponent)
+    if(task!=findRootTask(task))
     {
-        return nullptr;
+        gtWarning() << "Performing cleanup is only allowed on root tasks";
+        return false;
     }
 
-    GtTask* task = qobject_cast<GtTask*>(processComponent);
-
-    if (!processComponent->parent())
+    bool ok=false;
+    auto allCons = analyzePropertyConnectionsRelationship(task, &ok);
+    if(!ok)
     {
-        if(task)
-        {
-            return task;
-        }
-        else
-        {
-            return nullptr;
-        }
+        gtError() << "Analyzing the task property connections of original task failed.";
+        return false;
     }
 
-    if (qobject_cast<GtTaskGroup*>(processComponent->parent()))
-    {
-        if(task)
-        {
-            return task;
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
+    QList<GtPropertyConnection*> toRemove;
 
-    GtTask* parent = qobject_cast<GtTask*>(processComponent->parent());
+    toRemove << allCons.obsolete;
+    toRemove << allCons.stale;
 
-    if (parent)
-    {
-        return highestParentTask(parent);
-    }
+    qDeleteAll(toRemove);
 
-    return nullptr;
+    return true;
 }
 
 
 
-TaskPropertyConnectionsRelationshipReturn
-analyzeTaskPropertyConnectionsRelationship(GtTask *task, bool* ok)
-{
-    if(ok)
-    {
-        *ok = false;
-    }
-
-    TaskPropertyConnectionsRelationshipReturn retVal;
-
-    if (!task)
-    {
-        return retVal;
-    }
-
-    GtTask* highestParent = highestParentTask(task);
-
-    if (!highestParent)
-    {
-        return retVal;
-    }
-
-    QList<GtPropertyConnection*> allPropCons = highestParent->findChildren<GtPropertyConnection*>();
-
-    QList<GtObject*> internalProcComps = task->findChildren<GtObject*>();
-    internalProcComps.append(task);
-
-    foreach (GtPropertyConnection* propCon, allPropCons)
-    {
-        GtObject* sourceObj = highestParent->getObjectByUuid(propCon->sourceUuid());
-        GtObject* targetObj = highestParent->getObjectByUuid(propCon->targetUuid());
-
-        // lost connection to any object
-        if (!sourceObj && !targetObj)
-        {
-            retVal.obsolete.append(propCon);
-        }
-        // if one connection side is lost and other connects internally
-        else if( (!sourceObj &&  targetObj && internalProcComps.contains(targetObj))
-              || ( sourceObj && !targetObj && internalProcComps.contains(sourceObj)) )
-        {
-            retVal.stale.append(propCon);
-        }
-        // both internal
-        else if ( sourceObj && targetObj && internalProcComps.contains(sourceObj) && internalProcComps.contains(targetObj) )
-        {
-            retVal.internal.append(propCon);
-        }
-        // one side is outside
-        else if ( sourceObj && targetObj && (internalProcComps.contains(sourceObj) || internalProcComps.contains(targetObj)) )
-        {
-            retVal.external.append(propCon);
-        }
-        // otherwise its "foreign"
-        else
-        {
-            retVal.foreign.append(propCon);
-        }
-    }
-
-    if(ok)
-    {
-        *ok = true;
-    }
-    return retVal;
-}
-
-
-GtPropertyConnection*
-makePropertyConnection(GtProcessComponent* sourceComponent, const QString &sourceProperty, GtProcessComponent* targetComponent, const QString &targetProperty, bool *ok)
-{
-    if(ok)
-    {
-        *ok = false;
-    }
-
-    if(!sourceComponent || !targetComponent)
-    {
-        gtFatal() << "Source or target not set!"
-                  << "\nSource:" << sourceComponent
-                  << "\nTarget:" << targetComponent;
-        return nullptr;
-    }
-
-
-    if(!sourceComponent->findProperty(sourceProperty) || !targetComponent->findProperty(targetProperty))
-    {
-        QStringList msg;
-        if(!sourceComponent->findProperty(sourceProperty))
-        {
-            msg << "Source property not found!";
-        }
-        if(!targetComponent->findProperty(targetProperty))
-        {
-            msg << "Target property not found!";
-        }
-
-        gtFatal() << msg.join("\n")
-                  << QStringLiteral("\n")+"sourceComponent:" << sourceComponent
-                  << QStringLiteral("\n")+"sourceProperty:"  << sourceProperty
-                  << QStringLiteral("\n")+"targetComponent:" << targetComponent
-                  << QStringLiteral("\n")+"targetProperty:"  << targetProperty;
-        return nullptr;
-    }
-
-    auto highestParent = highestParentTask(sourceComponent);
-
-    if(!highestParent)
-    {
-        gtFatal() << "Highest parent not found";
-        return nullptr;
-    }
-
-    GtPropertyConnection* c = new GtPropertyConnection;
-    c->setSourceUuid(sourceComponent->uuid());
-    c->setSourceProp(sourceComponent->findProperty(sourceProperty)->ident());
-    c->setTargetUuid(targetComponent->uuid());
-    c->setTargetProp(targetComponent->findProperty(targetProperty)->ident());
-    highestParent->appendChild(c);
-    c->makeConnection();
-
-    if (!c->isConnected())
-    {
-        gtFatal() << "Property connection created, but connection failed";
-        delete c;
-        return nullptr;
-    }
-
-    if(ok)
-    {
-        *ok = true;
-    }
-
-    return c;
-}
-
-
-// void makePropertyConnection(GtProcessComponent *parent, GtProcessComponent *src, const QString &propSrc, GtProcessComponent *dst, const QString &propDst)
-// {
-//     if(!src->findProperty(propSrc)) {
-//         gtFatal() << "Parent:" << parent;
-//         gtFatal() << "src:" << src;
-//         gtFatal() << "dst:" << dst;
-//         gtFatal() << "source property not found:" << propSrc;
-//         return;
-//     }
-//     if(!dst->findProperty(propDst)) {
-//         gtFatal() << "Parent:" << parent;
-//         gtFatal() << "src:" << src;
-//         gtFatal() << "dst:" << dst;
-//         gtFatal() << "target property not found:" << propDst;
-//         return;
-//     }
-
-//     GtPropertyConnection* c = new GtPropertyConnection;
-//     c->setSourceUuid(src->uuid());
-//     c->setSourceProp(src->findProperty(propSrc)->ident());
-//     c->setTargetUuid(dst->uuid());
-//     c->setTargetProp(dst->findProperty(propDst)->ident());
-//     parent->appendChild(c);
-//     c->makeConnection();
-// }
-
-
-// GtTask* deepCopyTask(GtTask* taskOrig)
-// {
-//     GtTask* taskNew = nullptr;
-
-
-
-
-
-
-
-//     return taskNew;
-// }
-
-
-}
-}
+} // namespace process
+} // namespace utils
 } // namespace gt
