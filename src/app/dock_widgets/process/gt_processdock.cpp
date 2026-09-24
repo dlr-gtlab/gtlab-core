@@ -38,6 +38,7 @@
 #include "gt_processrunner.h"
 #include "gt_processconnectioneditor.h"
 #include "gt_objectmementodiff.h"
+#include "gt_taskanalysis.h"
 #include "gt_taskprovider.h"
 #include "gt_propertyconnection.h"
 #include "gt_application.h"
@@ -58,10 +59,15 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_deepcopytask.h"
 
 #include "gt_processdock.h"
 
 #include "gt_taskgrouprenamedialog.h"
+
+
+#include "gt_taskdebugprints.h"
+
 
 using namespace gt::gui;
 
@@ -1563,67 +1569,33 @@ GtObject* processComponentCloneCopyHelper(GtProcessComponent* pComp, bool *ok)
 {
     *ok = true;
 
+    //GtObjectUUIDMap mapping;
+    //GtObject* copy = pComp->copy(mapping);
+    GtObject* copy = nullptr;
 
-    GtObjectUUIDMap mapping;
-    GtObject* copy = pComp->copy(mapping);
-/*
+    GtTask* origTask = qobject_cast<GtTask*>(pComp);
 
-    qDebug().noquote() << "Mapping:";
-
-    foreach(auto m, mapping.keys())
+    if (origTask)
     {
-        qDebug().noquote() << m <<"->" << mapping[m];
-    }
+        auto newTask = gt::utils::process::deepCopyTask(origTask, false);
 
-
-    auto origTask = qobject_cast<GtTask*>(pComp);
-    auto newTask = qobject_cast<GtTask*>(copy);
-
-    if (newTask && origTask)
-    {
-        if (qobject_cast<GtTaskGroup*>(origTask->parent()))
-        {
-            //mapPropertyConnections(origTask, newTask);
-            //gt::updatePropertyConnectionsViaMapping(newTask, &mapping);
-        }
-        else
-        {
-            auto origTaskClone = qobject_cast<GtTask*>(origTask->clone());
-
-            if (!origTaskClone)
-            {
-                *ok = false;
-                return nullptr;
-            }
-
-            QList<GtPropertyConnection*> validPropCons =
-                detail::internalPropertyConnections(origTask);
-
-            foreach (GtPropertyConnection* propCon, validPropCons)
-            {
-                GtObject* conClone = propCon->clone();
-                GtObject* conCopy = propCon->copy();
-
-                if (conClone && conCopy)
-                {
-                    origTaskClone->appendChild(conClone);
-                    newTask->appendChild(conCopy);
-                }
-            }
-
-            detail::setOffLostConnectionWarnings(
-                detail::lostPropertyConnections(origTask),
-                detail::highestParentTask(origTask));
-
-           // mapPropertyConnections(origTaskClone, newTask);
-            //gt::updatePropertyConnectionsViaMapping(newTask, &mapping);
-
-            delete origTaskClone;
-        }
-
+        // TODO: check this one
         detail::updateRelativeObjectLinks(origTask, newTask);
+
+        copy = qobject_cast<GtObject*>(newTask);
     }
-*/
+    else
+    {
+        copy = pComp->copy();
+
+        if(!copy)
+        {
+            *ok = false;
+            return nullptr;
+        }
+
+    }
+
     return copy;
 }
 }
@@ -1640,7 +1612,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
     }
 
 
-    GtObject* copy = pComp->copy();
+    /*GtObject* copy = pComp->copy();
 
     auto origTask = qobject_cast<GtTask*>(pComp);
     auto newTask = qobject_cast<GtTask*>(copy);
@@ -1685,7 +1657,21 @@ GtProcessDock::copyElement(const QModelIndex& index)
         }
 
         detail::updateRelativeObjectLinks(origTask, newTask);
+    }*/
+
+    auto copy = processComponentCloneCopyHelper(pComp, &ok);
+    if(!ok || !copy)
+    {
+        return;
     }
+
+    // TODO: remove debug
+    gt::debug::helper::printTaskStructure(qobject_cast<GtProcessComponent*>(pComp), 0, "the original task:" );
+    gt::utils::process::printWarningForLostPropertyConnections(qobject_cast<GtTask*>(pComp), true);
+
+    gt::debug::helper::printTaskStructure(qobject_cast<GtProcessComponent*>(copy), 0, "the task to out in mimedata:" );
+    gt::utils::process::printWarningForLostPropertyConnections(qobject_cast<GtTask*>(copy), true);
+
 
     QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
@@ -1714,7 +1700,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         return;
     }
 
-
+    /*
     GtObject* parent = pComp->parentObject();
 
     if (!parent)
@@ -1774,10 +1760,23 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         }
 
         detail::updateRelativeObjectLinks(origTask, newTask);
+    }*/
+
+
+    GtObject* parent = pComp->parentObject();
+    if (!parent)
+    {
+        return;
+    }
+
+    auto copy = processComponentCloneCopyHelper(pComp, &ok);
+    if(!ok || !copy)
+    {
+        return;
     }
 
     // paste new element
-    pasteElement(cloned, parent);
+    pasteElement(copy, parent);
 }
 
 void
@@ -1790,9 +1789,10 @@ GtProcessDock::cutElement(const QModelIndex& index)
         return;
     }
 
-
     if (!m_taskGroup) return;
 
+
+    //TODO: needs more refactoring here
     copyElement(index);
 
     QList<GtObject*> toDelete;
@@ -1931,13 +1931,40 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
+    // TODO: discussion, we receive a deep copy task from copyElement, why new UUIDs here?
+    //was:
+    //GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
+    //                                                gtProcessFactory);
+    //new code: changed to false for newUUID
+    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, false,
                     gtProcessFactory);
+
+    //Answer: pasting a task twice puts the same UUIDs twice as a child.
+    //Solution: don't do a new UUID here, but repeat deep copy down below
+
 
     if (!obj)
     {
         gtError() << tr("Could not restore object from clipboard!");
         return;
+    }
+
+    GtObject* obj2 = nullptr;
+
+    auto task = qobject_cast<GtTask*>(obj);
+    if(task)
+    {
+        auto taskCopy = gt::utils::process::deepCopyTask(task);
+        if(!taskCopy) {
+            return;
+        }
+
+        obj2 = qobject_cast<GtObject*>(taskCopy);
+    }
+    else
+    {
+        obj2 = obj;
+        obj2->newUuid();
     }
 
     if (!qobject_cast<GtTaskGroup*>(parent))
@@ -1955,7 +1982,7 @@ GtProcessDock::pasteElement(GtObject* parent)
         }
     }
 
-    pasteElement(obj, parent);
+    pasteElement(obj2, parent);
 }
 
 void

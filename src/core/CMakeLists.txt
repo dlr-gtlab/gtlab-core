@@ -72,6 +72,9 @@ set(headers
     process_management/process_runner/gt_processrunnertcpconnection.h
     process_management/calculators/gt_exporttomementocalculator.h
     process_management/helper/gt_deepcopytask.h
+    process_management/helper/gt_makepropertyconnection.h
+    process_management/helper/gt_taskanalysis.h
+    process_management/helper/gt_taskdebugprints.h
     settings/gt_shortcutsettingsdata.h
     states/gt_state.h
     states/gt_stategroup.h
@@ -191,7 +194,10 @@ set(sources
     process_management/process_runner/gt_processrunnerglobals.cpp
     process_management/process_runner/gt_processrunnertcpconnection.cpp
     process_management/calculators/gt_exporttomementocalculator.cpp
-    process_management/helper/gt_deepcopytask.cpp
+    process_management/helper/gt_deepcopytask.cpp    
+    process_management/helper/gt_makepropertyconnection.cpp
+    process_management/helper/gt_taskanalysis.cpp
+    process_management/helper/gt_taskdebugprints.cpp
     settings/gt_shortcutsettingsdata.cpp
     states/gt_state.cpp
     states/gt_stategroup.cpp
