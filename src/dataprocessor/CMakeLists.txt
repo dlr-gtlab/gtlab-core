@@ -47,6 +47,7 @@ set(HEADERS
     gt_h5externalizehelper.h
     gt_object.h
     gt_objectfactory.h
+    gt_objectuuidmap.h
     gt_abstractobjectfactory.h
     gt_objectmemento.h
     gt_objectio.h
@@ -115,6 +116,7 @@ set(SOURCES
     gt_init_dp.cpp
     gt_object.cpp
     gt_objectfactory.cpp
+    gt_objectuuidmap.cpp
     gt_abstractobjectfactory.cpp
     gt_objectmemento.cpp
     gt_objectio.cpp

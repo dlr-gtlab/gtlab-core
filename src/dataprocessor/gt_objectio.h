@@ -24,12 +24,15 @@ class GtObject;
 class GtAbstractObjectFactory;
 class GtObjectMementoDiff;
 class GtAbstractProperty;
+class GtObjectUUIDMap;
 
 /**
  * @brief The GtObjectIO class
  */
 class GtObjectIO
 {
+    friend class GtObject;
+
 public:
     static const QSet<QString> S_LISTTYPES;
 
@@ -44,10 +47,12 @@ public:
     void setFactory(GtAbstractObjectFactory* factory);
 
     /** Creates Memento from given GtObject.
-        @param o GtObject pointer
-        @param clone Wether identiy information should be cloned or not
+        @param obj Object to serialize, or nullptr for a null memento
+        @param clone Whether to preserve UUIDs (true) or generate new ones
+        (false)
         @return GtObjectMemento memento */
     GtObjectMemento toMemento(const GtObject* o, bool clone = true);
+
 
     /** Creates QDomElement from given GtObjectMemento.
         @param m GtObjectMemento
@@ -132,6 +137,20 @@ public:
 private:
     /// Pointer to current object factory
     GtAbstractObjectFactory* m_factory;
+
+
+    /** Creates Memento from given GtObject.
+        @param obj Object to serialize, or nullptr for a null memento
+        @param clone Whether to preserve UUIDs (true) or generate new ones
+        (false)
+        @param uuidMap If not null given, maps original UUIDs to the new UUIDs
+        of the copied objects, including this object and all copied descendants.
+        Existing entries are replaced. The map is empty if operation fails.
+        Original UUIDs must be unique in the tree.
+        @return GtObjectMemento memento */
+    GtObjectMemento toMementoImpl(const GtObject* o,
+                              bool clone,
+                              GtObjectUUIDMap* uuidMap);
 
     /**
      * @brief writeProperties

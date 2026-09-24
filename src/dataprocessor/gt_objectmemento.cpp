@@ -36,7 +36,6 @@ GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
     }
 }
 
-
 GtObjectMemento::GtObjectMemento(const QDomElement& element)
 {
     if (!element.isNull())

@@ -34,9 +34,10 @@ class GT_DATAMODEL_EXPORT GtObjectMemento
 {
 public:
     /**
-     * @brief GtObjectMemento
-     * @param obj
-     * @param clone
+     * @brief Creates a memento of a GtObject
+     * @param obj Object to serialize, or nullptr for a null memento
+     * @param clone Whetherthe preserve UUIDs (true) or generate new ones
+     * (false)
      */
     explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 

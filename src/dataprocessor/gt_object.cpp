@@ -21,6 +21,7 @@
 
 #include "gt_object.h"
 #include "gt_qtutilities.h"
+#include "gt_objectuuidmap.h"
 
 #include <QUuid>
 #include <QThread>
@@ -181,18 +182,18 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
     return GtObjectIO::revertDiff(diff, this);
 }
 
-namespace {
-GtObject* copyCloneHelper(const GtObject* toCopy,
-                          GtAbstractObjectFactory* fac,
-                          bool clone)
+GtObject*
+GtObject::copyClone(bool cloneObject, GtObjectUUIDMap* uuidMap) const
 {
+    auto* fac = pimpl->factory;
+
     // check for factory
     if (!fac)
     {
         gtWarning().verbose()
-                << QObject::tr("No factory set for %1 object '%2'! (Using default)")
-                   .arg(clone ? QStringLiteral("copying") : QStringLiteral("cloning"),
-                        toCopy->objectName());
+        << QObject::tr("No factory set for %1 object '%2'! (Using default)")
+                .arg(cloneObject ? QStringLiteral("copying") : QStringLiteral("cloning"),
+                     this->objectName());
 
         assert(gtObjectFactory);
 
@@ -200,7 +201,8 @@ GtObject* copyCloneHelper(const GtObject* toCopy,
     }
 
     // generate memento
-    GtObjectMemento memento = toCopy->toMemento(clone);
+    GtObjectIO objectIO;
+    GtObjectMemento memento = objectIO.toMementoImpl(this, cloneObject, uuidMap);
 
     if (memento.isNull())
     {
@@ -209,18 +211,33 @@ GtObject* copyCloneHelper(const GtObject* toCopy,
 
     return memento.restore(fac);
 }
-}
+
 
 GtObject*
 GtObject::copy() const
 {
-    return copyCloneHelper(this, pimpl->factory, false);
+    return copyClone(false, nullptr);
+}
+
+GtObject*
+GtObject::copy(GtObjectUUIDMap& uuidMap) const
+{
+    uuidMap.clear();
+
+    auto* result = copyClone(false, &uuidMap);
+
+    if(!result)
+    {
+        uuidMap.clear();
+    }
+
+    return result;
 }
 
 GtObject*
 GtObject::clone() const
 {
-    return copyCloneHelper(this, pimpl->factory, true);
+    return copyClone(true, nullptr);
 }
 
 bool

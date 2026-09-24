@@ -34,6 +34,7 @@
 #include "gt_exceptions.h"
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
+#include "gt_objectuuidmap.h"
 
 #include "gt_objectio.h"
 
@@ -224,9 +225,19 @@ GtObjectIO::setFactory(GtAbstractObjectFactory* factory)
 GtObjectMemento
 GtObjectIO::toMemento(const GtObject* o, bool clone)
 {
+    return toMementoImpl(o, clone, nullptr);
+}
+
+GtObjectMemento
+GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMap)
+{
     // global object element
     GtObjectMemento memento;
 
+    if (!o)
+    {
+        return memento;
+    }
 
     // class name
     if (o->isDummy())
@@ -248,6 +259,11 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
         uuid = QUuid::createUuid().toString();
     }
 
+    if(uuidMap)
+    {
+        uuidMap->insert(o->uuid(), uuid);
+    }
+
     memento.setUuid(uuid);
 
     // object name
@@ -262,7 +278,7 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     for (const GtObject* child : directChildren)
     {
         // recursion through GtObjectMemento constructor
-        memento.childObjects.push_back(GtObjectMemento(child, clone));
+        memento.childObjects.push_back(toMementoImpl(child, clone, uuidMap));
     }
 
     return memento;

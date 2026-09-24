@@ -27,6 +27,7 @@ class GtAbstractProperty;
 class GtObjectIO;
 class GtObjectMementoDiff;
 class GtPropertyStructContainer;
+class GtObjectUUIDMap;
 
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
@@ -192,6 +193,21 @@ public:
      * @return a copy of the object.
      */
     GtObject* copy() const;
+
+    /**
+     * @brief copy
+     * Copies the object and its children, recording the new UUIDs.
+     * @param uuidMap Maps original UUIDs to the new UUIDs of the copied objects,
+     * including this object and all copied descendants. Existing entries are
+     * replaced. The map is empty if operation fails. Original UUIDs must be
+     * unique in the tree.
+     * @return a copy of the object.
+     *
+     * Use copy->getObjectByUuid(uuidMap.copiedUuid(original->uuid())) to obtain the
+     * returned pointer, which identifies the copied object. Property references
+     * (e.g. Object Link) are copied unchanged.
+     */
+    GtObject* copy(GtObjectUUIDMap& uuidMap) const;
 
     /**
      * @brief clone
@@ -797,6 +813,11 @@ private:
      * @param parent parent object
      */
     void newChildUUIDs(GtObject* parent) const;
+
+    /**
+     * @brief Helper function for copying and cloning an object
+     */
+    GtObject* copyClone(bool clone, GtObjectUUIDMap* uuidMap) const;
 
     /**
      * @brief Converts the object into a dummy object
