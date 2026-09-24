@@ -21,15 +21,20 @@
 #include "gt_colors.h"
 #include "gt_application.h"
 
-class GtObjectUI::Impl
+struct GtObjectUI::Impl
 {
-public:
-    QString m_regExpHint{tr("Only letters, numbers and spaces are allowed to "
-                            "be used for the renaming")};
+    /// List of custom actions
+    QList<GtObjectUIAction> singleActions;
+
+    /// List of custom menus
+    QList<GtObjectUIActionGroup> actionGroups;
+
+    QString regExpHint{tr("Only letters, numbers and spaces are allowed to "
+                          "be used for the renaming")};
 };
 
 GtObjectUI::GtObjectUI() :
-    m_pimpl{std::make_unique<Impl>()}
+    pimpl{std::make_unique<Impl>()}
 {
 
 }
@@ -48,10 +53,10 @@ GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
-    m_singleActions << GtObjectUIAction(actionText,
+    pimpl->singleActions << GtObjectUIAction(actionText,
                             GtObjectUIAction::fromMethodName(actionMethod));
 
-    return m_singleActions.last();
+    return pimpl->singleActions.last();
 }
 
 
@@ -59,8 +64,8 @@ GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             ActionFunction actionMethod)
 {
-    m_singleActions << makeSingleAction(actionText, std::move(actionMethod));
-    return m_singleActions.last();
+    pimpl->singleActions << makeSingleAction(actionText, std::move(actionMethod));
+    return pimpl->singleActions.last();
 }
 
 GtObjectUIAction
@@ -79,24 +84,29 @@ GtObjectUI::makeSingleAction(const QString& actionText,
     return gt::gui::makeAction(actionText, std::move(actionMethod));
 }
 
-
 GtObjectUIActionGroup&
 GtObjectUI::addActionGroup(const QString& groupName, int sizeHint)
 {
-    m_actionGroups << gt::gui::makeActionGroup(groupName, sizeHint);
-    return m_actionGroups.last();
+    pimpl->actionGroups << gt::gui::makeActionGroup(groupName, sizeHint);
+    return pimpl->actionGroups.last();
 }
 
 void
 GtObjectUI::addActionGroup(const GtObjectUIActionGroup& actionGroup)
 {
-    m_actionGroups.append(actionGroup);
+    pimpl->actionGroups.append(actionGroup);
 }
 
 void
-GtObjectUI::addSeparator()
+GtObjectUI::addSeparator(int priority)
 {
-    m_singleActions << GtObjectUIAction();
+    pimpl->singleActions << makeSeparator(priority);
+}
+
+GtObjectUIAction
+GtObjectUI::makeSeparator(int priority)
+{
+    return gt::gui::makeSeparator(priority);
 }
 
 QKeySequence
@@ -123,7 +133,7 @@ GtObjectUI::registerShortCuts(const QList<GtShortCutSettingsData>& list)
 }
 
 QKeySequence
-GtObjectUI::getShortCut(const QString &id)
+GtObjectUI::getShortCut(const QString& id) const
 {
     const QMetaObject* m = metaObject();
     return gtApp->getShortCutSequence(id, m->className());
@@ -132,7 +142,7 @@ GtObjectUI::getShortCut(const QString &id)
 void
 GtObjectUI::setRegExpHint(const QString& hint)
 {
-    m_pimpl->m_regExpHint = hint;
+    pimpl->regExpHint = hint;
 }
 
 bool
@@ -162,7 +172,7 @@ GtObjectUI::validatorRegExp(GtObject* /*obj*/)
 QString
 GtObjectUI::regExpHint(GtObject* /*obj*/)
 {
-    return m_pimpl->m_regExpHint;
+    return pimpl->regExpHint;
 }
 
 QIcon
@@ -311,27 +321,38 @@ GtObjectUI::openWith(GtObject* /*obj*/)
 }
 
 const QList<GtObjectUIAction>&
-GtObjectUI::actions()
+GtObjectUI::actions()  const
 {
-    return m_singleActions;
+    return pimpl->singleActions;
 }
 
 bool
-GtObjectUI::hasActions()
+GtObjectUI::hasActions() const
 {
-    return !m_singleActions.isEmpty();
+    return !pimpl->singleActions.isEmpty();
 }
 
-const QList<GtObjectUIActionGroup>
-GtObjectUI::actionGroups()
+QHash<QString, QList<GtObjectUIAction>>
+GtObjectUI::groupActions() const
 {
-    return m_actionGroups;
+    QHash<QString, QList<GtObjectUIAction>> hash;
+    for (GtObjectUIActionGroup const& group : actionGroups())
+    {
+        hash.insert(group.name(), group.actions());
+    }
+    return hash;
+}
+
+const QList<GtObjectUIActionGroup>&
+GtObjectUI::actionGroups() const
+{
+    return pimpl->actionGroups;
 }
 
 bool
-GtObjectUI::hasActionGroups()
+GtObjectUI::hasActionGroups() const
 {
-    return !m_actionGroups.isEmpty();
+    return !pimpl->actionGroups.isEmpty();
 }
 
 void

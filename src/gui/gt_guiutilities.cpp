@@ -11,7 +11,6 @@
 #include "gt_guiutilities.h"
 #include "gt_application.h"
 #include "gt_datamodel.h"
-#include "gt_customactionmenu.h"
 #include "gt_exportermetadata.h"
 #include "gt_exporthandler.h"
 #include "gt_exportmenu.h"
@@ -29,6 +28,150 @@
 #include <QMenu>
 #include <QKeyEvent>
 #include <QAbstractItemView>
+#include <QMenuBar>
+
+namespace
+{
+
+/// helper method to get parent QWidget by skipping QMenu objects
+inline QWidget*
+findParentWidget(QWidget& menu)
+{
+    auto* parent = qobject_cast<QWidget*>(menu.parent());
+
+    // skip if its a menu
+    if (auto* parentMenu = qobject_cast<QMenu*>(parent))
+    {
+        return findParentWidget(*parentMenu);
+    }
+    if (auto* parentMenu = qobject_cast<QMenuBar*>(parent))
+    {
+        return findParentWidget(*parentMenu);
+    }
+
+    return parent;
+}
+
+inline int
+getOrder(QAction const* action)
+{
+    if (!action) return 0;
+
+    bool ok = true;
+    int priority = action->data().toInt(&ok);
+    return ok ? priority : 0;
+}
+
+/// Helper method to find the action, a new action needs to be inserted after
+/// according to the order priority
+QAction*
+actionBefore(QMenu& menu, int priority)
+{
+    // append after all actions
+    if (priority == gt::gui::OrderPriority::Last) return nullptr;
+
+    QList<QAction*> const actions = menu.actions();
+    if (actions.empty()) return nullptr;
+
+    // prepend action
+    if (priority == gt::gui::OrderPriority::First) return actions.first();
+
+    for (QAction* action : actions)
+    {
+        if (getOrder(action) > priority) return action;
+    }
+
+    // all others have higher priority
+    return nullptr;
+}
+
+/// helper method to add a ui-action to a menu. Visibility and status are
+/// updated each time the menu is opened
+QAction*
+addActionBefore(QMenu& menu,
+                QAction* before,
+                const GtObjectUIAction& uiAction,
+                GtObject* targetObj = nullptr,
+                QObject* parentObj = nullptr)
+{
+    // separator
+    if (uiAction.isSeparator())
+    {
+        QAction* separator = menu.insertSeparator(before);
+        gt::gui::setOrderPriority(*separator, uiAction.orderPriority());
+        return separator;
+    }
+
+    if (!uiAction.method()) return nullptr;
+
+    QAction* action = new QAction(uiAction.text(), &menu);
+    gt::gui::setOrderPriority(*action, uiAction.orderPriority());
+
+    // insert at correct position
+    menu.insertAction(before, action);
+
+    if (uiAction.visibilityMethod() || uiAction.verificationMethod())
+    {
+        // -> use only one slot-call for both
+        QObject::connect(&menu, &QMenu::aboutToShow,
+                         action, [isVisible = uiAction.visibilityMethod(),
+                                  isEnabled = uiAction.verificationMethod(),
+                                  action,
+                                  parentObj,
+                                  targetObj](){
+            // visibility
+            if (isVisible) action->setVisible(isVisible(parentObj, targetObj));
+            // verification
+            if (isEnabled) action->setEnabled(isEnabled(parentObj, targetObj));
+        });
+    }
+
+    // icon
+    if (!uiAction.icon().isNull())
+    {
+        action->setIcon(uiAction.icon());
+    }
+
+    // shortcut
+    if (!uiAction.shortCut().isEmpty())
+    {
+        action->setShortcut(uiAction.shortCut());
+        action->setShortcutContext(Qt::ApplicationShortcut);
+
+        if (QWidget* parent = findParentWidget(menu))
+        {
+            parent->addAction(action);
+        }
+    }
+
+    // method
+    QObject::connect(action, &QAction::triggered,
+                     &menu, [method = uiAction.method(),
+                             parentObj,
+                             targetObj](){
+        method(parentObj, targetObj);
+    });
+    return action;
+}
+
+/// helper method to add a ui-action to a menu. Inserts action at correct spot
+/// according to its order priority
+QAction*
+addAction(QMenu& menu,
+          const GtObjectUIAction& uiAction,
+          GtObject* targetObj = nullptr,
+          QObject* parentObj = nullptr)
+{
+    QAction* before = actionBefore(menu, uiAction.orderPriority());
+    return addActionBefore(menu, before, uiAction, targetObj, parentObj);
+}
+
+//void
+//addMenuBefore(QMenu& menu)
+//{
+//    QAction* before = actionBefore(menu, uiAction.orderPriority());
+//    return addActionBefore(before, uiAction, menu, targetObj, parentObj);
+//}
 
 /// counts the visible actions (not separators)
 inline int
@@ -36,8 +179,22 @@ countVisibleActions(QList<QAction*> const& actions)
 {
     return std::count_if(std::begin(actions), std::end(actions),
                          [](QAction const* a){
-        return !a->isSeparator() && a->isVisible();
+        return a && !a->isSeparator() && a->isVisible();
     });
+}
+
+} // namespace
+
+void
+gt::gui::addToMenu(std::initializer_list<GtObjectUIAction> actions,
+                   QMenu& menu,
+                   GtObject* obj,
+                   QObject* parent)
+{
+    for (GtObjectUIAction const& action : actions)
+    {
+        addAction(menu, action, obj, parent);
+    }
 }
 
 void
@@ -46,8 +203,10 @@ gt::gui::addToMenu(const QList<GtObjectUIAction>& actions,
                    GtObject* obj,
                    QObject* parent)
 {
-    // menu will take ownership
-    new GtCustomActionMenu(actions, obj, parent, &menu);
+    for (GtObjectUIAction const& action : actions)
+    {
+        addAction(menu, action, obj, parent);
+    }
 }
 
 void
@@ -56,7 +215,14 @@ gt::gui::addToMenu(GtObjectUIAction const& action,
                    GtObject* obj,
                    QObject* parent)
 {
-    addToMenu(QList<GtObjectUIAction>{action}, menu, obj, parent);
+    addAction(menu, action, obj, parent);
+}
+
+void
+gt::gui::setOrderPriority(QAction& action, int priority)
+{
+    // use setData which is intended for "user" data
+    action.setData(priority);
 }
 
 /// adds the "open with" actions to the menu
@@ -74,20 +240,31 @@ addOpenWithActions(QMenu& menu, GtObject& obj)
     // open with
     if (!openWithList.isEmpty())
     {
+        // building section from last to first action using "insert before" mechanism
+        QAction* before = actionBefore(menu, gt::gui::OrderPriority::AfterOpenWithAction);
+
+        before = addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::AfterOpenWithAction));
+
+        if (openWithList.size() > 1)
+        {
+            auto* submenu = new GtOpenWithMenu(openWithList, &obj, &menu);
+            assert(submenu->parent());
+
+            QAction* openWithAction = menu.insertMenu(before, submenu);
+            gt::gui::setOrderPriority(*openWithAction, gt::gui::OrderPriority::OpenWithAction);
+            before = openWithAction;
+        }
+
         auto lambda = [name = openWithList.first(), o = &obj](GtObject* target){
             gtMdiLauncher->open(name, o);
         };
         auto openAction = gt::gui::makeAction(QObject::tr("Open"), lambda)
-                              .setIcon(gt::gui::icon::open());
+                              .setIcon(gt::gui::icon::open())
+                              .setOrderPriority(gt::gui::OrderPriority::OpenWithAction);
 
-        gt::gui::addToMenu(openAction, menu, &obj);
+        before = addActionBefore(menu, before, openAction, &obj);
 
-        if (openWithList.size() > 1)
-        {
-            menu.addMenu(new GtOpenWithMenu(openWithList, &obj, &menu));
-        }
-
-        menu.addSeparator();
+        addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeOpenWithAction));
     }
 }
 
@@ -106,8 +283,6 @@ addCustomActions(QMenu& menu, GtObject& obj)
         GtObjectUI* ui{};
         QList<GtObjectUIActionGroup> groups{};
     };
-
-    auto const actionsBefore = menu.actions();
 
     QList<GtObjectUI*> const ouis = gtApp->objectUI(&obj);
 
@@ -132,28 +307,20 @@ addCustomActions(QMenu& menu, GtObject& obj)
     {
         for (auto const& group : data.groups)
         {
-            QMenu* submenu = menu.addMenu(group.name());
-            submenu->setIcon(group.icon());
+            QAction* before = actionBefore(menu, group.orderPriority());
 
+            QMenu* submenu = new QMenu(group.name(), &menu);
+            submenu->setIcon(group.icon());
             gt::gui::addToMenu(group.actions(), *submenu, &obj, data.ui);
+
+            QAction* submenuAction = menu.insertMenu(before, submenu);
+            gt::gui::setOrderPriority(*submenuAction, group.orderPriority());
         }
     }
 
     for (auto const& data : singleActions)
     {
         gt::gui::addToMenu(data.actions, menu, &obj, data.ui);
-    }
-
-    auto actionsAfter = menu.actions();
-
-    for (auto* action : actionsBefore)
-    {
-        actionsAfter.removeOne(action);
-    }
-
-    if (countVisibleActions(actionsAfter) > 0)
-    {
-        menu.addSeparator();
     }
 }
 
@@ -165,11 +332,21 @@ gt::gui::addImportMenu(QMenu& menu, GtObject& obj)
 
     if (!importerList.isEmpty())
     {
-        GtImportMenu* imenu = new GtImportMenu(&obj, &menu);
+        // building section from last to first action using "insert before" mechanism
+        QAction* before = actionBefore(menu, OrderPriority::AfterImportAction);
 
-        menu.addMenu(imenu);
+        before = addActionBefore(menu, before, makeSeparator(OrderPriority::AfterImportAction));
 
-        return imenu;
+        GtImportMenu* submenu = new GtImportMenu(&obj, &menu);
+        assert(submenu->parent());
+
+        QAction* importAction = menu.insertMenu(before, submenu);
+        setOrderPriority(*importAction, gt::gui::OrderPriority::ImportAction);
+        before = importAction;
+
+        addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeImportAction));
+
+        return submenu;
     }
 
     return nullptr;
@@ -183,11 +360,21 @@ gt::gui::addExportMenu(QMenu& menu, GtObject& obj)
 
     if (!exporterList.isEmpty())
     {
-        GtExportMenu* emenu = new GtExportMenu(&obj, &menu);
+        // building section from last to first action using "insert before" mechanism
+        QAction* before = actionBefore(menu, OrderPriority::AfterExportAction);
 
-        menu.addMenu(emenu);
+        before = addActionBefore(menu, before, makeSeparator(OrderPriority::AfterExportAction));
 
-        return emenu;
+        GtExportMenu* submenu = new GtExportMenu(&obj, &menu);
+        assert(submenu->parent());
+
+        QAction* exportAction = menu.insertMenu(before, submenu);
+        setOrderPriority(*exportAction, gt::gui::OrderPriority::ExportAction);
+        before = exportAction;
+
+        addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeExportAction));
+
+        return submenu;
     }
 
     return nullptr;
@@ -207,7 +394,8 @@ gt::gui::makeDeleteAction(GtObject& obj)
         };
         return makeAction(QObject::tr("Delete"), lambda)
             .setIcon(gt::gui::icon::delete_())
-            .setShortCut(gtApp->getShortCutSequence("delete"));
+            .setShortCut(gtApp->getShortCutSequence("delete"))
+            .setOrderPriority(gt::gui::OrderPriority::DeleteAction);
     }
 
     return {};
@@ -226,7 +414,8 @@ gt::gui::makeRenameAction(GtObject& obj,
         };
         return gt::gui::makeAction(QObject::tr("Rename"), lambda)
             .setIcon(gt::gui::icon::rename())
-            .setShortCut(gtApp->getShortCutSequence("rename"));
+            .setShortCut(gtApp->getShortCutSequence("rename"))
+            .setOrderPriority(gt::gui::OrderPriority::RenameAction);
     }
 
     return {};
@@ -243,26 +432,26 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addCustomActions(menu, obj);
 
     addImportMenu(menu, obj);
-    menu.addSeparator();
 
     addExportMenu(menu, obj);
-    menu.addSeparator();
 
     if (view)
     {
         auto rename = makeRenameAction(obj, idx, *view);
         if (!rename.isEmpty())
         {
-            addToMenu(rename, menu, &obj);
-            menu.addSeparator();
+            QAction* before = addAction(menu, makeSeparator(gt::gui::OrderPriority::AfterRenameAction));
+            before = addActionBefore(menu, before, rename, &obj);
+            addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeRenameAction));
         }
     }
 
     auto delete_ = makeDeleteAction(obj);
     if (!delete_.isEmpty())
     {
-        addToMenu(delete_, menu, &obj);
-        menu.addSeparator();
+        QAction* before = addAction(menu, makeSeparator(gt::gui::OrderPriority::AfterDeleteAction));
+        before = addActionBefore(menu, before, delete_, &obj);
+        addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeDeleteAction));
     }
 
     return countVisibleActions(menu.actions());
@@ -353,18 +542,18 @@ gt::gui::handleObjectKeyEvent(QKeyEvent& event,
     shortcutAction(event, obj);
 }
 
-gt::gui::applicationTheme
+gt::gui::ApplicationTheme
 gt::gui::theme()
 {
-    if (!gtApp) return applicationTheme::bright;
+    if (!gtApp) return ApplicationTheme::Bright;
 
-    if (gtApp->inDarkMode()) return applicationTheme::dark;
+    if (gtApp->inDarkMode()) return ApplicationTheme::Dark;
 
-    return applicationTheme::bright;
+    return ApplicationTheme::Bright;
 }
 
 bool
 gt::gui::isApplicationDarkTheme()
 {
-    return theme() == applicationTheme::dark;
+    return theme() == ApplicationTheme::Dark;
 }
