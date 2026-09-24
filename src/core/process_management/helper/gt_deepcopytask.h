@@ -68,7 +68,6 @@ GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, cons
 GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
 
 
-
 /**
  * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
  * Relative object links are links within the copied structure, e.g. a link to another calculator.

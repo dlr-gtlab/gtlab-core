@@ -65,7 +65,6 @@
 #include "gt_processdock.h"
 #include "gt_taskgrouprenamedialog.h"
 
-
 using namespace gt::gui;
 
 namespace
@@ -1575,7 +1574,6 @@ GtObject* processComponentCloneCopyHelper(GtProcessComponent* pComp, bool *ok)
     if (origTask)
     {
         auto newTask = gt::utils::process::deepCopyTask(origTask, false);
-
         copy = qobject_cast<GtObject*>(newTask);
     }
     else
@@ -1813,6 +1811,10 @@ GtProcessDock::pasteElement(GtObject* parent)
     // No new UUID here, we need and receive the mapping from deep copy
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, false,
                     gtProcessFactory);
+
+    //Answer: pasting a task twice puts the same UUIDs twice as a child.
+    //Solution: don't do a new UUID here, but repeat deep copy down below
+
 
     if (!obj)
     {

@@ -19,7 +19,6 @@
 #include "gt_objectfactory.h"
 #include "gt_taskfactory.h"
 
-
 class TestGtTaskPropertyConnections : public ::testing::Test
 {
 protected:
@@ -132,6 +131,7 @@ protected:
 
     virtual void TearDown()
     {
+        gtDebug() << "---- END OF TEST ----";
         delete taskgroup;
     }
 
@@ -445,7 +445,6 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     bool ok=false;
     auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask2_copied, &ok);
     ASSERT_TRUE(ok);
-
 
     ASSERT_EQ(retval.internal.size(), 1);
     ASSERT_EQ(retval.external.size(), 0);
