@@ -94,7 +94,7 @@ deepCopyTask(GtTask* taskOrig, bool strict)
 }
 
 bool
-transferPropertyConnectionsViaMapping(GtTask* taskCopy, GtObjectUUIDMap* uuidMap)
+transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* uuidMap)
 {
     QList<GtPropertyConnection*> allCons = taskCopy->findChildren<GtPropertyConnection*>();
 
