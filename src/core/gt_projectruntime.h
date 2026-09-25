@@ -81,7 +81,7 @@ public:
     /** Initializes Core services at the host-selected execution location. */
     GtProjectRuntimeResult initialize();
     /** Opens one project in the current execution-local Core session. */
-    GtProjectRuntimeResult openProject(QString const& projectPath);
+    GtProjectRuntimeResult openProject(QString const& path);
     /** Saves the loaded project unless it is guarded by execution. */
     GtProjectRuntimeResult saveProject();
     /** Closes and removes the loaded project unless it is guarded. */

@@ -96,7 +96,7 @@ GtProjectRuntimeResult GtProjectRuntime::initialize()
     return {};
 }
 
-GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& projectPath)
+GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& path)
 {
     if (thread() != QThread::currentThread())
         return failure(GtProjectRuntimeResult::Code::InvalidState,
@@ -108,9 +108,9 @@ GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& projectPath)
         return failure(GtProjectRuntimeResult::Code::InvalidState,
                        QStringLiteral("Runtime is not initialized"));
 
-    const QFileInfo info(projectPath);
+    const QFileInfo info(path);
     const QString filePath = info.isDir() ?
-        QDir(info.absoluteFilePath()).filePath(GtProject::mainFilename()) : projectPath;
+        QDir(info.absoluteFilePath()).filePath(GtProject::mainFilename()) : path;
     if (!QFileInfo::exists(filePath))
         return failure(GtProjectRuntimeResult::Code::InvalidProject,
                        QStringLiteral("Project file does not exist: %1").arg(filePath));
@@ -123,14 +123,14 @@ GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& projectPath)
     if (!gtDataModel->newProject(ptr, true))
         return failure(GtProjectRuntimeResult::Code::InvalidProject,
                        QStringLiteral("Project could not be opened: %1").arg(filePath));
-    project.release();
-    if (!ptr->isOpen())
+    auto* openedProject = project.release();
+    if (!openedProject->isOpen())
     {
-        gtDataModel->deleteProject(ptr);
+        gtDataModel->deleteProject(openedProject);
         return failure(GtProjectRuntimeResult::Code::InvalidProject,
                        QStringLiteral("Project could not be loaded: %1").arg(filePath));
     }
-    m_private->project = ptr;
+    m_private->project = openedProject;
     m_private->state = State::ProjectLoaded;
     return {};
 }

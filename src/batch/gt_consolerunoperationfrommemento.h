@@ -12,8 +12,8 @@
 
 namespace gt::console
 {
-QList<GtCommandLineOption> runOperationFromMementoOptions();
-int runOperationFromMemento(QStringList const& args);
-}
+    QList<GtCommandLineOption> runOperationFromMementoOptions();
+    int runOperationFromMemento(QStringList const& args);
+} // namespace gt::console
 
 #endif

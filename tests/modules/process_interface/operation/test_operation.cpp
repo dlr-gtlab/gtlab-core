@@ -7,23 +7,52 @@
 #include "gt_operationexecutioncontext.h"
 #include "gt_executioncontext.h"
 #include <stdexcept>
-bool TestOperation::requiresProject() const
+
+TestOperation::TestOperation() :
+    m_resultName("resultName", tr("Result Name"), tr("Name of the result")),
+    m_requiresProject("requiresProject", tr("Requires Project"),
+                      tr("Whether execution requires a project"), false),
+    m_failOnExecute("failOnExecute", tr("Fail on Execute"),
+                    tr("Whether execution throws an error"), false)
 {
-    return objectName() == QStringLiteral("requires-project");
+    registerProperty(m_resultName);
+    registerProperty(m_requiresProject);
+    registerProperty(m_failOnExecute);
 }
 
-std::unique_ptr<GtObject> TestOperation::execute(GtOperationExecutionContext& context)
+bool
+TestOperation::requiresProject() const
 {
-    if (objectName() == QStringLiteral("fails")) throw std::runtime_error("test operation failure");
+    return m_requiresProject.getVal();
+}
+
+std::unique_ptr<GtObject>
+TestOperation::execute(GtOperationExecutionContext& context)
+{
+    if (m_failOnExecute.getVal())
+    {
+        throw std::runtime_error("test operation failure");
+    }
+
     context.events().publish(QStringLiteral("test.started"));
     auto result = std::make_unique<GtObject>();
-    result->setObjectName(requiresProject() && GtExecutionContext::current()
-                              ? QStringLiteral("project-context-present")
-                              : (context.data() ? context.data()->objectName() : QStringLiteral("no-data")));
+    QString resultName = m_resultName.getVal();
+    if (resultName.isEmpty())
+    {
+        resultName = context.data() ? context.data()->objectName()
+                                    : QStringLiteral("no-data");
+    }
+    if (m_requiresProject.getVal() && GtExecutionContext::current())
+    {
+        resultName = QStringLiteral("project-context-present");
+    }
+    result->setObjectName(resultName);
     context.events().publish(QStringLiteral("test.finished"));
     return result;
 }
-GtOperationApplyStatus TestOperation::applyResult(GtObject const*, GtExecutionContext&) const
+
+GtOperationApplyStatus
+TestOperation::applyResult(GtObject const*, GtExecutionContext&) const
 {
     return GtOperationApplyStatus::success();
 }
