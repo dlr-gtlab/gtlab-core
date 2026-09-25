@@ -27,23 +27,26 @@
 
 namespace
 {
-class MementoExecutionProject final : public GtProject
-{
-public:
-    explicit MementoExecutionProject(QString const& path) : GtProject(path) {}
-};
+    class MementoExecutionProject final : public GtProject
+    {
+    public:
+        explicit MementoExecutionProject(QString const& path) : GtProject(path)
+        {
+        }
+    };
 
-GtProjectRuntimeResult failure(GtProjectRuntimeResult::Code code, QString message)
-{
-    return {code, std::move(message)};
-}
+    GtProjectRuntimeResult failure(GtProjectRuntimeResult::Code code,
+                                   QString message)
+    {
+        return {code, std::move(message)};
+    }
 
-GtProjectRuntimeExecutionResult executionFailure(
-    GtProjectRuntimeExecutionResult::Code code, QString message)
-{
-    return {code, std::move(message), {}};
-}
-}
+    GtProjectRuntimeExecutionResult executionFailure(
+        GtProjectRuntimeExecutionResult::Code code, QString message)
+    {
+        return {code, std::move(message), {}};
+    }
+} // namespace
 
 struct GtProjectRuntime::Private
 {
@@ -52,12 +55,14 @@ struct GtProjectRuntime::Private
     std::unique_ptr<GtProject> mementoProject;
 };
 
-bool GtProjectRuntimeResult::succeeded() const
+bool
+GtProjectRuntimeResult::succeeded() const
 {
     return code == Code::Success;
 }
 
-bool GtProjectRuntimeExecutionResult::succeeded() const
+bool
+GtProjectRuntimeExecutionResult::succeeded() const
 {
     return code == Code::Success;
 }
@@ -69,38 +74,55 @@ GtProjectRuntime::GtProjectRuntime(QObject* parent) :
 
 GtProjectRuntime::~GtProjectRuntime()
 {
-    Q_ASSERT_X(thread() == QThread::currentThread(), "GtProjectRuntime::~GtProjectRuntime",
+    Q_ASSERT_X(thread() == QThread::currentThread(),
+               "GtProjectRuntime::~GtProjectRuntime",
                "Destroy the runtime on its execution thread");
     if (m_private->project) closeProject();
 }
 
-GtProjectRuntimeResult GtProjectRuntime::initialize()
+GtProjectRuntimeResult
+GtProjectRuntime::initialize()
 {
     if (thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime must be used on its execution thread"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
+
     if (m_private->state == State::Initialized) return {};
+
     if (m_private->state != State::Created)
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime cannot be initialized in its current state"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral(
+                "Runtime cannot be initialized in its current state"));
+
     if (!gtApp || !gtDataModel || gtApp->thread() != QThread::currentThread() ||
         gtDataModel->thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::CoreUnavailable,
-                       QStringLiteral("Execution-local GTlab Core services are unavailable"));
+        return failure(
+            GtProjectRuntimeResult::Code::CoreUnavailable,
+            QStringLiteral(
+                "Execution-local GTlab Core services are unavailable"));
+
     gtApp->init();
+
+    // Project operations require an active Core session.
     if (!gtApp->session()) gtApp->initSession();
     if (!gtApp->session())
-        return failure(GtProjectRuntimeResult::Code::CoreUnavailable,
-                       QStringLiteral("GTlab Core session could not be initialized"));
+        return failure(
+            GtProjectRuntimeResult::Code::CoreUnavailable,
+            QStringLiteral("GTlab Core session could not be initialized"));
+
     m_private->state = State::Initialized;
     return {};
 }
 
-GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& path)
+GtProjectRuntimeResult
+GtProjectRuntime::openProject(QString const& path)
 {
     if (thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime must be used on its execution thread"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
     if (m_private->project || (gtDataModel && gtDataModel->currentProject()))
         return failure(GtProjectRuntimeResult::Code::ProjectAlreadyLoaded,
                        QStringLiteral("A project is already loaded"));
@@ -109,11 +131,14 @@ GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& path)
                        QStringLiteral("Runtime is not initialized"));
 
     const QFileInfo info(path);
-    const QString filePath = info.isDir() ?
-        QDir(info.absoluteFilePath()).filePath(GtProject::mainFilename()) : path;
+    const QString filePath =
+        info.isDir()
+            ? QDir(info.absoluteFilePath()).filePath(GtProject::mainFilename())
+            : path;
     if (!QFileInfo::exists(filePath))
-        return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                       QStringLiteral("Project file does not exist: %1").arg(filePath));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidProject,
+            QStringLiteral("Project file does not exist: %1").arg(filePath));
     GtProjectProvider provider(filePath);
     std::unique_ptr<GtProject> project(provider.project());
     if (!project || !project->isValid())
@@ -121,42 +146,51 @@ GtProjectRuntimeResult GtProjectRuntime::openProject(QString const& path)
                        QStringLiteral("Project is invalid: %1").arg(filePath));
     auto* ptr = project.get();
     if (!gtDataModel->newProject(ptr, true))
-        return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                       QStringLiteral("Project could not be opened: %1").arg(filePath));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidProject,
+            QStringLiteral("Project could not be opened: %1").arg(filePath));
     auto* openedProject = project.release();
     if (!openedProject->isOpen())
     {
         gtDataModel->deleteProject(openedProject);
-        return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                       QStringLiteral("Project could not be loaded: %1").arg(filePath));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidProject,
+            QStringLiteral("Project could not be loaded: %1").arg(filePath));
     }
     m_private->project = openedProject;
     m_private->state = State::ProjectLoaded;
     return {};
 }
 
-GtProjectRuntimeResult GtProjectRuntime::openProjectFromMemento(
+GtProjectRuntimeResult
+GtProjectRuntime::openProjectFromMemento(
     std::unique_ptr<GtObjectGroup> projectData, QString const& workingDirectory)
 {
     if (thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime must be used on its execution thread"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
     if (m_private->state != State::Initialized)
         return failure(GtProjectRuntimeResult::Code::InvalidState,
                        QStringLiteral("Runtime is not initialized"));
     if (!gtDataModel || m_private->project || gtDataModel->currentProject())
-        return failure(GtProjectRuntimeResult::Code::ProjectAlreadyLoaded,
-                       QStringLiteral("A project is already loaded or Core is unavailable"));
+        return failure(
+            GtProjectRuntimeResult::Code::ProjectAlreadyLoaded,
+            QStringLiteral(
+                "A project is already loaded or Core is unavailable"));
     if (!projectData || !QFileInfo(workingDirectory).isDir())
-        return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                       QStringLiteral("Project data or working directory is invalid"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidProject,
+            QStringLiteral("Project data or working directory is invalid"));
 
     const auto objects = projectData->findDirectChildren<GtObject*>();
     for (GtObject* object : objects)
     {
         if (!qobject_cast<GtPackage*>(object))
-            return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                           QStringLiteral("Project Memento contains a non-package root object"));
+            return failure(
+                GtProjectRuntimeResult::Code::InvalidProject,
+                QStringLiteral(
+                    "Project Memento contains a non-package root object"));
     }
 
     auto project = std::make_unique<MementoExecutionProject>(workingDirectory);
@@ -170,8 +204,9 @@ GtProjectRuntimeResult GtProjectRuntime::openProjectFromMemento(
         if (!project->appendChild(object))
         {
             delete object;
-            return failure(GtProjectRuntimeResult::Code::InvalidProject,
-                           QStringLiteral("Project data could not be attached"));
+            return failure(
+                GtProjectRuntimeResult::Code::InvalidProject,
+                QStringLiteral("Project data could not be attached"));
         }
     }
 
@@ -185,34 +220,42 @@ GtProjectRuntimeResult GtProjectRuntime::openProjectFromMemento(
     return {};
 }
 
-GtProjectRuntimeResult GtProjectRuntime::saveProject()
+GtProjectRuntimeResult
+GtProjectRuntime::saveProject()
 {
     if (thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime must be used on its execution thread"));
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
     if (m_private->state != State::ProjectLoaded || !m_private->project)
         return failure(GtProjectRuntimeResult::Code::InvalidState,
                        QStringLiteral("No project is loaded"));
     if (GtProjectExecutionGuard::isLocked(m_private->project))
-        return failure(GtProjectRuntimeResult::Code::ProjectBusy,
-                       QStringLiteral("Cannot save while project execution is active"));
-    return gtDataModel->saveProject(m_private->project) ? GtProjectRuntimeResult{} :
-        failure(GtProjectRuntimeResult::Code::SaveFailed,
-                QStringLiteral("Project could not be saved"));
+        return failure(
+            GtProjectRuntimeResult::Code::ProjectBusy,
+            QStringLiteral("Cannot save while project execution is active"));
+    return gtDataModel->saveProject(m_private->project)
+               ? GtProjectRuntimeResult{}
+               : failure(GtProjectRuntimeResult::Code::SaveFailed,
+                         QStringLiteral("Project could not be saved"));
 }
 
-GtProjectRuntimeResult GtProjectRuntime::closeProject()
+GtProjectRuntimeResult
+GtProjectRuntime::closeProject()
 {
     if (thread() != QThread::currentThread())
-        return failure(GtProjectRuntimeResult::Code::InvalidState,
-                       QStringLiteral("Runtime must be used on its execution thread"));
-    if ((m_private->state != State::ProjectLoaded && m_private->state != State::CloseFailed) ||
+        return failure(
+            GtProjectRuntimeResult::Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
+    if ((m_private->state != State::ProjectLoaded &&
+         m_private->state != State::CloseFailed) ||
         !m_private->project)
         return failure(GtProjectRuntimeResult::Code::InvalidState,
                        QStringLiteral("No project is loaded"));
     if (GtProjectExecutionGuard::isLocked(m_private->project))
-        return failure(GtProjectRuntimeResult::Code::ProjectBusy,
-                       QStringLiteral("Cannot close while project execution is active"));
+        return failure(
+            GtProjectRuntimeResult::Code::ProjectBusy,
+            QStringLiteral("Cannot close while project execution is active"));
 
     auto* project = m_private->project.data();
     if (m_private->mementoProject)
@@ -223,7 +266,8 @@ GtProjectRuntimeResult GtProjectRuntime::closeProject()
         m_private->state = State::Closed;
         return {};
     }
-    if (m_private->state != State::CloseFailed && !gtDataModel->closeProject(project))
+    if (m_private->state != State::CloseFailed &&
+        !gtDataModel->closeProject(project))
         return failure(GtProjectRuntimeResult::Code::CloseFailed,
                        QStringLiteral("Project could not be closed"));
     if (!gtDataModel->deleteProject(project))
@@ -237,40 +281,48 @@ GtProjectRuntimeResult GtProjectRuntime::closeProject()
     return {};
 }
 
-GtProjectRuntime::State GtProjectRuntime::state() const
+GtProjectRuntime::State
+GtProjectRuntime::state() const
 {
     return m_private->state;
 }
 
-QString GtProjectRuntime::projectPath() const
+QString
+GtProjectRuntime::projectPath() const
 {
     return m_private->project ? m_private->project->path() : QString();
 }
 
-GtProjectRuntimeExecutionResult GtProjectRuntime::executeOperation(
+GtProjectRuntimeExecutionResult
+GtProjectRuntime::executeOperation(
     std::unique_ptr<GtExecutableOperation> operation,
-    std::unique_ptr<GtObject> data,
-    GtExecutionEventStream& events,
+    std::unique_ptr<GtObject> data, GtExecutionEventStream& events,
     GtCancellationToken cancellation)
 {
     using Code = GtProjectRuntimeExecutionResult::Code;
     if (thread() != QThread::currentThread())
-        return executionFailure(Code::InvalidState,
-                                QStringLiteral("Runtime must be used on its execution thread"));
-    if (m_private->state != State::Initialized && m_private->state != State::ProjectLoaded)
-        return executionFailure(Code::InvalidState,
-                                QStringLiteral("Runtime is not available for execution"));
+        return executionFailure(
+            Code::InvalidState,
+            QStringLiteral("Runtime must be used on its execution thread"));
+    if (m_private->state != State::Initialized &&
+        m_private->state != State::ProjectLoaded)
+        return executionFailure(
+            Code::InvalidState,
+            QStringLiteral("Runtime is not available for execution"));
     if (!operation)
-        return executionFailure(Code::InvalidOperation, QStringLiteral("Operation is null"));
+        return executionFailure(Code::InvalidOperation,
+                                QStringLiteral("Operation is null"));
     const bool requiresProject = operation->requiresProject();
     if (requiresProject && !m_private->project)
-        return executionFailure(Code::ProjectRequired,
-                                QStringLiteral("Operation requires a loaded project"));
+        return executionFailure(
+            Code::ProjectRequired,
+            QStringLiteral("Operation requires a loaded project"));
 
     GtProjectExecutionGuard guard;
-    if (requiresProject &&
-        guard.tryAcquire(m_private->project) != GtProjectExecutionGuard::Result::Acquired)
-        return executionFailure(Code::ProjectBusy, QStringLiteral("Project is busy"));
+    if (requiresProject && guard.tryAcquire(m_private->project) !=
+                               GtProjectExecutionGuard::Result::Acquired)
+        return executionFailure(Code::ProjectBusy,
+                                QStringLiteral("Project is busy"));
 
     GtOperationExecutionContext context(data.get(), events, cancellation);
     try
@@ -290,11 +342,13 @@ GtProjectRuntimeExecutionResult GtProjectRuntime::executeOperation(
     }
     catch (std::exception const& e)
     {
-        return executionFailure(Code::ExecutionFailed, QString::fromUtf8(e.what()));
+        return executionFailure(Code::ExecutionFailed,
+                                QString::fromUtf8(e.what()));
     }
     catch (...)
     {
-        return executionFailure(Code::ExecutionFailed,
-                                QStringLiteral("Operation failed with an unknown exception"));
+        return executionFailure(
+            Code::ExecutionFailed,
+            QStringLiteral("Operation failed with an unknown exception"));
     }
 }

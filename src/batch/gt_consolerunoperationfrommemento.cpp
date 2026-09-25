@@ -21,6 +21,7 @@
 #include <QFileInfo>
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -60,7 +61,7 @@ namespace
 
     struct CommandFailure
     {
-        int exitCode;
+        int exitCode{0};
         QString code;
         QString message;
     };
@@ -162,8 +163,9 @@ namespace
                 QStringLiteral("Operation Memento could not be restored as an "
                                "executable operation")};
         }
-        operationObject.release();
-        inputs.operation.reset(operation);
+        auto* ownedOperation =
+            static_cast<GtExecutableOperation*>(operationObject.release());
+        inputs.operation.reset(ownedOperation);
 
         if (!paths.data.isEmpty())
         {
@@ -189,8 +191,9 @@ namespace
                     QStringLiteral(
                         "Project Memento is not project-data format")};
             }
-            projectObject.release();
-            inputs.projectData.reset(projectData);
+            auto* ownedProjectData =
+                static_cast<GtObjectGroup*>(projectObject.release());
+            inputs.projectData.reset(ownedProjectData);
         }
         return std::nullopt;
     }
@@ -284,9 +287,14 @@ QList<GtCommandLineOption>
 gt::console::runOperationFromMementoOptions()
 {
     Options options;
+    const auto commandLineOptions = options.all();
     QList<GtCommandLineOption> result;
-    for (auto const& option : options.all())
-        result.append({option.names(), option.description()});
+    result.reserve(commandLineOptions.size());
+    std::transform(
+        commandLineOptions.cbegin(), commandLineOptions.cend(),
+        std::back_inserter(result), [](auto const& option) {
+            return GtCommandLineOption{option.names(), option.description()};
+        });
     return result;
 }
 
