@@ -455,6 +455,36 @@ TEST_F(ExecutionEnvironmentTest,
     EXPECT_EQ(operation.executeCount, 0);
 }
 
+TEST_F(ExecutionEnvironmentTest, RejectsDetachedDataOnAnotherThread)
+{
+    GtExecutionEnvironment environment;
+    ProbeOperation operation;
+    GtObject data;
+    ThreadAffinityTransfer dataOnOtherThread(data);
+    GtExecutionEventStream events(GtExecutionId{});
+
+    auto result = environment.execute(operation, &data, events);
+
+    EXPECT_EQ(result.error(), GtExecutionResult::Error::WrongThread);
+    EXPECT_EQ(result.operationResult(), nullptr);
+    EXPECT_EQ(operation.executeCount, 0);
+}
+
+TEST_F(ExecutionEnvironmentTest, RejectsRequiredProjectOnAnotherThread)
+{
+    TestProject project;
+    GtExecutionEnvironment environment(&project);
+    ProbeOperation operation(true);
+    ThreadAffinityTransfer projectOnOtherThread(project);
+    GtExecutionEventStream events(GtExecutionId{});
+
+    auto result = environment.execute(operation, nullptr, events);
+
+    EXPECT_EQ(result.error(), GtExecutionResult::Error::WrongThread);
+    EXPECT_EQ(result.operationResult(), nullptr);
+    EXPECT_EQ(operation.executeCount, 0);
+}
+
 TEST_F(ExecutionEnvironmentTest, ApplyResultReceivesCompleteOutcome)
 {
     ProbeOperation operation;

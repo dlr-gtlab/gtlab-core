@@ -1,132 +1,103 @@
 Executable operations
 =====================
 
-Executable operations separate computational work from the place and lifecycle
-that run it. An operation contains domain logic. An executor and its selected
-backend prepare the invocation, choose where it runs, and manage its asynchronous
-lifecycle. At the execution location, ``GtExecutionEnvironment`` provides a
-small synchronous boundary around ``GtExecutableOperation::execute()``.
+Executable operations describe computational work independently of where it
+runs. The same operation can be executed in another thread, in a separate local
+process, or on a remote worker. The execution infrastructure chooses the
+location; the operation contains only the domain logic. This allows GTlab to keep
+expensive work out of the interactive application, isolate computations, or use
+remote resources without changing the operation.
 
-The same environment contract works in a dedicated GUI execution thread, a
-one-shot worker, a resident project worker, or a future remote worker. The
-environment itself does not choose among these placements.
+Operations are broader than tasks. Existing ``GtTask`` and calculator
+implementations remain unchanged and can be exposed as operations through an
+adapter. The operation model is not tied to the ``GtTask`` lifecycle or
+``GtCoreProcessExecutor`` and can also represent module-specific algorithms or
+Intelligraph computations.
 
 Operation lifecycle
 -------------------
 
-The operation separates input preparation, computation, and updates to the
-originating project:
+An operation separates preparation, computation, and project updates:
 
 .. code-block:: text
 
-   Originating side          Executor/backend             Execution location
-   -----------------         -----------------             ------------------
-   createData()  ---------->  provision operation/data --> GtExecutionEnvironment
-   applyResult() <----------  return full outcome  <------ execute()
+   originating side       GtOperationExecutor/backend       execution side
+   ---------------        --------------------------        --------------
+   createData()  -------> provision operation and data --> GtExecutionEnvironment
+   applyResult() <------- return full outcome <----------- execute()
 
-``createData()`` prepares optional detached input on the originating side.
-``applyResult()`` interprets the complete execution outcome there. Both should
-remain lightweight. The later ``GtOperationExecutor`` owns asynchronous
-submission and completion, backend selection, cancellation requests, result
-transport, and the decision when to call ``applyResult()``.
+``createData()`` prepares optional input from the originating project.
+``applyResult()`` receives the full operation outcome and interprets its domain
+meaning on that project. Both run on the originating side and must be fast.
 
-``GtExecutionEnvironment::execute()`` runs synchronously in its caller's thread.
-It does not create threads or processes, schedule work, or move objects between
-threads. The selected backend must provision the operation, optional input,
-event stream, and any required project for that thread. For normal GUI-local
-execution, the backend should use a dedicated execution thread so that long
-computations do not block the GUI.
+``GtOperationExecutor`` owns asynchronous submission, backend selection,
+cancellation and result transport. Its lifecycle and cancellation policy gate
+whether and when it calls ``applyResult()``. It does not classify an outcome or
+decide whether a payload is semantically applicable; that decision belongs to
+the operation's ``applyResult()`` implementation.
 
-Project access
---------------
+``execute()`` contains the potentially expensive work. It is synchronous in
+the calling thread, while ``GtOperationExecutor`` manages the caller's
+asynchronous lifecycle. ``GtExecutionEnvironment`` scopes the execution-local
+project and calls the operation. The selected backend provisions the operation,
+optional data, event stream, and required project for that thread. This contract
+works in a dedicated GUI execution thread, a one-shot worker, a resident project
+worker, or a future remote worker. The operation uses only execution-local
+state and services from ``GtOperationExecutionContext``; it must not access the
+originating project directly.
 
-``requiresProject()`` states whether the invocation needs an execution-local
-``GtProject``. It does not select the execution location.
+``requiresProject()`` states whether this invocation needs a GTlab project
+at the execution location. It does not select the execution location. When it
+returns ``true``, ``GtExecutionEnvironment`` requires its borrowed project and
+installs it in ``GtExecutionContextScope`` for the call. When it returns
+``false``, the environment installs an explicitly empty context, so
+``gtApp->currentProject()`` and ``gtDataModel->currentProject()`` return
+``nullptr`` even if a GUI session has a selected project.
 
-* If ``requiresProject()`` is ``true``, the environment requires its borrowed
-  project and installs it in a ``GtExecutionContextScope`` for the call.
-  ``gtApp->currentProject()`` and ``gtDataModel->currentProject()`` then return
-  that execution-local project.
-* If ``requiresProject()`` is ``false``, the environment installs an explicitly
-  empty execution context. Both current-project accessors return ``nullptr``
-  during the call, even if the environment has a project or a GUI session has a
-  selected project. The environment does not inspect that unused project,
-  including its thread affinity.
+The project may be used in addition to detached input from ``createData()``.
+Reading the originating project in ``createData()`` does not require a complete
+project during execution.
 
-The environment borrows the optional project; it does not open, reconstruct,
-save, close, or own it. It does not initialize ``GtCoreApplication``, the data
-model, or a session. The caller must keep the project alive for every call that
-uses it.
+There are three common cases:
 
-An operation may start its own child threads. The environment does not copy the
-execution context into them. Task infrastructure that needs legacy current-
-project access from a child thread must copy the ``GtExecutionContext`` and
-install a ``GtExecutionContextScope`` there. Shared project access is not made
-thread-safe by the environment.
+* ``requiresProject()`` returns ``false`` because the operation state and
+  optional detached input contain everything needed;
+* ``requiresProject()`` returns ``true`` and the project at the execution
+  location contains everything needed, so ``createData()`` returns ``nullptr``;
+  or
+* ``requiresProject()`` returns ``true`` and ``execute()`` needs both the
+  project and additional detached input.
 
-Execution outcomes
-------------------
+If only selected parts of the originating project are needed, prefer extracting
+them in ``createData()`` and return ``false`` from ``requiresProject()``. This
+avoids providing a complete project at the execution location.
 
-``execute()`` returns a ``GtOperationExecutionResult`` containing a status, an
-optional operation-defined code, an optional message, and an optional
-``GtObject`` payload. The status is ``Success``, ``Failed``, or ``Cancelled``.
-A payload may accompany any status. Generic execution code must not infer from
-the status whether the payload is complete, partial, diagnostic, or suitable
-for application.
-
-The environment returns a ``GtExecutionResult`` with two distinct levels:
-
-* ``error() == Error::None`` means an operation outcome is present. A regular
-  domain failure has ``Status::Failed`` at this level.
-* A non-``None`` error, such as ``ProjectRequired``, ``WrongThread``, or
-  ``UnhandledException``, means no operation outcome is present.
-
-The environment catches an exception escaping ``execute()`` and reports an
-``UnhandledException`` boundary error. It does not convert a returned operation
-failure into an environment error.
-
-Cancellation is cooperative. If cancellation was already requested before the
-call enters ``execute()``, the environment skips the operation and returns a
-regular ``Cancelled`` outcome. During execution, the operation can inspect the
-shared token and decides how to react. The environment preserves the status the
-operation returns, including ``Success`` or ``Failed`` after a cancellation
-request. Hard interruption belongs to the process or backend boundary.
-
-Result transport and application
---------------------------------
-
-``GtOperationExecutionResult`` is a Core value type and is independent of a
-transport protocol. A local or remote adapter encodes its status, code, and
-message as required. It serializes an optional ``GtObject`` payload through the
-existing Memento and ``GtObjectFactory`` mechanisms. The environment performs
-no serialization.
-
-Transporting an outcome and applying it to the originating project are
-separate steps. The originating operation receives the full outcome in
-``applyResult()`` and decides how its status and optional payload affect the
-project. The generic executor does not assume that only successful outcomes
-contain useful data or that failed and cancelled outcomes must be discarded.
-
-Project state after an invocation
----------------------------------
-
-The environment does not roll back project changes. A project-bound operation
-may have changed its execution-local project before it fails, is cancelled, or
-throws. A one-shot worker can discard that project. A resident project worker
-must decide at a higher level whether to trust its warm project and whether to
-restore or provision it again before another call. Recovery and checkpoints are
-outside the environment.
+The operation does not create threads or processes and does not select remote
+workers. Scheduling, data transfer, and execution lifecycle belong to the
+execution infrastructure.
 
 GTlab integration
 -----------------
 
 ``GtExecutableOperation`` is a normal ``GtObject``. Operations, input data, and
-result payloads use GTlab properties, ``GtObjectFactory``, and Memento/XML.
-Modules declare operation classes through ``GtOperationInterface``. Existing
-``GtTask`` and calculator implementations can later be exposed through an
-adapter; the environment does not depend on ``GtTask`` or
-``GtCoreProcessExecutor``.
+results therefore use GTlab properties, ``GtObjectFactory``, and Memento/XML.
+No operation-specific object model or serializer is needed.
 
-The :doc:`architecture decision <decisions/0001-executable-operations>` records
-the constraints for the executor, environment, operation outcome, and future
-worker adapters.
+Modules declare their operation classes through ``GtOperationInterface``. See
+the :ref:`operationinterface` documentation for registration details.
+
+Each execution receives a ``GtOperationExecutionContext``. It provides the
+detached input, execution identity, cancellation state, and event stream.
+Project access continues to use ``GtExecutionContext``; project state is not
+part of the operation context.
+
+The environment borrows, but does not open, save, close, or own its project.
+It does not initialize Core or a session, schedule work, create or move threads,
+or transport results. The backend owns provisioning and placement. Cancellation
+is cooperative during ``execute()``; the environment preserves the returned
+status and reports escaping exceptions as boundary errors.
+
+The accepted :doc:`architecture decision
+<decisions/0001-executable-operations>` records the operation lifecycle,
+registration, event model, and the responsibility split for the executor,
+environment, and worker adapters.

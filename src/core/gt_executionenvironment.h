@@ -9,7 +9,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_executionresult.h"
-#include "operations/gt_operationexecutioncontext.h"
+#include "gt_operationexecutioncontext.h"
 
 class GtExecutionEventStream;
 class GtExecutableOperation;
