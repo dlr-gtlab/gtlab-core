@@ -29,7 +29,10 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     auto copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
     gtError() << "<<< END TODO misleading error(s)";
 
-
+    if(!copiedTask)
+    {
+        return nullptr;
+    }
 
     auto rootTask = findRootTask(taskOrig);
     if(!rootTask)
