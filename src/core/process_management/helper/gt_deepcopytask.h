@@ -44,7 +44,7 @@ GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, GtObjectUUIDMap* uuidMap);
+GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* uuidMap);
 
 
 /**

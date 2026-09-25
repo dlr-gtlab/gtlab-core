@@ -91,8 +91,8 @@ analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok)
 
     foreach (GtPropertyConnection* propCon, allPropCons)
     {
-        GtProcessComponent* sourceObj = qobject_cast<GtProcessComponent*>(rootTask->getObjectByUuid(propCon->sourceUuid()));
-        GtProcessComponent* targetObj = qobject_cast<GtProcessComponent*>(rootTask->getObjectByUuid(propCon->targetUuid()));
+        GtProcessComponent* const sourceObj = qobject_cast<GtProcessComponent*>(rootTask->getObjectByUuid(propCon->sourceUuid()));
+        GtProcessComponent* const targetObj = qobject_cast<GtProcessComponent*>(rootTask->getObjectByUuid(propCon->targetUuid()));
 
         // lost connection to any object
         if (!sourceObj && !targetObj)
