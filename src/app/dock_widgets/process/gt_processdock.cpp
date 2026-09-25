@@ -1960,6 +1960,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     {
         auto taskCopy = gt::utils::process::deepCopyTask(task);
         if(!taskCopy) {
+            delete obj;
             return;
         }
 
@@ -1967,8 +1968,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     }
     else
     {
-        obj2 = obj;
-        obj2->newUuid();
+        obj2 = obj->copy();
     }
 
     if (!qobject_cast<GtTaskGroup*>(parent))
@@ -1977,16 +1977,19 @@ GtProcessDock::pasteElement(GtObject* parent)
 
         if (!pComp)
         {
+            delete obj;
             return;
         }
 
         if (!pComp->isReady())
         {
+            delete obj;
             return;
         }
     }
 
     pasteElement(obj2, parent);
+    delete obj;
 }
 
 void
