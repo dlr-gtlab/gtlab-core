@@ -135,7 +135,8 @@ QString propertyConnectionsPrint(QList<GtPropertyConnection*>& cons)
     QStringList retval;
     for(auto* c: qAsConst(cons))
     {
-        retval.append("   |-> Connection: " + c->objectName() + "Connected:" + QString(c->isConnected())
+        retval.append("   |-> Connection: " + c->objectName() + "Connected:"
+                  + (c->isConnected() ? QStringLiteral("true") : QStringLiteral("false"))
                   + "\n      |-> " + c->sourceUuid() + "("+c->sourceProp()+")"
                   + " -> "
                   + c->targetUuid() + "("+c->targetProp()+")");
