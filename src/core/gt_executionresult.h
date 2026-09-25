@@ -8,7 +8,7 @@
 #define GTEXECUTIONRESULT_H
 
 #include "gt_core_exports.h"
-#include "operations/gt_operationexecutionresult.h"
+#include "gt_operationexecutionresult.h"
 
 #include <variant>
 
