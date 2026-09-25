@@ -10,7 +10,7 @@
 #include "gt_processcomponent.h"
 
 
-void gt::debug::helper::printTaskStructure(GtProcessComponent* pcomp, int lvl, QString msg)
+void gt::debug::helper::printTaskStructure(GtProcessComponent* pcomp, int lvl, const QString msg)
 {
     if(!msg.isEmpty())
     {

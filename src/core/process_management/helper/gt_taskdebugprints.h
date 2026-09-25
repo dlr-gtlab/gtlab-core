@@ -18,7 +18,7 @@ namespace gt {
 namespace debug {
 namespace helper {
 
-GT_CORE_EXPORT void printTaskStructure(GtProcessComponent* pcomp, int lvl=0, QString msg=QString());
+GT_CORE_EXPORT void printTaskStructure(GtProcessComponent* pcomp, int lvl=0, const QString msg=QString());
 
 }}}
 
