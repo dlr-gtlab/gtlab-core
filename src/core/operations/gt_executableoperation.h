@@ -11,6 +11,7 @@
 #include "gt_executioncontext.h"
 #include "gt_operationapplystatus.h"
 #include "gt_operationexecutioncontext.h"
+#include "gt_operationexecutionresult.h"
 
 #include "gt_object.h"
 
@@ -58,25 +59,28 @@ public:
      * the execution location, but never the originating project.
      *
      * @param context Input data and services for this execution.
-     * @return An optional serializable result owned by the caller, or nullptr.
+     * @return The operation status and an optional serializable payload.
      */
-    virtual std::unique_ptr<GtObject> execute(
+    virtual GtOperationExecutionResult execute(
         GtOperationExecutionContext& context) = 0;
 
     /**
      * @brief Applies a detached result on the originating side.
      *
      * Called on the originating project/application thread and must remain
-     * lightweight. executionResult is the nullable, non-owning result created
-     * by execute() and must not be retained. This is the only operation step
-     * that may change the originating project from an execution result.
+     * lightweight. executionResult is the complete, non-owning outcome from
+     * execute() and must not be retained. The operation decides how each
+     * status and optional payload affects the originating project. This is
+     * the only operation step that may change that project from an execution
+     * result.
      *
-     * @param executionResult Optional result from execute().
+     * @param executionResult Complete outcome from execute().
      * @param context Context of the originating-side execution.
      * @return The status of applying executionResult.
      */
     virtual GtOperationApplyStatus applyResult(
-        GtObject const* executionResult, GtExecutionContext& context) const = 0;
+        GtOperationExecutionResult const& executionResult,
+        GtExecutionContext& context) const = 0;
 };
 
 #endif // GTEXECUTABLEOPERATION_H
