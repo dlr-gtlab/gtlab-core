@@ -192,6 +192,7 @@ TEST_F(ExecutionEnvironmentTest, ExecutesWithoutAProject)
     auto result = environment.execute(operation, nullptr, events);
 
     ASSERT_EQ(result.error(), GtExecutionResult::Error::None);
+    EXPECT_TRUE(result.message().isEmpty());
     ASSERT_NE(result.operationResult(), nullptr);
     EXPECT_EQ(result.operationResult()->status,
               GtOperationExecutionResult::Status::Success);
@@ -437,6 +438,23 @@ TEST_F(ExecutionEnvironmentTest, ConvertsEscapingExceptionToBoundaryFailure)
 
     EXPECT_EQ(result.error(), GtExecutionResult::Error::UnhandledException);
     EXPECT_EQ(result.message(), QStringLiteral("operation failed"));
+    EXPECT_EQ(result.operationResult(), nullptr);
+}
+
+TEST_F(ExecutionEnvironmentTest, ConvertsUnknownExceptionToBoundaryFailure)
+{
+    GtExecutionEnvironment environment;
+    ProbeOperation operation;
+    operation.executeBehavior = [](GtOperationExecutionContext&)
+        -> GtOperationExecutionResult {
+        throw 42;
+    };
+    GtExecutionEventStream events(GtExecutionId{});
+
+    auto result = environment.execute(operation, nullptr, events);
+
+    EXPECT_EQ(result.error(), GtExecutionResult::Error::UnhandledException);
+    EXPECT_FALSE(result.message().isEmpty());
     EXPECT_EQ(result.operationResult(), nullptr);
 }
 
