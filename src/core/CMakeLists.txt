@@ -78,12 +78,15 @@ set(headers
     states/gt_statecontainer.h
     gt_coreapplication.h
     gt_executioncontext.h
+    gt_executionenvironment.h
+    gt_executionresult.h
     operations/gt_executionevent.h
     operations/gt_executioneventstream.h
     operations/gt_executioneventfilewriter.h
     operations/gt_executableoperation.h
     operations/gt_operationapplystatus.h
     operations/gt_operationexecutioncontext.h
+    operations/gt_operationexecutionresult.h
     operations/gt_operationinterface.h
     operations/gt_stdioexecutioneventencoder.h
     gt_projectexecutionguard.h
@@ -197,6 +200,8 @@ set(sources
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
     gt_executioncontext.cpp
+    gt_executionenvironment.cpp
+    gt_executionresult.cpp
     operations/gt_executionevent.cpp
     operations/gt_executioneventstream.cpp
     operations/gt_executioneventfilewriter.cpp
