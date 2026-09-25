@@ -40,9 +40,12 @@ serializer.
 Execution state
 ~~~~~~~~~~~~~~~
 
-The originating operation, an execution-local reconstructed operation, and the
-detached input/result are separate objects with separate lifetimes. Detached
-objects must not contain borrowed pointers into the originating project.
+The originating operation, an execution-local reconstructed operation, the
+detached input, and the optional detached result payload are separate objects
+with separate lifetimes. ``GtOperationExecutionResult`` is a value envelope
+containing the operation status, code, message, and optional result payload.
+Detached input and result payloads must not contain borrowed pointers into the
+originating project.
 
 ``GtOperationExecutionContext`` contains input data, the execution identity,
 the cancellation state, and the event stream. It does not own project state. A
@@ -51,18 +54,19 @@ project at the execution location remains available through
 
 Operation submission is asynchronous for the caller, while ``execute()`` stays
 synchronous in the calling thread. ``GtOperationExecutor`` owns preparation,
-async lifecycle, backend selection, cancellation requests, result transport,
-and the lifecycle/cancellation gate around result application. The selected
-backend owns placement and provisioning or reconstruction.
+async lifecycle, backend selection, cancellation requests, and transport of
+operation outcomes. The executor also gates result application based on its
+lifecycle and cancellation policy. The selected backend owns placement and
+provisioning or reconstruction.
 
 ``GtExecutionEnvironment`` is the synchronous execution-side boundary. It
 borrows an optional pre-provisioned project, establishes the invocation's
 ``GtExecutionContextScope``, constructs the ``GtOperationExecutionContext``, and
 calls ``execute()``. It does not initialize Core or a session, perform project
-I/O, create or move objects or threads, schedule work, transport data, apply a
-result, acquire ``GtProjectExecutionGuard``, or roll back project changes. It
-can be reused sequentially around the same borrowed project and has no
-lifecycle state.
+I/O, create or move objects or threads, schedule work, transport data, apply
+an operation outcome, acquire ``GtProjectExecutionGuard``, or roll back
+project changes. It can be reused sequentially around the same borrowed project
+and has no lifecycle state.
 
 For a project-required invocation, the environment rejects a missing project
 and checks the operation, data, and project thread affinity before execution.
@@ -73,21 +77,23 @@ project.
 
 Cancellation remains effective until the originating side starts
 ``applyResult()``. If cancellation is requested before then, the executor does
-not call ``applyResult()``; it may still return or expose the detached result to
-the client. Once ``applyResult()`` starts, cancellation no longer interrupts
-that commit step. The executor owns this lifecycle/cancellation gate, but it
-does not interpret the outcome. When called, ``applyResult()`` receives the
-complete outcome and the operation interprets its statuses and payload.
+not call ``applyResult()``; it may still return or expose the detached result
+payload to the client. Once ``applyResult()`` starts, cancellation no longer
+interrupts that commit step. The executor owns this lifecycle/cancellation
+gate, but it does not interpret the outcome. When called, ``applyResult()``
+receives the complete outcome and the operation interprets its statuses and
+result payload.
 
 Operation outcome and environment errors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``GtOperationExecutionResult`` is a transport-neutral Core value type, not a
-``GtObject``. It contains ``Success``, ``Failed``, or ``Cancelled``, an optional
-operation-defined ``code`` and ``message``, and an optional ``GtObject``
-payload. Any status may contain a payload; there is no generic
-``PartialResult`` status. Generic execution code does not classify payload
-completeness or domain applicability.
+An operation outcome is the complete ``GtOperationExecutionResult``; a result
+payload is its optional ``GtObject``. ``GtOperationExecutionResult`` is a
+transport-neutral Core value type, not a ``GtObject``. It contains
+``Success``, ``Failed``, or ``Cancelled``, an optional operation-defined
+``code`` and ``message``, and an optional result payload. Any status may contain
+a payload; there is no generic ``PartialResult`` status. Generic execution code
+does not classify payload completeness or domain applicability.
 
 ``GtExecutionResult`` keeps boundary failures separate from operation
 outcomes. ``Error::None`` means an operation outcome is present, including a
@@ -114,10 +120,10 @@ Events
 An operation can report events while ``execute()`` is running. For example, it
 can report that it started, provide progress, or report that one step finished.
 The application that started the operation can show this information before
-the final result is available.
+the final operation outcome is available.
 
 Events do not change the originating project and do not replace the operation
-result.
+outcome.
 
 During ``execute()``, the operation publishes events through
 ``GtOperationExecutionContext::events()``. The caller supplies the
@@ -136,7 +142,7 @@ Each event contains:
 * ``payload`` contains optional JSON data for the event.
 
 Use events for small status and progress messages. Send larger GTlab data as
-the operation result or through a separate data channel.
+the result payload or through a separate data channel.
 
 Event file
 ^^^^^^^^^^
@@ -182,7 +188,7 @@ Consequences
 * Operations continue to use the existing GTlab object registration and
   serialization mechanisms.
 * The executor can change lifecycle and cancellation gating while operations
-  keep ownership of domain-specific result interpretation.
+  keep ownership of domain-specific outcome interpretation.
 * Backend placement, transport, and GUI integrations can evolve without adding
   lifecycle responsibilities to the synchronous environment.
 * Broker, queue, cluster, replay, reconnect, resident-session synchronization,

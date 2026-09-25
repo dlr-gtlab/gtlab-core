@@ -30,24 +30,26 @@ An operation separates preparation, computation, and project updates:
 ``applyResult()`` receives the full operation outcome and interprets its domain
 meaning on that project. Both run on the originating side and must be fast.
 
-``GtOperationExecutor`` owns asynchronous submission, backend selection,
-cancellation and result transport. Cancellation remains effective until the
-executor starts ``applyResult()``. If cancellation is requested before then,
-the executor skips ``applyResult()``; it may still return or expose the detached
-result to the client. Once ``applyResult()`` starts, cancellation does not
-interrupt that commit step. The executor does not classify an outcome or
-decide whether a payload is semantically applicable; the operation interprets
-the full outcome in ``applyResult()``.
+The planned client-side ``GtOperationExecutor`` will own asynchronous
+submission, backend selection, cancellation, and transport of operation
+outcomes. Cancellation remains effective until the originating side starts
+``applyResult()``. If requested before then, the executor skips that call but
+may still return or expose the detached result payload to the client. Once
+``applyResult()`` starts, cancellation does not interrupt that commit step. The
+executor does not classify an outcome or decide whether a payload is
+semantically applicable; the operation interprets the full outcome in
+``applyResult()``.
 
 ``execute()`` contains the potentially expensive work. It is synchronous in
-the calling thread, while ``GtOperationExecutor`` manages the caller's
-asynchronous lifecycle. ``GtExecutionEnvironment`` scopes the execution-local
-project and calls the operation. The selected backend provisions the operation,
-optional data, event stream, and required project for that thread. This contract
-works in a dedicated GUI execution thread, a one-shot worker, a resident project
-worker, or a future remote worker. The operation uses only execution-local
-state and services from ``GtOperationExecutionContext``; it must not access the
-originating project directly.
+the calling thread, while the planned ``GtOperationExecutor`` client-side layer
+will manage the caller's asynchronous lifecycle. ``GtExecutionEnvironment``
+scopes the execution-local project and calls the operation. The selected
+backend provisions the operation, optional data, event stream, and required
+project for that thread. This contract works in a dedicated GUI execution
+thread, a one-shot worker, a resident project worker, or a future remote worker.
+The operation uses only execution-local state and services from
+``GtOperationExecutionContext``; it must not access the originating project
+directly.
 
 ``requiresProject()`` states whether this invocation needs a GTlab project
 at the execution location. It does not select the execution location. When it
@@ -75,28 +77,30 @@ If only selected parts of the originating project are needed, prefer extracting
 them in ``createData()`` and return ``false`` from ``requiresProject()``. This
 avoids providing a complete project at the execution location.
 
-The operation does not create threads or processes and does not select remote
-workers. Scheduling, data transfer, and execution lifecycle belong to the
-execution infrastructure.
+An operation does not create threads or processes to implement execution
+placement or asynchronous submission. Domain-specific internal parallelism
+remains the responsibility of the operation or task. Scheduling, data transfer,
+and execution lifecycle belong to the execution infrastructure.
 
 Operation outcomes and transport
 --------------------------------
 
-``GtOperationExecutionResult`` is a transport-neutral Core value type, not a
-``GtObject``. It contains a ``Success``, ``Failed``, or ``Cancelled`` status,
-optional ``code`` and ``message`` values, and an optional ``GtObject`` payload.
-Any status may carry a payload; there is no generic ``PartialResult`` status.
+An operation outcome is the complete ``GtOperationExecutionResult``; its
+result payload is the optional ``GtObject`` it contains. The value type is
+transport-neutral and is not a ``GtObject``. It contains a ``Success``,
+``Failed``, or ``Cancelled`` status, optional ``code`` and ``message`` values,
+and an optional result payload. Any status may carry a payload; there is no
+generic ``PartialResult`` status.
 
 ``GtExecutionResult`` separately represents the environment boundary. A normal
 domain failure is ``Error::None`` with an operation outcome whose status is
 ``Failed``. ``ProjectRequired``, ``WrongThread``, and ``UnhandledException`` are
 boundary failures and have no operation outcome.
 
-Transport adapters encode ``status``, ``code``, and ``message`` as scalar
-protocol metadata. They serialize and reconstruct only the optional
-polymorphic payload through Memento and ``GtObjectFactory``. The complete
-``GtOperationExecutionResult`` is not serialized as a ``GtObject``;
-``GtExecutionEnvironment`` performs no serialization.
+Transport adapters encode ``status``, ``code``, and ``message`` directly.
+Only the optional ``GtObject`` result payload uses Memento and
+``GtObjectFactory`` serialization. ``GtExecutionEnvironment`` performs no
+serialization.
 
 GTlab integration
 -----------------
@@ -113,10 +117,11 @@ detached input, execution identity, cancellation state, and event stream.
 Project access continues to use ``GtExecutionContext``; project state is not
 part of the operation context.
 
-The environment borrows, but does not open, save, close, or own its project.
-It does not initialize Core or a session, schedule work, create or move threads,
-or transport results. The backend owns provisioning and placement. Cancellation
-is cooperative during ``execute()``; the environment preserves the returned
+The environment borrows, but does not open, save, close, or own its
+execution-local project. It does not initialize Core or a session, schedule
+work, create or move threads, or move execution data between locations. The
+backend owns provisioning and placement. Cancellation is cooperative during
+``execute()``; the environment preserves the returned
 status and reports escaping exceptions as boundary errors.
 
 The accepted :doc:`architecture decision
