@@ -68,7 +68,7 @@ public:
 private:
     struct Failure
     {
-        Error error;
+        Error error{Error::UnhandledException};
         QString message;
     };
 
