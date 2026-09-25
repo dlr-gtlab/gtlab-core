@@ -31,10 +31,13 @@ An operation separates preparation, computation, and project updates:
 meaning on that project. Both run on the originating side and must be fast.
 
 ``GtOperationExecutor`` owns asynchronous submission, backend selection,
-cancellation and result transport. Its lifecycle and cancellation policy gate
-whether and when it calls ``applyResult()``. It does not classify an outcome or
-decide whether a payload is semantically applicable; that decision belongs to
-the operation's ``applyResult()`` implementation.
+cancellation and result transport. Cancellation remains effective until the
+executor starts ``applyResult()``. If cancellation is requested before then,
+the executor skips ``applyResult()``; it may still return or expose the detached
+result to the client. Once ``applyResult()`` starts, cancellation does not
+interrupt that commit step. The executor does not classify an outcome or
+decide whether a payload is semantically applicable; the operation interprets
+the full outcome in ``applyResult()``.
 
 ``execute()`` contains the potentially expensive work. It is synchronous in
 the calling thread, while ``GtOperationExecutor`` manages the caller's
@@ -76,11 +79,30 @@ The operation does not create threads or processes and does not select remote
 workers. Scheduling, data transfer, and execution lifecycle belong to the
 execution infrastructure.
 
+Operation outcomes and transport
+--------------------------------
+
+``GtOperationExecutionResult`` is a transport-neutral Core value type, not a
+``GtObject``. It contains a ``Success``, ``Failed``, or ``Cancelled`` status,
+optional ``code`` and ``message`` values, and an optional ``GtObject`` payload.
+Any status may carry a payload; there is no generic ``PartialResult`` status.
+
+``GtExecutionResult`` separately represents the environment boundary. A normal
+domain failure is ``Error::None`` with an operation outcome whose status is
+``Failed``. ``ProjectRequired``, ``WrongThread``, and ``UnhandledException`` are
+boundary failures and have no operation outcome.
+
+Transport adapters encode ``status``, ``code``, and ``message`` as scalar
+protocol metadata. They serialize and reconstruct only the optional
+polymorphic payload through Memento and ``GtObjectFactory``. The complete
+``GtOperationExecutionResult`` is not serialized as a ``GtObject``;
+``GtExecutionEnvironment`` performs no serialization.
+
 GTlab integration
 -----------------
 
-``GtExecutableOperation`` is a normal ``GtObject``. Operations, input data, and
-results therefore use GTlab properties, ``GtObjectFactory``, and Memento/XML.
+``GtExecutableOperation`` is a normal ``GtObject``. Operations, input data,
+and result payloads use GTlab properties, ``GtObjectFactory``, and Memento/XML.
 No operation-specific object model or serializer is needed.
 
 Modules declare their operation classes through ``GtOperationInterface``. See

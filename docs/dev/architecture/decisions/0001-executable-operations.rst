@@ -71,25 +71,35 @@ project and installs an explicitly empty context. This makes legacy current-
 project accessors return ``nullptr`` instead of falling back to a GUI/session
 project.
 
-The executor decides whether and when its lifecycle and cancellation policy
-allow ``applyResult()`` to run. It must not infer whether a payload is
-semantically applicable from ``Success``, ``Failed``, or ``Cancelled``. When
-called, ``applyResult()`` receives the complete outcome and the operation owns
-its interpretation.
+Cancellation remains effective until the originating side starts
+``applyResult()``. If cancellation is requested before then, the executor does
+not call ``applyResult()``; it may still return or expose the detached result to
+the client. Once ``applyResult()`` starts, cancellation no longer interrupts
+that commit step. The executor owns this lifecycle/cancellation gate, but it
+does not interpret the outcome. When called, ``applyResult()`` receives the
+complete outcome and the operation interprets its statuses and payload.
 
 Operation outcome and environment errors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``GtOperationExecutionResult`` contains ``Success``, ``Failed``, or
-``Cancelled``, an optional operation-defined code and message, and an optional
-``GtObject`` payload. Any status may contain a payload. Generic execution code
-does not classify payload completeness or domain applicability.
+``GtOperationExecutionResult`` is a transport-neutral Core value type, not a
+``GtObject``. It contains ``Success``, ``Failed``, or ``Cancelled``, an optional
+operation-defined ``code`` and ``message``, and an optional ``GtObject``
+payload. Any status may contain a payload; there is no generic
+``PartialResult`` status. Generic execution code does not classify payload
+completeness or domain applicability.
 
 ``GtExecutionResult`` keeps boundary failures separate from operation
 outcomes. ``Error::None`` means an operation outcome is present, including a
 regular domain failure with ``Status::Failed``. ``ProjectRequired``,
 ``WrongThread``, and ``UnhandledException`` mean there is no operation outcome.
 An exception escaping ``execute()`` becomes ``UnhandledException``.
+
+Transport adapters encode ``status``, ``code``, and ``message`` as scalar
+protocol metadata. They serialize and reconstruct only the optional
+polymorphic ``GtObject`` payload through Memento and ``GtObjectFactory``. The
+complete ``GtOperationExecutionResult`` is not serialized wholesale, and
+``GtExecutionEnvironment`` performs no serialization.
 
 Cancellation is cooperative after execution begins. A pre-cancelled token
 skips ``execute()`` and returns a regular ``Cancelled`` outcome. During
