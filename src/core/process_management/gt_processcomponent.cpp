@@ -189,6 +189,27 @@ GtProcessComponent::setProgress(int progress)
     emit progressStateChanged(pimpl->progress);
 }
 
+const QPointer<GtAbstractRunnable>&
+GtProcessComponent::publicRunnable() const
+{
+    return runnable();
+}
+
+GtProcessComponent&
+GtProcessComponent::publicSetRunnable(QPointer<GtAbstractRunnable> p)
+{
+    return setRunnable(p);
+}
+
+void
+GtProcessComponent::setInputDataToRunnable(const QList<GtObjectMemento>& data)
+{
+    if (QPointer<GtAbstractRunnable> r = runnable())
+    {
+        r->setInputData(data);
+    }
+}
+
 QList<GtAbstractProperty*>
 GtProcessComponent::monitoringProperties()
 {

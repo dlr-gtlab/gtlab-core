@@ -28,6 +28,24 @@ GtAbstractRunnable::linkedObjects() const
 }
 
 void
+GtAbstractRunnable::setLinkedObjects(const QList<GtObject*>& objects)
+{
+    m_linkedObjects = objects;
+}
+
+void
+GtAbstractRunnable::addLinkedObject(GtObject* object)
+{
+    m_linkedObjects.append(object);
+}
+
+void
+GtAbstractRunnable::setInputData(const QList<GtObjectMemento>& data)
+{
+    m_inputData = data;
+}
+
+void
 GtAbstractRunnable::appendSourceData(const GtObjectMemento& memento)
 {
     m_inputData << memento;
@@ -38,12 +56,6 @@ GtAbstractRunnable::appendSourceData(const GtObjectMemento& memento)
     //    {
     //        m_outputData.insert(uuid, memento);
     //    }
-}
-
-const QList<GtObjectMemento>&
-GtAbstractRunnable::outputData() const
-{
-    return m_outputData;
 }
 
 bool
@@ -76,4 +88,28 @@ bool
 GtAbstractRunnable::successful()
 {
     return m_successfulRun;
+}
+
+void
+GtAbstractRunnable::setDOEContext(const DOEContext& context)
+{
+    m_doeContext = context;
+}
+
+GtAbstractRunnable::DOEContext
+GtAbstractRunnable::doeContext() const
+{
+    return m_doeContext;
+}
+
+const QList<GtObjectMemento>&
+GtAbstractRunnable::inputData() const
+{
+    return m_inputData;
+}
+
+const QList<GtObjectMemento>&
+GtAbstractRunnable::outputData() const
+{
+    return m_outputData;
 }

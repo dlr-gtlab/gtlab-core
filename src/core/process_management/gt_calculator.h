@@ -11,6 +11,7 @@
 #ifndef GTCALCULATOR_H
 #define GTCALCULATOR_H
 
+#include "gt_abstractrunnable.h"
 #include "gt_core_exports.h"
 #include "gt_labelproperty.h"
 #include "gt_modeproperty.h"
@@ -114,13 +115,26 @@ public:
      * @brief Returns current execution identification label.
      * @return Identification label.
      */
-    const QString& executionLabel();
+    const QString& executionLabel() const;
 
     /**
      * @brief Sets current execution identification label.
      * @param label - New Identification label.
      */
     void setExecutionLabel(const QString& label);
+
+    /**
+     * @brief Returns DOE execution context.
+     * @return DOE context structure.
+     */
+    GtAbstractRunnable::DOEContext doeContext() const;
+
+    /**
+     * @brief Returns execution label with run index for parallel execution.
+     * Appends "[Run X/Y]" to the label if totalRuns > 1.
+     * @return Labeled execution label.
+     */
+    QString executionLabelWithIndex() const;
 
     /**
      * @brief Returns true if run should be marked as failed if warning flag

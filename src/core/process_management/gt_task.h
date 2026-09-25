@@ -118,6 +118,7 @@ public:
      * @return Max. number of iteration steps.
      */
     int maxIterationSteps() const;
+    void setMaxIteration(int maxIterations);
 
     /**
      * @brief Returns current iteration step.

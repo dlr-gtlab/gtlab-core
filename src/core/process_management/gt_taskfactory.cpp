@@ -17,6 +17,7 @@
 #include "gt_processdata.h"
 #include "gt_taskdata.h"
 #include "gt_parameterloop.h"
+#include "gt_doetask.h"
 
 #include "gt_taskfactory.h"
 
@@ -55,6 +56,13 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                     "between start and end value");
     parameterLoop->status = GtTaskDataImpl::RELEASE;
     GtTaskFactory::registerTaskData(parameterLoop);
+
+    GtTaskData doeTask = GT_TASK_DATA(GtDOETask);
+    doeTask->id = QStringLiteral("Parallel Test");
+    doeTask->version = GtVersionNumber(0,1);
+    doeTask->description = tr("Parallel test");
+    doeTask->status = GtTaskDataImpl::RELEASE;
+    GtTaskFactory::registerTaskData(doeTask);
 }
 
 
