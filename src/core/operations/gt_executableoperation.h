@@ -29,13 +29,13 @@ public:
     ~GtExecutableOperation() override = default;
 
     /**
-     * @brief Returns whether execute() needs a GTlab project in addition to
-     *        its detached input data.
+     * @brief Returns whether execute() requires an execution-local GTlab
+     *        project.
      *
      * This applies at the location where execute() runs. The operation may
      * still read the originating project while createData() prepares input.
      *
-     * @return True if execute() requires a project in addition to its input.
+     * @return True if execute() requires an execution-local project.
      */
     virtual bool requiresProject() const = 0;
 
@@ -69,11 +69,11 @@ public:
      * @brief Applies an operation execution outcome on the originating side.
      *
      * Called on the originating project/application thread and must remain
-     * lightweight. executionResult is the complete, non-owning operation
-     * outcome from execute() and must not be retained. The operation decides
-     * how each status and optional result payload affects the originating
-     * project. This is the only operation lifecycle step that may apply
-     * execution output to the originating project.
+     * lightweight. executionResult contains the complete outcome returned by
+     * execute() and is borrowed for this call. It must not be retained. The
+     * operation decides how each status and optional result payload affects the
+     * originating project. This is the only operation lifecycle step that may
+     * apply execution output to the originating project.
      *
      * @param executionResult Complete operation execution outcome from
      *        execute().
