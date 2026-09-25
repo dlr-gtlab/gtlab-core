@@ -17,7 +17,8 @@
 class GtExecutionEnvironment;
 
 /**
- * @brief Holds either an operation outcome or an environment failure.
+ * @brief Represents either an operation outcome or an error raised by the
+ *        execution environment.
  *
  * An operation outcome is present exactly when error() returns Error::None.
  * Environment failures have no operation outcome. Use operationResult() to

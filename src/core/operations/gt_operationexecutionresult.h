@@ -17,9 +17,9 @@
 /**
  * @brief Describes the outcome returned by one executable operation.
  *
- * This value contains only operation-level status and an optional payload. It
- * does not describe failures in the execution environment. The payload is
- * owned by this value and may be present for every status.
+ * This value contains operation-level status and an optional result payload.
+ * It does not describe failures in the execution environment. The result
+ * payload is owned by this value and may be present for every status.
  */
 struct GT_CORE_EXPORT GtOperationExecutionResult
 {
@@ -38,11 +38,11 @@ struct GT_CORE_EXPORT GtOperationExecutionResult
 
     /** @brief How the operation ended. */
     Status status{Status::Success};
-    /** @brief Optional operation-defined, transportable status code. */
+    /** @brief Optional operation-defined machine-readable code. */
     QString code;
-    /** @brief Optional human-readable status context. */
+    /** @brief Optional human-readable message. */
     QString message;
-    /** @brief Optional owned payload, which may accompany every status. */
+    /** @brief Optional owned result payload, which may accompany every status. */
     std::unique_ptr<GtObject> result;
 };
 

@@ -18,7 +18,7 @@
 #include <memory>
 
 /**
- * @brief Transport-neutral executable domain operation.
+ * @brief Executable operation containing domain behavior.
  */
 class GT_CORE_EXPORT GtExecutableOperation : public GtObject
 {
@@ -59,24 +59,26 @@ public:
      * the execution location, but never the originating project.
      *
      * @param context Input data and services for this execution.
-     * @return The operation status and an optional serializable payload.
+     * @return The operation execution outcome, including its status and
+     *         optional result payload.
      */
     virtual GtOperationExecutionResult execute(
         GtOperationExecutionContext& context) = 0;
 
     /**
-     * @brief Applies a detached result on the originating side.
+     * @brief Applies an operation execution outcome on the originating side.
      *
      * Called on the originating project/application thread and must remain
-     * lightweight. executionResult is the complete, non-owning outcome from
-     * execute() and must not be retained. The operation decides how each
-     * status and optional payload affects the originating project. This is
-     * the only operation step that may change that project from an execution
-     * result.
+     * lightweight. executionResult is the complete, non-owning operation
+     * outcome from execute() and must not be retained. The operation decides
+     * how each status and optional result payload affects the originating
+     * project. This is the only operation lifecycle step that may apply
+     * execution output to the originating project.
      *
-     * @param executionResult Complete outcome from execute().
+     * @param executionResult Complete operation execution outcome from
+     *        execute().
      * @param context Context of the originating-side execution.
-     * @return The status of applying executionResult.
+     * @return The status of applying the operation execution outcome.
      */
     virtual GtOperationApplyStatus applyResult(
         GtOperationExecutionResult const& executionResult,
