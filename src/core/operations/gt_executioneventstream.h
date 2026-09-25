@@ -48,6 +48,7 @@ public:
      *
      * @param eventType Non-empty event type.
      * @param payload JSON payload. An undefined value means no payload.
+     * @throws std::invalid_argument if @p eventType is empty.
      *
      * This function is safe to call from multiple threads. It assigns the next
      * sequence number before notifying observers.
