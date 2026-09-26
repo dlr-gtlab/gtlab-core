@@ -8,8 +8,8 @@ API Reference
 
 This reference lists the public GTlab Core types intended for module authors
 and Core contributors. For architectural guidance and usage patterns, see the
-:doc:`executable operation guide <architecture/executable_operations>` and the
-other developer documentation.
+:doc:`architecture documentation <architecture/index>` and the other developer
+documentation.
 
 .. _core-api:
 
