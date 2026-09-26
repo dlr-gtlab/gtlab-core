@@ -59,6 +59,22 @@ operation outcomes. The executor also gates result application based on its
 lifecycle and cancellation policy. The selected backend owns placement and
 provisioning or reconstruction.
 
+GtExecutionEnvironment boundary
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following boundary choices are intentional:
+
+* Execution is synchronous in the calling thread.
+* The environment borrows the execution-local project and owns no project
+  lifecycle.
+* Project-independent invocations install an explicitly empty
+  ``GtExecutionContext``.
+* Thread affinity is validated; the environment never moves Qt/GTlab objects
+  between threads.
+* The environment performs no rollback or resident-project recovery.
+* Scheduling, placement, transport, serialization, and result application
+  remain outside the environment.
+
 ``GtExecutionEnvironment`` is the synchronous execution-side boundary. It
 borrows an optional pre-provisioned project, establishes the invocation's
 ``GtExecutionContextScope``, constructs the ``GtOperationExecutionContext``, and
