@@ -89,7 +89,8 @@ private:
  * @brief Data and services passed to GtExecutableOperation::execute().
  *
  * The caller owns the detached data and the event stream. The context borrows
- * both and gets its execution ID from the stream.
+ * both and gets its execution ID from the stream. Copies borrow the same data
+ * and event stream and share the same cooperative cancellation state.
  */
 class GT_CORE_EXPORT GtOperationExecutionContext
 {

@@ -82,7 +82,7 @@ namespace
             return std::make_unique<GtObject>();
         }
 
-        std::unique_ptr<GtObject> execute(
+        GtOperationExecutionResult execute(
             GtOperationExecutionContext& context) override
         {
             observedData = context.data() != nullptr;
@@ -90,15 +90,17 @@ namespace
                 context.cancellation().isCancellationRequested();
             observedExecutionId = context.executionId().toString();
             context.events().publish(QStringLiteral("test"));
-            return std::make_unique<GtObject>();
+            return {GtOperationExecutionResult::Status::Success, {}, {},
+                    std::make_unique<GtObject>()};
         }
 
-        GtOperationApplyStatus applyResult(GtObject const* executionResult,
-                                           GtExecutionContext&) const override
+        GtOperationApplyStatus applyResult(
+            GtOperationExecutionResult const& executionResult,
+            GtExecutionContext&) const override
         {
-            return executionResult ? GtOperationApplyStatus::success()
-                                   : GtOperationApplyStatus::failure(
-                                         QStringLiteral("Missing result"));
+            return executionResult.result ? GtOperationApplyStatus::success()
+                                          : GtOperationApplyStatus::failure(
+                                                QStringLiteral("Missing result"));
         }
 
         bool observedData{false};
@@ -309,10 +311,10 @@ TEST(GtExecutableOperation, roundtripReconstructsAndExecutesOperation)
     EXPECT_EQ(testOperation->observedExecutionId, executionIdText);
     EXPECT_EQ(context.executionId().toString(),
               events.executionId().toString());
-    EXPECT_NE(result, nullptr);
+    EXPECT_EQ(result.status, GtOperationExecutionResult::Status::Success);
+    ASSERT_NE(result.result, nullptr);
     GtExecutionContext clientContext;
-    EXPECT_TRUE(
-        testOperation->applyResult(result.get(), clientContext).succeeded());
+    EXPECT_TRUE(testOperation->applyResult(result, clientContext).succeeded());
 }
 
 TEST(GtExecutableOperation, rejectsReconstructedNonOperationBeforeExecution)

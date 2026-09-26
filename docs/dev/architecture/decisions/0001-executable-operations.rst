@@ -27,20 +27,25 @@ Operation model
 * ``createData()`` and ``applyResult()`` run on the originating side and must
   be fast.
 * ``execute()`` is the synchronous, potentially expensive execution-side step.
-* Only ``applyResult()`` updates the originating project with the result.
-* ``requiresProject()`` states whether the execution location needs a project.
+* ``applyResult()`` receives the full outcome and interprets its domain meaning
+  when updating the originating project.
+* ``requiresProject()`` states whether the invocation needs an execution-local
+  project; it does not select placement.
 
-Operations, detached input, and detached results use ``GtObjectFactory`` and
-Memento/XML. Modules register operation classes through
+Operations, detached input, and detached result payloads use
+``GtObjectFactory`` and Memento/XML. Modules register operation classes through
 ``GtOperationInterface``. There is no separate operation factory, registry, or
 serializer.
 
 Execution state
 ~~~~~~~~~~~~~~~
 
-The originating operation, an execution-local reconstructed operation, and the
-detached input/result are separate objects with separate lifetimes. Detached
-objects must not contain borrowed pointers into the originating project.
+The originating operation, an execution-local reconstructed operation, the
+detached input, and the optional detached result payload are separate objects
+with separate lifetimes. ``GtOperationExecutionResult`` is a value envelope
+containing the operation status, code, message, and optional result payload.
+Detached input and result payloads must not contain borrowed pointers into the
+originating project.
 
 ``GtOperationExecutionContext`` contains input data, the execution identity,
 the cancellation state, and the event stream. It does not own project state. A
@@ -48,14 +53,82 @@ project at the execution location remains available through
 ``GtExecutionContext``.
 
 Operation submission is asynchronous for the caller, while ``execute()`` stays
-synchronous. The runtime owns scheduling, status, cancellation, and completion.
-These controls must remain usable while ``execute()`` is running. Project and
-Qt thread-affinity rules still apply.
+synchronous in the calling thread. ``GtOperationExecutor`` owns preparation,
+async lifecycle, backend selection, cancellation requests, and transport of
+operation outcomes. The executor also gates result application based on its
+lifecycle and cancellation policy. The selected backend owns placement and
+provisioning or reconstruction.
 
-``GtHeadlessProjectRuntime`` is the execution-side boundary for one project. It
-owns the execution-local operation and its result. A client-side executor owns
-preparation, transfer, reconstruction, ``applyResult()``, and client-visible
-completion.
+GtExecutionEnvironment boundary
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following boundary choices are intentional:
+
+* Execution is synchronous in the calling thread.
+* The environment borrows the execution-local project and owns no project
+  lifecycle.
+* Project-independent invocations install an explicitly empty
+  ``GtExecutionContext``.
+* Thread affinity is validated; the environment never moves Qt/GTlab objects
+  between threads.
+* The environment performs no rollback or resident-project recovery.
+* Scheduling, placement, transport, serialization, and result application
+  remain outside the environment.
+
+``GtExecutionEnvironment`` is the synchronous execution-side boundary. It
+borrows an optional pre-provisioned project, establishes the invocation's
+``GtExecutionContextScope``, constructs the ``GtOperationExecutionContext``, and
+calls ``execute()``. It does not initialize Core or a session, perform project
+I/O, create or move objects or threads, schedule work, transport data, apply
+an operation outcome, acquire ``GtProjectExecutionGuard``, or roll back
+project changes. It can be reused sequentially around the same borrowed project
+and has no lifecycle state.
+
+For a project-required invocation, the environment rejects a missing project
+and checks the operation, data, and project thread affinity before execution.
+For a project-independent invocation, it neither inspects nor uses its optional
+project and installs an explicitly empty context. This makes legacy current-
+project accessors return ``nullptr`` instead of falling back to a GUI/session
+project.
+
+Cancellation remains effective until the originating side starts
+``applyResult()``. If cancellation is requested before then, the executor does
+not call ``applyResult()``; it may still return or expose the detached result
+payload to the client. Once ``applyResult()`` starts, cancellation no longer
+interrupts that commit step. The executor owns this lifecycle/cancellation
+gate, but it does not interpret the outcome. When called, ``applyResult()``
+receives the complete outcome and the operation interprets its statuses and
+result payload.
+
+Operation outcome and environment errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An operation outcome is the complete ``GtOperationExecutionResult``; a result
+payload is its optional ``GtObject``. ``GtOperationExecutionResult`` is a
+transport-neutral Core value type, not a ``GtObject``. It contains
+``Success``, ``Failed``, or ``Cancelled``, an optional operation-defined
+``code`` and ``message``, and an optional result payload. Any status may contain
+a payload; there is no generic ``PartialResult`` status. Generic execution code
+does not classify payload completeness or domain applicability.
+
+``GtExecutionResult`` keeps boundary failures separate from operation
+outcomes. ``Error::None`` means an operation outcome is present, including a
+regular domain failure with ``Status::Failed``. ``ProjectRequired``,
+``WrongThread``, and ``UnhandledException`` mean there is no operation outcome.
+An exception escaping ``execute()`` becomes ``UnhandledException``.
+
+Transport adapters encode ``status``, ``code``, and ``message`` as scalar
+protocol metadata. They serialize and reconstruct only the optional
+polymorphic ``GtObject`` payload through Memento and ``GtObjectFactory``. The
+complete ``GtOperationExecutionResult`` is not serialized wholesale, and
+``GtExecutionEnvironment`` performs no serialization.
+
+Cancellation is cooperative after execution begins. A pre-cancelled token
+skips ``execute()`` and returns a regular ``Cancelled`` outcome. During
+execution, the operation decides how to react, and the environment preserves
+the status it returns. The environment performs no rollback. A higher-level
+resident worker decides whether a project changed by a failed, cancelled, or
+throwing invocation remains trusted and whether it must be reprovisioned.
 
 Events
 ~~~~~~
@@ -63,17 +136,19 @@ Events
 An operation can report events while ``execute()`` is running. For example, it
 can report that it started, provide progress, or report that one step finished.
 The application that started the operation can show this information before
-the final result is available.
+the final operation outcome is available.
 
 Events do not change the originating project and do not replace the operation
-result.
+outcome.
 
 During ``execute()``, the operation publishes events through
-``GtOperationExecutionContext::events()``. The returned
-``GtExecutionEventStream`` adds the execution identity and sequence number.
-Local observers receive the events through Qt signals and slots. If the
-operation runs in another process or on another machine, an adapter can store
-or forward the same events. The operation code does not depend on that adapter.
+``GtOperationExecutionContext::events()``. The caller supplies the
+``GtExecutionEventStream`` to ``GtExecutionEnvironment``; the environment uses
+it for the invocation but does not store or transport events. The stream adds
+the execution identity and sequence number. Local observers receive the events
+through Qt signals and slots. If the operation runs in another process or on
+another machine, a backend or transport adapter can store or forward the same
+events. The operation code does not depend on that adapter.
 
 Each event contains:
 
@@ -83,7 +158,7 @@ Each event contains:
 * ``payload`` contains optional JSON data for the event.
 
 Use events for small status and progress messages. Send larger GTlab data as
-the operation result or through a separate data channel.
+the result payload or through a separate data channel.
 
 Event file
 ^^^^^^^^^^
@@ -111,15 +186,15 @@ compatibility. The file writer remains the primary event channel.
 Task and worker integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Existing ``GtTask`` and calculator code remains unchanged. A
-``ProcessTaskOperation`` adapter connects it to the operation/runtime model and
-may reuse ``GtCoreProcessExecutor`` internally. Generic operation code does not
-depend on task lookup or task-specific state.
+Existing ``GtTask`` and calculator code remains unchanged. A later
+``ProcessTaskOperation`` adapter (#1531) connects it to the operation model and
+may reuse ``GtCoreProcessExecutor`` internally. Generic operation and
+execution-environment code does not depend on task lookup or task-specific
+state.
 
-A worker is an adapter around ``GtHeadlessProjectRuntime``. It reconstructs
-GTlab objects through the normal factories, configures boundary adapters, and
-submits the operation to the runtime. It does not introduce another execution
-lifecycle.
+A worker backend provisions or reconstructs GTlab objects through the normal
+factories, configures boundary adapters, and calls ``GtExecutionEnvironment``.
+Worker startup and project provisioning remain outside the environment.
 
 Consequences
 ------------
@@ -128,7 +203,9 @@ Consequences
   execution.
 * Operations continue to use the existing GTlab object registration and
   serialization mechanisms.
-* Runtime, transport, and GUI integrations can evolve without changing domain
-  operations.
+* The executor can change lifecycle and cancellation gating while operations
+  keep ownership of domain-specific outcome interpretation.
+* Backend placement, transport, and GUI integrations can evolve without adding
+  lifecycle responsibilities to the synchronous environment.
 * Broker, queue, cluster, replay, reconnect, resident-session synchronization,
   and GUI interaction are separate work.

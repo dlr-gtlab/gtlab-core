@@ -12,27 +12,28 @@
 #include <QString>
 
 /**
- * @brief Status of applying a detached execution result on the originating side.
+ * @brief Status of applying an operation execution outcome on the originating
+ *        side.
  */
 class GT_CORE_EXPORT GtOperationApplyStatus
 {
 public:
     /**
      * @brief Creates a successful apply status.
-     * @return A status indicating that the result was applied.
+     * @return A status indicating that the outcome was applied.
      */
     static GtOperationApplyStatus success();
 
     /**
      * @brief Creates a failed apply status.
      * @param errorMessage Description of the failure.
-     * @return A status indicating that the result was not applied.
+     * @return A status indicating that the outcome was not applied.
      */
     static GtOperationApplyStatus failure(QString errorMessage);
 
     /**
-     * @brief Returns whether the result was applied successfully.
-     * @return True if the result was applied.
+     * @brief Returns whether the outcome was applied successfully.
+     * @return True if the outcome was applied.
      */
     bool succeeded() const noexcept;
 
