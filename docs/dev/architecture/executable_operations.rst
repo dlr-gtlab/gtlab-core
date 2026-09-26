@@ -14,17 +14,47 @@ adapter. The operation model is not tied to the ``GtTask`` lifecycle or
 ``GtCoreProcessExecutor`` and can also represent module-specific algorithms or
 Intelligraph computations.
 
+Execution layers
+----------------
+
+The execution model separates client-side orchestration, placement, and the
+synchronous execution boundary:
+
+.. mermaid::
+
+   flowchart TB
+       Client["Client<br/>GUI / Python / HTTP"]
+       Executor["GtOperationExecutor<br/>(planned client-side orchestration)"]
+       Backend["Execution backend<br/>placement / provisioning / transport"]
+       Environment["GtExecutionEnvironment<br/>synchronous execution boundary"]
+       Operation["GtExecutableOperation::execute()"]
+
+       Client --> Executor
+       Executor --> Backend
+       Backend --> Environment
+       Environment --> Operation
+
 Operation lifecycle
 -------------------
 
 An operation separates preparation, computation, and project updates:
 
-.. code-block:: text
+.. mermaid::
 
-   originating side       GtOperationExecutor/backend       execution side
-   ---------------        --------------------------        --------------
-   createData()  -------> provision operation and data --> GtExecutionEnvironment
-   applyResult() <------- return full outcome <----------- execute()
+   sequenceDiagram
+       participant Origin as Originating operation
+       participant Executor as GtOperationExecutor / backend
+       participant Environment as GtExecutionEnvironment
+       participant Execution as Execution-local operation
+
+       Executor->>Origin: createData(context)
+       Origin-->>Executor: detached input
+       Executor->>Environment: provisioned invocation
+       Environment->>Execution: execute(context)
+       Execution-->>Environment: operation outcome
+       Environment-->>Executor: operation outcome
+       Executor->>Origin: applyResult(outcome, context)
+       Origin-->>Executor: apply status
 
 ``createData()`` prepares optional input from the originating project.
 ``applyResult()`` receives the full operation outcome and interprets its domain
