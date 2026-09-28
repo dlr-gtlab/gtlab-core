@@ -58,7 +58,8 @@ An operation separates preparation, computation, and project updates:
 
 ``createData()`` prepares optional input from the originating project.
 ``applyResult()`` receives the full operation outcome and interprets its domain
-meaning on that project. Both run on the originating side and must be fast.
+meaning on that project. Both methods run on the originating side (for example,
+the client side) and must complete quickly.
 
 The planned client-side ``GtOperationExecutor`` will own asynchronous
 submission, backend selection, cancellation, and transport of operation
@@ -119,8 +120,10 @@ An operation outcome is the complete ``GtOperationExecutionResult``; its
 result payload is the optional ``GtObject`` it contains. The value type is
 transport-neutral and is not a ``GtObject``. It contains a ``Success``,
 ``Failed``, or ``Cancelled`` status, optional ``code`` and ``message`` values,
-and an optional result payload. Any status may carry a payload; there is no
-generic ``PartialResult`` status.
+and an optional result payload. Any status may carry a result payload; there is
+no generic ``PartialResult`` status. A ``Cancelled`` outcome may therefore
+contain partial results. If the executor calls ``applyResult()``, the operation
+decides how to handle the status and payload.
 
 ``GtExecutionResult`` separately represents the environment boundary. A normal
 domain failure is ``Error::None`` with an operation outcome whose status is

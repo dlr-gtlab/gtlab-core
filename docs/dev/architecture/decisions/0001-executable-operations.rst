@@ -30,7 +30,7 @@ Operation model
 * ``applyResult()`` receives the full outcome and interprets its domain meaning
   when updating the originating project.
 * ``requiresProject()`` states whether the invocation needs an execution-local
-  project; it does not select placement.
+  project; it does not determine where the operation runs.
 
 Operations, detached input, and detached result payloads use
 ``GtObjectFactory`` and Memento/XML. Modules register operation classes through
@@ -123,12 +123,14 @@ polymorphic ``GtObject`` payload through Memento and ``GtObjectFactory``. The
 complete ``GtOperationExecutionResult`` is not serialized wholesale, and
 ``GtExecutionEnvironment`` performs no serialization.
 
-Cancellation is cooperative after execution begins. A pre-cancelled token
-skips ``execute()`` and returns a regular ``Cancelled`` outcome. During
-execution, the operation decides how to react, and the environment preserves
-the status it returns. The environment performs no rollback. A higher-level
-resident worker decides whether a project changed by a failed, cancelled, or
-throwing invocation remains trusted and whether it must be reprovisioned.
+Cancellation is cooperative once execution starts. The operation must check
+the cancellation token regularly and decide how to respond. If cancellation
+was requested before ``execute()`` starts, the environment skips ``execute()``
+and returns a ``Cancelled`` outcome. During execution, the environment
+preserves the status returned by the operation. The environment performs no
+rollback. A higher-level resident worker decides whether a project changed by
+a failed, cancelled, or throwing invocation remains trusted and whether it must
+be reprovisioned.
 
 Events
 ~~~~~~
@@ -192,8 +194,9 @@ may reuse ``GtCoreProcessExecutor`` internally. Generic operation and
 execution-environment code does not depend on task lookup or task-specific
 state.
 
-A worker backend provisions or reconstructs GTlab objects through the normal
-factories, configures boundary adapters, and calls ``GtExecutionEnvironment``.
+A worker backend creates or reconstructs GTlab objects using the standard
+GTlab factories, configures the boundary adapters, and calls
+``GtExecutionEnvironment``.
 Worker startup and project provisioning remain outside the environment.
 
 Consequences
@@ -204,7 +207,7 @@ Consequences
 * Operations continue to use the existing GTlab object registration and
   serialization mechanisms.
 * The executor can change lifecycle and cancellation gating while operations
-  keep ownership of domain-specific outcome interpretation.
+  remain responsible for interpreting domain-specific outcomes.
 * Backend placement, transport, and GUI integrations can evolve without adding
   lifecycle responsibilities to the synchronous environment.
 * Broker, queue, cluster, replay, reconnect, resident-session synchronization,
