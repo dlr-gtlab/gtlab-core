@@ -76,13 +76,12 @@ actionBefore(QMenu& menu, int priority)
     // prepend action
     if (priority == gt::gui::OrderPriority::First) return actions.first();
 
-    for (QAction* action : actions)
-    {
-        if (getOrder(action) > priority) return action;
-    }
+    auto iter = std::find_if(actions.begin(), actions.end(), [priority](QAction* action){
+        return getOrder(action) > priority;
+    });
+    if (iter == actions.end()) return nullptr; // all others have higher priority
 
-    // all others have higher priority
-    return nullptr;
+    return *iter;
 }
 
 /// helper method to add a ui-action to a menu. Visibility and status are

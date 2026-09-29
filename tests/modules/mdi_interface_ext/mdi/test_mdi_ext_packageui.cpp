@@ -26,11 +26,11 @@ TestMdiExtPackageUI::TestMdiExtPackageUI()
     auto k = registerShortCut(QStringLiteral("testMdiExtShortCut_1"),
                               QKeySequence(Qt::Key_F9));
 
-    addSingleAction("Test Action 2", "testAction")
+    addSingleAction("First Test Action", "testAction")
         .setShortCut(k)
         .setOrderPriority(gt::gui::OrderPriority::First);  // is placed first in menu
 
-    addActionGroup("Test Action Group 2")
+    addActionGroup("Last Test Action Group")
         .setOrderPriority(gt::gui::OrderPriority::Last) // is placed last in menu
         .setIcon("folder.svg") // test icon by path
         << makeSingleAction("Test Group Action", "testGroupAction")

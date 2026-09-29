@@ -169,7 +169,7 @@ GtObjectUI::validatorRegExp(GtObject* /*obj*/)
     return validatorRegExp();
 }
 
-QString
+QString const&
 GtObjectUI::regExpHint(GtObject* /*obj*/)
 {
     return pimpl->regExpHint;
@@ -330,17 +330,6 @@ bool
 GtObjectUI::hasActions() const
 {
     return !pimpl->singleActions.isEmpty();
-}
-
-QHash<QString, QList<GtObjectUIAction>>
-GtObjectUI::groupActions() const
-{
-    QHash<QString, QList<GtObjectUIAction>> hash;
-    for (GtObjectUIActionGroup const& group : actionGroups())
-    {
-        hash.insert(group.name(), group.actions());
-    }
-    return hash;
 }
 
 const QList<GtObjectUIActionGroup>&

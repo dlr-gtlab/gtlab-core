@@ -81,13 +81,6 @@ public:
     bool hasActions() const;
 
     /**
-     * @brief groupActions
-     * @return
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use GtObjectUIActionGroup::name and ::actions instead")
-    QHash<QString, QList<GtObjectUIAction>> groupActions() const;
-
-    /**
      * @brief hasGroupActions
      * @return
      */
@@ -148,8 +141,7 @@ public:
      * @return a string to help the user which regular expression is used to
      * restrict renaming and how to avoid problems
      */
-    QString regExpHint(GtObject* obj);
-
+    QString const& regExpHint(GtObject* obj);
 
 protected:
 
