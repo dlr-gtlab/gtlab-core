@@ -769,7 +769,7 @@ importToSession(const QStringList& args)
         return -1;
     }
 
-    project.release();
+    static_cast<void>(project.release());
     return 0;
 }
 
