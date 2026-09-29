@@ -23,6 +23,8 @@
 
 #include <algorithm>
 
+/// Deprecation is suppressed to supress warning for GtMonitoringDataTable
+GT_SUPPRESS_DEPRECATED_BEGIN
 struct GtTask::Impl
 {
     /// Event loop
@@ -32,6 +34,8 @@ struct GtTask::Impl
     QList<GtObjectMemento> dataToMerge;
 
     /// Monitoring data table
+    /// ATTENTION: THIS IS DEPRECATED
+    /// REMOVE SUPPRESSION FOR DEPRECATION WARNING ASWELL WHEN THIS CODE IS REMOVED!!!!!
     GtMonitoringDataTable monitoringDataTable;
 
     /// Interruption flag
@@ -44,6 +48,7 @@ struct GtTask::Impl
         tr("Process Runner to run task with. Only relevant for the root task")
     };
 };
+GT_SUPPRESS_DEPRECATED_END
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"),
@@ -163,8 +168,10 @@ GtTask::exec()
 
     setState(GtProcessComponent::RUNNING);
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // clear existing monitoring data
     emit triggerClearMonitoringData();
+    GT_SUPPRESS_DEPRECATED_END
 
     // start iteration
     if (!runIteration())
@@ -419,6 +426,7 @@ GtTask::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // collect monitoring data for entire task
     GtMonitoringDataSet monData = collectMonitoringData();
 
@@ -428,6 +436,7 @@ GtTask::runChildElements()
         // monitoring data available - emit signal
         emit monitoringDataTransfer(m_currentIter, monData);
     }
+    GT_SUPPRESS_DEPRECATED_END
 
     return true;
 }
