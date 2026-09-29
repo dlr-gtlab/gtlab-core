@@ -769,7 +769,9 @@ importToSession(const QStringList& args)
         return -1;
     }
 
-    static_cast<void>(project.release());
+    // The data model parents the project to the session and takes ownership.
+    auto* sessionOwnedProject = project.release();
+    Q_UNUSED(sessionOwnedProject);
     return 0;
 }
 
