@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-"""System test for importing a project directory into a session."""
+"""System tests for importing a project directory into a session."""
 
 import os
 import subprocess
 import uuid
 from pathlib import Path
+from typing import Dict, Iterator, List, Tuple, Union
 
 import pytest
 
@@ -25,7 +26,8 @@ def console_path() -> Path:
     return path
 
 
-def _console_environment(tmp_path: Path):
+@pytest.fixture
+def console_environment(tmp_path: Path) -> Dict[str, str]:
     environment = os.environ.copy()
     environment["QT_QPA_PLATFORM"] = "offscreen"
     environment["HOME"] = str(tmp_path)
@@ -42,11 +44,14 @@ def _console_environment(tmp_path: Path):
     return environment
 
 
-def _run_console(
-    console_path: Path, environment, working_directory: Path, *arguments
+def _run_console_command(
+    console_path: Path,
+    environment: Dict[str, str],
+    working_directory: Path,
+    *arguments: Union[str, Path],
 ) -> subprocess.CompletedProcess:
     command = [str(console_path), *map(str, arguments)]
-    result = subprocess.run(
+    return subprocess.run(
         command,
         cwd=working_directory,
         env=environment,
@@ -55,16 +60,85 @@ def _run_console(
         check=False,
     )
 
-    assert result.returncode == 0, (
-        f"GTlabConsole command failed: {command[1:]}\n"
+
+def _format_console_result(
+    command: List[str], result: subprocess.CompletedProcess
+) -> str:
+    return (
+        f"GTlabConsole command: {command[1:]}\n"
         f"exit code: {result.returncode}\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
+
+
+def _run_console(
+    console_path: Path,
+    environment: Dict[str, str],
+    working_directory: Path,
+    *arguments: Union[str, Path],
+) -> subprocess.CompletedProcess:
+    command = [str(console_path), *map(str, arguments)]
+    result = _run_console_command(
+        console_path, environment, working_directory, *arguments
+    )
+
+    assert result.returncode == 0, _format_console_result(command, result)
     return result
 
 
-def _project_names(output: str, session_id: str):
+def _run_console_expect_failure(
+    console_path: Path,
+    environment: Dict[str, str],
+    working_directory: Path,
+    *arguments: Union[str, Path],
+) -> subprocess.CompletedProcess:
+    command = [str(console_path), *map(str, arguments)]
+    result = _run_console_command(
+        console_path, environment, working_directory, *arguments
+    )
+
+    assert result.returncode != 0, (
+        "GTlabConsole unexpectedly succeeded:\n"
+        + _format_console_result(command, result)
+    )
+    return result
+
+
+@pytest.fixture
+def session_id(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    tmp_path: Path,
+) -> Iterator[str]:
+    """Create and remove a unique session for each test."""
+    identifier = f"import-to-session-{uuid.uuid4().hex}"
+    _run_console(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        "default",
+        "create_session",
+        identifier,
+    )
+
+    yield identifier
+
+    _run_console(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        "default",
+        "delete_session",
+        identifier,
+    )
+
+
+def _project_names(
+    output: str, session_id: str
+) -> List[str]:
     lines = output.splitlines()
     header_index = next(
         (
@@ -76,46 +150,162 @@ def _project_names(output: str, session_id: str):
     )
     assert header_index is not None, "GTlabConsole did not list the active session"
     assert session_id in lines[header_index]
-    return [line.strip() for line in lines[header_index + 1 :] if line.startswith("\t")]
+    return [
+        line.strip()
+        for line in lines[header_index + 1 :]
+        if line.startswith("\t")
+    ]
+
+
+def _list_session_projects(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    tmp_path: Path,
+    session_id: str,
+) -> List[str]:
+    result = _run_console(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        session_id,
+        "list",
+        "--project",
+    )
+    return _project_names(result.stdout, session_id)
 
 
 def test_import_project_to_temporary_session(
-    console_path: Path, tmp_path: Path
+    console_path: Path,
+    console_environment: Dict[str, str],
+    session_id: str,
+    tmp_path: Path,
 ) -> None:
     """Import a project into an empty session and remove that session again."""
     assert (TEST_PROJECT_DIR / "project.gtlab").is_file()
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == []
 
-    environment = _console_environment(tmp_path)
-    session_id = f"import-to-session-{uuid.uuid4().hex}"
-    session_created = False
+    _run_console(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        session_id,
+        "import_to_session",
+        TEST_PROJECT_DIR,
+    )
 
-    try:
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == ["TestProject"]
+
+
+@pytest.mark.parametrize(
+    "create_directory",
+    [False, True],
+    ids=["missing-directory", "empty-directory"],
+)
+def test_import_missing_project_leaves_session_empty(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    session_id: str,
+    tmp_path: Path,
+    create_directory: bool,
+) -> None:
+    """A missing project.gtlab file is rejected without changing the session."""
+    missing_project_dir = tmp_path / "missing-project"
+    if create_directory:
+        missing_project_dir.mkdir()
+
+    result = _run_console_expect_failure(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        session_id,
+        "import_to_session",
+        missing_project_dir,
+    )
+
+    assert "project file" in result.stderr.lower()
+    assert "not found" in result.stderr.lower()
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == []
+
+
+def test_import_invalid_project_leaves_session_empty(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    session_id: str,
+    tmp_path: Path,
+) -> None:
+    """A project file without required project metadata is rejected."""
+    invalid_project_dir = tmp_path / "invalid-project"
+    invalid_project_dir.mkdir()
+    (invalid_project_dir / "project.gtlab").write_text("<GTLAB/>")
+
+    result = _run_console_expect_failure(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        session_id,
+        "import_to_session",
+        invalid_project_dir,
+    )
+
+    assert "could not be imported" in result.stderr.lower()
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == []
+
+
+@pytest.mark.parametrize(
+    "project_arguments",
+    [(), (TEST_PROJECT_DIR, TEST_PROJECT_DIR)],
+    ids=["missing-path", "extra-path"],
+)
+def test_import_invalid_argument_count_leaves_session_empty(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    session_id: str,
+    tmp_path: Path,
+    project_arguments: Tuple[Path, ...],
+) -> None:
+    """The command rejects calls without exactly one project directory."""
+    result = _run_console_expect_failure(
+        console_path,
+        console_environment,
+        tmp_path,
+        "--session",
+        session_id,
+        "import_to_session",
+        *project_arguments,
+    )
+
+    assert "invalid arguments" in result.stdout.lower()
+    assert "usage: gtlabconsole.exe import_to_session project_directory" in (
+        result.stdout.lower()
+    )
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == []
+
+
+def test_importing_same_project_twice_keeps_single_session_entry(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    session_id: str,
+    tmp_path: Path,
+) -> None:
+    """Importing an existing project again does not add a duplicate."""
+    for _ in range(2):
         _run_console(
             console_path,
-            environment,
-            tmp_path,
-            "--session",
-            "default",
-            "create_session",
-            session_id,
-        )
-        session_created = True
-
-        before_import = _run_console(
-            console_path,
-            environment,
-            tmp_path,
-            "--session",
-            session_id,
-            "list",
-            "--project",
-        )
-        assert "Projects in the current session" in before_import.stdout
-        assert _project_names(before_import.stdout, session_id) == []
-
-        _run_console(
-            console_path,
-            environment,
+            console_environment,
             tmp_path,
             "--session",
             session_id,
@@ -123,24 +313,6 @@ def test_import_project_to_temporary_session(
             TEST_PROJECT_DIR,
         )
 
-        after_import = _run_console(
-            console_path,
-            environment,
-            tmp_path,
-            "--session",
-            session_id,
-            "list",
-            "--project",
-        )
-        assert _project_names(after_import.stdout, session_id) == ["TestProject"]
-    finally:
-        if session_created:
-            _run_console(
-                console_path,
-                environment,
-                tmp_path,
-                "--session",
-                "default",
-                "delete_session",
-                session_id,
-            )
+    assert _list_session_projects(
+        console_path, console_environment, tmp_path, session_id
+    ) == ["TestProject"]
