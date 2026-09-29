@@ -19,7 +19,6 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
-#include "gt_structproperty.h"
 
 #include "gt_taskrunner.h"
 
@@ -235,11 +234,13 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
         // check cloned task object
         if (tmpTaskCloned)
         {
+            GT_SUPPRESS_DEPRECATED_BEGIN
             // connect task specific signals
             connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
                     tmpTaskOrig, &GtTask::onMonitoringDataAvailable);
             connect(tmpTaskCloned, &GtTask::triggerClearMonitoringData,
                     tmpTaskOrig, &GtTask::clearMonitoringData);
+            GT_SUPPRESS_DEPRECATED_END
         }
     }
 
@@ -276,12 +277,6 @@ GtTaskRunner::handleRunnableFinished()
     m_dataToMerge.append(m_runnable->outputData());
 
     delete m_runnable;
-
-    if (m_task)
-    {
-        gtDebug() << "monitoring data table size = " <<
-                 m_task->monitoringDataSize();
-    }
 
     emit finished();
 }

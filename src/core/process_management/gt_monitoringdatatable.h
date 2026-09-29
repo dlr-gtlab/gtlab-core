@@ -16,6 +16,7 @@
 
 #include <QVector>
 
+#include "gt_version.h"
 #include "gt_monitoringdataset.h"
 
 /**
@@ -27,17 +28,20 @@ public:
     /**
      * @brief Constructor.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     GtMonitoringDataTable();
 
     /**
      * @brief Clears entire data set list.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void clear();
 
     /**
      * @brief Returns size of monitoring data table.
      * @return Size of monitoring data table.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     int size() const;
 
     /**
@@ -47,6 +51,7 @@ public:
      * @param Iteration number corresponding to given data set.
      * @param Monitoring data set.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool append(int iteration, const GtMonitoringDataSet& dataSet);
 
     /**
@@ -56,6 +61,7 @@ public:
      * @param Property identifications tring
      * @return Monitoring data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     QVector<QVariant> getData(const QString& compUuid, const QString& propId);
 
 private:
