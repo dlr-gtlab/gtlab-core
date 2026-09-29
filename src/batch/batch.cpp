@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <gt_projectprovider.h>
 
 #include <QApplication>
@@ -721,51 +722,54 @@ importToSession(const QStringList& args)
 
     if (posArgs.size() != 1)
     {
-        gtWarning() << QObject::tr("Invalid arguments for command "
-                                   "'import_to_session'");
+        std::cout << QObject::tr("import_to_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "import_to_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
         return -1;
     }
 
     QString path = QDir(posArgs[0]).filePath("project.gtlab");
-    std::cout << QObject::tr("projectFile: %1").arg(posArgs[0]).toStdString();
+    std::cout << QObject::tr("projectFile: %1\n").arg(path).toStdString();
 
     QFile file(path);
     if (!file.exists())
     {
-        std::cout << QObject::tr("ERROR: project file %1 not "
-                                 "found!").arg(path).toStdString();
+        std::cerr << QObject::tr("ERROR: project file %1 not found!\n")
+                         .arg(path)
+                         .toStdString();
 
         return -1;
     }
 
     GtProjectProvider provider(path);
-    GtProject* project = provider.project();
+    std::unique_ptr<GtProject> project{provider.project()};
 
     if (!project)
     {
-        gtError() << QObject::tr("Cannot load project");
+        std::cerr << QObject::tr("Cannot load project\n").toStdString();
         return -1;
     }
 
-    /// MS: This is a bad hack to enable accessing the protected addProject function
-    /// There is however no other way to call addProject AFAIK
+    if (gtDataModel->findProject(project->objectName()))
     {
-        struct SessionWrapper : public GtSession
-        {
-            using GtSession::addProject;
-        };
-        static_assert(sizeof(GtSession) == sizeof(SessionWrapper),
-                      "Session classes have different size. Hell goes lose...");
-        reinterpret_cast<SessionWrapper*>(gtApp->session())->addProject(project);
+        return 0;
     }
 
-    if (!gtApp->session()->findProject(project->objectName()))
+    if (!gtDataModel->newProject(project.get(), false))
     {
-        gtError() << QObject::tr("Project '%1' could not be imported")
-        .arg(project->objectName());
+        std::cerr << QObject::tr("Project '%1' could not be imported\n")
+                         .arg(project->objectName())
+                         .toStdString();
         return -1;
     }
 
+    project.release();
     return 0;
 }
 
