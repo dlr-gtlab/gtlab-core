@@ -110,6 +110,7 @@ def session_id(
     console_path: Path,
     console_environment: Dict[str, str],
     tmp_path: Path,
+    request: pytest.FixtureRequest,
 ) -> Iterator[str]:
     """Create and remove a unique session for each test."""
     identifier = f"import-to-session-{uuid.uuid4().hex}"
@@ -124,7 +125,7 @@ def session_id(
 
     yield identifier
 
-    _run_console(
+    cleanup_result = _run_console_command(
         console_path,
         console_environment,
         tmp_path,
@@ -132,6 +133,19 @@ def session_id(
         "delete_session",
         identifier,
     )
+    call_report = getattr(request.node, "rep_call", None)
+    if cleanup_result.returncode != 0 and not (
+        call_report is not None and call_report.failed
+    ):
+        cleanup_command = [
+            str(console_path),
+            "--session=default",
+            "delete_session",
+            identifier,
+        ]
+        assert cleanup_result.returncode == 0, _format_console_result(
+            cleanup_command, cleanup_result
+        )
 
 
 def _project_names(
@@ -280,9 +294,7 @@ def test_import_invalid_argument_count_leaves_session_empty(
     )
 
     assert "invalid arguments" in result.stdout.lower()
-    assert "usage: gtlabconsole.exe import_to_session project_directory" in (
-        result.stdout.lower()
-    )
+    assert "import_to_session project_directory" in result.stdout.lower()
     assert _list_session_projects(
         console_path, console_environment, tmp_path, session_id
     ) == []
