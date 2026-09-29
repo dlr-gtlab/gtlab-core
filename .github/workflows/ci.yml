@@ -103,6 +103,41 @@ jobs:
           build/**/*.log
           build/_deps/*-src
 
+  system_tests:
+    name: "System Tests"
+    runs-on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies (linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build python3-pytest
+
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir -p "$HOME/build_deps"
+        tar xf hdf5-1.12.1-linux.tar.gz -C "$HOME/build_deps"
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> "$GITHUB_ENV"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Configure
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_TESTMODULES=ON
+
+    - name: Build system test executables
+      run: cmake --build build --target systemtests --parallel
+
+    - name: Run system tests
+      run: ctest --test-dir build --output-on-failure -L SystemTest
+
   build_win_qt6:
     name: "Build with qt6 on windows"
     runs-on: windows-2022
