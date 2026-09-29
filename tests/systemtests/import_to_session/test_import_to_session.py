@@ -117,8 +117,7 @@ def session_id(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        "default",
+        "--session=default",
         "create_session",
         identifier,
     )
@@ -129,8 +128,7 @@ def session_id(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        "default",
+        "--session=default",
         "delete_session",
         identifier,
     )
@@ -167,8 +165,7 @@ def _list_session_projects(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        session_id,
+        f"--session={session_id}",
         "list",
         "--project",
     )
@@ -191,8 +188,7 @@ def test_import_project_to_temporary_session(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        session_id,
+        f"--session={session_id}",
         "import_to_session",
         TEST_PROJECT_DIR,
     )
@@ -223,8 +219,7 @@ def test_import_missing_project_leaves_session_empty(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        session_id,
+        f"--session={session_id}",
         "import_to_session",
         missing_project_dir,
     )
@@ -251,8 +246,7 @@ def test_import_invalid_project_leaves_session_empty(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        session_id,
+        f"--session={session_id}",
         "import_to_session",
         invalid_project_dir,
     )
@@ -280,8 +274,7 @@ def test_import_invalid_argument_count_leaves_session_empty(
         console_path,
         console_environment,
         tmp_path,
-        "--session",
-        session_id,
+        f"--session={session_id}",
         "import_to_session",
         *project_arguments,
     )
@@ -307,8 +300,7 @@ def test_importing_same_project_twice_keeps_single_session_entry(
             console_path,
             console_environment,
             tmp_path,
-            "--session",
-            session_id,
+            f"--session={session_id}",
             "import_to_session",
             TEST_PROJECT_DIR,
         )
