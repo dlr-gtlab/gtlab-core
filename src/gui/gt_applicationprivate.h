@@ -40,9 +40,6 @@ public:
     /// Command identification string
     QString m_commandUuid;
 
-    /// Whether saved settings still require an application restart
-    bool m_restartPending{false};
-
     /// Whether the current run should be relaunched after shutdown
     bool m_restartRequested{false};
 
