@@ -337,14 +337,10 @@ protected:
      */
     virtual void setValFromConnection();
 
-<<<<<<< HEAD
 private:
     /// Private implementation
     class Impl;
     std::unique_ptr<Impl> m_pimpl;
-=======
-    GtObject* m_ownerObject{};
->>>>>>> 239bc911 (Added singelton in gt_object to monitor property accessing through valuetovariant call in gt_abstractproperty)
 
 private slots:
     /**
