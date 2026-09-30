@@ -290,8 +290,11 @@ GtMainWin::closeEvent(QCloseEvent* event)
 {
     if (!m_forceQuit)
     {
+        const bool taskRunning =
+            gt::currentProcessExecutor().currentRunningTask();
+
         /// A process is running
-        if (gt::currentProcessExecutor().currentRunningTask())
+        if (taskRunning)
         {
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
@@ -322,7 +325,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
             }
         }
         /// There is unsaved data
-        else if (gtApp->hasProjectChanges())
+        if (gtApp->hasProjectChanges())
         {
             GtSaveProjectMessageBox mb;
             int ret = mb.exec();
@@ -358,7 +361,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
                     break;
             }
         }
-        else
+        else if (!taskRunning)
         {
             QMessageBox mb;
             mb.setPalette(qApp->palette());
