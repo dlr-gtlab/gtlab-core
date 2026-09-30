@@ -242,7 +242,7 @@ jobs:
           -DBUILD_UNITTESTS=ON \
           -DBUILD_TESTMODULES=ON \
           -DBUILD_WITH_COVERAGE=ON \
-          -DGTLAB_COVERAGE_LCOV_ARGS="--ignore-errors mismatch,mismatch,unused"
+          -DGTLAB_COVERAGE_LCOV_ARGS="--quiet;--ignore-errors mismatch,mismatch,unused"
 
     - name: Build and run coverage target
       run: |
