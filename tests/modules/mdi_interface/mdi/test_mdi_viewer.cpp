@@ -236,7 +236,7 @@ TestMdiViewer::TestMdiViewer()
         if (canIncrHSubdivs()) grid->setHSubdivisions(grid->hSubdivisions() + 1);
     };
     auto const incrVSubdivs = [=](GtObject* = nullptr){
-        if (canIncrVSubdivs()) grid->setVSubdivisions(grid->hSubdivisions() + 1);
+        if (canIncrVSubdivs()) grid->setVSubdivisions(grid->vSubdivisions() + 1);
     };
     auto const decrHSubdivs = [=](GtObject* = nullptr){
         if (canDecrHSubdivs()) grid->setHSubdivisions(grid->hSubdivisions() - 1);

@@ -83,7 +83,8 @@ QList<T> findGraphicsItems(Obj& o)
 }
 
 /**
- * @brief Appends the actions to the menu.
+ * @brief Adds the actions to the menu. Uses the order priority of each
+ * action to insert the action at the corresponding poistion in the menu.
  * @param actions Actions to append
  * @param menu Menu to append actions to.
  * @param obj Object to pass to action methods
@@ -101,7 +102,8 @@ GT_GUI_EXPORT void addToMenu(std::initializer_list<GtObjectUIAction> actions,
                              QObject* parent = {});
 
 /**
- * @brief Appends the action to the menu.
+ * @brief Adds the action to the menu. Uses the order priority of the
+ * action to insert the action at the corresponding poistion in the menu.
  *
  * Usage:
  *
