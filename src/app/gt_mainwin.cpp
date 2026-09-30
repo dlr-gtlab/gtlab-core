@@ -83,7 +83,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
-    m_restartOnClose(false),
     m_firstTimeShowEvent(true),
     m_processQueue(nullptr),
     m_mainWindowToolbar(new GtMainToolbar(this))
@@ -291,25 +290,8 @@ GtMainWin::closeEvent(QCloseEvent* event)
 {
     if (!m_forceQuit)
     {
-        const bool taskRunning =
-            gt::currentProcessExecutor().currentRunningTask();
-        const bool tasksQueued =
-            !gt::currentProcessExecutor().queue().isEmpty();
-
-        if (m_restartOnClose && (taskRunning || tasksQueued))
-        {
-            m_restartOnClose = false;
-            QMessageBox::information(
-                this, tr("Restart unavailable"),
-                tr("Please finish or remove running and queued tasks before "
-                   "restarting GTlab. Saved preferences will take effect "
-                   "after the next restart."));
-            event->ignore();
-            return;
-        }
-
         /// A process is running
-        if (taskRunning)
+        if (gt::currentProcessExecutor().currentRunningTask())
         {
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
@@ -376,7 +358,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
                     break;
             }
         }
-        else if (!taskRunning && !m_restartOnClose)
+        else
         {
             QMessageBox mb;
             mb.setPalette(qApp->palette());
@@ -409,29 +391,6 @@ GtMainWin::closeEvent(QCloseEvent* event)
     }
 
     savePerspectiveSettings();
-
-    if (m_restartOnClose)
-    {
-        auto arguments = QApplication::arguments();
-        if (!arguments.isEmpty())
-        {
-            arguments.removeFirst();
-        }
-
-        if (!QProcess::startDetached(QApplication::applicationFilePath(),
-                                     arguments))
-        {
-            m_restartOnClose = false;
-            QMessageBox::critical(
-                this, tr("Restart failed"),
-                tr("GTlab could not be restarted. The application will remain "
-                   "open; please try again or restart it manually."));
-            event->ignore();
-            return;
-        }
-
-        m_restartOnClose = false;
-    }
 
     gt::currentProcessExecutor().terminateAllTasks();
 
@@ -731,15 +690,11 @@ GtMainWin::showPerspectivePreferences()
 void
 GtMainWin::restartApplication()
 {
-    m_restartOnClose = true;
+    gtApp->requestRestart();
 
-    if (!close() && m_restartOnClose)
+    if (!close())
     {
-        m_restartOnClose = false;
-        QMessageBox::information(
-            this, tr("Restart canceled"),
-            tr("The restart was canceled. The saved settings will take effect "
-               "the next time GTlab starts."));
+        gtApp->cancelRestartRequest();
     }
 }
 
