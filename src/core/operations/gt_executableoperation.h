@@ -11,13 +11,14 @@
 #include "gt_executioncontext.h"
 #include "gt_operationapplystatus.h"
 #include "gt_operationexecutioncontext.h"
+#include "gt_operationexecutionresult.h"
 
 #include "gt_object.h"
 
 #include <memory>
 
 /**
- * @brief Transport-neutral executable domain operation.
+ * @brief Executable operation containing domain behavior.
  */
 class GT_CORE_EXPORT GtExecutableOperation : public GtObject
 {
@@ -28,13 +29,13 @@ public:
     ~GtExecutableOperation() override = default;
 
     /**
-     * @brief Returns whether execute() needs a GTlab project in addition to
-     *        its detached input data.
+     * @brief Returns whether execute() requires an execution-local GTlab
+     *        project.
      *
      * This applies at the location where execute() runs. The operation may
      * still read the originating project while createData() prepares input.
      *
-     * @return True if execute() requires a project in addition to its input.
+     * @return True if execute() requires an execution-local project.
      */
     virtual bool requiresProject() const = 0;
 
@@ -58,25 +59,30 @@ public:
      * the execution location, but never the originating project.
      *
      * @param context Input data and services for this execution.
-     * @return An optional serializable result owned by the caller, or nullptr.
+     * @return The operation execution outcome, including its status and
+     *         optional result payload.
      */
-    virtual std::unique_ptr<GtObject> execute(
+    virtual GtOperationExecutionResult execute(
         GtOperationExecutionContext& context) = 0;
 
     /**
-     * @brief Applies a detached result on the originating side.
+     * @brief Applies an operation execution outcome on the originating side.
      *
      * Called on the originating project/application thread and must remain
-     * lightweight. executionResult is the nullable, non-owning result created
-     * by execute() and must not be retained. This is the only operation step
-     * that may change the originating project from an execution result.
+     * lightweight. executionResult contains the complete outcome returned by
+     * execute() and is borrowed for this call. It must not be retained. The
+     * operation decides how each status and optional result payload affects the
+     * originating project. This is the only operation lifecycle step that may
+     * apply execution output to the originating project.
      *
-     * @param executionResult Optional result from execute().
+     * @param executionResult Complete operation execution outcome from
+     *        execute().
      * @param context Context of the originating-side execution.
-     * @return The status of applying executionResult.
+     * @return The status of applying the operation execution outcome.
      */
     virtual GtOperationApplyStatus applyResult(
-        GtObject const* executionResult, GtExecutionContext& context) const = 0;
+        GtOperationExecutionResult const& executionResult,
+        GtExecutionContext& context) const = 0;
 };
 
 #endif // GTEXECUTABLEOPERATION_H

@@ -6,11 +6,10 @@
 API Reference
 *************
 
-The parametric library API consists of the following parts:
-
-
-
-All functions and types provided by the library reside in namespace ``parametric``.
+This reference lists the public GTlab Core types intended for module authors
+and Core contributors. For architectural guidance and usage patterns, see the
+:doc:`architecture documentation <architecture/index>` and the other developer
+documentation.
 
 .. _core-api:
 
@@ -28,6 +27,59 @@ Data Processor API
    :members:
 
 .. doxygenclass:: GtObjectPathProperty
+   :members:
+
+
+Execution API
+=============
+
+The execution API provides the common Core contracts for placement-neutral
+operation execution. The same operation model is used for in-process,
+threaded, isolated-process, and future remote execution.
+
+Executable operations
+---------------------
+
+.. doxygenclass:: GtExecutableOperation
+   :members:
+
+.. doxygenclass:: GtExecutionEnvironment
+   :members:
+
+.. doxygenstruct:: GtOperationExecutionResult
+   :members:
+
+.. doxygenclass:: GtExecutionResult
+   :members:
+
+Execution context
+-----------------
+
+.. doxygenclass:: GtOperationExecutionContext
+   :members:
+
+.. doxygenclass:: GtCancellationToken
+   :members:
+
+.. doxygenclass:: GtExecutionId
+   :members:
+
+.. doxygenclass:: GtExecutionContext
+   :members:
+
+.. doxygenclass:: GtExecutionContextScope
+   :members:
+
+Results and events
+------------------
+
+.. doxygenclass:: GtOperationApplyStatus
+   :members:
+
+.. doxygenclass:: GtExecutionEventStream
+   :members:
+
+.. doxygenclass:: GtExecutionEvent
    :members:
 
 Module Interfaces
@@ -61,4 +113,7 @@ Module Interfaces
    :members:
 
 .. doxygenclass:: GtCalculatorExecInterface
+   :members:
+
+.. doxygenclass:: GtOperationInterface
    :members:
