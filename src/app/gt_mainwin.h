@@ -91,6 +91,9 @@ private:
     /// Force quit indicator
     bool m_forceQuit;
 
+    /// Whether the accepted close should start a new application instance
+    bool m_restartOnClose;
+
     /// First time show event indicator
     bool m_firstTimeShowEvent;
 
@@ -111,6 +114,12 @@ private:
      * @brief setupDockWidgets
      */
     void setupDockWidgets();
+
+    /**
+     * @brief Closes the application through the normal shutdown path and
+     * restarts it if the close is accepted.
+     */
+    void restartApplication();
 
     /**
      * @brief updateCollectionEntries
