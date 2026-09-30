@@ -14,7 +14,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
-#include <QProcess>
 
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
@@ -27,11 +26,11 @@
 #include "gt_icons.h"
 #include "gt_application.h"
 #include "gt_settings.h"
-#include "qapplication.h"
 
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
-    GtDialog(parent)
+    GtDialog(parent),
+    m_restartRequested(false)
 {
     m_contentsWidget = new QListWidget;
     m_contentsWidget->setViewMode(QListView::IconMode);
@@ -119,6 +118,12 @@ GtPreferencesDialog::currentPageTitle() const
     return page->title();
 }
 
+bool
+GtPreferencesDialog::restartRequested() const
+{
+    return m_restartRequested;
+}
+
 void
 GtPreferencesDialog::addPage(GtPreferencesPage* page)
 {
@@ -187,10 +192,9 @@ GtPreferencesDialog::changePage(QListWidgetItem* current,
     m_pagesWidget->setCurrentIndex(m_contentsWidget->row(current));
 }
 
-void askUserAndRestart()
+bool askUserAndRestart(QWidget* parent)
 {
-
-    QMessageBox dialog;
+    QMessageBox dialog(parent);
     dialog.setWindowTitle(QObject::tr("Restart required"));
     dialog.setText(QObject::tr("The changes require a restart "
                                "of GTlab to take effect."));
@@ -203,12 +207,7 @@ void askUserAndRestart()
     dialog.setIcon(QMessageBox::Information);
     dialog.exec();
 
-    if (dialog.clickedButton() == restartButton)
-    {
-        // now restart the app
-        qApp->quit();
-        QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
-    }
+    return dialog.clickedButton() == restartButton;
 }
 
 void
@@ -224,7 +223,7 @@ GtPreferencesDialog::saveChanges()
 
     if (gtApp->settings()->requiresAppRestart())
     {
-        askUserAndRestart();
+        m_restartRequested = askUserAndRestart(this);
     }
 
     accept();
