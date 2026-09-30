@@ -1,0 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="GtObjectGroup" uuid="{e55fca41-5178-484f-979c-2741154a796b}" name="Detached Data">
+  <objectlist/>
+</object>
