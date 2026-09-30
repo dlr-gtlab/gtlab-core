@@ -58,7 +58,7 @@ getOrder(QAction const* action)
     if (!action) return 0;
 
     bool ok = true;
-    int priority = action->data().toInt(&ok);
+    int priority = action->property("orderPriority").toInt(&ok);
     return ok ? priority : 0;
 }
 
@@ -221,7 +221,7 @@ void
 gt::gui::setOrderPriority(QAction& action, int priority)
 {
     // use setData which is intended for "user" data
-    action.setData(priority);
+    action.setProperty("orderPriority", priority);
 }
 
 /// adds the "open with" actions to the menu
