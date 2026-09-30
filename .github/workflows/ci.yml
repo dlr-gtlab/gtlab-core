@@ -223,7 +223,7 @@ jobs:
     - name: Install dependencies (linux)
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build lcov python3-pytest
+        sudo apt-get install -y ninja-build lcov
 
         wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
         mkdir -p $HOME/build_deps
@@ -234,6 +234,9 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '5.15.2'
+
+    - name: Install system test dependencies
+      run: python3 -m pip install -r tests/systemtests/requirements.txt
 
     - name: Configure
       run: |
