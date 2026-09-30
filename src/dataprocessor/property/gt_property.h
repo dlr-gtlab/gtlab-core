@@ -14,7 +14,6 @@
 #include "gt_unit.h"
 #include "gt_utilities.h"
 #include "gt_unitconverter.h"
-#include "gt_object.h"
 
 #include "gt_accesstracking.h"
 
@@ -81,13 +80,11 @@ public:
         return *this;
     }
 
-
 protected:
     /**
      * @brief Default constructor.
      */
     GtProperty(){}
-
 
     /// Value
     ParamType m_value = {};
@@ -173,7 +170,6 @@ inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
     {
         return gt::valueSuccess(getVal(), success);
     }
-
 
     bool _success = false;
 

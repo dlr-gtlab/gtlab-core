@@ -43,9 +43,9 @@ namespace gt
  * @return Parent object pointer
  */
 template <typename T = GtObject*,
-         typename Object, // may be const
-         trait::enable_if_ptr_derived_of_qobject<T> = true,
-         trait::enable_if_base_of<QObject, std::decay_t<Object>> = true>
+          typename Object, // may be const
+          trait::enable_if_ptr_derived_of_qobject<T> = true,
+          trait::enable_if_base_of<QObject, std::decay_t<Object>> = true>
 T findParent(Object& object, const QString& name = {});
 
 /**
@@ -55,9 +55,9 @@ T findParent(Object& object, const QString& name = {});
  * @return Root object pointer
  */
 template <typename T = GtObject*,
-         typename Object, // may be const
-         trait::enable_if_ptr_derived_of_qobject<T> = true,
-         trait::enable_if_base_of<QObject, std::decay_t<Object>> = true>
+          typename Object, // may be const
+          trait::enable_if_ptr_derived_of_qobject<T> = true,
+          trait::enable_if_base_of<QObject, std::decay_t<Object>> = true>
 T findRoot(Object& object, T last = nullptr);
 
 /**
@@ -426,14 +426,14 @@ public:
      * @return all properties of type T
      */
     template <typename T = GtAbstractProperty*,
-             gt::trait::enable_if_ptr_base_of<GtAbstractProperty, T> = true>
+              gt::trait::enable_if_ptr_base_of<GtAbstractProperty, T> = true>
     QList<T> propertiesByType()
     {
         return propertiesByTypeHelper<QList<T>>(this);
     }
     template <typename T = GtAbstractProperty*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_base_of<GtAbstractProperty, T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_base_of<GtAbstractProperty, T> = true>
     QList<T_const_ptr> propertiesByType() const
     {
         return propertiesByTypeHelper<QList<T_const_ptr>>(this);
@@ -446,7 +446,7 @@ public:
      * @return number of direct children of the given template class
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     int childCount(const QString& name = {}) const
     {
         return findDirectChildren<gt::trait::const_ptr<T>>(name).size();
@@ -458,14 +458,14 @@ public:
      * @return first parent obejct of the given template class
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findParent(const QString& name = {})
     {
         return gt::findParent<T>(*this, name);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findParent(const QString& name = {}) const
     {
         return gt::findParent<T_const_ptr>(*this, name);
@@ -477,14 +477,14 @@ public:
      * @return
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findRoot(T last = nullptr)
     {
         return gt::findRoot<T>(*this, last);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findRoot(T last = nullptr) const
     {
         return gt::findRoot<T_const_ptr>(*this, last);
@@ -496,14 +496,14 @@ public:
      * @return returns list of pointers to children of the template class
      */
     template <class T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T> findDirectChildren(const QString& name = {})
     {
         return QObject::findChildren<T>(name, Qt::FindDirectChildrenOnly);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T_const_ptr> findDirectChildren(const QString& name = {}) const
     {
         return QObject::findChildren<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
@@ -515,14 +515,14 @@ public:
      * @return returns list of pointers to children of the template class
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T> findChildren(const QString& name = {})
     {
         return QObject::findChildren<T>(name, Qt::FindChildrenRecursively);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T_const_ptr> findChildren(const QString& name = {}) const
     {
         return QObject::findChildren<T_const_ptr>(name, Qt::FindChildrenRecursively);
@@ -534,14 +534,14 @@ public:
      * @return return pointer to first child of the template class
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findDirectChild(const QString& name = {})
     {
         return  QObject::findChild<T>(name, Qt::FindDirectChildrenOnly);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findDirectChild(const QString& name = {}) const
     {
         return QObject::findChild<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
@@ -553,14 +553,14 @@ public:
      * @return return pointer to first child of the template class
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findChild(const QString& name = {})
     {
         return QObject::findChild<T>(name, Qt::FindChildrenRecursively);
     }
     template <typename T = GtObject*,
-             typename T_const_ptr = gt::trait::const_ptr<T>,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+              typename T_const_ptr = gt::trait::const_ptr<T>,
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findChild(const QString& name = {}) const
     {
         return QObject::findChild<T_const_ptr>(name, Qt::FindChildrenRecursively);
@@ -573,8 +573,8 @@ public:
      * @return bool value to show success
      */
     template <typename T = GtObject*,
-             gt::trait::enable_if_ptr_derived_of_qobject<T> =true,
-             gt::trait::enable_if_ptr_not_const<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> =true,
+              gt::trait::enable_if_ptr_not_const<T> = true>
     bool insertChild(int pos, T obj)
     {
         if (pos < 0)
