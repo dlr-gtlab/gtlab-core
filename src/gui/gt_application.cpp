@@ -112,18 +112,6 @@ GtApplication::restartRequested() const
 }
 
 void
-GtApplication::markRestartPending()
-{
-    m_d->m_restartPending = true;
-}
-
-bool
-GtApplication::requiresAppRestart()
-{
-    return m_d->m_restartPending || settings()->requiresAppRestart();
-}
-
-void
 GtApplication::initMdiLauncher()
 {
     gtMdiLauncher;

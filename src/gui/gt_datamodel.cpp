@@ -9,6 +9,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <atomic>
+
 #include "gt_object.h"
 #include "gt_algorithms.h"
 #include "gt_application.h"
@@ -165,11 +167,16 @@ GtDataModel::saveProject(GtProject *project)
 
     // saving procedure
     GtSaveProjectHelper* helper = new GtSaveProjectHelper(project);
+    std::atomic_bool saveSucceeded{false};
+    connect(helper, &GtSaveProjectHelper::finished, helper,
+            [&saveSucceeded, helper]() {
+        saveSucceeded.store(helper->success());
+    }, Qt::DirectConnection);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataSaved()));
 
     gtApp->loadingProcedure(helper);
 
-    return true;
+    return saveSucceeded.load();
 }
 
 QModelIndexList
