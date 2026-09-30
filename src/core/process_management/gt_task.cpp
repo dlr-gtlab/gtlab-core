@@ -511,7 +511,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         // them to container
         for (const auto& propRef : conMonProps)
         {
-            if (auto* resolved = propRef.resolve(*component))
+            if (const auto* resolved = propRef.resolve(*component))
             {
                 monData.addData(propRef.toString(), resolved->valueToVariant());
             }

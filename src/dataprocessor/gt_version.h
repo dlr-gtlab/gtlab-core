@@ -98,9 +98,9 @@
     #define _GT_WARNING_DISABLE_DEPRECATED \
         _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 #else
-    #define GT_WARNING_PUSH_DEPRECATED
-    #define GT_WARNING_POP_DEPRECATED
-    #define GT_WARNING_DISABLE_DEPRECATED
+    #define _GT_WARNING_PUSH_DEPRECATED
+    #define _GT_WARNING_POP_DEPRECATED
+    #define _GT_WARNING_DISABLE_DEPRECATED
 #endif
 
 #define GT_SUPPRESS_DEPRECATED_BEGIN \
