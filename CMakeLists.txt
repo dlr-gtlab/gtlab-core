@@ -137,18 +137,18 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
     separate_arguments(GTLAB_COVERAGE_LCOV_ARGS_LIST NATIVE_COMMAND
                        "${GTLAB_COVERAGE_LCOV_ARGS}")
 
-    set(GTLAB_COVERAGE_SYSTEMTEST_OPTIONS)
+    set(GTLAB_COVERAGE_DEPENDENCIES GTlabUnitTest)
+    set(GTLAB_COVERAGE_CTEST_ARGS)
     if (BUILD_TESTMODULES AND GTLAB_SYSTEMTESTS_ENABLED)
-        list(APPEND GTLAB_COVERAGE_SYSTEMTEST_OPTIONS
-             CTEST_ARGS -L SystemTest --output-on-failure
-             DEPENDENCIES systemtests)
+        list(APPEND GTLAB_COVERAGE_DEPENDENCIES systemtests)
+        list(APPEND GTLAB_COVERAGE_CTEST_ARGS -L SystemTest --output-on-failure)
     endif()
 
     setup_target_for_coverage_lcov(
             NAME test-coverage
             EXECUTABLE GTlabUnitTest
-            DEPENDENCIES GTlabUnitTest
-            ${GTLAB_COVERAGE_SYSTEMTEST_OPTIONS}
+            DEPENDENCIES ${GTLAB_COVERAGE_DEPENDENCIES}
+            CTEST_ARGS ${GTLAB_COVERAGE_CTEST_ARGS}
             LCOV_ARGS ${GTLAB_COVERAGE_LCOV_ARGS_LIST}
             EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             BASE_DIRECTORY "${PROJECT_SOURCE_DIR}")
