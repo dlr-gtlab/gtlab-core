@@ -26,6 +26,17 @@ else()
             LABELS "SystemTest;Batch"
         )
 
+        add_test(
+            NAME SystemTest.ImportToSession
+            COMMAND ${Python3_EXECUTABLE} -m pytest
+                    ${CMAKE_CURRENT_SOURCE_DIR}/import_to_session/test_import_to_session.py
+        )
+
+        set_tests_properties(SystemTest.ImportToSession PROPERTIES
+            ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
+            LABELS "SystemTest;Batch"
+        )
+
         set(GTLAB_SYSTEMTESTS_ENABLED TRUE PARENT_SCOPE)
     else()
         message(WARNING

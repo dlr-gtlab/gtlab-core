@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+<GTLAB projectname="TestProject" version="2.0.12">
+    <env-footprint>
+        <hash>d4295049cabaf067dfc2c453260d31085e83defc958dfbde5fa895011c61f396</hash>
+        <core-ver>2.0.12</core-ver>
+        <modules>
+        </modules>
+    </env-footprint>
+    <comment></comment>
+    <LABELS>
+        <object class="GtLabel" name="Default" uuid="{ba2726ee-b478-4899-ab3f-98601b956884}"/>
+    </LABELS>
+</GTLAB>

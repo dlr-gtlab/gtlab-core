@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <gt_projectprovider.h>
 
 #include <QApplication>
@@ -711,6 +712,69 @@ switch_session(const QStringList& args)
     return 0;
 }
 
+int
+importToSession(const QStringList& args)
+{
+    GtCommandLineParser parser;
+
+    parser.parse(args);
+    auto posArgs = parser.positionalArguments();
+
+    if (posArgs.size() != 1)
+    {
+        std::cout << QObject::tr("import_to_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "import_to_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
+        return -1;
+    }
+
+    QString path = QDir(posArgs[0]).filePath("project.gtlab");
+    std::cout << QObject::tr("projectFile: %1\n").arg(path).toStdString();
+
+    QFile file(path);
+    if (!file.exists())
+    {
+        std::cerr << QObject::tr("ERROR: project file %1 not found!\n")
+                         .arg(path)
+                         .toStdString();
+
+        return -1;
+    }
+
+    GtProjectProvider provider(path);
+    std::unique_ptr<GtProject> project{provider.project()};
+
+    if (!project)
+    {
+        std::cerr << QObject::tr("Cannot load project\n").toStdString();
+        return -1;
+    }
+
+    if (gtDataModel->findProject(project->objectName()))
+    {
+        return 0;
+    }
+
+    if (!gtDataModel->newProject(project.get(), false))
+    {
+        std::cerr << QObject::tr("Project '%1' could not be imported\n")
+                         .arg(project->objectName())
+                         .toStdString();
+        return -1;
+    }
+
+    // The data model parents the project to the session and takes ownership.
+    auto* sessionOwnedProject = project.release();
+    Q_UNUSED(sessionOwnedProject);
+    return 0;
+}
+
 void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
@@ -793,6 +857,11 @@ initSystemOptions()
                     "Upgrades All Modules in the current project", {},
                     QList<GtCommandLineArgument>(),
                     false);
+
+    initPosArgument("import_to_session", importToSession,
+                    "loads a project to the current session", {},
+                    {GtCommandLineArgument{"project_directory", "Path to project folder"}},
+                    true);
 }
 
 int
