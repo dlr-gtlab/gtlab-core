@@ -15,10 +15,47 @@
 #include "gt_logging.h"
 #include "gt_utilities.h"
 
-GtObjectUIAction::GtObjectUIAction() = default;
+struct GtObjectUIAction::Impl
+{
+    Impl(QString name_ = {}, InvokableActionMethod method_ = {}) :
+        name(std::move(name_)),
+        method(std::move(method_))
+    { }
+
+    /// Action text
+    QString name{};
+
+    /// Action icon
+    QIcon icon{};
+
+    /// Invokable method
+    InvokableActionMethod method{};
+
+    /// Verification method
+    InvokableVerificationMethod verification{};
+
+    /// Visibility method
+    InvokableVisibilityMethod visibility{};
+
+    /// Shortcut
+    QKeySequence shortCut{};
+
+    /// order priority
+    int priority{gt::gui::OrderPriority::Default};
+
+    /**
+     * @brief helper function to set action method suing the name of a
+     * invokable method
+     * @param methodName
+     */
+    void setActionMethod(const QString& methodName)
+    {
+        method = fromMethodName(methodName);
+    }
+};
 
 GtObjectUIAction::InvokableActionMethod
-GtObjectUIAction::fromMethodName(const QString &methodName)
+GtObjectUIAction::fromMethodName(const QString& methodName)
 {
     if (methodName.isEmpty())
     {
@@ -37,27 +74,54 @@ GtObjectUIAction::fromMethodName(const QString &methodName)
     };
 }
 
-GtObjectUIAction::GtObjectUIAction(const QString& text,
+GtObjectUIAction::GtObjectUIAction() noexcept :
+    pimpl(std::make_unique<Impl>())
+{ }
+
+GtObjectUIAction::GtObjectUIAction(QString name,
                                    ActionMethod method) :
-    GtObjectUIAction(text,
+    GtObjectUIAction(std::move(name),
                      [m = std::move(method)](QObject* parent, GtObject* target){
         Q_UNUSED(parent)
         if (m) m(target);
     })
 { }
 
-GtObjectUIAction::GtObjectUIAction(const QString& text,
+GtObjectUIAction::GtObjectUIAction(QString name,
                                    InvokableActionMethod method) :
-    m_text(text),
-    m_method(std::move(method))
-{
+    pimpl(std::make_unique<Impl>(std::move(name), std::move(method)))
+{ }
 
+GtObjectUIAction::GtObjectUIAction(GtObjectUIAction const& o) noexcept :
+    pimpl(std::make_unique<Impl>(*o.pimpl))
+{ }
+
+GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o) noexcept :
+    pimpl(std::move(o.pimpl))
+{ }
+
+GtObjectUIAction&
+GtObjectUIAction::operator=(GtObjectUIAction const& o) noexcept
+{
+    GtObjectUIAction tmp{o};
+    swap(tmp);
+    return *this;
 }
+
+GtObjectUIAction&
+GtObjectUIAction::operator=(GtObjectUIAction&& o) noexcept
+{
+    GtObjectUIAction tmp{std::move(o)};
+    swap(tmp);
+    return *this;
+}
+
+GtObjectUIAction::~GtObjectUIAction() noexcept = default;
 
 bool
 GtObjectUIAction::isEmpty() const
 {
-    return m_text.isEmpty();
+    return pimpl->name.isEmpty();
 }
 
 bool
@@ -66,52 +130,54 @@ GtObjectUIAction::isSeparator() const
     return isEmpty();
 }
 
+
+
 const QString&
-GtObjectUIAction::text() const
+GtObjectUIAction::name() const
 {
-    return m_text;
+    return pimpl->name;
 }
 
 const QIcon&
 GtObjectUIAction::icon() const
 {
-    return m_icon;
+    return pimpl->icon;
 }
 
 const GtObjectUIAction::InvokableActionMethod&
 GtObjectUIAction::method() const
 {
-    return m_method;
+    return pimpl->method;
 }
 
 const GtObjectUIAction::InvokableVerificationMethod&
 GtObjectUIAction::verificationMethod() const
 {
-    return m_verification;
+    return pimpl->verification;
 }
 
 const GtObjectUIAction::InvokableVisibilityMethod&
 GtObjectUIAction::visibilityMethod() const
 {
-    return m_visibility;
+    return pimpl->visibility;
 }
 
 const QKeySequence&
 GtObjectUIAction::shortCut() const
 {
-    return m_shortCut;
+    return pimpl->shortCut;
 }
 
 int
 GtObjectUIAction::orderPriority() const
 {
-    return m_priority;
+    return pimpl->priority;
 }
 
 GtObjectUIAction&
 GtObjectUIAction::setIcon(const QIcon& icon)
 {
-    m_icon = icon;
+    pimpl->icon = icon;
     return *this;
 }
 
@@ -124,7 +190,7 @@ GtObjectUIAction::setIcon(const QString& icon)
 GtObjectUIAction&
 GtObjectUIAction::setVerificationMethod(InvokableVerificationMethod method)
 {
-    m_verification = std::move(method);
+    pimpl->verification = std::move(method);
     return *this;
 }
 
@@ -143,7 +209,7 @@ GtObjectUIAction::setVerificationMethod(const QString& methodName)
 {
     if (methodName.isEmpty())
     {
-        m_verification = nullptr;
+        pimpl->verification = nullptr;
         return *this;
     }
 
@@ -172,7 +238,7 @@ GtObjectUIAction::setEnabled(bool enabled)
 GtObjectUIAction&
 GtObjectUIAction::setVisibilityMethod(InvokableVisibilityMethod method)
 {
-    m_visibility = std::move(method);
+    pimpl->visibility = std::move(method);
     return *this;
 }
 
@@ -191,7 +257,7 @@ GtObjectUIAction::setVisibilityMethod(const QString& methodName)
 {
     if (methodName.isEmpty())
     {
-        m_visibility = nullptr;
+        pimpl->visibility = nullptr;
         return *this;
     }
 
@@ -219,7 +285,7 @@ GtObjectUIAction::setVisible(bool visible)
 GtObjectUIAction&
 GtObjectUIAction::setShortCut(const QKeySequence& shortCut)
 {
-    m_shortCut = shortCut;
+    pimpl->shortCut = shortCut;
     return *this;
 }
 
@@ -230,20 +296,25 @@ GtObjectUIAction::registerShortCut(const QString& id,
                                    bool readOnly)
 {
     gtApp->extendShortCuts({id, cat, k.toString(), readOnly});
-    m_shortCut = gtApp->getShortCutSequence(id, cat);
+    pimpl->shortCut = gtApp->getShortCutSequence(id, cat);
     return *this;
 }
 
 GtObjectUIAction&
 GtObjectUIAction::setOrderPriority(int priority)
 {
-    m_priority = priority;
+    pimpl->priority = priority;
     return *this;
 }
 
 void
-GtObjectUIAction::setActionMethod(const QString& methodName)
+GtObjectUIAction::swap(GtObjectUIAction& other) noexcept
 {
-    m_method = fromMethodName(methodName);
+    std::swap(pimpl->name, other.pimpl->name);
+    std::swap(pimpl->icon, other.pimpl->icon);
+    std::swap(pimpl->method, other.pimpl->method);
+    std::swap(pimpl->verification, other.pimpl->verification);
+    std::swap(pimpl->visibility, other.pimpl->visibility);
+    std::swap(pimpl->shortCut, other.pimpl->shortCut);
+    std::swap(pimpl->priority, other.pimpl->priority);
 }
-
