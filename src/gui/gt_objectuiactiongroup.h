@@ -24,17 +24,31 @@
 class GT_GUI_EXPORT GtObjectUIActionGroup
 {
 public:
-    /**
-     * @brief GtObjectUIActionGroup
-     */
-    GtObjectUIActionGroup();
 
     /**
-     * @brief GtObjectUIActionGroup
+     * @brief Constructor
      */
-    GtObjectUIActionGroup(const QString& groupName,
-                          const QList<GtObjectUIAction>& actions,
-                          const QString& icon = {});
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use non-default constructor.")
+    GtObjectUIActionGroup();
+
+    explicit
+    GtObjectUIActionGroup(QString groupName,
+                          QIcon icon = {});
+
+    GtObjectUIActionGroup(QString groupName,
+                          QList<GtObjectUIAction> actions,
+                          QIcon icon = {});
+
+    GtObjectUIActionGroup(QString groupName,
+                          QList<GtObjectUIAction> actions,
+                          const QString& icon);
+
+    GtObjectUIActionGroup(GtObjectUIActionGroup const&) noexcept;
+    GtObjectUIActionGroup(GtObjectUIActionGroup&&) noexcept;
+    GtObjectUIActionGroup& operator=(GtObjectUIActionGroup const&) noexcept;
+    GtObjectUIActionGroup& operator=(GtObjectUIActionGroup&&) noexcept;
+    ~GtObjectUIActionGroup() noexcept;
+
     /**
      * @brief actions
      * @return list of actions
@@ -91,24 +105,34 @@ public:
     GtObjectUIActionGroup& setOrderPriority(int priority);
 
     /**
-     * @brief Appends the action to the group
+     * @brief Adds the action to the group. Depending on the order priority of
+     * `action` it may be displayed at a different position in the menu.
      * @param action Action to append
      * @return This
      */
     GtObjectUIActionGroup& operator<<(GtObjectUIAction const& action);
 
+    /**
+     * @brief Adds the action to the group Depending on the order priority of
+     * `action` it may be displayed at a different position in the menu.
+     * @param action Action to append
+     * @return This
+     */
+    GtObjectUIActionGroup& addAction(GtObjectUIAction const& action);
+
+    /**
+     * @brief Swaps this action group with `other`
+     * @param other Other
+     */
+    void swap(GtObjectUIActionGroup& other) noexcept;
+
 private:
-    /// List of actions
-    QList<GtObjectUIAction> m_actions;
 
-    /// Group action text
-    QString m_name;
-
-    /// Group action icon
-    QIcon m_icon;
-
-    int m_priority{0};
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
+
+inline void swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept { a.swap(b); }
 
 namespace gt
 {
@@ -118,7 +142,7 @@ namespace gui
 inline GtObjectUIActionGroup
 makeActionGroup(const QString& groupName, int sizeHint = -1)
 {
-    auto tmp = GtObjectUIActionGroup(groupName, {});
+    auto tmp = GtObjectUIActionGroup(groupName);
     tmp.reserve(sizeHint);
     return tmp;
 }

@@ -141,7 +141,7 @@ public:
      * @return a string to help the user which regular expression is used to
      * restrict renaming and how to avoid problems
      */
-    QString const& regExpHint(GtObject* obj);
+    QString const& regExpHint(GtObject* obj) const;
 
 protected:
 
