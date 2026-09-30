@@ -107,13 +107,7 @@ GtProcessExecutor::onHelperFinished()
     auto cleanup = gt::finally(helper, &QObject::deleteLater);
     Q_UNUSED(cleanup)
 
-    gtDebug() << QObject::tr("sumDiff isNull:") << helper->sumDiff()->isNull();
-    
-    if (helper->sumDiff()->isNull()) 
-    {
-        gtDebug() << QObject::tr("Exiting early - sumDiff is null");
-        return;
-    }
+    if (helper->sumDiff()->isNull()) return;
 
     const QString commandMsg = tr("Run '%1'").arg(m_task->objectName());
 
