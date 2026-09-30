@@ -47,8 +47,8 @@ public:
     QVariant getValue() const;
 
     /**
-     * @brief Returns true, if the value has changed and thus
-     * requires an app restart
+     * @brief Returns true if the current value differs from the value active
+     * when this setting was initialized and thus requires an app restart.
      *
      * Note: that only a few settings require an app restart
      * if changed!
@@ -73,8 +73,11 @@ private:
     /// initial value for settings item
     QVariant m_initValue;
 
+    /// Setting value active when the item was initialized
+    QVariant m_runtimeValue;
+
     /// true, if a change of the setting requires a restart
-    bool changesRequiresRestart{false}, hasChanged{false};
+    bool changesRequiresRestart{false};
 
 };
 

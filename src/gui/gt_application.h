@@ -73,16 +73,6 @@ public:
     bool restartRequested() const;
 
     /**
-     * @brief Marks that saved settings still require an application restart.
-     */
-    void markRestartPending();
-
-    /**
-     * @brief Returns whether the current settings require an application restart.
-     */
-    bool requiresAppRestart();
-
-    /**
      * @brief initMdiLauncher
      */
     void initMdiLauncher();
