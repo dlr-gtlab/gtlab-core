@@ -58,6 +58,31 @@ public:
     ~GtApplication() override;
 
     /**
+     * @brief Requests a restart after the current application run has ended.
+     */
+    void requestRestart();
+
+    /**
+     * @brief Cancels a previously requested restart.
+     */
+    void cancelRestartRequest();
+
+    /**
+     * @brief Returns whether the current application run requested a restart.
+     */
+    bool restartRequested() const;
+
+    /**
+     * @brief Marks that saved settings still require an application restart.
+     */
+    void markRestartPending();
+
+    /**
+     * @brief Returns whether the current settings require an application restart.
+     */
+    bool requiresAppRestart();
+
+    /**
      * @brief initMdiLauncher
      */
     void initMdiLauncher();

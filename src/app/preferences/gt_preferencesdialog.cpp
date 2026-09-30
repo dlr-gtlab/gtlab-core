@@ -221,8 +221,9 @@ GtPreferencesDialog::saveChanges()
         }
     }
 
-    if (gtApp->settings()->requiresAppRestart())
+    if (gtApp->requiresAppRestart())
     {
+        gtApp->markRestartPending();
         m_restartRequested = askUserAndRestart(this);
     }
 
