@@ -11,6 +11,7 @@
 #include "gt_logging.h"
 #include "gt_processcomponent.h"
 
+#include <QByteArray>
 #include <QMetaObject>
 #include <QMutex>
 #include <QMutexLocker>
@@ -21,6 +22,19 @@ namespace {
 
 /// Component executed on the current thread, borrowed and never owned
 thread_local GtProcessComponent* executingComponent = nullptr;
+
+/// Environment variable overriding the developer mode condition
+const char* const kWarningEnvVar = "GTLAB_LEGACY_PROJECT_ACCESS_WARNING";
+
+/// Tri-state result of the environment override
+enum class EnvironmentOverride {
+    /// No valid override, fall back to the developer mode condition
+    NOT_SET,
+    /// Override to off, e.g. "0"
+    OFF,
+    /// Override to on, e.g. "1"
+    ON,
+};
 
 /// Registry mutex
 QMutex& registryMutex()
@@ -68,6 +82,36 @@ QString moduleId(GtProcessComponent const& component)
     }
 
     return factory->moduleId(className(component));
+}
+
+/// Returns the override of the developer mode condition
+///
+/// The value is read on every call because it is only consulted for component
+/// classes that have not been reported yet. Values that are not recognised are
+/// treated as if the variable was not set.
+EnvironmentOverride environmentOverride()
+{
+    const QString value = QString::fromLocal8Bit(qgetenv(kWarningEnvVar))
+                                  .trimmed().toLower();
+
+    if (value.isEmpty())
+    {
+        return EnvironmentOverride::NOT_SET;
+    }
+
+    if (value == QLatin1String("1") || value == QLatin1String("true") ||
+        value == QLatin1String("on") || value == QLatin1String("yes"))
+    {
+        return EnvironmentOverride::ON;
+    }
+
+    if (value == QLatin1String("0") || value == QLatin1String("false") ||
+        value == QLatin1String("off") || value == QLatin1String("no"))
+    {
+        return EnvironmentOverride::OFF;
+    }
+
+    return EnvironmentOverride::NOT_SET;
 }
 
 } // namespace
@@ -156,6 +200,20 @@ GtLegacyProjectAccess::warningsEnabled()
     if (policy)
     {
         return policy();
+    }
+
+    // An explicit environment override replaces the developer mode condition.
+    // It makes the diagnostic usable for headless batch runs and CI jobs,
+    // where the GUI developer mode is never enabled, and allows silencing it
+    // without code changes.
+    switch (environmentOverride())
+    {
+        case EnvironmentOverride::ON:
+            return true;
+        case EnvironmentOverride::OFF:
+            return false;
+        case EnvironmentOverride::NOT_SET:
+            break;
     }
 
     // The application instance is optional, e.g. in batch tools or unit tests,

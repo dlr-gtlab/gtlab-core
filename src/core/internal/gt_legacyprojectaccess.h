@@ -72,6 +72,13 @@ private:
  * changes the resolved project, never fails an execution, and does not imply
  * that @c currentProject() is deprecated for GUI code that intentionally
  * targets the project selected in the desktop application.
+ *
+ * The environment variable @c GTLAB_LEGACY_PROJECT_ACCESS_WARNING overrides the
+ * Developer Mode condition, e.g. for headless runs where the GUI flag is never
+ * enabled. Values @c 1, @c true, @c on and @c yes enable the diagnostic
+ * independently of Developer Mode, values @c 0, @c false, @c off and @c no
+ * disable it, and any other value (including an empty one) keeps the default.
+ * The override affects the diagnostic only, never the project resolution.
  */
 class GT_CORE_EXPORT GtLegacyProjectAccess
 {
@@ -87,16 +94,19 @@ public:
      *
      * Called by the canonical project resolution while an execution context is
      * active. Does nothing if no process component is executed on the current
-     * thread, if the policy disables warnings, or if the component class has
-     * already been reported. Registry lookups are thread safe.
+     * thread, if warnings are disabled, or if the component class has already
+     * been reported. Warnings are enabled by GTlab Developer Mode unless the
+     * policy or @c GTLAB_LEGACY_PROJECT_ACCESS_WARNING overrides it. Registry
+     * lookups are thread safe.
      */
     static void reportLegacyAccess();
 
     /**
      * @brief Replaces the policy used to enable the diagnostic.
      *
-     * An empty policy restores the default which warns in GTlab Developer Mode
-     * only. Intended for tests; not thread safe.
+     * An empty policy restores the default, which is the environment variable
+     * @c GTLAB_LEGACY_PROJECT_ACCESS_WARNING if set to a valid value, and
+     * GTlab Developer Mode otherwise. Intended for tests; not thread safe.
      * @param policy Warning policy, or an empty function for the default.
      */
     static void setDeveloperModePolicy(DeveloperModePolicy policy);
@@ -110,7 +120,8 @@ public:
     static void clearRegistry();
 
 private:
-    /// Returns whether legacy access warnings are currently enabled
+    /// Returns whether legacy access warnings are currently enabled, i.e.
+    /// whether the policy, the environment override or Developer Mode allow it
     static bool warningsEnabled();
 
     /// Returns the deduplication key of a component
