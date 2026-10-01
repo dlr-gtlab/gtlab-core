@@ -61,6 +61,10 @@ Known limitations
 * A project context is not implicitly propagated to module-created worker
   threads. A worker must receive the project explicitly until a context-aware
   helper is introduced.
+* The legacy access warning is attributed to the innermost process component
+  whose execution is active on the current thread. Project access from code
+  running in an event loop nested inside a component execution is therefore
+  reported for that component.
 * Delayed callbacks can run after the initiating process has returned. They
   must not retain or later infer a project from an unscoped global lookup.
 * The current GUI supports one selected project at a time. This baseline does
@@ -108,6 +112,38 @@ while allowing legacy calculator code to observe its execution project. The
 context is only available on the thread where its scope was installed; callers
 must still use an explicit context for worker-thread execution. An active
 path-only context therefore does not fall back to the GUI-selected project.
+
+Legacy access warning
+---------------------
+
+GTlab reports legacy project access with a warning while a process component is
+executed and an execution context is active:
+
+.. code-block:: text
+
+   Legacy project access detected in process component 'CooledBladeImporter'
+   (class: GtCooledBladeImporter, module: myTurbine).
+
+   gtApp->currentProject() resolved the execution project through the
+   compatibility fallback of the active GtExecutionContext. ...
+
+The warning is a migration aid, not a runtime error and not a deprecation of
+``currentProject()``:
+
+* it is only shown in GTlab Developer Mode, so normal users are not confronted
+  with module development guidance;
+* it is emitted at most once per process-component class per application run,
+  identified by the providing module plus the meta-object class name;
+* the resolved project and the result of the calculation are never affected, so
+  existing calculators keep running unchanged;
+* it is not shown for GUI or session access outside a component execution,
+  because selecting the project of the desktop GUI remains a valid use of
+  ``currentProject()``.
+
+Modules that receive the warning should migrate as described in *Recommended
+calculator API* below. The report is triggered by the canonical project
+resolution, so ``gtApp->currentProject()`` and
+``gtDataModel->currentProject()`` cannot warn twice for the same access.
 
 Recommended calculator API
 --------------------------
