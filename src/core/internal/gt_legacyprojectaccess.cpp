@@ -74,7 +74,7 @@ QString className(GtProcessComponent const& component)
 /// Returns the identity of the module providing a component, if known
 QString moduleId(GtProcessComponent const& component)
 {
-    GtAbstractObjectFactory* factory = component.factory();
+    GtAbstractObjectFactory const* factory = component.factory();
 
     if (!factory)
     {
@@ -137,7 +137,8 @@ GtProcessComponentExecutionScope::current() noexcept
 void
 GtLegacyProjectAccess::reportLegacyAccess()
 {
-    GtProcessComponent* component = GtProcessComponentExecutionScope::current();
+    GtProcessComponent const* component =
+            GtProcessComponentExecutionScope::current();
 
     // Access outside of a component execution, e.g. from GUI code that
     // intentionally targets the project selected in the desktop application,
@@ -254,9 +255,10 @@ GtLegacyProjectAccess::warningMessage(GtProcessComponent const& component)
     return QStringLiteral(
         "Legacy project access detected in process component %1.\n"
         "\n"
-        "gtApp->currentProject() resolved the execution project through the "
-        "compatibility fallback of the active GtExecutionContext. The call "
-        "succeeded, but new calculator code should not rely on it:\n"
+        "gtApp->currentProject() was accessed through the "
+        "compatibility fallback of the active GtExecutionContext. Its "
+        "result may be null, and new calculator code should not rely on "
+        "it:\n"
         "  - use already available or linked execution objects,\n"
         "  - pass the required project data explicitly into helpers and "
         "services, or\n"
