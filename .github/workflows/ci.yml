@@ -175,6 +175,85 @@ jobs:
           gtlab-win64-qt6
 
 
+
+  cppcheck:
+    name: "Cppcheck"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
+
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir -p $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Install Cppcheck 2.22.0
+      run: |
+        git clone --depth 1 --branch 2.22.0 https://github.com/cppcheck-opensource/cppcheck.git /tmp/cppcheck
+        cmake -S /tmp/cppcheck -B /tmp/cppcheck-build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_GUI=OFF \
+          -DBUILD_TESTING=OFF \
+          -DCMAKE_INSTALL_PREFIX=$HOME/cppcheck
+        cmake --build /tmp/cppcheck-build --target install
+        echo "$HOME/cppcheck/bin" >> $GITHUB_PATH
+
+    - name: Configure compile commands
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_UNITTESTS=OFF \
+          -DBUILD_TESTMODULES=OFF \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        cp build/compile_commands.json build/cppcheck_compile_commands.json
+
+    - name: Run Cppcheck
+      run: |
+        cppcheck \
+          --inline-suppr \
+          --xml \
+          --std=c++14 \
+          --disable=unusedFunction \
+          --suppressions-list=cppcheck.suppress \
+          --suppress-xml=cppcheck-baseline.suppress \
+          --library=qt.cfg \
+          --error-exitcode=0 \
+          --enable=all \
+          -j 16 \
+          -i build \
+          --project=build/cppcheck_compile_commands.json \
+          2> cppcheck_out.xml
+
+    - name: Show Cppcheck results
+      if: always()
+      run: cat cppcheck_out.xml
+
+    - name: Upload Cppcheck results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cppcheck-results
+        path: cppcheck_out.xml
+
+    - name: Fail on Cppcheck findings
+      run: |
+        if grep -q '<error ' cppcheck_out.xml; then
+          exit 255
+        fi
+
   documentation:
     runs-on: ubuntu-latest
     strategy:
