@@ -131,7 +131,7 @@ The warning is a migration aid, not a runtime error and not a deprecation of
 ``currentProject()``:
 
 * it is only shown in GTlab Developer Mode, so normal users are not confronted
-  with module development guidance;
+  with module development guidance (see the environment override below);
 * it is emitted at most once per process-component class per application run,
   identified by the providing module plus the meta-object class name;
 * the resolved project and the result of the calculation are never affected, so
@@ -139,6 +139,25 @@ The warning is a migration aid, not a runtime error and not a deprecation of
 * it is not shown for GUI or session access outside a component execution,
   because selecting the project of the desktop GUI remains a valid use of
   ``currentProject()``.
+
+The activation of the warning can be overridden with the environment variable
+``GTLAB_LEGACY_PROJECT_ACCESS_WARNING``:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Value
+     - Effect
+   * - ``1``, ``true``, ``on``, ``yes``
+     - Warn also outside Developer Mode, e.g. for GTlabConsole, batch runs or CI
+   * - ``0``, ``false``, ``off``, ``no``
+     - Never warn, also not in Developer Mode
+   * - unset or any other value
+     - Default: warn in Developer Mode only
+
+The variable controls the diagnostic only. Project resolution, execution order
+and calculation results are unaffected, and access outside a running process
+component never produces a warning.
 
 Modules that receive the warning should migrate as described in *Recommended
 calculator API* below. The report is triggered by the canonical project
