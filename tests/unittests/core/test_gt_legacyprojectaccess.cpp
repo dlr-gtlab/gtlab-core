@@ -656,6 +656,13 @@ TEST_F(LegacyProjectAccessTest, pathOnlyContextKeepsResolutionSemantics)
     // a path only context still does not fall back to the session project
     EXPECT_EQ(gtApp->currentProject(), nullptr);
     EXPECT_EQ(recorder.count(), 1);
+
+    // the warning must not claim that a project was successfully resolved
+    QStringList const warnings = recorder.legacyAccessWarnings();
+    ASSERT_EQ(warnings.size(), 1);
+    EXPECT_TRUE(warnings.at(0).contains(QStringLiteral("may be null")));
+    EXPECT_FALSE(warnings.at(0).contains(
+        QStringLiteral("resolved the execution project")));
 }
 
 TEST_F(LegacyProjectAccessTest, nestedScopesRestorePreviousComponent)
