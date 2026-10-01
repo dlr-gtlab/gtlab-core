@@ -124,8 +124,9 @@ executed and an execution context is active:
    Legacy project access detected in process component 'CooledBladeImporter'
    (class: GtCooledBladeImporter, module: myTurbine).
 
-   gtApp->currentProject() resolved the execution project through the
-   compatibility fallback of the active GtExecutionContext. ...
+   gtApp->currentProject() was accessed through the compatibility fallback of
+   the active GtExecutionContext. Its result may be null, and new calculator
+   code should not rely on it: ...
 
 The warning is a migration aid, not a runtime error and not a deprecation of
 ``currentProject()``:
