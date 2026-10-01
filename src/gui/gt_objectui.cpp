@@ -170,7 +170,7 @@ GtObjectUI::validatorRegExp(GtObject* /*obj*/)
 }
 
 QString const&
-GtObjectUI::regExpHint(GtObject* /*obj*/)
+GtObjectUI::regExpHint(GtObject* /*obj*/) const
 {
     return pimpl->regExpHint;
 }

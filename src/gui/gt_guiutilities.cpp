@@ -103,7 +103,7 @@ addActionBefore(QMenu& menu,
 
     if (!uiAction.method()) return nullptr;
 
-    QAction* action = new QAction(uiAction.text(), &menu);
+    QAction* action = new QAction(uiAction.name(), &menu);
     gt::gui::setOrderPriority(*action, uiAction.orderPriority());
 
     // insert at correct position
@@ -306,6 +306,8 @@ addCustomActions(QMenu& menu, GtObject& obj)
     {
         for (auto const& group : data.groups)
         {
+            if (group.name().isEmpty()) continue;
+
             QAction* before = actionBefore(menu, group.orderPriority());
 
             QMenu* submenu = new QMenu(group.name(), &menu);
@@ -428,8 +430,6 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
 {
     addOpenWithActions(menu, obj);
 
-    addCustomActions(menu, obj);
-
     addImportMenu(menu, obj);
 
     addExportMenu(menu, obj);
@@ -452,6 +452,8 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
         before = addActionBefore(menu, before, delete_, &obj);
         addActionBefore(menu, before, makeSeparator(gt::gui::OrderPriority::BeforeDeleteAction));
     }
+
+    addCustomActions(menu, obj);
 
     return countVisibleActions(menu.actions());
 }

@@ -29,7 +29,8 @@ namespace gui
 /// Predefined order priority values for context menus in GTlab
 struct OrderPriority
 {
-    // using struct for tighter naming schemes while allowing implicit int conversions
+    // using struct for tighter naming schemes while allowing implicit
+    // int conversions
     enum Value : int
     {
         /// default order priority
@@ -47,45 +48,54 @@ struct OrderPriority
         DeleteAction = 200,
 
         /// denotes that this action should be placed last in a menu.
-        Last = 999,
+        Last  =  999,
         /// Denotes that this action should be placed first in a meenu.
         First = -999,
 
-        /// order priority to insert before the "open with" actions in the explorer
-        /// (but still in the same section)
-        BeforeOpenWithAction = OpenWithAction - 1,
-        /// order priority to insert after the "open with" actions in the explorer
-        /// (in a new section)
-        AfterOpenWithAction  = OpenWithAction + 1,
+        /// inserts before the "open with" actions in a separate section
+        BeforeOpenWithSection = OpenWithAction - 2,
+        /// inserts before the "open with" actions in the same section
+        BeforeOpenWithAction  = OpenWithAction - 1,
+        /// inserts after the "open with" actions in the same section
+        AfterOpenWithAction   = OpenWithAction,
+        /// inserts after the "open with" actions in a separate section
+        AfterOpenWithSection  = OpenWithAction + 1,
 
-        /// order priority to insert before the "import" action
-        /// (but still in the same section)
-        BeforeImportAction = ImportAction - 1,
-        /// order priority to insert after the "import" action
-        /// (in a new section)
-        AfterImportAction  = ImportAction + 1,
+        /// inserts before the "import" actions in a separate section
+        BeforeImportSection = ImportAction - 2,
+        /// inserts before the "import" actions in the same section
+        BeforeImportAction  = ImportAction - 1,
+        /// inserts after the "import" actions in the same section
+        AfterImportAction   = ImportAction,
+        /// inserts after the "import" actions in a separate section
+        AfterImportSection  = ImportAction + 1,
 
+        /// inserts before the "export" actions in a separate section
+        BeforeExportSection = ExportAction - 2,
+        /// inserts before the "export" actions in the same section
+        BeforeExportAction  = ExportAction - 1,
+        /// inserts after the "export" actions in the same section
+        AfterExportAction   = ExportAction,
+        /// inserts after the "export" actions in a separate section
+        AfterExportSection  = ExportAction + 1,
 
-        /// order priority to insert before the "export" action
-        /// (but still in the same section)
-        BeforeExportAction = ExportAction - 1,
-        /// order priority to insert after the "export" action
-        /// (in a new section)
-        AfterExportAction  = ExportAction + 1,
+        /// inserts before the "rename" actions in a separate section
+        BeforeRenameSection = RenameAction - 2,
+        /// inserts before the "rename" actions in the same section
+        BeforeRenameAction  = RenameAction - 1,
+        /// inserts after the "rename" actions in the same section
+        AfterRenameAction   = RenameAction,
+        /// inserts after the "rename" actions in a separate section
+        AfterRenameSection  = RenameAction + 1,
 
-        /// order priority to insert before the "rename" action
-        /// (but still in the same section)
-        BeforeRenameAction = RenameAction - 1,
-        /// order priority to insert after the "rename" action
-        /// (in a new section)
-        AfterRenameAction  = RenameAction + 1,
-
-        /// order priority to insert before the "delete" action
-        /// (but still in the same section)
-        BeforeDeleteAction = DeleteAction - 1,
-        /// order priority to insert after the "delete" action
-        /// (in a new section)
-        AfterDeleteAction  = DeleteAction + 1,
+        /// inserts before the "delete" actions in a separate section
+        BeforeDeleteSection = DeleteAction - 2,
+        /// inserts before the "delete" actions in the same section
+        BeforeDeleteAction  = DeleteAction - 1,
+        /// inserts after the "delete" actions in the same section
+        AfterDeleteAction   = DeleteAction,
+        /// inserts after the "delete" actions in a separate section
+        AfterDeleteSection  = DeleteAction + 1,
     };
 };
 
@@ -122,16 +132,16 @@ public:
     fromMethodName(const QString& methodName);
 
     /**
-     * @brief GtObjectUIAction
+     * @brief Constructor, creates a separator action
      */
-    GtObjectUIAction();
+    GtObjectUIAction() noexcept;
 
     /**
      * @brief Constructor
      * @param text Action text
      * @param method Method to execute when action was triggered
      */
-    GtObjectUIAction(const QString& text, ActionMethod method);
+    GtObjectUIAction(QString name, ActionMethod method);
 
     /**
      * @brief Overload. Constructor.
@@ -139,7 +149,13 @@ public:
      * @param method Method to execute when action was triggered.
      * Function requires a parent object
      */
-    GtObjectUIAction(const QString& text, InvokableActionMethod method);
+    GtObjectUIAction(QString name, InvokableActionMethod method);
+
+    GtObjectUIAction(GtObjectUIAction const&) noexcept;
+    GtObjectUIAction(GtObjectUIAction&&) noexcept;
+    GtObjectUIAction& operator=(GtObjectUIAction const&) noexcept;
+    GtObjectUIAction& operator=(GtObjectUIAction&&) noexcept;
+    ~GtObjectUIAction() noexcept;
 
     /**
      * @brief Returns whether this action is empty
@@ -157,7 +173,13 @@ public:
      * @brief Returns the action text
      * @return Action text
      */
-    const QString& text() const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `name()` instead")
+    const QString& text() const { return name(); }
+    /**
+     * @brief Returns the action name
+     * @return Action text
+     */
+    const QString& name() const;
 
     /**
      * @brief Returns the action icon
@@ -328,35 +350,19 @@ public:
      */
     GtObjectUIAction& setOrderPriority(int priority);
 
+    /**
+     * @brief Swaps this action with `other`
+     * @param other Other
+     */
+    void swap(GtObjectUIAction& other) noexcept;
 
 private:
-    /// Action text
-    QString m_text{};
 
-    /// Action icon
-    QIcon m_icon{};
-
-    /// Invokable method
-    InvokableActionMethod m_method{};
-
-    /// Verification method
-    InvokableVerificationMethod m_verification{};
-
-    /// Visibility method
-    InvokableVisibilityMethod m_visibility{};
-
-    /// Shortcut
-    QKeySequence m_shortCut{};
-
-    int m_priority{gt::gui::OrderPriority::Default};
-
-    /**
-     * @brief helper function to set action method suing the name of a
-     * invokable method
-     * @param methodName
-     */
-    void setActionMethod(const QString& methodName);
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
+
+inline void swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept { a.swap(b); }
 
 using GtActionList = QList<GtObjectUIAction>;
 
@@ -374,7 +380,9 @@ makeAction(const QString& actionText, GtObjectUIAction::ActionMethod actionMetho
 inline GtObjectUIAction
 makeSeparator(int priority = OrderPriority::Default)
 {
-    return GtObjectUIAction().setOrderPriority(priority);
+    GtObjectUIAction sep;
+    sep.setOrderPriority(priority);
+    return sep;
 }
 
 } // namespace gui
