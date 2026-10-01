@@ -12,9 +12,11 @@
 #include <thread>
 #include <vector>
 
+#include <QByteArray>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QList>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QString>
@@ -39,6 +41,34 @@ namespace {
 const QString kWarningMarker = QStringLiteral("Legacy project access detected");
 const QString kFirstComponentClass = QStringLiteral("LegacyAccessCalculator");
 const QString kSecondComponentClass = QStringLiteral("OtherAccessCalculator");
+
+/// Environment variable that overrides the developer mode condition
+const char* const kWarningEnvVar = "GTLAB_LEGACY_PROJECT_ACCESS_WARNING";
+
+/// Sets the environment override for the lifetime of the guard
+///
+/// An empty value clears the variable. The variable is always removed on
+/// destruction so a test cannot influence the remaining test cases.
+class EnvironmentOverride
+{
+public:
+    explicit EnvironmentOverride(const QByteArray& value)
+    {
+        if (value.isEmpty())
+        {
+            qunsetenv(kWarningEnvVar);
+        }
+        else
+        {
+            qputenv(kWarningEnvVar, value);
+        }
+    }
+
+    ~EnvironmentOverride() { qunsetenv(kWarningEnvVar); }
+
+    EnvironmentOverride(EnvironmentOverride const&) = delete;
+    EnvironmentOverride& operator=(EnvironmentOverride const&) = delete;
+};
 
 /// Project with accessible constructor
 class TestProject : public GtProject
@@ -264,6 +294,9 @@ protected:
 
     static void clearDiagnosticState()
     {
+        // the environment override would leak into other test cases
+        qunsetenv(kWarningEnvVar);
+
         GtLegacyProjectAccess::clearRegistry();
         GtLegacyProjectAccess::setDeveloperModePolicy(
             GtLegacyProjectAccess::DeveloperModePolicy{});
@@ -439,6 +472,134 @@ TEST_F(LegacyProjectAccessTest, warningsAreSuppressedOutsideDeveloperMode)
     // resolution is unchanged, only the diagnostic is suppressed
     EXPECT_EQ(runLegacyAccess<LegacyAccessCalculator>(execProject),
               execProject);
+
+    EXPECT_EQ(recorder.count(), 0);
+}
+
+TEST_F(LegacyProjectAccessTest, environmentVariableEnablesWarningWithoutDevMode)
+{
+    setDeveloperMode(false);
+
+    WarningRecorder recorder;
+    EnvironmentOverride override_("1");
+
+    // headless runs have no developer mode but must still reveal legacy access
+    EXPECT_EQ(runLegacyAccess<LegacyAccessCalculator>(execProject),
+              execProject);
+
+    EXPECT_EQ(recorder.count(), 1);
+}
+
+TEST_F(LegacyProjectAccessTest, runnableWarnsWithEnvironmentOverride)
+{
+    setDeveloperMode(false);
+
+    WarningRecorder recorder;
+    EnvironmentOverride override_("true");
+
+    // the batch runner installs no developer mode, so this is the case the
+    // environment override was introduced for
+    GtRunnable runnable({}, GtExecutionContext(execProject));
+
+    auto* calculator = new LegacyAccessCalculator;
+    ASSERT_TRUE(runnable.appendProcessComponent(calculator));
+
+    runnable.run();
+
+    EXPECT_EQ(calculator->observedProject, execProject);
+    EXPECT_TRUE(runnable.successful());
+    EXPECT_EQ(recorder.count(), 1);
+}
+
+TEST_F(LegacyProjectAccessTest, environmentVariableAcceptsTextualValues)
+{
+    setDeveloperMode(false);
+
+    const QList<QByteArray> values {QByteArray("on"), QByteArray("TRUE"),
+                                    QByteArray(" Yes"), QByteArray("1")};
+
+    for (const QByteArray& value : values)
+    {
+        // a fresh recorder per value keeps the expectation independent of the
+        // warnings collected in the previous iterations
+        WarningRecorder recorder;
+        EnvironmentOverride override_(value);
+
+        EXPECT_EQ(runLegacyAccess<OtherAccessCalculator>(execProject),
+                  execProject) << "value: " << value.constData();
+
+        EXPECT_EQ(recorder.count(), 1) << "value: " << value.constData();
+
+        // the registry is independent of the activation condition, so it has
+        // to be cleared explicitly for the next value
+        GtLegacyProjectAccess::clearRegistry();
+    }
+}
+
+TEST_F(LegacyProjectAccessTest, environmentVariableSilencesWarningInDevMode)
+{
+    setDeveloperMode(true);
+
+    WarningRecorder recorder;
+    EnvironmentOverride override_("off");
+
+    // resolution is unchanged, only the diagnostic is silenced
+    EXPECT_EQ(runLegacyAccess<LegacyAccessCalculator>(execProject),
+              execProject);
+
+    EXPECT_EQ(recorder.count(), 0);
+}
+
+TEST_F(LegacyProjectAccessTest, invalidEnvironmentValueFallsBackToDeveloperMode)
+{
+    WarningRecorder recorder;
+    EnvironmentOverride override_("maybe");
+
+    // an unusable value behaves like an unset variable
+    setDeveloperMode(false);
+
+    EXPECT_EQ(runLegacyAccess<LegacyAccessCalculator>(execProject),
+              execProject);
+
+    EXPECT_EQ(recorder.count(), 0);
+
+    GtLegacyProjectAccess::clearRegistry();
+
+    setDeveloperMode(true);
+
+    EXPECT_EQ(runLegacyAccess<LegacyAccessCalculator>(execProject),
+              execProject);
+
+    EXPECT_EQ(recorder.count(), 1);
+}
+
+TEST_F(LegacyProjectAccessTest, environmentOverrideStaysSilentOutsideExecution)
+{
+    setDeveloperMode(false);
+
+    WarningRecorder recorder;
+    EnvironmentOverride override_("1");
+
+    // the override replaces the developer mode condition only: access outside
+    // a component execution, and access without an execution context, stays
+    // silent because it is not a legacy compatibility case
+    EXPECT_EQ(gtApp->currentProject(), guiProject);
+
+    {
+        GtExecutionContext context(execProject);
+        GtExecutionContextScope contextScope(context);
+
+        EXPECT_EQ(gtApp->currentProject(), execProject);
+        EXPECT_EQ(gtDataModel->currentProject(), execProject);
+    }
+
+    TestRunnable runnable;
+    LegacyAccessCalculator calculator;
+    calculator.setParent(&runnable);
+
+    GtProcessComponentExecutionScope componentScope(&calculator);
+
+    EXPECT_EQ(gtApp->currentProject(), guiProject);
 
     EXPECT_EQ(recorder.count(), 0);
 }
