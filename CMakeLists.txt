@@ -130,6 +130,10 @@ endif(BUILD_TESTMODULES)
 
 if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
 
+    # Bundled dependencies can overwrite the coverage functions with their own
+    # versions. Restore GTlab's module before creating the coverage targets.
+    include("${PROJECT_SOURCE_DIR}/cmake/CodeCoverage.cmake")
+
     if (EXISTS ${GTLAB_DEVTOOLS_DIR})
       set(DEVTOOLS_DIR_EXCLUDE "${GTLAB_DEVTOOLS_DIR}/*")
     endif()
