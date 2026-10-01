@@ -17,6 +17,7 @@
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
 #include "gt_monitoringdatatable.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 #include <QDebug>
 #include <QThreadPool>
@@ -389,6 +390,10 @@ GtTask::runChildElements()
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
+        // attributes project access during this execution to the component,
+        // see GtRunnable::run()
+        GtProcessComponentExecutionScope componentScope(comp);
+
         if (!comp->exec())
         {
             // calculator run failed

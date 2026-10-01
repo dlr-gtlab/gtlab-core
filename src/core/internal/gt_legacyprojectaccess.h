@@ -1,0 +1,123 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ */
+
+#ifndef GTLEGACYPROJECTACCESS_H
+#define GTLEGACYPROJECTACCESS_H
+
+#include "gt_core_exports.h"
+
+#include <QString>
+
+#include <functional>
+
+class GtProcessComponent;
+
+/**
+ * @brief Marks the process component that is executed on the current thread.
+ *
+ * The scope is an internal developer diagnostic. It stores a borrowed pointer,
+ * never extends the lifetime of the component, and is not propagated to child
+ * threads. Scopes may be nested; the destructor restores the previously
+ * executing component.
+ *
+ * The scope is deliberately not part of the execution context contract. It
+ * neither changes project resolution nor execution order and must not be used
+ * to derive execution data in calculators.
+ */
+class GT_CORE_EXPORT GtProcessComponentExecutionScope
+{
+public:
+    /**
+     * @brief Constructor.
+     * @param component Component being executed, not owned. The component must
+     * outlive the scope.
+     */
+    explicit GtProcessComponentExecutionScope(GtProcessComponent* component);
+
+    ~GtProcessComponentExecutionScope();
+
+    GtProcessComponentExecutionScope(
+        GtProcessComponentExecutionScope const&) = delete;
+    GtProcessComponentExecutionScope(
+        GtProcessComponentExecutionScope&&) = delete;
+    GtProcessComponentExecutionScope& operator=(
+        GtProcessComponentExecutionScope const&) = delete;
+    GtProcessComponentExecutionScope& operator=(
+        GtProcessComponentExecutionScope&&) = delete;
+
+    /**
+     * @brief Returns the component executed on the current thread.
+     * @return Borrowed component pointer, or nullptr if no component is being
+     * executed.
+     */
+    static GtProcessComponent* current() noexcept;
+
+private:
+    GtProcessComponent* m_previous;
+};
+
+/**
+ * @brief Developer diagnostics for legacy project access during execution.
+ *
+ * During a process component execution, @c gtApp->currentProject() resolves
+ * the execution project through the active @c GtExecutionContext. That
+ * compatibility path keeps existing calculators source compatible, but it is
+ * not the recommended API for new project scoped code.
+ *
+ * This class reports such access once per process-component class while
+ * GTlab Developer Mode is active. It is a migration aid only: it never
+ * changes the resolved project, never fails an execution, and does not imply
+ * that @c currentProject() is deprecated for GUI code that intentionally
+ * targets the project selected in the desktop application.
+ */
+class GT_CORE_EXPORT GtLegacyProjectAccess
+{
+public:
+    /// Policy that decides whether legacy access warnings are shown
+    using DeveloperModePolicy = std::function<bool()>;
+
+    GtLegacyProjectAccess() = delete;
+    ~GtLegacyProjectAccess() = delete;
+
+    /**
+     * @brief Reports project access of the currently executed process component.
+     *
+     * Called by the canonical project resolution while an execution context is
+     * active. Does nothing if no process component is executed on the current
+     * thread, if the policy disables warnings, or if the component class has
+     * already been reported. Registry lookups are thread safe.
+     */
+    static void reportLegacyAccess();
+
+    /**
+     * @brief Replaces the policy used to enable the diagnostic.
+     *
+     * An empty policy restores the default which warns in GTlab Developer Mode
+     * only. Intended for tests; not thread safe.
+     * @param policy Warning policy, or an empty function for the default.
+     */
+    static void setDeveloperModePolicy(DeveloperModePolicy policy);
+
+    /**
+     * @brief Clears the registry of already reported component classes.
+     *
+     * Intended for tests. After clearing, each component class can be reported
+     * again once.
+     */
+    static void clearRegistry();
+
+private:
+    /// Returns whether legacy access warnings are currently enabled
+    static bool warningsEnabled();
+
+    /// Returns the deduplication key of a component
+    static QString warningKey(GtProcessComponent const& component);
+
+    /// Returns the actionable warning text of a component
+    static QString warningMessage(GtProcessComponent const& component);
+};
+
+#endif // GTLEGACYPROJECTACCESS_H
