@@ -12,13 +12,99 @@
 #define GTOBJECTUIACTION_H
 
 #include "gt_gui_exports.h"
-#include "gt_object.h"
 #include "gt_globals.h"
 
-#include <functional>
 #include <QString>
-#include <QIcon>
-#include <QKeySequence>
+
+#include <functional>
+#include <memory>
+
+class QObject;
+class GtObject;
+class QIcon;
+class QKeySequence;
+
+namespace gt
+{
+namespace gui
+{
+
+/// Predefined order priority values for context menus in GTlab
+struct OrderPriority
+{
+    // using struct for tighter naming schemes while allowing implicit
+    // int conversions
+    enum Value : int
+    {
+        /// default order priority
+        Default = 0,
+
+        /// order priority of the "open with" action in the explorer
+        OpenWithAction = -50,
+        /// order priority of the "import" action
+        ImportAction = 50,
+        /// order priority of the "export" action
+        ExportAction = 100,
+        /// order priority of the "rename" action
+        RenameAction = 150,
+        /// order priority of the "delete" action
+        DeleteAction = 200,
+
+        /// denotes that this action should be placed last in a menu.
+        Last  =  999,
+        /// Denotes that this action should be placed first in a meenu.
+        First = -999,
+
+        /// inserts before the "open with" actions in a separate section
+        BeforeOpenWithSection = OpenWithAction - 2,
+        /// inserts before the "open with" actions in the same section
+        BeforeOpenWithAction  = OpenWithAction - 1,
+        /// inserts after the "open with" actions in the same section
+        AfterOpenWithAction   = OpenWithAction,
+        /// inserts after the "open with" actions in a separate section
+        AfterOpenWithSection  = OpenWithAction + 1,
+
+        /// inserts before the "import" actions in a separate section
+        BeforeImportSection = ImportAction - 2,
+        /// inserts before the "import" actions in the same section
+        BeforeImportAction  = ImportAction - 1,
+        /// inserts after the "import" actions in the same section
+        AfterImportAction   = ImportAction,
+        /// inserts after the "import" actions in a separate section
+        AfterImportSection  = ImportAction + 1,
+
+        /// inserts before the "export" actions in a separate section
+        BeforeExportSection = ExportAction - 2,
+        /// inserts before the "export" actions in the same section
+        BeforeExportAction  = ExportAction - 1,
+        /// inserts after the "export" actions in the same section
+        AfterExportAction   = ExportAction,
+        /// inserts after the "export" actions in a separate section
+        AfterExportSection  = ExportAction + 1,
+
+        /// inserts before the "rename" actions in a separate section
+        BeforeRenameSection = RenameAction - 2,
+        /// inserts before the "rename" actions in the same section
+        BeforeRenameAction  = RenameAction - 1,
+        /// inserts after the "rename" actions in the same section
+        AfterRenameAction   = RenameAction,
+        /// inserts after the "rename" actions in a separate section
+        AfterRenameSection  = RenameAction + 1,
+
+        /// inserts before the "delete" actions in a separate section
+        BeforeDeleteSection = DeleteAction - 2,
+        /// inserts before the "delete" actions in the same section
+        BeforeDeleteAction  = DeleteAction - 1,
+        /// inserts after the "delete" actions in the same section
+        AfterDeleteAction   = DeleteAction,
+        /// inserts after the "delete" actions in a separate section
+        AfterDeleteSection  = DeleteAction + 1,
+    };
+};
+
+} // namespace gui
+
+} // namespace gt
 
 /**
  * @brief The GtObjectUIAction class
@@ -49,16 +135,16 @@ public:
     fromMethodName(const QString& methodName);
 
     /**
-     * @brief GtObjectUIAction
+     * @brief Constructor, creates a separator action
      */
-    GtObjectUIAction();
+    GtObjectUIAction() noexcept;
 
     /**
      * @brief Constructor
      * @param text Action text
      * @param method Method to execute when action was triggered
      */
-    GtObjectUIAction(const QString& text, ActionMethod method);
+    GtObjectUIAction(QString name, ActionMethod method);
 
     /**
      * @brief Overload. Constructor.
@@ -66,7 +152,13 @@ public:
      * @param method Method to execute when action was triggered.
      * Function requires a parent object
      */
-    GtObjectUIAction(const QString& text, InvokableActionMethod method);
+    GtObjectUIAction(QString name, InvokableActionMethod method);
+
+    GtObjectUIAction(GtObjectUIAction const&) noexcept;
+    GtObjectUIAction(GtObjectUIAction&&) noexcept;
+    GtObjectUIAction& operator=(GtObjectUIAction const&) noexcept;
+    GtObjectUIAction& operator=(GtObjectUIAction&&) noexcept;
+    ~GtObjectUIAction() noexcept;
 
     /**
      * @brief Returns whether this action is empty
@@ -75,10 +167,22 @@ public:
     bool isEmpty() const;
 
     /**
+     * @brief Returns whether this action is a separator
+     * @return is separator
+     */
+    bool isSeparator() const;
+
+    /**
      * @brief Returns the action text
      * @return Action text
      */
-    const QString& text() const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `name()` instead")
+    const QString& text() const { return name(); }
+    /**
+     * @brief Returns the action name
+     * @return Action text
+     */
+    const QString& name() const;
 
     /**
      * @brief Returns the action icon
@@ -114,6 +218,14 @@ public:
      * @return Short cut connected to the action
      */
     const QKeySequence& shortCut() const;
+
+    /**
+     * @brief Returns the priority according to which this action is sorted
+     * in a menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @return Order priority
+     */
+    int orderPriority() const;
 
     /**
      * @brief Dedicated setter for the UI icon
@@ -232,32 +344,28 @@ public:
         return registerShortCut(id, GT_MODULENAME(), k, readOnly);
     }
 
-private:
-    /// Action text
-    QString m_text{};
-
-    /// Action icon
-    QIcon m_icon{};
-
-    /// Invokable method
-    InvokableActionMethod m_method{};
-
-    /// Verification method
-    InvokableVerificationMethod m_verification{};
-
-    /// Visibility method
-    InvokableVisibilityMethod m_visibility{};
-
-    /// Shortcut
-    QKeySequence m_shortCut{};
+    /**
+     * @brief Sets the order priority according to which the action is sorted
+     * in the menu. An action with a lower priority 'x' prepends all actions
+     * with a higher prority > x.
+     * @param priority Order priority
+     * @return This
+     */
+    GtObjectUIAction& setOrderPriority(int priority);
 
     /**
-     * @brief helper function to set action method suing the name of a
-     * invokable method
-     * @param methodName
+     * @brief Swaps this action with `other`
+     * @param other Other
      */
-    void setActionMethod(const QString& methodName);
+    void swap(GtObjectUIAction& other) noexcept;
+
+private:
+
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
+
+inline void swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept { a.swap(b); }
 
 using GtActionList = QList<GtObjectUIAction>;
 
@@ -267,9 +375,17 @@ namespace gui
 {
 
 inline GtObjectUIAction
-makeAction(const QString& actionText, GtObjectUIAction::ActionMethod actionMethod)
+makeAction(QString actionText, GtObjectUIAction::ActionMethod actionMethod)
 {
-    return GtObjectUIAction(actionText, std::move(actionMethod));
+    return GtObjectUIAction(std::move(actionText), std::move(actionMethod));
+}
+
+inline GtObjectUIAction
+makeSeparator(int priority = OrderPriority::Default)
+{
+    GtObjectUIAction sep;
+    sep.setOrderPriority(priority);
+    return sep;
 }
 
 } // namespace gui
