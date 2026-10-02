@@ -19,6 +19,7 @@
 
 struct GtObjectUIAction::Impl
 {
+    explicit
     Impl(QString name_ = {}, InvokableActionMethod method_ = {}) :
         name(std::move(name_)),
         method(std::move(method_))
