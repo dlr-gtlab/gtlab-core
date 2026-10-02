@@ -18,6 +18,8 @@
 #include <QString>
 #include <QList>
 
+class QIcon;
+
 /**
  * @brief The GtObjectUIActionGroup class
  */
@@ -32,12 +34,10 @@ public:
     GtObjectUIActionGroup();
 
     explicit
-    GtObjectUIActionGroup(QString groupName,
-                          QIcon icon = {});
+    GtObjectUIActionGroup(QString groupName);
 
     GtObjectUIActionGroup(QString groupName,
-                          QList<GtObjectUIAction> actions,
-                          QIcon icon = {});
+                          QList<GtObjectUIAction> action);
 
     GtObjectUIActionGroup(QString groupName,
                           QList<GtObjectUIAction> actions,
@@ -140,9 +140,9 @@ namespace gui
 {
 
 inline GtObjectUIActionGroup
-makeActionGroup(const QString& groupName, int sizeHint = -1)
+makeActionGroup(QString groupName, int sizeHint = -1)
 {
-    auto tmp = GtObjectUIActionGroup(groupName);
+    auto tmp = GtObjectUIActionGroup(std::move(groupName));
     tmp.reserve(sizeHint);
     return tmp;
 }

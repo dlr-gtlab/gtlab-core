@@ -111,18 +111,27 @@ addActionBefore(QMenu& menu,
 
     if (uiAction.visibilityMethod() || uiAction.verificationMethod())
     {
-        // -> use only one slot-call for both
-        QObject::connect(&menu, &QMenu::aboutToShow,
-                         action, [isVisible = uiAction.visibilityMethod(),
-                                  isEnabled = uiAction.verificationMethod(),
-                                  action,
-                                  parentObj,
-                                  targetObj](){
+        auto updateState = [isVisible = uiAction.visibilityMethod(),
+                            isEnabled = uiAction.verificationMethod(),
+                            action,
+                            parentObj,
+                            targetObj](){
             // visibility
             if (isVisible) action->setVisible(isVisible(parentObj, targetObj));
             // verification
             if (isEnabled) action->setEnabled(isEnabled(parentObj, targetObj));
-        });
+        };
+
+        if (menu.isVisible())
+        {
+            updateState();
+        }
+        else
+        {
+            // -> use only one slot-call for both
+            QObject::connect(&menu, &QMenu::aboutToShow,
+                             action, updateState);
+        }
     }
 
     // icon
@@ -150,6 +159,7 @@ addActionBefore(QMenu& menu,
                              targetObj](){
         method(parentObj, targetObj);
     });
+
     return action;
 }
 
