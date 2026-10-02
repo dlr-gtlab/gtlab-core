@@ -15,8 +15,11 @@
 #include "gt_logging.h"
 #include "gt_utilities.h"
 
+#include <QKeySequence>
+
 struct GtObjectUIAction::Impl
 {
+    explicit
     Impl(QString name_ = {}, InvokableActionMethod method_ = {}) :
         name(std::move(name_)),
         method(std::move(method_))
@@ -97,7 +100,7 @@ GtObjectUIAction::GtObjectUIAction(GtObjectUIAction const& o) noexcept :
 { }
 
 GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o) noexcept :
-    pimpl(std::move(o.pimpl))
+    pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
 GtObjectUIAction&
@@ -129,8 +132,6 @@ GtObjectUIAction::isSeparator() const
 {
     return isEmpty();
 }
-
-
 
 const QString&
 GtObjectUIAction::name() const
