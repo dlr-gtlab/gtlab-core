@@ -9,7 +9,7 @@ on:
 jobs:
 
   cppcheck:
-    name: "Cppcheck"
+    name: "Static analysis (Cppcheck)"
     runs-on: ubuntu-latest
 
     permissions:
