@@ -485,6 +485,42 @@ def copy_results(root: Path, dest: Path) -> List[str]:
     return copied
 
 
+def normalize_badge(path: Path) -> None:
+    """Fix the embedded Squish icon of the legacy badge generator.
+
+    The generator in the GUI-testing resources embeds the Squish icon as a
+    nested 140px-wide SVG inside a 127x20 badge without positioning it. Browsers
+    therefore render the icon over the badge. Keep the generated verdict/text,
+    but constrain that nested icon to its intended 20x20 slot.
+    """
+    if not path.is_file():
+        return
+
+    try:
+        tree = ET.parse(path)
+    except ET.ParseError as error:
+        raise GitLabError(f"The GUI test badge is not valid SVG ({error}).") from None
+
+    svg_tag = "{http://www.w3.org/2000/svg}svg"
+    icons = [element for element in root_iter(tree.getroot())
+             if element is not tree.getroot() and element.tag == svg_tag]
+    if not icons:
+        return
+
+    icon = icons[0]
+    icon.set("x", "65")
+    icon.set("y", "0")
+    icon.set("width", "20")
+    icon.set("height", "20")
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    tree.write(path, encoding="unicode")
+
+
+def root_iter(root: ET.Element):
+    """Iterate an XML tree while keeping normalize_badge easy to test."""
+    return root.iter()
+
+
 def cmd_download(args: argparse.Namespace) -> int:
     client = GitLabClient(args.api_base, require_token())
     project = urllib.parse.quote(args.project, safe="")
@@ -526,6 +562,9 @@ def cmd_download(args: argparse.Namespace) -> int:
             )
 
         copied = copy_results(Path(root), dest)
+
+    if "guitests_badge.svg" in copied:
+        normalize_badge(dest / "guitests_badge.svg")
 
     if not copied:
         raise GitLabError(f"No GUI test result files found in the job artifacts ({root}).")
