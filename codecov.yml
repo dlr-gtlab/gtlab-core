@@ -4,6 +4,7 @@
 
 # Coverage remains visible in pull requests, but does not block changes.
 coverage:
+  range: 60..80
   status:
     project:
       default:
