@@ -1,0 +1,164 @@
+# Publish the Squish GUI test results that are produced by the internal GitLab CI.
+#
+# The GUI tests keep running on the GitLab runners - GitHub is only the public
+# presentation layer. The GitLab integration already reports the pipeline state
+# of the mirrored repository as commit status "ci/gitlab/gitlab.dlr.de", so this
+# workflow reacts to that existing signal instead of polling GitLab or adding a
+# self-hosted runner:
+#
+#   1. wait until the GitLab commit status reaches a terminal state (triggered)
+#   2. resolve the pipeline of the status "target_url" and its "guiTests" job
+#   3. download the artifacts of exactly that job (also for failed runs)
+#   4. republish them as GitHub Actions artifacts and a job summary
+#
+# Requires the "GITLAB_TOKEN" secret: a GitLab API token with "read_api" scope
+# for the GitLab project that mirrors this repository.
+#
+# Like all "status" triggered workflows, this file is only picked up from the
+# default branch. "workflow_dispatch" exists to re-publish the results of an
+# older pipeline without touching GitLab.
+
+name: GUI Tests
+
+on:
+  status:
+  workflow_dispatch:
+    inputs:
+      pipeline_url:
+        description: "GitLab pipeline url, e.g. https://gitlab.dlr.de/<project>/-/pipelines/<id>"
+        required: true
+        type: string
+
+jobs:
+
+  publish:
+    name: "Publish GUI tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Only react to the GitLab pipeline status, and only once it is final:
+    # "pending" would mean the GUI tests are still running in GitLab. The
+    # context lives in "name" (and "context") depending on the event payload.
+    if: >-
+      github.event_name != 'status' ||
+      ((github.event.name == 'ci/gitlab/gitlab.dlr.de' ||
+        github.event.context == 'ci/gitlab/gitlab.dlr.de') &&
+      github.event.state != 'pending')
+
+    permissions:
+      contents: read
+
+    env:
+      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+      GITLAB_GUI_TESTS_JOB: guiTests
+      RESULTS_DIR: ${{ runner.temp }}/gui_tests
+
+    steps:
+    - name: Checkout helper scripts
+      uses: actions/checkout@v4
+
+    - name: Resolve GitLab pipeline and GUI test job
+      id: resolve
+      env:
+        STATUS_TARGET_URL: ${{ github.event.inputs.pipeline_url || github.event.target_url }}
+        STATUS_STATE: ${{ github.event.state }}
+        STATUS_SHA: ${{ github.event.sha }}
+      run: python3 .github/scripts/gitlab_guitests.py resolve
+
+    - name: Download artifacts of that GitLab job
+      id: download
+      env:
+        API_BASE: ${{ steps.resolve.outputs.api_base }}
+        PROJECT: ${{ steps.resolve.outputs.project }}
+        JOB_ID: ${{ steps.resolve.outputs.job_id }}
+      run: |
+        python3 .github/scripts/gitlab_guitests.py download \
+          --api-base "$API_BASE" \
+          --project "$PROJECT" \
+          --job-id "$JOB_ID" \
+          --dest "$RESULTS_DIR"
+
+    - name: Upload Squish web report
+      if: always() && steps.download.outputs.has_results == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gui_tests_web
+        path: ${{ runner.temp }}/gui_tests/gui_tests_web
+
+    - name: Upload Squish JUnit reports
+      if: always() && steps.download.outputs.has_results == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gui_tests_junits
+        path: ${{ runner.temp }}/gui_tests/gui_tests_junits
+
+    - name: Upload Squish test output
+      if: always() && steps.download.outputs.has_results == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gui_tests_stdout
+        path: ${{ runner.temp }}/gui_tests/gui_tests_stdout*.txt
+
+    - name: Upload Squish server output
+      if: always() && steps.download.outputs.has_results == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gui_tests_server_stdout
+        path: ${{ runner.temp }}/gui_tests/gui_tests_server_stdout.txt
+
+    - name: Upload GUI tests badge
+      if: always() && steps.download.outputs.has_results == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: guitests_badge
+        path: ${{ runner.temp }}/gui_tests/guitests_badge.svg
+
+    - name: Summarize the JUnit results
+      id: summary
+      if: always() && steps.resolve.outcome == 'success'
+      env:
+        RESULT: ${{ steps.resolve.outputs.result }}
+        REASON: ${{ steps.resolve.outputs.reason }}
+        JOB_URL: ${{ steps.resolve.outputs.job_url }}
+        PIPELINE_URL: ${{ steps.resolve.outputs.pipeline_url }}
+        HAS_RESULTS: ${{ steps.download.outputs.has_results }}
+      run: |
+        python3 .github/scripts/gitlab_guitests.py summary \
+          --dir "$RESULTS_DIR" \
+          --result "$RESULT" \
+          --reason "$REASON" \
+          --job-url "$JOB_URL" \
+          --pipeline-url "$PIPELINE_URL" \
+          --has-results "$HAS_RESULTS"
+
+    - name: Report GUI test result
+      if: always() && steps.resolve.outcome == 'success'
+      env:
+        RESULT: ${{ steps.summary.outputs.result || steps.resolve.outputs.result }}
+        REASON: ${{ steps.resolve.outputs.reason }}
+        STATE: ${{ github.event.state }}
+        JOB_URL: ${{ steps.resolve.outputs.job_url }}
+        PIPELINE_URL: ${{ steps.resolve.outputs.pipeline_url }}
+      run: |
+        case "$RESULT" in
+          passed)
+            echo "Squish GUI tests passed."
+            ;;
+          failed)
+            echo "::error::Squish GUI tests failed. See $JOB_URL"
+            exit 1
+            ;;
+          not_executed)
+            message="Squish GUI tests were not executed ($REASON). "
+            message+="The GitLab pipeline state is authoritative: $PIPELINE_URL"
+            if [ "$STATE" = "success" ]; then
+              echo "::notice::$message"
+            else
+              echo "::warning::$message"
+            fi
+            ;;
+          *)
+            echo "::error::Could not determine the GUI test result ('$RESULT')."
+            exit 1
+            ;;
+        esac

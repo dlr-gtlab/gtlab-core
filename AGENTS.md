@@ -15,6 +15,19 @@ Persistent project guide for work in `gtlab-core` so a new session can start imm
 - Build directory (pre-configured): `build/`
 - PR template: `.github/pull_request_template.md`
 
+## CI Layout
+- GitHub CI entry point: `.github/workflows/ci.yml` (push/PR triggers only).
+- The jobs live in reusable workflows (`workflow_call`) grouped by concern:
+  - `ci-build-test.yml`: build/test (Linux, Windows) and the Qt 6 Windows build
+  - `ci-quality.yml`: cppcheck, license compliance, coverage
+  - `ci-docs.yml`: developer and user documentation
+- Squish GUI tests run in the internal GitLab CI (`.gitlab-ci.yml`, job `guiTests`).
+  GitHub only publishes their results: `publish-gui-tests.yml` reacts to the GitLab
+  commit status `ci/gitlab/gitlab.dlr.de` once it reaches a terminal state, downloads
+  the artifacts of that exact pipeline/job and uploads them as workflow artifacts.
+  It requires the `GITLAB_TOKEN` secret (read-only GitLab API token) and must not
+  execute tests or poll GitLab.
+
 ## Working Environments
 ### Build environment
 - Use the prepared build directory at repo root: `build/`.
