@@ -14,8 +14,10 @@
 #include "gt_gui_exports.h"
 #include "gt_globals.h"
 
-#include <functional>
 #include <QString>
+
+#include <functional>
+#include <memory>
 
 class QObject;
 class GtObject;

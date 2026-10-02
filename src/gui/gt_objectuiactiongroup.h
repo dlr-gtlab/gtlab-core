@@ -18,6 +18,8 @@
 #include <QString>
 #include <QList>
 
+#include <memory>
+
 class QIcon;
 
 /**
