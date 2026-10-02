@@ -17,6 +17,7 @@
 #include <functional>
 #include <QString>
 
+class QObject;
 class GtObject;
 class QIcon;
 class QKeySequence;
