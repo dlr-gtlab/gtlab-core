@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+# SPDX-License-Identifier: MPL-2.0+
+
+name: Formatting
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  clang_format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install clang-format 19
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-19
+          clang-format-19 --version
+
+      - name: Check formatting of PR changes
+        id: format
+        env:
+          FORMAT_TARGET: ${{ github.event.pull_request.base.sha }}
+          FORMAT_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          bash .github/scripts/clang-format-diff.sh \
+            "$FORMAT_TARGET" "$FORMAT_HEAD" "$RUNNER_TEMP/clang-format.patch"
+          if [[ -s "$RUNNER_TEMP/clang-format.patch" ]]; then
+            echo 'changes=true' >> "$GITHUB_OUTPUT"
+            cat "$RUNNER_TEMP/clang-format.patch"
+            echo '### Formatting changes required' >> "$GITHUB_STEP_SUMMARY"
+            # Backticks are literal Markdown in the summary.
+            # shellcheck disable=SC2016
+            echo 'See the review suggestions or download the clang-format-patch artifact and apply it with `git apply clang-format.patch`.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'changes=false' >> "$GITHUB_OUTPUT"
+            echo 'No formatting changes required.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload correction patch
+        if: steps.format.outputs.changes == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: clang-format-patch
+          path: ${{ runner.temp }}/clang-format.patch
+
+      # Fork PRs have a read-only token; the patch and gate still work.
+      - name: Set up reviewdog
+        if: steps.format.outputs.changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1
+        with:
+          reviewdog_version: v0.21.2
+
+      - name: Suggest formatting corrections
+        if: steps.format.outputs.changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+        run: |
+          reviewdog -f=diff -f.diff.strip=1 -name=clang-format \
+            -reporter=github-pr-review -filter-mode=added -level=warning \
+            < "$RUNNER_TEMP/clang-format.patch"
+
+      - name: Enforce formatting
+        if: always() && steps.format.outputs.changes == 'true'
+        run: |
+          echo '::error::Formatting changes required. Apply the review suggestions or the uploaded patch.'
+          exit 1
