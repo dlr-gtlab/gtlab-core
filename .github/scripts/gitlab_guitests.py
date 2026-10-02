@@ -501,9 +501,10 @@ def normalize_badge(path: Path) -> None:
     except ET.ParseError as error:
         raise GitLabError(f"The GUI test badge is not valid SVG ({error}).") from None
 
+    root = tree.getroot()
     svg_tag = "{http://www.w3.org/2000/svg}svg"
-    icons = [element for element in root_iter(tree.getroot())
-             if element is not tree.getroot() and element.tag == svg_tag]
+    icons = [element for element in root.iter()
+             if element is not root and element.tag == svg_tag]
     if not icons:
         return
 
@@ -514,11 +515,6 @@ def normalize_badge(path: Path) -> None:
     icon.set("height", "20")
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     tree.write(path, encoding="unicode")
-
-
-def root_iter(root: ET.Element):
-    """Iterate an XML tree while keeping normalize_badge easy to test."""
-    return root.iter()
 
 
 def cmd_download(args: argparse.Namespace) -> int:
