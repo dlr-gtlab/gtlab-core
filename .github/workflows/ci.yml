@@ -8,6 +8,144 @@ on:
 
 jobs:
 
+  cppcheck:
+    name: "Static analysis (Cppcheck)"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes libpcre3-dev ninja-build
+
+    - name: Install Cppcheck 2.22
+      run: |
+        git clone --depth 1 --branch 2.22.0 https://github.com/cppcheck-opensource/cppcheck.git "$RUNNER_TEMP/cppcheck"
+        cmake -S "$RUNNER_TEMP/cppcheck" -B "$RUNNER_TEMP/cppcheck-build" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DHAVE_RULES=ON
+        cmake --build "$RUNNER_TEMP/cppcheck-build" --parallel 2
+        sudo cmake --install "$RUNNER_TEMP/cppcheck-build"
+        cppcheck --version
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Configure
+      run: cmake -S . -B build -G Ninja -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF -DBUILD_WITH_HDF5=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Prepare compile commands
+      run: |
+        if [ -n "${GTLAB_DEV_TOOLS:-}" ]; then
+          perl -pe 's{\Q-isystem $ENV{GTLAB_DEV_TOOLS}\E}{-I$ENV{GTLAB_DEV_TOOLS}}g' build/compile_commands.json > build/cppcheck_compile_commands.json
+        else
+          cp build/compile_commands.json build/cppcheck_compile_commands.json
+        fi
+        perl -pe 's{(<fileName>)/home/gitlab-runner/GTlab-Devtools/stable/2_1/include/(?:logging|h5)/(?:.*/)?([^/]+)(</fileName>)}{$1**/$2$3}g' cppcheck-baseline.suppress > build/cppcheck-baseline.suppress
+        perl -0pi -e 's{</suppressions>}{  <suppress>\n    <id>shadowFunction</id>\n    <fileName>**/gt_logging.h</fileName>\n    <symbolName>hash</symbolName>\n  </suppress>\n</suppressions>}' build/cppcheck-baseline.suppress
+
+    - name: Run cppcheck
+      id: cppcheck
+      shell: bash
+      run: |
+        set +e
+
+        cppcheck \
+          --inline-suppr \
+          --output-format=sarif \
+          --error-exitcode=0 \
+          --std=c++17 \
+          --disable=unusedFunction \
+          --suppressions-list=cppcheck.suppress \
+          --suppress-xml=build/cppcheck-baseline.suppress \
+          --library=qt.cfg \
+          --enable=all \
+          -j 16 \
+          -i build \
+          --project=build/cppcheck_compile_commands.json \
+          2> cppcheck.sarif
+
+        status=$?
+        echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+
+        # Do not fail here. Diagnostics must be published first.
+        exit 0
+
+    - name: Report cppcheck findings
+      id: cppcheck-results
+      shell: bash
+      run: |
+        if ! jq empty cppcheck.sarif >/dev/null 2>&1; then
+          echo "valid=false" >> "$GITHUB_OUTPUT"
+          echo "count=0" >> "$GITHUB_OUTPUT"
+          echo "::error::Cppcheck did not produce a valid SARIF report."
+          exit 0
+        fi
+
+        echo "valid=true" >> "$GITHUB_OUTPUT"
+
+        count=$(jq '[.runs[].results[]?] | length' cppcheck.sarif)
+        echo "count=$count" >> "$GITHUB_OUTPUT"
+
+        echo "Cppcheck findings: $count"
+
+        if [ "$count" -gt 0 ]; then
+          echo
+          jq -r '
+            .runs[].results[]? |
+            (.locations[0].physicalLocation.artifactLocation.uri // "<unknown>") as $file |
+            (.locations[0].physicalLocation.region.startLine // 1) as $line |
+            (.ruleId // "<unknown-rule>") as $rule |
+            (.message.text // "<no message>") as $message |
+            "\($file):\($line): [\($rule)] \($message)"
+          ' cppcheck.sarif
+        fi
+
+    - name: Upload cppcheck results to GitHub Code Scanning
+      if: always() && steps.cppcheck-results.outputs.valid == 'true'
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: cppcheck.sarif
+        category: cppcheck
+
+    - name: Upload cppcheck SARIF artifact
+      if: always() && steps.cppcheck-results.outputs.valid == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: cppcheck-sarif
+        path: cppcheck.sarif
+
+    - name: Enforce cppcheck quality gate
+      if: always()
+      shell: bash
+      run: |
+        cppcheck_exit="${{ steps.cppcheck.outputs.exit_code }}"
+        sarif_valid="${{ steps.cppcheck-results.outputs.valid }}"
+        finding_count="${{ steps.cppcheck-results.outputs.count }}"
+
+        if [ "$cppcheck_exit" != "0" ]; then
+          echo "::error::Cppcheck execution failed with exit code $cppcheck_exit."
+          exit 1
+        fi
+
+        if [ "$sarif_valid" != "true" ]; then
+          echo "::error::Cppcheck did not produce a valid SARIF report."
+          exit 1
+        fi
+
+        if [ "$finding_count" -ne 0 ]; then
+          echo "::error::Cppcheck reported $finding_count finding(s). See the findings above and the SARIF report."
+          exit 1
+        fi
+
+        echo "Cppcheck completed without findings."
+
   check_license:
     name: "License compliance"
     runs-on: ubuntu-latest

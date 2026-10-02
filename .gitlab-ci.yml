@@ -365,43 +365,6 @@ package-linux_2.1:
   except:
     - tags
 
-cppcheck:
-  stage: codequality
-  extends:
-    - .linuxdocker_2.1
-  allow_failure: false
-  needs: ["linuxBuildDebug"]
-  script:
-  - cmake -S . -B build -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF
-  # Cppcheck ignores -isystem entries from GTLAB_DEV_TOOLS.
-  # Retain CMake's database and make only those includes normal for analysis.
-  - perl -pe 's{\Q-isystem $ENV{GTLAB_DEV_TOOLS}\E}{-I$ENV{GTLAB_DEV_TOOLS}}g' build/compile_commands.json > build/cppcheck_compile_commands.json
-  - cppcheck --inline-suppr --xml --std=c++14 --disable=unusedFunction --suppressions-list=cppcheck.suppress --suppress-xml=cppcheck-baseline.suppress --library=qt.cfg --error-exitcode=0 --enable=all -j 16 -i build --project=build/cppcheck_compile_commands.json 2> cppcheck_out.xml
-  - more cppcheck_out.xml
-  - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
-  - if grep -q '<error ' cppcheck_out.xml; then exit 255; fi
-  variables:
-    GIT_SUBMODULE_STRATEGY: "none"
-  artifacts:
-    reports:
-      codequality: codequality.json
-    paths:
-      - codequality.json
-    when: always
-
-   
-check-license:
-   stage: codequality
-   tags: ["docker", "linux"]
-   needs: []
-   image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/buster-dev
-   before_script:
-    - python3 -m pip install reuse
-   script:
-    - reuse lint
-   variables:
-     GIT_SUBMODULE_STRATEGY: "none"
-
 # badges
 badges:
   stage: badges
