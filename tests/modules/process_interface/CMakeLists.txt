@@ -4,6 +4,7 @@
 
 add_gtlab_module(TestProcessInterface MODULE_ID "Test Process Interface"
   SOURCES
+    operation/test_operation.h
     calculator/test_calculator.h
     calculator/test_crashonexecutecalculator.h
     calculator/test_mementoprojectcalculator.h
@@ -12,6 +13,7 @@ add_gtlab_module(TestProcessInterface MODULE_ID "Test Process Interface"
     calculator/test_sleepcalculator.h
     test_process_interface.h
 
+    operation/test_operation.cpp
     calculator/test_calculator.cpp
     calculator/test_crashonexecutecalculator.cpp
     calculator/test_mementoprojectcalculator.cpp

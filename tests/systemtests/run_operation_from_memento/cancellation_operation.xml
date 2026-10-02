@@ -1,0 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="TestOperation"
+        uuid="{ae036ffa-5a2f-467b-b4a8-5ab8d7556c57}"
+        name="Cancelled Test Operation">
+  <property type="bool" name="returnsCancellation">true</property>
+</object>
