@@ -10,6 +10,7 @@
 #   2. resolve the pipeline of the status "target_url" and its "guiTests" job
 #   3. download the artifacts of exactly that job (also for failed runs)
 #   4. republish them as GitHub Actions artifacts and a job summary
+#   5. publish the latest default-branch Squish HTML report and badge via Pages
 #
 # Guards:
 #   - the status "target_url" is untrusted input and its host decides where
@@ -55,6 +56,9 @@ jobs:
 
     permissions:
       contents: read
+
+    outputs:
+      has_results: ${{ steps.download.outputs.has_results }}
 
     env:
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
@@ -185,3 +189,57 @@ jobs:
             exit 1
             ;;
         esac
+
+
+  pages:
+    name: "Prepare GUI test report for Pages"
+    needs: publish
+    if: >-
+      always() &&
+      needs.publish.outputs.has_results == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       contains(github.event.branches.*.name, github.event.repository.default_branch))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Download Squish web report
+      uses: actions/download-artifact@v4
+      with:
+        name: gui_tests_web
+        path: ${{ runner.temp }}/pages
+
+    - name: Download GUI tests badge
+      uses: actions/download-artifact@v4
+      with:
+        name: guitests_badge
+        path: ${{ runner.temp }}/pages
+
+    - name: Prepare static site
+      run: touch "${{ runner.temp }}/pages/.nojekyll"
+
+    - name: Configure GitHub Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v4
+      with:
+        path: ${{ runner.temp }}/pages
+
+  deploy:
+    name: "Deploy GUI test report"
+    needs: pages
+    if: always() && needs.pages.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
