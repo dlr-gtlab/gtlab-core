@@ -60,7 +60,7 @@ jobs:
           --inline-suppr \
           --output-format=sarif \
           --error-exitcode=0 \
-          --std=c++14 \
+          --std=c++17 \
           --disable=unusedFunction \
           --suppressions-list=cppcheck.suppress \
           --suppress-xml=build/cppcheck-baseline.suppress \
