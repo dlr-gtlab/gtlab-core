@@ -12,14 +12,17 @@
 #define GTOBJECTUIACTION_H
 
 #include "gt_gui_exports.h"
-#include "gt_object.h"
 #include "gt_globals.h"
 
-#include <functional>
 #include <QString>
-#include <QIcon>
-#include <QKeySequence>
 
+#include <functional>
+#include <memory>
+
+class QObject;
+class GtObject;
+class QIcon;
+class QKeySequence;
 
 namespace gt
 {
@@ -372,9 +375,9 @@ namespace gui
 {
 
 inline GtObjectUIAction
-makeAction(const QString& actionText, GtObjectUIAction::ActionMethod actionMethod)
+makeAction(QString actionText, GtObjectUIAction::ActionMethod actionMethod)
 {
-    return GtObjectUIAction(actionText, std::move(actionMethod));
+    return GtObjectUIAction(std::move(actionText), std::move(actionMethod));
 }
 
 inline GtObjectUIAction

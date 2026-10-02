@@ -38,22 +38,21 @@ GtObjectUIActionGroup::GtObjectUIActionGroup() :
     GtObjectUIActionGroup(QString{})
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName, QIcon icon) :
-    GtObjectUIActionGroup(std::move(groupName), GtActionList{}, std::move(icon))
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName) :
+    GtObjectUIActionGroup(std::move(groupName), GtActionList{})
 { }
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(
         QString groupName,
-        QList<GtObjectUIAction> actions,
-        QIcon icon) :
-    pimpl(std::make_unique<Impl>(std::move(groupName), std::move(icon), std::move(actions)))
+        QList<GtObjectUIAction> actions) :
+    pimpl(std::make_unique<Impl>(std::move(groupName), QIcon{}, std::move(actions)))
 { }
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(
         QString groupName,
         QList<GtObjectUIAction> actions,
         const QString& icon) :
-    GtObjectUIActionGroup(std::move(groupName), std::move(actions), std::move(gt::gui::getIcon(icon)))
+    pimpl(std::make_unique<Impl>(std::move(groupName), gt::gui::getIcon(icon), std::move(actions)))
 { }
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup const& o) noexcept :
@@ -61,7 +60,7 @@ GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup const& o) noe
 { }
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) noexcept :
-    pimpl(std::move(o.pimpl))
+    pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
 GtObjectUIActionGroup&
