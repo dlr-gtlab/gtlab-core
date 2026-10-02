@@ -51,7 +51,8 @@ jobs:
     env:
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
       GITLAB_GUI_TESTS_JOB: guiTests
-      RESULTS_DIR: ${{ runner.temp }}/gui_tests
+      # Note: "RESULTS_DIR" is defined per step, the "runner" context is not
+      # available in the job level "env" block.
 
     steps:
     - name: Checkout helper scripts
@@ -71,6 +72,7 @@ jobs:
         API_BASE: ${{ steps.resolve.outputs.api_base }}
         PROJECT: ${{ steps.resolve.outputs.project }}
         JOB_ID: ${{ steps.resolve.outputs.job_id }}
+        RESULTS_DIR: ${{ runner.temp }}/gui_tests
       run: |
         python3 .github/scripts/gitlab_guitests.py download \
           --api-base "$API_BASE" \
@@ -117,6 +119,7 @@ jobs:
       id: summary
       if: always() && steps.resolve.outcome == 'success'
       env:
+        RESULTS_DIR: ${{ runner.temp }}/gui_tests
         RESULT: ${{ steps.resolve.outputs.result }}
         REASON: ${{ steps.resolve.outputs.reason }}
         JOB_URL: ${{ steps.resolve.outputs.job_url }}

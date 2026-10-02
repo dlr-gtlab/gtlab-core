@@ -154,6 +154,11 @@ jobs:
     name: "License compliance"
     runs-on: ubuntu-latest
 
+    # Only the cppcheck job needs "security-events: write"; keep the other
+    # jobs read-only even though the calling job grants more.
+    permissions:
+      contents: read
+
     steps:
     - uses: actions/checkout@v4
 
