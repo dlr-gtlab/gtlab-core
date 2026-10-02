@@ -19,6 +19,14 @@ summary   Build the GitHub job summary from the Squish JUnit report.
 
 The commands communicate through ``$GITHUB_OUTPUT`` / ``$GITHUB_STEP_SUMMARY``
 so that they can be used as separate workflow steps.
+
+Security
+--------
+The status url is external input and ``GITLAB_TOKEN`` is attached to every
+request derived from it, so ``resolve`` accepts only the ``https`` url of the
+configured mirror project (see ``GITLAB_HOST``/``GITLAB_PROJECT``) and rejects
+everything else before a client exists. ``GitLabClient`` repeats the host check
+as a last line of defence.
 """
 
 import argparse
@@ -40,6 +48,13 @@ from typing import List, Optional, Tuple
 # job name of the GUI tests in .gitlab-ci.yml
 DEFAULT_JOB_NAME = "guiTests"
 
+# The only GitLab endpoint the token may be sent to, and the project of this
+# repository on that instance. The values are checked against the commit status
+# "target_url" - see trusted_origin().
+GITLAB_HOST = "gitlab.dlr.de"
+GITLAB_API_BASE = f"https://{GITLAB_HOST}/api/v4"
+GITLAB_PROJECT = "gtlab/internal/github-mirrors/gtlab-core-mirror"
+
 # entries of the job artifact archive, see the ".guiTestTemplate" artifacts
 REPORT_DIRS = ("gui_tests_web", "gui_tests_junits")
 REPORT_FILES = ("gui_tests_server_stdout.txt", "guitests_badge.svg")
@@ -48,6 +63,13 @@ REPORT_PREFIXES = ("gui_tests_stdout",)
 # job states that allow a GUI test verdict; every other state (including a
 # cancelled or skipped job) means "the GUI tests did not produce a result"
 EXECUTED_STATES = ("success", "failed")
+
+# verdicts derived from EXECUTED_STATES, i.e. runs with real GUI tests
+EXECUTED_VERDICTS = ("passed", "failed")
+
+# verdict of a run whose GUI tests were executed but whose report never arrived;
+# it is a publishing failure, so it must not be mixed up with a test failure
+PUBLISH_ERROR = "publish_error"
 
 
 class GitLabError(RuntimeError):
@@ -112,7 +134,16 @@ class GitLabClient:
     """Minimal read-only GitLab REST API client."""
 
     def __init__(self, api_base: str, token: str):
-        self.api_base = api_base.rstrip("/")
+        api_base = api_base.rstrip("/")
+        if api_base != GITLAB_API_BASE:
+            # last line of defence: whatever the caller was asked to fetch, the
+            # token never leaves for a host that is not the configured GitLab.
+            raise GitLabError(
+                f"Refusing to send the GitLab token to '{api_base}'; only requests "
+                f"to '{GITLAB_API_BASE}' are allowed."
+            )
+
+        self.api_base = api_base
         self.token = token
 
     def _open(self, url: str) -> bytes:
@@ -169,13 +200,62 @@ def require_token() -> str:
     return token
 
 
+def trusted_origin(url: str) -> str:
+    """Return the ``https://gitlab.dlr.de`` origin of ``url``.
+
+    The commit status ``target_url`` is attacker-influenced input (any user who
+    can push a status can set it), and the API base derived from it is used for
+    every request that carries ``GITLAB_TOKEN``. Only an ``https`` URL on the
+    configured GitLab host is accepted; anything else raises ``GitLabError`` so
+    that no client is ever constructed for a foreign host.
+    """
+    parts = urllib.parse.urlsplit(url.strip())
+
+    if parts.scheme != "https":
+        raise GitLabError(
+            f"Refusing to use the GitLab status target url {url.strip()!r}: "
+            "only 'https' URLs are accepted."
+        )
+
+    # netloc is not used directly: it may contain credentials or a port that
+    # change the destination of the request.
+    try:
+        port = parts.port
+    except ValueError:
+        raise GitLabError(
+            f"Refusing to use the GitLab status target url {url.strip()!r}: "
+            "invalid port."
+        ) from None
+
+    host = (parts.hostname or "").lower().rstrip(".")
+    if host != GITLAB_HOST:
+        raise GitLabError(
+            f"Refusing to use the GitLab status target url {url.strip()!r}: "
+            f"host {host!r} is not the trusted GitLab host {GITLAB_HOST!r}."
+        )
+
+    if parts.username or parts.password or (port not in (None, 443)):
+        raise GitLabError(
+            f"Refusing to use the GitLab status target url {url.strip()!r}: "
+            "credentials and non default ports are not allowed."
+        )
+
+    return f"https://{host}"
+
+
 def parse_target(url: str) -> Optional[Target]:
-    """Split a GitLab pipeline/job web url into host, project path and ids."""
+    """Split a GitLab pipeline/job web url into host, project path and ids.
+
+    Returns ``None`` for URLs without a usable project path. A host that is not
+    the configured GitLab instance is always rejected with ``GitLabError``, and
+    so is a URL that points to a different project on that host.
+    """
     parts = urllib.parse.urlsplit(url.strip())
     if not parts.netloc or not parts.path.strip("/"):
         return None
 
-    host = f"{parts.scheme or 'https'}://{parts.netloc}"
+    # validates the host before the caller can build a GitLabClient from it
+    host = trusted_origin(url)
 
     project, separator, tail = parts.path.partition("/-/")
     if not separator:
@@ -185,6 +265,16 @@ def parse_target(url: str) -> Optional[Target]:
     project = re.sub(r"/(?:pipelines|jobs)/\d+.*$", "", project).strip("/")
     if not project:
         return None
+
+    if project.lower() != GITLAB_PROJECT.lower():
+        raise GitLabError(
+            f"Refusing to use the GitLab status target url {url.strip()!r}: "
+            f"project {project!r} is not the configured mirror project "
+            f"{GITLAB_PROJECT!r}."
+        )
+
+    # always request the canonical path, never the one from the URL
+    project = GITLAB_PROJECT
 
     match = re.search(r"pipelines/(\d+)", tail)
     if match:
@@ -224,6 +314,34 @@ def resolve_pipeline(client: GitLabClient, target: Target) -> int:
     )
 
 
+def verify_pipeline_commit(pipeline: dict, pipeline_id: int) -> None:
+    """Fail if the pipeline is not the one of the commit that carries the status.
+
+    The status ``target_url`` already selects the pipeline deterministically, but
+    a (re-)used or hand crafted URL could point at the pipeline of an unrelated
+    commit. Artifacts of that commit must never be published for this one, so
+    the pipeline sha is compared with the sha of the status whenever the status
+    provides one (a manual ``workflow_dispatch`` has none and skips the check).
+    """
+    expected = os.environ.get("STATUS_SHA", "").strip().lower()
+    if not expected:
+        return
+
+    actual = str(pipeline.get("sha", "")).strip().lower()
+    if not actual:
+        raise GitLabError(
+            f"The GitLab pipeline {pipeline_id} does not report a commit sha, so it "
+            f"cannot be verified against the status commit '{expected}'."
+        )
+
+    if actual != expected:
+        raise GitLabError(
+            f"The GitLab pipeline {pipeline_id} belongs to commit '{actual}', but the "
+            f"commit status was reported for '{expected}'. Refusing to publish the "
+            "GUI test results of a different commit."
+        )
+
+
 def find_gui_tests_job(client: GitLabClient, target: Target, pipeline_id: int,
                        job_name: str) -> Optional[dict]:
     """Return the GUI test job of the given pipeline, newest match wins."""
@@ -255,18 +373,20 @@ def cmd_resolve(_args: argparse.Namespace) -> int:
     token = require_token()
     job_name = os.environ.get("GITLAB_GUI_TESTS_JOB", DEFAULT_JOB_NAME).strip()
 
+    # rejects foreign hosts/projects before the first request is set up
     target = parse_target(os.environ.get("STATUS_TARGET_URL", ""))
     if target is None:
         raise GitLabError(
             "The commit status does not reference a usable GitLab url "
             f"({os.environ.get('STATUS_TARGET_URL', '<empty>')!r}). "
             "Expected a pipeline url such as "
-            "'https://gitlab.dlr.de/<project>/-/pipelines/<id>'."
+            f"'https://{GITLAB_HOST}/{GITLAB_PROJECT}/-/pipelines/<id>'."
         )
 
     client = GitLabClient(target.api_base, token)
     pipeline_id = resolve_pipeline(client, target)
     pipeline = client.get(f"/projects/{target.encoded_project}/pipelines/{pipeline_id}")
+    verify_pipeline_commit(pipeline, pipeline_id)
     job = find_gui_tests_job(client, target, pipeline_id, job_name)
 
     result, reason = verdict(job, job_name)
@@ -501,21 +621,46 @@ def parse_junit(directory: str) -> JUnit:
     return junit
 
 
-def headline(result: str, junit: JUnit, reason: str) -> str:
+def headline(result: str, junit: JUnit, reason: str, problem: str = "") -> str:
     if result == "not_executed":
         return (":white_circle: **GUI tests were not executed** - "
                 f"{reason or 'no test verdict available'}")
+    if result == PUBLISH_ERROR:
+        return (":warning: **GUI tests were executed but their report is missing** - "
+                + (problem or "no Squish report arrived.")
+                + " This is a publishing problem, not a Squish test failure.")
     if junit.empty:
-        if result == "failed":
-            return (":cross_mark: **GUI tests failed** - the GitLab job did not publish "
-                    "a JUnit report")
-        return ":white_check_mark: **GUI tests passed** - no JUnit report was found"
+        return (":cross_mark: **GUI tests failed** - the GitLab job published "
+                "a report without a JUnit file")
 
     bad = junit.failures + junit.errors
     if bad:
         return (f":cross_mark: **{bad} of {junit.tests} GUI test(s) failed** "
                 f"({junit.failures} failure(s), {junit.errors} error(s))")
     return f":white_check_mark: **all {junit.tests} GUI test(s) passed**"
+
+
+def publication_problem(result: str, junit: JUnit, has_results: str) -> str:
+    """Explain why an executed GUI test run cannot be published, if at all.
+
+    Tests that were executed but whose report never arrived are an
+    infrastructure problem: publishing them as a green run would hide exactly
+    the failures this workflow exists to show, while calling them a Squish test
+    failure would blame the tests for a broken download. A run that was never
+    executed ("not_executed") stays neutral on purpose.
+    """
+    if result not in EXECUTED_VERDICTS:
+        return ""
+
+    if has_results != "true":
+        return (f"The GitLab GUI test job reported '{result}' but did not publish any "
+                "artifacts, so its Squish report cannot be published here.")
+
+    if result == "passed" and junit.empty:
+        return ("The artifacts of the GitLab GUI test job contain no JUnit report, so "
+                "the reported 'passed' result cannot be verified.")
+
+    return ""
 
 
 def cmd_summary(args: argparse.Namespace) -> int:
@@ -531,9 +676,16 @@ def cmd_summary(args: argparse.Namespace) -> int:
     # a green job with failing reported tests must not be published as success
     if result == "passed" and junit.failures + junit.errors > 0:
         result = "failed"
-        set_output("result", result)
 
-    lines = [f"\n{headline(result, junit, args.reason)}\n"]
+    # executed tests without a usable report are a red publishing error
+    problem = publication_problem(result, junit, args.has_results)
+    if problem:
+        result = PUBLISH_ERROR
+
+    set_output("result", result)
+    set_output("publish_error", problem)
+
+    lines = [f"\n{headline(result, junit, args.reason, problem)}\n"]
 
     if junit.suites:
         lines.append("\n| Test suite | Tests | Passed | Failed | Skipped |\n"

@@ -27,6 +27,10 @@ Persistent project guide for work in `gtlab-core` so a new session can start imm
   the artifacts of that exact pipeline/job and uploads them as workflow artifacts.
   It requires the `GITLAB_TOKEN` secret (read-only GitLab API token) and must not
   execute tests or poll GitLab.
+  The helper `.github/scripts/gitlab_guitests.py` pins every request to
+  `https://gitlab.dlr.de` plus the mirror project, verifies the pipeline commit
+  against the status SHA, and turns missing reports of an executed run into a
+  publishing error instead of a green result.
 
 ## Working Environments
 ### Build environment

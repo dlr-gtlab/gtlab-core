@@ -11,6 +11,14 @@
 #   3. download the artifacts of exactly that job (also for failed runs)
 #   4. republish them as GitHub Actions artifacts and a job summary
 #
+# Guards:
+#   - the status "target_url" is untrusted input and its host decides where
+#     GITLAB_TOKEN is sent to, so only "https://gitlab.dlr.de" plus the mirror
+#     project of this repository are accepted (rejected before any request)
+#   - the resolved pipeline must belong to the commit of the status
+#   - executed tests whose artifacts/JUnit report are missing fail the job as a
+#     publishing error, while runs without executed tests stay neutral
+#
 # Requires the "GITLAB_TOKEN" secret: a GitLab API token with "read_api" scope
 # for the GitLab project that mirrors this repository.
 #
@@ -25,7 +33,7 @@ on:
   workflow_dispatch:
     inputs:
       pipeline_url:
-        description: "GitLab pipeline url, e.g. https://gitlab.dlr.de/<project>/-/pipelines/<id>"
+        description: "GitLab pipeline url, e.g. https://gitlab.dlr.de/gtlab/internal/github-mirrors/gtlab-core-mirror/-/pipelines/<id>"
         required: true
         type: string
 
@@ -139,6 +147,7 @@ jobs:
       env:
         RESULT: ${{ steps.summary.outputs.result || steps.resolve.outputs.result }}
         REASON: ${{ steps.resolve.outputs.reason }}
+        PUBLISH_ERROR: ${{ steps.summary.outputs.publish_error }}
         STATE: ${{ github.event.state }}
         JOB_URL: ${{ steps.resolve.outputs.job_url }}
         PIPELINE_URL: ${{ steps.resolve.outputs.pipeline_url }}
@@ -159,6 +168,17 @@ jobs:
             else
               echo "::warning::$message"
             fi
+            ;;
+          publish_error)
+            # the tests ran but their report never arrived: never green, and
+            # never blamed on the Squish tests either
+            message="${PUBLISH_ERROR:-The executed GitLab GUI test job published no artifacts.}"
+            details="GUI test results could not be published "
+            details+="(infrastructure problem, not a Squish test failure): "
+            echo "::error::$details$message"
+            echo "GitLab job: $JOB_URL"
+            echo "GitLab pipeline: $PIPELINE_URL"
+            exit 1
             ;;
           *)
             echo "::error::Could not determine the GUI test result ('$RESULT')."
