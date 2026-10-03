@@ -70,6 +70,11 @@ GtFootprint::GtFootprint(const QString& data) :
     m_pimpl->readData(data);
 }
 
+GtFootprint::GtFootprint(std::unique_ptr<GtFootprintImpl> pimpl) :
+    m_pimpl{std::move(pimpl)}
+{
+}
+
 GtFootprint::~GtFootprint() = default;
 
 bool
@@ -264,6 +269,28 @@ QString
 GtFootprint::frameworkIdentificationString()
 {
     return QStringLiteral("_core");
+}
+
+GtFootprint
+GtFootprint::fromProjectModules(const QMap<QString, GtVersionNumber>& modules,
+                                const GtVersionNumber& frameworkVersion)
+{
+    auto pimpl = std::make_unique<GtFootprintImpl>();
+
+    pimpl->m_version = frameworkVersion;
+
+    if (pimpl->m_version.isNull() && gtApp)
+    {
+        pimpl->m_version = gtApp->version();
+    }
+
+    for (auto it = modules.cbegin(); it != modules.cend(); ++it)
+    {
+        if (it.key().isEmpty()) continue;
+        pimpl->m_modules.insert(it.key(), it.value());
+    }
+
+    return GtFootprint{std::move(pimpl)};
 }
 
 bool

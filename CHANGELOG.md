@@ -43,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Search functionality for the Memento-Viewer - #380
  - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
  - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
+ - `GtProjectDependencyAnalyzer` analyses which classes are used by an open project and which
+   modules provide these classes. The new module access `gtApp->modules()` resolves which modules
+   are required by a set of modules, including transitive dependencies. The new
+   `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module
+   versions. - #1312
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
@@ -65,6 +70,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
  - Standardized CMake install and module paths (libraries in `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`, modules in `build/modules`) and added relocatable RPATHs. Deployment scripts may need updating. - #1621
  - GTlab and external modules now require CMake 3.18 or newer. - #1621
+ - Project footprints are no longer created from all modules loaded in the current GTlab environment.
+   A saved project now only stores the modules that its data actually requires, including their
+   transitive module dependencies. Required modules that are currently unavailable keep their
+   previously stored versions. - #1312
 
 ### Fixed
  - Fixed object links and property connections becoming invalid after using Save Project As - #31
