@@ -25,7 +25,8 @@ fi
 
 if [[ $(head -n 1 "$format_output") == 'diff --git '* ]]; then
     cp "$format_output" "$3"
-elif grep -qxE 'no modified files to format|clang-format did not modify any files' "$format_output"; then
+elif [[ ! -s "$format_output" ]] || \
+        grep -qxE 'no modified files to format|clang-format did not modify any files' "$format_output"; then
     : > "$3"
 else
     cat "$format_output" >&2
