@@ -94,6 +94,7 @@ set(headers
     gt_footprint.h
     gt_globals.h
     gt_projectanalyzer.h
+    gt_projectdependencyanalyzer.h
     gt_saveprojecthelper.h
     gt_session.h
     gt_project.h
@@ -116,6 +117,7 @@ set(headers
     gt_abstractloadinghelper.h
     gt_moduleinterface.h
     gt_moduleloader.h
+    gt_modules.h
     gt_datamodelinterface.h
     gt_command.h
     gt_moduleupgradeutilities.h
@@ -123,6 +125,7 @@ set(headers
 
 set(hdr_private
   internal/gt_moduleupgrader.h
+  internal/gt_modulemetadata.h
   internal/gt_commandlinefunctionhandler.h
   internal/gt_coreupgraderoutines.h
   internal/gt_platformspecifics.h
@@ -211,6 +214,7 @@ set(sources
     gt_projectexecutionguard.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
+    gt_projectdependencyanalyzer.cpp
     gt_saveprojecthelper.cpp
     gt_session.cpp
     gt_project.cpp
@@ -232,8 +236,10 @@ set(sources
     gt_updatechecker.cpp
     gt_abstractloadinghelper.cpp
     gt_moduleloader.cpp
+    gt_modules.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    internal/gt_modulemetadata.cpp
     gt_moduleupgradeutilities.cpp
 )
 

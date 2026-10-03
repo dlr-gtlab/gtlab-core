@@ -32,6 +32,7 @@ class GtPackage;
 class GtLabelData;
 class GtLabel;
 class GtVersionNumber;
+class GtFootprint;
 
 /**
  * @brief The GtProject class
@@ -126,6 +127,7 @@ public:
      * @return Package
      */
     GtPackage* findPackage(const QString& mid);
+    GtPackage const* findPackage(const QString& mid) const;
 
     /**
      * @brief moduleIds
@@ -423,9 +425,8 @@ private:
      * @brief saveModuleMetaData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveModuleMetaData(QDomElement& root, QDomDocument& doc);
+    void saveModuleMetaData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief saveProcessData
@@ -439,9 +440,8 @@ private:
      * @brief saveLabelData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveLabelData(QDomElement& root, QDomDocument& doc);
+    void saveLabelData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief readProjectData
@@ -478,6 +478,30 @@ private:
      * @param modIds Module identification strings.
      */
     void updateModuleFootprint(const QStringList &modIds);
+
+    /**
+     * @brief Creates the project footprint from the modules that the
+     * current project actually requires.
+     *
+     * The footprint is derived from the classes that are used by the
+     * project data (see GtProjectDependencyAnalyzer) and the module
+     * requirements of the application's module access
+     * (see @ref gt::Modules::requirementsFor).
+     *
+     * In contrast to the default environment footprint, the returned
+     * footprint only contains the GTlab core version plus the module
+     * ids/versions that are required by the project data, including their
+     * transitive module dependencies. Required but currently unavailable
+     * modules keep their previously stored footprint version when available.
+     *
+     * If parts of the dependencies cannot be resolved, e.g. because the
+     * metadata of a required module is not available or because the project
+     * uses classes whose providing module is unknown, the previously stored
+     * footprint entries are kept instead of being pruned.
+     *
+     * @return Project specific footprint
+     */
+    GtFootprint createProjectFootprint() const;
 };
 
 namespace gt {
