@@ -108,6 +108,7 @@ windowsBuildRelease:
       - build/*.so*
       - build/GTlab*
       - build/modules
+      - build/tests/unittests/modulefixtures
       - build/**/*.txt
       - build/**/*.cmake
       - build/**/*.ninja
