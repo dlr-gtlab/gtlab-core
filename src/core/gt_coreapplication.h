@@ -12,6 +12,7 @@
 #define GTCOREAPPLICATION_H
 
 #include "gt_core_exports.h"
+#include "gt_modules.h"
 
 #include <QObject>
 #include <QStringList>
@@ -75,6 +76,7 @@ namespace gt
 class GT_CORE_EXPORT GtCoreApplication : public QObject
 {
     Q_OBJECT
+
 
 public:
     /// Enumeration to handle the application mode of the application
@@ -306,6 +308,18 @@ public:
      * @return True, if loading was successful
      */
     bool loadSingleModule(const QString& moduleFilePath);
+
+    /**
+     * @brief Returns the module access of the application
+     *
+     * Provides coherent access to the module subsystem, e.g. module
+     * versions and module requirements queries. The returned handle
+     * refers to the module subsystem that is currently set up on the
+     * application; create it freshly before using it.
+     *
+     * @return Module access
+     */
+    gt::Modules modules() const;
 
     /**
      * @brief Returns identification strings of all loaded modules.
