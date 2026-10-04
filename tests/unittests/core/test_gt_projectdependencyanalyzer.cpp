@@ -245,6 +245,7 @@ protected:
     }
 
     TestProjectObjectFactory m_moduleFactory;
+    TestProjectObjectFactory m_secondModuleFactory;
     std::unique_ptr<GtCoreApplication> m_app;
     QString m_sessionId;
     QByteArray m_previousConfigHome;
@@ -281,7 +282,7 @@ TEST_F(ProjectFootprintTest, unusedEnvironmentModulesAreExcluded)
     delete object;
 }
 
-TEST_F(ProjectFootprintTest, footprintSurvivesSaveReloadRoundTrip)
+TEST_F(ProjectFootprintTest, storedFootprintSurvivesProjectReload)
 {
     GtProject* project = createProject(QStringLiteral("FootprintRoundTrip"));
     ASSERT_NE(project, nullptr);
@@ -302,9 +303,9 @@ TEST_F(ProjectFootprintTest, footprintSurvivesSaveReloadRoundTrip)
 
     delete object;
 
-    // reload the project from its saved files. The in-memory factory based
-    // provenance is gone, so the dependency information can only survive when
-    // it was persisted during the save above (#1171 class provider metadata).
+    // Load a new project instance from the saved project file. This checks
+    // that the footprint and class-provider metadata were persisted; it does
+    // not reconstruct and resave the live object tree.
     TestProject reloaded(project->path());
     ASSERT_TRUE(reloaded.isValid());
 
@@ -314,9 +315,33 @@ TEST_F(ProjectFootprintTest, footprintSurvivesSaveReloadRoundTrip)
 
     // the persistent class provider metadata still attributes the used class to
     // its providing module, i.e. the dependency can be resolved again after the
-    // save/reload round trip.
+    // project reload.
     EXPECT_EQ(reloaded.classModuleId(QStringLiteral("GtObject")),
               QStringLiteral("ModuleA"));
+}
+
+TEST_F(ProjectFootprintTest, multipleUsedClassesFromOneModuleCreateSingleEntry)
+{
+    GtProject* project = createProject(QStringLiteral("FootprintSameModule"));
+    ASSERT_NE(project, nullptr);
+
+    ASSERT_TRUE(m_secondModuleFactory.registerClass(
+        GT_METADATA(FootprintUnusedClass), QStringLiteral("ModuleA")));
+    ASSERT_TRUE(
+        m_app->loadSingleModule(QString::fromUtf8(FOOTPRINT_ModuleA_PATH)));
+
+    auto* firstObject = new GtObject;
+    firstObject->setFactory(&m_moduleFactory);
+    ASSERT_TRUE(project->appendChild(firstObject));
+
+    auto* secondObject = new FootprintUnusedClass;
+    secondObject->setFactory(&m_secondModuleFactory);
+    ASSERT_TRUE(project->appendChild(secondObject));
+
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+
+    EXPECT_EQ(footprintModuleIds(project),
+              QStringList{QStringLiteral("ModuleA")});
 }
 
 TEST_F(ProjectFootprintTest, taskAndCalculatorModulesAreStored)
