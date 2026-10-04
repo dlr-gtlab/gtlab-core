@@ -15,3 +15,9 @@ GtAbstractCollectionSettings::GtAbstractCollectionSettings()
 {
 
 }
+
+bool
+GtAbstractCollectionSettings::showUpdateLocalCollectionButton() const
+{
+    return false;
+}
