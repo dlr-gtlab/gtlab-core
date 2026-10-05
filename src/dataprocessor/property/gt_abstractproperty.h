@@ -337,6 +337,8 @@ protected:
      */
     virtual void setValFromConnection();
 
+    GtObject* m_ownerObject{};
+
 private:
     /// Private implementation
     class Impl;

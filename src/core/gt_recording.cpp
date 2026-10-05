@@ -61,7 +61,7 @@ QPointer<GtObject> GtRecording::activityObject() const
     return m_activityObject;
 }
 
-QString GtRecording::contextUuid() const
+QUuid GtRecording::contextUuid() const
 {
     return m_actvityUuid;
 }

@@ -157,7 +157,7 @@ inline ParamType GtProperty<ParamType>::getVal() const
 {
     if (m_ownerObject)
     {
-        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(QUuid(m_ownerObject->uuid()));
     }
     return m_value;
 }

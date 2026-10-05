@@ -1137,7 +1137,7 @@ GtRecording GtCoreApplication::startRecording(GtAbstractRecorder* recorder,QPoin
     recorder->initLinkedObjects(linkedObjects);
 
     GtAccessTracker::instance().pause(false);
-    GtAccessTracker::instance().startAccessTracking(recording.contextUuid());
+    GtAccessTracker::instance().startAccessTracking(QUuid(recording.contextUuid()));
 
     recording.m_startAtTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
     return recording;
@@ -1150,7 +1150,7 @@ void GtCoreApplication::endRecording(GtAbstractRecorder* recorder,GtRecording &r
     //Finish recording accessed objects
     GtAccessTracker::instance().endAccessTracking();
     GtAccessTracker::instance().pause(true);
-    QString contextUuid = recording.contextUuid();
+    QUuid contextUuid = recording.contextUuid();
 
     recording.m_childContextUuids = GtAccessTracker::instance().getChildContextUuid(contextUuid);
 

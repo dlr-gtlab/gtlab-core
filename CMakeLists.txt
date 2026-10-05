@@ -119,6 +119,64 @@ install (FILES
   "${CMAKE_CURRENT_BINARY_DIR}/GTlabConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
 
+# ---------------------------------------------------------------------------
+# Deploy the Qt runtime next to the *installed* GTlab.exe (Windows only).
+#
+# run windeployqt on the installed executable as the last step of the install
+# so the install prefix becomes self-contained (GTlab.exe + Qt*.dll +
+# qtplugins\ + qml\ + qt.conf), same layout as the official devtools
+# install.
+# ---------------------------------------------------------------------------
+if (TARGET GTlab AND WIN32)
+    if (Qt6_DIR)
+        get_filename_component(_GT_QT_BIN_DIR "${Qt6_DIR}/../../../bin" ABSOLUTE)
+    elseif (Qt5_DIR)
+        get_filename_component(_GT_QT_BIN_DIR "${Qt5_DIR}/../../../bin" ABSOLUTE)
+    endif()
+
+    if (_GT_QT_BIN_DIR)
+        find_program(WINDEPLOYQT windeployqt HINTS "${_GT_QT_BIN_DIR}")
+    endif()
+
+    if (WINDEPLOYQT)
+        # CMAKE_INSTALL_BINDIR is a generator expression (set by
+        # gtlab_standard_setup() or by the consuming build) that cannot be
+        # evaluated inside an install(CODE) script, so mirror its logic here
+        # for the current configuration
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(_GT_QT_INSTALL_BINDIR "binDebug")
+        else()
+            set(_GT_QT_INSTALL_BINDIR "bin")
+        endif()
+
+        message(STATUS "Qt runtime will be deployed by: ${WINDEPLOYQT}")
+
+        install(CODE "
+            execute_process(
+                COMMAND \"${WINDEPLOYQT}\"
+                    --qmldir \"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/qml\"
+                    --plugindir \"\${CMAKE_INSTALL_PREFIX}/${_GT_QT_INSTALL_BINDIR}/qtplugins\"
+                    --no-translations
+                    --qml-deploy-dir \"\${CMAKE_INSTALL_PREFIX}/${_GT_QT_INSTALL_BINDIR}/qml\"
+                    --printsupport --core5compat
+                    \"\${CMAKE_INSTALL_PREFIX}/${_GT_QT_INSTALL_BINDIR}/GTlab.exe\"
+                RESULT_VARIABLE _gt_windeployqt_rc
+                COMMAND_ECHO STDOUT)
+            if(NOT _gt_windeployqt_rc EQUAL 0)
+                message(FATAL_ERROR \"windeployqt failed with exit code \${_gt_windeployqt_rc}\")
+            endif()
+        ")
+
+        # Ship the qt.conf next to the Qt DLLs so the custom "qtplugins" /
+        # "qml" directories are found (relative paths in a qt.conf are
+        # resolved against the directory containing the qt.conf)
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/qt.conf"
+            DESTINATION ${CMAKE_INSTALL_BINDIR})
+    else()
+        message(WARNING "windeployqt not found - the Qt runtime will NOT be deployed to the install prefix automatically")
+    endif()
+endif()
+
 if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)
 endif(BUILD_UNITTESTS)

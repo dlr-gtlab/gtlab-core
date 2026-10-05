@@ -34,7 +34,7 @@ public:
      * @brief Returns command identification string.
      * @return Command identification string
      */
-    QString contextUuid() const;
+    QUuid contextUuid() const;
     /**
      * @brief Returns command identification string.
      * @return Command identification string
@@ -75,7 +75,7 @@ private:
     //~GtRecording();
 
     /// Command identification string
-    QString m_actvityUuid;
+    QUuid m_actvityUuid;
 
     QSet<QUuid> m_childContextUuids;
 

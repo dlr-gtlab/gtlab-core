@@ -23,7 +23,6 @@ class GtAbstractProperty::Impl
 public:
     /// Monitoring indicator
     bool m_monitoring{false};
-    GtObject* m_ownerObject{};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -35,9 +34,9 @@ GtAbstractProperty::GtAbstractProperty() :
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
-    if (m_pimpl->m_ownerObject)
+    if (m_ownerObject)
     {
-        GtAccessTracker::instance().addAccessedProperty(m_pimpl->m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(QUuid(m_ownerObject->uuid()));
     }
     return valueToVariant(QString());
 }
@@ -399,7 +398,7 @@ GtAbstractProperty::collapsedByDefault() const
 
 void GtAbstractProperty::setOwnerObject(GtObject *ownerObject)
 {
-    m_pimpl->m_ownerObject=ownerObject;
+    m_ownerObject=ownerObject;
 }
 
 void
