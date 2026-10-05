@@ -101,10 +101,7 @@ set(HEADERS
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
-<<<<<<< HEAD
     gt_boundaries.h
-=======
->>>>>>> 3c710d04cac49a1021c03f28e23d5192c88c9581
     gt_accesstracking.h
 )
 
