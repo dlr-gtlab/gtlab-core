@@ -119,7 +119,6 @@ set(headers
     gt_datamodelinterface.h
     gt_command.h
     gt_moduleupgradeutilities.h
-    gt_accesstracking.h
     gt_recording.h
 )
 
@@ -237,7 +236,6 @@ set(sources
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
     gt_moduleupgradeutilities.cpp
-    gt_accesstracking.cpp
     gt_recording.cpp
 )
 
