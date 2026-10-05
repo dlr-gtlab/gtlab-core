@@ -23,6 +23,7 @@
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
 #include "gt_projectexecutionguard.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 #include "gt_coredatamodel.h"
 
@@ -190,6 +191,11 @@ GtCoreDatamodel::currentProject()
 {
     if (auto const* context = GtExecutionContext::current())
     {
+        // Canonical project resolution. Legacy access from process components
+        // is reported here only, so that the application and the data model
+        // cannot warn twice for the same access.
+        GtLegacyProjectAccess::reportLegacyAccess();
+
         return context->project();
     }
 

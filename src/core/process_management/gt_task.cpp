@@ -18,6 +18,7 @@
 #include "gt_processrunnerglobals.h"
 #include "gt_monitoringdatatable.h"
 #include "gt_logging.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 #include <QThreadPool>
 
@@ -81,6 +82,8 @@ GtTask::~GtTask() = default;
 bool
 GtTask::exec()
 {
+    GtProcessComponentExecutionScope componentScope(this);
+
     setRunnable(nullptr);
 
     // check skipped indicator
@@ -378,6 +381,8 @@ GtTask::runChildElements()
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
+        GtProcessComponentExecutionScope componentScope(comp);
+
         if (!comp->exec())
         {
             // calculator run failed
