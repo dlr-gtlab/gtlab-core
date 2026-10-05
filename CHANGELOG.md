@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New implementations for boundaries based on optional values to support property definitions - #1381
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
  - Search functionality for the Memento-Viewer - #380
+ - Developer mode warning for legacy `currentProject()` access from a running process
+   component. The warning names the affected component, points to the project-context
+   migration guide, and is emitted once per component class. It does not change project
+   resolution and does not deprecate `currentProject()` for GUI code. Activation is
+   controlled by Developer Mode and `GTLAB_LEGACY_PROJECT_ACCESS_WARNING` - #1519
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
