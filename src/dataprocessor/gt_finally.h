@@ -27,42 +27,42 @@ class Finally
 {
 public:
 
-    Finally() :
-        m_invoked(true)
-    { }
+    Finally() noexcept : m_invoked(true)
+    {
+    }
 
-    explicit Finally(Functor func) :
-        m_func{std::move(func)}
-    { }
+    explicit Finally(Functor func) noexcept : m_func{std::move(func)}
+    {
+    }
 
     // no copy
     Finally(Finally const&) = delete;
     Finally& operator=(Finally const&) = delete;
 
     // move allowed
-    Finally(Finally&& other) :
-        m_func{other.m_func},
-        m_invoked{other.m_invoked}
+    Finally(Finally&& other) noexcept :
+        m_func{std::move(other.m_func)}, m_invoked{other.m_invoked}
     {
         other.clear();
     };
 
-    Finally& operator=(Finally&& other)
+    Finally& operator=(Finally&& other) noexcept
     {
-        using std::swap; // ADL
         Finally tmp{std::move(other)};
-        swap(m_func, tmp.m_func);
-        swap(m_invoked, tmp.m_invoked);
+        this->swap(tmp);
         return *this;
     };
 
-    ~Finally() { invoke(); }
+    ~Finally() noexcept
+    {
+        invoke();
+    }
 
     /**
      * @brief Check if function or object is null
      * @return
      */
-    bool isNull() const
+    bool isNull() const noexcept
     {
         return m_invoked;
     }
@@ -70,7 +70,7 @@ public:
     /**
      * @brief Calls the cleanup function. Object will go invalid.
      */
-    void finalize()
+    void finalize() noexcept
     {
         invoke();
         clear();
@@ -79,7 +79,7 @@ public:
     /**
      * @brief Clears object
      */
-    void clear()
+    void clear() noexcept
     {
         m_invoked = true;
     }
@@ -88,7 +88,27 @@ public:
      * @brief Getter to access the functor used
      * @return Returns the functor used
      */
-    Functor const& get() const { return m_func; }
+    Functor const& get() const
+    {
+        return m_func;
+    }
+
+    /**
+     * @brief Swaps this object with other
+     * @param other Other object
+     */
+    void swap(Finally& other) noexcept
+    {
+        using std::swap; // ADL
+        swap(m_func, other.m_func);
+        swap(m_invoked, other.m_invoked);
+    }
+
+    /// hidden friend function only found by ADL (best practice)
+    friend void swap(Finally& a, Finally& b) noexcept
+    {
+        a.swap(b);
+    }
 
 private:
 
@@ -102,7 +122,7 @@ private:
     /**
      * @brief Calls the cleanup function.
      */
-    void invoke()
+    void invoke() noexcept
     {
         // call cleanup function
         if (!isNull()) m_func();

@@ -219,6 +219,81 @@ TEST_F(TestGtUtilities, finally_lambda)
     EXPECT_EQ(i, 0);
 }
 
+/// constructing and moving a move-only lambda is supported
+TEST_F(TestGtUtilities, finally_move_lambda)
+{
+    bool called = false;
+    std::unique_ptr<GtObject> movable;
+
+    auto finally1 =
+        gt::finally([&called, moved = std::move(movable)](){ called = true; });
+
+    auto finally2 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_FALSE(called);
+
+    finally2.finalize();
+
+    EXPECT_TRUE(called);
+}
+
+struct MyMoveOnlyFunctor
+{
+    bool moved = false, called = false;
+
+    MyMoveOnlyFunctor() = default;
+
+    MyMoveOnlyFunctor(MyMoveOnlyFunctor const&) = delete;
+    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor const&) = delete;
+
+    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) : called{o.called}
+    {
+        o.moved = true;
+    }
+
+    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor&& o)
+    {
+        called = o.called;
+        moved = false;
+        o.moved = true;
+        return *this;
+    }
+
+    void operator()()
+    {
+        called = true;
+    }
+};
+
+/// constructing, assigning and moving a move-only functor is supported
+TEST_F(TestGtUtilities, finally_move_functor)
+{
+    gt::Finally<MyMoveOnlyFunctor> finally1{MyMoveOnlyFunctor{}};
+    EXPECT_FALSE(finally1.get().moved);
+    EXPECT_FALSE(finally1.get().called);
+
+    finally1.finalize();
+    EXPECT_FALSE(finally1.get().moved);
+    EXPECT_TRUE(finally1.get().called);
+
+    gt::Finally<MyMoveOnlyFunctor> finally2{std::move(finally1)};
+    EXPECT_TRUE(finally1.get().moved);
+    EXPECT_TRUE(finally1.get().called);
+    EXPECT_FALSE(finally2.get().moved);
+    EXPECT_TRUE(finally2.get().called);
+
+    gt::Finally<MyMoveOnlyFunctor> finally3{};
+    EXPECT_FALSE(finally3.get().moved);
+    EXPECT_FALSE(finally3.get().called);
+    finally3 = std::move(finally2);
+
+    EXPECT_TRUE(finally2.get().moved);
+    EXPECT_TRUE(finally2.get().called);
+    EXPECT_FALSE(finally3.get().moved);
+    EXPECT_TRUE(finally3.get().called);
+}
+
 TEST_F(TestGtUtilities, clamp)
 {
     EXPECT_EQ(gt::clamp(1, -9, 7), 1);
