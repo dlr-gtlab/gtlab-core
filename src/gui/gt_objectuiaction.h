@@ -26,83 +26,83 @@ class QKeySequence;
 
 namespace gt
 {
-namespace gui
-{
-
-/// Predefined order priority values for context menus in GTlab
-struct OrderPriority
-{
-    // using struct for tighter naming schemes while allowing implicit
-    // int conversions
-    enum Value : int
+    namespace gui
     {
-        /// default order priority
-        Default = 0,
 
-        /// order priority of the "open with" action in the explorer
-        OpenWithAction = -50,
-        /// order priority of the "import" action
-        ImportAction = 50,
-        /// order priority of the "export" action
-        ExportAction = 100,
-        /// order priority of the "rename" action
-        RenameAction = 150,
-        /// order priority of the "delete" action
-        DeleteAction = 200,
+        /// Predefined order priority values for context menus in GTlab
+        struct OrderPriority
+        {
+            // using struct for tighter naming schemes while allowing implicit
+            // int conversions
+            enum Value : int
+            {
+                /// default order priority
+                Default = 0,
 
-        /// denotes that this action should be placed last in a menu.
-        Last  =  999,
-        /// Denotes that this action should be placed first in a meenu.
-        First = -999,
+                /// order priority of the "open with" action in the explorer
+                OpenWithAction = -50,
+                /// order priority of the "import" action
+                ImportAction = 50,
+                /// order priority of the "export" action
+                ExportAction = 100,
+                /// order priority of the "rename" action
+                RenameAction = 150,
+                /// order priority of the "delete" action
+                DeleteAction = 200,
 
-        /// inserts before the "open with" actions in a separate section
-        BeforeOpenWithSection = OpenWithAction - 2,
-        /// inserts before the "open with" actions in the same section
-        BeforeOpenWithAction  = OpenWithAction - 1,
-        /// inserts after the "open with" actions in the same section
-        AfterOpenWithAction   = OpenWithAction,
-        /// inserts after the "open with" actions in a separate section
-        AfterOpenWithSection  = OpenWithAction + 1,
+                /// denotes that this action should be placed last in a menu.
+                Last  =  999,
+                /// Denotes that this action should be placed first in a meenu.
+                First = -999,
 
-        /// inserts before the "import" actions in a separate section
-        BeforeImportSection = ImportAction - 2,
-        /// inserts before the "import" actions in the same section
-        BeforeImportAction  = ImportAction - 1,
-        /// inserts after the "import" actions in the same section
-        AfterImportAction   = ImportAction,
-        /// inserts after the "import" actions in a separate section
-        AfterImportSection  = ImportAction + 1,
+                /// inserts before the "open with" actions in a separate section
+                BeforeOpenWithSection = OpenWithAction - 2,
+                /// inserts before the "open with" actions in the same section
+                BeforeOpenWithAction  = OpenWithAction - 1,
+                /// inserts after the "open with" actions in the same section
+                AfterOpenWithAction   = OpenWithAction,
+                /// inserts after the "open with" actions in a separate section
+                AfterOpenWithSection  = OpenWithAction + 1,
 
-        /// inserts before the "export" actions in a separate section
-        BeforeExportSection = ExportAction - 2,
-        /// inserts before the "export" actions in the same section
-        BeforeExportAction  = ExportAction - 1,
-        /// inserts after the "export" actions in the same section
-        AfterExportAction   = ExportAction,
-        /// inserts after the "export" actions in a separate section
-        AfterExportSection  = ExportAction + 1,
+                /// inserts before the "import" actions in a separate section
+                BeforeImportSection = ImportAction - 2,
+                /// inserts before the "import" actions in the same section
+                BeforeImportAction  = ImportAction - 1,
+                /// inserts after the "import" actions in the same section
+                AfterImportAction   = ImportAction,
+                /// inserts after the "import" actions in a separate section
+                AfterImportSection  = ImportAction + 1,
 
-        /// inserts before the "rename" actions in a separate section
-        BeforeRenameSection = RenameAction - 2,
-        /// inserts before the "rename" actions in the same section
-        BeforeRenameAction  = RenameAction - 1,
-        /// inserts after the "rename" actions in the same section
-        AfterRenameAction   = RenameAction,
-        /// inserts after the "rename" actions in a separate section
-        AfterRenameSection  = RenameAction + 1,
+                /// inserts before the "export" actions in a separate section
+                BeforeExportSection = ExportAction - 2,
+                /// inserts before the "export" actions in the same section
+                BeforeExportAction  = ExportAction - 1,
+                /// inserts after the "export" actions in the same section
+                AfterExportAction   = ExportAction,
+                /// inserts after the "export" actions in a separate section
+                AfterExportSection  = ExportAction + 1,
 
-        /// inserts before the "delete" actions in a separate section
-        BeforeDeleteSection = DeleteAction - 2,
-        /// inserts before the "delete" actions in the same section
-        BeforeDeleteAction  = DeleteAction - 1,
-        /// inserts after the "delete" actions in the same section
-        AfterDeleteAction   = DeleteAction,
-        /// inserts after the "delete" actions in a separate section
-        AfterDeleteSection  = DeleteAction + 1,
-    };
-};
+                /// inserts before the "rename" actions in a separate section
+                BeforeRenameSection = RenameAction - 2,
+                /// inserts before the "rename" actions in the same section
+                BeforeRenameAction  = RenameAction - 1,
+                /// inserts after the "rename" actions in the same section
+                AfterRenameAction   = RenameAction,
+                /// inserts after the "rename" actions in a separate section
+                AfterRenameSection  = RenameAction + 1,
 
-} // namespace gui
+                /// inserts before the "delete" actions in a separate section
+                BeforeDeleteSection = DeleteAction - 2,
+                /// inserts before the "delete" actions in the same section
+                BeforeDeleteAction  = DeleteAction - 1,
+                /// inserts after the "delete" actions in the same section
+                AfterDeleteAction   = DeleteAction,
+                /// inserts after the "delete" actions in a separate section
+                AfterDeleteSection  = DeleteAction + 1,
+            };
+        };
+
+    } // namespace gui
 
 } // namespace gt
 
