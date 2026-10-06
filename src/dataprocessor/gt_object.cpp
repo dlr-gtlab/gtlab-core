@@ -209,7 +209,7 @@ GtObject::copyClone(bool cloneObject, GtObjectUUIDMap* uuidMap) const
         return nullptr;
     }
 
-    return memento.restore(fac);
+    return memento.restore_unique(fac).release();
 }
 
 

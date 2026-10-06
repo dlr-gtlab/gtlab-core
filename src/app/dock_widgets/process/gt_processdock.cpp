@@ -629,7 +629,7 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
+    auto newObj = memento.restore_unique<GtProcessComponent>(gtProcessFactory);
 
     if (!newObj)
     {
@@ -641,7 +641,7 @@ GtProcessDock::addCalculator()
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, obj);
+    QModelIndex newIndex = gtDataModel->appendChild(newObj.release(), obj);
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -716,7 +716,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (memento.isNull()) return;
 
-    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
+    auto newObj = memento.restore_unique<GtProcessComponent>(gtProcessFactory);
 
     if (!newObj) return;
 
@@ -728,7 +728,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, parentObj);
+    QModelIndex newIndex =
+        gtDataModel->appendChild(newObj.release(), parentObj);
 
     QModelIndex index = mapFromSource(newIndex);
 

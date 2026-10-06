@@ -233,24 +233,33 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
     {
         GtObjectMemento memento(root);
 
-        GtObject* obj = memento.restore(gtPostTemplateFactory);
+        auto obj = memento.restore_unique(gtPostTemplateFactory);
 
         if (!obj)
         {
             gtWarning() << tr("Object cannot be restored while reading "
                               "template viewer post file");
         }
-
-        // createUIs by calling abstract DM class function
-        GtPostTemplateItem* abstractDM = dynamic_cast<GtPostTemplateItem*>(obj);
-
-        if (abstractDM)
+        else
         {
-            if (!m_postTemplateDM->appendChild(abstractDM))
+            // createUIs by calling abstract DM class function
+            GtPostTemplateItem* abstractDM =
+                dynamic_cast<GtPostTemplateItem*>(obj.get());
+
+            if (abstractDM)
             {
-                gtWarning() << tr("Could not append child '")
-                            << abstractDM->objectName()
-                            << tr("' to datamodel whilst reading xml file!");
+                if (m_postTemplateDM->appendChild(abstractDM))
+                {
+                    // datamodel has taken ownership
+                    obj.release();
+                }
+                else
+                {
+                    gtWarning()
+                        << tr("Could not append child '")
+                        << abstractDM->objectName()
+                        << tr("' to datamodel whilst reading xml file!");
+                }
             }
         }
 

@@ -89,14 +89,19 @@ GtCalculatorSettingsPage::initializePage()
     }
 
     delete m_component;
-    m_component = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
-    if (!m_component)
+    auto component =
+        memento.restore_unique<GtProcessComponent>(gtProcessFactory);
+
+    if (!component)
     {
         return;
     }
 
-    m_component->setParent(this);
+    m_component = component.get();
+
+    component->setParent(this);
+    component.release(); // ownership transferred to this widget
 
     connect(m_component.data(),
             SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),

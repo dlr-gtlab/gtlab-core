@@ -12,14 +12,19 @@
 #define GTOBJECTMEMENTO_H
 
 #include "gt_datamodel_exports.h"
+#include <gt_version.h>
 
 #include <QDomDocument>
 #include <QByteArray>
 #include <QVariant>
 
+#include <memory>
+#include <type_traits>
+
 #include "gt_object.h"
 #include "gt_logging.h"
 #include "gt_logging/qt_bindings.h"
+#include "gt_qtutilities.h"
 
 class GtAbstractObjectFactory;
 class GtObjecIO;
@@ -78,49 +83,69 @@ public:
     bool isRestorable(GtAbstractObjectFactory* factory) const;
 
     /**
-     * @brief restore
-     * @param factory
-     * @param newUuid
-     * @return
+     * @brief Restores a new object from the memento data
+     * @param factory Object factory used to create the object instance
+     * @param newUuid Whether to generate new UUIDs for the restored objects
+     * @return Raw pointer to the restored object or nullptr, if the object
+     * could not be restored. Ownership of the object is transferred to the
+     * caller, who has to delete it. Use @ref restore_unique instead, which
+     * returns a std::unique_ptr and cannot leak.
      */
+    GT_REMOVAL_GUARD(2, 2, "Use `restore_unique()` instead.");
     template <class T = GtObject*>
+    GT_DEPRECATED_ATTR(2, 2,
+                       "Use `restore_unique()`, which returns a "
+                       "std::unique_ptr instead of a raw pointer, "
+                       "to prevent memory leaks.")
     T restore(GtAbstractObjectFactory* factory, bool newUuid = false)
     {
-        T retval = nullptr;
+        return restore_unique<std::remove_pointer_t<T>>(factory, newUuid)
+            .release();
+    }
 
-        if (factory)
-        {
-            auto tmp = toObject(*factory).release();
+    /**
+     * @brief Restores a new object from the memento data
+     * @param factory Object factory used to create the object instance
+     * @param newUuid Whether to generate new UUIDs for the restored objects
+     * @return Unique pointer to the restored object or nullptr, if the object
+     * could not be restored
+     */
+    template <class T = GtObject>
+    std::unique_ptr<T> restore_unique(GtAbstractObjectFactory* factory,
+                                      bool newUuid = false)
+    {
+        std::unique_ptr<T> retval{};
 
-            if (tmp)
-            {
-                if (newUuid)
-                {
-                    tmp->newUuid(true);
-                }
-
-                retval = qobject_cast<T>(tmp);
-
-                if (!retval)
-                {
-                    gtWarning() << QObject::tr("wrong object type!")
-                                << QStringLiteral("(") << ident()
-                                << QStringLiteral(")");
-                    delete tmp;
-                }
-            }
-            else
-            {
-                gtWarning() << QObject::tr("object not properly restored!")
-                            << QStringLiteral("(") << ident()
-                            << QStringLiteral(")");
-            }
-        }
-        else
+        if (!factory)
         {
             gtFatal() << QObject::tr("no factory set!")
                       << QStringLiteral("(") << className()
                       << QStringLiteral(")");
+            return retval;
+        }
+
+        std::unique_ptr<GtObject> tmp = toObject(*factory);
+
+        if (!tmp)
+        {
+            gtWarning() << QObject::tr("object not properly restored!")
+                        << QStringLiteral("(") << ident()
+                        << QStringLiteral(")");
+            return retval;
+        }
+
+        if (newUuid)
+        {
+            tmp->newUuid(true);
+        }
+
+        retval = gt::unique_qobject_cast<T>(std::move(tmp));
+
+        if (!retval)
+        {
+            gtWarning() << QObject::tr("wrong object type!")
+                        << QStringLiteral("(") << ident()
+                        << QStringLiteral(")");
         }
 
         return retval;
