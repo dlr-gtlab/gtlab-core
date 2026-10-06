@@ -226,7 +226,8 @@ protected:
      * sorted in the menu. An action with a lower priority 'x' prepends all
      * actions with a higher prority > x.
      */
-    static GtObjectUIAction makeSeparator(int priority = gt::gui::OrderPriority::Default);
+    static GtObjectUIAction makeSeparator(
+        int priority = gt::gui::OrderPriority::Default);
 
     /**
      * @brief registerShortCut

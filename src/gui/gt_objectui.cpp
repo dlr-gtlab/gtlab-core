@@ -33,8 +33,7 @@ struct GtObjectUI::Impl
                           "be used for the renaming")};
 };
 
-GtObjectUI::GtObjectUI() :
-    pimpl{std::make_unique<Impl>()}
+GtObjectUI::GtObjectUI() : pimpl{std::make_unique<Impl>()}
 {
 
 }
@@ -53,8 +52,8 @@ GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
-    pimpl->singleActions << GtObjectUIAction(actionText,
-                            GtObjectUIAction::fromMethodName(actionMethod));
+    pimpl->singleActions << GtObjectUIAction(
+        actionText, GtObjectUIAction::fromMethodName(actionMethod));
 
     return pimpl->singleActions.last();
 }
@@ -64,7 +63,8 @@ GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             ActionFunction actionMethod)
 {
-    pimpl->singleActions << makeSingleAction(actionText, std::move(actionMethod));
+    pimpl->singleActions << makeSingleAction(actionText,
+                                             std::move(actionMethod));
     return pimpl->singleActions.last();
 }
 
@@ -72,8 +72,8 @@ GtObjectUIAction
 GtObjectUI::makeSingleAction(const QString& actionText,
                              const QString& actionMethod)
 {
-    return GtObjectUIAction(actionText,
-                GtObjectUIAction::fromMethodName(actionMethod));
+    return GtObjectUIAction(
+        actionText, GtObjectUIAction::fromMethodName(actionMethod));
 }
 
 GtObjectUIAction
@@ -321,7 +321,7 @@ GtObjectUI::openWith(GtObject* /*obj*/)
 }
 
 const QList<GtObjectUIAction>&
-GtObjectUI::actions()  const
+GtObjectUI::actions() const
 {
     return pimpl->singleActions;
 }
