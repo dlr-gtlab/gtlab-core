@@ -226,7 +226,7 @@ TEST_F(TestGtUtilities, finally_move_lambda)
     std::unique_ptr<GtObject> movable;
 
     auto finally1 =
-        gt::finally([&called, moved = std::move(movable)](){ called = true; });
+        gt::finally([&called, moved = std::move(movable)]() { called = true; });
 
     auto finally2 = std::move(finally1);
 
