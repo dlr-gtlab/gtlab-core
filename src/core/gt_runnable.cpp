@@ -164,11 +164,11 @@ GtRunnable::readObjects()
 {
     for (GtObjectMemento& memento : m_inputData)
     {
-        GtObject* obj = memento.restore(gtObjectFactory);
+        auto obj = memento.restore_unique(gtObjectFactory);
 
         if (obj)
         {
-            m_linkedObjects.append(obj);
+            m_linkedObjects.append(obj.release());
         }
     }
 }

@@ -580,14 +580,14 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
         return nullptr;
     }
 
-    auto obj = memento.restore(gtProcessFactory);
+    auto obj = memento.restore_unique(gtProcessFactory);
     if (obj)
     {
         const auto mappings = gt::xml::readClassModuleMap(root);
         obj->setProperty(S_CLASS_PROVIDERS_PROPERTY, toVariantMap(mappings));
     }
 
-    return std::unique_ptr<GtObject>(obj);
+    return obj;
 }
 
 bool

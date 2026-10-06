@@ -246,8 +246,8 @@ namespace
             ASSERT_TRUE(output.open(QIODevice::ReadOnly));
             GtObjectMementoDiff diff(output.readAll());
             EXPECT_FALSE(diff.isNull());
-            auto restored = std::unique_ptr<GtObjectGroup>(
-                originalProject.restore<GtObjectGroup*>(gtObjectFactory));
+            auto restored =
+                originalProject.restore_unique<GtObjectGroup>(gtObjectFactory);
             ASSERT_TRUE(restored);
             ASSERT_TRUE(restored->applyDiff(diff));
             EXPECT_EQ(restored->objectName(), "Memento Root");
@@ -262,8 +262,8 @@ namespace
             ASSERT_TRUE(output.open(QIODevice::ReadOnly));
             GtObjectMementoDiff diff(output.readAll());
             EXPECT_FALSE(diff.isNull());
-            auto restored = std::unique_ptr<GtTask>(
-                originalTask.restore<GtTask*>(gtObjectFactory));
+            auto restored =
+                originalTask.restore_unique<GtTask>(gtObjectFactory);
             ASSERT_TRUE(restored);
             ASSERT_TRUE(restored->applyDiff(diff));
             EXPECT_EQ(restored->objectName(), task.objectName());
@@ -381,8 +381,7 @@ namespace
         ASSERT_TRUE(output.open(QIODevice::ReadOnly));
         GtObjectMementoDiff diff(output.readAll());
         EXPECT_FALSE(diff.isNull());
-        auto restored = std::unique_ptr<GtObjectGroup>(
-            original.restore<GtObjectGroup*>(gtObjectFactory));
+        auto restored = original.restore_unique<GtObjectGroup>(gtObjectFactory);
         ASSERT_TRUE(restored);
         ASSERT_TRUE(restored->applyDiff(diff));
         auto* restoredPackage =

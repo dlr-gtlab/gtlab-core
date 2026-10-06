@@ -881,8 +881,7 @@ TEST_F(TestGtObjectMementoDiff, undoRedoIndexChecks)
     GtObjectMemento mem1 = obj1.toMemento();
     ASSERT_FALSE(mem1.isNull());
 
-    std::unique_ptr<TestSpecialGtObject> cobj(
-                mem1.restore<TestSpecialGtObject*>(gtObjectFactory));
+    auto cobj = mem1.restore_unique<TestSpecialGtObject>(gtObjectFactory);
 
     ASSERT_TRUE(cobj != nullptr);
 

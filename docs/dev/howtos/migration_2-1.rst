@@ -412,6 +412,25 @@ Grid spacing methods:
 - ``GtGrid::setGridWidth`` / ``setGridHeight`` -> ``GtGrid::setHSpacing`` / ``setVSpacing`` (or ``GtGrid::setSpacing`` for both).
 - ``GtGrid::scaledGridSpacing`` return a ``GtGridSpacing`` struct with ``hSpacing`` and ``vSpacing`` members denoting the spacing in scene coordinate systems for the current zoom level.
 
+Newly Deprecated in 2.1
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following APIs are newly deprecated in GTlab 2.1. They remain available
+during 2.1 and are scheduled for removal in GTlab 2.2:
+
+.. rst-class:: compact-table
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 10 50
+
+   * - **API**
+     - **Since**
+     - **Replacement / Notes**
+   * - ``GtObjectMemento::restore<T*>()``
+     - 2.1.0
+     - Use ``GtObjectMemento::restore_unique<T>()`` instead. It returns a ``std::unique_ptr``, so restored objects cannot leak anymore.
+
 ----
 
 Qt6 Migration

@@ -72,7 +72,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
 
     QByteArray a = file.readAll();
     GtObjectMemento memento(a);
-    GtObject* obj = memento.restore(gtObjectFactory, true);
+    auto obj = memento.restore_unique(gtObjectFactory, true);
 
     if (!obj)
     {
@@ -81,10 +81,9 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     }
 
     /// validate object to import
-    if (!qobject_cast<GtProcessComponent*>(obj))
+    if (!qobject_cast<GtProcessComponent*>(obj.get()))
     {
         gtError() << "resorted obj is not of type GtProcessElement.";
-        delete obj;
         return false;
     }
 
@@ -92,10 +91,9 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     /// allowed to be improted
     if (!qobject_cast<GtTask*>(data))
     {
-        if (!qobject_cast<GtTask*>(obj))
+        if (!qobject_cast<GtTask*>(obj.get()))
         {
             gtError() << "Parent item of a calculator has to be a task";
-            delete obj;
             return false;
         }
     }
@@ -104,7 +102,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     /// reset uuids of children, too.
     obj->newUuid(true);
 
-    data->appendChild(obj);
+    data->appendChild(obj.release());
 
     return true;
 }
