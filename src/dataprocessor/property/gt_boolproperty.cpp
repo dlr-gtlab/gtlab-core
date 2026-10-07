@@ -12,7 +12,6 @@
 #include "gt_boolproperty.h"
 
 
-
 GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
                                const QString& brief, bool value)
 {
