@@ -33,7 +33,8 @@ GtStringProperty::GtStringProperty(const QString& ident,
 }
 
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
-    GtStringProperty(ident, name, QString(), QString(), gt::rex::forExpressions())
+    GtStringProperty(ident, name, QString(), QString(),
+                     gt::rex::forExpressions())
 {
 }
 
