@@ -17,11 +17,25 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
     GtIntProperty(ident, name, brief)
 {
     setMonitoring(true);
+    // this additional registration is needed as long
+    // as int monitoring properties are used in GTlab
+    static auto initOnce = []() {
+        GtAbstractProperty::registerCanConnect(
+            GtIntProperty::staticMetaObject,
+            GtIntMonitoringProperty::staticMetaObject,
+            [](GtAbstractProperty const& a,
+               GtAbstractProperty const& b) -> bool{
+
+                return true;
+            });
+
+        return 0;
+    }();
 }
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
                                                  const QString& name) :
-    GtIntProperty(ident, name, QString())
+    GtIntMonitoringProperty(ident, name, QString())
 {
     setMonitoring(true);
 }
