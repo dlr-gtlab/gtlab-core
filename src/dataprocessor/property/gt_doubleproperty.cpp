@@ -33,9 +33,9 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
-            [](GtAbstractProperty& a, GtAbstractProperty& b) -> bool{
-                auto& from = static_cast<GtDoubleProperty&>(a);
-                auto& to = static_cast<GtDoubleProperty&>(b);
+            [](GtAbstractProperty const & a, GtAbstractProperty const& b) -> bool{
+                auto& from = static_cast<const GtDoubleProperty&>(a);
+                auto& to = static_cast<const GtDoubleProperty&>(b);
 
                 // check of the units:
                 // only identical units and nondimensional should be connected
