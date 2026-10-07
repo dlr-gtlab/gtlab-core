@@ -27,11 +27,42 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_linkFromSuperClassesEnabled(linkFromSuperClassesEnabled)
 {
     setObjectName(name);
+    setPropertyConnectionEnabled();
 
     m_id = ident;
     m_brief = brief;
     m_unitCategory = GtUnit::Category::None;
     m_value = uuid;
+
+    static auto initOnce = [](){
+
+        GtAbstractProperty::registerCanConnect(
+            GtObjectLinkProperty::staticMetaObject,
+            GtObjectLinkProperty::staticMetaObject,
+            [](GtAbstractProperty& a, GtAbstractProperty& b) -> bool{
+                auto& from = static_cast<GtObjectLinkProperty&>(a);
+                auto& to = static_cast<GtObjectLinkProperty&>(b);
+
+                QStringList list1 = from.allowedClasses();
+
+                for (auto& s1 : list1)
+                {
+                    if (to.isAllowed(s1)) return true;
+                }
+
+                QStringList list2 = to.allowedClasses();
+
+                for (auto& s2 : list2)
+                {
+                    if (from.isAllowed(s2)) return true;
+                }
+
+                return false;
+            });
+
+        return 0;
+    }();
+
 }
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,

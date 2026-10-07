@@ -15,11 +15,10 @@
 #include "gt_abstractproperty.h"
 #include "gt_calculator.h"
 #include "gt_calculatorfactory.h"
+#include "gt_doubleproperty.h"
+#include "gt_intproperty.h"
 #include "gt_extendedcalculatordata.h"
 #include "gt_application.h"
-#include "gt_doublemonitoringproperty.h"
-#include "gt_stringmonitoringproperty.h"
-#include "gt_intmonitoringproperty.h"
 #include "gt_icons.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
@@ -31,16 +30,6 @@
 #include "gt_propertyreference.h"
 
 #include "gt_processconnectionitem.h"
-
-QStringList GtProcessConnectionItem::m_acceptedPropertyTypes =
-        QStringList() << GT_CLASSNAME(GtDoubleMonitoringProperty) <<
-                         GT_CLASSNAME(GtIntMonitoringProperty) <<
-                         GT_CLASSNAME(GtDoubleProperty) <<
-                         GT_CLASSNAME(GtIntProperty) <<
-                         GT_CLASSNAME(GtObjectLinkProperty) <<
-                         GT_CLASSNAME(GtStringProperty) <<
-                         GT_CLASSNAME(GtStringMonitoringProperty) <<
-                         GT_CLASSNAME(GtBoolProperty);
 
 GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent* comp) :
     m_component(comp),
@@ -94,9 +83,7 @@ GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent& comp,
 bool
 GtProcessConnectionItem::propertyTypeAccepted(GtAbstractProperty* prop)
 {
-    const QString className = prop->metaObject()->className();
-
-    return m_acceptedPropertyTypes.contains(className);
+    return prop->propertyConnectionEnabled();
 }
 
 GtProcessConnectionItem::ItemType
@@ -231,6 +218,10 @@ GtProcessConnectionItem::data(int column, int role)
                     {
                         return gt::gui::icon::letter::b();
                     }
+
+                    // default solution until property ui classes for
+                    // icon representations are introduced
+                    return gt::gui::icon::mathMinus();
                 }
 
             }
