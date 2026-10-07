@@ -38,28 +38,25 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
-            [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool{
+            [](GtAbstractProperty const& a,
+               GtAbstractProperty const& b) -> bool{
                 auto& from = static_cast<const GtObjectLinkProperty&>(a);
                 auto& to = static_cast<const GtObjectLinkProperty&>(b);
 
                 const QStringList list1 = from.allowedClasses();
 
-                if (std::any_of(list1.begin(), list1.end(),
-                                [&](const auto& s1)
-                                {
-                                    return to.isAllowed(s1);
-                                }))
+                if (std::any_of(
+                        list1.begin(), list1.end(),
+                        [&](const auto& s1) { return to.isAllowed(s1); }))
                 {
                     return true;
                 }
 
                 const QStringList list2 = to.allowedClasses();
 
-                return std::any_of(list2.begin(), list2.end(),
-                                   [&](const auto& s2)
-                                   {
-                                       return from.isAllowed(s2);
-                                   });
+                return std::any_of(
+                    list2.begin(), list2.end(),
+                    [&](const auto& s2) { return from.isAllowed(s2); });
             });
 
         return 0;
