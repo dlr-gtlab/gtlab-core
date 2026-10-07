@@ -9,11 +9,24 @@
  */
 
 #include <QVariant>
+#include <QMultiHash>
 
 #include "gt_logging.h"
 
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
+
+using ClassName = QString;
+using CanConnectFunction = std::function<bool(GtAbstractProperty& from,
+                                              GtAbstractProperty& to)>;
+
+struct Connector
+{
+    QMetaObject to;
+    CanConnectFunction f;
+};
+
+QMultiHash<ClassName, Connector> canConvertHash;
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
@@ -22,6 +35,8 @@ class GtAbstractProperty::Impl
 public:
     /// Monitoring indicator
     bool m_monitoring{false};
+
+    bool m_propertyConnectionEnabled{false};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -397,6 +412,64 @@ GtAbstractProperty::setValFromConnection()
 }
 
 void
+GtAbstractProperty::setPropertyConnectionEnabled(bool flag)
+{
+    m_pimpl->m_propertyConnectionEnabled = flag;
+}
+
+bool
+GtAbstractProperty::propertyConnectionEnabled() const
+{
+    return m_pimpl->m_propertyConnectionEnabled;
+}
+
+QVector<GtAbstractProperty::CanConnectFunction>
+GtAbstractProperty::canConnectFunctions(const QMetaObject& from,
+                                        const QMetaObject& to) const
+{
+    QVector<CanConnectFunction> result;
+
+    auto range = canConvertHash.equal_range(from.className());
+
+    for (auto it = range.first; it != range.second; ++it)
+    {
+        if (it.value().to.className() == to.className())
+        {
+            result.append(it.value().f);
+        }
+    }
+
+    return result;
+}
+
+bool
+GtAbstractProperty::canConnect(GtAbstractProperty& b)
+{
+    auto& a = *this;
+
+    auto functions = canConnectFunctions(*b.metaObject(), *metaObject());
+
+    if (functions.empty())
+    {
+        return metaObject()->className() == b.metaObject()->className();
+    }
+
+    for (auto& canConnectProps : functions)
+    {
+        if (canConnectProps(a, b)) return true;
+    }
+    return false;
+}
+
+void
+GtAbstractProperty::registerCanConnect(
+    QMetaObject from, QMetaObject to,
+    std::function<bool (GtAbstractProperty&, GtAbstractProperty&)> f)
+{
+    canConvertHash.insert(from.className(), {to, f});
+}
+
+void
 GtAbstractProperty::onTriggerValueTransfer()
 {
     setValFromConnection();
@@ -417,7 +490,9 @@ GtAbstractProperty::setOptional(bool val)
     }
 }
 
-QVariant gt::getConnectedValue(const GtPropertyConnection &connection)
+QVariant
+gt::getConnectedValue(const GtPropertyConnection &connection)
 {
     return connection.valueFromSource();
 }
+
