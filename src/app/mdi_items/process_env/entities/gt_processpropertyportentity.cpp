@@ -160,10 +160,13 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     // check port
     if (!port) return false;
 
+    // no self connection
     if (port == this) return false;
 
+    // connect in with outport not in with in or out with out
     if (port->portType() == portType()) return false;
 
+    // no connection to already connected in ports
     if (m_type == GtProcessPropertyPortEntity::INPUT_PORT)
     {
         if (isConnected()) return false;
@@ -175,17 +178,16 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
         return false;
     }
 
+    // do not allow connection inside one object
     if (parentComponentUuid() == port->parentComponentUuid()) return false;
 
-    if (m_item && port->m_item)
-    {
-        GtAbstractProperty* prop = m_item->property();
-        GtAbstractProperty* prop2 = port->m_item->property();
+    if (!m_item || !port->m_item) return false;
 
-        return prop->canConnect(*prop2);
-    }
+    // for valid items check the connection options of the related properties
+    GtAbstractProperty* prop = m_item->property();
+    GtAbstractProperty* prop2 = port->m_item->property();
 
-    return true;
+    return prop->canConnect(*prop2);
 }
 
 QVariant

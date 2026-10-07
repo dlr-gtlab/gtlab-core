@@ -37,11 +37,42 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                 auto& from = static_cast<GtDoubleProperty&>(a);
                 auto& to = static_cast<GtDoubleProperty&>(b);
 
-                if (from.siUnit().isEmpty() || from.siUnit() == "-") return true;
+                // check of the units:
+                // only identical units and nondimensional should be connected
+                bool unitCheck = false;
 
-                if (to.siUnit().isEmpty() || to.siUnit() == "-") return true;
+                if (from.siUnit().isEmpty() || from.siUnit() == "-"
+                    || to.siUnit().isEmpty() || to.siUnit() == "-")
+                {
+                    unitCheck = true;
+                }
+                else
+                {
+                    unitCheck = from.siUnit() == to.siUnit();
+                }
 
-                return from.siUnit() == to.siUnit();
+                if (!unitCheck) return false;
+
+
+                // check of the bounds
+                // if bounds are active it should be checked if the valid
+                // ranges of the properties do at least match in pieces
+                if (from.highSideBoundaryActive() && to.lowSideBoundaryActive())
+                {
+                    if (from.highSideBoundary() < to.lowSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+                else if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
+                {
+                    if (from.lowSideBoundary() > to.highSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             });
 
         return 0;
