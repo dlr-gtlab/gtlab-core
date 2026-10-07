@@ -21,7 +21,7 @@ GtAccessSelectionProperty::GtAccessSelectionProperty(const QString& ident,
     GtStringProperty(ident, name, brief),
     m_accessId(accessId)
 {
-
+    setPropertyConnectionEnabled(false);
 }
 
 const QString&
