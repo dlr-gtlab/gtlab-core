@@ -149,7 +149,7 @@ GtProcessConnectionItem::data(int column, int role)
                             gtCalculatorFactory->calculatorData(className);
 
                         auto* eData =
-                            dynamic_cast<GtExtendedCalculatorDataImpl*>(
+                            dynamic_cast<const GtExtendedCalculatorDataImpl*>(
                                 calcData.get());
 
                         if (eData) return eData->icon;
@@ -159,7 +159,7 @@ GtProcessConnectionItem::data(int column, int role)
                     }
                     else
                     {
-                        GtObjectUI* oui = gtApp->defaultObjectUI(m_component);
+                        const GtObjectUI* oui = gtApp->defaultObjectUI(m_component);
 
                         if (oui)
                         {

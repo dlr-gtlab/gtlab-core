@@ -13,7 +13,6 @@
 #include "gt_regularexpression.h"
 
 
-
 GtStringProperty::GtStringProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
