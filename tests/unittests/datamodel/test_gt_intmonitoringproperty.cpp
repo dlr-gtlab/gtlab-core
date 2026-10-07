@@ -70,3 +70,15 @@ TEST_F(TestGtIntMonitoringProperty, setVal)
     ASSERT_DOUBLE_EQ(prop.getVal(), -7);
     GT_SUPPRESS_DEPRECATED_END
 }
+
+TEST_F(TestGtIntMonitoringProperty, canConnect)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    GtIntMonitoringProperty monProp("testIdent", "testName");
+
+    GtIntProperty prop1("prop1", "test", "test", 4);
+
+    monProp.canConnect(prop1);
+
+    GT_SUPPRESS_DEPRECATED_END
+}
