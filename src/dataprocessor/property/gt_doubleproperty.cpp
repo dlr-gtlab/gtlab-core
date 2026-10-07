@@ -16,6 +16,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& brief)
 {
     setObjectName(name);
+    setPropertyConnectionEnabled();
 
     m_id = ident;
     m_brief = brief;
@@ -26,6 +27,25 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundsCheckFlagLow = false;
     m_boundHi = 0.0;
     m_boundLo = 0.0;
+
+    static auto initOnce = [](){
+
+        GtAbstractProperty::registerCanConnect(
+            GtDoubleProperty::staticMetaObject,
+            GtDoubleProperty::staticMetaObject,
+            [](GtAbstractProperty& a, GtAbstractProperty& b) -> bool{
+                auto& from = static_cast<GtDoubleProperty&>(a);
+                auto& to = static_cast<GtDoubleProperty&>(b);
+
+                if (from.siUnit().isEmpty() || from.siUnit() == "-") return true;
+
+                if (to.siUnit().isEmpty() || to.siUnit() == "-") return true;
+
+                return from.siUnit() == to.siUnit();
+            });
+
+        return 0;
+    }();
 }
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,

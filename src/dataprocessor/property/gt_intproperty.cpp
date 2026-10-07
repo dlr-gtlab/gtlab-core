@@ -32,6 +32,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_boundHi(std::numeric_limits<int>::max())
 {
     setObjectName(name);
+    setPropertyConnectionEnabled();
 
     m_id = ident;
     m_brief = brief;
