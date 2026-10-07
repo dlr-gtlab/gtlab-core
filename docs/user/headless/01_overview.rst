@@ -37,6 +37,40 @@ The result file is published atomically only after successful task execution.
 Logs and diagnostics remain on standard output and standard error. Direct file
 system changes made by the task are not included in the project Memento-Diff.
 
+Override task properties while running a task
+---------------------------------------------
+
+The ``run`` command accepts the repeatable option ``--set "<path>=<value>"`` to
+overwrite task properties before the task is executed. The selected task is the
+root of the path, therefore the task name itself is not part of it. Quote the
+whole ``path=value`` argument so that the same command works in Bash,
+PowerShell and ``cmd.exe``.
+
+.. code-block:: console
+
+   GTlabConsole run MyProject MyTask \
+       --set "iterations=100" \
+       --set "Solver.tolerance=1e-6" \
+       --set "Solver/My Calculator[1].relaxation=0.5"
+
+The path syntax is intentionally small:
+
+- ``/`` navigates through the child objects, ``.`` switches to property access.
+- ``ObjectName`` matches the object name and must resolve unambiguously,
+  ``ObjectName[n]`` selects the zero based ``n``\ th child with that name.
+- ``{uuid}`` selects the direct child object with the given UUID.
+- ``points[2].pressure`` selects the member of the second entry of a sequential
+  property container, ``boundaries[{inlet}].pressure`` the member of the entry
+  with the given id of an associative property container.
+
+The value is converted and validated by the regular GTlab property mechanism,
+so numbers are expected in the units of the property and read only and
+monitoring properties cannot be changed. Multiple options for one property are
+applied in command line order, the last value wins. If an override cannot be
+applied, the task is not executed, the error is printed to standard error and
+the exit code is not zero. Overrides are only written to the project if the
+task is executed successfully and ``--save`` is given.
+
 Overall, the use of the console application is correct in the form GTlabConsole.exe [options] <command>
 
 A number of options and commands are generally available:
