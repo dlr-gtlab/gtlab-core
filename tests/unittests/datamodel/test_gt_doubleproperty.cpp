@@ -501,12 +501,12 @@ TEST_F(TestGtDoubleProperty, boundaries)
 
 TEST_F(TestGtDoubleProperty, canConnect)
 {
-    GtDoubleProperty prop1("prop1", "test", "test",
-                           GtUnit::Category::None, 4.0);
+    GtDoubleProperty prop1("prop1", "test", "test", GtUnit::Category::None,
+                           4.0);
     GtDoubleProperty prop2("prop2", "test", "test",
                            GtUnit::Category::Temperature, 4.0);
-    GtDoubleProperty prop3("prop3", "test", "test",
-                           GtUnit::Category::Pressure, 4.0);
+    GtDoubleProperty prop3("prop3", "test", "test", GtUnit::Category::Pressure,
+                           4.0);
     GtDoubleProperty prop4("prop4", "test", "test",
                            GtUnit::Category::Temperature, 4.0);
 
@@ -521,26 +521,20 @@ TEST_F(TestGtDoubleProperty, canConnect)
     // check for different (not none) units
     ASSERT_FALSE(prop2.canConnect(prop3));
 
-    GtDoubleProperty propA1("propA1", "test", "test",
-                            GtUnit::Category::None,
+    GtDoubleProperty propA1("propA1", "test", "test", GtUnit::Category::None,
                             gt::Boundaries<double>::makeNormalized(10.0, 20.0),
                             15.0);
 
 
-    GtDoubleProperty propA2("propA2", "test", "test",
-                            GtUnit::Category::None,
+    GtDoubleProperty propA2("propA2", "test", "test", GtUnit::Category::None,
                             gt::Boundaries<double>::makeNormalized(30.0, 40.0),
                             35.0);
 
-    GtDoubleProperty propA3("propA3", "test", "test",
-                           GtUnit::Category::None,
-                            gt::Boundaries<double>::makeUpper(5.0),
-                            0.0);
+    GtDoubleProperty propA3("propA3", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeUpper(5.0), 0.0);
 
-    GtDoubleProperty propA4("propA4", "test", "test",
-                           GtUnit::Category::None,
-                            gt::Boundaries<double>::makeLower(25),
-                            30.0);
+    GtDoubleProperty propA4("propA4", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeLower(25), 30.0);
 
     // two properties with lower and higher bounds but without matching regions
     ASSERT_FALSE(propA1.canConnect(propA2));
