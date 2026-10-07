@@ -11,6 +11,8 @@
 #include <QVariant>
 #include <QMultiHash>
 
+#include <algorithm>
+
 #include "gt_logging.h"
 
 #include "gt_abstractproperty.h"
@@ -454,10 +456,12 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
         return metaObject()->className() == b.metaObject()->className();
     }
 
-    for (auto& canConnectProps : functions)
-    {
-        if (canConnectProps(a, b)) return true;
-    }
+    return std::any_of(functions.begin(), functions.end(),
+                       [&](const auto& canConnectProps)
+                       {
+                           return canConnectProps(a, b);
+                       });
+
     return false;
 }
 

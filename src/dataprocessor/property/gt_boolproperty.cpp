@@ -13,10 +13,8 @@
 
 
 
-GtBoolProperty::GtBoolProperty(const QString& ident,
-                               const QString& name,
-                               const QString& brief,
-                               bool value)
+GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
+                               const QString& brief, bool value)
 {
     setObjectName(name);
     setPropertyConnectionEnabled();
