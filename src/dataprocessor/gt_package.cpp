@@ -47,11 +47,11 @@ GtPackage::readData(const QDomElement& root)
             }
             else
             {
-                GtObject* cobj = memento.restore(gtObjectFactory);
+                auto cobj = memento.restore_unique(gtObjectFactory);
 
                 if (cobj)
                 {
-                    appendChild(cobj);
+                    appendChild(cobj.release());
                 }
                 else
                 {

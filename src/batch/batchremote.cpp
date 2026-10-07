@@ -302,7 +302,6 @@ gt::batch::run(const QString& inputName,
     QDomElement dataElement = dataRoot.firstChildElement();
 
     //QString processName;
-    GtObject* obj = nullptr;
     QList<GtObject*> objectList;
 
     qDebug() << "Restoring DATA";
@@ -311,7 +310,7 @@ gt::batch::run(const QString& inputName,
     {
         qDebug() << "Restoring: " << dataElement.attribute("name");
         GtObjectMemento memento(dataElement);
-        obj = memento.restore(gtObjectFactory);
+        auto obj = memento.restore_unique(gtObjectFactory);
 
         if (!obj)
         {
@@ -320,7 +319,7 @@ gt::batch::run(const QString& inputName,
             return false;
         }
 
-        objectList.append(obj);
+        objectList.append(obj.release());
         qDebug() << "done!";
         dataElement = dataElement.nextSiblingElement();
     }
@@ -333,14 +332,16 @@ gt::batch::run(const QString& inputName,
 
     qDebug() << "Restoring: " << processElement.attribute("name");
     GtObjectMemento memento(processElement);
-    GtTask* process = memento.restore<GtTask*>(gtProcessFactory);
+    auto restoredProcess = memento.restore_unique<GtTask>(gtProcessFactory);
 
-    if (!process)
+    if (!restoredProcess)
     {
         qDebug() << "ERROR: Object" << processElement.attribute("name")
                  << "not restorable!";
         return false;
     }
+
+    GtTask* process = restoredProcess.release();
 
     qDebug() << "done!";
 

@@ -134,9 +134,8 @@ GtProcessRunnerTcpConnection::onRead()
     }
 
     GtObjectMemento memento{doc.documentElement()};
-    GtObject* obj = memento.restore(&gtProcessRunnerCommandFactory);
 
-    queueData(std::unique_ptr<GtObject>(obj));
+    queueData(memento.restore_unique(&gtProcessRunnerCommandFactory));
 
     // parse pending commands in buffer
     onRead();

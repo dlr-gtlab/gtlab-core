@@ -247,7 +247,7 @@ GtProcessWizard::executionSettings()
         return;
     }
 
-    GtCalculator* calc = memento.restore<GtCalculator*>(gtProcessFactory);
+    auto calc = memento.restore_unique<GtCalculator>(gtProcessFactory);
 
     if (!calc)
     {
@@ -261,7 +261,7 @@ GtProcessWizard::executionSettings()
     GtPropertyTreeView view(m_scope);
     view.setFrameStyle(GtPropertyTreeView::NoFrame);
     view.setCategoryFilter(QStringList() << tr("Execution"));
-    view.setObject(calc);
+    view.setObject(calc.get());
 
     QVBoxLayout layout;
     layout.addWidget(&view);
@@ -291,5 +291,5 @@ GtProcessWizard::executionSettings()
         currentPage()->initializePage();
     }
 
-    delete calc;
+    // calc is deleted automatically when leaving the scope
 }

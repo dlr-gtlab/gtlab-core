@@ -8,6 +8,7 @@
 
 
 #include "test_gt_object.h"
+#include "gt_label.h"
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_objectfactory.h"
@@ -205,6 +206,64 @@ TEST_F(TestFromMemento, mergeNonMatchingObject)
     auto memento = testobj.toMemento();
 
     EXPECT_FALSE(memento.mergeTo(o, *GtObjectFactory::instance()));
+}
+
+TEST_F(TestFromMemento, restoreUnique)
+{
+    testobj.setDouble(123.);
+    testobj.setObjectName("restoreUnique");
+
+    auto child = new TestSpecialGtObject;
+    child->setDouble(42.);
+    EXPECT_TRUE(testobj.appendChild(child));
+
+    GtObjectMemento memento = testobj.toMemento();
+    ASSERT_FALSE(memento.isNull());
+
+    // default template parameter: GtObject
+    auto newobj = memento.restore_unique(GtObjectFactory::instance());
+
+    ASSERT_TRUE(newobj != nullptr);
+    EXPECT_STREQ("TestSpecialGtObject", newobj->metaObject()->className());
+    EXPECT_EQ("restoreUnique", newobj->objectName().toStdString());
+
+    auto* newChild = newobj->findDirectChild<TestSpecialGtObject*>();
+    ASSERT_TRUE(newChild != nullptr);
+    EXPECT_DOUBLE_EQ(42., newChild->getDouble());
+
+    // explicit template parameter: derived type
+    auto derived = memento.restore_unique<TestSpecialGtObject>(
+        GtObjectFactory::instance());
+
+    ASSERT_TRUE(derived != nullptr);
+    EXPECT_DOUBLE_EQ(123., derived->getDouble());
+}
+
+TEST_F(TestFromMemento, restoreUniqueNewUuid)
+{
+    testobj.setUuid("myuuid");
+
+    GtObjectMemento memento = testobj.toMemento();
+    ASSERT_FALSE(memento.isNull());
+
+    auto newobj = memento.restore_unique(GtObjectFactory::instance(), false);
+    ASSERT_TRUE(newobj != nullptr);
+    EXPECT_EQ("myuuid", newobj->uuid().toStdString());
+
+    auto newobj2 = memento.restore_unique(GtObjectFactory::instance(), true);
+    ASSERT_TRUE(newobj2 != nullptr);
+    EXPECT_NE("myuuid", newobj2->uuid().toStdString());
+}
+
+TEST_F(TestFromMemento, restoreUniqueWrongType)
+{
+    GtObjectMemento memento = testobj.toMemento();
+    ASSERT_FALSE(memento.isNull());
+
+    // casting to an unrelated type must fail and must not leak
+    auto newobj = memento.restore_unique<GtLabel>(GtObjectFactory::instance());
+
+    EXPECT_TRUE(newobj == nullptr);
 }
 
 TEST_F(TestFromMemento, mergeDummyObject)

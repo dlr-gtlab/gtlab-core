@@ -862,7 +862,7 @@ GtCoreDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
     }
 
     // return object restored from memento
-    return memento.restore(factory, newUuid);
+    return memento.restore_unique(factory, newUuid).release();
 }
 
 GtObject*

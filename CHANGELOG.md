@@ -25,8 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Unknown tasks (corrseponding module did not load) are now displayed as Dummy Objects in the `GtTaskGroup` - #612
  - Added color property `GtColorProperty` to store color information in data models - #1329
  - New implementations for boundaries based on optional values to support property definitions - #1381
- - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
- - Search functionality for the Memento-Viewer - #380
+  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
+  - Search functionality for the Memento-Viewer - #380
+  - New method `GtObjectMemento::restore_unique` that returns the restored object as `std::unique_ptr`,
+    preventing memory leaks that occur easily with the raw pointer returned by `GtObjectMemento::restore` - #334
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
@@ -42,7 +44,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
- - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+
+### Deprecated
+  - Deprecated `GtObjectMemento::restore`. The returned raw pointer needs to be deleted manually,
+    which led to memory leaks. Use `GtObjectMemento::restore_unique`, which returns a
+    `std::unique_ptr`, instead. The deprecated method will be removed in GTlab 2.2 - #334
 
 ### Fixed
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
