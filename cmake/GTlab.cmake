@@ -117,7 +117,21 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
       message(FATAL_ERROR "In add_gtlab_module: Missing argument MODULE_ID for target ${GTLAB_ADD_MODULE_TARGET}")
   endif()
 
+  if (NOT GTLAB_CORE_VERSION OR NOT GTLAB_MODULE_ABI)
+      message(FATAL_ERROR
+          "In add_gtlab_module: GTLAB_CORE_VERSION and GTLAB_MODULE_ABI must be defined")
+  endif()
+
   add_library(${GTLAB_ADD_MODULE_TARGET} SHARED ${GTLAB_ADD_MODULE_SOURCES})
+
+  set_target_properties(${GTLAB_ADD_MODULE_TARGET} PROPERTIES
+      PREFIX ""
+      DEBUG_POSTFIX ""
+      OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}.gtmod.${GTLAB_MODULE_ABI}")
+  set_property(TARGET ${GTLAB_ADD_MODULE_TARGET} APPEND PROPERTY
+      AUTOMOC_MOC_OPTIONS
+      "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
+      "-Mgtlab_module_abi=${GTLAB_MODULE_ABI}")
 
   # add module id
   target_compile_definitions(${GTLAB_ADD_MODULE_TARGET}
