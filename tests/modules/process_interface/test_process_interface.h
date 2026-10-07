@@ -20,9 +20,10 @@
  * @brief The TestDatamodelInterface class
  */
 class TestProcessInterface : public QObject,
-        public GtModuleInterface, public GtProcessInterface,
-        public GtOperationInterface
- {
+                             public GtModuleInterface,
+                             public GtProcessInterface,
+                             public GtOperationInterface
+{
     Q_OBJECT
     GT_MODULE("test_process_interface.json")
 

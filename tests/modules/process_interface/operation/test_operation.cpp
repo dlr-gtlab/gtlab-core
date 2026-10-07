@@ -18,18 +18,14 @@
 
 TestOperation::TestOperation(GtObject* parent) :
     GtExecutableOperation(parent),
-    m_requiresProject(QStringLiteral("requiresProject"),
-                      tr("Requires Project"),
+    m_requiresProject(QStringLiteral("requiresProject"), tr("Requires Project"),
                       tr("Whether execution requires a project"), false),
-    m_returnsFailure(QStringLiteral("returnsFailure"),
-                     tr("Returns Failure"),
+    m_returnsFailure(QStringLiteral("returnsFailure"), tr("Returns Failure"),
                      tr("Whether execution returns a failure"), false),
     m_returnsCancellation(QStringLiteral("returnsCancellation"),
                           tr("Returns Cancellation"),
-                          tr("Whether execution returns cancellation"),
-                          false),
-    m_throwsException(QStringLiteral("throwsException"),
-                      tr("Throws Exception"),
+                          tr("Whether execution returns cancellation"), false),
+    m_throwsException(QStringLiteral("throwsException"), tr("Throws Exception"),
                       tr("Whether execution throws an exception"), false)
 {
     setObjectName(QStringLiteral("Test Executable Operation"));
@@ -55,17 +51,14 @@ GtOperationExecutionResult
 TestOperation::execute(GtOperationExecutionContext& context)
 {
     const auto* executionContext = GtExecutionContext::current();
-    const bool hasProject =
-        executionContext && executionContext->project();
+    const bool hasProject = executionContext && executionContext->project();
     const QJsonObject payload{
-        {QStringLiteral("executionContextActive"),
-         executionContext != nullptr},
+        {QStringLiteral("executionContextActive"), executionContext != nullptr},
         {QStringLiteral("dataProvided"), context.data() != nullptr},
         {QStringLiteral("workingDirectory"), QDir::currentPath()},
         {QStringLiteral("projectVisible"), hasProject}};
 
-    context.events().publish(QStringLiteral("test.operation.started"),
-                             payload);
+    context.events().publish(QStringLiteral("test.operation.started"), payload);
     gtInfo() << "Test executable operation emitted a normal GTlab log";
 
     if (m_throwsException.getVal())
@@ -77,14 +70,16 @@ TestOperation::execute(GtOperationExecutionContext& context)
     {
         return {GtOperationExecutionResult::Status::Failed,
                 QStringLiteral("test_operation_failed"),
-                QStringLiteral("Test operation returned a failure."), {}};
+                QStringLiteral("Test operation returned a failure."),
+                {}};
     }
 
     if (m_returnsCancellation.getVal())
     {
         return {GtOperationExecutionResult::Status::Cancelled,
                 QStringLiteral("test_operation_cancelled"),
-                QStringLiteral("Test operation was cancelled."), {}};
+                QStringLiteral("Test operation was cancelled."),
+                {}};
     }
 
     // Regression coverage for events published from a worker thread:
@@ -99,14 +94,13 @@ TestOperation::execute(GtOperationExecutionContext& context)
 
     auto result = std::make_unique<GtObjectGroup>();
     result->setObjectName(QStringLiteral("Test Operation Result"));
-    return {GtOperationExecutionResult::Status::Success, {}, {},
-            std::move(result)};
+    return {
+        GtOperationExecutionResult::Status::Success, {}, {}, std::move(result)};
 }
 
 GtOperationApplyStatus
-TestOperation::applyResult(
-    GtOperationExecutionResult const& executionResult,
-    GtExecutionContext&) const
+TestOperation::applyResult(GtOperationExecutionResult const& executionResult,
+                           GtExecutionContext&) const
 {
     if (executionResult.status == GtOperationExecutionResult::Status::Success)
     {
