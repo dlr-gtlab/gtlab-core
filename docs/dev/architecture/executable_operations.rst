@@ -61,26 +61,16 @@ An operation separates preparation, computation, and project updates:
 meaning on that project. Both methods run on the originating side (for example,
 the client side) and must complete quickly.
 
-The planned client-side ``GtOperationExecutor`` will own asynchronous
-submission, backend selection, cancellation, and transport of operation
-outcomes. Cancellation remains effective until the originating side starts
-``applyResult()``. If requested before then, the executor skips that call but
-may still return or expose the detached result payload to the client. Once
-``applyResult()`` starts, cancellation does not interrupt that commit step. The
-executor does not classify an outcome or decide whether a payload is
-semantically applicable; the operation interprets the full outcome in
-``applyResult()``.
+``execute()`` contains the potentially expensive work and runs synchronously
+in the calling thread. ``GtExecutionEnvironment`` provides the execution-local
+project and calls the operation. The operation uses only execution-local state
+and services from ``GtOperationExecutionContext``; it must not access the
+originating project directly.
 
-``execute()`` contains the potentially expensive work. It is synchronous in
-the calling thread, while the planned ``GtOperationExecutor`` client-side layer
-will manage the caller's asynchronous lifecycle. ``GtExecutionEnvironment``
-scopes the execution-local project and calls the operation. The selected
-backend provisions the operation, optional data, event stream, and required
-project for that thread. This contract works in a dedicated GUI execution
-thread, a one-shot worker, a resident project worker, or a future remote worker.
-The operation uses only execution-local state and services from
-``GtOperationExecutionContext``; it must not access the originating project
-directly.
+Execution infrastructure may run this call asynchronously, in another process,
+or on a remote worker. Cancellation requested before ``applyResult()`` prevents
+the result from being applied to the originating project. Once
+``applyResult()`` starts, the apply step is not interrupted.
 
 ``requiresProject()`` states whether this invocation needs a GTlab project
 at the execution location. It does not select the execution location. When it
@@ -150,12 +140,10 @@ detached input, execution identity, cancellation state, and event stream.
 Project access continues to use ``GtExecutionContext``; project state is not
 part of the operation context.
 
-The environment borrows, but does not open, save, close, or own its
-execution-local project. It does not initialize Core or a session, schedule
-work, create or move threads, or move execution data between locations. The
-backend owns provisioning and placement. Cancellation is cooperative during
-``execute()``; the environment preserves the returned
-status and reports escaping exceptions as boundary errors.
+The environment borrows its execution-local project and does not manage the
+project lifecycle. Cancellation is cooperative during ``execute()``. The
+environment preserves the returned status and reports exceptions escaping
+``execute()`` as execution errors.
 
 The accepted :doc:`architecture decision
 <decisions/0001-executable-operations>` records the operation lifecycle,

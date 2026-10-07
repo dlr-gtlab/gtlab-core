@@ -21,7 +21,18 @@ else()
                     ${CMAKE_CURRENT_SOURCE_DIR}/run_task_from_memento/test_run_task_from_memento.py
         )
 
+        add_test(
+            NAME SystemTest.RunOperationFromMemento
+            COMMAND ${Python3_EXECUTABLE} -m pytest
+                    ${CMAKE_CURRENT_SOURCE_DIR}/run_operation_from_memento/test_run_operation_from_memento.py
+        )
+
         set_tests_properties(SystemTest.RunTaskFromMemento PROPERTIES
+            ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
+            LABELS "SystemTest;Batch"
+        )
+
+        set_tests_properties(SystemTest.RunOperationFromMemento PROPERTIES
             ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
             LABELS "SystemTest;Batch"
         )
