@@ -199,21 +199,24 @@ TEST_F(TestObjectLinkProperty, setAllowedClasses_clears_linked_object)
 
 TEST_F(TestObjectLinkProperty, canConnect)
 {
-    GtObjectLinkProperty prop1{"my_id", "my_name", "my_brief", {},
-                               nullptr,
-                               QStringList{ GT_CLASSNAME(GtObjectGroup) },
-                               false};
+    GtObjectLinkProperty prop1{
+        "my_id", "my_name", "my_brief",
+        {},      nullptr,   QStringList{GT_CLASSNAME(GtObjectGroup)},
+        false};
 
-    GtObjectLinkProperty prop2{"my_id2", "my_name2", "my_brief2",
-                               {}, nullptr,
-                               QStringList{ GT_CLASSNAME(GtLabelData) },
-                               false};
+    GtObjectLinkProperty prop2{
+        "my_id2", "my_name2", "my_brief2",
+        {},       nullptr,    QStringList{GT_CLASSNAME(GtLabelData)},
+        false};
 
-    GtObjectLinkProperty prop3{"my_id3", "my_name3", "my_brief3",
-                               {}, nullptr,
-                               QStringList{ GT_CLASSNAME(GtLabelData),
-                                            GT_CLASSNAME(GtObjectGroup) },
-                               false};
+    GtObjectLinkProperty prop3{
+        "my_id3",
+        "my_name3",
+        "my_brief3",
+        {},
+        nullptr,
+        QStringList{GT_CLASSNAME(GtLabelData), GT_CLASSNAME(GtObjectGroup)},
+        false};
 
     ASSERT_FALSE(prop1.canConnect(prop2));
     ASSERT_TRUE(prop2.canConnect(prop3));
