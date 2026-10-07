@@ -24,10 +24,7 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
             GtIntProperty::staticMetaObject,
             GtIntMonitoringProperty::staticMetaObject,
             [](GtAbstractProperty const& a,
-               GtAbstractProperty const& b) -> bool{
-
-                return true;
-            });
+               GtAbstractProperty const& b) -> bool{ return true; });
 
         return 0;
     }();

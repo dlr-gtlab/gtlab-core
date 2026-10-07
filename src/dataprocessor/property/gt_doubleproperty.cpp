@@ -33,14 +33,13 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
             [](GtAbstractProperty const& a,
-               GtAbstractProperty const& b) -> bool{
+               GtAbstractProperty const& b) -> bool {
                 auto& from = static_cast<const GtDoubleProperty&>(a);
                 auto& to = static_cast<const GtDoubleProperty&>(b);
 
                 // check of the units:
                 // only identical units and nondimensional should be connected
-                const auto isUnitFree = [](auto category)
-                {
+                const auto isUnitFree = [](auto category) {
                     return category == GtUnit::NonDimensional ||
                            category == GtUnit::NonDimensionalPercentage ||
                            category == GtUnit::None;
