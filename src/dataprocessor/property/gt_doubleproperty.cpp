@@ -28,8 +28,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundHi = 0.0;
     m_boundLo = 0.0;
 
-    static auto initOnce = [](){
-
+    static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
@@ -41,8 +40,8 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                 // only identical units and nondimensional should be connected
                 bool unitCheck = false;
 
-                if (from.siUnit().isEmpty() || from.siUnit() == "-"
-                    || to.siUnit().isEmpty() || to.siUnit() == "-")
+                if (from.siUnit().isEmpty() || from.siUnit() == "-" ||
+                    to.siUnit().isEmpty() || to.siUnit() == "-")
                 {
                     unitCheck = true;
                 }
@@ -64,7 +63,8 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                         return false;
                     }
                 }
-                else if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
+                else if (from.lowSideBoundaryActive() &&
+                         to.highSideBoundaryActive())
                 {
                     if (from.lowSideBoundary() > to.highSideBoundary())
                     {
