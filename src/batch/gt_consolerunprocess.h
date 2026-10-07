@@ -11,6 +11,7 @@
 #define GTCONSOLERUNPROCESS_H
 
 #include "gt_commandlineparser.h"
+#include "gt_consolepropertyoverrides.h"
 
 #include <gt_logging.h>
 #include <gt_application.h>
@@ -46,12 +47,15 @@ GtTask* getTask(GtProject* project,
  * @param processId - id of the task to start
  * @param taskGroupId - if empty string the default task group will be used
  * @param save
+ * @param overrides - property overrides that are applied to the task
+ * before its execution
  * @return
  */
 int
 runProcess(const QString& projectId, const QString& processId,
            const QString& taskGroupId = "",
-           bool save = false);
+           bool save = false,
+           const QList<PropertyOverride>& overrides = {});
 
 /**
  * @brief runProcessByFile
@@ -59,12 +63,15 @@ runProcess(const QString& projectId, const QString& processId,
  * @param processId - id of the task to start
  * @param taskGroupId - if empty string the default task group will be used
  * @param save
+ * @param overrides - property overrides that are applied to the task
+ * before its execution
  * @return
  */
 int
 runProcessByFile(const QString& projectFile, const QString& processId,
                  const QString& taskGroupId = "",
-                 bool save = false);
+                 bool save = false,
+                 const QList<PropertyOverride>& overrides = {});
 
 /**
  * @brief Enters a temporary session

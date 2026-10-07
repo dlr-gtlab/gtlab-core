@@ -11,6 +11,7 @@
 set(headers
     batchremote.h
     gt_consoleparser.h
+    gt_consolepropertyoverrides.h
     gt_remoteprocessrunner.h
     gt_remoteprocessrunnerstates.h
     gt_consolerunprocess.h
@@ -23,6 +24,7 @@ set(sources
     batch.cpp
     batchremote.cpp
     gt_consoleparser.cpp
+    gt_consolepropertyoverrides.cpp
     gt_remoteprocessrunner.cpp
     gt_remoteprocessrunnerstates.cpp
     gt_consolerunprocess.cpp

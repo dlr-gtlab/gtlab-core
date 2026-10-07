@@ -20,6 +20,9 @@
 #include "gt_processdata.h"
 
 
+#include <QCommandLineOption>
+#include <QCommandLineParser>
+
 #include <iostream>
 #include <ostream>
 
@@ -36,6 +39,13 @@ gt::console::runOptions()
                           {"file", "f"}, "Define project by file"});
     runOptions.append(GtCommandLineOption{
                           {"output", "o"}, "Write project to output path"});
+    runOptions.append(GtCommandLineOption{
+                          {"set"},
+                           "Sets a task property before running the task. "
+                           "Use --set \"<path>=<value>\", e.g. "
+                           "--set \"iterations=100\" or "
+                           "--set \"Solver.tolerance=1e-6\". "
+                           "This option can be repeated."});
 
     return runOptions;
 }
@@ -43,72 +53,120 @@ gt::console::runOptions()
 int
 gt::console::run(const QStringList &args)
 {
-    GtCommandLineParser p;
-    p.addHelpOption();
+    QCommandLineParser parser;
 
-    for (const auto& o : runOptions())
-    {
-        p.addOption(o.names.first(), o);
-    }
+    parser.setApplicationDescription(
+        QObject::tr("Executes a task of a GTlab project"));
+    parser.addHelpOption();
 
-    if (!p.parse(args))
+    const QCommandLineOption saveOption {
+        QStringList {"save", "s"},
+        QObject::tr("Saves datamodel after successfull process run") };
+    const QCommandLineOption nameOption {
+        QStringList {"name", "n"},
+        QObject::tr("Define project by name") };
+    const QCommandLineOption fileOption {
+        QStringList {"file", "f"},
+        QObject::tr("Define project by file") };
+    const QCommandLineOption outputOption {
+        QStringList {"output", "o"},
+        QObject::tr("Write project to output path"),
+        QObject::tr("path") };
+    const QCommandLineOption setOption {
+        QStringList {"set"},
+        QObject::tr("Sets a task property before running the task. "
+                    "Use --set \"<path>=<value>\". This option can be "
+                    "repeated."),
+        QStringLiteral("path=value") };
+
+    parser.addOptions({saveOption, nameOption, fileOption, outputOption,
+                       setOption});
+
+    QStringList commandLine {QStringLiteral("run")};
+    commandLine.append(args);
+
+    if (args.isEmpty())
     {
         gtError() << QObject::tr("Run method without arguments is invalid");
         return -1;
     }
 
-    if (p.helpOption())
+    if (!parser.parse(commandLine))
+    {
+        std::cerr << "Run method arguments are invalid: "
+                  << parser.errorText().toStdString() << std::endl;
+        gtError() << QObject::tr("Parsing the run arguments failed");
+        return -1;
+    }
+
+    if (parser.isSet(QStringLiteral("help")))
     {
         printRunHelp();
         return 0;
     }
 
-    bool save = false;
+    const bool save = parser.isSet(saveOption);
 
-    if (p.option("save"))
+    if (save)
     {
-        save = true;
         std::cout << "Activate save option" << std::endl;
+    }
+
+    // parse the repeated "--set" options into property overrides
+    QStringList overrideErrors;
+    const QList<PropertyOverride> overrides = parsePropertyOverrides(
+        parser.values(setOption), &overrideErrors);
+
+    if (!overrideErrors.isEmpty())
+    {
+        for (const QString& error : qAsConst(overrideErrors))
+        {
+            std::cerr << "ERROR: " << error.toStdString() << std::endl;
+        }
+
+        return -1;
     }
 
     QString taskGroup = "";
 
-    size_t posArgSize = p.positionalArguments().size();
+    const QStringList posArgs = parser.positionalArguments();
+    size_t posArgSize = posArgs.size();
 
-    if (p.option("file"))
+    if (parser.isSet(fileOption))
     {
 
         if (posArgSize == 3)
         {
-            taskGroup = p.positionalArguments().at(2);
+            taskGroup = posArgs.at(2);
         }
-        else if (p.positionalArguments().size() < 2 ||
-                p.positionalArguments().size() > 3)
+        else if (posArgs.size() < 2 ||
+                posArgs.size() > 3)
         {
             gtError() << QObject::tr("Invalid number of arguments of file option");
             return -1;
         }
 
-        return runProcessByFile(p.positionalArguments().at(0),
-                p.positionalArguments().at(1), taskGroup, save);
+        return runProcessByFile(posArgs.at(0),
+                posArgs.at(1), taskGroup, save, overrides);
     }
 
     // default
     if (posArgSize == 3)
     {
-        taskGroup = p.positionalArguments().at(2);
+        taskGroup = posArgs.at(2);
     }
-    else if (p.positionalArguments().size() < 2 ||
-             p.positionalArguments().size() > 3)
+    else if (posArgs.size() < 2 ||
+             posArgs.size() > 3)
     {
         gtError() << QObject::tr("Invalid usage of file option");
         return -1;
     }
 
-    return runProcess(p.positionalArguments().at(0),
-                      p.positionalArguments().at(1),
+    return runProcess(posArgs.at(0),
+                      posArgs.at(1),
                       taskGroup,
-                      save);
+                      save,
+                      overrides);
 }
 
 void
@@ -146,13 +204,47 @@ gt::console::printRunHelp()
               << " saved in the datamodel" << std::endl;
 
     std::cout << std::endl;
+
+    std::cout << "\tWith the repeatable option --set \"<path>=<value>\" you can"
+              << std::endl;
+    std::cout << "\toverwrite task properties before the task is executed."
+              << std::endl;
+    std::cout << "\tThe option can be used multiple times, the overrides are"
+              << std::endl;
+    std::cout << "\tapplied in command line order (the last value wins)."
+              << std::endl;
+    std::cout << "\tThe path is relative to the selected task:" << std::endl;
+    std::cout << "\t\t\"iterations=100\"                  "
+                 "property of the task itself" << std::endl;
+    std::cout << "\t\t\"Solver.tolerance=1e-6\"           "
+                 "property of a child object" << std::endl;
+    std::cout << "\t\t\"Solver/My Calculator[1].relaxation=0.5\" "
+                 "child objects are separated by '/', [n] selects the "
+                 "nth child with the same name" << std::endl;
+    std::cout << "\t\t\"Solver.points[2].pressure=420000\" "
+                 "nth entry of a sequential property container"
+              << std::endl;
+    std::cout << "\t\t\"Solver.boundaries[{inlet}].pressure=420000\" "
+                 "entry of an associative property container"
+              << std::endl;
+    std::cout << std::endl;
+    std::cout << "\tExample:" << std::endl;
+    std::cout << "\tGTlabConsole.exe run MyProject MyTask "
+                 "--set \"iterations=100\" --set \"Solver.tolerance=1e-6\""
+              << std::endl;
+    std::cout << "\tIf any override cannot be applied, the task is not "
+                 "executed" << std::endl;
+    std::cout << "\tand the project is not saved." << std::endl;
+
+    std::cout << std::endl;
 }
 
 int
 gt::console::runProcess(const QString& projectId,
                         const QString& processId,
                         const QString& taskGroupId,
-                        bool save)
+                        bool save,
+                        const QList<PropertyOverride>& overrides)
 {
     gtDebug() << QObject::tr("process run...");
 
@@ -200,6 +292,25 @@ gt::console::runProcess(const QString& projectId,
         return -1;
     }
 
+    // apply the property overrides before the execution. If any override
+    // fails, the task is not executed and the project is not saved.
+    for (const PropertyOverride& override : qAsConst(overrides))
+    {
+        const QString overrideError = applyPropertyOverride(
+            *process, override.path, override.value);
+
+        if (!overrideError.isEmpty())
+        {
+            std::cerr << "ERROR: "
+                      << overrideError.toStdString() << std::endl;
+            return -1;
+        }
+
+        std::cout << "Property override applied: "
+                  << override.path.toStdString() << " = "
+                  << override.value.toStdString() << std::endl;
+    }
+
     // execute process
     gt::currentProcessExecutor().startTask(process);
 
@@ -229,7 +340,8 @@ int
 gt::console::runProcessByFile(const QString& projectFile,
                               const QString& processId,
                               const QString& taskGroupId,
-                              bool save)
+                              bool save,
+                              const QList<PropertyOverride>& overrides)
 {
     gtDebug() << QObject::tr("process run...");
 
@@ -271,7 +383,8 @@ gt::console::runProcessByFile(const QString& projectFile,
     }
 
     gtApp->session()->appendChild(project);
-    return runProcess(project->objectName(), processId, taskGroupId, save);
+    return runProcess(project->objectName(), processId, taskGroupId, save,
+                      overrides);
 }
 
 
