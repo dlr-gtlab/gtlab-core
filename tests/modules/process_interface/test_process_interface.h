@@ -49,7 +49,18 @@ public:
      */
     QList<GtCalculatorData> calculators() override;
 
+    /**
+     * @brief Returns static meta objects of task classes.
+     * @return list including meta objects
+     */
+    QList<GtTaskData> tasks() override;
+
     QList<QMetaObject> operations() const override;
+
+    /**
+     * @brief Registers the auxiliary data classes of the module.
+     */
+    void init() override;
 };
 
 #endif // TEST_MODULE_INTERFACE_H
