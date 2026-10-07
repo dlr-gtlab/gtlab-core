@@ -34,8 +34,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_unitCategory = GtUnit::Category::None;
     m_value = uuid;
 
-    static auto initOnce = [](){
-
+    static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
@@ -65,7 +64,6 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
 
         return 0;
     }();
-
 }
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,

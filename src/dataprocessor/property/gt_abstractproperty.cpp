@@ -19,8 +19,8 @@
 #include "gt_propertyconnection.h"
 
 using ClassName = QString;
-using CanConnectFunction = std::function<bool(GtAbstractProperty& from,
-                                              GtAbstractProperty& to)>;
+using CanConnectFunction =
+    std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
 
 struct Connector
 {
@@ -468,7 +468,7 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
 void
 GtAbstractProperty::registerCanConnect(
     QMetaObject from, QMetaObject to,
-    std::function<bool (GtAbstractProperty&, GtAbstractProperty&)> f)
+    std::function<bool(GtAbstractProperty&, GtAbstractProperty&)> f)
 {
     canConvertHash.insert(from.className(), {to, f});
 }
@@ -495,8 +495,7 @@ GtAbstractProperty::setOptional(bool val)
 }
 
 QVariant
-gt::getConnectedValue(const GtPropertyConnection &connection)
+gt::getConnectedValue(const GtPropertyConnection& connection)
 {
     return connection.valueFromSource();
 }
-

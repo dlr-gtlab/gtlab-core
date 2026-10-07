@@ -303,8 +303,8 @@ public:
      */
     bool propertyConnectionEnabled() const;
 
-    using CanConnectFunction = std::function<bool(GtAbstractProperty& from,
-                                                  GtAbstractProperty& to)>;
+    using CanConnectFunction =
+        std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
 
     /**
      * @brief registerCanConnect
@@ -314,8 +314,7 @@ public:
      * @param to
      * @param f
      */
-    static void registerCanConnect(QMetaObject from,
-                                   QMetaObject to,
+    static void registerCanConnect(QMetaObject from, QMetaObject to,
                                    CanConnectFunction f);
 
     /**
