@@ -253,11 +253,7 @@ GtCalculator::GtCalculator():
     setRunnable(nullptr);
     setObjectName(QStringLiteral("Calculator"));
 
-
-
     registerProperty(pimpl->labelProperty, tr("Execution"));
-
-
 
     // local execution mode
     auto* localMode = new GtModeTypeProperty("local", tr("local"));
@@ -284,6 +280,7 @@ GtCalculator::GtCalculator():
 
     registerProperty(pimpl->execMode, tr("Execution"));
     registerProperty(pimpl->failRunOnWarning, tr("Execution"));
+    pimpl->failRunOnWarning.setPropertyConnectionEnabled(false);
 
     setFlag(GtObject::UserRenamable, true);
 }
