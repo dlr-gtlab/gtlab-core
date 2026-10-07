@@ -61,6 +61,10 @@ public:
      * If a GtExecutionContext is active on the current thread, its project is
      * returned. Otherwise the currently selected session project is returned;
      * if neither exists, NULL is returned.
+     *
+     * This is the canonical project resolution. While a process component is
+     * executed, legacy project access is additionally reported in GTlab
+     * developer mode. Reporting never changes the returned project.
      * @return Current project pointer
      */
     GtProject* currentProject();

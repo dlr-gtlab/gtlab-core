@@ -10,7 +10,9 @@
  */
 #include "gt_calculator.h"
 
+
 #include "gt_parameterloop.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 GtParameterLoop::GtParameterLoop() :
     m_startVal("start", "start"),
@@ -85,6 +87,8 @@ GtParameterLoop::runChildElements()
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
+        GtProcessComponentExecutionScope componentScope(comp);
+
         GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
 
         if (!comp->exec())
