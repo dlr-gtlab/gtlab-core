@@ -17,11 +17,29 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
     GtDoubleProperty(ident, name, brief)
 {
     setMonitoring(true);
+
+    // this additional registration is needed as long
+    // as double monitoring properties are used in GTlab
+    // This old implementation of monitoring properties does not support units
+    static auto initOnce = []() {
+        GtAbstractProperty::registerCanConnect(
+            GtDoubleProperty::staticMetaObject,
+            GtDoubleMonitoringProperty::staticMetaObject,
+            [](GtAbstractProperty const& a,
+               GtAbstractProperty const& b) -> bool{
+
+                return true;
+            });
+
+        return 0;
+    }();
+
+
 }
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& name) :
-    GtDoubleProperty(ident, name)
+    GtDoubleMonitoringProperty(ident, name, QString())
 {
     setMonitoring(true);
 }

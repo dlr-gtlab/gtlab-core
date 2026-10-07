@@ -32,26 +32,26 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
-            [](GtAbstractProperty const & a, GtAbstractProperty const& b) -> bool{
+            [](GtAbstractProperty const& a,
+               GtAbstractProperty const& b) -> bool{
                 auto& from = static_cast<const GtDoubleProperty&>(a);
                 auto& to = static_cast<const GtDoubleProperty&>(b);
 
                 // check of the units:
                 // only identical units and nondimensional should be connected
-                bool unitCheck = false;
-
-                if (from.siUnit().isEmpty() || from.siUnit() == "-" ||
-                    to.siUnit().isEmpty() || to.siUnit() == "-")
+                const auto isUnitFree = [](auto category)
                 {
-                    unitCheck = true;
-                }
-                else
+                    return category == GtUnit::NonDimensional ||
+                           category == GtUnit::NonDimensionalPercentage ||
+                           category == GtUnit::None;
+                };
+
+                if (!isUnitFree(from.unitCategory()) &&
+                    !isUnitFree(to.unitCategory()) &&
+                    from.unitCategory() != to.unitCategory())
                 {
-                    unitCheck = from.siUnit() == to.siUnit();
+                    return false;
                 }
-
-                if (!unitCheck) return false;
-
 
                 // check of the bounds
                 // if bounds are active it should be checked if the valid
