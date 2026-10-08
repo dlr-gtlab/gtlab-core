@@ -28,14 +28,16 @@ TestMdiExtPackageUI::TestMdiExtPackageUI()
 
     addSingleAction("First Test Action", "testAction")
         .setShortCut(k)
-        .setOrderPriority(gt::gui::OrderPriority::First);  // is placed first in menu
+        .setOrderPriority(
+            gt::gui::OrderPriority::First); // is placed first in menu
 
     addActionGroup("Last Test Action Group")
-        .setOrderPriority(gt::gui::OrderPriority::Last) // is placed last in menu
-        .setIcon("folder.svg") // test icon by path
+            .setOrderPriority(
+                gt::gui::OrderPriority::Last) // is placed last in menu
+            .setIcon("folder.svg")            // test icon by path
         << makeSingleAction("Test Group Action", "testGroupAction")
-            .registerShortCut("testMdiExtShortCut_2", "testMdiExt",
-                              QKeySequence(Qt::Key_F10), true);
+               .registerShortCut("testMdiExtShortCut_2", "testMdiExt",
+                                 QKeySequence(Qt::Key_F10), true);
 }
 
 QIcon

@@ -33,7 +33,8 @@ struct GtObjectUI::Impl
                           "be used for the renaming")};
 };
 
-GtObjectUI::GtObjectUI() : pimpl{std::make_unique<Impl>()}
+GtObjectUI::GtObjectUI() :
+    pimpl{std::make_unique<Impl>()}
 {
 
 }
@@ -72,8 +73,8 @@ GtObjectUIAction
 GtObjectUI::makeSingleAction(const QString& actionText,
                              const QString& actionMethod)
 {
-    return GtObjectUIAction(
-        actionText, GtObjectUIAction::fromMethodName(actionMethod));
+    return GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod));
 }
 
 GtObjectUIAction
@@ -169,7 +170,7 @@ GtObjectUI::validatorRegExp(GtObject* /*obj*/)
     return validatorRegExp();
 }
 
-QString const&
+const QString&
 GtObjectUI::regExpHint(GtObject* /*obj*/) const
 {
     return pimpl->regExpHint;

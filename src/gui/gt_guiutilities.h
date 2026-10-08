@@ -32,7 +32,8 @@ namespace gui
 /**
  * @brief The theme enum
  */
-enum class ApplicationTheme {
+enum class ApplicationTheme
+{
     Bright = 0,
     Dark = 1,
     Invalid = 32,
@@ -41,8 +42,8 @@ enum class ApplicationTheme {
     dark GT_DEPRECATED_ATTR(2, 2, "use `Dark` instead") = Dark,
     invalid GT_DEPRECATED_ATTR(2, 2, "use `Invalid` instead") = Invalid,
 };
-using applicationTheme GT_DEPRECATED_ATTR(2, 2, "use `ApplicationTheme` instead")
-    = ApplicationTheme;
+using applicationTheme GT_DEPRECATED_ATTR(
+    2, 2, "use `ApplicationTheme` instead") = ApplicationTheme;
 
 /**
  * @brief return the current theme of the application
@@ -97,9 +98,7 @@ GT_GUI_EXPORT void addToMenu(const QList<GtObjectUIAction>& actions,
 
 /// overload for std::initializer_list to avoid heap allocation
 GT_GUI_EXPORT void addToMenu(std::initializer_list<GtObjectUIAction> actions,
-                             QMenu& menu,
-                             GtObject* obj,
-                             QObject* parent = {});
+                             QMenu& menu, GtObject* obj, QObject* parent = {});
 
 /**
  * @brief Adds the action to the menu. Uses the order priority of the

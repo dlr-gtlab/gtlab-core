@@ -14,12 +14,12 @@
 
 struct GtObjectUIActionGroup::Impl
 {
-    explicit
-    Impl(QString name_, QIcon icon_ = {}, GtActionList actions = {}) :
+    explicit Impl(QString name_, QIcon icon_ = {}, GtActionList actions = {}) :
         actions(std::move(actions)),
         name(std::move(name_)),
         icon(std::move(icon_))
-    { }
+    {
+    }
 
     /// List of actions
     QList<GtObjectUIAction> actions;
@@ -42,29 +42,31 @@ GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName) :
     GtObjectUIActionGroup(std::move(groupName), GtActionList{})
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(
-        QString groupName,
-        QList<GtObjectUIAction> actions) :
-    pimpl(std::make_unique<Impl>(std::move(groupName), QIcon{}, std::move(actions)))
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName,
+                                             QList<GtObjectUIAction> actions) :
+    pimpl(std::make_unique<Impl>(std::move(groupName), QIcon{},
+                                 std::move(actions)))
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName,
+                                             QList<GtObjectUIAction> actions,
+                                             const QString& icon) :
+    pimpl(std::make_unique<Impl>(std::move(groupName), gt::gui::getIcon(icon),
+                                 std::move(actions)))
 { }
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(
-        QString groupName,
-        QList<GtObjectUIAction> actions,
-        const QString& icon) :
-    pimpl(std::make_unique<Impl>(std::move(groupName), gt::gui::getIcon(icon), std::move(actions)))
-{ }
-
-GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup const& o) noexcept :
+    const GtObjectUIActionGroup& o) noexcept :
     pimpl(std::make_unique<Impl>(*o.pimpl))
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) noexcept :
+GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) noexcept
+    :
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::operator=(GtObjectUIActionGroup const& o) noexcept
+GtObjectUIActionGroup::operator=(const GtObjectUIActionGroup& o) noexcept
 {
     GtObjectUIActionGroup tmp{o};
     swap(tmp);
