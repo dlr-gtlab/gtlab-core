@@ -60,7 +60,7 @@ stored module data. Changing it after releasing the module can make existing
 installations and projects inconsistent.
 
 The helper names the native library automatically using the GTlab module ABI,
-for example ``MyModule.gtmod.2.1.so`` or ``MyModule.gtmod.2.1.dll``. The
+for example ``MyModule.gtm.2.1.so`` or ``MyModule.gtm.2.1.dll``. The
 installed GTlab package supplies the exact Core version and module ABI used by
 ``moc`` to embed build metadata in the plugin. Modules in custom directories
 are considered only when their filenames follow this pattern; adjacent native

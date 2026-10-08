@@ -27,7 +27,7 @@ provenance.
 The ``GTLAB_MODULE_ABI`` value has one source of truth in the Core build. The
 build uses and exports it for all module integration points:
 
-* the module filename, for example ``BasicTools.gtmod.2.1.dll``;
+* the module filename, for example ``BasicTools.gtm.2.1.dll``;
 * the Qt plugin metadata embedded by ``add_gtlab_module()``;
 * the installed ``GTlabConfig.cmake`` used by external module projects; and
 * the module loader's compatibility check.
