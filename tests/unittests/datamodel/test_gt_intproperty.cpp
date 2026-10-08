@@ -606,3 +606,27 @@ TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty)
     EXPECT_EQ(property->lowSideBoundary(), 0);
     EXPECT_EQ(property->highSideBoundary(), 100);
 }
+
+TEST_F(TestGtIntProperty, canConnect)
+{
+    GtIntProperty propA1("propA1", "test", "test",
+                         gt::Boundaries<int>::makeNormalized(10, 20), 15);
+
+    GtIntProperty propA2("propA2", "test", "test",
+                         gt::Boundaries<int>::makeNormalized(30, 40), 35.0);
+
+    GtIntProperty propA3("propA3", "test", "test",
+                         gt::Boundaries<int>::makeUpper(5), 0);
+
+    GtIntProperty propA4("propA4", "test", "test",
+                         gt::Boundaries<int>::makeLower(25), 30);
+
+    // two properties with lower and higher bounds but without matching regions
+    ASSERT_FALSE(propA1.canConnect(propA2));
+
+    // a propety with both limits and a second with a small higher limit
+    ASSERT_FALSE(propA1.canConnect(propA3));
+
+    // a propety with both limits and a second with a high lower limit
+    ASSERT_FALSE(propA1.canConnect(propA3));
+}
