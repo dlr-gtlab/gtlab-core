@@ -96,6 +96,8 @@ set(HEADERS
     gt_objectpath.h
     property/gt_relativeobjectlinkproperty.h
     property/gt_doublelistproperty.h
+    property/gt_propertyconversionregistry.h
+    property/gt_propertyconverter.h
     gt_regexp.h
     gt_regularexpression.h
     gt_algorithms.h
@@ -155,12 +157,13 @@ set(SOURCES
     gt_objectpath.cpp
     property/gt_relativeobjectlinkproperty.cpp
     property/gt_doublelistproperty.cpp
+    property/gt_propertyconverter.cpp
+    property/gt_propertyconversionregistry.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp
 )
 
-add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 target_compile_features(GTlabDataProcessor PUBLIC cxx_std_17)
 
