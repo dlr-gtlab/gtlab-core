@@ -51,11 +51,9 @@ GtTask* getTask(GtProject* project,
  * before its execution
  * @return
  */
-int
-runProcess(const QString& projectId, const QString& processId,
-           const QString& taskGroupId = "",
-           bool save = false,
-           const QList<PropertyOverride>& overrides = {});
+int runProcess(const QString& projectId, const QString& processId,
+               const QString& taskGroupId = "", bool save = false,
+               const QList<PropertyOverride>& overrides = {});
 
 /**
  * @brief runProcessByFile
@@ -67,11 +65,9 @@ runProcess(const QString& projectId, const QString& processId,
  * before its execution
  * @return
  */
-int
-runProcessByFile(const QString& projectFile, const QString& processId,
-                 const QString& taskGroupId = "",
-                 bool save = false,
-                 const QList<PropertyOverride>& overrides = {});
+int runProcessByFile(const QString& projectFile, const QString& processId,
+                     const QString& taskGroupId = "", bool save = false,
+                     const QList<PropertyOverride>& overrides = {});
 
 /**
  * @brief Enters a temporary session

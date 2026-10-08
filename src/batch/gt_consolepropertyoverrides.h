@@ -13,22 +13,22 @@ class GtObject;
 
 namespace gt
 {
-namespace console
-{
+    namespace console
+    {
 
-/**
+        /**
  * @brief A single parsed "--set <path>=<value>" command line override
  *
  * The path is the user facing property path, the value is the raw
  * (still unconverted) string representation of the new property value.
  */
-struct PropertyOverride
-{
-    QString path;
-    QString value;
-};
+        struct PropertyOverride
+        {
+            QString path;
+            QString value;
+        };
 
-/**
+        /**
  * @brief Parses the raw values of repeated "--set" options
  *
  * Each entry must have the shape "path=value". The argument is split at
@@ -38,10 +38,10 @@ struct PropertyOverride
  * @param errors [out] list of human readable errors for invalid entries
  * @return list of valid overrides (empty if at least one entry is invalid)
  */
-QList<PropertyOverride>
-parsePropertyOverrides(const QStringList& rawArgs, QStringList* errors);
+        QList<PropertyOverride> parsePropertyOverrides(
+            const QStringList& rawArgs, QStringList* errors);
 
-/**
+        /**
  * @brief Applies a single property path override to the given root object
  *
  * The root object is the implicit root of the path, i.e. the path never
@@ -65,12 +65,10 @@ parsePropertyOverrides(const QStringList& rawArgs, QStringList* errors);
  *
  * @return empty string on success, otherwise a human readable error message
  */
-QString
-applyPropertyOverride(GtObject& root,
-                      const QString& path,
-                      const QString& value);
+        QString applyPropertyOverride(GtObject& root, const QString& path,
+                                      const QString& value);
 
-} // namespace console
+    } // namespace console
 } // namespace gt
 
 #endif // GTCONSOLEPROPERTYOVERRIDES_H
