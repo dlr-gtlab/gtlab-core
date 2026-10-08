@@ -129,9 +129,8 @@ TEST(TestGtProperty, canConnectFunctionsUnregistered)
     GtIntProperty intProp("int", "intName");
 
     // no canConnect function is registered for this property type pair
-    const auto functions =
-        intProp.canConnectFunctions(GtIntProperty::staticMetaObject,
-                                    GtBoolProperty::staticMetaObject);
+    const auto functions = intProp.canConnectFunctions(
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject);
 
     EXPECT_TRUE(functions.isEmpty());
 }
@@ -142,17 +141,13 @@ TEST(TestGtProperty, registerCanConnect)
     GtIntProperty intProp("int", "intTo");
 
     GtAbstractProperty::registerCanConnect(
-        GtBoolProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool
-        {
-            return a.objectName() == "boolFrom" &&
-                   b.objectName() == "intTo";
+        GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool {
+            return a.objectName() == "boolFrom" && b.objectName() == "intTo";
         });
 
-    const auto functions =
-        boolProp.canConnectFunctions(GtBoolProperty::staticMetaObject,
-                                     GtIntProperty::staticMetaObject);
+    const auto functions = boolProp.canConnectFunctions(
+        GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject);
 
     ASSERT_FALSE(functions.isEmpty());
 
@@ -168,9 +163,8 @@ TEST(TestGtProperty, registerCanConnect)
     EXPECT_TRUE(foundRegisteredFunction);
 
     // the lookup is directional
-    const auto reversed =
-        boolProp.canConnectFunctions(GtIntProperty::staticMetaObject,
-                                     GtBoolProperty::staticMetaObject);
+    const auto reversed = boolProp.canConnectFunctions(
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject);
     EXPECT_TRUE(reversed.isEmpty());
 }
 
@@ -198,20 +192,20 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
     // a registered canConnect function overrides the fallback to
     // identical property types
     GtAbstractProperty::registerCanConnect(
-        GtBoolProperty::staticMetaObject,
-        GtBoolProperty::staticMetaObject,
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool
-        { return false; });
+        GtBoolProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
+        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            return false;
+        });
 
     EXPECT_FALSE(boolProp.canConnect(otherBoolProp));
 
     // a registered function allows a connection for a property type
     // pair that would be rejected by the fallback
     GtAbstractProperty::registerCanConnect(
-        GtStringProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool
-        { return true; });
+        GtStringProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            return true;
+        });
 
     EXPECT_TRUE(intProp.canConnect(stringProp));
 
@@ -221,20 +215,20 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
     // if multiple functions are registered for a property type pair a
     // single function accepting the connection is sufficient
     GtAbstractProperty::registerCanConnect(
-        GtStringProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool
-        { return false; });
+        GtStringProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            return false;
+        });
 
     EXPECT_TRUE(intProp.canConnect(stringProp));
 
     // if all registered functions reject the connection the
     // connection is rejected
     GtAbstractProperty::registerCanConnect(
-        GtStringProperty::staticMetaObject,
-        GtBoolProperty::staticMetaObject,
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool
-        { return false; });
+        GtStringProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
+        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            return false;
+        });
 
     EXPECT_FALSE(boolProp.canConnect(stringProp));
 }
