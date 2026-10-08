@@ -429,59 +429,12 @@ GtAbstractProperty::isConnectable() const
     return m_pimpl->m_propertyConnectionEnabled;
 }
 
-QVector<GtAbstractProperty::CanConnectFunction>
-GtAbstractProperty::canConnectFunctions(const QMetaObject& from,
-                                        const QMetaObject& to) const
-{
-    const auto inheritanceChain = [](const QMetaObject& metaObject)
-    {
-        QVector<const QMetaObject*> result;
-
-        for (auto* current = &metaObject;
-             current != nullptr;
-             current = current->superClass())
-        {
-            result.append(current);
-        }
-
-        return result;
-    };
-
-    const auto fromChain = inheritanceChain(from);
-    const auto toChain = inheritanceChain(to);
-
-    for (const auto* fromType : fromChain)
-    {
-        for (const auto* toType : toChain)
-        {
-            auto range = gtPropConversion().canConvertHash.equal_range(fromType->className());
-
-            QVector<CanConnectFunction> result;
-
-            for (auto it = range.first; it != range.second; ++it)
-            {
-                if (it.value().to.className() == toType->className())
-                {
-                    result.append(it.value().f);
-                }
-            }
-
-            if (!result.empty())
-            {
-                return result;
-            }
-        }
-    }
-
-    return {};
-}
-
 bool
 GtAbstractProperty::canConnect(GtAbstractProperty& b)
 {
     auto& a = *this;
 
-    auto functions = canConnectFunctions(*metaObject(), *b.metaObject());
+    auto functions = gtPropConversion().canConnectFunctions(*metaObject(), *b.metaObject());
 
     if (functions.empty())
     {
@@ -491,14 +444,6 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
     return std::any_of(
         functions.begin(), functions.end(),
         [&](const auto& canConnectProps) { return canConnectProps(a, b); });
-}
-
-void
-GtAbstractProperty::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to,
-    std::function<bool(GtAbstractProperty&, GtAbstractProperty&)> f)
-{
-    if (f) gtPropConversion().canConvertHash.insert(from.className(), {to, f});
 }
 
 void

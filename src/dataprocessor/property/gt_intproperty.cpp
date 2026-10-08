@@ -10,6 +10,7 @@
  */
 
 #include "gt_intproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtIntProperty::GtIntProperty(const QString& ident,
                              const QString& name) :
@@ -41,7 +42,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_initValue = value;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerConnectionCompatibility(
+        GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {

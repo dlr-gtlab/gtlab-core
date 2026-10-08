@@ -303,31 +303,6 @@ public:
      */
     bool isConnectable() const;
 
-    using CanConnectFunction =
-        std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
-
-    /**
-     * @brief registerConnectionCompatibility
-     * Registration of of canConnect functions for a pair of two
-     * property types
-     * @param from
-     * @param to
-     * @param f
-     */
-    static void registerConnectionCompatibility(QMetaObject from, QMetaObject to,
-                                   CanConnectFunction f);
-
-    /**
-     * @brief canConnectFunctions
-     * Return the canConnection functions registered for the given pair
-     * of property datatypes
-     * @param from
-     * @param to
-     * @return
-     */
-    QVector<CanConnectFunction> canConnectFunctions(
-        QMetaObject const& from, QMetaObject const& to) const;
-
     /**
      * @brief Checks based on the registered connection options
      * if the property b might be connected to the given property

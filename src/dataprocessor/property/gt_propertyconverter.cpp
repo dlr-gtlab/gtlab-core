@@ -12,7 +12,3 @@
 
 using CanConnectFunction =
     std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
-
-GtPropertyConverter::GtPropertyConverter()
-{
-}

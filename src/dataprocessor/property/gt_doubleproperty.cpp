@@ -10,6 +10,7 @@
  */
 
 #include "gt_doubleproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
@@ -29,7 +30,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundLo = 0.0;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerConnectionCompatibility(
+        GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
