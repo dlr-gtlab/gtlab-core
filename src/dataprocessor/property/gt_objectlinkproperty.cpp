@@ -12,6 +12,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_object.h"
 #include "gt_objectfactory.h"
+#include "gt_propertyconversionregistry.h"
 
 #include <utility>
 
@@ -35,7 +36,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_value = uuid;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerConnectionCompatibility(
+        GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
