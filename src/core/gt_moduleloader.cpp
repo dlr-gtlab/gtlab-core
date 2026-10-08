@@ -192,7 +192,7 @@ std::optional<ModuleFilenameComponents> parseModuleFilename(const QString& path)
 {
     const QFileInfo fileInfo(path);
     static const QRegularExpression moduleName(
-        QStringLiteral(R"(.+\.gtmod\.(\d+\.\d+)\.[^.]+$)"),
+        QStringLiteral(R"(.+\.gtm\.(\d+\.\d+)\.[^.]+$)"),
         QRegularExpression::CaseInsensitiveOption);
     const auto match = moduleName.match(fileInfo.fileName());
     if (!match.hasMatch() || !QLibrary::isLibrary(fileInfo.fileName()))
