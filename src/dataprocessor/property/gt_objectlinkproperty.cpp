@@ -38,7 +38,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
-            [](GtAbstractProperty const& a,
+            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {
                 auto& from = static_cast<const GtObjectLinkProperty&>(a);
                 auto& to = static_cast<const GtObjectLinkProperty&>(b);
