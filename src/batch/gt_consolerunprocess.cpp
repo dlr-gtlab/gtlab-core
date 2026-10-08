@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <utility>
 
 QList<GtCommandLineOption>
 gt::console::runOptions()
@@ -116,7 +117,7 @@ gt::console::run(const QStringList &args)
 
     if (!overrideErrors.isEmpty())
     {
-        for (const QString& error : qAsConst(overrideErrors))
+        for (const QString& error : std::as_const(overrideErrors))
         {
             std::cerr << "ERROR: " << error.toStdString() << std::endl;
         }
@@ -294,7 +295,7 @@ gt::console::runProcess(const QString& projectId, const QString& processId,
 
     // apply the property overrides before the execution. If any override
     // fails, the task is not executed and the project is not saved.
-    for (const PropertyOverride& override : qAsConst(overrides))
+    for (const PropertyOverride& override : std::as_const(overrides))
     {
         const QString overrideError =
             applyPropertyOverride(*process, override.path, override.value);
