@@ -14,7 +14,6 @@
 #include "gt_doubleproperty.h"
 #include "gt_stringproperty.h"
 #include "gt_boolproperty.h"
-#include "gt_propertyconversionregistry.h"
 
 TEST(TestGtProperty, makeReadOnly)
 {

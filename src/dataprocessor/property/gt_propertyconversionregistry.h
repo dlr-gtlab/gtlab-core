@@ -28,11 +28,6 @@ public:
 
     static GtPropertyConversionRegistry& getInstance();
 
-    using ClassName = QString;
-    QMultiHash<ClassName, GtPropertyConverter> canConvertHash;
-
-    using CanConnectFunction =
-        std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
     /**
      * @brief registerConnectionCompatibility
      * Registration of of canConnect functions for a pair of two
@@ -41,8 +36,14 @@ public:
      * @param to
      * @param f
      */
-    static void registerConnectionCompatibility(QMetaObject from, QMetaObject to,
-                                                CanConnectFunction f);
+    static void registerConnectionCompatibility(
+        QMetaObject from, QMetaObject to,
+        gt::conversion::convert convert,
+        gt::conversion::canConnect canConnect = {});
+
+    static void registerConnectionCompatibility(
+        QMetaObject from, QMetaObject to,
+        gt::conversion::canConnect canConnect);
 
     /**
      * @brief canConnectFunctions
@@ -52,13 +53,14 @@ public:
      * @param to
      * @return
      */
-    QVector<CanConnectFunction> canConnectFunctions(
+    gt::conversion::canConnect canConnectFunction(
         QMetaObject const& from, QMetaObject const& to) const;
 
 private:
-    GtPropertyConversionRegistry() = default;
+    GtPropertyConversionRegistry();
     ~GtPropertyConversionRegistry() = default;
 
+    QList<GtPropertyConverter> canConvertHash;
 
 };
 
