@@ -11,6 +11,10 @@
 
 #include <QDir>
 
+#include "gt_calculatorexecutorlist.h"
+#include "gt_labelproperty.h"
+#include "gt_modeproperty.h"
+#include "gt_modetypeproperty.h"
 #include "gt_utilities.h"
 #include "gt_task.h"
 #include "gt_taskgroup.h"
@@ -26,15 +30,25 @@
 
 struct GtProcessComponent::Impl
 {
-    Impl() :
-        state(GtProcessComponent::NONE),
-        progress(0),
-        skipped(QStringLiteral("skip"), tr("Skip"),
-                tr("Skip Process Element"), false),
-        warning(false)
+    explicit Impl(GtProcessComponent& pub) :
+        state(GtProcessComponent::NONE), progress(0),
+        skipped(QStringLiteral("skip"), tr("Skip"), tr("Skip Process Element"),
+                false),
+        warning(false),
+        execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
+        // execution label property
+        labelProperty(QStringLiteral("execLabel"), tr("Label"),
+                      tr("Execution label"), &pub)
     {}
 
-// protected members
+    // public members
+    /// Execution mode indicator.
+    GtModeProperty execMode;
+
+    /// Execution label property
+    GtLabelProperty labelProperty;
+
+    // protected members
     /// Runnable pointer
     QPointer<GtAbstractRunnable> runnable;
 
@@ -60,15 +74,51 @@ struct GtProcessComponent::Impl
     bool warning;
 };
 
-GtProcessComponent::GtProcessComponent() :
-    pimpl(std::make_unique<Impl>())
+GtProcessComponent::GtProcessComponent() : pimpl(std::make_unique<Impl>(*this))
 {
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
 
     registerProperty(pimpl->skipped, tr("Execution"));
 
+    registerProperty(pimpl->labelProperty, tr("Execution"));
+
+    // parent based execution mode
+    auto* parentMode = new GtModeTypeProperty("parent", tr("parent"));
+    parentMode->setParent(this);
+    pimpl->execMode.registerSubProperty(*parentMode);
+    // local execution mode
+    auto* localMode = new GtModeTypeProperty("local", tr("local"));
+    localMode->setParent(this);
+    pimpl->execMode.registerSubProperty(*localMode);
+
+    // plugin execution modes, calculators and tasks share
+    // the same set of available executors
+    registerPluginExecModes();
+
+    registerProperty(pimpl->execMode, tr("Execution"));
+
     connect(&pimpl->skipped, &GtAbstractProperty::changed,
             this, &GtProcessComponent::skipPropertyChanged);
+}
+
+void
+GtProcessComponent::registerPluginExecModes()
+{
+    // collect plugin execution modes
+    foreach (const QString& str, gtCalcExecList->executorIds())
+    {
+        auto* pluginMode = new GtModeTypeProperty(str, str);
+        pluginMode->setParent(this);
+
+        // collect exec mode specific settings
+        foreach (GtAbstractProperty* execSetting, gtCalcExecList->settings(str))
+        {
+            execSetting->setParent(this);
+            pluginMode->registerSubProperty(*execSetting);
+        }
+
+        pimpl->execMode.registerSubProperty(*pluginMode);
+    }
 }
 
 void
@@ -519,4 +569,68 @@ void
 GtProcessComponent::appendToLinkObjects(QPointer<GtObject> p)
 {
     linkedObjects().append(p);
+}
+
+QString
+GtProcessComponent::execMode() const
+{
+    QString mode = pimpl->execMode.get();
+
+    // "parent" selects the execution mode of the parent process component.
+    // Resolve the complete inheritance chain so that a concrete execution
+    // mode is always returned. The root process component in parent mode
+    // has no parent process component to inherit from and falls back to
+    // local execution.
+    const GtProcessComponent* node = this;
+    while (mode == "parent")
+    {
+        if (node->isRootProcessComponent())
+        {
+            return "local";
+        }
+
+        node = qobject_cast<const GtProcessComponent*>(node->parent());
+        mode = node->pimpl->execMode.get();
+    }
+
+    return mode;
+}
+
+bool
+GtProcessComponent::isRootProcessComponent() const
+{
+    // a process component is the root process component if its parent is
+    // not another process component (root tasks are parented by the task
+    // group, standalone components have no parent at all)
+    return qobject_cast<const GtProcessComponent*>(parent()) == nullptr;
+}
+
+void
+GtProcessComponent::setExecMode(const QString& mode)
+{
+    pimpl->execMode.setVal(mode);
+}
+
+void
+GtProcessComponent::setExecModeLocal()
+{
+    pimpl->execMode.setVal("local");
+}
+
+const QString&
+GtProcessComponent::executionLabel()
+{
+    return pimpl->labelProperty.get();
+}
+
+void
+GtProcessComponent::setExecutionLabel(const QString& label)
+{
+    pimpl->labelProperty.setVal(label);
+}
+
+void
+GtProcessComponent::hideLabelProperty(bool val)
+{
+    pimpl->labelProperty.hide(val);
 }
