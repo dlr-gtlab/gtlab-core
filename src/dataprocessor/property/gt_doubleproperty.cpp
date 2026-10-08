@@ -32,7 +32,8 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
-            [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool {
+            [](GtAbstractProperty const& a,
+               GtAbstractProperty const& b) -> bool {
                 auto& from = static_cast<const GtDoubleProperty&>(a);
                 auto& to = static_cast<const GtDoubleProperty&>(b);
 
