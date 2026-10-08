@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-# Coverage remains visible in pull requests, but does not block changes.
+# Project coverage is informational; patch coverage must reach 90%.
 coverage:
   range: 60..80
   status:
@@ -11,4 +11,4 @@ coverage:
         informational: true
     patch:
       default:
-        informational: true
+        target: 90%
