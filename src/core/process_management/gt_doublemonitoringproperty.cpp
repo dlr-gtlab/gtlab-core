@@ -10,6 +10,7 @@
  */
 
 #include "gt_doublemonitoringproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& name,
@@ -22,7 +23,7 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
     // as double monitoring properties are used in GTlab
     // This old implementation of monitoring properties does not support units
     static auto initOnce = []() {
-        GtAbstractProperty::registerConnectionCompatibility(
+        GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtDoubleMonitoringProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
             [](GtAbstractProperty const&, // LCOV_EXCL_LINE

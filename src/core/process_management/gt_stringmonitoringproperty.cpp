@@ -9,6 +9,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_stringmonitoringproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
                                                        const QString& name,
@@ -20,7 +21,7 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
     // this additional registration is needed as long
     // as string monitoring properties are used in GTlab
     static auto initOnce = []() {
-        GtAbstractProperty::registerConnectionCompatibility(
+        GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtStringMonitoringProperty::staticMetaObject,
             GtStringProperty::staticMetaObject,
             [](GtAbstractProperty const&,           // LCOV_EXCL_LINE
