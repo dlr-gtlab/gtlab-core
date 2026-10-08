@@ -72,7 +72,7 @@ TEST_F(TestGtStringMonitoringProperty, canConnect)
 
     GtStringProperty prop1("prop1", "test", "test");
 
-    monProp.canConnect(prop1);
+    ASSERT_TRUE(monProp.canConnect(prop1));
 
     GT_SUPPRESS_DEPRECATED_END
 }
