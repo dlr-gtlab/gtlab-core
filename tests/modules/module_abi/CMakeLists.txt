@@ -46,7 +46,7 @@ function(add_abi_test_variant target filename_abi metadata_abi)
     target_link_libraries(${target} PRIVATE GTlab::Core AbiAdjacentDependency)
     set_abi_test_output_directory(${target})
     set_target_properties(${target} PROPERTIES
-        OUTPUT_NAME "${target}.gtmod.${filename_abi}"
+        OUTPUT_NAME "${target}.gtm.${filename_abi}"
     )
     set_property(TARGET ${target} PROPERTY AUTOMOC_MOC_OPTIONS
         "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
@@ -65,7 +65,7 @@ set_target_properties(AbiTestModuleMissing PROPERTIES
     AUTOMOC ON
     PREFIX ""
     DEBUG_POSTFIX ""
-    OUTPUT_NAME "AbiTestModuleMissing.gtmod.${GTLAB_MODULE_ABI}"
+    OUTPUT_NAME "AbiTestModuleMissing.gtm.${GTLAB_MODULE_ABI}"
 )
 set_abi_test_output_directory(AbiTestModuleMissing)
 

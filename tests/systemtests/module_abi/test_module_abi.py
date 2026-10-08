@@ -114,7 +114,7 @@ def test_module_build_embeds_core_and_abi_metadata(binaries: Dict[str, Path]):
     """Built modules carry the Core version and module ABI in Qt metadata."""
     module = binaries["compatible"]
     assert module.name.endswith(
-        f".gtmod.{os.environ['GTLAB_MODULE_ABI']}{module.suffix}"
+        f".gtm.{os.environ['GTLAB_MODULE_ABI']}{module.suffix}"
     )
 
     values = _plugin_values(_metadata(binaries["inspector"], module))
@@ -188,7 +188,7 @@ def test_renaming_incompatible_module_does_not_change_compatibility(
     module = _copy_module(
         binaries["incompatible"],
         tmp_path / "modules",
-        f"Renamed.gtmod.{os.environ['GTLAB_MODULE_ABI']}{binaries['incompatible'].suffix}",
+        f"Renamed.gtm.{os.environ['GTLAB_MODULE_ABI']}{binaries['incompatible'].suffix}",
     )
     _copy_adjacent_dependency(binaries, module.parent)
 
