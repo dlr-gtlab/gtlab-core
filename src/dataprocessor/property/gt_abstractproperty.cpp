@@ -417,13 +417,13 @@ GtAbstractProperty::setValFromConnection()
 }
 
 void
-GtAbstractProperty::setPropertyConnectionEnabled(bool flag)
+GtAbstractProperty::setConnectable(bool flag)
 {
     m_pimpl->m_propertyConnectionEnabled = flag;
 }
 
 bool
-GtAbstractProperty::propertyConnectionEnabled() const
+GtAbstractProperty::isConnectable() const
 {
     return m_pimpl->m_propertyConnectionEnabled;
 }
@@ -432,19 +432,47 @@ QVector<GtAbstractProperty::CanConnectFunction>
 GtAbstractProperty::canConnectFunctions(const QMetaObject& from,
                                         const QMetaObject& to) const
 {
-    QVector<CanConnectFunction> result;
-
-    auto range = canConvertHash.equal_range(from.className());
-
-    for (auto it = range.first; it != range.second; ++it)
+    const auto inheritanceChain = [](const QMetaObject& metaObject)
     {
-        if (it.value().to.className() == to.className())
+        QVector<const QMetaObject*> result;
+
+        for (auto* current = &metaObject;
+             current != nullptr;
+             current = current->superClass())
         {
-            result.append(it.value().f);
+            result.append(current);
+        }
+
+        return result;
+    };
+
+    const auto fromChain = inheritanceChain(from);
+    const auto toChain = inheritanceChain(to);
+
+    for (const auto* fromType : fromChain)
+    {
+        for (const auto* toType : toChain)
+        {
+            auto range = canConvertHash.equal_range(fromType->className());
+
+            QVector<CanConnectFunction> result;
+
+            for (auto it = range.first; it != range.second; ++it)
+            {
+                if (it.value().to.className() == toType->className())
+                {
+                    result.append(it.value().f);
+                }
+            }
+
+            if (!result.empty())
+            {
+                return result;
+            }
         }
     }
 
-    return result;
+    return {};
 }
 
 bool
@@ -462,16 +490,14 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
     return std::any_of(
         functions.begin(), functions.end(),
         [&](const auto& canConnectProps) { return canConnectProps(a, b); });
-
-    return false;
 }
 
 void
-GtAbstractProperty::registerCanConnect(
+GtAbstractProperty::registerConnectionCompatibility(
     QMetaObject from, QMetaObject to,
     std::function<bool(GtAbstractProperty&, GtAbstractProperty&)> f)
 {
-    canConvertHash.insert(from.className(), {to, f});
+    if (f) canConvertHash.insert(from.className(), {to, f});
 }
 
 void

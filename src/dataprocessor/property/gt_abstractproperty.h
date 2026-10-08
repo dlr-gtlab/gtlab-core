@@ -294,27 +294,27 @@ public:
      *
      * @param flag
      */
-    void setPropertyConnectionEnabled(bool flag = true);
+    void setConnectable(bool flag = true);
 
     /**
      * @brief give flag if property is meant to be connected to other property
      * values as e.g. in the property connection editor
      * @return
      */
-    bool propertyConnectionEnabled() const;
+    bool isConnectable() const;
 
     using CanConnectFunction =
         std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
 
     /**
-     * @brief registerCanConnect
+     * @brief registerConnectionCompatibility
      * Registration of of canConnect functions for a pair of two
      * property types
      * @param from
      * @param to
      * @param f
      */
-    static void registerCanConnect(QMetaObject from, QMetaObject to,
+    static void registerConnectionCompatibility(QMetaObject from, QMetaObject to,
                                    CanConnectFunction f);
 
     /**

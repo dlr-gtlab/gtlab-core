@@ -16,7 +16,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& brief)
 {
     setObjectName(name);
-    setPropertyConnectionEnabled();
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -29,7 +29,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundLo = 0.0;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerCanConnect(
+        GtAbstractProperty::registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
