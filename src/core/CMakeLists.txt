@@ -43,7 +43,9 @@ set(headers
     process_management/gt_processcomponent.h
     process_management/gt_abstractcalculatorexecutor.h
     process_management/gt_calculatorexecinterface.h
+    process_management/gt_processexecinterface.h
     process_management/gt_calculatorexecutorlist.h
+    process_management/gt_processexecutorlist.h
     process_management/gt_calculatorprovider.h
     process_management/gt_taskprovider.h
     process_management/gt_abstractprocessprovider.h
@@ -71,6 +73,7 @@ set(headers
     process_management/process_runner/gt_processrunnerglobals.h
     process_management/process_runner/gt_processrunnertcpconnection.h
     process_management/calculators/gt_exporttomementocalculator.h
+    process_management/gt_abstractprocessexecutor.h
     settings/gt_shortcutsettingsdata.h
     states/gt_state.h
     states/gt_stategroup.h
@@ -169,8 +172,8 @@ set(sources
     process_management/gt_tasklink.cpp
     process_management/gt_abstractrunnable.cpp
     process_management/gt_processcomponent.cpp
-    process_management/gt_abstractcalculatorexecutor.cpp
-    process_management/gt_calculatorexecutorlist.cpp
+    process_management/gt_abstractprocessexecutor.cpp
+    process_management/gt_processexecutorlist.cpp
     process_management/gt_calculatorprovider.cpp
     process_management/gt_taskprovider.cpp
     process_management/gt_abstractprocessprovider.cpp
