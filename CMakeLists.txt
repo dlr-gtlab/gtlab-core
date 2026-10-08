@@ -27,6 +27,11 @@ endif()
 
 project(GTlab-Core VERSION 2.1.0)
 
+set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
+# Bump this value only when a change breaks the binary compatibility contract
+# for modules. Keep it independent of the GTlab product version.
+set(GTLAB_MODULE_ABI "2.1")
+
 option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)
@@ -78,6 +83,11 @@ endif()
 if (BUILD_WITH_HDF5 AND NOT TARGET GenH5)
     find_package(GenH5 CONFIG REQUIRED)
 endif()
+
+# Dependencies such as GenH5 may include their own GTlab.cmake and redefine
+# add_gtlab_module(). Restore this project's module helper before defining its
+# modules so they use this Core version's ABI naming and metadata settings.
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake")
 
 # build libraries and modules
 add_subdirectory(src/dataprocessor)

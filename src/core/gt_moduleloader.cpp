@@ -22,6 +22,9 @@
 
 #include <QDir>
 #include <QPluginLoader>
+#include <QLibrary>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QDirIterator>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -32,6 +35,8 @@
 #include <QLockFile>
 #include <QThread>
 #include <QDomElement>
+
+#include <optional>
 
 #include "gt_algorithms.h"
 #include "gt_utilities.h"
@@ -177,6 +182,89 @@ matchesDependency(const QString& dependency, const QString& candidate)
 
 using ModuleMetaMap = std::map<QString, ModuleMetaData>;
 ModuleMetaMap loadModuleMeta();
+
+struct ModuleFilenameComponents
+{
+    QString abi;
+};
+
+std::optional<ModuleFilenameComponents> parseModuleFilename(const QString& path)
+{
+    const QFileInfo fileInfo(path);
+    static const QRegularExpression moduleName(
+        QStringLiteral(R"(.+\.gtm\.(\d+\.\d+)\.[^.]+$)"),
+        QRegularExpression::CaseInsensitiveOption);
+    const auto match = moduleName.match(fileInfo.fileName());
+    if (!match.hasMatch() || !QLibrary::isLibrary(fileInfo.fileName()))
+    {
+        return std::nullopt;
+    }
+
+    return ModuleFilenameComponents{match.captured(1)};
+}
+
+QString currentModuleAbi()
+{
+    return QStringLiteral(GTLAB_MODULE_ABI);
+}
+
+bool hasCompatibleModuleAbi(const QString& path,
+                            const QJsonObject& pluginMetaData)
+{
+    const QString expectedAbi = currentModuleAbi();
+    const QString expectedCore = GtCoreApplication::version().toString();
+    const auto filename = parseModuleFilename(path);
+    if (!filename)
+    {
+        gtError().noquote()
+            << QObject::tr("Cannot load module '%1': filename does not match "
+                           "the GTlab module naming scheme (expected ABI %2 "
+                           "for GTlab Core %3).")
+                   .arg(path, expectedAbi, expectedCore);
+        return false;
+    }
+
+    const auto metadata =
+        pluginMetaData.value(QStringLiteral("MetaData")).toObject();
+    const auto metadataString = [&pluginMetaData,
+                                 &metadata](const QString& key) {
+        // Qt nests plugin-specific fields under MetaData. Retain the fallback
+        // for metadata objects that provide those fields at the root level.
+        auto value = metadata.value(key);
+        if (value.isUndefined())
+        {
+            value = pluginMetaData.value(key);
+        }
+
+        if (value.isArray())
+        {
+            const auto values = value.toArray();
+            return values.isEmpty() ? QString() : values.first().toString();
+        }
+        return value.toString();
+    };
+    const QString moduleAbi =
+        metadataString(QStringLiteral("gtlab_module_abi"));
+    const QString coreVersion =
+        metadataString(QStringLiteral("gtlab_core_version"));
+    if (moduleAbi.isEmpty() || coreVersion.isEmpty() ||
+        moduleAbi != expectedAbi || filename->abi != moduleAbi)
+    {
+        const QString detectedAbi =
+            moduleAbi.isEmpty() ? QObject::tr("missing") : moduleAbi;
+        const QString detectedCore =
+            coreVersion.isEmpty() ? QObject::tr("missing") : coreVersion;
+        gtError().noquote()
+            << QObject::tr("Rejecting module '%1': expected module ABI %2 "
+                           "(GTlab Core %3), filename ABI %4, metadata ABI %5 "
+                           "(built against GTlab Core %6).")
+                   .arg(path, expectedAbi, expectedCore, filename->abi,
+                        detectedAbi, detectedCore);
+        return false;
+    }
+
+    return true;
+}
 
 QStringList
 getMatchedModuleIds(const QString& dependency,
@@ -393,13 +481,6 @@ QList<QDir> getModuleDirectories()
     if  (applicationModules.exists())
         moduleDirectories.append(applicationModules);
 
-    for (auto&& dir : moduleDirectories)
-    {
-#ifdef Q_OS_WIN
-        dir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
-#endif
-    }
-
     return moduleDirectories;
 }
 
@@ -422,6 +503,11 @@ QStringList getModuleFilenames()
         // Convert to absolute paths and add (deduplicated)
         for (const auto& localFileName : files)
         {
+            if (!parseModuleFilename(localFileName))
+            {
+                continue;
+            }
+
             const QString absolute = dir.absoluteFilePath(localFileName);
             if (!seen.contains(absolute))
             {
@@ -578,9 +664,15 @@ ModuleMetaData loadModuleMeta(const QString& moduleFileName)
 
     // load plugin from entry
     QPluginLoader loader(moduleFileName);
-
+    const auto pluginMetaData = loader.metaData();
     ModuleMetaData meta(moduleFileName);
-    meta.readFromJson(loader.metaData());
+
+    if (!hasCompatibleModuleAbi(moduleFileName, pluginMetaData))
+    {
+        return meta;
+    }
+
+    meta.readFromJson(pluginMetaData);
 
     return meta;
 }
@@ -1107,6 +1199,11 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         // load plugin from entry
         QPluginLoader loader(moduleMeta.location());
+        if (!hasCompatibleModuleAbi(moduleMeta.location(), loader.metaData()))
+        {
+            continue;
+        }
+
         std::unique_ptr<QObject> plugin(loader.instance());
 
         // check plugin object
