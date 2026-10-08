@@ -9,6 +9,9 @@
  */
 #include "gt_propertyconversionregistry.h"
 
+#include "gt_doubleproperty.h"
+#include "gt_intproperty.h"
+
 GtPropertyConversionRegistry&
 gtPropConversion()
 {
@@ -37,9 +40,8 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
     QMetaObject from, QMetaObject to,
-    const gt::conversion::convert convert,
-    std::function<bool(GtAbstractProperty const&,
-                       GtAbstractProperty const&)> canConnect)
+    gt::conversion::convert convert,
+    gt::conversion::canConnect canConnect)
 {
     if (convert)
     {
@@ -90,4 +92,60 @@ GtPropertyConversionRegistry::canConnectFunction(
 GtPropertyConversionRegistry::GtPropertyConversionRegistry()
 {
     // add the basic converter registrations here later
+
+    // converter from double to int
+    GtPropertyConversionRegistry::registerConnectionCompatibility(
+        GtDoubleProperty::staticMetaObject,
+        GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+           GtAbstractProperty& b) {
+            const auto& from = static_cast<const GtDoubleProperty&>(a);
+            auto& to = static_cast<GtIntProperty&>(b);
+
+            double baseValue = from.getVal();
+
+            const double rounded = std::round(baseValue);
+
+            int result = static_cast<int>(rounded);
+
+            // Abweichung vom ursprünglichen double
+            const double error = std::abs(baseValue - rounded);
+
+            // Toleranz entsprechend der Größenordnung des Wertes
+            const double tolerance =
+                std::numeric_limits<double>::epsilon() *
+                std::max(1.0, std::abs(baseValue));
+
+            to.setVal(result);
+
+            if (error <= tolerance)
+            {
+                return gt::conversion::conversionSuccess::Success;
+            }
+
+            return gt::conversion::conversionSuccess::Lossy;
+
+        },
+        // can connect
+        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
+           GtAbstractProperty const&) { return true; });
+
+    // converter from int to double
+    GtPropertyConversionRegistry::registerConnectionCompatibility(
+        GtIntProperty::staticMetaObject,
+        GtDoubleProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+           GtAbstractProperty& b) {
+            const auto& from = static_cast<const GtIntProperty&>(a);
+            auto& to = static_cast<GtDoubleProperty&>(b);
+
+            double res = double(from.getVal());
+
+            to.setVal(res);
+
+            return gt::conversion::conversionSuccess::Success;
+        },
+        // can connect
+        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
+           GtAbstractProperty const&) { return true; });
 }
