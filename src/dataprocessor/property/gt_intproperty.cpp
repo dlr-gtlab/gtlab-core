@@ -42,8 +42,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
 
     static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
-            GtIntProperty::staticMetaObject,
-            GtIntProperty::staticMetaObject,
+            GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {
                 auto& from = static_cast<const GtIntProperty&>(a);
