@@ -33,20 +33,10 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
-            // conversion
-            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-               GtAbstractProperty& b) {
-                auto& from = static_cast<const GtDoubleProperty&>(a);
-                auto& to = static_cast<GtDoubleProperty&>(b);
-
-                to.setVal(from.get());
-
-                return gt::conversion::conversionSuccess::Success;
-            },
             // can connect
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {
-                auto& from = static_cast<const GtDoubleProperty&>(a);
+                const auto& from = static_cast<const GtDoubleProperty&>(a);
                 auto& to = static_cast<const GtDoubleProperty&>(b);
 
                 // check of the units:

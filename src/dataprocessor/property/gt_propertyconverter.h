@@ -16,37 +16,33 @@
 #include <functional>
 #include <qobjectdefs.h>
 
-namespace gt {
-
-namespace conversion
+namespace gt
 {
-    enum class conversionSuccess {
-        Success = 0,
-        Lossy,
-        Failed
-    };
+    namespace conversion
+    {
+        enum class conversionSuccess
+        {
+            Success = 0,
+            Lossy,
+            Failed
+        };
 
-    using convert = std::function<conversionSuccess(
-        GtAbstractProperty const& from,
-        GtAbstractProperty& to)>;
+        using convert = std::function<conversionSuccess(
+            GtAbstractProperty const& from, GtAbstractProperty& to)>;
 
-    using canConnect = std::function<bool(GtAbstractProperty const& from,
-                                          GtAbstractProperty const& to)>;
-} // conversion
-} // gt
+        using canConnect = std::function<bool(GtAbstractProperty const& from,
+                                              GtAbstractProperty const& to)>;
+    } // namespace conversion
+} // namespace gt
 
 class GT_DATAMODEL_EXPORT GtPropertyConverter
 {
 public:
 
+    GtPropertyConverter(QMetaObject from, QMetaObject to,
+                        gt::conversion::convert conversion);
 
-    GtPropertyConverter(
-        QMetaObject from,
-        QMetaObject to,
-        gt::conversion::convert conversion);
-
-    GtPropertyConverter(QMetaObject from,
-                        QMetaObject to,
+    GtPropertyConverter(QMetaObject from, QMetaObject to,
                         gt::conversion::convert conversion,
                         gt::conversion::canConnect canConnect);
 

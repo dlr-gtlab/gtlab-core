@@ -309,7 +309,7 @@ public:
      * @param b
      * @return true if it is allowed
      */
-    bool canConnect(GtAbstractProperty& b);
+    bool canConnect(const GtAbstractProperty& b);
 
 protected:
     /**
