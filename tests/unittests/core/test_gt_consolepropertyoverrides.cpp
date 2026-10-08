@@ -23,6 +23,8 @@ namespace
     // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
     class OverrideTestSolver : public GtObject
     {
+        Q_OBJECT
+
     public:
         explicit OverrideTestSolver(GtObject* parent = nullptr) :
             m_tolerance("tolerance", "Tolerance"),
@@ -519,3 +521,5 @@ TEST(console_property_overrides, override_list_stops_at_first_error)
     // the first override was applied, the last one was not executed
     EXPECT_EQ(task.m_iterations.getVal(), 5);
 }
+
+#include "test_gt_consolepropertyoverrides.moc"
