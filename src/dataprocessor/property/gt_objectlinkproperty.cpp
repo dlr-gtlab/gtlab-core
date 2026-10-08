@@ -27,7 +27,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_linkFromSuperClassesEnabled(linkFromSuperClassesEnabled)
 {
     setObjectName(name);
-    setPropertyConnectionEnabled();
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -35,7 +35,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_value = uuid;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerCanConnect(
+        GtAbstractProperty::registerConnectionCompatibility(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE

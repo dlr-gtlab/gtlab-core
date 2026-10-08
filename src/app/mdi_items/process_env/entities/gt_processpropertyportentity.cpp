@@ -187,7 +187,14 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     GtAbstractProperty* prop = m_item->property();
     GtAbstractProperty* prop2 = port->m_item->property();
 
-    return prop->canConnect(*prop2);
+    if (m_type == GtProcessPropertyPortEntity::INPUT_PORT)
+    {
+        return prop2->canConnect(*prop);
+    }
+    else
+    {
+        return prop->canConnect(*prop2);
+    }
 }
 
 QVariant

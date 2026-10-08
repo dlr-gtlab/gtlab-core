@@ -83,7 +83,7 @@ GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent& comp,
 bool
 GtProcessConnectionItem::propertyTypeAccepted(GtAbstractProperty* prop)
 {
-    return prop->propertyConnectionEnabled();
+    return prop->isConnectable();
 }
 
 GtProcessConnectionItem::ItemType

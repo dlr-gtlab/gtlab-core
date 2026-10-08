@@ -15,6 +15,6 @@ GtModeTypeProperty::GtModeTypeProperty(const QString& name,
     GtStringProperty(QString(), name, brief, name)
 {
     m_storeMemento = false;
-    setPropertyConnectionEnabled(false);
+    setConnectable(false);
 }
 

@@ -105,23 +105,23 @@ TEST(TestGtProperty, propertyConnectionEnabled)
     GtStringProperty stringProp("string", "stringName");
     GtBoolProperty boolProp("bool", "boolName");
 
-    EXPECT_TRUE(intProp.propertyConnectionEnabled());
-    EXPECT_TRUE(doubleProp.propertyConnectionEnabled());
-    EXPECT_TRUE(stringProp.propertyConnectionEnabled());
-    EXPECT_TRUE(boolProp.propertyConnectionEnabled());
+    EXPECT_TRUE(intProp.isConnectable());
+    EXPECT_TRUE(doubleProp.isConnectable());
+    EXPECT_TRUE(stringProp.isConnectable());
+    EXPECT_TRUE(boolProp.isConnectable());
 }
 
 TEST(TestGtProperty, setPropertyConnectionEnabled)
 {
     GtIntProperty prop("int", "intName");
 
-    ASSERT_TRUE(prop.propertyConnectionEnabled());
+    ASSERT_TRUE(prop.isConnectable());
 
-    prop.setPropertyConnectionEnabled(false);
-    EXPECT_FALSE(prop.propertyConnectionEnabled());
+    prop.setConnectable(false);
+    EXPECT_FALSE(prop.isConnectable());
 
-    prop.setPropertyConnectionEnabled();
-    EXPECT_TRUE(prop.propertyConnectionEnabled());
+    prop.setConnectable();
+    EXPECT_TRUE(prop.isConnectable());
 }
 
 TEST(TestGtProperty, canConnectFunctionsUnregistered)
@@ -140,7 +140,7 @@ TEST(TestGtProperty, registerCanConnect)
     GtBoolProperty boolProp("bool", "boolFrom");
     GtIntProperty intProp("int", "intTo");
 
-    GtAbstractProperty::registerCanConnect(
+    GtAbstractProperty::registerConnectionCompatibility(
         GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool {
             return a.objectName() == "boolFrom" && b.objectName() == "intTo";
@@ -191,7 +191,7 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
 
     // a registered canConnect function overrides the fallback to
     // identical property types
-    GtAbstractProperty::registerCanConnect(
+    GtAbstractProperty::registerConnectionCompatibility(
         GtBoolProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
@@ -201,7 +201,7 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
 
     // a registered function allows a connection for a property type
     // pair that would be rejected by the fallback
-    GtAbstractProperty::registerCanConnect(
+    GtAbstractProperty::registerConnectionCompatibility(
         GtIntProperty::staticMetaObject, GtStringProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
@@ -214,7 +214,7 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
 
     // if multiple functions are registered for a property type pair a
     // single function accepting the connection is sufficient
-    GtAbstractProperty::registerCanConnect(
+    GtAbstractProperty::registerConnectionCompatibility(
         GtStringProperty::staticMetaObject, GtIntProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
@@ -224,7 +224,7 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
 
     // if all registered functions reject the connection the
     // connection is rejected
-    GtAbstractProperty::registerCanConnect(
+    GtAbstractProperty::registerConnectionCompatibility(
         GtStringProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;

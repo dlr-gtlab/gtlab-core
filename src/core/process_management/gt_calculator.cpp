@@ -280,7 +280,7 @@ GtCalculator::GtCalculator():
 
     registerProperty(pimpl->execMode, tr("Execution"));
     registerProperty(pimpl->failRunOnWarning, tr("Execution"));
-    pimpl->failRunOnWarning.setPropertyConnectionEnabled(false);
+    pimpl->failRunOnWarning.setConnectable(false);
 
     setFlag(GtObject::UserRenamable, true);
 }

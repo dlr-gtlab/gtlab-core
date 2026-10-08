@@ -18,7 +18,7 @@ GtLabelProperty::GtLabelProperty(const QString& ident,
     GtStringProperty(ident, name, brief, QString()),
     m_parentObj(parent)
 {
-    setPropertyConnectionEnabled(false);
+    setConnectable(false);
 }
 
 GtObject*

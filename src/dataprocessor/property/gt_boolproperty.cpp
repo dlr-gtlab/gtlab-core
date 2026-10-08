@@ -16,7 +16,7 @@ GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
                                const QString& brief, bool value)
 {
     setObjectName(name);
-    setPropertyConnectionEnabled();
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;

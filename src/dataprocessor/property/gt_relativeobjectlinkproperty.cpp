@@ -16,5 +16,5 @@ GtRelativeObjectLinkProperty::GtRelativeObjectLinkProperty(
     GtStringProperty(id, name, brief, uuid)
 {
     hide();
-    setPropertyConnectionEnabled(false);
+    setConnectable(false);
 }
