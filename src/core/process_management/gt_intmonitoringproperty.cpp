@@ -24,9 +24,7 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
             GtIntProperty::staticMetaObject,
             GtIntMonitoringProperty::staticMetaObject,
             [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-               GtAbstractProperty const&) -> bool {
-                return true;
-            });
+               GtAbstractProperty const&) -> bool { return true; });
 
         return 0;
     }();
