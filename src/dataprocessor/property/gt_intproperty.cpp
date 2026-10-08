@@ -39,6 +39,40 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_unitCategory = GtUnit::Category::NonDimensional;
     m_value = value;
     m_initValue = value;
+
+    static auto initOnce = []() {
+        GtAbstractProperty::registerCanConnect(
+            GtIntProperty::staticMetaObject,
+            GtIntProperty::staticMetaObject,
+            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+               GtAbstractProperty const& b) -> bool {
+                auto& from = static_cast<const GtIntProperty&>(a);
+                auto& to = static_cast<const GtIntProperty&>(b);
+
+                // check of the bounds
+                // if bounds are active it should be checked if the valid
+                // ranges of the properties do at least match in pieces
+                if (from.highSideBoundaryActive() && to.lowSideBoundaryActive())
+                {
+                    if (from.highSideBoundary() < to.lowSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+
+                if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
+                {
+                    if (from.lowSideBoundary() > to.highSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+        return 0;
+    }();
 }
 
 GtIntProperty::GtIntProperty(const QString& ident,

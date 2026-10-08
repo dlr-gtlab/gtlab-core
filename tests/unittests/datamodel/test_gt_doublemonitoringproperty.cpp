@@ -79,7 +79,7 @@ TEST_F(TestGtDoubleMonitoringProperty, canConnect)
     GtDoubleProperty prop1("prop1", "test", "test", GtUnit::Category::None,
                            4.0);
 
-    monProp.canConnect(prop1);
+    ASSERT_TRUE(monProp.canConnect(prop1));
 
     GT_SUPPRESS_DEPRECATED_END
 }
