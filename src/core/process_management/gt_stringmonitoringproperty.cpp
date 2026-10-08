@@ -23,8 +23,9 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtStringProperty::staticMetaObject,
             GtStringMonitoringProperty::staticMetaObject,
-            [](GtAbstractProperty const& a,
-               GtAbstractProperty const& b) -> bool { return true; });
+            [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+                return true;
+            });
 
         return 0;
     }();
