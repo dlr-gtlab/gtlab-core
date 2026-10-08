@@ -452,7 +452,7 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
 {
     auto& a = *this;
 
-    auto functions = canConnectFunctions(*b.metaObject(), *metaObject());
+    auto functions = canConnectFunctions(*metaObject(), *b.metaObject());
 
     if (functions.empty())
     {

@@ -21,8 +21,8 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
     // as string monitoring properties are used in GTlab
     static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
-            GtStringProperty::staticMetaObject,
             GtStringMonitoringProperty::staticMetaObject,
+            GtStringProperty::staticMetaObject,
             [](GtAbstractProperty const&,           // LCOV_EXCL_LINE
                GtAbstractProperty const&) -> bool { // LCOV_EXCL_LINE
                 return true;

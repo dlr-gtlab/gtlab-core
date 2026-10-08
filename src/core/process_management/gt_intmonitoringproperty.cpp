@@ -21,8 +21,8 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
     // as int monitoring properties are used in GTlab
     static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
-            GtIntProperty::staticMetaObject,
             GtIntMonitoringProperty::staticMetaObject,
+            GtIntProperty::staticMetaObject,
             [](GtAbstractProperty const&, // LCOV_EXCL_LINE
                GtAbstractProperty const&) -> bool { return true; });
 
