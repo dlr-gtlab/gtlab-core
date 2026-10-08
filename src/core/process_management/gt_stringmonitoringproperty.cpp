@@ -23,7 +23,8 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtStringProperty::staticMetaObject,
             GtStringMonitoringProperty::staticMetaObject,
-            [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool { // LCOV_EXCL_LINE
+            [](GtAbstractProperty const&, // LCOV_EXCL_LINE
+               GtAbstractProperty const&) -> bool { // LCOV_EXCL_LINE
                 return true;
             });
 
