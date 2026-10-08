@@ -39,6 +39,17 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
+            // conversion
+            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+               GtAbstractProperty& b) {
+                auto& from = static_cast<const GtObjectLinkProperty&>(a);
+                auto& to = static_cast<GtObjectLinkProperty&>(b);
+
+                to.setVal(from.get());
+
+                return gt::conversion::conversionSuccess::Success;
+            },
+            // can connect
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {
                 auto& from = static_cast<const GtObjectLinkProperty&>(a);
@@ -58,7 +69,9 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
                 return std::any_of(
                     list2.begin(), list2.end(),
                     [&](const auto& s2) { return from.isAllowed(s2); });
-            });
+            }
+
+            );
 
         return 0;
     }();

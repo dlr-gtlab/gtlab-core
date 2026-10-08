@@ -10,31 +10,47 @@
 #include "gt_propertyconversionregistry.h"
 
 GtPropertyConversionRegistry&
+gtPropConversion()
+{
+    return GtPropertyConversionRegistry::getInstance();
+}
+
+GtPropertyConversionRegistry&
 GtPropertyConversionRegistry::getInstance()
 {
     static GtPropertyConversionRegistry instance;
     return instance;
 }
 
-GtPropertyConversionRegistry&
-gtPropConversion()
+void
+GtPropertyConversionRegistry::registerConnectionCompatibility(
+    QMetaObject from, QMetaObject to,
+    gt::conversion::canConnect canConnect)
 {
-    return GtPropertyConversionRegistry::getInstance();
+    if (canConnect)
+    {
+        gtPropConversion().canConvertHash.append(
+            GtPropertyConverter(from, to, {}, canConnect));
+    }
 }
 
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
     QMetaObject from, QMetaObject to,
-    std::function<bool(GtAbstractProperty&, GtAbstractProperty&)> f)
+    const gt::conversion::convert convert,
+    std::function<bool(GtAbstractProperty const&,
+                       GtAbstractProperty const&)> canConnect)
 {
-    if (f) getInstance().canConvertHash.insert(from.className(), {to, f});
+    if (convert)
+    {
+        gtPropConversion().canConvertHash.append(
+            GtPropertyConverter(from, to, convert, canConnect));
+    }
 }
 
-using CanConnectFunction =
-    std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
-QVector<CanConnectFunction>
-GtPropertyConversionRegistry::canConnectFunctions(const QMetaObject& from,
-                                        const QMetaObject& to) const
+gt::conversion::canConnect
+GtPropertyConversionRegistry::canConnectFunction(
+    const QMetaObject& from, const QMetaObject& to) const
 {
     const auto inheritanceChain = [](const QMetaObject& metaObject)
     {
@@ -57,24 +73,21 @@ GtPropertyConversionRegistry::canConnectFunctions(const QMetaObject& from,
     {
         for (const auto* toType : toChain)
         {
-            auto range = gtPropConversion().canConvertHash.equal_range(fromType->className());
-
-            QVector<CanConnectFunction> result;
-
-            for (auto it = range.first; it != range.second; ++it)
+            for (const GtPropertyConverter& converter : canConvertHash)
             {
-                if (it.value().to.className() == toType->className())
+                if (converter.fromClassName() == fromType->className() &&
+                    converter.toClassName() == toType->className())
                 {
-                    result.append(it.value().f);
+                    return converter.canConnectFunc();
                 }
-            }
-
-            if (!result.empty())
-            {
-                return result;
             }
         }
     }
 
     return {};
+}
+
+GtPropertyConversionRegistry::GtPropertyConversionRegistry()
+{
+    // add the basic converter registrations here later
 }
