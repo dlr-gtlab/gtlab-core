@@ -62,8 +62,8 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                         return false;
                     }
                 }
-                else if (from.lowSideBoundaryActive() &&
-                         to.highSideBoundaryActive())
+
+                if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
                 {
                     if (from.lowSideBoundary() > to.highSideBoundary())
                     {
