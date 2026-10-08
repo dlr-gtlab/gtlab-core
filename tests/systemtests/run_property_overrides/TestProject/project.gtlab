@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+<GTLAB projectname="PropertyOverrideProject" version="2.0.12">
+    <env-footprint>
+        <hash>0000000000000000000000000000000000000000000000000000000000000000</hash>
+        <core-ver>2.0.12</core-ver>
+        <modules>
+            <module>
+                <id>Test Process Interface</id>
+                <ver>0.2.0</ver>
+            </module>
+        </modules>
+    </env-footprint>
+    <MODULES>
+        <MODULE name="Test Process Interface" version="0.2.0"/>
+    </MODULES>
+    <METADATA>
+        <CLASS-PROVIDERS>
+            <MODULE name="Test Process Interface">
+                <CLASS>TestConsoleOverrideTask</CLASS>
+                <CLASS>TestConsoleOverrideSolver</CLASS>
+            </MODULE>
+        </CLASS-PROVIDERS>
+    </METADATA>
+    <comment></comment>
+    <LABELS>
+        <object class="GtLabel" name="Default" uuid="{ba2726ee-b478-4899-ab3f-98601b956884}"/>
+    </LABELS>
+</GTLAB>

@@ -49,6 +49,11 @@ Files: tests/**/*.gt*
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC0-1.0
 
+# task group indexes of the sample test projects
+Files: tests/systemtests/**/*.json
+Copyright: 2023 German Aerospace Center (DLR)
+License: CC0-1.0
+
 # test resource definitions
 Files: tests/**/*.qrc*
 Copyright: 2023 German Aerospace Center (DLR)

@@ -1,0 +1,48 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="TestConsoleOverrideTask" uuid="{6c1a1111-2b2b-4c3c-9d4d-5e6f708192a3}" name="Override Task">
+ <property type="bool" name="skip">false</property>
+ <property type="QString" name="processRunner"/>
+ <property type="int" name="maxIter">1</property>
+ <property type="int" name="currentIter">0</property>
+ <property type="int" name="iterations">0</property>
+ <property type="double" name="readOnlyValue">1</property>
+ <objectlist>
+  <object class="TestConsoleOverrideSolver" uuid="{a1000000-0000-4000-8000-000000000001}" name="Solver">
+   <property type="double" name="tolerance">1</property>
+   <property-container name="points">
+    <property name="entry_0" type="Point">
+     <property type="double" name="pressure">1000</property>
+    </property>
+    <property name="entry_1" type="Point">
+     <property type="double" name="pressure">2000</property>
+    </property>
+    <property name="entry_2" type="Point">
+     <property type="double" name="pressure">3000</property>
+    </property>
+   </property-container>
+   <property-container name="boundaries">
+    <property name="inlet" type="Boundary">
+     <property type="double" name="pressure">101325</property>
+    </property>
+   </property-container>
+  </object>
+  <object class="TestConsoleOverrideSolver" uuid="{b2000000-0000-4000-8000-000000000002}" name="Solver">
+   <property type="double" name="tolerance">2</property>
+   <property-container name="points">
+    <property name="entry_0" type="Point">
+     <property type="double" name="pressure">100</property>
+    </property>
+   </property-container>
+   <property-container name="boundaries">
+    <property name="outlet" type="Boundary">
+     <property type="double" name="pressure">202650</property>
+    </property>
+   </property-container>
+  </object>
+ </objectlist>
+</object>
