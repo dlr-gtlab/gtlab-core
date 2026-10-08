@@ -202,7 +202,7 @@ TEST(TestGtProperty, canConnectWithRegisteredFunction)
     // a registered function allows a connection for a property type
     // pair that would be rejected by the fallback
     GtAbstractProperty::registerCanConnect(
-        GtStringProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        GtIntProperty::staticMetaObject, GtStringProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
         });

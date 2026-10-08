@@ -23,8 +23,8 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
     // This old implementation of monitoring properties does not support units
     static auto initOnce = []() {
         GtAbstractProperty::registerCanConnect(
-            GtDoubleProperty::staticMetaObject,
             GtDoubleMonitoringProperty::staticMetaObject,
+            GtDoubleProperty::staticMetaObject,
             [](GtAbstractProperty const&, // LCOV_EXCL_LINE
                GtAbstractProperty const&) -> bool { return true; });
 
