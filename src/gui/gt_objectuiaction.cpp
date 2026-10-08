@@ -19,9 +19,9 @@
 
 struct GtObjectUIAction::Impl
 {
-    explicit
-    Impl(QString name_ = {}, InvokableActionMethod method_ = {}) :
-        name(std::move(name_)), method(std::move(method_))
+    explicit Impl(QString name_ = {}, InvokableActionMethod method_ = {}) :
+        name(std::move(name_)),
+        method(std::move(method_))
     { }
 
     /// Action text
@@ -76,38 +76,32 @@ GtObjectUIAction::fromMethodName(const QString& methodName)
     };
 }
 
-GtObjectUIAction::GtObjectUIAction() noexcept : pimpl(std::make_unique<Impl>())
-{
-}
+GtObjectUIAction::GtObjectUIAction() noexcept :
+    pimpl(std::make_unique<Impl>())
+{ }
 
-GtObjectUIAction::GtObjectUIAction(QString name,
-                                   ActionMethod method) :
-    GtObjectUIAction(std::move(name),
-                     [m = std::move(method)](
-                         QObject* parent, GtObject* target){
+GtObjectUIAction::GtObjectUIAction(QString name, ActionMethod method) :
+    GtObjectUIAction(std::move(name), [m = std::move(method)](
+                                          QObject* parent, GtObject* target) {
         Q_UNUSED(parent)
         if (m) m(target);
     })
-{
-}
+{ }
 
 GtObjectUIAction::GtObjectUIAction(QString name, InvokableActionMethod method) :
     pimpl(std::make_unique<Impl>(std::move(name), std::move(method)))
-{
-}
+{ }
 
-GtObjectUIAction::GtObjectUIAction(GtObjectUIAction const& o) noexcept :
+GtObjectUIAction::GtObjectUIAction(const GtObjectUIAction& o) noexcept :
     pimpl(std::make_unique<Impl>(*o.pimpl))
-{
-}
+{ }
 
 GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o) noexcept :
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
-{
-}
+{ }
 
 GtObjectUIAction&
-GtObjectUIAction::operator=(GtObjectUIAction const& o) noexcept
+GtObjectUIAction::operator=(const GtObjectUIAction& o) noexcept
 {
     GtObjectUIAction tmp{o};
     swap(tmp);

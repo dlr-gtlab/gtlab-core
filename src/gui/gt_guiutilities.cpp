@@ -33,150 +33,148 @@
 namespace
 {
 
-    /// helper method to get parent QWidget by skipping QMenu objects
-    inline QWidget* findParentWidget(QWidget& menu)
+/// helper method to get parent QWidget by skipping QMenu objects
+inline QWidget*
+findParentWidget(QWidget& menu)
+{
+    auto* parent = qobject_cast<QWidget*>(menu.parent());
+
+    // skip if its a menu
+    if (auto* parentMenu = qobject_cast<QMenu*>(parent))
     {
-        auto* parent = qobject_cast<QWidget*>(menu.parent());
-
-        // skip if its a menu
-        if (auto* parentMenu = qobject_cast<QMenu*>(parent))
-        {
-            return findParentWidget(*parentMenu);
-        }
-        if (auto* parentMenu = qobject_cast<QMenuBar*>(parent))
-        {
-            return findParentWidget(*parentMenu);
-        }
-
-        return parent;
+        return findParentWidget(*parentMenu);
+    }
+    if (auto* parentMenu = qobject_cast<QMenuBar*>(parent))
+    {
+        return findParentWidget(*parentMenu);
     }
 
-    inline int getOrder(QAction const* action)
-    {
-        if (!action) return 0;
+    return parent;
+}
 
-        bool ok = true;
-        int priority = action->property("orderPriority").toInt(&ok);
-        return ok ? priority : 0;
+inline int
+getOrder(const QAction* action)
+{
+    if (!action) return 0;
+
+    bool ok = true;
+    int priority = action->property("orderPriority").toInt(&ok);
+    return ok ? priority : 0;
+}
+
+/// Helper method to find the action, a new action needs to be inserted after
+/// according to the order priority
+QAction*
+actionBefore(QMenu& menu, int priority)
+{
+    // append after all actions
+    if (priority == gt::gui::OrderPriority::Last) return nullptr;
+
+    const QList<QAction*> actions = menu.actions();
+    if (actions.empty()) return nullptr;
+
+    // prepend action
+    if (priority == gt::gui::OrderPriority::First) return actions.first();
+
+    auto iter = std::find_if(
+        actions.begin(), actions.end(),
+        [priority](QAction* action) { return getOrder(action) > priority; });
+    if (iter == actions.end())
+        return nullptr; // all others have higher priority
+
+    return *iter;
+}
+
+/// helper method to add a ui-action to a menu. Visibility and status are
+/// updated each time the menu is opened
+QAction*
+addActionBefore(QMenu& menu, QAction* before, const GtObjectUIAction& uiAction,
+                GtObject* targetObj = nullptr, QObject* parentObj = nullptr)
+{
+    // separator
+    if (uiAction.isSeparator())
+    {
+        QAction* separator = menu.insertSeparator(before);
+        gt::gui::setOrderPriority(*separator, uiAction.orderPriority());
+        return separator;
     }
 
-    /// Helper method to find the action, a new action needs to be inserted after
-    /// according to the order priority
-    QAction* actionBefore(QMenu& menu, int priority)
+    if (!uiAction.method()) return nullptr;
+
+    QAction* action = new QAction(uiAction.name(), &menu);
+    gt::gui::setOrderPriority(*action, uiAction.orderPriority());
+
+    // insert at correct position
+    menu.insertAction(before, action);
+
+    if (uiAction.visibilityMethod() || uiAction.verificationMethod())
     {
-        // append after all actions
-        if (priority == gt::gui::OrderPriority::Last) return nullptr;
+        auto updateState = [isVisible = uiAction.visibilityMethod(),
+                            isEnabled = uiAction.verificationMethod(), action,
+                            parentObj, targetObj]() {
+            // visibility
+            if (isVisible) action->setVisible(isVisible(parentObj, targetObj));
+            // verification
+            if (isEnabled) action->setEnabled(isEnabled(parentObj, targetObj));
+        };
 
-        QList<QAction*> const actions = menu.actions();
-        if (actions.empty()) return nullptr;
-
-        // prepend action
-        if (priority == gt::gui::OrderPriority::First) return actions.first();
-
-        auto iter = std::find_if(actions.begin(), actions.end(),
-                                 [priority](QAction* action) {
-                                     return getOrder(action) > priority;
-                                 });
-        if (iter == actions.end())
-            return nullptr; // all others have higher priority
-
-        return *iter;
+        if (menu.isVisible())
+        {
+            updateState();
+        }
+        else
+        {
+            // -> use only one slot-call for both
+            QObject::connect(&menu, &QMenu::aboutToShow, action, updateState);
+        }
     }
 
-    /// helper method to add a ui-action to a menu. Visibility and status are
-    /// updated each time the menu is opened
-    QAction* addActionBefore(QMenu& menu, QAction* before,
-                             const GtObjectUIAction& uiAction,
-                             GtObject* targetObj = nullptr,
-                             QObject* parentObj = nullptr)
+    // icon
+    if (!uiAction.icon().isNull())
     {
-        // separator
-        if (uiAction.isSeparator())
+        action->setIcon(uiAction.icon());
+    }
+
+    // shortcut
+    if (!uiAction.shortCut().isEmpty())
+    {
+        action->setShortcut(uiAction.shortCut());
+        action->setShortcutContext(Qt::ApplicationShortcut);
+
+        if (QWidget* parent = findParentWidget(menu))
         {
-            QAction* separator = menu.insertSeparator(before);
-            gt::gui::setOrderPriority(*separator, uiAction.orderPriority());
-            return separator;
+            parent->addAction(action);
         }
+    }
 
-        if (!uiAction.method()) return nullptr;
+    // method
+    QObject::connect(action, &QAction::triggered, &menu,
+                     [method = uiAction.method(), parentObj, targetObj]() {
+                         method(parentObj, targetObj);
+                     });
 
-        QAction* action = new QAction(uiAction.name(), &menu);
-        gt::gui::setOrderPriority(*action, uiAction.orderPriority());
+    return action;
+}
 
-        // insert at correct position
-        menu.insertAction(before, action);
+/// helper method to add a ui-action to a menu. Inserts action at correct spot
+/// according to its order priority
+QAction*
+addAction(QMenu& menu, const GtObjectUIAction& uiAction,
+          GtObject* targetObj = nullptr, QObject* parentObj = nullptr)
+{
+    QAction* before = actionBefore(menu, uiAction.orderPriority());
+    return addActionBefore(menu, before, uiAction, targetObj, parentObj);
+}
 
-        if (uiAction.visibilityMethod() || uiAction.verificationMethod())
-        {
-            auto updateState = [isVisible = uiAction.visibilityMethod(),
-                                isEnabled = uiAction.verificationMethod(),
-                                action, parentObj, targetObj]() {
-                // visibility
-                if (isVisible)
-                    action->setVisible(isVisible(parentObj, targetObj));
-                // verification
-                if (isEnabled)
-                    action->setEnabled(isEnabled(parentObj, targetObj));
-            };
-
-            if (menu.isVisible())
-            {
-                updateState();
-            }
-            else
-            {
-                // -> use only one slot-call for both
-                QObject::connect(&menu, &QMenu::aboutToShow, action,
-                                 updateState);
-            }
-        }
-
-        // icon
-        if (!uiAction.icon().isNull())
-        {
-            action->setIcon(uiAction.icon());
-        }
-
-        // shortcut
-        if (!uiAction.shortCut().isEmpty())
-        {
-            action->setShortcut(uiAction.shortCut());
-            action->setShortcutContext(Qt::ApplicationShortcut);
-
-            if (QWidget* parent = findParentWidget(menu))
-            {
-                parent->addAction(action);
-            }
-        }
-
-        // method
-        QObject::connect(action, &QAction::triggered, &menu,
-                         [method = uiAction.method(), parentObj, targetObj]() {
-                             method(parentObj, targetObj);
+/// counts the visible actions (not separators)
+inline int
+countVisibleActions(QList<QAction*> const& actions)
+{
+    return std::count_if(std::begin(actions), std::end(actions),
+                         [](const QAction* a) {
+                             return a && !a->isSeparator() && a->isVisible();
                          });
-
-        return action;
-    }
-
-    /// helper method to add a ui-action to a menu. Inserts action at correct spot
-    /// according to its order priority
-    QAction* addAction(QMenu& menu, const GtObjectUIAction& uiAction,
-                       GtObject* targetObj = nullptr,
-                       QObject* parentObj = nullptr)
-    {
-        QAction* before = actionBefore(menu, uiAction.orderPriority());
-        return addActionBefore(menu, before, uiAction, targetObj, parentObj);
-    }
-
-    /// counts the visible actions (not separators)
-    inline int
-    countVisibleActions(QList<QAction*> const& actions)
-    {
-        return std::count_if(std::begin(actions), std::end(actions),
-                             [](QAction const* a){
-            return a && !a->isSeparator() && a->isVisible();
-        });
-    }
+}
 
 } // namespace
 
@@ -184,7 +182,7 @@ void
 gt::gui::addToMenu(std::initializer_list<GtObjectUIAction> actions, QMenu& menu,
                    GtObject* obj, QObject* parent)
 {
-    for (GtObjectUIAction const& action : actions)
+    for (const GtObjectUIAction& action : actions)
     {
         addAction(menu, action, obj, parent);
     }
@@ -194,7 +192,7 @@ void
 gt::gui::addToMenu(const QList<GtObjectUIAction>& actions, QMenu& menu,
                    GtObject* obj, QObject* parent)
 {
-    for (GtObjectUIAction const& action : actions)
+    for (const GtObjectUIAction& action : actions)
     {
         addAction(menu, action, obj, parent);
     }
@@ -251,7 +249,7 @@ addOpenWithActions(QMenu& menu, GtObject& obj)
         }
 
         auto lambda = [name = openWithList.first(), o = &obj](
-                          GtObject* target){ gtMdiLauncher->open(name, o); };
+                          GtObject* target) { gtMdiLauncher->open(name, o); };
         auto openAction =
             gt::gui::makeAction(QObject::tr("Open"), lambda)
                 .setIcon(gt::gui::icon::open())
@@ -443,9 +441,9 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
         auto rename = makeRenameAction(obj, idx, *view);
         if (!rename.isEmpty())
         {
-            QAction* before = addAction
-                (menu,
-                 makeSeparator(gt::gui::OrderPriority::AfterRenameSection));
+            QAction* before = addAction(
+                menu,
+                makeSeparator(gt::gui::OrderPriority::AfterRenameSection));
             before = addActionBefore(menu, before, rename, &obj);
             addActionBefore(
                 menu, before,

@@ -29,10 +29,16 @@ TEST(GtObjectUIAction, copy_constructor)
     bool verificationCalled = false;
     bool visibilityCalled = false;
 
-    GtObjectUIAction action{"myAction", [](GtObject*){}};
+    GtObjectUIAction action{"myAction", [](GtObject*) { }};
     action.setOrderPriority(gt::gui::OrderPriority::ExportAction);
-    action.setVerificationMethod([&verificationCalled](GtObject*){ verificationCalled = true; return true; });
-    action.setVisibilityMethod([&visibilityCalled](GtObject*){ visibilityCalled = true; return true; });
+    action.setVerificationMethod([&verificationCalled](GtObject*) {
+        verificationCalled = true;
+        return true;
+    });
+    action.setVisibilityMethod([&visibilityCalled](GtObject*) {
+        visibilityCalled = true;
+        return true;
+    });
     action.setShortCut(QKeySequence{Qt::Key_F1});
 
     GtObjectUIAction copy{action};
@@ -69,10 +75,16 @@ TEST(GtObjectUIAction, move_constructor)
     bool verificationCalled = false;
     bool visibilityCalled = false;
 
-    GtObjectUIAction action{"myAction", [](GtObject*){}};
+    GtObjectUIAction action{"myAction", [](GtObject*) { }};
     action.setOrderPriority(gt::gui::OrderPriority::DeleteAction);
-    action.setVerificationMethod([&verificationCalled](GtObject*){ verificationCalled = true; return true; });
-    action.setVisibilityMethod([&visibilityCalled](GtObject*){ visibilityCalled = true; return true; });
+    action.setVerificationMethod([&verificationCalled](GtObject*) {
+        verificationCalled = true;
+        return true;
+    });
+    action.setVisibilityMethod([&visibilityCalled](GtObject*) {
+        visibilityCalled = true;
+        return true;
+    });
     action.setShortCut(QKeySequence{Qt::Key_F1});
 
     GtObjectUIAction moved{std::move(action)};
@@ -101,13 +113,20 @@ TEST(GtObjectUIAction, copy_assignment)
     bool verificationCalled = false;
     bool visibilityCalled = false;
 
-    GtObjectUIAction action{"myAction", [](GtObject*){}};
+    GtObjectUIAction action{"myAction", [](GtObject*) { }};
     action.setOrderPriority(gt::gui::OrderPriority::ExportAction);
-    action.setVerificationMethod([&verificationCalled](GtObject*){ verificationCalled = true; return true; });
-    action.setVisibilityMethod([&visibilityCalled](GtObject*){ visibilityCalled = true; return true; });
+    action.setVerificationMethod([&verificationCalled](GtObject*) {
+        verificationCalled = true;
+        return true;
+    });
+    action.setVisibilityMethod([&visibilityCalled](GtObject*) {
+        visibilityCalled = true;
+        return true;
+    });
     action.setShortCut(QKeySequence{Qt::Key_F1});
 
-    GtObjectUIAction copy{"myAction2", GtObjectUIAction::InvokableActionMethod(nullptr)};
+    GtObjectUIAction copy{"myAction2",
+                          GtObjectUIAction::InvokableActionMethod(nullptr)};
     EXPECT_FALSE(copy.method());
 
     copy = action;
@@ -144,13 +163,20 @@ TEST(GtObjectUIAction, move_assignment)
     bool verificationCalled = false;
     bool visibilityCalled = false;
 
-    GtObjectUIAction action{"myAction", [](GtObject*){}};
+    GtObjectUIAction action{"myAction", [](GtObject*) { }};
     action.setOrderPriority(gt::gui::OrderPriority::DeleteAction);
-    action.setVerificationMethod([&verificationCalled](GtObject*){ verificationCalled = true; return true; });
-    action.setVisibilityMethod([&visibilityCalled](GtObject*){ visibilityCalled = true; return true; });
+    action.setVerificationMethod([&verificationCalled](GtObject*) {
+        verificationCalled = true;
+        return true;
+    });
+    action.setVisibilityMethod([&visibilityCalled](GtObject*) {
+        visibilityCalled = true;
+        return true;
+    });
     action.setShortCut(QKeySequence{Qt::Key_F1});
 
-    GtObjectUIAction moved{"myAction2", GtObjectUIAction::InvokableActionMethod(nullptr)};
+    GtObjectUIAction moved{"myAction2",
+                           GtObjectUIAction::InvokableActionMethod(nullptr)};
     EXPECT_FALSE(moved.method());
 
     moved = std::move(action);
@@ -179,10 +205,11 @@ TEST(GtObjectUIAction, method_invocation)
     bool methodCalled = false;
     GtObject* capturedTarget = nullptr;
 
-    GtObjectUIAction action{"TestAction", [&methodCalled, &capturedTarget](GtObject* target){
-        methodCalled = true;
-        capturedTarget = target;
-    }};
+    GtObjectUIAction action{"TestAction",
+                            [&methodCalled, &capturedTarget](GtObject* target) {
+                                methodCalled = true;
+                                capturedTarget = target;
+                            }};
 
     GtObject target;
     action.method()(nullptr, &target);
@@ -197,10 +224,11 @@ TEST(GtObjectUIAction, verification_method)
     GtObject* capturedTarget = nullptr;
 
     GtObjectUIAction action;
-    action.setVerificationMethod([&verificationResult, &capturedTarget](GtObject* target) -> bool {
-        capturedTarget = target;
-        return verificationResult;
-    });
+    action.setVerificationMethod(
+        [&verificationResult, &capturedTarget](GtObject* target) -> bool {
+            capturedTarget = target;
+            return verificationResult;
+        });
 
     GtObject target;
     bool result = action.verificationMethod()(nullptr, &target);
@@ -215,10 +243,11 @@ TEST(GtObjectUIAction, visibility_method)
     GtObject* capturedTarget = nullptr;
 
     GtObjectUIAction action;
-    action.setVisibilityMethod([&visibilityResult, &capturedTarget](GtObject* target) -> bool {
-        capturedTarget = target;
-        return visibilityResult;
-    });
+    action.setVisibilityMethod(
+        [&visibilityResult, &capturedTarget](GtObject* target) -> bool {
+            capturedTarget = target;
+            return visibilityResult;
+        });
 
     GtObject target;
     bool result = action.visibilityMethod()(nullptr, &target);

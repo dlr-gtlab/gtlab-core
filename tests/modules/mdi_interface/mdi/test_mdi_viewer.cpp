@@ -35,7 +35,7 @@ TestMdiViewer::TestMdiViewer()
     m_view->setGrid(grid);
 
     // dimensions
-    auto resetGrid = [grid](GtObject* = nullptr){
+    auto resetGrid = [grid](GtObject* = nullptr) {
         grid->setSpacing(50);
         grid->setSubdivisions(5);
     };
@@ -86,70 +86,77 @@ TestMdiViewer::TestMdiViewer()
 
     // overlay
     auto showAction =
-        gt::gui::makeAction(tr("Show"),
-                            [grid](auto){ grid->setVisible(true); })
-            .setVisibilityMethod([grid](auto){ return !grid->isVisible(); })
-            .setIcon(gt::gui::icon::eye());
+        gt::gui::makeAction(tr("Show"), [grid](auto) {
+            grid->setVisible(true);
+        }).setVisibilityMethod([grid](auto) {
+              return !grid->isVisible();
+          }).setIcon(gt::gui::icon::eye());
 
     auto hideAction =
-        gt::gui::makeAction(tr("Hide"),
-                            [grid](auto){ grid->setVisible(false); })
-            .setVisibilityMethod([grid](auto){ return grid->isVisible(); })
-            .setIcon(gt::gui::icon::eyeOff());
+        gt::gui::makeAction(tr("Hide"), [grid](auto) {
+            grid->setVisible(false);
+        }).setVisibilityMethod([grid](auto) {
+              return grid->isVisible();
+          }).setIcon(gt::gui::icon::eyeOff());
 
     auto showMajorGridAction =
-        gt::gui::makeAction(tr("Enable Grid"),
-                            [grid](auto){ grid->enableGrid(true); })
-            .setVisibilityMethod([grid](auto){ return !grid->isGridEnabled(); })
-            .setIcon(gt::gui::icon::grid());
+        gt::gui::makeAction(tr("Enable Grid"), [grid](auto) {
+            grid->enableGrid(true);
+        }).setVisibilityMethod([grid](auto) {
+              return !grid->isGridEnabled();
+          }).setIcon(gt::gui::icon::grid());
 
     auto hideMajorGridAction =
         gt::gui::makeAction(tr("Disable Grid"),
-                            [grid](auto){ grid->enableGrid(false); })
-            .setVisibilityMethod([grid](auto){ return grid->isGridEnabled(); })
+                            [grid](auto) { grid->enableGrid(false); })
+            .setVisibilityMethod([grid](auto) { return grid->isGridEnabled(); })
             .setIcon(gt::gui::colorize(gt::gui::icon::grid(),
                                        gt::gui::color::disabled()));
 
     auto showMinorGridAction =
         gt::gui::makeAction(tr("Enable Minor Grid"),
-                            [grid](auto){ grid->enableMinorGrid(true); })
-            .setVisibilityMethod([grid](auto){ return !grid->isMinorGridEnabled(); })
+                            [grid](auto) { grid->enableMinorGrid(true); })
+            .setVisibilityMethod(
+                [grid](auto) { return !grid->isMinorGridEnabled(); })
             .setIcon(gt::gui::icon::grid());
 
     auto hideMinorGridAction =
         gt::gui::makeAction(tr("Disable Minor Grid"),
-                            [grid](auto){ grid->enableMinorGrid(false); })
-            .setVisibilityMethod([grid](auto){ return grid->isMinorGridEnabled(); })
+                            [grid](auto) { grid->enableMinorGrid(false); })
+            .setVisibilityMethod(
+                [grid](auto) { return grid->isMinorGridEnabled(); })
             .setIcon(gt::gui::colorize(gt::gui::icon::grid(),
                                        gt::gui::color::disabled()));
 
     auto hideAxisAction =
         gt::gui::makeAction(tr("Hide Axis"),
-                            [grid](auto){ grid->setActiveAxis({}); })
-            .setVisibilityMethod([grid](auto){ return grid->isAxisVisible(); })
+                            [grid](auto) { grid->setActiveAxis({}); })
+            .setVisibilityMethod([grid](auto) { return grid->isAxisVisible(); })
             .setIcon(gt::gui::colorize(gt::gui::icon::mathPlus(),
                                        gt::gui::color::disabled()));
 
     auto showHAxisAction =
-        gt::gui::makeAction(tr("Enable Horizontal Axis only"),
-                            [grid](auto){ grid->setActiveAxis(Qt::Horizontal); })
-            .setVisibilityMethod([grid](auto){
-                return grid->activeAxis() != Qt::Horizontal;
-            })
+        gt::gui::makeAction(
+            tr("Enable Horizontal Axis only"),
+            [grid](auto) { grid->setActiveAxis(Qt::Horizontal); })
+            .setVisibilityMethod(
+                [grid](auto) { return grid->activeAxis() != Qt::Horizontal; })
             .setIcon(gt::gui::icon::mathMinus());
 
     auto showVAxisAction =
         gt::gui::makeAction(tr("Enable Vertical Axis only"),
-                            [grid](auto){ grid->setActiveAxis(Qt::Vertical); })
-            .setVisibilityMethod([grid](auto){
-                return grid->activeAxis() != Qt::Vertical;
-            })
+                            [grid](auto) { grid->setActiveAxis(Qt::Vertical); })
+            .setVisibilityMethod(
+                [grid](auto) { return grid->activeAxis() != Qt::Vertical; })
             .setIcon(gt::gui::icon::mathBar());
 
     auto showAllAxisAction =
         gt::gui::makeAction(tr("Enable Both Axis"),
-                            [grid](auto){ grid->setActiveAxis(Qt::Horizontal | Qt::Vertical); })
-            .setVisibilityMethod([grid](auto){
+                            [grid](auto) {
+                                grid->setActiveAxis(Qt::Horizontal |
+                                                    Qt::Vertical);
+                            })
+            .setVisibilityMethod([grid](auto) {
                 return grid->activeAxis() != (Qt::Horizontal | Qt::Vertical);
             })
             .setIcon(gt::gui::icon::mathPlus());
@@ -162,46 +169,51 @@ TestMdiViewer::TestMdiViewer()
     constexpr int group1 = 1;
     QMenu* gridMenu = menuBar->addMenu(tr("Visibility"));
     gt::gui::addToMenu(
-        {
-            showMajorGridAction,
-            hideMajorGridAction,
-            showMinorGridAction,
-            gt::gui::makeSeparator().setOrderPriority(group3),
-            hideMinorGridAction,
-            hideAxisAction.setOrderPriority(gt::gui::OrderPriority::Last), // placed last
-            showHAxisAction.setOrderPriority(group3),
-            showVAxisAction.setOrderPriority(group3),
-            showAllAxisAction.setOrderPriority(group3),
-            gt::gui::makeSeparator(group1),
-            showAction.setOrderPriority(group1),
-            hideAction.setOrderPriority(group1)
-        },
+        {showMajorGridAction, hideMajorGridAction, showMinorGridAction,
+         gt::gui::makeSeparator().setOrderPriority(group3), hideMinorGridAction,
+         hideAxisAction.setOrderPriority(
+             gt::gui::OrderPriority::Last), // placed last
+         showHAxisAction.setOrderPriority(group3),
+         showVAxisAction.setOrderPriority(group3),
+         showAllAxisAction.setOrderPriority(group3),
+         gt::gui::makeSeparator(group1), showAction.setOrderPriority(group1),
+         hideAction.setOrderPriority(group1)},
         *gridMenu, nullptr);
 
     QKeySequence scIncSpacing = registerShortCut(
-        "Increment Spacing", QKeySequence{Qt::Key_Plus  | Qt::ShiftModifier});
+        "Increment Spacing", QKeySequence{Qt::Key_Plus | Qt::ShiftModifier});
     QKeySequence scDecSpacing = registerShortCut(
         "Decrement Spacing", QKeySequence{Qt::Key_Minus | Qt::ShiftModifier});
-    QKeySequence scIncSubdiv  = registerShortCut(
-        "Increment Subdivisons", QKeySequence{Qt::Key_Plus  | Qt::ControlModifier});
-    QKeySequence scDecSubdiv  = registerShortCut(
-        "Decrement Subdivisons", QKeySequence{Qt::Key_Minus | Qt::ControlModifier});
+    QKeySequence scIncSubdiv =
+        registerShortCut("Increment Subdivisons",
+                         QKeySequence{Qt::Key_Plus | Qt::ControlModifier});
+    QKeySequence scDecSubdiv =
+        registerShortCut("Decrement Subdivisons",
+                         QKeySequence{Qt::Key_Minus | Qt::ControlModifier});
 
-    auto canIncrHSpacing = [grid](GtObject* = nullptr){ return grid->hSpacing() < 1000; };
-    auto canIncrVSpacing = [grid](GtObject* = nullptr){ return grid->vSpacing() < 1000; };
-    auto canDecrHSpacing = [grid](GtObject* = nullptr){ return grid->hSpacing() > 10; };
-    auto canDecrVSpacing = [grid](GtObject* = nullptr){ return grid->vSpacing() > 10; };
+    auto canIncrHSpacing = [grid](GtObject* = nullptr) {
+        return grid->hSpacing() < 1000;
+    };
+    auto canIncrVSpacing = [grid](GtObject* = nullptr) {
+        return grid->vSpacing() < 1000;
+    };
+    auto canDecrHSpacing = [grid](GtObject* = nullptr) {
+        return grid->hSpacing() > 10;
+    };
+    auto canDecrVSpacing = [grid](GtObject* = nullptr) {
+        return grid->vSpacing() > 10;
+    };
 
-    auto const incrHSpacing = [=](GtObject* = nullptr){
+    const auto incrHSpacing = [=](GtObject* = nullptr) {
         if (canIncrHSpacing()) grid->setHSpacing(grid->hSpacing() + 10);
     };
-    auto const incrVSpacing = [=](GtObject* = nullptr){
+    const auto incrVSpacing = [=](GtObject* = nullptr) {
         if (canIncrVSpacing()) grid->setVSpacing(grid->vSpacing() + 10);
     };
-    auto const decrHSpacing = [=](GtObject* = nullptr){
+    const auto decrHSpacing = [=](GtObject* = nullptr) {
         if (canDecrHSpacing()) grid->setHSpacing(grid->hSpacing() - 10);
     };
-    auto const decrVSpacing = [=](GtObject* = nullptr){
+    const auto decrVSpacing = [=](GtObject* = nullptr) {
         if (canDecrVSpacing()) grid->setVSpacing(grid->vSpacing() - 10);
     };
 
@@ -227,22 +239,34 @@ TestMdiViewer::TestMdiViewer()
             .setVerificationMethod(canDecrVSpacing)
             .setIcon(gt::gui::icon::mathMinus());
 
-    auto canIncrHSubdivs = [grid](GtObject* = nullptr){ return grid->hSubdivisions() < 20; };
-    auto canIncrVSubdivs = [grid](GtObject* = nullptr){ return grid->vSubdivisions() < 20; };
-    auto canDecrHSubdivs = [grid](GtObject* = nullptr){ return grid->hSubdivisions() > 1; };
-    auto canDecrVSubdivs = [grid](GtObject* = nullptr){ return grid->vSubdivisions() > 1; };
+    auto canIncrHSubdivs = [grid](GtObject* = nullptr) {
+        return grid->hSubdivisions() < 20;
+    };
+    auto canIncrVSubdivs = [grid](GtObject* = nullptr) {
+        return grid->vSubdivisions() < 20;
+    };
+    auto canDecrHSubdivs = [grid](GtObject* = nullptr) {
+        return grid->hSubdivisions() > 1;
+    };
+    auto canDecrVSubdivs = [grid](GtObject* = nullptr) {
+        return grid->vSubdivisions() > 1;
+    };
 
-    auto const incrHSubdivs = [=](GtObject* = nullptr){
-        if (canIncrHSubdivs()) grid->setHSubdivisions(grid->hSubdivisions() + 1);
+    const auto incrHSubdivs = [=](GtObject* = nullptr) {
+        if (canIncrHSubdivs())
+            grid->setHSubdivisions(grid->hSubdivisions() + 1);
     };
-    auto const incrVSubdivs = [=](GtObject* = nullptr){
-        if (canIncrVSubdivs()) grid->setVSubdivisions(grid->vSubdivisions() + 1);
+    const auto incrVSubdivs = [=](GtObject* = nullptr) {
+        if (canIncrVSubdivs())
+            grid->setVSubdivisions(grid->vSubdivisions() + 1);
     };
-    auto const decrHSubdivs = [=](GtObject* = nullptr){
-        if (canDecrHSubdivs()) grid->setHSubdivisions(grid->hSubdivisions() - 1);
+    const auto decrHSubdivs = [=](GtObject* = nullptr) {
+        if (canDecrHSubdivs())
+            grid->setHSubdivisions(grid->hSubdivisions() - 1);
     };
-    auto const decrVSubdivs = [=](GtObject* = nullptr){
-        if (canDecrVSubdivs()) grid->setVSubdivisions(grid->vSubdivisions() - 1);
+    const auto decrVSubdivs = [=](GtObject* = nullptr) {
+        if (canDecrVSubdivs())
+            grid->setVSubdivisions(grid->vSubdivisions() - 1);
     };
 
     auto incrementHSubdivsAction =
@@ -267,26 +291,21 @@ TestMdiViewer::TestMdiViewer()
             .setVerificationMethod(canDecrVSubdivs)
             .setIcon(gt::gui::icon::mathMinus());
 
-    auto resetGridAction=
-        gt::gui::makeAction(tr("Reset"), resetGrid)
-            .setIcon(gt::gui::icon::revert());
+    auto resetGridAction = gt::gui::makeAction(tr("Reset"), resetGrid)
+                               .setIcon(gt::gui::icon::revert());
 
     QMenu* spacingMenu = menuBar->addMenu(tr("Spacing"));
     gt::gui::addToMenu(
         {
-            incrementHSpacingAction,
-            decrementHSpacingAction,
-            gt::gui::makeSeparator(),
-            incrementVSpacingAction,
-            decrementVSpacingAction,
-            gt::gui::makeSeparator(),
-            incrementHSubdivsAction,
-            decrementHSubdivsAction,
-            gt::gui::makeSeparator(),
-            incrementVSubdivsAction,
+            incrementHSpacingAction, decrementHSpacingAction,
+            gt::gui::makeSeparator(), incrementVSpacingAction,
+            decrementVSpacingAction, gt::gui::makeSeparator(),
+            incrementHSubdivsAction, decrementHSubdivsAction,
+            gt::gui::makeSeparator(), incrementVSubdivsAction,
             decrementVSubdivsAction,
             gt::gui::makeSeparator(gt::gui::OrderPriority::First), // placed 2nd
-            resetGridAction.setOrderPriority(gt::gui::OrderPriority::First) // placed 1st
+            resetGridAction.setOrderPriority(
+                gt::gui::OrderPriority::First) // placed 1st
         },
         *spacingMenu, nullptr);
 

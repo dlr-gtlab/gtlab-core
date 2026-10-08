@@ -28,26 +28,22 @@ class QIcon;
 class GT_GUI_EXPORT GtObjectUIActionGroup
 {
 public:
-
     /**
      * @brief Constructor
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use non-default constructor.")
     GtObjectUIActionGroup();
 
-    explicit
-    GtObjectUIActionGroup(QString groupName);
+    explicit GtObjectUIActionGroup(QString groupName);
 
-    GtObjectUIActionGroup(QString groupName,
-                          QList<GtObjectUIAction> action);
+    GtObjectUIActionGroup(QString groupName, QList<GtObjectUIAction> action);
 
-    GtObjectUIActionGroup(QString groupName,
-                          QList<GtObjectUIAction> actions,
+    GtObjectUIActionGroup(QString groupName, QList<GtObjectUIAction> actions,
                           const QString& icon);
 
-    GtObjectUIActionGroup(GtObjectUIActionGroup const&) noexcept;
+    GtObjectUIActionGroup(const GtObjectUIActionGroup&) noexcept;
     GtObjectUIActionGroup(GtObjectUIActionGroup&&) noexcept;
-    GtObjectUIActionGroup& operator=(GtObjectUIActionGroup const&) noexcept;
+    GtObjectUIActionGroup& operator=(const GtObjectUIActionGroup&) noexcept;
     GtObjectUIActionGroup& operator=(GtObjectUIActionGroup&&) noexcept;
     ~GtObjectUIActionGroup() noexcept;
 
@@ -120,7 +116,7 @@ public:
      * @param action Action to append
      * @return This
      */
-    GtObjectUIActionGroup& addAction(GtObjectUIAction const& action);
+    GtObjectUIActionGroup& addAction(const GtObjectUIAction& action);
 
     /**
      * @brief Swaps this action group with `other`
@@ -129,12 +125,15 @@ public:
     void swap(GtObjectUIActionGroup& other) noexcept;
 
 private:
-
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };
 
-inline void swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept { a.swap(b); }
+inline void
+swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept
+{
+    a.swap(b);
+}
 
 namespace gt
 {
