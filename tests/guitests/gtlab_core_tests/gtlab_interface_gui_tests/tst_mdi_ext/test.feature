@@ -25,12 +25,12 @@ Feature: Test the mdi interface by extending a module
          # check number and content of context menu entries
          When the context menu of the entry is opened
          Then the menu contains 6 entries
-          And the menu contains the actions 'Open, Open With, Test Action Group, Test Action Group 2, Test Action, Test Action 2' in order
+          And the menu contains the actions 'First Test Action, Open, Open With, Test Action Group, Test Action, Last Test Action Group' in order
          # check listed actions and check the output dock
-         When the action 'Test Action Group 2 > Test Group Action' is activated
+         When the action 'Last Test Action Group > Test Group Action' is activated
          Then the last output line reads 'TEST MDI INTERFACE EXT - TEST GROUP ACTION'
           And the last output line is of type 'INFO'
-         When the action 'Test Action 2' in the context menu of the entry is activated
+         When the action 'First Test Action' in the context menu of the entry is activated
          Then the last output line reads 'TEST MDI INTERFACE EXT - TEST ACTION'
           And the last output line is of type 'INFO'
 
