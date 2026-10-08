@@ -40,9 +40,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                 // check of the units:
                 // only identical units and nondimensional should be connected
                 const auto isUnitFree = [](auto category) {
-                    return category == GtUnit::NonDimensional ||
-                           category == GtUnit::NonDimensionalPercentage ||
-                           category == GtUnit::None;
+                    return category == GtUnit::None;
                 };
 
                 if (!isUnitFree(from.unitCategory()) &&
