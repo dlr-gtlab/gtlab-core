@@ -434,16 +434,14 @@ GtAbstractProperty::canConnect(GtAbstractProperty& b)
 {
     auto& a = *this;
 
-    auto functions = gtPropConversion().canConnectFunctions(*metaObject(), *b.metaObject());
+    auto function = gtPropConversion().canConnectFunction(*metaObject(), *b.metaObject());
 
-    if (functions.empty())
+    if (!function)
     {
         return metaObject()->className() == b.metaObject()->className();
     }
 
-    return std::any_of(
-        functions.begin(), functions.end(),
-        [&](const auto& canConnectProps) { return canConnectProps(a, b); });
+    return true;
 }
 
 void
