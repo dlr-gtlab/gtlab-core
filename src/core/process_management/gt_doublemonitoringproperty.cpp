@@ -25,7 +25,7 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
         GtAbstractProperty::registerCanConnect(
             GtDoubleProperty::staticMetaObject,
             GtDoubleMonitoringProperty::staticMetaObject,
-            [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool { // LCOV_EXCL_LINE
                 return true;
             });
 
