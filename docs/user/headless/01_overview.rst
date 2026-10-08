@@ -57,11 +57,15 @@ The path syntax is intentionally small:
 
 - ``/`` navigates through the child objects, ``.`` switches to property access.
 - ``ObjectName`` matches the object name and must resolve unambiguously,
-  ``ObjectName[n]`` selects the zero based ``n``\ th child with that name.
+  ``ObjectName[n]`` selects the one-based ``n``\ th child with that name;
+  indices start at 1.
 - ``{uuid}`` selects the direct child object with the given UUID.
 - ``points[2].pressure`` selects the member of the second entry of a sequential
-  property container, ``boundaries[{inlet}].pressure`` the member of the entry
-  with the given id of an associative property container.
+  property container. Numeric selectors are one-based and ``[0]`` is invalid.
+  ``boundaries[{inlet}].pressure`` selects an associative entry by id.
+- If ``Foo[1].bar`` matches both a child object and a property container on the
+  current object, it is ambiguous. Prefix it with a dot (``.Foo[1].bar``) to
+  force property-container access on the current object.
 
 The value is converted and validated by the regular GTlab property mechanism,
 so numbers are expected in the units of the property and read only and

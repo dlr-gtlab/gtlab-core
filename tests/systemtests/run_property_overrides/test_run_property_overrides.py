@@ -226,19 +226,43 @@ def test_overrides_are_applied_and_task_is_executed(
         session_id,
         [
             "iterations=100",
-            "Solver[0].tolerance=1e-6",
+            "Solver[1].tolerance=1e-6",
             f"{SOLVER_UUID}.tolerance=2e-6",
-            "Solver[0].points[2].pressure=420000",
-            "Solver[0].boundaries[{inlet}].pressure=99000",
+            "Solver[1].points[2].pressure=420000",
+            "Solver[1].boundaries[{inlet}].pressure=99000",
         ],
     )
 
-    for override in ["iterations=100", "Solver[0].tolerance=1e-6",
-                     "Solver[0].points[2].pressure=420000",
-                     "Solver[0].boundaries[{inlet}].pressure=99000"]:
+    for override in ["iterations=100", "Solver[1].tolerance=1e-6",
+                     "Solver[1].points[2].pressure=420000",
+                     "Solver[1].boundaries[{inlet}].pressure=99000"]:
         path, _, value = override.partition("=")
         assert f"Property override applied: {path} = {value}" in result.stdout
 
+    assert "Running Task" in result.stdout
+
+
+def test_file_option_forwards_property_overrides(
+    console_path: Path,
+    console_environment: Dict[str, str],
+    project_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """The --file execution path applies the same repeated --set values."""
+    result = _run_console(
+        console_path,
+        console_environment,
+        tmp_path,
+        "run",
+        "--file",
+        project_dir / "project.gtlab",
+        TASK_NAME,
+        TASK_GROUP,
+        "--set",
+        "iterations=64",
+    )
+
+    assert "Property override applied: iterations = 64" in result.stdout
     assert "Running Task" in result.stdout
 
 
@@ -269,7 +293,7 @@ def test_save_persists_overridden_values(
     """With "--save" the overridden input values are written to the project."""
     _run_task_success(
         console_path, console_environment, tmp_path, session_id,
-        ["iterations=128", "Solver[0].boundaries[{inlet}].pressure=99000"],
+        ["iterations=128", "Solver[1].boundaries[{inlet}].pressure=99000"],
         save=True)
 
     saved = _task_xml(project_dir)
@@ -321,10 +345,15 @@ def test_object_index_out_of_range_is_rejected(
 ) -> None:
     """An index larger than the number of children is an error."""
     result = _run_task(console_path, console_environment, tmp_path, session_id,
-                       ["Solver[2].tolerance=1e-6"])
+                       ["Solver[3].tolerance=1e-6"])
 
     assert result.returncode != 0
     assert "out of range" in result.stderr
+
+    result = _run_task(console_path, console_environment, tmp_path, session_id,
+                       ["Solver[0].tolerance=1e-6"])
+    assert result.returncode != 0
+    assert "Invalid object index" in result.stderr
 
 
 def test_property_container_selectors_are_validated(
@@ -336,10 +365,11 @@ def test_property_container_selectors_are_validated(
 ) -> None:
     """Container selectors must match the container type and must exist."""
     for override, message in [
-        ("Solver[0].points[3].pressure=1", "out of range"),
-        ("Solver[0].points[{inlet}].pressure=1", "sequential"),
-        ("Solver[0].boundaries[0].pressure=1", "associative"),
-        ("Solver[0].boundaries[{outlet}].pressure=1", "No entry with id"),
+        ("Solver[1].points[0].pressure=1", "indices start at 1"),
+        ("Solver[1].points[4].pressure=1", "out of range"),
+        ("Solver[1].points[{inlet}].pressure=1", "sequential"),
+        ("Solver[1].boundaries[1].pressure=1", "associative"),
+        ("Solver[1].boundaries[{outlet}].pressure=1", "No entry with id"),
     ]:
         result = _run_task(console_path, console_environment, tmp_path,
                            session_id, [override])
@@ -362,8 +392,8 @@ def test_unresolved_paths_are_rejected(
     for override in [
         "doesNotExist=1",
         "doesNotExist.tolerance=1",
-        "Solver[0].doesNotExist=1",
-        "Solver[0].points[0]=1",
+        "Solver[1].doesNotExist=1",
+        "Solver[1].points[1]=1",
     ]:
         result = _run_task(console_path, console_environment, tmp_path,
                            session_id, [override])

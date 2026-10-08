@@ -24,6 +24,8 @@ namespace
     struct ResolveResult
     {
         QString error;
+        GtAbstractProperty* property = nullptr;
+        QString readOnlyContainerId;
 
         //! true if the referenced object/name does not exist at all
         bool notFound = false;
@@ -212,15 +214,12 @@ namespace
             bool ok = false;
             const int index = indexStr.toInt(&ok);
 
-            if (!ok || index < 0)
+            if (!ok || index < 1)
             {
-                // not a valid object index; mark as "not found" so that e.g.
-                // a property container access directly on the root object can
-                // still be resolved as alternative interpretation
+                // Leave room for a root property-container interpretation.
                 retval.result.error =
                     QObject::tr("Invalid object index '%1' in path")
                         .arg(segment);
-                retval.result.notFound = true;
                 return retval;
             }
         }
@@ -249,20 +248,21 @@ namespace
             const QString indexStr = suffix.mid(1, suffix.size() - 2);
             const int index = indexStr.toInt();
 
-            if (index >= children.size())
+            if (index > children.size())
             {
                 retval.result.error =
                     QObject::tr(
                         "Object index [%1] out of range: object '%2' has "
-                        "only %3 child/children named '%4'")
+                        "%3 child/children named '%4' (valid: 1 to %5)")
                         .arg(indexStr)
                         .arg(parent.objectName())
                         .arg(children.size())
-                        .arg(name);
+                        .arg(name)
+                        .arg(children.size());
                 return retval;
             }
 
-            retval.object = children.at(index);
+            retval.object = children.at(index - 1);
             return retval;
         }
 
@@ -361,8 +361,8 @@ namespace
     /**
  * @brief Applies a plain "propertyId" path on @object
  */
-    ResolveResult applyPlainProperty(GtObject& object, const QString& propId,
-                                     const QString& path, const QString& value)
+    ResolveResult resolvePlainProperty(GtObject& object, const QString& propId,
+                                       const QString& path)
     {
         ResolveResult result;
 
@@ -388,24 +388,17 @@ namespace
             return result;
         }
 
-        const QString setError = setPropertyValue(prop, path, value);
-
-        if (!setError.isEmpty())
-        {
-            result.error = setError;
-        }
-
+        result.property = prop;
         return result;
     }
 
     /**
  * @brief Applies a "container[selector].propertyId" path on @object
  */
-    ResolveResult applyContainerProperty(GtObject& object,
-                                         const QString& containerToken,
-                                         const QString& memberId,
-                                         const QString& path,
-                                         const QString& value)
+    ResolveResult resolveContainerProperty(GtObject& object,
+                                           const QString& containerToken,
+                                           const QString& memberId,
+                                           const QString& path)
     {
         ResolveResult result;
 
@@ -437,11 +430,7 @@ namespace
 
         if (container->getFlags() & GtPropertyStructContainer::ReadOnly)
         {
-            result.error =
-                QObject::tr(
-                    "Cannot set '%1': property container '%2' is read only")
-                    .arg(path, containerId);
-            return result;
+            result.readOnlyContainerId = containerId;
         }
 
         // the selector still contains the enclosing brackets, e.g. "[2]" or
@@ -515,22 +504,38 @@ namespace
         }
         else
         {
-            const int index = indexStr.toInt();
+            bool ok = false;
+            const int index = indexStr.toInt(&ok);
 
-            if (static_cast<size_t>(index) >= container->size())
+            if (!ok || index < 1)
             {
                 result.error =
-                    QObject::tr("Entry index [%1] out of range: property "
-                                "container '%2' of object '%3' has %4 "
-                                "entries (valid: 0 to %5)")
-                        .arg(indexStr)
-                        .arg(containerId, object.objectName())
-                        .arg(container->size())
-                        .arg(container->size() > 0 ? container->size() - 1 : 0);
+                    QObject::tr("Invalid entry index '%1' in path '%2': "
+                                "indices start at 1")
+                        .arg(indexStr, path);
                 return result;
             }
 
-            entry = &container->at(static_cast<size_t>(index));
+            if (static_cast<size_t>(index) > container->size())
+            {
+                const QString validRange =
+                    container->size() == 0
+                        ? QObject::tr(
+                              "no valid indices; the container is empty")
+                        : QObject::tr("valid indices: 1 to %1")
+                              .arg(container->size());
+                result.error =
+                    QObject::tr("Entry index [%1] out of range: property "
+                                "container '%2' of object '%3' has %4 "
+                                "entries (%5)")
+                        .arg(indexStr)
+                        .arg(containerId, object.objectName())
+                        .arg(container->size())
+                        .arg(validRange);
+                return result;
+            }
+
+            entry = &container->at(static_cast<size_t>(index - 1));
         }
 
         GtAbstractProperty* prop = entry->findProperty(memberId);
@@ -545,36 +550,30 @@ namespace
             return result;
         }
 
-        const QString setError = setPropertyValue(prop, path, value);
-
-        if (!setError.isEmpty())
-        {
-            result.error = setError;
-        }
-
+        result.property = prop;
         return result;
     }
 
     /**
- * @brief Applies the property path (token list after the object path)
+ * @brief Resolves the property path (token list after the object path)
  *
  * Accepted shapes:
  *   [propId]                         plain property
  *   [container[sel], memberId]       property container entry member
  */
-    ResolveResult applyPropertyPath(GtObject& object,
-                                    const QStringList& propTokens,
-                                    const QString& path, const QString& value)
+    ResolveResult resolvePropertyPath(GtObject& object,
+                                      const QStringList& propTokens,
+                                      const QString& path)
     {
         if (propTokens.size() == 1)
         {
-            return applyPlainProperty(object, propTokens.first(), path, value);
+            return resolvePlainProperty(object, propTokens.first(), path);
         }
 
         if (propTokens.size() == 2)
         {
-            return applyContainerProperty(object, propTokens.at(0),
-                                          propTokens.at(1), path, value);
+            return resolveContainerProperty(object, propTokens.at(0),
+                                            propTokens.at(1), path);
         }
 
         ResolveResult result;
@@ -590,6 +589,7 @@ gt::console::parsePropertyOverrides(const QStringList& rawArgs,
                                     QStringList* errors)
 {
     QList<PropertyOverride> retval;
+    bool hadInvalidArgument = false;
 
     for (const QString& arg : rawArgs)
     {
@@ -597,6 +597,7 @@ gt::console::parsePropertyOverrides(const QStringList& rawArgs,
 
         if (sep <= 0)
         {
+            hadInvalidArgument = true;
             if (errors)
             {
                 errors->append(QObject::tr("Invalid --set argument '%1': "
@@ -609,25 +610,29 @@ gt::console::parsePropertyOverrides(const QStringList& rawArgs,
         retval.append(PropertyOverride{arg.left(sep), arg.mid(sep + 1)});
     }
 
-    return retval;
+    return hadInvalidArgument ? QList<PropertyOverride>{} : retval;
 }
 
 QString
 gt::console::applyPropertyOverride(GtObject& root, const QString& path,
                                    const QString& value)
 {
+    const bool propertyOnly = path.startsWith(QLatin1Char('.'));
+    const QString resolverPath = propertyOnly ? path.mid(1) : path;
+
     QStringList dotTokens;
 
     const ResolveResult splitResult =
-        splitOutsideBrackets(path, QLatin1Char('.'), &dotTokens);
+        splitOutsideBrackets(resolverPath, QLatin1Char('.'), &dotTokens);
 
     if (!splitResult)
     {
         return splitResult.error;
     }
 
-    auto applyCandidate = [&](const QString& objectPath,
-                              const QStringList& propTokens) -> ResolveResult {
+    auto resolveCandidate =
+        [&](const QString& objectPath,
+            const QStringList& propTokens) -> ResolveResult {
         ObjectResult object = resolveObjectPath(root, objectPath);
 
         if (!object)
@@ -635,68 +640,77 @@ gt::console::applyPropertyOverride(GtObject& root, const QString& path,
             return object.result;
         }
 
-        return applyPropertyPath(*object.object, propTokens, path, value);
+        return resolvePropertyPath(*object.object, propTokens, path);
     };
 
-    const int n = dotTokens.size();
-
-    if (n == 1)
-    {
-        // property path only, directly on the root object
-        const ResolveResult result = applyCandidate({}, dotTokens);
-
+    auto applyResolvedProperty = [&](const ResolveResult& result) -> QString {
         if (!result)
         {
             return result.error;
         }
 
-        return {};
+        if (!result.readOnlyContainerId.isEmpty())
+        {
+            return QObject::tr(
+                       "Cannot set '%1': property container '%2' is read only")
+                .arg(path, result.readOnlyContainerId);
+        }
+
+        return setPropertyValue(result.property, path, value);
+    };
+
+    const int n = dotTokens.size();
+
+    if (propertyOnly)
+    {
+        return applyResolvedProperty(
+            resolvePropertyPath(root, dotTokens, path));
+    }
+
+    if (n == 1)
+    {
+        // property path only, directly on the root object
+        return applyResolvedProperty(
+            resolvePropertyPath(root, dotTokens, path));
     }
 
     if (n == 2)
     {
-        // interpretation A: "<objectPath>.<propertyId>"
-        const ResolveResult first =
-            applyCandidate(dotTokens.at(0), {dotTokens.at(1)});
+        // This form may mean either a child object's property or a root
+        // property-container entry. Resolve both before modifying either.
+        const ResolveResult objectProperty =
+            resolveCandidate(dotTokens.at(0), {dotTokens.at(1)});
+        const ResolveResult rootContainerProperty =
+            resolvePropertyPath(root, dotTokens, path);
 
-        if (first)
+        if (objectProperty && rootContainerProperty)
         {
-            return {};
+            return QObject::tr(
+                       "Property path '%1' is ambiguous between a child "
+                       "object and a root property container; prefix it with "
+                       "'.' to select the property container")
+                .arg(path);
         }
 
-        // interpretation B: container access directly on the root object:
-        // "<containerId>[<selector>].<propertyId>". Only fall back if the
-        // first interpretation failed because the object does not exist.
-        const bool maybeContainer =
-            first.notFound && dotTokens.at(0).contains(QLatin1Char('['));
-
-        if (!maybeContainer)
+        if (objectProperty)
         {
-            return first.error;
+            return applyResolvedProperty(objectProperty);
         }
 
-        const ResolveResult second = applyCandidate({}, dotTokens);
-
-        if (!second)
+        if (rootContainerProperty)
         {
-            return second.error;
+            return applyResolvedProperty(rootContainerProperty);
         }
 
-        return {};
+        return objectProperty.notFound ? rootContainerProperty.error
+                                       : objectProperty.error;
     }
 
     if (n == 3)
     {
         // "<objectPath>.<containerId>[<selector>].<propertyId>"
-        const ResolveResult result =
-            applyCandidate(dotTokens.at(0), {dotTokens.at(1), dotTokens.at(2)});
-
-        if (!result)
-        {
-            return result.error;
-        }
-
-        return {};
+        return applyResolvedProperty(resolveCandidate(
+            dotTokens.at(0), {dotTokens.at(1), dotTokens.at(2)}));
     }
 
     return QObject::tr("Invalid property path '%1'").arg(path);

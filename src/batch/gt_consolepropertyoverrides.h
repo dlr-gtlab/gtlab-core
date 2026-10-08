@@ -51,13 +51,15 @@ namespace gt
  *   - "/" navigates through the GtObject hierarchy (direct children)
  *   - "." switches from object navigation to property access
  *   - "ObjectName" matches objectName() and must resolve unambiguously
- *   - "ObjectName[n]" selects the zero based nth direct child with that
+ *   - "ObjectName[n]" selects the one based nth direct child with that
  *     exact objectName()
  *   - "{uuid}" selects the direct child by its object UUID
- *   - "container[i].prop" selects the nth entry of a sequential property
- *     container
+ *   - "container[i].prop" selects the one based ith entry of a sequential
+ *     property container
  *   - "container[{id}].prop" selects the entry with the given id of an
  *     associative property container
+ *   - A leading "." forces property access on the current object and avoids
+ *     child-object navigation when a path is ambiguous
  *
  * The raw value is passed to the GTlab property conversion and validation
  * mechanism (no expressions, no unit conversion). Only writable properties

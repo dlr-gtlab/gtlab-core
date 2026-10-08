@@ -62,7 +62,9 @@ namespace
         OverrideTestTask() :
             m_iterations("iterations", "Iterations"),
             m_readOnlyValue("readOnlyValue", "Read only value"),
-            m_result("result", "Result")
+            m_result("result", "Result"),
+            m_solverEntries("Solver", "Solver",
+                            GtPropertyStructContainer::Sequential)
         {
             setObjectName("Test Task");
 
@@ -73,6 +75,12 @@ namespace
 
             m_result.setMonitoring(true);
             registerProperty(m_result);
+
+            GtPropertyStructDefinition solverEntryDefinition("Solver Entry");
+            solverEntryDefinition.defineMember("tolerance",
+                                               gt::makeDoubleProperty(1.));
+            m_solverEntries.registerAllowedType(solverEntryDefinition);
+            registerPropertyStructContainer(m_solverEntries);
 
             auto* firstSolver = new OverrideTestSolver;
             firstSolver->setObjectName("Solver");
@@ -134,6 +142,7 @@ namespace
         GtIntProperty m_iterations;
         GtDoubleProperty m_readOnlyValue;
         GtDoubleProperty m_result;
+        GtPropertyStructContainer m_solverEntries;
 
     private:
         GtObject* m_inner{nullptr};
@@ -205,11 +214,11 @@ TEST(console_property_overrides, parse_invalid_arguments)
 {
     QStringList errors;
 
-    const auto overrides =
-        gt::console::parsePropertyOverrides({"invalid", "=5"}, &errors);
+    const auto overrides = gt::console::parsePropertyOverrides(
+        {"iterations=10", "invalid", "=5", "also-invalid"}, &errors);
 
     EXPECT_TRUE(overrides.isEmpty());
-    EXPECT_EQ(errors.size(), 2);
+    EXPECT_EQ(errors.size(), 3);
 }
 
 TEST(console_property_overrides, property_on_root)
@@ -275,29 +284,55 @@ TEST(console_property_overrides, ambiguous_object_name_is_rejected)
     EXPECT_TRUE(error.contains("ambiguous"));
 }
 
+TEST(console_property_overrides,
+     property_container_object_collision_is_explicit)
+{
+    OverrideTestTask task;
+    auto& rootEntry = task.m_solverEntries.newEntry("Solver Entry");
+
+    const QString error =
+        gt::console::applyPropertyOverride(task, "Solver[1].tolerance", "5.0");
+
+    EXPECT_TRUE(error.contains("ambiguous"));
+    EXPECT_DOUBLE_EQ(task.solverAt(0)->m_tolerance.getVal(), 0.0);
+    EXPECT_DOUBLE_EQ(rootEntry.getMemberVal<double>("tolerance"), 1.0);
+
+    EXPECT_TRUE(
+        gt::console::applyPropertyOverride(task, ".Solver[1].tolerance", "5.0")
+            .isEmpty());
+    EXPECT_DOUBLE_EQ(task.solverAt(0)->m_tolerance.getVal(), 0.0);
+    EXPECT_DOUBLE_EQ(rootEntry.getMemberVal<double>("tolerance"), 5.0);
+}
+
 TEST(console_property_overrides, indexed_child_objects)
 {
     OverrideTestTask task;
 
     EXPECT_TRUE(
-        gt::console::applyPropertyOverride(task, "Solver[0].tolerance", "1.0")
+        gt::console::applyPropertyOverride(task, "Solver[1].tolerance", "1.0")
             .isEmpty());
     EXPECT_TRUE(
-        gt::console::applyPropertyOverride(task, "Solver[1].tolerance", "2.0")
+        gt::console::applyPropertyOverride(task, "Solver[2].tolerance", "2.0")
             .isEmpty());
 
     EXPECT_DOUBLE_EQ(task.solverAt(0)->m_tolerance.getVal(), 1.0);
     EXPECT_DOUBLE_EQ(task.solverAt(1)->m_tolerance.getVal(), 2.0);
 
-    // explicit [0] is also valid if there is only one matching child
     EXPECT_TRUE(gt::console::applyPropertyOverride(
-                    task, "My Calculator[0].tolerance", "3.0")
+                    task, "My Calculator[1].tolerance", "3.0")
                     .isEmpty());
     EXPECT_DOUBLE_EQ(task.calculator()->m_tolerance.getVal(), 3.0);
 
+    EXPECT_FALSE(
+        gt::console::applyPropertyOverride(task, "Solver[0].tolerance", "4.0")
+            .isEmpty());
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     task, "Solver[999999999999999999999999].tolerance", "4.0")
+                     .isEmpty());
+
     // index out of range
     EXPECT_FALSE(
-        gt::console::applyPropertyOverride(task, "Solver[2].tolerance", "4.0")
+        gt::console::applyPropertyOverride(task, "Solver[3].tolerance", "4.0")
             .isEmpty());
 }
 
@@ -329,6 +364,13 @@ TEST(console_property_overrides, uuid_object_segment)
     EXPECT_FALSE(gt::console::applyPropertyOverride(
                      task, QStringLiteral("%1.tolerance").arg(bareUuid), "8.0")
                      .isEmpty());
+
+    EXPECT_FALSE(gt::console::applyPropertyOverride(task, "{}.tolerance", "8")
+                     .isEmpty());
+    EXPECT_FALSE(
+        gt::console::applyPropertyOverride(
+            task, "{00000000-0000-0000-0000-000000000000}.tolerance", "8")
+            .isEmpty());
 }
 
 TEST(console_property_overrides, nested_object_paths)
@@ -341,7 +383,7 @@ TEST(console_property_overrides, nested_object_paths)
                      .isEmpty());
 
     EXPECT_TRUE(gt::console::applyPropertyOverride(
-                    task, "Solver Group/Nested Solver[1].tolerance", "2.5")
+                    task, "Solver Group/Nested Solver[2].tolerance", "2.5")
                     .isEmpty());
     EXPECT_DOUBLE_EQ(task.nestedSolverAt(1)->m_tolerance.getVal(), 2.5);
 
@@ -353,14 +395,14 @@ TEST(console_property_overrides, nested_object_paths)
 
     EXPECT_TRUE(
         gt::console::applyPropertyOverride(
-            task, "Solver Group/Nested Solver[0].points[1].pressure", "3.5")
+            task, "Solver Group/Nested Solver[1].points[1].pressure", "3.5")
             .isEmpty());
-    EXPECT_DOUBLE_EQ(nested->m_points.at(1).getMemberVal<double>("pressure"),
+    EXPECT_DOUBLE_EQ(nested->m_points.at(0).getMemberVal<double>("pressure"),
                      3.5);
 
     EXPECT_TRUE(
         gt::console::applyPropertyOverride(
-            task, "Solver Group/Nested Solver[0].boundaries[{inlet}].pressure",
+            task, "Solver Group/Nested Solver[1].boundaries[{inlet}].pressure",
             "4.5")
             .isEmpty());
     EXPECT_DOUBLE_EQ(
@@ -390,20 +432,47 @@ TEST(console_property_overrides, sequential_property_container)
     solver->m_points.newEntry("Point");
 
     EXPECT_TRUE(gt::console::applyPropertyOverride(
-                    task, "Solver[0].points[2].pressure", "420000")
+                    task, "Solver[1].points[2].pressure", "420000")
                     .isEmpty());
-    EXPECT_DOUBLE_EQ(solver->m_points.at(2).getMemberVal<double>("pressure"),
+    EXPECT_DOUBLE_EQ(solver->m_points.at(1).getMemberVal<double>("pressure"),
                      420000.0);
+
+    // indices are one-based and conversion overflow must not select entry 1
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     task, "Solver[1].points[0].pressure", "2")
+                     .isEmpty());
+    EXPECT_FALSE(
+        gt::console::applyPropertyOverride(
+            task, "Solver[1].points[999999999999999999999999].pressure", "2")
+            .isEmpty());
 
     // index out of range
     EXPECT_FALSE(gt::console::applyPropertyOverride(
-                     task, "Solver[0].points[3].pressure", "1")
+                     task, "Solver[1].points[4].pressure", "1")
                      .isEmpty());
 
     // associative selector on a sequential container is rejected
     EXPECT_FALSE(gt::console::applyPropertyOverride(
-                     task, "Solver[0].points[{foo}].pressure", "1")
+                     task, "Solver[1].points[{foo}].pressure", "1")
                      .isEmpty());
+
+    // a numeric selector must fit in int and name an existing member
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     task, "Solver[1].points[abc].pressure", "1")
+                     .isEmpty());
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     task, "Solver[1].points[1].missing", "1")
+                     .isEmpty());
+
+    // read-only container flags prohibit writes to all entries
+    solver->m_points.setFlags(GtPropertyStructContainer::ReadOnly);
+    const double previousValue =
+        solver->m_points.at(0).getMemberVal<double>("pressure");
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     task, "Solver[1].points[1].pressure", "8")
+                     .isEmpty());
+    EXPECT_DOUBLE_EQ(solver->m_points.at(0).getMemberVal<double>("pressure"),
+                     previousValue);
 }
 
 TEST(console_property_overrides, associative_property_container)
@@ -414,19 +483,36 @@ TEST(console_property_overrides, associative_property_container)
     solver->m_boundaries.newEntry("Boundary", "inlet");
 
     EXPECT_TRUE(gt::console::applyPropertyOverride(
-                    task, "Solver[1].boundaries[{inlet}].pressure", "99000")
+                    task, "Solver[2].boundaries[{inlet}].pressure", "99000")
                     .isEmpty());
     EXPECT_DOUBLE_EQ(
         solver->m_boundaries.at(0).getMemberVal<double>("pressure"), 99000.0);
 
     // unknown entry id
     EXPECT_FALSE(gt::console::applyPropertyOverride(
-                     task, "Solver[1].boundaries[{outlet}].pressure", "1")
+                     task, "Solver[2].boundaries[{outlet}].pressure", "1")
                      .isEmpty());
 
     // index selector on an associative container is rejected
     EXPECT_FALSE(gt::console::applyPropertyOverride(
-                     task, "Solver[1].boundaries[0].pressure", "1")
+                     task, "Solver[2].boundaries[1].pressure", "1")
+                     .isEmpty());
+}
+
+TEST(console_property_overrides, property_container_validation_errors)
+{
+    OverrideTestSolver solver;
+    solver.m_points.newEntry("Point");
+    solver.m_boundaries.newEntry("Boundary", "inlet");
+
+    EXPECT_FALSE(
+        gt::console::applyPropertyOverride(solver, "missing[1].pressure", "1")
+            .isEmpty());
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     solver, "boundaries[{}].pressure", "1")
+                     .isEmpty());
+    EXPECT_FALSE(gt::console::applyPropertyOverride(
+                     solver, "boundaries[{inlet}].missing", "1")
                      .isEmpty());
 }
 
@@ -445,7 +531,7 @@ TEST(console_property_overrides, container_on_root_without_object_path)
     EXPECT_TRUE(
         gt::console::applyPropertyOverride(solver, "points[1].pressure", "5.0")
             .isEmpty());
-    EXPECT_DOUBLE_EQ(solver.m_points.at(1).getMemberVal<double>("pressure"),
+    EXPECT_DOUBLE_EQ(solver.m_points.at(0).getMemberVal<double>("pressure"),
                      5.0);
 
     EXPECT_TRUE(gt::console::applyPropertyOverride(
@@ -472,7 +558,7 @@ TEST(console_property_overrides, unresolved_paths_are_rejected)
 
     // a container entry without trailing property id is invalid
     EXPECT_FALSE(
-        gt::console::applyPropertyOverride(task, "Solver[0].points[0]", "1")
+        gt::console::applyPropertyOverride(task, "Solver[1].points[1]", "1")
             .isEmpty());
 }
 
@@ -487,6 +573,9 @@ TEST(console_property_overrides, malformed_paths_are_rejected)
     EXPECT_FALSE(
         gt::console::applyPropertyOverride(task, "Solver[0.tolerance", "1")
             .isEmpty());
+    EXPECT_FALSE(
+        gt::console::applyPropertyOverride(task, "Solver].tolerance", "1")
+            .isEmpty());
     EXPECT_FALSE(gt::console::applyPropertyOverride(
                      task, "Solver.tolerance.extra.more", "1")
                      .isEmpty());
@@ -500,7 +589,7 @@ TEST(console_property_overrides, repeated_overrides_last_value_wins)
     overrides.append(gt::console::PropertyOverride{"iterations", "1"});
     overrides.append(gt::console::PropertyOverride{"iterations", "2"});
     overrides.append(
-        gt::console::PropertyOverride{"My Calculator[0].tolerance", "3"});
+        gt::console::PropertyOverride{"My Calculator[1].tolerance", "3"});
 
     EXPECT_TRUE(applyAll(task, overrides).isEmpty());
     EXPECT_EQ(task.m_iterations.getVal(), 2);

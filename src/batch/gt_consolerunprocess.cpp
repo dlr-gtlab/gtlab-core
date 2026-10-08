@@ -213,13 +213,20 @@ gt::console::printRunHelp()
               << std::endl;
     std::cout << "\t\t\"Solver/My Calculator[1].relaxation=0.5\" "
                  "child objects are separated by '/', [n] selects the "
-                 "nth child with the same name"
+                 "one-based nth child with the same name"
               << std::endl;
     std::cout << "\t\t\"Solver.points[2].pressure=420000\" "
-                 "nth entry of a sequential property container"
+                 "one-based entry of a sequential property container"
               << std::endl;
     std::cout << "\t\t\"Solver.boundaries[{inlet}].pressure=420000\" "
                  "entry of an associative property container"
+              << std::endl;
+    std::cout
+        << "\tNumeric object and sequential-container indices start at 1; "
+           "[0] is invalid."
+        << std::endl;
+    std::cout << "\tPrefix a property path with '.' to force access on the "
+                 "selected task, e.g. \".points[1].pressure\"."
               << std::endl;
     std::cout << std::endl;
     std::cout << "\tExample:" << std::endl;

@@ -50,7 +50,7 @@ TestConsoleOverrideTask::TestConsoleOverrideTask() :
     registerMonitoringProperty(m_result);
 
     // two child objects with identical names to allow testing of the
-    // indexed object access ("Solver[0]", "Solver[1]") and the ambiguity
+    // indexed object access ("Solver[1]", "Solver[2]") and the ambiguity
     // error for the unindexed variant
     appendChild(new TestConsoleOverrideSolver);
     appendChild(new TestConsoleOverrideSolver);
