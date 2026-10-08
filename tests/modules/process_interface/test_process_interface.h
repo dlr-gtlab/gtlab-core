@@ -11,6 +11,7 @@
 #ifndef TEST_MODULE_INTERFACE_H
 #define TEST_MODULE_INTERFACE_H
 
+#include "gt_processexecinterface.h"
 #include "gt_moduleinterface.h"
 #include "gt_operationinterface.h"
 #include "gt_processinterface.h"
@@ -22,12 +23,13 @@
 class TestProcessInterface : public QObject,
                              public GtModuleInterface,
                              public GtProcessInterface,
-                             public GtOperationInterface
+                             public GtOperationInterface,
+                             public GtProcessExecInterface
 {
     Q_OBJECT
     GT_MODULE("test_process_interface.json")
 
-    Q_INTERFACES(GtProcessInterface GtOperationInterface)
+    Q_INTERFACES(GtProcessInterface GtOperationInterface GtProcessExecInterface)
 
 public:
 
@@ -61,6 +63,30 @@ public:
      * @brief Registers the auxiliary data classes of the module.
      */
     void init() override;
+
+    /**
+     * @brief Returns executor identification string .
+     * @return
+     */
+    QString executorId() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief Returns executor description.
+     * @return
+     */
+    QString executorDescription() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief executor
+     * @return
+     */
+    QMetaObject executor() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief Returns list of executor settings.
+     * @return
+     */
+    QList<GtAbstractProperty*> executorSettings() Q_DECL_OVERRIDE;
 };
 
 #endif // TEST_MODULE_INTERFACE_H

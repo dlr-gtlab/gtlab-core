@@ -268,6 +268,41 @@ public:
      */
     void appendToLinkObjects(QPointer<GtObject> p);
 
+    /**
+     * @brief Returns the effective execution mode of the process component.
+     * If the selected mode is "parent", the mode of the parent process
+     * component is resolved recursively up the parent chain, so a concrete
+     * (i.e. non-"parent") execution mode is always returned. The root
+     * process component in "parent" mode (i.e. it has no parent process
+     * component) falls back to "local" since there is no parent process
+     * component the execution could be delegated to.
+     * @return Execution mode identification string.
+     */
+    QString execMode() const;
+
+    /**
+     * @brief Sets the execution mode of the calculator.
+     * @param mode Identification string of the new execution mode.
+     */
+    void setExecMode(const QString& mode);
+
+    /**
+     * @brief Sets the execution mode to local exectution (default)
+     */
+    void setExecModeLocal();
+
+    /**
+     * @brief Returns current execution identification label.
+     * @return Identification label.
+     */
+    const QString& executionLabel();
+
+    /**
+     * @brief Sets current execution identification label.
+     * @param label - New Identification label.
+     */
+    void setExecutionLabel(const QString& label);
+
 public slots:
     /**
      * @brief Handles process component state changes.
@@ -303,6 +338,15 @@ protected:
      */
     bool registerMonitoringPropertyStructContainer(
             GtPropertyStructContainer& c);
+
+    /**
+     * @brief registerPluginExecModes
+     * Registers the execution modes of the plugin executors as sub
+     * properties of the execution mode property.
+     * Executors without a task specific implementation fall back
+     * to the default (local) execution of tasks.
+     */
+    void registerPluginExecModes();
 
     /**
      * @brief Sets warning flag.
@@ -350,9 +394,26 @@ protected:
     QList<GtObject const*> linkedObjects() const;
     QList<QPointer<GtObject>>& linkedObjects();
 
+    /**
+     * @brief Hides or Shows the label property.
+     * @param val If true, the label property will be hidden, otherwise it
+     * will be displayed.
+     */
+    void hideLabelProperty(bool val = true);
+
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
+
+    /**
+     * @brief Returns whether this component is the root process component,
+     * i.e. it is the highest process component in its parent chain. Its
+     * parent is then not another process component: root tasks are
+     * parented by the task group, standalone components have no parent at
+     * all.
+     * @return True if no parent process component exists.
+     */
+    bool isRootProcessComponent() const;
 
     /**
      * @brief Adds the monitoring properties of the newly added entry to the
