@@ -18,20 +18,21 @@
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
 
-using ClassName = QString;
-using CanConnectFunction =
-    std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
+#include "gt_propertyconversionregistry.h"
+// using ClassName = QString;
+// using CanConnectFunction =
+//     std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
 
-struct Connector
-{
-    QMetaObject to;
-    CanConnectFunction f;
-};
+// struct Connector
+// {
+//     QMetaObject to;
+//     CanConnectFunction f;
+// };
 
-namespace
-{
-    QMultiHash<ClassName, Connector> canConvertHash;
-}
+// namespace
+// {
+//     QMultiHash<ClassName, Connector> canConvertHash;
+// }
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
@@ -453,7 +454,7 @@ GtAbstractProperty::canConnectFunctions(const QMetaObject& from,
     {
         for (const auto* toType : toChain)
         {
-            auto range = canConvertHash.equal_range(fromType->className());
+            auto range = gtPropConversion().canConvertHash.equal_range(fromType->className());
 
             QVector<CanConnectFunction> result;
 
@@ -497,7 +498,7 @@ GtAbstractProperty::registerConnectionCompatibility(
     QMetaObject from, QMetaObject to,
     std::function<bool(GtAbstractProperty&, GtAbstractProperty&)> f)
 {
-    if (f) canConvertHash.insert(from.className(), {to, f});
+    if (f) gtPropConversion().canConvertHash.insert(from.className(), {to, f});
 }
 
 void
