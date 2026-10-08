@@ -165,76 +165,41 @@ namespace
         return true;
     }
 
-    /**
-     * @brief Resolves a single object path segment relative to @parent
-     */
-    ObjectResult resolveObjectSegment(GtObject& parent, const QString& segment)
+    ObjectResult resolveUuidSegment(GtObject& parent, const QString& segment)
     {
         ObjectResult retval;
+        const QString uuid = segment.mid(1, segment.size() - 2);
 
-        if (segment.startsWith(QLatin1Char('{')) &&
-            segment.endsWith(QLatin1Char('}')))
-        {
-            // UUID segment, e.g. "{550e8400-e29b-41d4-a716-446655440000}"
-            const QString uuid = segment.mid(1, segment.size() - 2);
-
-            if (uuid.isEmpty())
-            {
-                retval.result.error =
-                    QObject::tr("Empty UUID segment '{}' in path");
-                return retval;
-            }
-
-            GtObject* child = parent.getDirectChildByUuid(segment);
-
-            if (!child)
-            {
-                child = parent.getDirectChildByUuid(uuid);
-            }
-
-            if (!child)
-            {
-                retval.result.error =
-                    QObject::tr("No child object with UUID '%1' found")
-                        .arg(uuid);
-                retval.result.notFound = true;
-                return retval;
-            }
-
-            retval.object = child;
-            return retval;
-        }
-
-        QString name = segment;
-        QString suffix;
-        const bool hasIndex = splitSuffix(segment, &name, &suffix);
-        QString indexStr;
-        int index = 0;
-
-        if (hasIndex)
-        {
-            indexStr = suffix.mid(1, suffix.size() - 2);
-
-            bool ok = false;
-            index = indexStr.toInt(&ok);
-
-            if (!ok || index < 1)
-            {
-                // Leave room for a root property-container interpretation.
-                retval.result.error =
-                    QObject::tr("Invalid object index '%1' in path")
-                        .arg(segment);
-                return retval;
-            }
-        }
-        else if (segment.contains(QLatin1Char('[')) ||
-                 segment.contains(QLatin1Char(']')))
+        if (uuid.isEmpty())
         {
             retval.result.error =
-                QObject::tr("Invalid object segment '%1' in path").arg(segment);
+                QObject::tr("Empty UUID segment '{}' in path");
             return retval;
         }
 
+        GtObject* child = parent.getDirectChildByUuid(segment);
+        if (!child)
+        {
+            child = parent.getDirectChildByUuid(uuid);
+        }
+
+        if (!child)
+        {
+            retval.result.error =
+                QObject::tr("No child object with UUID '%1' found").arg(uuid);
+            retval.result.notFound = true;
+            return retval;
+        }
+
+        retval.object = child;
+        return retval;
+    }
+
+    ObjectResult resolveNamedObjectSegment(GtObject& parent,
+                                           const QString& name, bool hasIndex,
+                                           int index, const QString& indexStr)
+    {
+        ObjectResult retval;
         const auto children = parent.findDirectChildren<GtObject*>(name);
 
         if (children.isEmpty())
@@ -279,6 +244,53 @@ namespace
 
         retval.object = children.first();
         return retval;
+    }
+
+    /**
+     * @brief Resolves a single object path segment relative to @parent
+     */
+    ObjectResult resolveObjectSegment(GtObject& parent, const QString& segment)
+    {
+        ObjectResult retval;
+
+        if (segment.startsWith(QLatin1Char('{')) &&
+            segment.endsWith(QLatin1Char('}')))
+        {
+            return resolveUuidSegment(parent, segment);
+        }
+
+        QString name = segment;
+        QString suffix;
+        const bool hasIndex = splitSuffix(segment, &name, &suffix);
+        QString indexStr;
+        int index = 0;
+
+        if (hasIndex)
+        {
+            indexStr = suffix.mid(1, suffix.size() - 2);
+
+            bool ok = false;
+            index = indexStr.toInt(&ok);
+
+            if (!ok || index < 1)
+            {
+                // Leave room for a root property-container interpretation.
+                retval.result.error =
+                    QObject::tr("Invalid object index '%1' in path")
+                        .arg(segment);
+                return retval;
+            }
+        }
+        else if (segment.contains(QLatin1Char('[')) ||
+                 segment.contains(QLatin1Char(']')))
+        {
+            retval.result.error =
+                QObject::tr("Invalid object segment '%1' in path").arg(segment);
+            return retval;
+        }
+
+        return resolveNamedObjectSegment(parent, name, hasIndex, index,
+                                         indexStr);
     }
 
     /**

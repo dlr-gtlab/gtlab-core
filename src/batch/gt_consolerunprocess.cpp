@@ -54,6 +54,8 @@ gt::console::runOptions()
 int
 gt::console::run(const QStringList &args)
 {
+    // GtCommandLineParser::optionValue() returns only one value per option.
+    // QCommandLineParser::values() preserves all repeated --set values.
     QCommandLineParser parser;
 
     parser.setApplicationDescription(
