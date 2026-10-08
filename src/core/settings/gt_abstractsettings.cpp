@@ -73,14 +73,22 @@ GtSettingsItem*
 GtAbstractSettings::registerSettingRestart(const QString &ident,
                                            const QVariant &initVal)
 {
+    QVariant runtimeValue;
     auto oldSettingIter = m_settings.find(ident);
-    if (oldSettingIter != m_settings.end())
+    const bool hasPreviousSetting = oldSettingIter != m_settings.end();
+    if (hasPreviousSetting)
     {
+        runtimeValue = oldSettingIter.value()->m_runtimeValue;
+
         // we need to remove the old value, otherwise we get a memleak
         delete oldSettingIter.value();
     }
 
     GtSettingsItem* retval = new GtSettingsItem(ident, initVal, true);
+    if (hasPreviousSetting)
+    {
+        retval->m_runtimeValue = runtimeValue;
+    }
     m_settings.insert(ident, retval);
     return retval;
 }
@@ -130,4 +138,3 @@ GtAbstractSettings::getAllSettingIds() const
 
     return l;
 }
-

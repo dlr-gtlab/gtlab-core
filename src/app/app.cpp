@@ -71,8 +71,18 @@ registerWidgets()
 }
 
 
+namespace
+{
+
+struct RestartRequest
+{
+    bool requested{false};
+    QString executable;
+    QStringList arguments;
+};
+
 int
-main(int argc, char* argv[])
+runApplication(int argc, char* argv[], RestartRequest& restartRequest)
 {
     constexpr int delay = 100;
 
@@ -97,9 +107,30 @@ main(int argc, char* argv[])
 
     GtApplication app(qApp);
 
+    const auto prepareRestart = [&]() {
+        restartRequest.requested = app.restartRequested();
+        if (!restartRequest.requested)
+        {
+            return;
+        }
+
+        restartRequest.executable = QApplication::applicationFilePath();
+        restartRequest.arguments = QApplication::arguments();
+        if (!restartRequest.arguments.isEmpty())
+        {
+            restartRequest.arguments.removeFirst();
+        }
+    };
+
     splash.process(QObject::tr("initializing..."), [&app](){
         app.init();
     });
+
+    if (app.restartRequested())
+    {
+        prepareRestart();
+        return 0;
+    }
 
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
@@ -238,5 +269,27 @@ main(int argc, char* argv[])
 
     splash.finish(&w);
 
-    return a.exec();
+    const int exitCode = a.exec();
+    prepareRestart();
+    return exitCode;
+}
+
+} // namespace
+
+int
+main(int argc, char* argv[])
+{
+    RestartRequest restartRequest;
+
+    const int exitCode = runApplication(argc, argv, restartRequest);
+
+    if (restartRequest.requested &&
+        !QProcess::startDetached(restartRequest.executable,
+                                 restartRequest.arguments))
+    {
+        qCritical() << "Could not restart GTlab.";
+        return 1;
+    }
+
+    return exitCode;
 }

@@ -113,6 +113,12 @@ private:
     void setupDockWidgets();
 
     /**
+     * @brief Closes through the normal shutdown path and requests a restart
+     * when the close is accepted.
+     */
+    void restartApplication();
+
+    /**
      * @brief updateCollectionEntries
      */
     void updateCollectionEntries();
