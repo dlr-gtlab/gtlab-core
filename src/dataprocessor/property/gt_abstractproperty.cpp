@@ -28,7 +28,10 @@ struct Connector
     CanConnectFunction f;
 };
 
-QMultiHash<ClassName, Connector> canConvertHash;
+namespace
+{
+    QMultiHash<ClassName, Connector> canConvertHash;
+}
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
