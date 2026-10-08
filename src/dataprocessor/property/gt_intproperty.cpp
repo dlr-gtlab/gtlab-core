@@ -32,7 +32,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_boundHi(std::numeric_limits<int>::max())
 {
     setObjectName(name);
-    setPropertyConnectionEnabled();
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -41,7 +41,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_initValue = value;
 
     static auto initOnce = []() {
-        GtAbstractProperty::registerCanConnect(
+        GtAbstractProperty::registerConnectionCompatibility(
             GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {

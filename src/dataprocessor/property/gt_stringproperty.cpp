@@ -20,7 +20,7 @@ GtStringProperty::GtStringProperty(const QString& ident,
                                    const QRegularExpression& validationPattern)
 {
     setObjectName(name);
-    setPropertyConnectionEnabled();
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;

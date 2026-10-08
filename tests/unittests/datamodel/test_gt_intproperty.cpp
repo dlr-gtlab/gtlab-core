@@ -628,5 +628,5 @@ TEST_F(TestGtIntProperty, canConnect)
     ASSERT_FALSE(propA1.canConnect(propA3));
 
     // a propety with both limits and a second with a high lower limit
-    ASSERT_FALSE(propA1.canConnect(propA3));
+    ASSERT_FALSE(propA1.canConnect(propA4));
 }
