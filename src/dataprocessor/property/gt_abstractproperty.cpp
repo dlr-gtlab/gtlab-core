@@ -19,20 +19,7 @@
 #include "gt_propertyconnection.h"
 
 #include "gt_propertyconversionregistry.h"
-// using ClassName = QString;
-// using CanConnectFunction =
-//     std::function<bool(GtAbstractProperty& from, GtAbstractProperty& to)>;
 
-// struct Connector
-// {
-//     QMetaObject to;
-//     CanConnectFunction f;
-// };
-
-// namespace
-// {
-//     QMultiHash<ClassName, Connector> canConvertHash;
-// }
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
@@ -430,18 +417,20 @@ GtAbstractProperty::isConnectable() const
 }
 
 bool
-GtAbstractProperty::canConnect(GtAbstractProperty& b)
+GtAbstractProperty::canConnect(GtAbstractProperty const& b)
 {
-    auto& a = *this;
+    auto function = gtPropConversion().canConnectFunction(*metaObject(),
+                                                          *b.metaObject());
 
-    auto function = gtPropConversion().canConnectFunction(*metaObject(), *b.metaObject());
-
+    // if no connectionCheck function is available check based
     if (!function)
     {
         return metaObject()->className() == b.metaObject()->className();
     }
 
-    return true;
+    const auto& a = *this;
+
+    return function(a, b);
 }
 
 void

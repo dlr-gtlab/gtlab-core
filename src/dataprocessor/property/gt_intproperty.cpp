@@ -44,21 +44,11 @@ GtIntProperty::GtIntProperty(const QString& ident,
     static auto initOnce = []() {
         GtPropertyConversionRegistry::registerConnectionCompatibility(
             GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
-            // conversion
-            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-               GtAbstractProperty& b) {
-                auto& from = static_cast<const GtIntProperty&>(a);
-                auto& to = static_cast<GtIntProperty&>(b);
-
-                to.setVal(from.get());
-
-                return gt::conversion::conversionSuccess::Success;
-            },
             // can connect
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {
-                auto& from = static_cast<const GtIntProperty&>(a);
-                auto& to = static_cast<const GtIntProperty&>(b);
+                const auto& from = static_cast<const GtIntProperty&>(a);
+                const auto& to = static_cast<const GtIntProperty&>(b);
 
                 // check of the bounds
                 // if bounds are active it should be checked if the valid

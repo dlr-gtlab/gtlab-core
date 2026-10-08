@@ -220,6 +220,9 @@ inline void GtProperty<ParamType>::setValFromConnection()
         return;
     }
 
+    // TODO: Add here how to convert values is a conversion function is given
+    // and give feedback if the conversion was lossy
+
     // get source value in form of QVariant
     QVariant variant = gt::getConnectedValue(*m_connection);
 
