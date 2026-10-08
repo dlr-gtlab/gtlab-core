@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QTemporaryDir>
 #include <QUuid>
+#include <cassert>
 #include <memory>
 
 #include "test_gt_processtestclasses.h"
@@ -18,7 +19,10 @@
 #include "gt_abstractrunnable.h"
 #include "gt_environment.h"
 #include "gt_intproperty.h"
+#include "gt_modeproperty.h"
+#include "gt_modetypeproperty.h"
 #include "gt_objectfactory.h"
+#include "gt_task.h"
 #include "gt_taskgroup.h"
 
 namespace
@@ -92,6 +96,23 @@ public:
     GtIntProperty directMonitoring;
     GtIntProperty readOnlyProp;
     GtIntProperty writableProp;
+};
+
+/// Process component with an additional, test-only "remote" execution mode
+/// so that inheriting concrete non-local modes can be verified.
+class TestableModeComponent : public TestGtProcessComponent
+{
+public:
+    TestableModeComponent()
+    {
+        auto* modeProp =
+            qobject_cast<GtModeProperty*>(findProperty("execMode"));
+        assert(modeProp);
+
+        auto* remoteMode = new GtModeTypeProperty("remote", tr("remote"));
+        remoteMode->setParent(this);
+        modeProp->registerSubProperty(*remoteMode);
+    }
 };
 
 class TestGtProcessComponentFunctions : public ::testing::Test
@@ -285,4 +306,228 @@ TEST(TestGtProcessComponent, environmentVariableReturnsStoredStringValue)
 
     EXPECT_EQ(comp.environmentVariable(var), QString("alpha"));
     EXPECT_TRUE(comp.environmentVariable(uniqueEnvVar()).isEmpty());
+}
+
+TEST(TestGtProcessComponent, defaultParentModeFallsBackToLocalForRootComponent)
+{
+    // The raw default of the execution mode property is "parent" (first
+    // registered sub-property). Without a parent process component the
+    // resolution has to fall back to local execution.
+    TestGtProcessComponent comp;
+
+    EXPECT_EQ(comp.execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, explicitLocalModeOfRootComponentStaysLocal)
+{
+    TestGtProcessComponent comp;
+
+    comp.setExecModeLocal();
+
+    EXPECT_EQ(comp.execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, rootTaskInParentModeFallsBackToLocal)
+{
+    // The task group is not a process component, so a task in parent mode
+    // has no parent process component to inherit from.
+    GtTaskGroup group("group", true);
+    GtTask task;
+
+    ASSERT_TRUE(group.appendChild(&task));
+    task.setExecMode("parent");
+
+    EXPECT_EQ(task.execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent,
+     componentParentedByRunnableInParentModeFallsBackToLocal)
+{
+    // A runnable is a QObject parent but not a process component, so parent
+    // mode has to resolve to local for its direct children.
+    TestProcessRunnable runnable;
+    TestableProcessComponent comp;
+
+    ASSERT_TRUE(runnable.appendProcessComponent(&comp));
+    comp.setExecMode("parent");
+
+    EXPECT_EQ(comp.execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, parentModeInheritsLocalModeFromParent)
+{
+    auto parent = std::make_unique<TestableProcessComponent>();
+    auto child = std::make_unique<TestableProcessComponent>();
+    auto* childPtr = child.get();
+
+    ASSERT_TRUE(parent->appendChild(child.release()));
+
+    parent->setExecModeLocal();
+    childPtr->setExecMode("parent");
+
+    EXPECT_EQ(childPtr->execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, parentModeInheritsRemoteModeFromParent)
+{
+    auto parent = std::make_unique<TestableModeComponent>();
+    auto child = std::make_unique<TestableProcessComponent>();
+    auto* childPtr = child.get();
+
+    ASSERT_TRUE(parent->appendChild(child.release()));
+
+    parent->setExecMode("remote");
+    childPtr->setExecMode("parent");
+
+    EXPECT_EQ(childPtr->execMode(), QString("remote"));
+}
+
+TEST(TestGtProcessComponent, parentModeChainOfThreeLevelsFallsBackToLocal)
+{
+    auto root = std::make_unique<TestableProcessComponent>();
+    auto mid = std::make_unique<TestableProcessComponent>();
+    auto leaf = std::make_unique<TestableProcessComponent>();
+    auto* midPtr = mid.get();
+    auto* leafPtr = leaf.get();
+
+    ASSERT_TRUE(root->appendChild(mid.release()));
+    ASSERT_TRUE(midPtr->appendChild(leaf.release()));
+
+    root->setExecMode("parent");
+    midPtr->setExecMode("parent");
+    leafPtr->setExecMode("parent");
+
+    EXPECT_EQ(leafPtr->execMode(), QString("local"));
+    EXPECT_EQ(midPtr->execMode(), QString("local"));
+    EXPECT_EQ(root->execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, parentModeChainInheritsLocalModeFromRoot)
+{
+    auto root = std::make_unique<TestableProcessComponent>();
+    auto mid = std::make_unique<TestableProcessComponent>();
+    auto leaf = std::make_unique<TestableProcessComponent>();
+    auto* midPtr = mid.get();
+    auto* leafPtr = leaf.get();
+
+    ASSERT_TRUE(root->appendChild(mid.release()));
+    ASSERT_TRUE(midPtr->appendChild(leaf.release()));
+
+    root->setExecModeLocal();
+    midPtr->setExecMode("parent");
+    leafPtr->setExecMode("parent");
+
+    EXPECT_EQ(leafPtr->execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, parentModeChainInheritsRemoteModeFromRoot)
+{
+    auto root = std::make_unique<TestableModeComponent>();
+    auto mid = std::make_unique<TestableProcessComponent>();
+    auto leaf = std::make_unique<TestableProcessComponent>();
+    auto* midPtr = mid.get();
+    auto* leafPtr = leaf.get();
+
+    ASSERT_TRUE(root->appendChild(mid.release()));
+    ASSERT_TRUE(midPtr->appendChild(leaf.release()));
+
+    root->setExecMode("remote");
+    midPtr->setExecMode("parent");
+    leafPtr->setExecMode("parent");
+
+    EXPECT_EQ(leafPtr->execMode(), QString("remote"));
+    EXPECT_EQ(midPtr->execMode(), QString("remote"));
+}
+
+TEST(TestGtProcessComponent, parentModeChainStopsAtFirstExplicitMode)
+{
+    auto root = std::make_unique<TestableModeComponent>();
+    auto mid = std::make_unique<TestableProcessComponent>();
+    auto leaf = std::make_unique<TestableProcessComponent>();
+    auto* midPtr = mid.get();
+    auto* leafPtr = leaf.get();
+
+    ASSERT_TRUE(root->appendChild(mid.release()));
+    ASSERT_TRUE(midPtr->appendChild(leaf.release()));
+
+    root->setExecMode("remote");
+    midPtr->setExecModeLocal();
+    leafPtr->setExecMode("parent");
+
+    // The explicit local mode of the middle element must break the
+    // inheritance chain - the root's remote mode must not leak through.
+    EXPECT_EQ(leafPtr->execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, explicitChildModeWinsOverParentChain)
+{
+    auto root = std::make_unique<TestableModeComponent>();
+    auto mid = std::make_unique<TestableProcessComponent>();
+    auto leaf = std::make_unique<TestableProcessComponent>();
+    auto* midPtr = mid.get();
+    auto* leafPtr = leaf.get();
+
+    ASSERT_TRUE(root->appendChild(mid.release()));
+    ASSERT_TRUE(midPtr->appendChild(leaf.release()));
+
+    root->setExecMode("remote");
+    midPtr->setExecMode("parent");
+    leafPtr->setExecModeLocal();
+
+    EXPECT_EQ(leafPtr->execMode(), QString("local"));
+}
+
+TEST(TestGtProcessComponent, parentModeReResolvesWhenParentModeChanges)
+{
+    auto parent = std::make_unique<TestableModeComponent>();
+    auto child = std::make_unique<TestableProcessComponent>();
+    auto* childPtr = child.get();
+
+    ASSERT_TRUE(parent->appendChild(child.release()));
+
+    parent->setExecModeLocal();
+    childPtr->setExecMode("parent");
+    EXPECT_EQ(childPtr->execMode(), QString("local"));
+
+    parent->setExecMode("remote");
+    EXPECT_EQ(childPtr->execMode(), QString("remote"));
+}
+
+TEST(TestGtProcessComponent, invalidExecModeDoesNotChangeResolvedMode)
+{
+    auto parent = std::make_unique<TestableModeComponent>();
+    auto child = std::make_unique<TestableModeComponent>();
+    auto* childPtr = child.get();
+
+    ASSERT_TRUE(parent->appendChild(child.release()));
+
+    // Unknown modes are rejected by the mode property, so the previously
+    // stored mode keeps being resolved.
+    childPtr->setExecMode("remote");
+    childPtr->setExecMode("missing-executor");
+    EXPECT_EQ(childPtr->execMode(), QString("remote"));
+
+    childPtr->setExecMode("parent");
+    parent->setExecMode("remote");
+    childPtr->setExecMode("missing-executor");
+    EXPECT_EQ(childPtr->execMode(), QString("remote"));
+}
+
+TEST(TestGtProcessComponent, siblingsResolveIndependentExecModes)
+{
+    auto parent = std::make_unique<TestableModeComponent>();
+    auto first = std::make_unique<TestableModeComponent>();
+    auto second = std::make_unique<TestableModeComponent>();
+    auto* firstPtr = first.get();
+    auto* secondPtr = second.get();
+
+    ASSERT_TRUE(parent->appendChild(first.release()));
+    ASSERT_TRUE(parent->appendChild(second.release()));
+
+    parent->setExecMode("parent");
+    firstPtr->setExecModeLocal();
+    secondPtr->setExecMode("remote");
+
+    EXPECT_EQ(firstPtr->execMode(), QString("local"));
+    EXPECT_EQ(secondPtr->execMode(), QString("remote"));
 }
