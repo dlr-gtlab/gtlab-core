@@ -231,6 +231,14 @@ inline void GtProperty<ParamType>::setValFromConnection()
 
     if (conversion)
     {
+        // this is a workaround to keep the current interface of properties
+        // but also enables the setting of the property via a connection
+        auto cleanup = gt::finally([oldCon = m_connection, this](){
+            m_connection = oldCon;
+        });
+        Q_UNUSED(cleanup);
+        m_connection = {};
+
         gt::conversion::conversionSuccess ret = conversion(
             *source, static_cast<GtAbstractProperty&>(*this));
 
@@ -238,7 +246,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
 
         if (ret == gt::conversion::conversionSuccess::Lossy)
         {
-            gtError() << tr("Connection of %1 to %2 indicated some infomation "
+            gtError() << tr("Conversion of %1 to %2 indicated some infomation "
                             "loss").arg(ident(), source->ident());
         }
     }
