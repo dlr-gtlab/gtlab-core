@@ -17,7 +17,6 @@
 class GT_DATAMODEL_EXPORT GtPropertyConverter
 {
 public:
-
     GtPropertyConverter(QMetaObject from, QMetaObject to,
                         gt::conversion::convert conversion);
 

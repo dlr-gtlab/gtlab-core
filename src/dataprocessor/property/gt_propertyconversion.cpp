@@ -8,4 +8,3 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_propertyconversion.h"
-
