@@ -36,7 +36,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_value = uuid;
 
     static auto initOnce = []() {
-        GtPropertyConversionRegistry::registerConnectionCompatibility(
+        gtPropConversion().registerConnectionCompatibility(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
             // can connect

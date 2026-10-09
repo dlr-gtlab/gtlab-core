@@ -36,12 +36,12 @@ public:
      * @param to
      * @param f
      */
-    static void registerConnectionCompatibility(
+    void registerConnectionCompatibility(
         QMetaObject from, QMetaObject to,
         gt::conversion::convert convert,
         gt::conversion::canConnect canConnect = {});
 
-    static void registerConnectionCompatibility(
+    void registerConnectionCompatibility(
         QMetaObject from, QMetaObject to,
         gt::conversion::canConnect canConnect);
 
@@ -55,6 +55,8 @@ public:
      */
     gt::conversion::canConnect canConnectFunction(
         QMetaObject const& from, QMetaObject const& to) const;
+
+    QStringList converterAvailable(const QString& from) const;
 
 private:
     GtPropertyConversionRegistry();
