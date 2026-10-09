@@ -173,10 +173,10 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     }
     else if (port->isConnected()) return false;
 
-    if (propertyValue().typeName() != port->propertyValue().typeName())
-    {
-        return false;
-    }
+    //if (propertyValue().typeName() != port->propertyValue().typeName())
+    //{
+    //    return false;
+    //}
 
     // do not allow connection inside one object
     if (parentComponentUuid() == port->parentComponentUuid()) return false;
