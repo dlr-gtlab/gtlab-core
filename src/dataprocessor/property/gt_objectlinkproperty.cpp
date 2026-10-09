@@ -61,7 +61,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
                     [&](const auto& s2) { return from.isAllowed(s2); });
             }
 
-            );
+        );
 
         return 0;
     }();

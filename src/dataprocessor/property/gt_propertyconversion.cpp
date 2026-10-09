@@ -19,9 +19,8 @@ gt::conversion::registerBasicPropertyConverters()
     // add the basic converter registrations here
 
     // converter from double to int
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
-        GtDoubleProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
+    gtPropConversion().registerConnectionCompatibility(
+        GtDoubleProperty::staticMetaObject, GtIntProperty::staticMetaObject,
         // conversion
         [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
            GtAbstractProperty& b) {
@@ -38,9 +37,8 @@ gt::conversion::registerBasicPropertyConverters()
             const double error = std::abs(baseValue - rounded);
 
             // Toleranz entsprechend der Größenordnung des Wertes
-            const double tolerance =
-                std::numeric_limits<double>::epsilon() *
-                std::max(1.0, std::abs(baseValue));
+            const double tolerance = std::numeric_limits<double>::epsilon() *
+                                     std::max(1.0, std::abs(baseValue));
 
             to.setVal(result);
 
@@ -50,7 +48,6 @@ gt::conversion::registerBasicPropertyConverters()
             }
 
             return gt::conversion::conversionSuccess::Lossy;
-
         },
         // can connect
         [](GtAbstractProperty const&, // LCOV_EXCL_LINE
@@ -58,9 +55,8 @@ gt::conversion::registerBasicPropertyConverters()
 
 
     // converter from int to double
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
-        GtIntProperty::staticMetaObject,
-        GtDoubleProperty::staticMetaObject,
+    gtPropConversion().registerConnectionCompatibility(
+        GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
         // conversion
         [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
            GtAbstractProperty& b) {

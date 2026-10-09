@@ -52,7 +52,7 @@ TEST(TestGtPropertyConversionRegistry, registerCanConnect)
     GtBoolProperty boolProp("bool", "boolFrom");
     GtIntProperty intProp("int", "intTo");
 
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const& b) -> bool {
             return a.objectName() == "boolFrom" && b.objectName() == "intTo";
@@ -97,7 +97,7 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
 
     // a registered canConnect function overrides the fallback to
     // identical property types
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtBoolProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
@@ -107,7 +107,7 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
 
     // a registered function allows a connection for a property type
     // pair that would be rejected by the fallback
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtIntProperty::staticMetaObject, GtStringProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
@@ -120,7 +120,7 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
 
     // if multiple functions are registered for the same property type
     // pair the first registered function decides the result
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtIntProperty::staticMetaObject, GtStringProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
@@ -130,7 +130,7 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
 
     // a registration for the reversed direction does not influence
     // the connection check of the other direction
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtStringProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
@@ -148,7 +148,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
 
     // a registration for the derived from type and the base to type
     // is found via the inheritance chains
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropA::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const&) -> bool {
@@ -185,14 +185,14 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     // two registrations match the pair (D, E) via different
     // inheritance levels, the registration of the more derived from
     // type takes priority
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
         });
 
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtAbstractProperty::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -229,7 +229,7 @@ TEST(TestGtPropertyConversionRegistry, convertOnlyRegistration)
 
     // a converter registered without a canConnect function does not
     // enable a connection for the property type pair
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropF::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
         [](GtAbstractProperty const&, GtAbstractProperty&)
@@ -252,12 +252,12 @@ TEST(TestGtPropertyConversionRegistry, emptyFunctionRegistrationIgnored)
     GtTestRegistryPropI propI;
 
     // registering empty functions is ignored
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
         gt::conversion::convert{});
 
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
+    gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
         gt::conversion::canConnect{});
