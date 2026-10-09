@@ -29,11 +29,6 @@ namespace gt
         using canConnect = std::function<bool(GtAbstractProperty const& from,
                                               GtAbstractProperty const& to)>;
 
-        // implementation of the converter gestristation for
-        // double -> int
-        // int    -> double
-        GT_DATAMODEL_EXPORT void registerBasicPropertyConverters();
-
     } // namespace conversion
 } // namespace gt
 

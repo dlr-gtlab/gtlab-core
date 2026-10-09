@@ -419,18 +419,7 @@ GtAbstractProperty::isConnectable() const
 bool
 GtAbstractProperty::canConnect(GtAbstractProperty const& b)
 {
-    auto function =
-        gtPropConversion().canConnectFunction(*metaObject(), *b.metaObject());
-
-    // if no connectionCheck function is available check based
-    if (!function)
-    {
-        return metaObject()->className() == b.metaObject()->className();
-    }
-
-    const auto& a = *this;
-
-    return function(a, b);
+    return gtPropConversion().canConnect(*this, b);
 }
 
 void

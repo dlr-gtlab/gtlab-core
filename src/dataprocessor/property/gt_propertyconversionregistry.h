@@ -55,12 +55,15 @@ public:
 
     QStringList converterAvailable(const QString& from) const;
 
+    bool canConnect(GtAbstractProperty const& a, GtAbstractProperty const& b);
+
 private:
     GtPropertyConversionRegistry();
     ~GtPropertyConversionRegistry() = default;
 
     QList<GtPropertyConverter> m_canConvertList;
 
+    void registerBasicPropertyConvertersImpl();
 };
 
 GT_DATAMODEL_EXPORT GtPropertyConversionRegistry& gtPropConversion();
