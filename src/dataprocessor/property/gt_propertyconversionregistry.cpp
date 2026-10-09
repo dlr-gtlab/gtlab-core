@@ -146,8 +146,8 @@ GtPropertyConversionRegistry::converterAvailable(QString const& from) const
 }
 
 bool
-GtPropertyConversionRegistry::connectionCheckAvailable(const GtAbstractProperty& a,
-                                         const GtAbstractProperty& b)
+GtPropertyConversionRegistry::connectionCheckAvailable(
+    const GtAbstractProperty& a, const GtAbstractProperty& b)
 {
     auto function = canConnectFunction(*a.metaObject(), *b.metaObject());
 
