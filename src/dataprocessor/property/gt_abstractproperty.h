@@ -392,6 +392,16 @@ namespace gt
 GT_DATAMODEL_EXPORT
 QVariant getConnectedValue(const GtPropertyConnection& connection);
 
+
+/**
+ * @brief getConnectedProperty
+ * Returns a reference of a source property of a property connection
+ * @param connection
+ * @return
+ */
+GT_DATAMODEL_EXPORT
+GtAbstractProperty* getConnectedProperty(const GtPropertyConnection& connection);
+
 /**
      * Function definition to create a property with the
      * identifier 'id'

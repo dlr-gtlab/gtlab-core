@@ -31,9 +31,11 @@ public:
 
     gt::conversion::canConnect canConnectFunc() const;
 
+    gt::conversion::convert convertFunc() const;
+
     bool canConnectDefined() const;
 
-    bool canConversionDefined() const;
+    bool conversionDefined() const;
 
 private:
     QMetaObject m_from;

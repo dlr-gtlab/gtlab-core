@@ -47,6 +47,27 @@ TestDatamodelInterface::init()
         {
             return true;
         });
+
+    registry.registerConnectionCompatibility(
+        GtIntProperty::staticMetaObject,
+        GtBoolProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty& b)
+        {
+            const auto& from = static_cast<const GtIntProperty&>(a);
+            auto& to = static_cast<GtBoolProperty&>(b);
+
+            bool converted = true;
+
+            if (from.getVal() == 0) converted = false;
+
+            to.setVal(converted);
+
+            return gt::conversion::conversionSuccess::Success;
+        },
+        [](GtAbstractProperty const&, GtAbstractProperty const&)
+        {
+            return true;
+        });
 }
 
 GtVersionNumber
