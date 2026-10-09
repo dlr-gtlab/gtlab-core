@@ -77,3 +77,40 @@ target_link_libraries(GTlabUnitTest PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core." DISCOVERY_MODE PRE_TEST)
+
+# Real plugins for module metadata integration tests. Keep them outside the
+# scanned application module directory so tests control each load explicitly.
+foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride FailedNew)
+    set(fixture_id "${fixture}")
+    set(fixture_metadata "{}")
+    if(fixture STREQUAL "FailedOverride" OR fixture STREQUAL "FailedNew")
+        set(fixture_metadata "{\"dependencies\":[{\"name\":\"MissingDependency\"}]}")
+    endif()
+    if(fixture STREQUAL "SuccessfulOverride")
+        set(fixture_metadata "{\"dependencies\":[{\"name\":\"ModuleB\"}]}")
+    endif()
+    if(fixture STREQUAL "FailedOverride" OR fixture STREQUAL "SuccessfulOverride")
+        set(fixture_id "ModuleA")
+    endif()
+    set(fixture_dir "${CMAKE_CURRENT_BINARY_DIR}/modulefixtures/${fixture}")
+    file(MAKE_DIRECTORY "${fixture_dir}")
+    configure_file(modulefixtures/module.cpp "${fixture_dir}/module.cpp" COPYONLY)
+    file(WRITE "${fixture_dir}/metadata.json" "${fixture_metadata}")
+    add_library(Footprint${fixture} MODULE "${fixture_dir}/module.cpp")
+    set_target_properties(Footprint${fixture} PROPERTIES AUTOMOC ON
+        LIBRARY_OUTPUT_DIRECTORY "${fixture_dir}"
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${fixture_dir}"
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${fixture_dir}"
+        LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${fixture_dir}"
+        LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${fixture_dir}"
+        RUNTIME_OUTPUT_DIRECTORY "${fixture_dir}"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${fixture_dir}"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${fixture_dir}"
+        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${fixture_dir}"
+        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${fixture_dir}")
+    target_compile_definitions(Footprint${fixture} PRIVATE GT_MODULE_ID="${fixture_id}")
+    target_link_libraries(Footprint${fixture} PRIVATE GTlab::Core)
+    add_dependencies(GTlabUnitTest Footprint${fixture})
+    target_compile_definitions(GTlabUnitTest PRIVATE
+        FOOTPRINT_${fixture}_PATH="$<TARGET_FILE:Footprint${fixture}>")
+endforeach()

@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
  - Search functionality for the Memento-Viewer - #380
  - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
+ - `GtProjectDependencyAnalyzer` analyses which classes are used by an open project and which
+   modules provide these classes. The new module access `gtApp->modules()` resolves which modules
+   are required by a set of modules, including transitive dependencies. The new
+   `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module
+   versions. - #1312
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
@@ -44,6 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+ - Project footprints are no longer created from all modules loaded in the current GTlab environment.
+   A saved project now only stores the modules that its data actually requires, including their
+   transitive module dependencies. Required modules that are currently unavailable keep their
+   previously stored versions. - #1312
 
 ### Fixed
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454

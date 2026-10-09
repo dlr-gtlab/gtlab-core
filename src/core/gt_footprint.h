@@ -13,6 +13,7 @@
 #define GTFOOTPRINT_H
 
 #include "gt_core_exports.h"
+#include "gt_versionnumber.h"
 
 #include <QString>
 #include <QMap>
@@ -20,7 +21,6 @@
 #include <memory>
 
 class GtFootprintImpl;
-class GtVersionNumber;
 
 /**
  * @brief The GtFootprint class provides information about the footprint of a
@@ -145,10 +145,34 @@ public:
      */
     GT_CORE_EXPORT static QString frameworkIdentificationString();
 
+    /**
+     * @brief Creates a footprint from an explicit set of module versions.
+     *
+     * Use this to create a footprint that does not represent the complete
+     * loaded GTlab environment, e.g. a project footprint derived from the
+     * module dependencies of a project. In contrast to the default
+     * constructor, no module information is taken from the current GTlab
+     * environment.
+     *
+     * @param modules Module ids and the corresponding version numbers
+     * @param frameworkVersion Framework version. If the version is null,
+     * the version of the current GTlab environment is used.
+     * @return Footprint based on the given module versions
+     */
+    GT_CORE_EXPORT static GtFootprint fromProjectModules(
+        const QMap<QString, GtVersionNumber>& modules,
+        const GtVersionNumber& frameworkVersion = GtVersionNumber());
+
 private:
     /// Private implementation
     std::unique_ptr<GtFootprintImpl> m_pimpl;
 
+    /**
+     * @brief Constructor.
+     * Takes ownership of a prepared private implementation. Only used by
+     * explicit footprint construction paths within this class.
+     */
+    explicit GtFootprint(std::unique_ptr<GtFootprintImpl> pimpl);
 };
 
 #endif // GTFOOTPRINT_H
