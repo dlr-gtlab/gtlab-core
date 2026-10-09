@@ -9,9 +9,6 @@
  */
 
 #include <QVariant>
-#include <QMultiHash>
-
-#include <algorithm>
 
 #include "gt_logging.h"
 
@@ -19,7 +16,6 @@
 #include "gt_propertyconnection.h"
 
 #include "gt_propertyconversionregistry.h"
-
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
