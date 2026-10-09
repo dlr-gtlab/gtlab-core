@@ -21,14 +21,14 @@ namespace gt
 {
 
     /**
- * @brief Result of a module requirements query (@ref gt::Modules)
- *
- * The result contains the module ids that are required for a set of
- * modules, including transitive dependencies, and the dependencies that
- * could not be resolved with the module meta data of the current
- * environment. Unresolved dependencies must not be treated as unused,
- * because their own dependencies are unknown.
- */
+     * @brief Result of a module requirements query (@ref gt::Modules)
+     *
+     * The result contains the module ids that are required for a set of
+     * modules, including transitive dependencies, and the dependencies that
+     * could not be resolved with the module meta data of the current
+     * environment. Unresolved dependencies must not be treated as unused,
+     * because their own dependencies are unknown.
+     */
     struct GT_CORE_EXPORT ModuleRequirements
     {
         /// Required module ids, including transitive dependencies
@@ -46,17 +46,17 @@ namespace gt
     };
 
     /**
- * @brief Provides coherent access to the modules of the GTlab application
- *
- * The class is a lightweight handle to the module subsystem of the
- * application, exposed by @ref GtCoreApplication::modules. It provides the
- * module information that is independent of an individual module, e.g. the
- * versions of loaded modules and the queries which modules are required by
- * a set of modules.
- *
- * All methods return empty or conservative results if the application
- * does not have a module subsystem.
- */
+     * @brief Provides coherent access to the modules of the GTlab application
+     *
+     * The class is a lightweight handle to the module subsystem of the
+     * application, exposed by @ref GtCoreApplication::modules. It provides the
+     * module information that is independent of an individual module, e.g. the
+     * versions of loaded modules and the queries which modules are required by
+     * a set of modules.
+     *
+     * All methods return empty or conservative results if the application
+     * does not have a module subsystem.
+     */
     class GT_CORE_EXPORT Modules
     {
     public:
