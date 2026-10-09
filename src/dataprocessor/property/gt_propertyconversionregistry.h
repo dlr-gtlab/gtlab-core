@@ -39,9 +39,8 @@ public:
         QMetaObject from, QMetaObject to, gt::conversion::convert convert,
         gt::conversion::canConnect canConnect = {});
 
-    void registerConnectionCompatibility(
-        QMetaObject from, QMetaObject to,
-        gt::conversion::canConnect canConnect);
+    void registerConnectionCompatibility(QMetaObject from, QMetaObject to,
+                                         gt::conversion::canConnect canConnect);
 
     /**
      * @brief canConnectFunctions
@@ -51,8 +50,8 @@ public:
      * @param to
      * @return
      */
-    gt::conversion::canConnect canConnectFunction(
-        QMetaObject const& from, QMetaObject const& to) const;
+    gt::conversion::canConnect canConnectFunction(QMetaObject const& from,
+                                                  QMetaObject const& to) const;
 
     QStringList converterAvailable(const QString& from) const;
 
@@ -60,7 +59,7 @@ private:
     GtPropertyConversionRegistry();
     ~GtPropertyConversionRegistry() = default;
 
-    QList<GtPropertyConverter> canConvertHash;
+    QList<GtPropertyConverter> m_canConvertList;
 
 };
 
