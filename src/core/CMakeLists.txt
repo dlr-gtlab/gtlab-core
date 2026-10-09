@@ -84,6 +84,7 @@ set(headers
     operations/gt_executioneventstream.h
     operations/gt_executioneventfilewriter.h
     operations/gt_executableoperation.h
+    operations/gt_processtaskoperation.h
     operations/gt_operationapplystatus.h
     operations/gt_operationexecutioncontext.h
     operations/gt_operationexecutionresult.h
@@ -207,6 +208,7 @@ set(sources
     operations/gt_executioneventfilewriter.cpp
     operations/gt_operationapplystatus.cpp
     operations/gt_operationexecutioncontext.cpp
+    operations/gt_processtaskoperation.cpp
     operations/gt_stdioexecutioneventencoder.cpp
     gt_projectexecutionguard.cpp
     gt_footprint.cpp

@@ -23,9 +23,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QJsonObject>
-#include <QJsonValue>
-
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -352,30 +349,6 @@ namespace
         return QStringLiteral("execution_error");
     }
 
-    QString operationFailureCode(GtOperationExecutionResult const& result)
-    {
-        if (!result.code.isEmpty())
-        {
-            return result.code;
-        }
-
-        return result.status == GtOperationExecutionResult::Status::Cancelled
-                   ? QStringLiteral("operation_cancelled")
-                   : QStringLiteral("operation_failed");
-    }
-
-    QString operationFailureMessage(GtOperationExecutionResult const& result)
-    {
-        if (!result.message.isEmpty())
-        {
-            return result.message;
-        }
-
-        return result.status == GtOperationExecutionResult::Status::Cancelled
-                   ? QObject::tr("Operation execution was cancelled.")
-                   : QObject::tr("Operation execution failed.");
-    }
-
     int parseExecutionPaths(QStringList const& args,
                             OperationExecutionOptions const& options,
                             GtStdioExecutionEventEncoder& encoder,
@@ -583,31 +556,6 @@ namespace
     int reportOperationResult(GtOperationExecutionResult const& result,
                               GtStdioExecutionEventEncoder& encoder)
     {
-        if (result.status != GtOperationExecutionResult::Status::Success)
-        {
-            QJsonObject details;
-            details.insert(QStringLiteral("status"),
-                           result.status ==
-                                   GtOperationExecutionResult::Status::Cancelled
-                               ? QStringLiteral("cancelled")
-                               : QStringLiteral("failed"));
-            if (!result.code.isEmpty())
-            {
-                details.insert(QStringLiteral("operationCode"), result.code);
-            }
-
-            const QString message = operationFailureMessage(result);
-            gtError() << message;
-            if (!encoder.encodeFailure(operationFailureCode(result), message,
-                                       QJsonValue(details)))
-            {
-                gtError() << QObject::tr(
-                    "Cannot write the terminal operation failure record.");
-                return protocolOutputExitCode;
-            }
-            return executionExitCode;
-        }
-
         if (result.result)
         {
             const GtObjectMemento resultMemento = result.result->toMemento();
@@ -620,14 +568,16 @@ namespace
             }
         }
 
-        if (!encoder.encodeResult(result.result.get()))
+        if (!encoder.encodeOutcome(result))
         {
             gtError() << QObject::tr(
-                "Cannot write the terminal operation result record.");
+                "Cannot write the terminal operation outcome record.");
             return protocolOutputExitCode;
         }
 
-        return 0;
+        return result.status == GtOperationExecutionResult::Status::Success
+                   ? 0
+                   : executionExitCode;
     }
 
     int reportExecutionResult(GtExecutionResult const& execution,

@@ -1,0 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="ProcessTaskOperation" uuid="{2670de09-27bf-4a6e-9250-149709cf4698}" name="Process Task Operation">
+ <property type="QString" name="taskUuid">{b8886142-f49a-4714-8efd-b6a18d2ee2a7}</property>
+</object>

@@ -156,6 +156,7 @@ def test_runs_registered_operation_with_detached_data_and_separate_events(
     )
     terminal = _terminal_record(result.stdout)
     assert terminal["kind"] == "result"
+    assert terminal["status"] == "success"
     assert terminal["resultEncoding"] == "memento-xml-base64"
     assert terminal["executionId"]
     result_xml = base64.b64decode(terminal["result"]).decode("utf-8")
@@ -198,6 +199,58 @@ def test_project_required_operation_uses_the_restored_project(
     assert all(event["payload"]["projectVisible"] for event in events)
 
 
+def test_process_task_operation_executes_through_normal_mementos(
+    console_path: Path, tmp_path: Path
+) -> None:
+    """Run a detached task through GTlabConsole and the normal event channel."""
+    task_memento = (
+        TEST_DATA_DIR.parent
+        / "run_task_from_memento"
+        / "change_project_task.xml"
+    )
+    event_file = tmp_path / "process task events.ndjson"
+    result = _invoke(
+        console_path,
+        TEST_DATA_DIR / "process_task_operation.xml",
+        data=task_memento,
+        project=PROJECT_MEMENTO,
+        events=event_file,
+        working_directory=tmp_path,
+    )
+
+    assert result.returncode == 0, (
+        f"GTlabConsole failed with exit code {result.returncode}\n"
+        f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    terminal = _terminal_record(result.stdout)
+    assert terminal["kind"] == "result"
+    assert terminal["resultEncoding"] == "memento-xml-base64"
+
+    result_memento = ET.fromstring(base64.b64decode(terminal["result"]))
+    assert result_memento.get("class") == "GtProcessTaskOperationResult"
+    diff_xml = result_memento.findtext("property[@name='diffXml']")
+    assert diff_xml, "The operation result did not contain a project diff"
+    diff = ET.fromstring(diff_xml)
+    change = next(
+        (
+            entry
+            for entry in diff.iter("diff-property-change")
+            if entry.get("name") == "mementoTestValue"
+        ),
+        None,
+    )
+    assert change is not None, "The project diff omitted the task's data change"
+    assert change.findtext("oldVal") == "21"
+    assert change.findtext("newVal") == "42"
+
+    events = [json.loads(line) for line in event_file.read_text().splitlines()]
+    event_types = {event["eventType"] for event in events}
+    assert "process.state_changed" in event_types
+    assert "process.progress_changed" in event_types
+    assert "process.monitoring_property_changed" in event_types
+    assert [event["sequence"] for event in events] == list(range(len(events)))
+
+
 def test_project_independent_operation_does_not_see_optional_project(
     console_path: Path, tmp_path: Path
 ) -> None:
@@ -226,30 +279,36 @@ def test_required_project_missing_is_a_structured_execution_failure(
     assert result.returncode == 5
 
 
-def test_operation_failure_preserves_operation_status_and_code(
+def test_operation_failure_preserves_operation_outcome_and_code(
     console_path: Path,
 ) -> None:
     result = _invoke(console_path, FAILURE_OPERATION_MEMENTO)
 
-    record = _assert_failure(result, "test_operation_failed")
+    record = _terminal_record(result.stdout)
+    assert record["kind"] == "result"
+    assert record["status"] == "failed"
+    assert record["code"] == "test_operation_failed"
+    assert record["message"] == "Test operation returned a failure."
+    assert record["resultEncoding"] == "memento-xml-base64"
+    failed_result = ET.fromstring(base64.b64decode(record["result"]))
+    assert failed_result.get("class") == "GtObjectGroup"
     assert result.returncode == 5
-    assert record["details"] == {
-        "status": "failed",
-        "operationCode": "test_operation_failed",
-    }
 
 
-def test_operation_cancellation_is_reported_as_a_failure(
+def test_operation_cancellation_preserves_operation_outcome_and_payload(
     console_path: Path,
 ) -> None:
     result = _invoke(console_path, CANCELLATION_OPERATION_MEMENTO)
 
-    record = _assert_failure(result, "test_operation_cancelled")
+    record = _terminal_record(result.stdout)
+    assert record["kind"] == "result"
+    assert record["status"] == "cancelled"
+    assert record["code"] == "test_operation_cancelled"
+    assert record["message"] == "Test operation was cancelled."
+    assert record["resultEncoding"] == "memento-xml-base64"
+    cancelled_result = ET.fromstring(base64.b64decode(record["result"]))
+    assert cancelled_result.get("class") == "GtObjectGroup"
     assert result.returncode == 5
-    assert record["details"] == {
-        "status": "cancelled",
-        "operationCode": "test_operation_cancelled",
-    }
 
 
 def test_operation_exception_is_reported_as_an_execution_failure(
@@ -322,7 +381,7 @@ def test_terminal_result_write_failure_returns_protocol_exit_code(
         )
 
     assert result.returncode == 7
-    assert "Cannot write the terminal operation result record" in result.stderr
+    assert "Cannot write the terminal operation outcome record" in result.stderr
 
 
 def test_bad_data_memento_is_rejected_before_execution(
@@ -561,9 +620,18 @@ def test_event_write_failure_is_reported_instead_of_a_successful_result(
 
 
 @pytest.mark.skipif(not Path("/dev/full").exists(), reason="requires /dev/full")
-@pytest.mark.parametrize("operation", [None, FAILURE_OPERATION_MEMENTO])
+@pytest.mark.parametrize(
+    ("operation", "expected_error"),
+    [
+        (None, "Cannot write the terminal operation failure record"),
+        (FAILURE_OPERATION_MEMENTO,
+         "Cannot write the terminal operation outcome record"),
+    ],
+)
 def test_terminal_failure_write_errors_return_the_protocol_exit_code(
-    console_path: Path, operation: Optional[Path]
+    console_path: Path,
+    operation: Optional[Path],
+    expected_error: str,
 ) -> None:
     command = _command(console_path, operation) if operation else [
         str(console_path), "run_operation_from_memento",
@@ -575,4 +643,4 @@ def test_terminal_failure_write_errors_return_the_protocol_exit_code(
         )
 
     assert result.returncode == 7
-    assert "Cannot write the terminal operation failure record" in result.stderr
+    assert expected_error in result.stderr
