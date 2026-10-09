@@ -15,17 +15,6 @@
 
 #include <QUuid>
 
-namespace
-{
-    struct CancellationCallbackFrame
-    {
-        void const* subscriber;
-        CancellationCallbackFrame* previous;
-    };
-
-    thread_local CancellationCallbackFrame* currentCancellationCallback{};
-} // namespace
-
 struct GtCancellationToken::State
 {
     struct Subscriber
@@ -46,8 +35,6 @@ struct GtCancellationToken::State
                 ++inFlight;
             }
 
-            CancellationCallbackFrame frame{this, currentCancellationCallback};
-            currentCancellationCallback = &frame;
             try
             {
                 callback();
@@ -56,7 +43,6 @@ struct GtCancellationToken::State
             {
                 // Cancellation requests must remain noexcept.
             }
-            currentCancellationCallback = frame.previous;
 
             {
                 std::lock_guard<std::mutex> lock(mutex);
@@ -69,18 +55,7 @@ struct GtCancellationToken::State
         {
             std::unique_lock<std::mutex> lock(mutex);
             active = false;
-            std::size_t callbacksOnThisThread = 0;
-            for (auto* frame = currentCancellationCallback; frame;
-                 frame = frame->previous)
-            {
-                if (frame->subscriber == this)
-                {
-                    ++callbacksOnThisThread;
-                }
-            }
-            condition.wait(lock, [this, callbacksOnThisThread] {
-                return inFlight <= callbacksOnThisThread;
-            });
+            condition.wait(lock, [this] { return inFlight == 0; });
         }
 
         std::function<void()> callback;

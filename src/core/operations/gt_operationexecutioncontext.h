@@ -67,8 +67,8 @@ public:
      * @brief RAII subscription to a cancellation notification.
      *
      * Destroying the subscription prevents future callback invocations and
-     * waits for other in-flight callback invocations to finish. An invocation
-     * already active on the destroying thread may return normally.
+     * waits for in-flight callback invocations to finish. The callback must
+     * not destroy its own subscription.
      */
     class GT_CORE_EXPORT Subscription
     {

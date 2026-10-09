@@ -289,25 +289,6 @@ TEST_F(ProcessTaskOperationTest,
 }
 
 TEST_F(ProcessTaskOperationTest,
-       cancellationSubscriptionCanUnsubscribeFromItsOwnCallback)
-{
-    GtCancellationToken cancellation;
-    std::unique_ptr<GtCancellationToken::Subscription> subscription;
-    bool callbackContinuedAfterUnsubscribe = false;
-
-    subscription = std::make_unique<GtCancellationToken::Subscription>(
-        cancellation.subscribe([&] {
-            subscription.reset();
-            callbackContinuedAfterUnsubscribe = true;
-        }));
-
-    cancellation.requestCancellation();
-
-    EXPECT_FALSE(subscription);
-    EXPECT_TRUE(callbackContinuedAfterUnsubscribe);
-}
-
-TEST_F(ProcessTaskOperationTest,
        failedOutcomeNeverAppliesEvenWhenItCarriesAProjectDiff)
 {
     TestProject project;
