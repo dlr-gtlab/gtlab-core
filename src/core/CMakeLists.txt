@@ -119,6 +119,7 @@ set(headers
     gt_datamodelinterface.h
     gt_command.h
     gt_moduleupgradeutilities.h
+    gt_recording.h
 )
 
 set(hdr_private
@@ -235,6 +236,7 @@ set(sources
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
     gt_moduleupgradeutilities.cpp
+    gt_recording.cpp
 )
 
 set(resources

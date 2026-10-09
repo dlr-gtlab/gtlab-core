@@ -11,9 +11,11 @@
 #include "gt_processcomponent.h"
 
 #include "gt_abstractrunnable.h"
+#include "gt_accesstracking.h"
 
 GtAbstractRunnable::GtAbstractRunnable() : m_successfulRun(false)
 {
+    m_accessTracker = std::make_shared<GtAccessTracker>();
 }
 
 GtAbstractRunnable::~GtAbstractRunnable()

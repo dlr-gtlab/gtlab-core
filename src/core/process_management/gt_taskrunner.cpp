@@ -276,9 +276,11 @@ GtTaskRunner::handleRunnableFinished()
 
     m_dataToMerge.append(m_runnable->outputData());
 
-    delete m_runnable;
-
+    // emit finished before the runnable is destroyed so that connected
+    // slots can still access the execution context it owns
     emit finished();
+
+    delete m_runnable;
 }
 
 void

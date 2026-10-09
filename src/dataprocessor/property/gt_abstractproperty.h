@@ -288,6 +288,8 @@ public:
     void setCollapsedByDefault(bool collapsed);
     bool collapsedByDefault() const;
 
+    void setOwnerObject(GtObject* ownerObject);
+
 protected:
     /**
      * @brief GtAbstractProperty
@@ -334,6 +336,8 @@ protected:
      * @brief setValFromConnection
      */
     virtual void setValFromConnection();
+
+    GtObject* m_ownerObject{};
 
 private:
     /// Private implementation

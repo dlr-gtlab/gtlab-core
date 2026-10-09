@@ -14,6 +14,7 @@
 
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
+#include "gt_accesstracking.h"
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
@@ -33,12 +34,20 @@ GtAbstractProperty::GtAbstractProperty() :
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
+    if (m_ownerObject)
+    {
+        if (auto* tracker = GtAccessTracker::current())
+        {
+            tracker->addAccessedProperty(QUuid(m_ownerObject->uuid()));
+        }
+    }
     return valueToVariant(QString());
 }
 
 bool
 GtAbstractProperty::setValueFromVariant(const QVariant& val)
 {
+    //gtError()<<"setting Variant"<<val;
     return setValueFromVariant(val, QString());
 }
 
@@ -388,6 +397,11 @@ GtAbstractProperty::collapsedByDefault() const
     if (!collapsedState.isValid()) return false;
 
     return collapsedState.toBool();
+}
+
+void GtAbstractProperty::setOwnerObject(GtObject *ownerObject)
+{
+    m_ownerObject=ownerObject;
 }
 
 void

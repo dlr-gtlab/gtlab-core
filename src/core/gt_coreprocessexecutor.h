@@ -25,6 +25,7 @@ class GtRunnable;
 class GtCalculator;
 class GtTaskRunner;
 class GtProjectExecutionGuard;
+class GtAbstractRecorder;
 
 class GtObjectLinkProperty;
 
@@ -188,6 +189,13 @@ public:
     * @return success
     */
     bool setCustomProjectPath(QString projectPath);
+
+    /**
+     * @brief Sets the recorder that receives an access recording for each
+     * task execution.
+     * @param recorder Recorder to use (nullptr to disable access recording)
+     */
+    void setAccessRecorder(GtAbstractRecorder* recorder);
 
 signals:
 

@@ -23,6 +23,7 @@
 #include "gt_finally.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_taskrunner.h"
+#include "gt_recording.h"
 
 #include "gt_coreprocessexecutor.h"
 
@@ -44,6 +45,12 @@ struct GtCoreProcessExecutor::Impl
 
     /// Pointer to current runnable
     QPointer<GtRunnable> currentRunnable;
+
+    /// Recorder that receives access recordings (may be null)
+    GtAbstractRecorder* recorder{nullptr};
+
+    /// Access recording of the current execution
+    std::unique_ptr<GtRecording> currentRecording;
 
     std::unique_ptr<GtProjectExecutionGuard> projectGuard;
 };
@@ -317,6 +324,12 @@ GtCoreProcessExecutor::setCustomProjectPath(QString projectPath)
     return true;
 }
 
+void
+GtCoreProcessExecutor::setAccessRecorder(GtAbstractRecorder* recorder)
+{
+    pimpl->recorder = recorder;
+}
+
 bool
 GtCoreProcessExecutor::terminateCurrentTask()
 {
@@ -514,6 +527,15 @@ GtCoreProcessExecutor::setupTaskRunner()
     connect(runner, &GtTaskRunner::finished,
             this, &GtCoreProcessExecutor::onTaskRunnerFinished);
 
+    // start access recording for the new execution context
+    const auto& srcLinked = pimpl->currentRunnable->linkedObjects();
+    pimpl->currentRecording = std::make_unique<GtRecording>(
+        gt::startAccessRecording(
+            pimpl->recorder,
+            m_current.data(),
+            QList<QPointer<GtObject>>(srcLinked.begin(), srcLinked.end()),
+            *pimpl->currentRunnable));
+
     return runner;
 }
 
@@ -573,6 +595,15 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     gtInfoId(GT_EXEC_ID).medium()
         << tr("----> Task finished (took %1 ms to merge) <----")
                .arg(timer.elapsed());
+
+    // end access recording of the finished execution context
+    if (pimpl->currentRecording && pimpl->currentRunnable)
+    {
+        gt::endAccessRecording(pimpl->recorder,
+                               *pimpl->currentRecording,
+                               *pimpl->currentRunnable);
+    }
+    pimpl->currentRecording.reset();
 
     // reset source
     m_source.clear();

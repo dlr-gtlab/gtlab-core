@@ -15,12 +15,15 @@
 
 #include <QRunnable>
 
+#include <memory>
+
 #include "gt_object.h"
 #include "gt_objectpath.h"
 #include "gt_objectmemento.h"
 
 class QDir;
 class GtProcessComponent;
+class GtAccessTracker;
 
 /**
  * @brief The GtAbstractRunnable class
@@ -101,6 +104,18 @@ public:
     bool successful();
 
     /**
+     * @brief Returns the access tracker belonging to this execution
+     * context. Records the property accesses made on the thread the
+     * runnable is executing on.
+     * @return Access tracker of this execution context
+     */
+    const std::shared_ptr<GtAccessTracker>&
+    accessTracker() const
+    {
+        return m_accessTracker;
+    }
+
+    /**
      * @brief Returns datamodel object based on given object uuid. If no
      * object is found nullpointer is returned.
      * @tparam T Object type
@@ -161,6 +176,9 @@ public:
     }
 
 protected:
+    /// Access tracker for this execution context
+    std::shared_ptr<GtAccessTracker> m_accessTracker;
+
     ///
     QList<GtObject*> m_linkedObjects;
 

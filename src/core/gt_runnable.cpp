@@ -21,6 +21,7 @@
 #include "gt_task.h"
 #include "gt_project.h"
 #include "gt_logging.h"
+#include "gt_accesstracking.h"
 
 GtRunnable::GtRunnable(QString projectPath) :
     GtRunnable(std::move(projectPath), GtExecutionContext())
@@ -43,6 +44,8 @@ GtRunnable::run()
     {
         contextScope.emplace(m_executionContext);
     }
+
+    GtAccessTrackerScope accessScope(m_accessTracker);
 
     bool success = true;
 

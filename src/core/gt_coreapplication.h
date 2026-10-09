@@ -23,6 +23,7 @@
 #include "gt_platform.h"
 #include "gt_finally.h"
 #include "gt_command.h"
+#include "gt_recording.h"
 
 #define gtApp (GtCoreApplication::instance())
 
@@ -36,6 +37,8 @@ class GtProject;
 class GtSettings;
 class GtAbstractProperty;
 class GtCoreModuleLoader;
+class GtAbstractRecorder;
+class GtAbstractRunnable;
 class GtDataModel;
 class GtObject;
 class GtCoreDatamodel;
@@ -496,6 +499,31 @@ public:
      * and its modules
      */
     QString licenseFolder() const;
+    /**
+     * @brief Starts the access recording for the given execution context.
+     * @param recorder
+     * @param activityObject
+     * @param linkedObjects
+     * @param runnable Execution context to record the property accesses of
+     * @return New recording
+     */
+    GT_NO_DISCARD
+    GtRecording
+    startRecording(GtAbstractRecorder* recorder,
+                   QPointer<GtObject> activityObject,
+                   QList<QPointer<GtObject> > linkedObjects,
+                   const GtAbstractRunnable& runnable);
+    /**
+     * @brief Ends the access recording for the given execution context.
+     * @param recorder
+     * @param recording
+     * @param runnable Execution context whose property accesses are recorded
+     */
+    void
+    endRecording(GtAbstractRecorder* recorder,
+                 GtRecording& recording,
+                 const GtAbstractRunnable& runnable);
+
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;

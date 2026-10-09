@@ -15,6 +15,8 @@
 #include "gt_utilities.h"
 #include "gt_unitconverter.h"
 
+#include "gt_accesstracking.h"
+
 template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {
@@ -153,6 +155,13 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
+    if (m_ownerObject)
+    {
+        if (auto* tracker = GtAccessTracker::current())
+        {
+            tracker->addAccessedProperty(QUuid(m_ownerObject->uuid()));
+        }
+    }
     return m_value;
 }
 

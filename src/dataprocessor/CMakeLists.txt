@@ -102,6 +102,7 @@ set(HEADERS
     gt_mpl.h
     gt_versionnumber.h
     gt_boundaries.h
+    gt_accesstracking.h
 )
 
 set(SOURCES
@@ -158,6 +159,7 @@ set(SOURCES
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp
+    gt_accesstracking.cpp
 )
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})

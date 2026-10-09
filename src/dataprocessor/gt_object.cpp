@@ -881,7 +881,7 @@ GtObject::registerProperty(GtAbstractProperty& property)
     }
 
     connectProperty(property);
-
+    property.setOwnerObject(this);
     pimpl->properties.append(&property);
 
     return true;
