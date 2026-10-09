@@ -97,7 +97,7 @@ TEST(TestGtProperty, categoryString)
                 GtAbstractProperty::PropertyCategory::Custom);
 }
 
-TEST(TestGtProperty, propertyConnectionEnabled)
+TEST(TestGtProperty, isConnectable)
 {
     GtIntProperty intProp("int", "intName");
     GtDoubleProperty doubleProp("double", "doubleName", "doubleBrief",
@@ -111,7 +111,7 @@ TEST(TestGtProperty, propertyConnectionEnabled)
     EXPECT_TRUE(boolProp.isConnectable());
 }
 
-TEST(TestGtProperty, setPropertyConnectionEnabled)
+TEST(TestGtProperty, setConnectable)
 {
     GtIntProperty prop("int", "intName");
 
