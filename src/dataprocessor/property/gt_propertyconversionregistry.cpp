@@ -33,7 +33,8 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 
         if (!avails.contains(to.className()))
         {
-            canConvertHash.append(GtPropertyConverter(from, to, {}, canConnect));
+            m_canConvertList.append(
+                GtPropertyConverter(from, to, {}, canConnect));
         }
     }
 }
@@ -49,15 +50,15 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 
         if (!avails.contains(to.className()))
         {
-            canConvertHash.append(
+            m_canConvertList.append(
                 GtPropertyConverter(from, to, convert, canConnect));
         }
     }
 }
 
 gt::conversion::canConnect
-GtPropertyConversionRegistry::canConnectFunction(
-    const QMetaObject& from, const QMetaObject& to) const
+GtPropertyConversionRegistry::canConnectFunction(const QMetaObject& from,
+                                                 const QMetaObject& to) const
 {
     const auto inheritanceChain = [](const QMetaObject& metaObject)
     {
@@ -78,18 +79,26 @@ GtPropertyConversionRegistry::canConnectFunction(
 
     for (const auto* fromType : fromChain)
     {
-        for (const GtPropertyConverter& converter : canConvertHash)
-        {
-            if (converter.fromClassName() == fromType->className())
+        const auto converterIt = std::find_if(
+            m_canConvertList.begin(),
+            m_canConvertList.end(),
+            [&](const GtPropertyConverter& converter)
             {
-                for (const auto* toType : toChain)
-                {
-                    if (converter.toClassName() == toType->className())
+                if (converter.fromClassName() != fromType->className())
+                    return false;
+
+                return std::any_of(
+                    toChain.begin(),
+                    toChain.end(),
+                    [&](const auto* toType)
                     {
-                        return converter.canConnectFunc();
-                    }
-                }
-            }
+                        return converter.toClassName() == toType->className();
+                    });
+            });
+
+        if (converterIt != m_canConvertList.end())
+        {
+            return converterIt->canConnectFunc();
         }
     }
 
@@ -101,7 +110,7 @@ GtPropertyConversionRegistry::converterAvailable(QString const& from) const
 {
     QStringList retVal;
 
-    for (const GtPropertyConverter& converter : canConvertHash)
+    for (const GtPropertyConverter& converter : m_canConvertList)
     {
         if (converter.fromClassName() == from)
         {
