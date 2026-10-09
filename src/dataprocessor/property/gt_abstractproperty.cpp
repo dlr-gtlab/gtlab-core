@@ -419,8 +419,8 @@ GtAbstractProperty::isConnectable() const
 bool
 GtAbstractProperty::canConnect(GtAbstractProperty const& b)
 {
-    auto function = gtPropConversion().canConnectFunction(*metaObject(),
-                                                          *b.metaObject());
+    auto function =
+        gtPropConversion().canConnectFunction(*metaObject(), *b.metaObject());
 
     // if no connectionCheck function is available check based
     if (!function)

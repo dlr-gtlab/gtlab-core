@@ -14,21 +14,15 @@ GtPropertyConverter::GtPropertyConverter(
     QMetaObject to,
     gt::conversion::convert conversion,
     gt::conversion::canConnect canConnect) :
-    m_from(from),
-    m_to(to),
-    m_conversion(conversion),
-    m_canConnect(canConnect)
+    m_from(from), m_to(to), m_conversion(conversion), m_canConnect(canConnect)
 {
-
 }
 
-GtPropertyConverter::GtPropertyConverter(
-    QMetaObject from,
-    QMetaObject to,
-    gt::conversion::convert conversion) :
+GtPropertyConverter::GtPropertyConverter(QMetaObject from,
+                                         QMetaObject to,
+                                         gt::conversion::convert conversion) :
     GtPropertyConverter(from, to, conversion, {})
 {
-
 }
 
 QString
@@ -62,6 +56,3 @@ GtPropertyConverter::canConversionDefined() const
     if (m_conversion) return true;
     return false;
 }
-
-
-
