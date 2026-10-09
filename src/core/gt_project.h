@@ -397,8 +397,9 @@ private:
      * @brief saveModuleMetaData
      * @param root
      * @param doc
+     * @return success
      */
-    void saveModuleMetaData(QDomElement& root, QDomDocument& doc);
+    bool saveModuleMetaData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief saveProcessData
@@ -412,8 +413,9 @@ private:
      * @brief saveLabelData
      * @param root
      * @param doc
+     * @return success
      */
-    void saveLabelData(QDomElement& root, QDomDocument& doc);
+    bool saveLabelData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief readProjectData
