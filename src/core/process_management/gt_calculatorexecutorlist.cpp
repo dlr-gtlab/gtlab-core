@@ -67,7 +67,7 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
     }
 
     GtAbstractCalculatorExecutor* retval =
-            qobject_cast<GtAbstractCalculatorExecutor*>(obj);
+        qobject_cast<GtAbstractCalculatorExecutor*>(obj);
 
     if (!retval)
     {
