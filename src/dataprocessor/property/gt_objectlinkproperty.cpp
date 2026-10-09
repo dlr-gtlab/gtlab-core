@@ -12,6 +12,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_object.h"
 #include "gt_objectfactory.h"
+#include "gt_propertyconversionregistry.h"
 
 #include <utility>
 
@@ -27,11 +28,43 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_linkFromSuperClassesEnabled(linkFromSuperClassesEnabled)
 {
     setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
     m_unitCategory = GtUnit::Category::None;
     m_value = uuid;
+
+    static auto initOnce = []() {
+        gtPropConversion().registerConnectionCompatibility(
+            GtObjectLinkProperty::staticMetaObject,
+            GtObjectLinkProperty::staticMetaObject,
+            // can connect
+            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+               GtAbstractProperty const& b) -> bool {
+                const auto& from = static_cast<const GtObjectLinkProperty&>(a);
+                const auto& to = static_cast<const GtObjectLinkProperty&>(b);
+
+                const QStringList list1 = from.allowedClasses();
+
+                if (std::any_of(
+                        list1.begin(), list1.end(),
+                        [&](const auto& s1) { return to.isAllowed(s1); }))
+                {
+                    return true;
+                }
+
+                const QStringList list2 = to.allowedClasses();
+
+                return std::any_of(
+                    list2.begin(), list2.end(),
+                    [&](const auto& s2) { return from.isAllowed(s2); });
+            }
+
+        );
+
+        return 0;
+    }();
 }
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,

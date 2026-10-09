@@ -96,6 +96,9 @@ set(HEADERS
     gt_objectpath.h
     property/gt_relativeobjectlinkproperty.h
     property/gt_doublelistproperty.h
+    property/gt_propertyconversionregistry.h
+    property/gt_propertyconverter.h
+    property/gt_propertyconversion.h
     gt_regexp.h
     gt_regularexpression.h
     gt_algorithms.h
@@ -155,6 +158,9 @@ set(SOURCES
     gt_objectpath.cpp
     property/gt_relativeobjectlinkproperty.cpp
     property/gt_doublelistproperty.cpp
+    property/gt_propertyconverter.cpp
+    property/gt_propertyconversionregistry.cpp
+    property/gt_propertyconversion.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp

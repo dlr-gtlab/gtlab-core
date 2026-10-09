@@ -288,6 +288,29 @@ public:
     void setCollapsedByDefault(bool collapsed);
     bool collapsedByDefault() const;
 
+    /**
+     * @brief set the flag if the property should be connectable to other
+     * properties, e.g. in connection editor
+     *
+     * @param flag
+     */
+    void setConnectable(bool flag = true);
+
+    /**
+     * @brief give flag if property is meant to be connected to other property
+     * values as e.g. in the property connection editor
+     * @return
+     */
+    bool isConnectable() const;
+
+    /**
+     * @brief Checks based on the registered connection options
+     * if the property b might be connected to the given property
+     * @param b
+     * @return true if it is allowed
+     */
+    bool canConnect(const GtAbstractProperty& b);
+
 protected:
     /**
      * @brief GtAbstractProperty
@@ -368,6 +391,17 @@ namespace gt
 
 GT_DATAMODEL_EXPORT
 QVariant getConnectedValue(const GtPropertyConnection& connection);
+
+
+/**
+ * @brief getConnectedProperty
+ * Returns a reference of a source property of a property connection
+ * @param connection
+ * @return
+ */
+GT_DATAMODEL_EXPORT
+GtAbstractProperty* getConnectedProperty(
+    const GtPropertyConnection& connection);
 
 /**
      * Function definition to create a property with the

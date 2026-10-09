@@ -20,7 +20,7 @@ GtFileChooserProperty::GtFileChooserProperty(const QString& id,
     GtStringProperty(id, name, brief, QString()),
     m_filter(fileFilter)
 {
-
+    setConnectable(false);
 }
 
 const QStringList&

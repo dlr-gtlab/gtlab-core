@@ -13,12 +13,59 @@
 #include "test_dmi_externalobject.h"
 
 #include "gt_functionalinterface.h"
+#include "gt_propertyconversionregistry.h"
+#include "gt_intproperty.h"
+#include "gt_boolproperty.h"
 
 /**
  * generated (v 0.1)
  */
 
 #include "test_datamodel_interface.h"
+
+void
+TestDatamodelInterface::init()
+{
+    auto& registry = gtPropConversion();
+
+    registry.registerConnectionCompatibility(
+        GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty& b) {
+            const auto& from = static_cast<const GtBoolProperty&>(a);
+            auto& to = static_cast<GtIntProperty&>(b);
+
+            if (from.get())
+            {
+                to.setVal(1);
+            }
+            else
+            {
+                to.setVal(0);
+            }
+            return gt::conversion::conversionSuccess::Success;
+        },
+        [](GtAbstractProperty const&, GtAbstractProperty const&) {
+            return true;
+        });
+
+    registry.registerConnectionCompatibility(
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty& b) {
+            const auto& from = static_cast<const GtIntProperty&>(a);
+            auto& to = static_cast<GtBoolProperty&>(b);
+
+            bool converted = true;
+
+            if (from.getVal() == 0) converted = false;
+
+            to.setVal(converted);
+
+            return gt::conversion::conversionSuccess::Success;
+        },
+        [](GtAbstractProperty const&, GtAbstractProperty const&) {
+            return true;
+        });
+}
 
 GtVersionNumber
 TestDatamodelInterface::version()

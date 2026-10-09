@@ -120,9 +120,6 @@ private:
     /// Type of process monitoring item
     GtProcessConnectionItem::ItemType m_type;
 
-    /// List of all accepted property types
-    static QStringList m_acceptedPropertyTypes;
-
     /**
      * @brief Constructor.
      * @param Process component.

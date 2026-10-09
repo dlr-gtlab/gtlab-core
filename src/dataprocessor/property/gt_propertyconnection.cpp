@@ -202,6 +202,12 @@ GtPropertyConnection::isConnected()
     return (m_sourcePropObj != nullptr);
 }
 
+QPointer<GtAbstractProperty>
+GtPropertyConnection::sourcePropObject() const
+{
+    return m_sourcePropObj;
+}
+
 void
 GtPropertyConnection::onSourcePropertyChange()
 {

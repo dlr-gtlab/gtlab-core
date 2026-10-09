@@ -10,6 +10,7 @@
  */
 
 #include "gt_intproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtIntProperty::GtIntProperty(const QString& ident,
                              const QString& name) :
@@ -32,12 +33,47 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_boundHi(std::numeric_limits<int>::max())
 {
     setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
     m_unitCategory = GtUnit::Category::NonDimensional;
     m_value = value;
     m_initValue = value;
+
+    static auto initOnce = []() {
+        gtPropConversion().registerConnectionCompatibility(
+            GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+            // can connect
+            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
+               GtAbstractProperty const& b) -> bool {
+                const auto& from = static_cast<const GtIntProperty&>(a);
+                const auto& to = static_cast<const GtIntProperty&>(b);
+
+                // check of the bounds
+                // if bounds are active it should be checked if the valid
+                // ranges of the properties do at least match in pieces
+                if (from.highSideBoundaryActive() && to.lowSideBoundaryActive())
+                {
+                    if (from.highSideBoundary() < to.lowSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+
+                if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
+                {
+                    if (from.lowSideBoundary() > to.highSideBoundary())
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+        return 0;
+    }();
 }
 
 GtIntProperty::GtIntProperty(const QString& ident,
