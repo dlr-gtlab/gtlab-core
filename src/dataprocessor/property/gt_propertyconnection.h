@@ -103,6 +103,8 @@ public:
      */
     bool isConnected();
 
+    QPointer<GtAbstractProperty> sourcePropObject() const;
+
 private:
     /// Source object uuid.
     QString m_sourceUuid;

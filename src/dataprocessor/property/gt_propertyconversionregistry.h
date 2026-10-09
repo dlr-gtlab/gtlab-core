@@ -53,6 +53,21 @@ public:
     gt::conversion::canConnect canConnectFunction(QMetaObject const& from,
                                                   QMetaObject const& to) const;
 
+    /**
+     * @brief convertFunction
+     * Return the conversion functions registered for the given pair
+     * of property datatypes
+     * @param from
+     * @param to
+     * @return
+     */
+    gt::conversion::convert convertFunction(QMetaObject const& from,
+                                            QMetaObject const& to) const;
+
+    const GtPropertyConverter* findConverterWithInheritance(
+        const QMetaObject& from, const QMetaObject& to) const;
+
+
     QStringList converterAvailable(const QString& from) const;
 
     bool canConnect(GtAbstractProperty const& a, GtAbstractProperty const& b);

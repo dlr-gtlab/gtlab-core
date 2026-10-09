@@ -43,6 +43,12 @@ GtPropertyConverter::canConnectFunc() const
     return m_canConnect;
 }
 
+gt::conversion::convert
+GtPropertyConverter::convertFunc() const
+{
+    return m_conversion;
+}
+
 bool
 GtPropertyConverter::canConnectDefined() const
 {
@@ -51,7 +57,7 @@ GtPropertyConverter::canConnectDefined() const
 }
 
 bool
-GtPropertyConverter::canConversionDefined() const
+GtPropertyConverter::conversionDefined() const
 {
     if (m_conversion) return true;
     return false;
