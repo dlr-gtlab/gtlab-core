@@ -42,7 +42,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_initValue = value;
 
     static auto initOnce = []() {
-        GtPropertyConversionRegistry::registerConnectionCompatibility(
+        gtPropConversion().registerConnectionCompatibility(
             GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
             // can connect
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE

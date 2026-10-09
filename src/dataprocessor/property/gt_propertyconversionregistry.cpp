@@ -8,9 +8,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_propertyconversionregistry.h"
-
-#include "gt_doubleproperty.h"
-#include "gt_intproperty.h"
+#include "gt_propertyconversion.h"
 
 GtPropertyConversionRegistry&
 gtPropConversion()
@@ -32,8 +30,12 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 {
     if (canConnect)
     {
-        gtPropConversion().canConvertHash.append(
-            GtPropertyConverter(from, to, {}, canConnect));
+        QStringList avails = converterAvailable(from.className());
+
+        if (!avails.contains(to.className()))
+        {
+            canConvertHash.append(GtPropertyConverter(from, to, {}, canConnect));
+        }
     }
 }
 
@@ -45,8 +47,13 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 {
     if (convert)
     {
-        gtPropConversion().canConvertHash.append(
-            GtPropertyConverter(from, to, convert, canConnect));
+        QStringList avails = converterAvailable(from.className());
+
+        if (!avails.contains(to.className()))
+        {
+            canConvertHash.append(
+                GtPropertyConverter(from, to, convert, canConnect));
+        }
     }
 }
 
@@ -73,14 +80,16 @@ GtPropertyConversionRegistry::canConnectFunction(
 
     for (const auto* fromType : fromChain)
     {
-        for (const auto* toType : toChain)
+        for (const GtPropertyConverter& converter : canConvertHash)
         {
-            for (const GtPropertyConverter& converter : canConvertHash)
+            if (converter.fromClassName() == fromType->className())
             {
-                if (converter.fromClassName() == fromType->className() &&
-                    converter.toClassName() == toType->className())
+                for (const auto* toType : toChain)
                 {
-                    return converter.canConnectFunc();
+                    if (converter.toClassName() == toType->className())
+                    {
+                        return converter.canConnectFunc();
+                    }
                 }
             }
         }
@@ -89,63 +98,23 @@ GtPropertyConversionRegistry::canConnectFunction(
     return {};
 }
 
+QStringList
+GtPropertyConversionRegistry::converterAvailable(QString const& from) const
+{
+    QStringList retVal;
+
+    for (const GtPropertyConverter& converter : canConvertHash)
+    {
+        if (converter.fromClassName() == from)
+        {
+            retVal.append(converter.toClassName());
+        }
+    }
+
+    return retVal;
+}
+
 GtPropertyConversionRegistry::GtPropertyConversionRegistry()
 {
-    // add the basic converter registrations here later
-
-    // converter from double to int
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
-        GtDoubleProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-           GtAbstractProperty& b) {
-            const auto& from = static_cast<const GtDoubleProperty&>(a);
-            auto& to = static_cast<GtIntProperty&>(b);
-
-            double baseValue = from.getVal();
-
-            const double rounded = std::round(baseValue);
-
-            int result = static_cast<int>(rounded);
-
-            // Abweichung vom ursprünglichen double
-            const double error = std::abs(baseValue - rounded);
-
-            // Toleranz entsprechend der Größenordnung des Wertes
-            const double tolerance =
-                std::numeric_limits<double>::epsilon() *
-                std::max(1.0, std::abs(baseValue));
-
-            to.setVal(result);
-
-            if (error <= tolerance)
-            {
-                return gt::conversion::conversionSuccess::Success;
-            }
-
-            return gt::conversion::conversionSuccess::Lossy;
-
-        },
-        // can connect
-        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-           GtAbstractProperty const&) { return true; });
-
-    // converter from int to double
-    GtPropertyConversionRegistry::registerConnectionCompatibility(
-        GtIntProperty::staticMetaObject,
-        GtDoubleProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-           GtAbstractProperty& b) {
-            const auto& from = static_cast<const GtIntProperty&>(a);
-            auto& to = static_cast<GtDoubleProperty&>(b);
-
-            double res = double(from.getVal());
-
-            to.setVal(res);
-
-            return gt::conversion::conversionSuccess::Success;
-        },
-        // can connect
-        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-           GtAbstractProperty const&) { return true; });
+    gt::conversion::registerBasicPropertyConverters();
 }

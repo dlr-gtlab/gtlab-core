@@ -30,7 +30,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundLo = 0.0;
 
     static auto initOnce = []() {
-        GtPropertyConversionRegistry::registerConnectionCompatibility(
+        gtPropConversion().registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
             // can connect

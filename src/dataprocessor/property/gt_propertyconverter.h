@@ -11,29 +11,8 @@
 #define GT_PROPERTYCONVERTER_H
 
 #include "gt_datamodel_exports.h"
-#include "gt_abstractproperty.h"
+#include "gt_propertyconversion.h"
 
-#include <functional>
-#include <qobjectdefs.h>
-
-namespace gt
-{
-    namespace conversion
-    {
-        enum class conversionSuccess
-        {
-            Success = 0,
-            Lossy,
-            Failed
-        };
-
-        using convert = std::function<conversionSuccess(
-            GtAbstractProperty const& from, GtAbstractProperty& to)>;
-
-        using canConnect = std::function<bool(GtAbstractProperty const& from,
-                                              GtAbstractProperty const& to)>;
-    } // namespace conversion
-} // namespace gt
 
 class GT_DATAMODEL_EXPORT GtPropertyConverter
 {

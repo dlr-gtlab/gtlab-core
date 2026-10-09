@@ -98,6 +98,7 @@ set(HEADERS
     property/gt_doublelistproperty.h
     property/gt_propertyconversionregistry.h
     property/gt_propertyconverter.h
+    property/gt_propertyconversion.h
     gt_regexp.h
     gt_regularexpression.h
     gt_algorithms.h
@@ -159,6 +160,7 @@ set(SOURCES
     property/gt_doublelistproperty.cpp
     property/gt_propertyconverter.cpp
     property/gt_propertyconversionregistry.cpp
+    property/gt_propertyconversion.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp
