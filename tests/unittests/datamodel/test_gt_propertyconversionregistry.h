@@ -18,10 +18,12 @@ class GtTestRegistryPropA : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropA() : GtAbstractProperty() {}
+    GtTestRegistryPropA() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -42,10 +44,12 @@ class GtTestRegistryPropB : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropB() : GtAbstractProperty() {}
+    GtTestRegistryPropB() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -66,10 +70,12 @@ class GtTestRegistryPropC : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropC() : GtAbstractProperty() {}
+    GtTestRegistryPropC() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -90,10 +96,12 @@ class GtTestRegistryPropD : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropD() : GtAbstractProperty() {}
+    GtTestRegistryPropD() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -114,10 +122,12 @@ class GtTestRegistryPropE : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropE() : GtAbstractProperty() {}
+    GtTestRegistryPropE() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -138,10 +148,12 @@ class GtTestRegistryPropF : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropF() : GtAbstractProperty() {}
+    GtTestRegistryPropF() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -162,10 +174,12 @@ class GtTestRegistryPropG : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropG() : GtAbstractProperty() {}
+    GtTestRegistryPropG() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -186,10 +200,12 @@ class GtTestRegistryPropH : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropH() : GtAbstractProperty() {}
+    GtTestRegistryPropH() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;
@@ -210,10 +226,12 @@ class GtTestRegistryPropI : public GtAbstractProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryPropI() : GtAbstractProperty() {}
+    GtTestRegistryPropI() : GtAbstractProperty()
+    {
+    }
 
-    QVariant valueToVariant(const QString& unit, bool* success = nullptr)
-        const override
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override
     {
         Q_UNUSED(unit)
         if (success) *success = true;

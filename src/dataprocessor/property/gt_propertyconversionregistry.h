@@ -20,8 +20,7 @@ class GT_DATAMODEL_EXPORT GtPropertyConversionRegistry
 
 public:
     // Copy and assignment und Zuweisen löschen
-    GtPropertyConversionRegistry(
-        const GtPropertyConversionRegistry&) = delete;
+    GtPropertyConversionRegistry(const GtPropertyConversionRegistry&) = delete;
 
     GtPropertyConversionRegistry& operator=(
         const GtPropertyConversionRegistry&) = delete;
@@ -37,8 +36,7 @@ public:
      * @param f
      */
     void registerConnectionCompatibility(
-        QMetaObject from, QMetaObject to,
-        gt::conversion::convert convert,
+        QMetaObject from, QMetaObject to, gt::conversion::convert convert,
         gt::conversion::canConnect canConnect = {});
 
     void registerConnectionCompatibility(

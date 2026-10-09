@@ -25,8 +25,7 @@ GtPropertyConversionRegistry::getInstance()
 
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to,
-    gt::conversion::canConnect canConnect)
+    QMetaObject from, QMetaObject to, gt::conversion::canConnect canConnect)
 {
     if (canConnect)
     {
@@ -41,8 +40,7 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to,
-    gt::conversion::convert convert,
+    QMetaObject from, QMetaObject to, gt::conversion::convert convert,
     gt::conversion::canConnect canConnect)
 {
     if (convert)
