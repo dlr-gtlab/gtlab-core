@@ -29,30 +29,28 @@ TestDatamodelInterface::init()
     auto& registry = gtPropConversion();
 
     registry.registerConnectionCompatibility(
-        GtBoolProperty::staticMetaObject,
-        GtIntProperty::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty& b)
-        {
+        GtBoolProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty& b) {
             const auto& from = static_cast<const GtBoolProperty&>(a);
             auto& to = static_cast<GtIntProperty&>(b);
 
-            if (from.get()) to.setVal(1);
-            else to.setVal(0);
-
+            if (from.get())
+            {
+                to.setVal(1);
+            }
+            else
+            {
+                to.setVal(0);
+            }
             return gt::conversion::conversionSuccess::Success;
         },
-        [](GtAbstractProperty const&,
-           GtAbstractProperty const&)
-        {
+        [](GtAbstractProperty const&, GtAbstractProperty const&) {
             return true;
         });
 
     registry.registerConnectionCompatibility(
-        GtIntProperty::staticMetaObject,
-        GtBoolProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty& b)
-        {
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty& b) {
             const auto& from = static_cast<const GtIntProperty&>(a);
             auto& to = static_cast<GtBoolProperty&>(b);
 
@@ -64,8 +62,7 @@ TestDatamodelInterface::init()
 
             return gt::conversion::conversionSuccess::Success;
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&)
-        {
+        [](GtAbstractProperty const&, GtAbstractProperty const&) {
             return true;
         });
 }

@@ -70,7 +70,8 @@ public:
 
     QStringList converterAvailable(const QString& from) const;
 
-    bool canConnect(GtAbstractProperty const& a, GtAbstractProperty const& b);
+    bool connectionCheckAvailable(GtAbstractProperty const& a,
+                                  GtAbstractProperty const& b);
 
 private:
     GtPropertyConversionRegistry();

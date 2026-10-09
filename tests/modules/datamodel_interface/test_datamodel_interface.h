@@ -30,7 +30,6 @@ class TestDatamodelInterface : public QObject,
 
 
 public:
-
     /**
      * @brief init
      * In this test case a property conversion from bool to int is registered

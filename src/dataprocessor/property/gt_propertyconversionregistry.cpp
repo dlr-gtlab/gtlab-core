@@ -12,7 +12,8 @@
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
 
-namespace {
+namespace
+{
     const auto inheritanceChain = [](const QMetaObject& metaObject) {
         QVector<const QMetaObject*> result;
 
@@ -24,7 +25,7 @@ namespace {
 
         return result;
     };
-}
+} // namespace
 
 GtPropertyConversionRegistry&
 gtPropConversion()
@@ -76,8 +77,8 @@ gt::conversion::canConnect
 GtPropertyConversionRegistry::canConnectFunction(const QMetaObject& from,
                                                  const QMetaObject& to) const
 {
-    const GtPropertyConverter* converter = findConverterWithInheritance(from,
-                                                                        to);
+    const GtPropertyConverter* converter =
+        findConverterWithInheritance(from, to);
 
     if (!converter) return {};
 
@@ -88,8 +89,8 @@ gt::conversion::convert
 GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
                                               const QMetaObject& to) const
 {
-    const GtPropertyConverter* converter = findConverterWithInheritance(from,
-                                                                        to);
+    const GtPropertyConverter* converter =
+        findConverterWithInheritance(from, to);
 
     if (!converter) return {};
 
@@ -114,8 +115,7 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
                 }
 
                 return std::any_of(
-                    toChain.cbegin(), toChain.cend(),
-                    [&](const auto* toType) {
+                    toChain.cbegin(), toChain.cend(), [&](const auto* toType) {
                         return converter.toClassName() == toType->className();
                     });
             });
@@ -146,7 +146,7 @@ GtPropertyConversionRegistry::converterAvailable(QString const& from) const
 }
 
 bool
-GtPropertyConversionRegistry::canConnect(const GtAbstractProperty& a,
+GtPropertyConversionRegistry::connectionCheckAvailable(const GtAbstractProperty& a,
                                          const GtAbstractProperty& b)
 {
     auto function = canConnectFunction(*a.metaObject(), *b.metaObject());
