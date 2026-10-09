@@ -400,7 +400,8 @@ QVariant getConnectedValue(const GtPropertyConnection& connection);
  * @return
  */
 GT_DATAMODEL_EXPORT
-GtAbstractProperty* getConnectedProperty(const GtPropertyConnection& connection);
+GtAbstractProperty* getConnectedProperty(
+    const GtPropertyConnection& connection);
 
 /**
      * Function definition to create a property with the
