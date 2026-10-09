@@ -20,12 +20,15 @@ TestMementoProjectCalculator::TestMementoProjectCalculator() :
     m_inputValue("inputValue", tr("Input Value"),
                  tr("Value added to the external project value"), 40),
     m_sideEffectFile("sideEffectFile", tr("Side Effect File"),
-                     tr("Optional file written in the working directory"))
+                     tr("Optional file written in the working directory")),
+    m_observedValue("observedValue", tr("Observed Value"),
+                    tr("Value reported by the operation event test"))
 {
     setObjectName(QStringLiteral("Memento Project Modifier"));
     registerProperty(m_target);
     registerProperty(m_inputValue);
     registerProperty(m_sideEffectFile);
+    registerMonitoringProperty(m_observedValue);
     hideLabelProperty(true);
 }
 
@@ -55,6 +58,8 @@ TestMementoProjectCalculator::run()
 
     target->setMementoTestValue(m_inputValue.getVal() +
                                 externalPackage->mementoExternalValue());
+    setProgress(50);
+    m_observedValue.setVal(target->mementoTestValue());
 
     if (!m_sideEffectFile.getVal().isEmpty())
     {
