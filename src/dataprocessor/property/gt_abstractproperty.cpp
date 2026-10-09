@@ -448,3 +448,9 @@ gt::getConnectedValue(const GtPropertyConnection& connection)
 {
     return connection.valueFromSource();
 }
+
+GtAbstractProperty*
+gt::getConnectedProperty(const GtPropertyConnection& connection)
+{
+    return connection.sourcePropObject();
+}

@@ -12,6 +12,20 @@
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
 
+namespace {
+    const auto inheritanceChain = [](const QMetaObject& metaObject) {
+        QVector<const QMetaObject*> result;
+
+        for (auto* current = &metaObject; current != nullptr;
+             current = current->superClass())
+        {
+            result.append(current);
+        }
+
+        return result;
+    };
+}
+
 GtPropertyConversionRegistry&
 gtPropConversion()
 {
@@ -62,42 +76,57 @@ gt::conversion::canConnect
 GtPropertyConversionRegistry::canConnectFunction(const QMetaObject& from,
                                                  const QMetaObject& to) const
 {
-    const auto inheritanceChain = [](const QMetaObject& metaObject) {
-        QVector<const QMetaObject*> result;
+    const GtPropertyConverter* converter = findConverterWithInheritance(from,
+                                                                        to);
 
-        for (auto* current = &metaObject; current != nullptr;
-             current = current->superClass())
-        {
-            result.append(current);
-        }
+    if (!converter) return {};
 
-        return result;
-    };
+    return converter->canConnectFunc();
+}
 
+gt::conversion::convert
+GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
+                                              const QMetaObject& to) const
+{
+    const GtPropertyConverter* converter = findConverterWithInheritance(from,
+                                                                        to);
+
+    if (!converter) return {};
+
+    return converter->convertFunc();
+}
+
+const GtPropertyConverter*
+GtPropertyConversionRegistry::findConverterWithInheritance(
+    const QMetaObject& from, const QMetaObject& to) const
+{
     const auto fromChain = inheritanceChain(from);
     const auto toChain = inheritanceChain(to);
 
     for (const auto* fromType : fromChain)
     {
         const auto converterIt = std::find_if(
-            m_canConvertList.begin(), m_canConvertList.end(),
+            m_canConvertList.cbegin(), m_canConvertList.cend(),
             [&](const GtPropertyConverter& converter) {
                 if (converter.fromClassName() != fromType->className())
+                {
                     return false;
+                }
 
                 return std::any_of(
-                    toChain.begin(), toChain.end(), [&](const auto* toType) {
+                    toChain.cbegin(), toChain.cend(),
+                    [&](const auto* toType) {
                         return converter.toClassName() == toType->className();
                     });
             });
 
-        if (converterIt != m_canConvertList.end())
+        if (converterIt != m_canConvertList.cend())
         {
-            return converterIt->canConnectFunc();
+            return &*converterIt;
         }
     }
 
-    return {};
+    return nullptr;
 }
 
 QStringList
