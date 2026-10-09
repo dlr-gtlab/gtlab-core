@@ -32,6 +32,12 @@ class TestDatamodelInterface : public QObject,
 public:
 
     /**
+     * @brief init
+     * In this test case a property conversion from bool to int is registered
+     */
+    void init() override;
+
+    /**
      * @brief Returns current version number of module
      * @return version number
      */
