@@ -891,7 +891,10 @@ GtProject::saveProjectOverallData()
     commentElement.appendChild(cTxt);
     rootElement.appendChild(commentElement);
 
-    saveModuleMetaData(rootElement, document);
+    if (!saveModuleMetaData(rootElement, document))
+    {
+        return false;
+    }
 
     gt::xml::writeClassModuleMap(rootElement, document, m_classModuleIds);
 
@@ -900,7 +903,10 @@ GtProject::saveProjectOverallData()
         return false;
     }
 
-    saveLabelData(rootElement, document);
+    if (!saveLabelData(rootElement, document))
+    {
+        return false;
+    }
 
     document.appendChild(rootElement);
 
@@ -953,7 +959,7 @@ GtProject::saveExternalizedObjectData()
     return success;
 }
 
-void
+bool
 GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 {
     QDomElement modulesElement = doc.createElement(QStringLiteral("MODULES"));
@@ -968,6 +974,8 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
     }
 
     root.appendChild(modulesElement);
+
+    return true;
 }
 
 bool
@@ -983,7 +991,7 @@ GtProject::saveProcessData(QDomElement& /*root*/, QDomDocument& /*doc*/)
     return true;
 }
 
-void
+bool
 GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 {
     QDomElement ldElement = doc.createElement(QStringLiteral("LABELS"));
@@ -1000,6 +1008,8 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
     }
 
     root.appendChild(ldElement);
+
+    return true;
 }
 
 QDomDocument
