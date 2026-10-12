@@ -10,13 +10,26 @@
 
 #include "test_calculator.h"
 #include "operation/test_operation.h"
+#include "task/test_consoleoverridetask.h"
 #include "test_mementoprojectcalculator.h"
 #include "test_processstatescalculator.h"
 #include "test_crashonexecutecalculator.h"
 #include "test_sleepcalculator.h"
 #include "test_progresscalculator.h"
 
+#include "gt_objectfactory.h"
+
 #include "test_process_interface.h"
+
+void
+TestProcessInterface::init()
+{
+    // the solver objects are children of the console override test task and
+    // therefore have to be known by the object factory when a task is
+    // deserialized
+    gtObjectFactory->registerClass(TestConsoleOverrideSolver::staticMetaObject,
+                                   ident());
+}
 
 GtVersionNumber
 TestProcessInterface::version()
@@ -92,6 +105,25 @@ TestProcessInterface::calculators()
         QStringLiteral("Modifies project data through currentProject()");
     mementoProject->status = GtCalculatorDataImpl::RELEASE;
     metaData << mementoProject;
+
+    return metaData;
+}
+
+QList<GtTaskData>
+TestProcessInterface::tasks()
+{
+    QList<GtTaskData> metaData;
+
+    GtTaskData overrideTask = GT_TASK_DATA(TestConsoleOverrideTask);
+    overrideTask->id = QStringLiteral("Console Override Task");
+    overrideTask->version = GtVersionNumber(0, 1);
+    overrideTask->author = QStringLiteral("DLR");
+    overrideTask->category = QStringLiteral("Testing");
+    overrideTask->description = QStringLiteral(
+        "Task with properties and property containers for testing "
+        "console property overrides");
+    overrideTask->status = GtTaskDataImpl::RELEASE;
+    metaData << overrideTask;
 
     return metaData;
 }
