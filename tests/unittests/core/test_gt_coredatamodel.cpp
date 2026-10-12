@@ -227,6 +227,26 @@ TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
     delete rejected;
 }
 
+TEST_F(ProjectLifecycleTest, newProjectCanBeAddedWhileAnotherProjectIsOpen)
+{
+    GtProject* current = createProject(QStringLiteral("Current Project"));
+    GtProject* added = createProject(QStringLiteral("Added Project"));
+    ASSERT_NE(current, nullptr);
+    ASSERT_NE(added, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(current, true));
+
+    ASSERT_TRUE(gtDataModel->newProject(added, false));
+    EXPECT_TRUE(current->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), current);
+    EXPECT_FALSE(added->isOpen());
+    EXPECT_EQ(gtDataModel->findProject(added->objectName()), added);
+
+    EXPECT_TRUE(gtDataModel->switchProject(added));
+    EXPECT_FALSE(current->isOpen());
+    EXPECT_TRUE(added->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), added);
+}
+
 TEST_F(ProjectLifecycleTest, openProjectRejectsProjectOutsideSession)
 {
     std::unique_ptr<GtProject> detached(
