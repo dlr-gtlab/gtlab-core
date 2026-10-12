@@ -255,7 +255,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 
         std::unique_ptr<QObject> obj(meta.newInstance());
 
-        if (!gt::unique_qobject_cast<GtCollectionSettings>(std::move(obj)))
+        if (!gt::unique_qobject_cast<GtAbstractCollectionSettings>(
+                std::move(obj)))
         {
             gtWarning() << errorString()
                         << QObject::tr("Invalid collection settings!");
