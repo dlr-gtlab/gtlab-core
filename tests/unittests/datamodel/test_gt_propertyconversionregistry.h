@@ -13,238 +13,202 @@
 // register isolated type pairs in the global GtPropertyConversionRegistry
 // without interfering with the production registrations.
 
-// class GtTestRegistryPropA : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropA : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropA() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropA() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropB : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropB : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropB() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropB() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropC : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropC : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropC() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropC() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropD : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropD : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropD() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropD() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropE : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropE : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropE() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropE() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropF : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropF : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropF() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropF() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropG : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropG : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropG() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropG() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropH : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropH : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropH() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropH() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
-// class GtTestRegistryPropI : public GtAbstractProperty
-// {
-//     Q_OBJECT
+class GtTestRegistryPropI : public GtAbstractProperty
+{
+    Q_OBJECT
 
-// public:
-//     GtTestRegistryPropI() : GtAbstractProperty()
-//     {
-//     }
+public:
+    GtTestRegistryPropI() = default;
 
-//     QVariant valueToVariant(const QString& unit,
-//                             bool* success = nullptr) const override
-//     {
-//         Q_UNUSED(unit)
-//         if (success) *success = true;
-//         return QVariant();
-//     }
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
 
-//     GT_NO_DISCARD
-//     bool setValueFromVariant(const QVariant& val, const QString& unit) override
-//     {
-//         Q_UNUSED(val)
-//         Q_UNUSED(unit)
-//         return true;
-//     }
-// };
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
 
 #endif // TEST_GT_PROPERTYCONVERSIONREGISTRY_H
