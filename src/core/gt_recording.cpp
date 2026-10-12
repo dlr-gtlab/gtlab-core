@@ -99,6 +99,12 @@ GtRecording::accessedObjects() const
     return m_accessedObjects;
 }
 
+void
+GtRecording::addAccessedObjects(const QSet<QUuid>& objects)
+{
+    m_accessedObjects.unite(objects);
+}
+
 bool
 GtRecording::isFinished() const
 {
@@ -124,7 +130,7 @@ GtRecording::finish(GtProcessComponent::STATE state)
 
     if (m_tracker)
     {
-        m_accessedObjects = m_tracker->accessedObjects();
+        m_accessedObjects.unite(m_tracker->accessedObjects());
         m_tracker.reset();
     }
 }

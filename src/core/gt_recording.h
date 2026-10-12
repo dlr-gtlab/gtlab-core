@@ -113,6 +113,12 @@ public:
     QSet<QUuid> accessedObjects() const;
 
     /**
+     * @brief Adds object ids to the set of accessed objects.
+     * @param objects Object ids to add (duplicates are ignored).
+     */
+    void addAccessedObjects(const QSet<QUuid>& objects);
+
+    /**
      * @brief Returns whether the recording has been finished.
      */
     bool isFinished() const;
@@ -124,8 +130,8 @@ public:
 
     /**
      * @brief Finishes the recording (idempotent).
-     * Stores the finish time (UTC) and the final state, transfers the accessed
-     * objects from the tracker and releases the tracker.
+     * Stores the finish time (UTC) and the final state, adds the accessed
+     * objects of the tracker to the recorded set and releases the tracker.
      * @param state Final process state.
      */
     void finish(GtProcessComponent::STATE state);

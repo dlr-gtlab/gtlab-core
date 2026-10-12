@@ -58,6 +58,12 @@ GtAbstractRunnable::outputData() const
     return m_outputData;
 }
 
+const QList<GtObjectMemento>&
+GtAbstractRunnable::inputData() const
+{
+    return m_inputData;
+}
+
 bool
 GtAbstractRunnable::appendProcessComponent(GtProcessComponent* comp)
 {

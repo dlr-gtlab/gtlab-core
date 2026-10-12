@@ -20,6 +20,7 @@
 #include <QVariant>
 
 #include "gt_propertyconnection.h"
+#include "gt_accesstracking.h"
 
 /**
  * @brief The GtAbstractProperty class
@@ -295,6 +296,23 @@ protected:
      * @brief GtAbstractProperty
      */
     GtAbstractProperty();
+
+    /**
+     * @brief Records the owning object as accessed, if a tracker is active.
+     *
+     * Reading a property value counts as an access of the property's owner,
+     * so every public read path funnels through this helper.
+     */
+    void trackOwnerAccess() const
+    {
+        if (m_ownerObject)
+        {
+            if (auto* tracker = GtAccessTracker::current())
+            {
+                tracker->addAccessedProperty(QUuid(m_ownerObject->uuid()));
+            }
+        }
+    }
 
     /// Identification string
     QString m_id;

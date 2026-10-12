@@ -549,6 +549,18 @@ GtCoreProcessExecutor::setupTaskRunner()
         recording->setComponentInfo(QUuid(m_current->uuid()),
                                     m_current->metaObject()->className(),
                                     m_current->objectName());
+
+        // the working objects of this execution are the source mementos the
+        // task runner setup just transferred to the runnable; the passive
+        // execution recording has no tracker of its own, so the ids are
+        // added explicitly before the recording is started
+        QSet<QUuid> workingObjects;
+        for (const GtObjectMemento& memento : pimpl->currentRunnable->inputData())
+        {
+            workingObjects.insert(QUuid(memento.uuid()));
+        }
+        recording->addAccessedObjects(workingObjects);
+
         recording->start();
         pimpl->currentRecording = std::move(recording);
     }

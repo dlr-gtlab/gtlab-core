@@ -64,6 +64,12 @@ public:
     const QList<GtObjectMemento>& outputData() const;
 
     /**
+     * @brief inputData
+     * @return
+     */
+    const QList<GtObjectMemento>& inputData() const;
+
+    /**
      * @brief Appends additional process component to runnable queue.
      * NOTE: Runnable takes ownership of process component.
      * @param comp Process component pointer.

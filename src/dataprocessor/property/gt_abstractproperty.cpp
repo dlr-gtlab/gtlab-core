@@ -34,13 +34,7 @@ GtAbstractProperty::GtAbstractProperty() :
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
-    if (m_ownerObject)
-    {
-        if (auto* tracker = GtAccessTracker::current())
-        {
-            tracker->addAccessedProperty(QUuid(m_ownerObject->uuid()));
-        }
-    }
+    trackOwnerAccess();
     return valueToVariant(QString());
 }
 

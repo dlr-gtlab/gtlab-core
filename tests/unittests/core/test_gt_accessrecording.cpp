@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 
 #include <atomic>
+#include <functional>
 #include <memory>
 #include <QSet>
 #include <QTemporaryDir>
@@ -288,16 +289,21 @@ findComponentRecording(const TestRecorder& recorder, const QString& componentUui
 
 /**
  * @brief Finds a top-level recording of the given component.
- * @param accessedEmpty True to match the passive execution-level recording
- *        (no tracker), false to match the component's own execution recording.
+ * @param accessedMatch Predicate applied to the recording's set of accessed
+ *        objects; the first top-level recording matching both the component
+ *        uuid and the predicate is returned. The predicate is needed because
+ *        the passive execution-level recording carries the working objects of
+ *        the execution (the mementized direct source children) while the
+ *        component's own recording carries only its own tracked accesses.
  */
 const TestRecorder::Recording*
-findTopLevelRecording(const TestRecorder& recorder, const QString& componentUuid, bool accessedEmpty)
+findTopLevelRecording(const TestRecorder& recorder, const QString& componentUuid,
+                      const std::function<bool(const QSet<QUuid>&)>& accessedMatch)
 {
     for (const auto& rec : recorder.recordings)
     {
         if (rec.parentId.isNull() && rec.componentUuid == QUuid(componentUuid)
-            && rec.accessedObjects.isEmpty() == accessedEmpty)
+            && accessedMatch(rec.accessedObjects))
         {
             return &rec;
         }
@@ -388,7 +394,17 @@ TEST_F(TestAccessRecording, taskExecutionDeliversThreeRecordings)
     EXPECT_TRUE(calc->accessedObjects.contains(QUuid(group->calc->uuid())));
     EXPECT_LE(calc->startTime, calc->finishTime);
 
-    const auto* taskLevel = findTopLevelRecording(recorder, group->task->uuid(), /*accessedEmpty=*/false);
+    // the task-level recording is the task's own tracked execution; the
+    // execution-level recording is passive and carries the working objects of
+    // the execution (the mementized direct source children: data + task), so
+    // the two are disambiguated by the data object's uuid
+    auto ownAccesses = [&group](const QSet<QUuid>& accessed) {
+        return !accessed.isEmpty() && !accessed.contains(QUuid(group->data->uuid()));
+    };
+    auto executionAccesses = [&group](const QSet<QUuid>& accessed) {
+        return accessed.contains(QUuid(group->data->uuid()));
+    };
+    const auto* taskLevel = findTopLevelRecording(recorder, group->task->uuid(), ownAccesses);
     ASSERT_NE(taskLevel, nullptr);
     EXPECT_EQ(taskLevel->componentClassName, "GtTask");
     EXPECT_EQ(taskLevel->componentName, QStringLiteral("task"));
@@ -401,13 +417,16 @@ TEST_F(TestAccessRecording, taskExecutionDeliversThreeRecordings)
     EXPECT_FALSE(taskLevel->accessedObjects.contains(QUuid(group->data->uuid())));
     EXPECT_LE(taskLevel->startTime, taskLevel->finishTime);
 
-    const auto* execLevel = findTopLevelRecording(recorder, group->task->uuid(), /*accessedEmpty=*/true);
+    const auto* execLevel = findTopLevelRecording(recorder, group->task->uuid(), executionAccesses);
     ASSERT_NE(execLevel, nullptr);
     EXPECT_EQ(execLevel->componentClassName, "GtTask");
     EXPECT_EQ(execLevel->componentName, QStringLiteral("task"));
     EXPECT_TRUE(execLevel->finished);
     EXPECT_EQ(execLevel->outcome, GtProcessComponent::FINISHED);
-    EXPECT_TRUE(execLevel->accessedObjects.isEmpty());
+    // the passive execution recording carries the working objects of the
+    // execution: the mementized direct source children (data + task)
+    EXPECT_TRUE(execLevel->accessedObjects.contains(QUuid(group->data->uuid())));
+    EXPECT_TRUE(execLevel->accessedObjects.contains(QUuid(group->task->uuid())));
     EXPECT_LE(execLevel->startTime, execLevel->finishTime);
 
     // the calculator executed inside the task: its recording is a child of
@@ -446,8 +465,17 @@ TEST_F(TestAccessRecording, sequentialExecutionsDeliverSeparateRecordings)
     EXPECT_EQ(executor.startTask(group2->task.get()), GtCoreProcessExecutor::TaskExecState::Started);
     ASSERT_EQ(recorder.recordCalls, 6);
 
-    // execution 1: three recordings with a passive execution level
-    const auto* task1 = findTopLevelRecording(recorder, group1->task->uuid(), /*accessedEmpty=*/false);
+    // execution 1: three recordings with a passive execution level; the task
+    // level and the execution level are disambiguated by the group's data
+    // uuid, because the execution level carries the working objects of the
+    // whole source (both groups are direct source children)
+    auto ownAccesses1 = [&group1](const QSet<QUuid>& accessed) {
+        return !accessed.isEmpty() && !accessed.contains(QUuid(group1->data->uuid()));
+    };
+    auto executionAccesses1 = [&group1](const QSet<QUuid>& accessed) {
+        return accessed.contains(QUuid(group1->data->uuid()));
+    };
+    const auto* task1 = findTopLevelRecording(recorder, group1->task->uuid(), ownAccesses1);
     ASSERT_NE(task1, nullptr);
     EXPECT_EQ(task1->outcome, GtProcessComponent::FINISHED);
     const auto* calc1 = findComponentRecording(recorder, group1->calc->uuid(), QStringLiteral("calculator"));
@@ -456,11 +484,20 @@ TEST_F(TestAccessRecording, sequentialExecutionsDeliverSeparateRecordings)
     // each execution only accessed the objects of its own task group
     EXPECT_TRUE(calc1->accessedObjects.contains(QUuid(group1->data->uuid())));
     EXPECT_FALSE(calc1->accessedObjects.contains(QUuid(group2->data->uuid())));
-    const auto* exec1 = findTopLevelRecording(recorder, group1->task->uuid(), /*accessedEmpty=*/true);
+    const auto* exec1 = findTopLevelRecording(recorder, group1->task->uuid(), executionAccesses1);
     ASSERT_NE(exec1, nullptr);
+    // the execution context is the whole source project: the working objects
+    // of the first execution already include the second group's data
+    EXPECT_TRUE(exec1->accessedObjects.contains(QUuid(group2->data->uuid())));
 
     // execution 2: three more recordings with a fresh execution level
-    const auto* task2 = findTopLevelRecording(recorder, group2->task->uuid(), /*accessedEmpty=*/false);
+    auto ownAccesses2 = [&group2](const QSet<QUuid>& accessed) {
+        return !accessed.isEmpty() && !accessed.contains(QUuid(group2->data->uuid()));
+    };
+    auto executionAccesses2 = [&group2](const QSet<QUuid>& accessed) {
+        return accessed.contains(QUuid(group2->data->uuid()));
+    };
+    const auto* task2 = findTopLevelRecording(recorder, group2->task->uuid(), ownAccesses2);
     ASSERT_NE(task2, nullptr);
     EXPECT_EQ(task2->outcome, GtProcessComponent::FINISHED);
     const auto* calc2 = findComponentRecording(recorder, group2->calc->uuid(), QStringLiteral("calculator"));
@@ -468,8 +505,11 @@ TEST_F(TestAccessRecording, sequentialExecutionsDeliverSeparateRecordings)
     EXPECT_EQ(calc2->parentId, task2->id);
     EXPECT_TRUE(calc2->accessedObjects.contains(QUuid(group2->data->uuid())));
     EXPECT_FALSE(calc2->accessedObjects.contains(QUuid(group1->data->uuid())));
-    const auto* exec2 = findTopLevelRecording(recorder, group2->task->uuid(), /*accessedEmpty=*/true);
+    const auto* exec2 = findTopLevelRecording(recorder, group2->task->uuid(), executionAccesses2);
     ASSERT_NE(exec2, nullptr);
+    // symmetric to exec1: the working objects of the second execution include
+    // the first group's data as well
+    EXPECT_TRUE(exec2->accessedObjects.contains(QUuid(group1->data->uuid())));
 
     // each execution produced a fresh set of recordings
     EXPECT_NE(task1->id, task2->id);

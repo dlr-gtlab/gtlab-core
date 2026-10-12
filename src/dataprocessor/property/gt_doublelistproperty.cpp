@@ -29,6 +29,8 @@ QVariant
 GtDoubleListProperty::valueToVariant(const QString& /*unit*/,
                                      bool* success) const
 {
+    trackOwnerAccess();
+
     QVariant variant = QVariant::fromValue(m_value);
 
     return gt::valueSuccess(variant, success);

@@ -29,7 +29,11 @@ public:
     ParamType& get();
     ParamType const & get() const;
 
-    ParamType& operator()(void){return m_value;}
+    ParamType& operator()(void)
+    {
+        trackOwnerAccess();
+        return m_value;
+    }
 
     virtual operator ParamType () const
     {
@@ -142,12 +146,14 @@ private:
 template<class ParamType>
 inline ParamType& GtProperty<ParamType>::get()
 {
+    trackOwnerAccess();
     return m_value;
 }
 
 template<class ParamType>
 inline ParamType const & GtProperty<ParamType>::get() const
 {
+    trackOwnerAccess();
     return m_value;
 }
 
@@ -155,13 +161,7 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
-    if (m_ownerObject)
-    {
-        if (auto* tracker = GtAccessTracker::current())
-        {
-            tracker->addAccessedProperty(QUuid(m_ownerObject->uuid()));
-        }
-    }
+    trackOwnerAccess();
     return m_value;
 }
 
@@ -169,6 +169,8 @@ template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
                                                bool* success) const
 {
+    trackOwnerAccess();
+
     if (unit.isEmpty())
     {
         return gt::valueSuccess(getVal(), success);
