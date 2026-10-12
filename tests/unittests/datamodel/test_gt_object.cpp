@@ -68,13 +68,20 @@ TEST_F(TestGtObject, fromMemento)
 
 TEST_F(TestGtObject, copy)
 {
+    bool signalCalled = false;
+
+    QObject guard;
+    QObject::connect(&obj, &GtObject::uuidChanged, &guard,
+                     [&](QString oldUuid) { signalCalled = true; });
+
     GtObject* myCopy = obj.copy();
 
     ASSERT_TRUE(myCopy != nullptr);
     ASSERT_TRUE(myCopy != &obj);
+    ASSERT_FALSE(signalCalled);
 
     // check that uuid are not equal
-    ASSERT_STRNE(myCopy->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
+    ASSERT_NE(myCopy->uuid(), obj.uuid());
 
     delete myCopy;
 
@@ -129,14 +136,54 @@ TEST_F(TestGtObject, getObjectByPath)
     ASSERT_TRUE(fo == child3);
 }
 
+TEST_F(TestGtObject, uuidChanged)
+{
+    bool signalCalled = false;
+    QString emittedUuid;
+
+    QObject guard;
+    QObject::connect(&obj, &GtObject::uuidChanged, &guard,
+                     [&](QString oldUuid) {
+                         signalCalled = true;
+                         emittedUuid = oldUuid;
+                     });
+
+    obj.setUuid(obj.uuid());
+    ASSERT_FALSE(signalCalled);
+
+    QString oldUuid = obj.uuid();
+    obj.newUuid();
+    QString newUuid = obj.uuid();
+
+    EXPECT_TRUE(signalCalled);
+    EXPECT_EQ(emittedUuid, oldUuid);
+    EXPECT_NE(newUuid, oldUuid);
+
+    signalCalled = false;
+    emittedUuid = QString{};
+
+    obj.setUuid(oldUuid);
+
+    EXPECT_TRUE(signalCalled);
+    EXPECT_EQ(emittedUuid, newUuid);
+    EXPECT_EQ(obj.uuid(), oldUuid);
+}
+
 TEST_F(TestGtObject, clone)
 {
+    bool signalCalled = false;
+
+    QObject guard;
+    QObject::connect(&obj, &GtObject::uuidChanged, &guard,
+                     [&](QString oldUuid) { signalCalled = true; });
+
     GtObject* cloned = obj.clone();
 
     ASSERT_TRUE(cloned != nullptr);
+    EXPECT_FALSE(signalCalled);
 
     // check that uuid are equal
-    ASSERT_STREQ(cloned->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
+    ASSERT_EQ(cloned->uuid(), obj.uuid());
 
     delete cloned;
 
