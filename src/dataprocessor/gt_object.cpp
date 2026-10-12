@@ -320,20 +320,22 @@ GtObject::uuid() const
 }
 
 void
-GtObject::setUuid(const QString& val)
+GtObject::setUuid(const QString& newValue)
 {
-    if (val.isEmpty())
-    {
-        return;
-    }
+    if (newValue.isEmpty()) return;
 
-    pimpl->uuid = val;
+    if (newValue != pimpl->uuid)
+    {
+        QString oldUuid = pimpl->uuid;
+        pimpl->uuid = newValue;
+        emit uuidChanged(oldUuid);
+    }
 }
 
 void
 GtObject::newUuid(bool renewChildUUIDs)
 {
-    pimpl->uuid = QUuid::createUuid().toString();
+    setUuid(QUuid::createUuid().toString());
 
     if (renewChildUUIDs)
     {
