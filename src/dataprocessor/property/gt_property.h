@@ -245,9 +245,9 @@ inline void GtProperty<ParamType>::setValFromConnection()
 
         if (ret == gt::conversion::conversionSuccess::Lossy)
         {
-            gtError() << tr("Conversion of %1 to %2 indicated some infomation "
-                            "loss")
-                             .arg(ident(), source->ident());
+            gtWarning() << tr("Conversion of %1 to %2 indicated some "
+                              "infomation loss.")
+                             .arg(source->ident(), ident());
         }
     }
     else

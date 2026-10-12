@@ -381,6 +381,12 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     EXPECT_FALSE(conversionOnly.canConnectDefined());
     EXPECT_FALSE(conversionOnly.canConnectFunc());
 
+    GtPropertyConverter convertInvalid(
+        GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
+        {}, canConnect);
+
+    EXPECT_FALSE(convertInvalid.conversionDefined());
+
     GtPropertyConverter conversionAndCanConnect(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
         convert, canConnect);
@@ -445,4 +451,89 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEnd)
     EXPECT_EQ(connection->sourcePropObject(),
               gt::getConnectedProperty(*connection));
     EXPECT_EQ(gt::getConnectedValue(*connection).toInt(), 9);
+}
+
+TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
+{
+    auto parent = std::make_unique<TestSpecialGtObject>();
+
+    auto child1 = new TestSpecialGtObject;
+    child1->setUuid("child1");
+    parent->appendChild(child1);
+
+    auto child2 = new TestSpecialGtObject;
+    child2->setUuid("child2");
+    parent->appendChild(child2);
+
+    auto connection = new GtPropertyConnection();
+    connection->setSourceUuid("child1");
+    connection->setTargetUuid("child2");
+    connection->setSourceProp("doubleProp");
+    connection->setTargetProp("intProp");
+    parent->appendChild(connection);
+
+    auto source =
+        qobject_cast<TestSpecialGtObject*>(parent->getObjectByUuid("child1"));
+    ASSERT_TRUE(source != nullptr);
+    auto target =
+        qobject_cast<TestSpecialGtObject*>(parent->getObjectByUuid("child2"));
+    ASSERT_TRUE(target != nullptr);
+
+    source->setDouble(7);
+
+    connection->makeConnection();
+    EXPECT_TRUE(connection->isConnected());
+
+
+
+    //
+    QVector<QString> log;
+
+    auto dest = gt::log::makeFunctorDestination(
+        [this, &log](std::string const& msg,
+                     gt::log::Level level,
+                     gt::log::Details details){
+            log.append(
+                QStringLiteral("%1 [%2] [%3] %4")
+                    .arg(level)
+                    .arg(details.id.c_str(),
+                         gt::log::formatTime(details.time).c_str(),
+                         msg.c_str())
+                );
+        });
+    bool success = gt::log::Logger::instance().addDestination("test", std::move(dest));
+    auto removeLogDest = gt::finally([](){
+        gt::log::Logger::instance().removeDestination("test");
+    });
+
+    QString expectedWarningText = QObject::tr("Conversion of doubleProp to "
+                                              "intProp indicated some "
+                                              "infomation loss.");
+
+    //  Expect to see no gtWarning
+    auto iter = std::find_if(log.begin(), log.end(), [=](QString const& entry){
+        return entry.contains(expectedWarningText);
+    });
+
+    // the initial transfer uses the built in int -> double converter
+    EXPECT_EQ(target->getInt(), 7);
+
+    ASSERT_EQ(iter, log.end());
+
+    ASSERT_TRUE(success);
+
+    // value changes of the source are forwarded to the target
+    source->setDouble(7.7);
+
+    // the connection resolves the source property
+    EXPECT_EQ(connection->sourcePropObject(),
+              gt::getConnectedProperty(*connection));
+    EXPECT_EQ(gt::getConnectedValue(*connection).toInt(), 8);
+
+    //  Expect to see a gtWarning
+    auto iter2 = std::find_if(log.begin(), log.end(), [=](QString const& entry){
+        return entry.contains(expectedWarningText);
+    });
+
+    ASSERT_NE(iter, log.end());
 }
