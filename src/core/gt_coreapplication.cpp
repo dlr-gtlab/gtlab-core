@@ -920,6 +920,12 @@ GtCoreApplication::instance()
     //    return m_self;
 }
 
+GtRecordingManager*
+GtCoreApplication::recordingManager()
+{
+    return &m_recordingManager;
+}
+
 GtSession*
 GtCoreApplication::session()
 {

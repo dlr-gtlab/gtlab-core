@@ -11,6 +11,8 @@
 
 #include "gt_recording.h"
 
+#include "gt_coreapplication.h"
+
 #include <atomic>
 
 namespace
@@ -215,24 +217,64 @@ setAccessRecorder(GtAbstractRecorder* recorder)
 bool
 isAccessRecordingEnabled()
 {
-    return g_accessRecorder.load(std::memory_order_acquire) != nullptr;
+    if (g_accessRecorder.load(std::memory_order_acquire) != nullptr)
+    {
+        return true;
+    }
+
+    // backends registered with the application's recording manager
+    if (GtCoreApplication* application = GtCoreApplication::instance())
+    {
+        return application->recordingManager()->isEnabled();
+    }
+
+    return false;
 }
 
 void
 deliverRecording(const GtRecording& recording)
 {
+    // Resolve the delivery target: an explicitly registered single backend
+    // (the path also used when no application is running) takes precedence;
+    // otherwise all backends registered with the application's recording
+    // manager receive the recording
     GtAbstractRecorder* recorder = g_accessRecorder.load(std::memory_order_acquire);
+    GtRecordingManager* manager = nullptr;
 
-    if (recorder != nullptr)
+    if (recorder == nullptr)
     {
-        // a recorder failure must not change the component's execution result
-        try
+        if (GtCoreApplication* application = GtCoreApplication::instance())
         {
-            recorder->record(recording);
+            manager = application->recordingManager();
         }
-        catch (...)
-        {
-        }
+    }
+
+    if (recorder == nullptr && manager == nullptr)
+    {
+        return;
+    }
+
+    // Suspend tracking for the duration of the backend call (a null
+    // scope installs nullptr and restores the previous tracker on
+    // destruction), so property reads inside the backend do not pollute
+    // the recording of the currently executing context
+    GtAccessTrackerScope suspendTracking(nullptr);
+
+    if (manager != nullptr)
+    {
+        // the manager dispatches synchronously and logs/swallows backend
+        // failures itself
+        manager->deliver(recording);
+        return;
+    }
+
+    // a recorder failure must not change the component's execution result
+    try
+    {
+        recorder->record(recording);
+    }
+    catch (...)
+    {
     }
 }
 

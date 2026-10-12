@@ -174,6 +174,29 @@ public:
 };
 
 /**
+ * @brief Recorder whose backend performs a tracked property read.
+ */
+class TrackingReaderRecorder : public GtAbstractRecorder
+{
+public:
+    explicit TrackingReaderRecorder(TestDataObject* data) :
+        m_data(data)
+    {
+    }
+
+    void
+    record(const GtRecording&) override
+    {
+        // tracked read: would land in the tracker active on the delivering
+        // thread unless the delivery suspends tracking
+        (void)m_data->m_value.getVal();
+    }
+
+private:
+    TestDataObject* m_data;
+};
+
+/**
  * @brief GtProject subclass with a public constructor
  * (the GtProject constructor is protected).
  */
@@ -717,6 +740,46 @@ TEST_F(TestAccessRecording, backendFailureDoesNotChangeExecutionResult)
     // failures were swallowed) and the task still finished normally
     EXPECT_EQ(recorder.recordCalls.load(), 4);
     EXPECT_NE(group->task->currentState(), GtProcessComponent::FAILED);
+}
+
+TEST_F(TestAccessRecording, deliverySuspendsTracking)
+{
+    // a child recording is delivered while the parent recording's scope is
+    // active; the backend reads a tracked property during the delivery and
+    // the read must not pollute the parent's accessed objects
+    auto backendData = std::make_unique<TestDataObject>();
+
+    GtRecording parent;
+    parent.setComponentInfo(makeUuid(1), "Parent", "parent");
+    parent.setTracker(std::make_unique<GtAccessTracker>());
+    parent.start();
+
+    GtRecording child;
+    child.setComponentInfo(makeUuid(2), "Child", "child");
+    child.setParentId(parent.id());
+    child.finish(GtProcessComponent::FINISHED);
+
+    TrackingReaderRecorder recorder(backendData.get());
+    gt::setAccessRecorder(&recorder);
+
+    // control: a direct tracked read while the parent scope is active is
+    // attributed to the parent
+    auto controlData = std::make_unique<TestDataObject>();
+
+    {
+        GtRecordingScope scope(parent);
+        (void)controlData->m_value.getVal();
+
+        gt::deliverRecording(child);
+    }
+    gt::setAccessRecorder(nullptr);
+
+    parent.finish(GtProcessComponent::FINISHED);
+
+    EXPECT_TRUE(parent.accessedObjects().contains(QUuid(controlData->uuid())));
+    // the backend's read happened with tracking suspended and must not have
+    // landed in the parent's recording
+    EXPECT_FALSE(parent.accessedObjects().contains(QUuid(backendData->uuid())));
 }
 
 #include "test_gt_accessrecording.moc"

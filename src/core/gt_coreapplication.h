@@ -23,6 +23,7 @@
 #include "gt_platform.h"
 #include "gt_finally.h"
 #include "gt_command.h"
+#include "gt_recordingmanager.h"
 
 #define gtApp (GtCoreApplication::instance())
 
@@ -498,6 +499,15 @@ public:
      */
     QString licenseFolder() const;
 
+    /**
+     * @brief Returns the application's recording manager.
+     *
+     * The manager owns the application's recording backends; finished
+     * recordings are delivered synchronously to all of them.
+     * @return Recording manager (owned by the application).
+     */
+    GtRecordingManager* recordingManager();
+
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;
@@ -522,6 +532,9 @@ protected:
 
     /// Date model pointer
     GtCoreDatamodel* m_dataModel;
+
+    /// Recording manager (owns the application's recording backends)
+    GtRecordingManager m_recordingManager;
 
     /**
      * @brief readSessionIds

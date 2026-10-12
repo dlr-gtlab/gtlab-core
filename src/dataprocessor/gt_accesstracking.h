@@ -61,7 +61,10 @@ class GT_DATAMODEL_EXPORT GtAccessTrackerScope
 public:
     /**
      * @brief Constructor
-     * @param tracker Tracker to activate for the current thread
+     * @param tracker Tracker to activate for the current thread.
+     *                 Passing nullptr explicitly suspends tracking for the
+     *                 scope's lifetime; the previously active tracker is
+     *                 restored on destruction.
      */
     explicit GtAccessTrackerScope(GtAccessTracker* tracker);
 

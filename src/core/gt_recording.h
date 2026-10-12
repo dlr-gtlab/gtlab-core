@@ -263,24 +263,41 @@ public:
 namespace gt
 {
 /**
- * @brief Registers the application-wide recording backend.
- * @param recorder Backend to register, or nullptr to disable recording.
+ * @brief Registers an explicit single recording backend.
+ *
+ * While a backend is registered here, it is the exclusive delivery target of
+ * gt::deliverRecording; when it is null, finished recordings are instead
+ * dispatched to the backends registered with the application's
+ * GtRecordingManager (GtCoreApplication::recordingManager).
+ *
+ * @param recorder Backend to register, or nullptr to fall back to the
+ * application's recording manager.
  */
 GT_CORE_EXPORT void setAccessRecorder(GtAbstractRecorder* recorder);
 
 /**
  * @brief Returns whether access recording is currently enabled.
+ *
+ * Enabled when an explicit single backend is registered
+ * (gt::setAccessRecorder) or when the application's recording manager owns
+ * at least one backend.
  */
 GT_CORE_EXPORT bool isAccessRecordingEnabled();
 
 /**
- * @brief Delivers a finished recording to the currently registered backend.
+ * @brief Delivers a finished recording.
+ *
+ * Delivers to the explicitly registered single backend when one is set,
+ * otherwise to all backends registered with the application's
+ * GtRecordingManager. Delivery runs with access tracking suspended and never
+ * propagates backend failures.
+ *
  * @param recording Finished recording.
  */
 GT_CORE_EXPORT void deliverRecording(const GtRecording& recording);
 
 /**
- * @brief Returns the currently registered backend (may be nullptr).
+ * @brief Returns the explicitly registered single backend (may be nullptr).
  */
 GT_CORE_EXPORT GtAbstractRecorder* currentAccessRecorder();
 }

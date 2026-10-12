@@ -120,6 +120,8 @@ set(headers
     gt_command.h
     gt_moduleupgradeutilities.h
     gt_recording.h
+    gt_inmemoryrecorder.h
+    gt_recordingmanager.h
 )
 
 set(hdr_private
@@ -237,6 +239,8 @@ set(sources
     internal/gt_moduleupgrader.cpp
     gt_moduleupgradeutilities.cpp
     gt_recording.cpp
+    gt_inmemoryrecorder.cpp
+    gt_recordingmanager.cpp
 )
 
 set(resources
