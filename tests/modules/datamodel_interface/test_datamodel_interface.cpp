@@ -54,13 +54,19 @@ TestDatamodelInterface::init()
             const auto& from = static_cast<const GtIntProperty&>(a);
             auto& to = static_cast<GtBoolProperty&>(b);
 
-            bool converted = true;
+            bool converted = from.getVal() != 0;
 
-            if (from.getVal() == 0) converted = false;
+            gt::conversion::conversionSuccess retVal =
+                gt::conversion::conversionSuccess::Success;
+
+            if (from.getVal() != 1 && from.getVal() != 0)
+            {
+                retVal = gt::conversion::conversionSuccess::Lossy;
+            }
 
             to.setVal(converted);
 
-            return gt::conversion::conversionSuccess::Success;
+            return retVal;
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) {
             return true;
