@@ -15,6 +15,4 @@
 - [ ] A test for the new functionality was added (if applicable).
 - [ ] All tests run without failure.
 - [ ] The changelog has been extended, if this MR contains important changes from the users's point of view.
-- [ ] The new code complies with the GTlab's style guide.
 - [ ] New interface methods / functions are exported via `EXPORT`. Non-interface functions are NOT exported.
-- [ ] The number of code quality warnings is not increasing.
