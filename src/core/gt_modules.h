@@ -64,36 +64,27 @@ namespace gt
         Modules() = default;
 
         /**
-     * @brief Returns the version of a module
-     * @param id Module identification string
-     * @return Version of the module, null version if the module is not
-     * currently loaded
-     */
+         * @brief Returns the version of a module
+         * @param id Module identification string
+         * @return Version of the module, null version if the module is not
+         * currently loaded
+         */
         GtVersionNumber version(const QString& id) const;
 
         /**
-     * @brief Returns the modules that are required by the given modules,
-     * including transitive dependencies
-     *
-     * The requirements are resolved from the effective module meta data of
-     * the environment, without changing the module loading state. Required
-     * dependencies whose meta data is not available are still contained in
-     * the result, but they are reported as unresolved, see
-     * @ref gt::ModuleRequirements.
-     *
-     * @param moduleIds Module identification strings to resolve
-     * @return Required module ids including the unresolved dependencies
-     */
+         * @brief Returns the required modules, including transitive dependencies
+         * @param moduleIds Module identification strings to resolve
+         * @return Required module ids and unresolved dependencies
+         */
         ModuleRequirements requirementsFor(const QStringList& moduleIds) const;
 
     private:
         friend class ::GtCoreApplication;
 
         /**
-     * @brief Constructor. Used by the application to wrap its module
-     * subsystem.
-     * @param loader Module subsystem, may be null
-     */
+         * @brief Wraps the application's module subsystem.
+         * @param loader Module subsystem, may be null
+         */
         explicit Modules(const GtModuleLoader* loader);
 
         /// Module subsystem of the application, may be null
