@@ -621,6 +621,9 @@ TEST_F(TestGtIntProperty, canConnect)
     GtIntProperty propA4("propA4", "test", "test",
                          gt::Boundaries<int>::makeLower(25), 30);
 
+    GtIntProperty propA5("propA5", "test", "test",
+                         gt::Boundaries<int>::makeLower(20), 30);
+
     // two properties with lower and higher bounds but without matching regions
     ASSERT_FALSE(propA1.canConnect(propA2));
 
@@ -629,4 +632,7 @@ TEST_F(TestGtIntProperty, canConnect)
 
     // a propety with both limits and a second with a high lower limit
     ASSERT_FALSE(propA1.canConnect(propA4));
+
+    // a propety with a lower limit and minimal overlap should be possible
+    ASSERT_TRUE(propA1.canConnect(propA5));
 }
