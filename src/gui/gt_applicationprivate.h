@@ -42,7 +42,6 @@ public:
 
     /// Whether the current run should be relaunched after shutdown
     bool m_restartRequested{false};
-
 };
 
 #endif // GT_APPLICATIONPRIVATE_H

@@ -177,10 +177,10 @@ GtDataModel::saveProject(GtProject *project)
     // saving procedure
     GtSaveProjectHelper* helper = new GtSaveProjectHelper(project);
     std::atomic_bool saveSucceeded{false};
-    connect(helper, &GtSaveProjectHelper::finished, helper,
-            [&saveSucceeded, helper]() {
-        saveSucceeded.store(helper->success());
-    }, Qt::DirectConnection);
+    connect(
+        helper, &GtSaveProjectHelper::finished, helper,
+        [&saveSucceeded, helper]() { saveSucceeded.store(helper->success()); },
+        Qt::DirectConnection);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataSaved()));
 
     gtApp->loadingProcedure(helper);

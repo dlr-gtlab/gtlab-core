@@ -74,205 +74,203 @@ registerWidgets()
 namespace
 {
 
-struct RestartRequest
-{
-    bool requested{false};
-    QString executable;
-    QStringList arguments;
-};
-
-int
-runApplication(int argc, char* argv[], RestartRequest& restartRequest)
-{
-    constexpr int delay = 100;
-
-    // Fix issues of too large UI elements for windows scaling factor 150%
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
-        Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-
-    // In Qt6, these values are already set by default, here, for qt5, we need
-    // to set them manually
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#else
-    QQuickStyle::setStyle("Basic");
-#endif
-
-    QApplication a(argc, argv);
-
-    GtSplashScreen splash(true, true);
-    splash.show();
-
-    GtApplication app(qApp);
-
-    const auto prepareRestart = [&]() {
-        restartRequest.requested = app.restartRequested();
-        if (!restartRequest.requested)
-        {
-            return;
-        }
-
-        restartRequest.executable = QApplication::applicationFilePath();
-        restartRequest.arguments = QApplication::arguments();
-        if (!restartRequest.arguments.isEmpty())
-        {
-            restartRequest.arguments.removeFirst();
-        }
+    struct RestartRequest
+    {
+        bool requested{false};
+        QString executable;
+        QStringList arguments;
     };
 
-    splash.process(QObject::tr("initializing..."), [&app](){
-        app.init();
-    });
-
-    if (app.restartRequested())
+    int runApplication(int argc, char* argv[], RestartRequest& restartRequest)
     {
-        prepareRestart();
-        return 0;
-    }
+        constexpr int delay = 100;
 
-    // TODO: we need shared and environment variables
-    // load module environments vars and fill in GTlab environment
-    QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
-    QStringList modInitEnvSetup;
+        // Fix issues of too large UI elements for windows scaling factor 150%
+        QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+            Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+        QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    splash.process([&modEnv, &modInitEnvSetup](){
-        for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
-        {
-            const auto& e = iter.key();
-            if (!gtEnvironment->environmentVariableExists(e))
+        // In Qt6, these values are already set by default, here, for qt5, we need
+        // to set them manually
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#else
+        QQuickStyle::setStyle("Basic");
+#endif
+
+        QApplication a(argc, argv);
+
+        GtSplashScreen splash(true, true);
+        splash.show();
+
+        GtApplication app(qApp);
+
+        const auto prepareRestart = [&]() {
+            restartRequest.requested = app.restartRequested();
+            if (!restartRequest.requested)
             {
-                gtEnvironment->addEnvironmentVariable(e);
-                QDir envDir(modEnv.value(e));
-                gtEnvironment->setValue(e, envDir.absolutePath());
-                modInitEnvSetup << e;
+                return;
             }
+
+            restartRequest.executable = QApplication::applicationFilePath();
+            restartRequest.arguments = QApplication::arguments();
+            if (!restartRequest.arguments.isEmpty())
+            {
+                restartRequest.arguments.removeFirst();
+            }
+        };
+
+        splash.process(QObject::tr("initializing..."),
+                       [&app]() { app.init(); });
+
+        if (app.restartRequested())
+        {
+            prepareRestart();
+            return 0;
         }
-    });
 
-    // user dialog to specify unset environment settings
-    if (!modInitEnvSetup.isEmpty())
-    {
-        GtEnvironmentDialog envDialog(modInitEnvSetup,
-                                      "Module Environment Settings",
-                                      "Some modules require an initial "
-                                      "configuration. Please configure the "
-                                      "GTlab environment variables.");
-        envDialog.exec();
-    }
+        // TODO: we need shared and environment variables
+        // load module environments vars and fill in GTlab environment
+        QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
+        QStringList modInitEnvSetup;
 
-    // save to system environment (temporary)
-    splash.process([&app](){
-        app.saveSystemEnvironment();
-    });
+        splash.process([&modEnv, &modInitEnvSetup]() {
+            for (auto iter = modEnv.constBegin(); iter != modEnv.constEnd();
+                 ++iter)
+            {
+                const auto& e = iter.key();
+                if (!gtEnvironment->environmentVariableExists(e))
+                {
+                    gtEnvironment->addEnvironmentVariable(e);
+                    QDir envDir(modEnv.value(e));
+                    gtEnvironment->setValue(e, envDir.absolutePath());
+                    modInitEnvSetup << e;
+                }
+            }
+        });
+
+        // user dialog to specify unset environment settings
+        if (!modInitEnvSetup.isEmpty())
+        {
+            GtEnvironmentDialog envDialog(modInitEnvSetup,
+                                          "Module Environment Settings",
+                                          "Some modules require an initial "
+                                          "configuration. Please configure the "
+                                          "GTlab environment variables.");
+            envDialog.exec();
+        }
+
+        // save to system environment (temporary)
+        splash.process([&app]() { app.saveSystemEnvironment(); });
 
 #ifdef GT_LICENCE
-    if (!app.checkLicence())
-    {
-        QMessageBox::critical(nullptr, "Licence verification",
-                              "Could not verify license!",
-                              QMessageBox::Ok, QMessageBox::Ok);
+        if (!app.checkLicence())
+        {
+            QMessageBox::critical(nullptr, "Licence verification",
+                                  "Could not verify license!", QMessageBox::Ok,
+                                  QMessageBox::Ok);
 
-        return -1;
-    }
-    gtDebug() << tr("License verified!");
+            return -1;
+        }
+        gtDebug() << tr("License verified!");
 #endif
 
-    // application initialization
-//    gtGuiApp;
+        // application initialization
+        //    gtGuiApp;
 
-//    if (parser.isSet("lang"))
-//    {
-//        gtGuiApp->setLanguage(parser.value("lang"));
-//    }
-//    else
-//    {
-//        gtGuiApp->initLanguage();
-//    }
-    // language initialization
-    splash.process([&app](){
-        app.initLanguage();
-    });
+        //    if (parser.isSet("lang"))
+        //    {
+        //        gtGuiApp->setLanguage(parser.value("lang"));
+        //    }
+        //    else
+        //    {
+        //        gtGuiApp->initLanguage();
+        //    }
+        // language initialization
+        splash.process([&app]() { app.initLanguage(); });
 
-    splash.process([&app](){
-        // short cuts initialization
-        app.initShortCuts();
-    });
+        splash.process([&app]() {
+            // short cuts initialization
+            app.initShortCuts();
+        });
 
 
-    // datamodel initialization
-    splash.process(QObject::tr("loading datamodel..."), [&app](){
-        app.initDatamodel();
-        // mdi launcher initialization
-        app.initMdiLauncher();
-    }, delay);
+        // datamodel initialization
+        splash.process(
+            QObject::tr("loading datamodel..."),
+            [&app]() {
+                app.initDatamodel();
+                // mdi launcher initialization
+                app.initMdiLauncher();
+            },
+            delay);
 
-    splash.process(QObject::tr("registering widgets..."), [](){
-        registerWidgets();
-    }, delay);
-
-
-    // show refused plugins (application last run crash)
-    if (!gtApp->crashedModules().isEmpty())
-    {
-        GtRefusedPluginsDialog refDia;
-        refDia.exec();
-        refDia.sync();
-    }
-
-    // load GTlab modules
-
-    splash.process(QObject::tr("loading modules..."), [&app](){
-        app.loadModules();
-    }, delay);
+        splash.process(
+            QObject::tr("registering widgets..."), []() { registerWidgets(); },
+            delay);
 
 
-    // calculator initialization
-    splash.process(QObject::tr("loading calculators..."), [&app](){
-        app.initCalculators();
-    }, delay);
+        // show refused plugins (application last run crash)
+        if (!gtApp->crashedModules().isEmpty())
+        {
+            GtRefusedPluginsDialog refDia;
+            refDia.exec();
+            refDia.sync();
+        }
+
+        // load GTlab modules
+
+        splash.process(
+            QObject::tr("loading modules..."), [&app]() { app.loadModules(); },
+            delay);
 
 
-    // session initialization
-    splash.process(QObject::tr("loading session..."), [&app](){
-        app.initSession();
-    }, delay);
+        // calculator initialization
+        splash.process(
+            QObject::tr("loading calculators..."),
+            [&app]() { app.initCalculators(); }, delay);
 
 
-    // perspective initialization
-    splash.process(QObject::tr("loading perspectives..."), [&app](){
-        app.initPerspective();
-    }, delay);
+        // session initialization
+        splash.process(
+            QObject::tr("loading session..."), [&app]() { app.initSession(); },
+            delay);
 
-//    gtApp->setLanguage("de");
 
-//    qDebug() << "system language: " << QLocale::system();
+        // perspective initialization
+        splash.process(
+            QObject::tr("loading perspectives..."),
+            [&app]() { app.initPerspective(); }, delay);
 
-//    gtApp->setToSystemLanguage();
+        //    gtApp->setLanguage("de");
+
+        //    qDebug() << "system language: " << QLocale::system();
+
+        //    gtApp->setToSystemLanguage();
 
 #ifdef GT_MODELTEST
-    qDebug() << "Model test enabled!";
-    new QAbstractItemModelTester(gtDataModel,
-                                 QAbstractItemModelTester::FailureReportingMode::Fatal,
-                                 qApp);
+        qDebug() << "Model test enabled!";
+        new QAbstractItemModelTester(
+            gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+            qApp);
 #endif
 
-    GtMainWin w;
+        GtMainWin w;
 
-    splash.processEvents();
+        splash.processEvents();
 
-    QObject::connect(&w, SIGNAL(guiInitialized()),
-                     &app, SLOT(onGuiInitializationFinished()));
+        QObject::connect(&w, SIGNAL(guiInitialized()), &app,
+                         SLOT(onGuiInitializationFinished()));
 
-    w.show();
+        w.show();
 
-    splash.finish(&w);
+        splash.finish(&w);
 
-    const int exitCode = a.exec();
-    prepareRestart();
-    return exitCode;
-}
+        const int exitCode = a.exec();
+        prepareRestart();
+        return exitCode;
+    }
 
 } // namespace
 
