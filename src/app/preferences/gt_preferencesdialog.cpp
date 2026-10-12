@@ -29,8 +29,7 @@
 
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
-    GtDialog(parent),
-    m_restartRequested(false)
+    GtDialog(parent), m_restartRequested(false)
 {
     m_contentsWidget = new QListWidget;
     m_contentsWidget->setViewMode(QListView::IconMode);
@@ -192,16 +191,16 @@ GtPreferencesDialog::changePage(QListWidgetItem* current,
     m_pagesWidget->setCurrentIndex(m_contentsWidget->row(current));
 }
 
-bool askUserAndRestart(QWidget* parent)
+bool
+askUserAndRestart(QWidget* parent)
 {
     QMessageBox dialog(parent);
     dialog.setWindowTitle(QObject::tr("Restart required"));
     dialog.setText(QObject::tr("The changes require a restart "
                                "of GTlab to take effect."));
-    auto restartButton = dialog.addButton(QObject::tr("Restart now"),
-                                       QMessageBox::AcceptRole);
-    dialog.addButton(QString(QObject::tr("Later")),
-                  QMessageBox::RejectRole);
+    auto restartButton =
+        dialog.addButton(QObject::tr("Restart now"), QMessageBox::AcceptRole);
+    dialog.addButton(QString(QObject::tr("Later")), QMessageBox::RejectRole);
 
     dialog.setModal(true);
     dialog.setIcon(QMessageBox::Information);
