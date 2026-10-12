@@ -381,9 +381,9 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     EXPECT_FALSE(conversionOnly.canConnectDefined());
     EXPECT_FALSE(conversionOnly.canConnectFunc());
 
-    GtPropertyConverter convertInvalid(
-        GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
-        {}, canConnect);
+    GtPropertyConverter convertInvalid(GtIntProperty::staticMetaObject,
+                                       GtDoubleProperty::staticMetaObject, {},
+                                       canConnect);
 
     EXPECT_FALSE(convertInvalid.conversionDefined());
 
@@ -485,33 +485,29 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
     EXPECT_TRUE(connection->isConnected());
 
 
-
     //
     QVector<QString> log;
 
     auto dest = gt::log::makeFunctorDestination(
-        [this, &log](std::string const& msg,
-                     gt::log::Level level,
-                     gt::log::Details details){
-            log.append(
-                QStringLiteral("%1 [%2] [%3] %4")
-                    .arg(level)
-                    .arg(details.id.c_str(),
-                         gt::log::formatTime(details.time).c_str(),
-                         msg.c_str())
-                );
+        [this, &log](std::string const& msg, gt::log::Level level,
+                     gt::log::Details details) {
+            log.append(QStringLiteral("%1 [%2] [%3] %4")
+                           .arg(level)
+                           .arg(details.id.c_str(),
+                                gt::log::formatTime(details.time).c_str(),
+                                msg.c_str()));
         });
-    bool success = gt::log::Logger::instance().addDestination("test", std::move(dest));
-    auto removeLogDest = gt::finally([](){
-        gt::log::Logger::instance().removeDestination("test");
-    });
+    bool success =
+        gt::log::Logger::instance().addDestination("test", std::move(dest));
+    auto removeLogDest = gt::finally(
+        []() { gt::log::Logger::instance().removeDestination("test"); });
 
     QString expectedWarningText = QObject::tr("Conversion of doubleProp to "
                                               "intProp indicated some "
                                               "infomation loss.");
 
     //  Expect to see no gtWarning
-    auto iter = std::find_if(log.begin(), log.end(), [=](QString const& entry){
+    auto iter = std::find_if(log.begin(), log.end(), [=](QString const& entry) {
         return entry.contains(expectedWarningText);
     });
 
@@ -531,9 +527,10 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
     EXPECT_EQ(gt::getConnectedValue(*connection).toInt(), 8);
 
     //  Expect to see a gtWarning
-    auto iter2 = std::find_if(log.begin(), log.end(), [=](QString const& entry){
-        return entry.contains(expectedWarningText);
-    });
+    auto iter2 =
+        std::find_if(log.begin(), log.end(), [=](QString const& entry) {
+            return entry.contains(expectedWarningText);
+        });
 
     ASSERT_NE(iter, log.end());
 }
