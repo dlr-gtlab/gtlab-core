@@ -57,6 +57,17 @@ public:
     virtual bool exec() = 0;
 
     /**
+     * @brief Framework entry point for executing this process component.
+     * Wraps the virtual exec() in a per-execution recording whenever access
+     * recording is enabled; otherwise it is a zero-cost passthrough (a single
+     * atomic check, no allocation). The finished recording is delivered to the
+     * currently registered recorder. Subclasses implement exec() and never
+     * override execute().
+     * @return Whether the execution was successful or not.
+     */
+    bool execute();
+
+    /**
      * @brief Returns current state of the process component.
      * @return Current state of process component.
      */

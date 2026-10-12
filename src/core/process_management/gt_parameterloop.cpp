@@ -87,7 +87,7 @@ GtParameterLoop::runChildElements()
     {
         GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
 
-        if (!comp->exec())
+        if (!comp->execute())
         {
 
             if (calc)

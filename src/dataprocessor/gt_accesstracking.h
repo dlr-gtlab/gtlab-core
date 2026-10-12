@@ -59,6 +59,12 @@ private:
 class GT_DATAMODEL_EXPORT GtAccessTrackerScope
 {
 public:
+    /**
+     * @brief Constructor
+     * @param tracker Tracker to activate for the current thread
+     */
+    explicit GtAccessTrackerScope(GtAccessTracker* tracker);
+
     explicit GtAccessTrackerScope(std::shared_ptr<GtAccessTracker> tracker);
     ~GtAccessTrackerScope();
     GtAccessTrackerScope(const GtAccessTrackerScope &) = delete;

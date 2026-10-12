@@ -193,6 +193,9 @@ public:
     /**
      * @brief Sets the recorder that receives an access recording for each
      * task execution.
+     * The recorder is also registered application-wide: while it is set, every
+     * GtProcessComponent::execute() call creates a per-execution recording that
+     * is delivered to it.
      * @param recorder Recorder to use (nullptr to disable access recording)
      */
     void setAccessRecorder(GtAbstractRecorder* recorder);

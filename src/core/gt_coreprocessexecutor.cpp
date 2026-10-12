@@ -83,7 +83,15 @@ GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
     setCoreExecutorFlags(flags);
 }
 
-GtCoreProcessExecutor::~GtCoreProcessExecutor() = default;
+GtCoreProcessExecutor::~GtCoreProcessExecutor()
+{
+    // never deliver recordings from destructors; unregister the global recorder
+    // only if this executor still owns it
+    if (gt::currentAccessRecorder() == pimpl->recorder)
+    {
+        gt::setAccessRecorder(nullptr);
+    }
+}
 
 void
 GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
@@ -328,6 +336,10 @@ void
 GtCoreProcessExecutor::setAccessRecorder(GtAbstractRecorder* recorder)
 {
     pimpl->recorder = recorder;
+
+    // register the recorder application-wide: while it is set, every
+    // GtProcessComponent::execute() call delivers a per-execution recording
+    gt::setAccessRecorder(recorder);
 }
 
 bool
@@ -527,14 +539,19 @@ GtCoreProcessExecutor::setupTaskRunner()
     connect(runner, &GtTaskRunner::finished,
             this, &GtCoreProcessExecutor::onTaskRunnerFinished);
 
-    // start access recording for the new execution context
-    const auto& srcLinked = pimpl->currentRunnable->linkedObjects();
-    pimpl->currentRecording = std::make_unique<GtRecording>(
-        gt::startAccessRecording(
-            pimpl->recorder,
-            m_current.data(),
-            QList<QPointer<GtObject>>(srcLinked.begin(), srcLinked.end()),
-            *pimpl->currentRunnable));
+    // start access recording for the new execution context; the recording is
+    // passive here (no tracker) and reflects the pre-merge task state: the
+    // per-execution details are captured by the GtRecordingScopes that
+    // GtProcessComponent::execute() opens on the worker thread
+    if (gt::isAccessRecordingEnabled())
+    {
+        auto recording = std::make_unique<GtRecording>();
+        recording->setComponentInfo(QUuid(m_current->uuid()),
+                                    m_current->metaObject()->className(),
+                                    m_current->objectName());
+        recording->start();
+        pimpl->currentRecording = std::move(recording);
+    }
 
     return runner;
 }
@@ -596,14 +613,15 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         << tr("----> Task finished (took %1 ms to merge) <----")
                .arg(timer.elapsed());
 
-    // end access recording of the finished execution context
-    if (pimpl->currentRecording && pimpl->currentRunnable)
+    // end access recording of the finished execution context: the final task
+    // state is authoritative and the recording is delivered after the project
+    // data merge outcome is known
+    if (pimpl->currentRecording)
     {
-        gt::endAccessRecording(pimpl->recorder,
-                               *pimpl->currentRecording,
-                               *pimpl->currentRunnable);
+        pimpl->currentRecording->finish(finishedTask->currentState());
+        gt::deliverRecording(*pimpl->currentRecording);
+        pimpl->currentRecording.reset();
     }
-    pimpl->currentRecording.reset();
 
     // reset source
     m_source.clear();

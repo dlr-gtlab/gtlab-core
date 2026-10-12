@@ -41,7 +41,6 @@
 #include "gt_moduleinterface.h"
 #include "gt_taskgroup.h"
 #include "gt_processdata.h"
-#include "gt_recording.h"
 
 #include <gt_logdest.h>
 
@@ -1125,21 +1124,4 @@ GtCoreApplication::licenseFolder() const
     }
 
     return {};
-}
-
-GtRecording
-GtCoreApplication::startRecording(GtAbstractRecorder* recorder,
-                                  QPointer<GtObject> activityObject,
-                                  QList<QPointer<GtObject> > linkedObjects,
-                                  const GtAbstractRunnable& runnable)
-{
-    return gt::startAccessRecording(recorder, activityObject, linkedObjects, runnable);
-}
-
-void
-GtCoreApplication::endRecording(GtAbstractRecorder* recorder,
-                                GtRecording& recording,
-                                const GtAbstractRunnable& runnable)
-{
-    gt::endAccessRecording(recorder, recording, runnable);
 }

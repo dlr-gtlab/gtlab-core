@@ -19,7 +19,6 @@
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
 #include "gt_monitoringdatatable.h"
-#include "gt_accesstracking.h"
 
 #include <QDebug>
 #include <QThreadPool>
@@ -106,8 +105,6 @@ GtTask::exec()
                          .arg(objectName());
         return false;
     }
-
-    GtAccessTrackerScope accessScope(runnable->accessTracker());
 
     // collect all calculator properties
     QList<GtAbstractProperty*> const props = fullPropertyList();
@@ -428,7 +425,7 @@ GtTask::runChildElements()
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
-        if (!comp->exec())
+        if (!comp->execute())
         {
             // calculator run failed
             setState(GtProcessComponent::FAILED);

@@ -92,18 +92,24 @@ TEST(GtAccessTracker, nestedScopesRestoreOuterTracker)
     EXPECT_TRUE(inner->accessedObjects().contains(makeUuid(42)));
 }
 
-TEST(GtAccessTracker, nullScopeIsNoOp)
+TEST(GtAccessTracker, nullScopeDisablesTracking)
 {
     auto tracker = std::make_shared<GtAccessTracker>();
 
     {
-        GtAccessTrackerScope scope(tracker);
+        // a null scope is an explicit disable: while it is active the
+        // tracker slot is cleared, and on exit the previous tracker is
+        // restored
+        GtAccessTrackerScope trackerScope(tracker);
+        EXPECT_EQ(GtAccessTracker::current(), tracker.get());
+
+        {
+            GtAccessTrackerScope scope(nullptr);
+            EXPECT_EQ(GtAccessTracker::current(), nullptr);
+        }
         EXPECT_EQ(GtAccessTracker::current(), tracker.get());
     }
-    {
-        GtAccessTrackerScope scope(nullptr);
-        EXPECT_EQ(GtAccessTracker::current(), nullptr);
-    }
+    // leaving the outermost scope restores the null context
     EXPECT_EQ(GtAccessTracker::current(), nullptr);
 }
 

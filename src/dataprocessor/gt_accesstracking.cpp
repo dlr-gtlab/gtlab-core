@@ -57,14 +57,18 @@ GtAccessTracker* GtAccessTracker::current()
     return currentTracker();
 }
 
-GtAccessTrackerScope::GtAccessTrackerScope(std::shared_ptr<GtAccessTracker> tracker)
+GtAccessTrackerScope::GtAccessTrackerScope(GtAccessTracker* tracker)
 {
-    if (tracker)
-    {
-        m_active = true;
-        m_previous = currentTracker();
-        currentTracker() = tracker.get();
-    }
+    // always activate the slot: a null tracker explicitly disables tracking
+    // for the scope's lifetime instead of leaving a previous tracker active
+    m_active = true;
+    m_previous = currentTracker();
+    currentTracker() = tracker;
+}
+
+GtAccessTrackerScope::GtAccessTrackerScope(std::shared_ptr<GtAccessTracker> tracker) :
+    GtAccessTrackerScope(tracker.get())
+{
 }
 
 GtAccessTrackerScope::~GtAccessTrackerScope()

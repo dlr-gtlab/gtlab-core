@@ -25,6 +25,7 @@
 #include "gt_abstractrunnable.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
+#include "gt_recording.h"
 
 #include "gt_processcomponent.h"
 
@@ -392,6 +393,48 @@ GtProcessComponent::hasWarnings() const
 }
 
 GtProcessComponent::~GtProcessComponent() = default;
+
+bool
+GtProcessComponent::execute()
+{
+    // fast path: no recorder registered -> single atomic check, no allocation
+    if (!gt::isAccessRecordingEnabled())
+    {
+        return exec();
+    }
+
+    auto recording = std::make_unique<GtRecording>();
+
+    // link nested executions (e.g. calculator inside a task) via the TLS scope
+    if (GtRecordingScope::currentRecording() != nullptr)
+    {
+        recording->setParentId(GtRecordingScope::currentRecording()->id());
+    }
+
+    recording->setComponentInfo(QUuid(uuid()),
+                                metaObject()->className(),
+                                objectName());
+    recording->setTracker(std::make_unique<GtAccessTracker>());
+    recording->start();
+
+    // run the component with the recording active; the scope restores the
+    // previous thread state (tracker and recording slots) on exit
+    bool success = false;
+    {
+        GtRecordingScope scope(*recording);
+        success = exec();
+    }
+
+    // the scope has exited: the thread-local tracker slot is restored and the
+    // tracker is released by finish(), so the backend callback below runs with
+    // tracking suspended and can never touch the (soon destroyed) tracker
+    // final STATE is authoritative (forwards e.g. SKIPPED)
+    recording->finish(currentState());
+
+    gt::deliverRecording(*recording);
+
+    return success;
+}
 
 GtProcessComponent::STATE
 GtProcessComponent::currentState() const

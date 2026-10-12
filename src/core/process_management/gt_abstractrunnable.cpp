@@ -15,12 +15,22 @@
 
 GtAbstractRunnable::GtAbstractRunnable() : m_successfulRun(false)
 {
-    m_accessTracker = std::make_shared<GtAccessTracker>();
 }
 
 GtAbstractRunnable::~GtAbstractRunnable()
 {
     qDeleteAll(m_linkedObjects);
+}
+
+const std::shared_ptr<GtAccessTracker>&
+GtAbstractRunnable::accessTracker()
+{
+    if (!m_accessTracker)
+    {
+        m_accessTracker = std::make_shared<GtAccessTracker>();
+    }
+
+    return m_accessTracker;
 }
 
 const QList<GtObject*>&

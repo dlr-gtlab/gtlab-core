@@ -1,150 +1,244 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gt_runnable.cpp
+ * SPDX-FileCopyrightText: 2017 German Aerospace Center (DLR)
+ * Source File: gt_recording.cpp
  *
- *  Created on: 19.08.2026
- *  Author: Robert Marcenko (AT-TWK)
+ *  Created on: 28.07.2017
+ *  Author: Stanislaus Reitenbach (AT-TW)
+ *  Tel.: +49 2203 601 2907
  */
 
-
 #include "gt_recording.h"
-#include "gt_abstractrunnable.h"
-#include "gt_accesstracking.h"
 
-#include <quuid.h>
-#include <QDateTime>
+#include <atomic>
 
-GtRecording::GtRecording():m_actvityUuid{QUuid::createUuid().toString()}
+namespace
 {
+// second thread-local slot: the active per-execution recording
+thread_local GtRecording* currentRecordingSlot{nullptr};
+
+// application-wide recording backend (release on store / acquire on load)
+std::atomic<GtAbstractRecorder*> g_accessRecorder{nullptr};
 }
 
-void GtRecording::setActivityObject(QPointer<GtObject> activityObject)
+GtRecording::GtRecording()
 {
-    m_activityObject = activityObject;
+    m_id = QUuid::createUuid();
 }
 
-void GtRecording::setLinkedObjects(QList<QPointer<GtObject>> linkedObjects)
+GtRecording::~GtRecording() = default;
+
+QUuid
+GtRecording::id() const
 {
-    m_linkedObjects = linkedObjects;
+    return m_id;
 }
 
-void GtRecording::setStartAtTime(const QString& startAtTime)
+QUuid
+GtRecording::parentId() const
 {
-    m_startAtTime = startAtTime;
-}
-
-void GtRecording::setEndedAtTime(const QString& endedAtTime)
-{
-    m_endedAtTime = endedAtTime;
-}
-
-
-QList<QPointer<GtObject> > GtRecording::linkedObjects() const
-{
-    return m_linkedObjects;
-}
-
-QString GtRecording::toolName() const
-{
-    return m_toolName;
-}
-
-void GtRecording::setToolName(const QString &newToolName)
-{
-    m_toolName = newToolName;
-}
-
-QString GtRecording::Version() const
-{
-    return m_Version;
-}
-
-void GtRecording::setVersion(const QString &newVersion)
-{
-    m_Version = newVersion;
-}
-
-QString GtRecording::State() const
-{
-    return m_State;
-}
-
-void GtRecording::setState(const QString &newState)
-{
-    m_State = newState;
-}
-
-QPointer<GtObject> GtRecording::activityObject() const
-{
-    return m_activityObject;
-}
-
-QUuid GtRecording::contextUuid() const
-{
-    return m_actvityUuid;
-}
-
-QString GtRecording::startAtTime() const
-{
-    return m_startAtTime;
-}
-
-QString GtRecording::endedAtTime() const
-{
-    return m_endedAtTime;
-}
-
-QSet<QUuid> GtRecording::childContextUuids() const
-{
-    return m_childContextUuids;
-}
-
-namespace gt
-{
-GtRecording
-startAccessRecording(GtAbstractRecorder* recorder,
-                     QPointer<GtObject> activityObject,
-                     QList<QPointer<GtObject> > linkedObjects,
-                     const GtAbstractRunnable& runnable)
-{
-    Q_UNUSED(runnable);
-
-    GtRecording recording;
-    recording.setActivityObject(activityObject);
-    recording.setLinkedObjects(linkedObjects);
-
-    if (recorder)
-    {
-        recorder->initLinkedObjects(linkedObjects);
-    }
-
-    recording.setStartAtTime(QDateTime::currentDateTimeUtc()
-                             .toString("yyyy-MM-ddThh:mm:ssZ"));
-    return recording;
+    return m_parentId;
 }
 
 void
-endAccessRecording(GtAbstractRecorder* recorder,
-                   GtRecording& recording,
-                   const GtAbstractRunnable& runnable)
+GtRecording::setParentId(const QUuid& id)
 {
-    recording.setEndedAtTime(QDateTime::currentDateTimeUtc()
-                             .toString("yyyy-MM-ddThh:mm:ssZ"));
+    m_parentId = id;
+}
 
-    if (!recorder)
+QUuid
+GtRecording::componentUuid() const
+{
+    return m_componentUuid;
+}
+
+QString
+GtRecording::componentClassName() const
+{
+    return m_componentClassName;
+}
+
+QString
+GtRecording::componentName() const
+{
+    return m_componentName;
+}
+
+void
+GtRecording::setComponentInfo(const QUuid& uuid, const QString& className, const QString& name)
+{
+    m_componentUuid = uuid;
+    m_componentClassName = className;
+    m_componentName = name;
+}
+
+QDateTime
+GtRecording::startTime() const
+{
+    return m_startTime;
+}
+
+QDateTime
+GtRecording::finishTime() const
+{
+    return m_finishTime;
+}
+
+GtProcessComponent::STATE
+GtRecording::outcome() const
+{
+    return m_outcome;
+}
+
+QSet<QUuid>
+GtRecording::accessedObjects() const
+{
+    return m_accessedObjects;
+}
+
+bool
+GtRecording::isFinished() const
+{
+    return !m_finishTime.isNull();
+}
+
+void
+GtRecording::start()
+{
+    m_startTime = QDateTime::currentDateTimeUtc();
+}
+
+void
+GtRecording::finish(GtProcessComponent::STATE state)
+{
+    if (isFinished())
     {
         return;
     }
 
-    recorder->createActivity(recording);
+    m_finishTime = QDateTime::currentDateTimeUtc();
+    m_outcome = state;
 
-    // record accessed objects of the execution context
-    const QSet<QUuid> accessedObjects = runnable.accessTracker()->accessedObjects();
-    recorder->recordAccessObjects(accessedObjects, recording.linkedObjects());
+    if (m_tracker)
+    {
+        m_accessedObjects = m_tracker->accessedObjects();
+        m_tracker.reset();
+    }
+}
 
-    // execute "diff"
-    recorder->recordChanges(recording.linkedObjects());
+const std::unique_ptr<GtAccessTracker>&
+GtRecording::tracker() const
+{
+    return m_tracker;
+}
+
+void
+GtRecording::setTracker(std::unique_ptr<GtAccessTracker> tracker)
+{
+    m_tracker = std::move(tracker);
+}
+
+GtRecordingScope::GtRecordingScope(GtRecording& recording) :
+    m_recording(recording)
+{
+    // always activate the tracker slot: use the recording's tracker when it
+    // has one, otherwise explicitly disable tracking (null) so a passive
+    // recording never leaves a previous tracker active
+    m_trackerScope = std::make_unique<GtAccessTrackerScope>(m_recording.tracker().get());
+
+    m_previousRecording = currentRecordingSlot;
+    currentRecordingSlot = &m_recording;
+    m_active = true;
+}
+
+GtRecordingScope::~GtRecordingScope()
+{
+    if (m_suspended)
+    {
+        resume();
+    }
+
+    if (m_active)
+    {
+        currentRecordingSlot = m_previousRecording;
+        m_active = false;
+    }
+
+    m_trackerScope.reset();
+}
+
+GtRecording*
+GtRecordingScope::currentRecording()
+{
+    return currentRecordingSlot;
+}
+
+void
+GtRecordingScope::suspend()
+{
+    if (!m_active)
+    {
+        return;
+    }
+
+    currentRecordingSlot = m_previousRecording;
+    m_trackerScope.reset();
+    m_active = false;
+    m_suspended = true;
+}
+
+void
+GtRecordingScope::resume()
+{
+    if (!m_suspended || m_active)
+    {
+        return;
+    }
+
+    m_trackerScope = std::make_unique<GtAccessTrackerScope>(m_recording.tracker().get());
+
+    m_previousRecording = currentRecordingSlot;
+    currentRecordingSlot = &m_recording;
+    m_active = true;
+    m_suspended = false;
+}
+
+namespace gt
+{
+void
+setAccessRecorder(GtAbstractRecorder* recorder)
+{
+    g_accessRecorder.store(recorder, std::memory_order_release);
+}
+
+bool
+isAccessRecordingEnabled()
+{
+    return g_accessRecorder.load(std::memory_order_acquire) != nullptr;
+}
+
+void
+deliverRecording(const GtRecording& recording)
+{
+    GtAbstractRecorder* recorder = g_accessRecorder.load(std::memory_order_acquire);
+
+    if (recorder != nullptr)
+    {
+        // a recorder failure must not change the component's execution result
+        try
+        {
+            recorder->record(recording);
+        }
+        catch (...)
+        {
+        }
+    }
+}
+
+GtAbstractRecorder*
+currentAccessRecorder()
+{
+    return g_accessRecorder.load(std::memory_order_acquire);
 }
 }

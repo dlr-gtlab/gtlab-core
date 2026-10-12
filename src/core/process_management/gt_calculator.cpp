@@ -21,7 +21,6 @@
 #include "gt_objectpathproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_calculatorfactory.h"
-#include "gt_accesstracking.h"
 
 #include "gt_calculator.h"
 
@@ -75,8 +74,6 @@ GtCalculator::exec()
         setState(GtCalculator::FAILED);
         return false;
     }
-
-    GtAccessTrackerScope accessScope(runnable()->accessTracker());
 
     // collect all calculator properties
     QList<GtAbstractProperty*> props = fullPropertyList();
