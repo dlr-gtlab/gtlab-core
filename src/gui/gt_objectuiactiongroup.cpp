@@ -18,8 +18,7 @@ struct GtObjectUIActionGroup::Impl
         actions(std::move(actions)),
         name(std::move(name_)),
         icon(std::move(icon_))
-    {
-    }
+    { }
 
     /// List of actions
     QList<GtObjectUIAction> actions;
