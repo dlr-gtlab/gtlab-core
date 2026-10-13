@@ -29,6 +29,48 @@ namespace gt
         using canConnect = std::function<bool(GtAbstractProperty const& from,
                                               GtAbstractProperty const& to)>;
 
+        /**
+         * @brief defaultConverter uses basic conversion from source to target
+         * for identical types
+         * @param source
+         * @param target
+         * @return
+         */
+        conversionSuccess defaultConverter(GtAbstractProperty const& source,
+                                           GtAbstractProperty& target);
+
+        namespace fromDouble
+        {
+            bool canConnectToDouble(
+                GtAbstractProperty const& source,
+                GtAbstractProperty const& target);
+
+            conversionSuccess toInt(
+                GtAbstractProperty const& source,
+                GtAbstractProperty& target);
+
+            bool canConnectToInt(
+                GtAbstractProperty const& source,
+                GtAbstractProperty const& target);
+
+
+        } // namespace fromDouble
+
+        namespace fromInt
+        {
+            bool canConnectToInt(
+                GtAbstractProperty const& source,
+                GtAbstractProperty const& target);
+
+            conversionSuccess toDouble(
+                GtAbstractProperty const& source,
+                GtAbstractProperty& target);
+
+            bool canConnectToDouble(
+                GtAbstractProperty const& source,
+                GtAbstractProperty const& target);
+        } // namespace fromInt
+
     } // namespace conversion
 } // namespace gt
 

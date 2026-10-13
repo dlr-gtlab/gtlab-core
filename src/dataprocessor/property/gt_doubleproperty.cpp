@@ -33,46 +33,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         gtPropConversion().registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
-            // can connect
-            [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-               GtAbstractProperty const& b) -> bool {
-                const auto& from = static_cast<const GtDoubleProperty&>(a);
-                auto& to = static_cast<const GtDoubleProperty&>(b);
-
-                // check of the units:
-                // only identical units and nondimensional should be connected
-                const auto isUnitFree = [](auto category) {
-                    return category == GtUnit::None;
-                };
-
-                if (!isUnitFree(from.unitCategory()) &&
-                    !isUnitFree(to.unitCategory()) &&
-                    from.unitCategory() != to.unitCategory())
-                {
-                    return false;
-                }
-
-                // check of the bounds
-                // if bounds are active it should be checked if the valid
-                // ranges of the properties do at least match in pieces
-                if (from.highSideBoundaryActive() && to.lowSideBoundaryActive())
-                {
-                    if (from.highSideBoundary() < to.lowSideBoundary())
-                    {
-                        return false;
-                    }
-                }
-
-                if (from.lowSideBoundaryActive() && to.highSideBoundaryActive())
-                {
-                    if (from.lowSideBoundary() > to.highSideBoundary())
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            });
+            gt::conversion::fromDouble::canConnectToDouble);
 
         return 0;
     }();
