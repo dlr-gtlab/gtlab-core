@@ -99,6 +99,9 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
     file(WRITE "${fixture_dir}/metadata.json" "${fixture_metadata}")
     add_library(Footprint${fixture} MODULE "${fixture_dir}/module.cpp")
     set_target_properties(Footprint${fixture} PROPERTIES AUTOMOC ON
+        PREFIX ""
+        DEBUG_POSTFIX ""
+        OUTPUT_NAME "Footprint${fixture}.gtm.${GTLAB_MODULE_ABI}"
         LIBRARY_OUTPUT_DIRECTORY "${fixture_dir}"
         LIBRARY_OUTPUT_DIRECTORY_RELEASE "${fixture_dir}"
         LIBRARY_OUTPUT_DIRECTORY_DEBUG "${fixture_dir}"
@@ -110,6 +113,9 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
         RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${fixture_dir}"
         RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${fixture_dir}")
     target_compile_definitions(Footprint${fixture} PRIVATE GT_MODULE_ID="${fixture_id}")
+    set_property(TARGET Footprint${fixture} APPEND PROPERTY AUTOMOC_MOC_OPTIONS
+        "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
+        "-Mgtlab_module_abi=${GTLAB_MODULE_ABI}")
     target_link_libraries(Footprint${fixture} PRIVATE GTlab::Core)
     add_dependencies(GTlabUnitTest Footprint${fixture})
     target_compile_definitions(GTlabUnitTest PRIVATE
