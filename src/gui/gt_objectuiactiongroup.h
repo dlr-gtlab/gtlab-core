@@ -84,14 +84,14 @@ public:
      * @param icon Icon
      * @return This
      */
-    GtObjectUIActionGroup& setIcon(const QIcon& icon);
+    GtObjectUIActionGroup& setIcon(const QIcon& newIcon);
 
     /**
      * @brief Overload. Accepts a string instead
      * @param icon Icon name or path
      * @return This
      */
-    GtObjectUIActionGroup& setIcon(const QString& icon);
+    GtObjectUIActionGroup& setIcon(const QString& iconPath);
 
     /**
      * @brief Sets the order priority according to which the action is sorted
