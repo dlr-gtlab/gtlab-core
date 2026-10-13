@@ -137,9 +137,9 @@ GT_GUI_EXPORT void addToMenu(const GtObjectUIAction& action,
 GT_GUI_EXPORT void setOrderPriority(QAction& action, int priority);
 
 /**
- * @brief Creates a new import menu based on the registered importers and appends
- * it to the menu. Returns a pointer to new menu, which can be used to hide or
- * disable it. Ownership is already transfered to the base mneu.
+ * @brief Creates a new import menu based on the registered importers and
+ * appends it to the menu. Returns a pointer to new menu, which can be used to
+ * hide or disable it. Ownership is already transfered to the base mneu.
  * @param menu Menu to append import menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
@@ -147,9 +147,9 @@ GT_GUI_EXPORT void setOrderPriority(QAction& action, int priority);
 GT_GUI_EXPORT QMenu* addImportMenu(QMenu& menu, GtObject& obj);
 
 /**
- * @brief Creates a new export menu based on the registered exporters and appends
- * it to the menu. Returns a pointer to new menu, which can be used to hide or
- * disable it. Ownership is already transfered to the base mneu.
+ * @brief Creates a new export menu based on the registered exporters and
+ * appends it to the menu. Returns a pointer to new menu, which can be used to
+ * hide or disable it. Ownership is already transfered to the base mneu.
  * @param menu Menu to append export menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
