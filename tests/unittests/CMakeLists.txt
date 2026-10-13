@@ -58,6 +58,7 @@ set (SOURCES
 add_executable(GTlabUnitTest ${SOURCES})
 target_sources(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch/gt_consoleruntaskfrommemento.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../../src/batch/gt_consolepropertyoverrides.cpp
 )
 set_target_properties(GTlabUnitTest PROPERTIES AUTOMOC ON AUTORCC ON)
 

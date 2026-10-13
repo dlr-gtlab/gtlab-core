@@ -28,10 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
  - Search functionality for the Memento-Viewer - #380
  - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
+ - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
+ - GTlab modules now use ABI-tagged filenames and embedded Core/ABI metadata.
+   The loader rejects modules with missing or incompatible ABI metadata before
+   loading native code; existing modules must be rebuilt with the updated
+   `add_gtlab_module()` integration. - #1590
  - Core-managed process execution now resolves `currentProject()` through an
    execution-scoped project context. Existing calculators remain compatible;
    new execution code should pass an explicit project or `GtExecutionContext`.

@@ -27,12 +27,23 @@ else()
                     ${CMAKE_CURRENT_SOURCE_DIR}/run_operation_from_memento/test_run_operation_from_memento.py
         )
 
+        add_test(
+            NAME SystemTest.RunPropertyOverrides
+            COMMAND ${Python3_EXECUTABLE} -m pytest
+                    ${CMAKE_CURRENT_SOURCE_DIR}/run_property_overrides/test_run_property_overrides.py
+        )
+
         set_tests_properties(SystemTest.RunTaskFromMemento PROPERTIES
             ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
             LABELS "SystemTest;Batch"
         )
 
         set_tests_properties(SystemTest.RunOperationFromMemento PROPERTIES
+            ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
+            LABELS "SystemTest;Batch"
+        )
+
+        set_tests_properties(SystemTest.RunPropertyOverrides PROPERTIES
             ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
             LABELS "SystemTest;Batch"
         )
@@ -48,6 +59,28 @@ else()
             LABELS "SystemTest;Batch"
         )
 
+        add_test(
+            NAME SystemTest.ModuleAbiCompatibility
+            COMMAND ${Python3_EXECUTABLE} -m pytest
+                    ${CMAKE_CURRENT_SOURCE_DIR}/module_abi/test_module_abi.py
+        )
+
+        set(GTLAB_MODULE_ABI_TEST_ENVIRONMENT
+            "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>"
+            "GTLAB_ABI_TEST_MODULE=$<TARGET_FILE:AbiTestModule>"
+            "GTLAB_ABI_TEST_ADJACENT_LIBRARY=$<TARGET_FILE:AbiAdjacentDependency>"
+            "GTLAB_ABI_TEST_INCOMPATIBLE_MODULE=$<TARGET_FILE:AbiTestModuleIncompatible>"
+            "GTLAB_ABI_TEST_MISSING_MODULE=$<TARGET_FILE:AbiTestModuleMissing>"
+            "GTLAB_ABI_METADATA_INSPECTOR=$<TARGET_FILE:ModuleMetadataInspector>"
+            "GTLAB_CORE_VERSION=${GTLAB_CORE_VERSION}"
+            "GTLAB_MODULE_ABI=${GTLAB_MODULE_ABI}"
+            "QT_QPA_PLATFORM=offscreen"
+        )
+        set_tests_properties(SystemTest.ModuleAbiCompatibility PROPERTIES
+            ENVIRONMENT "${GTLAB_MODULE_ABI_TEST_ENVIRONMENT}"
+            LABELS "SystemTest;Batch;Modules"
+        )
+
         set(GTLAB_SYSTEMTESTS_ENABLED TRUE PARENT_SCOPE)
     else()
         message(WARNING
@@ -60,6 +93,10 @@ endif()
 add_custom_target(systemtests
     DEPENDS
         GTlabConsole
+        AbiTestModule
+        AbiTestModuleIncompatible
+        AbiTestModuleMissing
+        ModuleMetadataInspector
         TestDatamodelInterface
         TestMdiInterface
         TestProcessInterface

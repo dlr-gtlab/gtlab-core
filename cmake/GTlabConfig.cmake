@@ -9,6 +9,10 @@ include(CMakeFindDependencyMacro)
 set(QT_VERSION_MAJOR @QT_VERSION_MAJOR@)
 set(GTLAB_QT_VERSION_MAJOR @QT_VERSION_MAJOR@)
 
+# Version information embedded into modules built with add_gtlab_module().
+set(GTLAB_CORE_VERSION "@PROJECT_VERSION@")
+set(GTLAB_MODULE_ABI "@GTLAB_MODULE_ABI@")
+
 # Require the same Qt major version for consumers
 find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS Core Gui Xml Widgets Network PrintSupport)
 if (QT_VERSION_MAJOR EQUAL 6)
