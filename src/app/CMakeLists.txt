@@ -89,7 +89,7 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms 
+set(forms
     ui/gt_mainwin.ui
     preferences/pages/gt_moduledirectoriestab.ui
 )
@@ -212,6 +212,7 @@ target_include_directories(GTlab PRIVATE
     dock_widgets/labels
 )
 
+find_package(qtadvanceddocking-qt5 REQUIRED)
 
 target_link_libraries(GTlab
     PRIVATE

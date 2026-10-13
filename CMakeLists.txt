@@ -59,8 +59,6 @@ if (BUILD_WITH_COVERAGE)
     append_coverage_compiler_flags()
 endif(BUILD_WITH_COVERAGE)
 
-find_package(qtadvanceddocking-qt5 REQUIRED)
-
 if (NOT DEFINED VCPKG_TARGET_TRIPLET)
     include(GetDependencies)
 endif()
