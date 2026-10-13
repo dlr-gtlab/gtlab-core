@@ -250,8 +250,8 @@ public:
      * @param method Method
      * @return This
      */
-    GtObjectUIAction&
-    setVerificationMethod(InvokableVerificationMethod verfiyMethod);
+    GtObjectUIAction& setVerificationMethod(
+        InvokableVerificationMethod verfiyMethod);
 
     /**
      * @brief Overload. Function signature must accept a pointer of the target

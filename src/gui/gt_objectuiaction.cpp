@@ -186,7 +186,8 @@ GtObjectUIAction::setIcon(const QString& iconPath)
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVerificationMethod(InvokableVerificationMethod verfiyMethod)
+GtObjectUIAction::setVerificationMethod(
+    InvokableVerificationMethod verfiyMethod)
 {
     pimpl->verification = std::move(verfiyMethod);
     return *this;
@@ -196,10 +197,10 @@ GtObjectUIAction&
 GtObjectUIAction::setVerificationMethod(VerificationMethod verifyMethod)
 {
     // parent object not needed here
-    return setVerificationMethod([m = std::move(verifyMethod)]
-                                 (QObject* /*parent*/, GtObject* target){
-        return m && m(target);
-    });
+    return setVerificationMethod(
+        [m = std::move(verifyMethod)](QObject* /*parent*/, GtObject* target) {
+            return m && m(target);
+        });
 }
 
 GtObjectUIAction&
@@ -218,9 +219,8 @@ GtObjectUIAction::setVerificationMethod(const QString& verifyMethodName)
                                        Q_RETURN_ARG(bool, verified),
                                        Q_ARG(GtObject*, target)))
         {
-            gtWarning()
-                << QObject::tr("Could not invoke verification method!")
-                << gt::brackets(verifyMethodName);
+            gtWarning() << QObject::tr("Could not invoke verification method!")
+                        << gt::brackets(verifyMethodName);
         }
 
         return verified;
@@ -244,10 +244,10 @@ GtObjectUIAction&
 GtObjectUIAction::setVisibilityMethod(VisibilityMethod visMethod)
 {
     // parent object not needed here
-    return setVisibilityMethod([m = std::move(visMethod)]
-                               (QObject* /*parent*/, GtObject* target){
-        return m && m(target);
-    });
+    return setVisibilityMethod(
+        [m = std::move(visMethod)](QObject* /*parent*/, GtObject* target) {
+            return m && m(target);
+        });
 }
 
 GtObjectUIAction&
@@ -266,9 +266,8 @@ GtObjectUIAction::setVisibilityMethod(const QString& visMethodName)
                                        Q_RETURN_ARG(bool, visible),
                                        Q_ARG(GtObject*, target)))
         {
-            gtWarning()
-                << QObject::tr("Could not invoke visibility method!")
-                << gt::brackets(visMethodName);
+            gtWarning() << QObject::tr("Could not invoke visibility method!")
+                        << gt::brackets(visMethodName);
         }
         return visible;
     });
