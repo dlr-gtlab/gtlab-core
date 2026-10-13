@@ -8,6 +8,7 @@
  * Author: S. Reitenbach
  */
 
+#include "test_mdi_interface_ext.h"
 #include "test_mdi_package.h"
 #include "test_mdi_ext_package.h"
 #include "test_mdi_ext_packageui.h"
@@ -17,11 +18,14 @@
 
 #include "test_dmi_externalobject.h"
 
+#include "gt_coreapplication.h"
+
+#include <QApplication>
+#include <QMainWindow>
+
 /**
  * generated (v 0.1)
  */
-
-#include "test_mdi_interface_ext.h"
 
 GtVersionNumber
 TestDatamodelInterfaceExt::version()
@@ -48,6 +52,19 @@ bool
 TestDatamodelInterfaceExt::standAlone()
 {
     return false;
+}
+
+void
+TestDatamodelInterfaceExt::initGUI() const
+{
+    assert(!gtApp->batchMode());
+
+    auto windows = qApp->topLevelWidgets();
+    auto mainWindow = std::find_if(windows.begin(), windows.end(), [](QWidget* window){
+        return qobject_cast<QMainWindow*>(window);
+    });
+    assert(mainWindow != windows.end());
+    assert((*mainWindow) && (*mainWindow)->isVisible());
 }
 
 QList<QMetaObject>

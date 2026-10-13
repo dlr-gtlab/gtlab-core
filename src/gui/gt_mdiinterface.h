@@ -27,6 +27,12 @@ public:
     virtual ~GtMdiInterface() {}
 
     /**
+     * @brief Initializes GUI-related elements of the module. Called on
+     * application startup once the main window is created.
+     */
+    virtual void initGUI() const {}
+
+    /**
      * @brief Returns static meta objects of mdi item classes.
      * @return list including meta objects
      */
