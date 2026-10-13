@@ -64,9 +64,9 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
         from.unitCategory() != GtUnit::NonDimensional)
     {
         gtWarning() << QObject::tr("Conversion from %1 to %2 indicates a loss "
-                                   "of the unit information (%3)").arg(
-                               from.objectName(), to.objectName(),
-                               from.unitCategoryToString());
+                                   "of the unit information (%3)")
+                           .arg(from.objectName(), to.objectName(),
+                                from.unitCategoryToString());
 
         return gt::conversion::conversionSuccess::Lossy;
     }
@@ -161,8 +161,7 @@ gt::conversion::fromDouble::canConnectToDouble(const GtAbstractProperty& source,
         return category == GtUnit::None;
     };
 
-    if (!isUnitFree(from.unitCategory()) &&
-        !isUnitFree(to.unitCategory()) &&
+    if (!isUnitFree(from.unitCategory()) && !isUnitFree(to.unitCategory()) &&
         from.unitCategory() != to.unitCategory())
     {
         return false;
