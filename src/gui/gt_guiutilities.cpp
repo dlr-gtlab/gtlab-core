@@ -229,7 +229,8 @@ addOpenWithActions(QMenu& menu, GtObject& obj)
     // open with
     if (!openWithList.isEmpty())
     {
-        // building section from last to first action using "insert before" mechanism
+        // building section from last to first action using "insert before"
+        // mechanism
         QAction* before =
             actionBefore(menu, gt::gui::OrderPriority::AfterOpenWithAction);
 
@@ -329,7 +330,8 @@ gt::gui::addImportMenu(QMenu& menu, GtObject& obj)
 
     if (!importerList.isEmpty())
     {
-        // building section from last to first action using "insert before" mechanism
+        // building section from last to first action using "insert before"
+        // mechanism
         QAction* before = actionBefore(menu, OrderPriority::AfterImportAction);
 
         before = addActionBefore(
@@ -360,7 +362,8 @@ gt::gui::addExportMenu(QMenu& menu, GtObject& obj)
 
     if (!exporterList.isEmpty())
     {
-        // building section from last to first action using "insert before" mechanism
+        // building section from last to first action using "insert before"
+        // mechanism
         QAction* before = actionBefore(menu, OrderPriority::AfterExportAction);
 
         before = addActionBefore(
