@@ -273,7 +273,6 @@ protected:
     void setRegExpHint(QString const& hint);
 
 private:
-
     /// Private implementation
     struct Impl;
     std::unique_ptr<Impl> pimpl;
