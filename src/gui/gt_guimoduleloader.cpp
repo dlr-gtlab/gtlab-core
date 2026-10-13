@@ -51,7 +51,6 @@
 
 struct GuiPluginData
 {
-    GtModuleInterface* plugin{};
     GtMdiInterface* guiInterface{};
 };
 
@@ -209,7 +208,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
-        pimpl->plugins.push_back(GuiPluginData{plugin, mdip});
+        pimpl->plugins.push_back(GuiPluginData{ mdip });
     }
 
     // importer interface
