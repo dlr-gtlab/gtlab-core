@@ -60,9 +60,10 @@ TestDatamodelInterfaceExt::initGUI() const
     assert(!gtApp->batchMode());
 
     auto windows = qApp->topLevelWidgets();
-    auto mainWindow = std::find_if(windows.begin(), windows.end(), [](QWidget* window){
-        return qobject_cast<QMainWindow*>(window);
-    });
+    auto mainWindow =
+        std::find_if(windows.begin(), windows.end(), [](QWidget* window) {
+            return qobject_cast<QMainWindow*>(window);
+        });
     assert(mainWindow != windows.end());
     assert((*mainWindow) && (*mainWindow)->isVisible());
 }

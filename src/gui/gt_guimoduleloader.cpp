@@ -90,8 +90,7 @@ GtGuiModuleLoader::GtGuiModuleLoader() :
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    gt::for_each_key(pimpl->uiObjs, [this](const QString& key)
-    {
+    gt::for_each_key(pimpl->uiObjs, [this](const QString& key) {
         qDeleteAll(pimpl->uiObjs.value(key));
     });
 }
@@ -120,10 +119,8 @@ GtGuiModuleLoader::knownUIObjects() const
 {
     QStringList retval;
 
-    gt::for_each_key(pimpl->uiObjs, [&retval](const QString& key)
-    {
-        retval << key;
-    });
+    gt::for_each_key(pimpl->uiObjs,
+                     [&retval](const QString& key) { retval << key; });
 
     return retval;
 }
@@ -212,7 +209,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
-        pimpl->plugins.push_back(GuiPluginData{ plugin, mdip });
+        pimpl->plugins.push_back(GuiPluginData{plugin, mdip});
     }
 
     // importer interface
