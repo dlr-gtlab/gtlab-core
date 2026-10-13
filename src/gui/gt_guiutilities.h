@@ -86,8 +86,8 @@ QList<T> findGraphicsItems(Obj& o)
 /**
  * @brief Adds the actions to the menu. Uses the order priority of each
  * action to insert the action at the corresponding poistion in the menu.
- * @param actions Actions to append
- * @param menu Menu to append actions to.
+ * @param actions Actions to add
+ * @param menu Menu to add actions to.
  * @param obj Object to pass to action methods
  * @pram parent Optional parent object used to invoke object ui actions on
  */
@@ -116,8 +116,8 @@ GT_GUI_EXPORT void addToMenu(std::initializer_list<GtObjectUIAction> actions,
  *
  *  menu.exec(QCursor::pos());
  *
- * @param actions Action to append
- * @param menu Menu to append action to.
+ * @param actions Action to add
+ * @param menu Menu to add action to.
  * @param obj Object to pass to action method
  * @pram parent Optional parent object used to invoke object ui actions on
  */
@@ -138,9 +138,9 @@ GT_GUI_EXPORT void setOrderPriority(QAction& action, int priority);
 
 /**
  * @brief Creates a new import menu based on the registered importers and
- * appends it to the menu. Returns a pointer to new menu, which can be used to
+ * adds it to the menu. Returns a pointer to new menu, which can be used to
  * hide or disable it. Ownership is already transfered to the base mneu.
- * @param menu Menu to append import menu to
+ * @param menu Menu to add import menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
  */
@@ -148,9 +148,9 @@ GT_GUI_EXPORT QMenu* addImportMenu(QMenu& menu, GtObject& obj);
 
 /**
  * @brief Creates a new export menu based on the registered exporters and
- * appends it to the menu. Returns a pointer to new menu, which can be used to
+ * adds it to the menu. Returns a pointer to new menu, which can be used to
  * hide or disable it. Ownership is already transfered to the base mneu.
- * @param menu Menu to append export menu to
+ * @param menu Menu to add export menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
  */
@@ -178,7 +178,7 @@ GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
                                                 QAbstractItemView& view);
 
 /**
- * @brief Appends the ObjectUI Actions of `obj` to `menu`. Returns the number of
+ * @brief Adds the ObjectUI Actions of `obj` to `menu`. Returns the number of
  * visible actions. Optional `index` and `view` parameter are used for
  * renaming the object (if its renamable) in a `QAbstractItemView`. Can be used
  * in custom context menus for views that displays GtObjects. Automatically
@@ -193,7 +193,7 @@ GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
  *      menu.exec(QCursor::pos());
  *  }
  *
- * @param menu Menu to append the actions to.
+ * @param menu Menu to adds the actions to.
  * @param obj Optional. Object to fetch the object uis froms.
  * @param idx Optional. Index of the object in the view.
  * This may be used to rename the object.
