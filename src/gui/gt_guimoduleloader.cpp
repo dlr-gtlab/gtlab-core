@@ -208,7 +208,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
-        pimpl->plugins.push_back(GuiPluginData{ mdip });
+        pimpl->plugins.push_back(GuiPluginData{mdip});
     }
 
     // importer interface
