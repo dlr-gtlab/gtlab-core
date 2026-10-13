@@ -313,8 +313,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     ASSERT_NE(converter, nullptr);
     EXPECT_EQ(
         converter->fromClassName(),
-        QString::fromLatin1(
-            GtTestRegistryPropD::staticMetaObject.className()));
+        QString::fromLatin1(GtTestRegistryPropD::staticMetaObject.className()));
     EXPECT_EQ(
         converter->toClassName(),
         QString::fromLatin1(GtTestRegistryPropE::staticMetaObject.className()));
