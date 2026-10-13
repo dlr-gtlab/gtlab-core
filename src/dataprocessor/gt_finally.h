@@ -26,7 +26,6 @@ template <typename Functor>
 class Finally
 {
 public:
-
     Finally() noexcept : m_invoked(true)
     {
     }
