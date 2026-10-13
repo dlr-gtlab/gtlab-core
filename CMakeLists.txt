@@ -32,6 +32,13 @@ set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
 # for modules. Keep it independent of the GTlab product version.
 set(GTLAB_MODULE_ABI "2.1")
 
+# Master builds may add GTlab Core and its modules as sibling directories.
+# Normal variables set here are not visible to those sibling directories when
+# they include cmake/GTlab.cmake directly, so publish the module metadata at
+# configure scope as well.
+set_property(GLOBAL PROPERTY GTLAB_CORE_VERSION "${GTLAB_CORE_VERSION}")
+set_property(GLOBAL PROPERTY GTLAB_MODULE_ABI "${GTLAB_MODULE_ABI}")
+
 option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)

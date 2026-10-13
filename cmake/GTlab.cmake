@@ -113,6 +113,15 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
     PARSE_ARGV 1 GTLAB_ADD_MODULE "" "MODULE_ID;README_FILE;CHANGELOG_FILE;EXAMPLES_DIR" "SOURCES"
   )
 
+  # A master build can include this helper from a sibling module directory.
+  # In that case the normal variables set by GTlab Core are out of scope.
+  if (NOT GTLAB_CORE_VERSION)
+      get_property(GTLAB_CORE_VERSION GLOBAL PROPERTY GTLAB_CORE_VERSION)
+  endif()
+  if (NOT GTLAB_MODULE_ABI)
+      get_property(GTLAB_MODULE_ABI GLOBAL PROPERTY GTLAB_MODULE_ABI)
+  endif()
+
   if (NOT DEFINED GTLAB_ADD_MODULE_MODULE_ID)
       message(FATAL_ERROR "In add_gtlab_module: Missing argument MODULE_ID for target ${GTLAB_ADD_MODULE_TARGET}")
   endif()
