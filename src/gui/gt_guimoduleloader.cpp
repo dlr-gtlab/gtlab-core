@@ -298,7 +298,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // importer interface
-    GtImporterInterface* impp =
+    GtImporterInterface const* impp =
         checkInterface<GtImporterInterface>(plugin->ident(), plugin);
 
     if (impp)
@@ -307,7 +307,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // exporter interface
-    GtExporterInterface* expp =
+    GtExporterInterface const* expp =
         checkInterface<GtExporterInterface>(plugin->ident(), plugin);
 
     if (expp)
