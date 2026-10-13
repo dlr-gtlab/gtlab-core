@@ -362,14 +362,12 @@ public:
     void swap(GtObjectUIAction& other) noexcept;
 
     /// "hidden" swap method only found by ADL
-    friend inline void
-    swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept
+    friend inline void swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept
     {
         a.swap(b);
     }
 
 private:
-
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };

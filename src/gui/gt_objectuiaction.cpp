@@ -92,11 +92,11 @@ GtObjectUIAction::GtObjectUIAction(QString name, InvokableActionMethod method) :
     pimpl(std::make_unique<Impl>(std::move(name), std::move(method)))
 { }
 
-GtObjectUIAction::GtObjectUIAction(const GtObjectUIAction& o):
+GtObjectUIAction::GtObjectUIAction(const GtObjectUIAction& o) :
     pimpl(std::make_unique<Impl>(*o.pimpl))
 { }
 
-GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o):
+GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o) :
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
@@ -116,7 +116,7 @@ GtObjectUIAction::operator=(GtObjectUIAction&& o)
     return *this;
 }
 
-GtObjectUIAction::~GtObjectUIAction() noexcept = default;
+GtObjectUIAction::~GtObjectUIAction() = default;
 
 bool
 GtObjectUIAction::isEmpty() const noexcept

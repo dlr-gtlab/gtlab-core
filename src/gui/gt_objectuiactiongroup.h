@@ -41,29 +41,29 @@ public:
     GtObjectUIActionGroup(QString groupName, QList<GtObjectUIAction> actions,
                           const QString& icon);
 
-    GtObjectUIActionGroup(const GtObjectUIActionGroup&) noexcept;
-    GtObjectUIActionGroup(GtObjectUIActionGroup&&) noexcept;
-    GtObjectUIActionGroup& operator=(const GtObjectUIActionGroup&) noexcept;
-    GtObjectUIActionGroup& operator=(GtObjectUIActionGroup&&) noexcept;
-    ~GtObjectUIActionGroup() noexcept;
+    GtObjectUIActionGroup(const GtObjectUIActionGroup&);
+    GtObjectUIActionGroup(GtObjectUIActionGroup&&);
+    GtObjectUIActionGroup& operator=(const GtObjectUIActionGroup&);
+    GtObjectUIActionGroup& operator=(GtObjectUIActionGroup&&);
+    ~GtObjectUIActionGroup();
 
     /**
      * @brief actions
      * @return list of actions
      */
-    const QList<GtObjectUIAction>& actions() const;
+    const QList<GtObjectUIAction>& actions() const noexcept;
 
     /**
      * @brief name
      * @return group name
      */
-    const QString& name() const;
+    const QString& name() const noexcept;
 
     /**
      * @brief icon
      * @return icon
      */
-    const QIcon& icon() const;
+    const QIcon& icon() const noexcept;
 
     /**
      * @brief Reserves space for size actions
@@ -77,7 +77,7 @@ public:
      * with a higher prority > x.
      * @return Order priority
      */
-    int orderPriority() const;
+    int orderPriority() const noexcept;
 
     /**
      * @brief Dedicated setter for the UI icon
@@ -100,7 +100,7 @@ public:
      * @param priority Order priority
      * @return This
      */
-    GtObjectUIActionGroup& setOrderPriority(int priority);
+    GtObjectUIActionGroup& setOrderPriority(int priority) noexcept;
 
     /**
      * @brief Adds the action to the group. Depending on the order priority of
@@ -125,8 +125,8 @@ public:
     void swap(GtObjectUIActionGroup& other) noexcept;
 
     /// "hidden" swap method only found by ADL
-    friend inline void
-    swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept
+    friend inline void swap(GtObjectUIActionGroup& a,
+                            GtObjectUIActionGroup& b) noexcept
     {
         a.swap(b);
     }

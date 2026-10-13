@@ -59,8 +59,7 @@ GtObjectUIActionGroup::GtObjectUIActionGroup(const GtObjectUIActionGroup& o) :
     pimpl(std::make_unique<Impl>(*o.pimpl))
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o)
-    :
+GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) :
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 

@@ -74,7 +74,8 @@ TEST_F(TestGtObject, copy)
     ASSERT_TRUE(myCopy != &obj);
 
     // check that uuid are not equal
-    ASSERT_STRNE(myCopy->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
+    ASSERT_STRNE(myCopy->uuid().toStdString().c_str(),
+                 obj.uuid().toStdString().c_str());
 
     delete myCopy;
 
@@ -136,7 +137,8 @@ TEST_F(TestGtObject, clone)
     ASSERT_TRUE(cloned != nullptr);
 
     // check that uuid are equal
-    ASSERT_STREQ(cloned->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
+    ASSERT_STREQ(cloned->uuid().toStdString().c_str(),
+                 obj.uuid().toStdString().c_str());
 
     delete cloned;
 
