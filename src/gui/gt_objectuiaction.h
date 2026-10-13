@@ -131,13 +131,12 @@ public:
      * Example:
      *   GtObjectUIAction("Add point", GtObjectUIAction::fromMethodName("addPoint"))
      */
-    static InvokableActionMethod
-    fromMethodName(const QString& methodName);
+    static InvokableActionMethod fromMethodName(const QString& methodName);
 
     /**
      * @brief Constructor, creates a separator action
      */
-    GtObjectUIAction() noexcept;
+    GtObjectUIAction();
 
     /**
      * @brief Constructor
@@ -154,30 +153,30 @@ public:
      */
     GtObjectUIAction(QString name, InvokableActionMethod method);
 
-    GtObjectUIAction(const GtObjectUIAction&) noexcept;
-    GtObjectUIAction(GtObjectUIAction&&) noexcept;
-    GtObjectUIAction& operator=(const GtObjectUIAction&) noexcept;
-    GtObjectUIAction& operator=(GtObjectUIAction&&) noexcept;
-    ~GtObjectUIAction() noexcept;
+    GtObjectUIAction(const GtObjectUIAction&);
+    GtObjectUIAction(GtObjectUIAction&&);
+    GtObjectUIAction& operator=(const GtObjectUIAction&);
+    GtObjectUIAction& operator=(GtObjectUIAction&&);
+    ~GtObjectUIAction();
 
     /**
      * @brief Returns whether this action is empty
      * @return is empty
      */
-    bool isEmpty() const;
+    bool isEmpty() const noexcept;
 
     /**
      * @brief Returns whether this action is a separator
      * @return is separator
      */
-    bool isSeparator() const;
+    bool isSeparator() const noexcept;
 
     /**
      * @brief Returns the action text
      * @return Action text
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `name()` instead")
-    const QString& text() const
+    const QString& text() const noexcept
     {
         return name();
     }
@@ -185,20 +184,20 @@ public:
      * @brief Returns the action name
      * @return Action text
      */
-    const QString& name() const;
+    const QString& name() const noexcept;
 
     /**
      * @brief Returns the action icon
      * @return Action icon
      */
-    const QIcon& icon() const;
+    const QIcon& icon() const noexcept;
 
     /**
      * @brief Action method. Must be called with a parent and target objet as
      * parameters
      * @return Action method
      */
-    const InvokableActionMethod& method() const;
+    const InvokableActionMethod& method() const noexcept;
 
     /**
      * @brief Verification method used to check if action should be enabled.
@@ -206,7 +205,7 @@ public:
      * parameters
      * @return Verification method
      */
-    const InvokableVerificationMethod& verificationMethod() const;
+    const InvokableVerificationMethod& verificationMethod() const noexcept;
 
     /**
      * @brief Visibility method used to check if action should be visible.
@@ -214,13 +213,13 @@ public:
      * parameters
      * @return Visibility method
      */
-    const InvokableVisibilityMethod& visibilityMethod() const;
+    const InvokableVisibilityMethod& visibilityMethod() const noexcept;
 
     /**
      * @brief Shortcut
      * @return Short cut connected to the action
      */
-    const QKeySequence& shortCut() const;
+    const QKeySequence& shortCut() const noexcept;
 
     /**
      * @brief Returns the priority according to which this action is sorted
@@ -228,7 +227,7 @@ public:
      * with a higher prority > x.
      * @return Order priority
      */
-    int orderPriority() const;
+    int orderPriority() const noexcept;
 
     /**
      * @brief Dedicated setter for the UI icon
@@ -354,7 +353,7 @@ public:
      * @param priority Order priority
      * @return This
      */
-    GtObjectUIAction& setOrderPriority(int priority);
+    GtObjectUIAction& setOrderPriority(int priority) noexcept;
 
     /**
      * @brief Swaps this action with `other`
@@ -362,16 +361,18 @@ public:
      */
     void swap(GtObjectUIAction& other) noexcept;
 
+    /// "hidden" swap method only found by ADL
+    friend inline void
+    swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept
+    {
+        a.swap(b);
+    }
+
 private:
+
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };
-
-inline void
-swap(GtObjectUIAction& a, GtObjectUIAction& b) noexcept
-{
-    a.swap(b);
-}
 
 using GtActionList = QList<GtObjectUIAction>;
 

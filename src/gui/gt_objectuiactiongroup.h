@@ -124,16 +124,17 @@ public:
      */
     void swap(GtObjectUIActionGroup& other) noexcept;
 
+    /// "hidden" swap method only found by ADL
+    friend inline void
+    swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept
+    {
+        a.swap(b);
+    }
+
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };
-
-inline void
-swap(GtObjectUIActionGroup& a, GtObjectUIActionGroup& b) noexcept
-{
-    a.swap(b);
-}
 
 namespace gt
 {

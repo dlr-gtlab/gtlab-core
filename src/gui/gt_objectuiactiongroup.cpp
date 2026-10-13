@@ -55,18 +55,17 @@ GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName,
                                  std::move(actions)))
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(
-    const GtObjectUIActionGroup& o) noexcept :
+GtObjectUIActionGroup::GtObjectUIActionGroup(const GtObjectUIActionGroup& o) :
     pimpl(std::make_unique<Impl>(*o.pimpl))
 { }
 
-GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) noexcept
+GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o)
     :
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::operator=(const GtObjectUIActionGroup& o) noexcept
+GtObjectUIActionGroup::operator=(const GtObjectUIActionGroup& o)
 {
     GtObjectUIActionGroup tmp{o};
     swap(tmp);
@@ -74,29 +73,29 @@ GtObjectUIActionGroup::operator=(const GtObjectUIActionGroup& o) noexcept
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::operator=(GtObjectUIActionGroup&& o) noexcept
+GtObjectUIActionGroup::operator=(GtObjectUIActionGroup&& o)
 {
     GtObjectUIActionGroup tmp{std::move(o)};
     swap(tmp);
     return *this;
 }
 
-GtObjectUIActionGroup::~GtObjectUIActionGroup() noexcept = default;
+GtObjectUIActionGroup::~GtObjectUIActionGroup() = default;
 
 const QList<GtObjectUIAction>&
-GtObjectUIActionGroup::actions() const
+GtObjectUIActionGroup::actions() const noexcept
 {
     return pimpl->actions;
 }
 
 const QString&
-GtObjectUIActionGroup::name() const
+GtObjectUIActionGroup::name() const noexcept
 {
     return pimpl->name;
 }
 
 const QIcon&
-GtObjectUIActionGroup::icon() const
+GtObjectUIActionGroup::icon() const noexcept
 {
     return pimpl->icon;
 }
@@ -108,7 +107,7 @@ GtObjectUIActionGroup::reserve(int size)
 }
 
 int
-GtObjectUIActionGroup::orderPriority() const
+GtObjectUIActionGroup::orderPriority() const noexcept
 {
     return pimpl->priority;
 }
@@ -127,7 +126,7 @@ GtObjectUIActionGroup::setIcon(const QString& icon)
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::setOrderPriority(int priority)
+GtObjectUIActionGroup::setOrderPriority(int priority) noexcept
 {
     pimpl->priority = priority;
     return *this;
