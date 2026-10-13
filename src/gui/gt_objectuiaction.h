@@ -234,14 +234,14 @@ public:
      * @param icon Icon
      * @return This
      */
-    GtObjectUIAction& setIcon(const QIcon& icon);
+    GtObjectUIAction& setIcon(const QIcon& newIcon);
 
     /**
      * @brief Overload. Accepts a string instead
      * @param icon Icon name or path
      * @return This
      */
-    GtObjectUIAction& setIcon(const QString& icon);
+    GtObjectUIAction& setIcon(const QString& iconPath);
 
     /**
      * @brief Dedicated setter for the verification method. Function signature
@@ -250,7 +250,8 @@ public:
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVerificationMethod(InvokableVerificationMethod method);
+    GtObjectUIAction&
+    setVerificationMethod(InvokableVerificationMethod verfiyMethod);
 
     /**
      * @brief Overload. Function signature must accept a pointer of the target
@@ -258,14 +259,14 @@ public:
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVerificationMethod(VerificationMethod method);
+    GtObjectUIAction& setVerificationMethod(VerificationMethod verifyMethod);
 
     /**
      * @brief Overload. Accepts the string of a invokable method.
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVerificationMethod(const QString& methodName);
+    GtObjectUIAction& setVerificationMethod(const QString& verifyMethodName);
 
     /**
      * @brief Sets whether the action should be enabled. Overrides any
@@ -282,7 +283,7 @@ public:
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVisibilityMethod(InvokableVisibilityMethod method);
+    GtObjectUIAction& setVisibilityMethod(InvokableVisibilityMethod visMethod);
 
     /**
      * @brief Overload. Function signature must accept a pointer of the target
@@ -290,14 +291,14 @@ public:
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVisibilityMethod(VisibilityMethod method);
+    GtObjectUIAction& setVisibilityMethod(VisibilityMethod visMethod);
 
     /**
      * @brief Overload. Accepts the string of a invokable method.
      * @param method Method
      * @return This
      */
-    GtObjectUIAction& setVisibilityMethod(const QString& methodName);
+    GtObjectUIAction& setVisibilityMethod(const QString& visMethodName);
 
     /**
      * @brief Sets whether the action should be visible. Overrides any

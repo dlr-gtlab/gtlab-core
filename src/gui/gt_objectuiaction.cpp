@@ -173,39 +173,39 @@ GtObjectUIAction::orderPriority() const noexcept
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setIcon(const QIcon& icon)
+GtObjectUIAction::setIcon(const QIcon& newIcon)
 {
-    pimpl->icon = icon;
+    pimpl->icon = newIcon;
     return *this;
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setIcon(const QString& icon)
+GtObjectUIAction::setIcon(const QString& iconPath)
 {
-    return setIcon(gt::gui::getIcon(icon));
+    return setIcon(gt::gui::getIcon(iconPath));
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVerificationMethod(InvokableVerificationMethod method)
+GtObjectUIAction::setVerificationMethod(InvokableVerificationMethod verfiyMethod)
 {
-    pimpl->verification = std::move(method);
+    pimpl->verification = std::move(verfiyMethod);
     return *this;
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVerificationMethod(VerificationMethod method)
+GtObjectUIAction::setVerificationMethod(VerificationMethod verifyMethod)
 {
     // parent object not needed here
-    return setVerificationMethod([m = std::move(method)]
+    return setVerificationMethod([m = std::move(verifyMethod)]
                                  (QObject* /*parent*/, GtObject* target){
         return m && m(target);
     });
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVerificationMethod(const QString& methodName)
+GtObjectUIAction::setVerificationMethod(const QString& verifyMethodName)
 {
-    if (methodName.isEmpty())
+    if (verifyMethodName.isEmpty())
     {
         pimpl->verification = nullptr;
         return *this;
@@ -214,13 +214,13 @@ GtObjectUIAction::setVerificationMethod(const QString& methodName)
     // wrap meta method call in lambda
     return setVerificationMethod([=](QObject* parent, GtObject* target) {
         bool verified = false;
-        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+        if (!QMetaObject::invokeMethod(parent, verifyMethodName.toLatin1(),
                                        Q_RETURN_ARG(bool, verified),
                                        Q_ARG(GtObject*, target)))
         {
             gtWarning()
                 << QObject::tr("Could not invoke verification method!")
-                << gt::brackets(methodName);
+                << gt::brackets(verifyMethodName);
         }
 
         return verified;
@@ -234,26 +234,26 @@ GtObjectUIAction::setEnabled(bool enabled)
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVisibilityMethod(InvokableVisibilityMethod method)
+GtObjectUIAction::setVisibilityMethod(InvokableVisibilityMethod visMethod)
 {
-    pimpl->visibility = std::move(method);
+    pimpl->visibility = std::move(visMethod);
     return *this;
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVisibilityMethod(VisibilityMethod method)
+GtObjectUIAction::setVisibilityMethod(VisibilityMethod visMethod)
 {
     // parent object not needed here
-    return setVisibilityMethod([m = std::move(method)]
+    return setVisibilityMethod([m = std::move(visMethod)]
                                (QObject* /*parent*/, GtObject* target){
         return m && m(target);
     });
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setVisibilityMethod(const QString& methodName)
+GtObjectUIAction::setVisibilityMethod(const QString& visMethodName)
 {
-    if (methodName.isEmpty())
+    if (visMethodName.isEmpty())
     {
         pimpl->visibility = nullptr;
         return *this;
@@ -262,13 +262,13 @@ GtObjectUIAction::setVisibilityMethod(const QString& methodName)
     // wrap meta method call in lambda
     return setVisibilityMethod([=](QObject* parent, GtObject* target) {
         bool visible = false;
-        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+        if (!QMetaObject::invokeMethod(parent, visMethodName.toLatin1(),
                                        Q_RETURN_ARG(bool, visible),
                                        Q_ARG(GtObject*, target)))
         {
             gtWarning()
                 << QObject::tr("Could not invoke visibility method!")
-                << gt::brackets(methodName);
+                << gt::brackets(visMethodName);
         }
         return visible;
     });
@@ -281,9 +281,9 @@ GtObjectUIAction::setVisible(bool visible)
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setShortCut(const QKeySequence& shortCut)
+GtObjectUIAction::setShortCut(const QKeySequence& newShortCut)
 {
-    pimpl->shortCut = shortCut;
+    pimpl->shortCut = newShortCut;
     return *this;
 }
 
