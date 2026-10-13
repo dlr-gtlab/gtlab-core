@@ -11,6 +11,7 @@
 #include "gt_propertyconversion.h"
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
+#include "gt_propertyconversion.h"
 
 namespace
 {
@@ -70,6 +71,13 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
             m_canConvertList.append(
                 GtPropertyConverter(from, to, convert, canConnect));
         }
+        else
+        {
+            gtWarning() << QObject::tr("Registration for a property converter "
+                                       "from %1 to %2 is ignored as there is an"
+                                       " existing one.")
+                               .arg(from.className(), to.className());
+        }
     }
 }
 
@@ -94,7 +102,17 @@ GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
 
     if (!converter) return {};
 
-    return converter->convertFunc();
+    gt::conversion::convert func = converter->convertFunc();
+
+    if (func) return func;
+
+    // default behaviour for identical metatypes
+    if (from.className() == to.className())
+    {
+        return gt::conversion::defaultConverter;
+    }
+
+    return {};
 }
 
 const GtPropertyConverter*
@@ -173,55 +191,13 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
     // converter from double to int
     registerConnectionCompatibility(
         GtDoubleProperty::staticMetaObject, GtIntProperty::staticMetaObject,
-        // conversion
-        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-           GtAbstractProperty& b) {
-            const auto& from = static_cast<const GtDoubleProperty&>(a);
-            auto& to = static_cast<GtIntProperty&>(b);
-
-            double baseValue = from.getVal();
-
-            const double rounded = std::round(baseValue);
-
-            int result = static_cast<int>(rounded);
-
-            // Abweichung vom ursprünglichen double
-            const double error = std::abs(baseValue - rounded);
-
-            // Toleranz entsprechend der Größenordnung des Wertes
-            const double tolerance = std::numeric_limits<double>::epsilon() *
-                                     std::max(1.0, std::abs(baseValue));
-
-            to.setVal(result);
-
-            if (error <= tolerance)
-            {
-                return gt::conversion::conversionSuccess::Success;
-            }
-
-            return gt::conversion::conversionSuccess::Lossy;
-        },
-        // can connect
-        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-           GtAbstractProperty const&) { return true; });
+        gt::conversion::fromDouble::toInt,
+        gt::conversion::fromDouble::canConnectToInt);
 
 
     // converter from int to double
     registerConnectionCompatibility(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
-        // conversion
-        [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
-           GtAbstractProperty& b) {
-            const auto& from = static_cast<const GtIntProperty&>(a);
-            auto& to = static_cast<GtDoubleProperty&>(b);
-
-            double res = double(from.getVal());
-
-            to.setVal(res);
-
-            return gt::conversion::conversionSuccess::Success;
-        },
-        // can connect
-        [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-           GtAbstractProperty const&) { return true; });
+        gt::conversion::fromInt::toDouble,
+        gt::conversion::fromInt::canConnectToDouble);
 }

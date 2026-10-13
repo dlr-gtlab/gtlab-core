@@ -156,17 +156,26 @@ GtPropertyConnection::makeConnection()
     }
 
     // find target property
-    GtAbstractProperty* targetPropety = targetRef.resolve(*targetObj);
+    GtAbstractProperty* targetProperty = targetRef.resolve(*targetObj);
 
     // check property
-    if (!targetPropety)
+    if (!targetProperty)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Target property not found!");
         return;
     }
 
-    // TODO: check whether properties can be connected
+    // check whether properties can be connected
+    if (!sourcePropety->canConnect(*targetProperty))
+    {
+        gtError() << tr("Property connection could not be established!")
+                  << QStringLiteral(" ")
+                  << tr("Connection from type %1 to type %2 is not supported!")
+                         .arg(sourcePropety->metaObject()->className(),
+                              targetProperty->metaObject()->className());
+        return;
+    }
 
     // save source property
     m_sourcePropObj = sourcePropety;
@@ -177,7 +186,7 @@ GtPropertyConnection::makeConnection()
     connect(sourcePropety, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 
     // establish connection
-    targetPropety->propertyConnect(this);
+    targetProperty->propertyConnect(this);
 
     gtDebug().verbose() << "#### connection established!";
 }
