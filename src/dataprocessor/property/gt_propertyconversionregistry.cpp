@@ -122,29 +122,58 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
     const auto fromChain = inheritanceChain(from);
     const auto toChain = inheritanceChain(to);
 
-    for (const auto* fromType : fromChain)
+    // Smaller index means a more specific type.
+    const auto findTypeIndex =
+        [](const auto& chain, const QString& className)
     {
-        const auto converterIt = std::find_if(
-            m_canConvertList.cbegin(), m_canConvertList.cend(),
-            [&](const GtPropertyConverter& converter) {
-                if (converter.fromClassName() != fromType->className())
-                {
-                    return false;
-                }
-
-                return std::any_of(
-                    toChain.cbegin(), toChain.cend(), [&](const auto* toType) {
-                        return converter.toClassName() == toType->className();
-                    });
+        const auto it = std::find_if(
+            chain.cbegin(),
+            chain.cend(),
+            [&className](const QMetaObject* type)
+            {
+                return className == type->className();
             });
 
-        if (converterIt != m_canConvertList.cend())
+        return static_cast<std::size_t>(
+            std::distance(chain.cbegin(), it));
+    };
+
+    const GtPropertyConverter* bestConverter = nullptr;
+
+    std::size_t bestFromIndex = fromChain.size();
+    std::size_t bestToIndex = toChain.size();
+
+    for (const GtPropertyConverter& converter : m_canConvertList)
+    {
+        const auto fromIndex = findTypeIndex(
+            fromChain, converter.fromClassName());
+
+        // Source type is not part of the inheritance chain.
+        if (fromIndex == fromChain.size()) continue;
+
+        const auto toIndex = findTypeIndex(
+            toChain, converter.toClassName());
+
+        // Target type is not part of the inheritance chain.
+        if (toIndex == toChain.size()) continue;
+
+        // Lexicographic ranking:
+        // 1. Most specific source type
+        // 2. Most specific target type
+        const bool isBetter =
+            fromIndex < bestFromIndex ||
+            (fromIndex == bestFromIndex &&
+             toIndex < bestToIndex);
+
+        if (isBetter)
         {
-            return &*converterIt;
+            bestConverter = &converter;
+            bestFromIndex = fromIndex;
+            bestToIndex = toIndex;
         }
     }
 
-    return nullptr;
+    return bestConverter;
 }
 
 QStringList

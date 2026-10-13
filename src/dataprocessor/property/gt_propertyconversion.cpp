@@ -39,10 +39,10 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
         return gt::conversion::conversionSuccess::Failed;
     }
 
-    // Abweichung vom ursprünglichen double
+    // Difference to original double
     const double error = std::abs(baseValue - rounded);
 
-    // Toleranz entsprechend der Größenordnung des Wertes
+    // Tolerance in relation to magnitute of property value
     const double tolerance = std::numeric_limits<double>::epsilon() *
                              std::max(1.0, std::abs(baseValue));
 

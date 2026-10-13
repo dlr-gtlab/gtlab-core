@@ -243,15 +243,16 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
               nullptr);
 }
 
+
 TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
 {
     GtTestRegistryPropC propC;
     GtTestRegistryPropD propD;
     GtTestRegistryPropE propE;
 
-    // two registrations match the pair (D, E) via different
-    // inheritance levels, the registration of the more derived from
-    // type takes priority
+    // Source-side priority:
+    // D -> AbstractProperty competes with AbstractProperty -> E.
+    // The more specific source type D must win.
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
@@ -270,12 +271,10 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject);
 
-    // the function of the more derived from type is returned
     ASSERT_TRUE(functionDE);
     EXPECT_FALSE(functionDE(propD, propE));
 
-    // for a from type without a dedicated registration the base type
-    // registration is used
+    // Base-type fallback still works for C -> E.
     const auto functionCE = gtPropConversion().canConnectFunction(
         GtTestRegistryPropC::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject);
@@ -283,11 +282,47 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     ASSERT_TRUE(functionCE);
     EXPECT_TRUE(functionCE(propC, propE));
 
-    // no registration matches the pair (C, D)
+    // No registration matches the pair (C, D).
     EXPECT_FALSE(gtPropConversion().canConnectFunction(
         GtTestRegistryPropC::staticMetaObject,
         GtTestRegistryPropD::staticMetaObject));
+
+    // Target-side priority:
+    // Both registrations now have the same source type D.
+    // The exact target type E must win over AbstractProperty,
+    // even though the less specific target was registered first.
+    gtPropConversion().registerConnectionCompatibility(
+        GtTestRegistryPropD::staticMetaObject,
+        GtTestRegistryPropE::staticMetaObject,
+        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+            return true;
+        });
+
+    const auto specificTargetFunction =
+        gtPropConversion().canConnectFunction(
+            GtTestRegistryPropD::staticMetaObject,
+            GtTestRegistryPropE::staticMetaObject);
+
+    ASSERT_TRUE(specificTargetFunction);
+    EXPECT_TRUE(specificTargetFunction(propD, propE));
+
+    // The selected converter must also be the one returned by lookup.
+    const auto* converter =
+        gtPropConversion().findConverterWithInheritance(
+            GtTestRegistryPropD::staticMetaObject,
+            GtTestRegistryPropE::staticMetaObject);
+
+    ASSERT_NE(converter, nullptr);
+    EXPECT_EQ(
+        converter->fromClassName(),
+        QString::fromLatin1(
+            GtTestRegistryPropD::staticMetaObject.className()));
+    EXPECT_EQ(
+        converter->toClassName(),
+        QString::fromLatin1(
+            GtTestRegistryPropE::staticMetaObject.className()));
 }
+
 
 TEST(TestGtPropertyConversionRegistry, convertOnlyRegistration)
 {
