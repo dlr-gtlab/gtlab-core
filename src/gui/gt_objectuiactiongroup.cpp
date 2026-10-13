@@ -111,16 +111,16 @@ GtObjectUIActionGroup::orderPriority() const noexcept
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::setIcon(const QIcon& icon)
+GtObjectUIActionGroup::setIcon(const QIcon& newIcon)
 {
-    pimpl->icon = icon;
+    pimpl->icon = newIcon;
     return *this;
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::setIcon(const QString& icon)
+GtObjectUIActionGroup::setIcon(const QString& iconPath)
 {
-    return setIcon(gt::gui::getIcon(icon));
+    return setIcon(gt::gui::getIcon(iconPath));
 }
 
 GtObjectUIActionGroup&
