@@ -298,19 +298,17 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
             return true;
         });
 
-    const auto specificTargetFunction =
-        gtPropConversion().canConnectFunction(
-            GtTestRegistryPropD::staticMetaObject,
-            GtTestRegistryPropE::staticMetaObject);
+    const auto specificTargetFunction = gtPropConversion().canConnectFunction(
+        GtTestRegistryPropD::staticMetaObject,
+        GtTestRegistryPropE::staticMetaObject);
 
     ASSERT_TRUE(specificTargetFunction);
     EXPECT_TRUE(specificTargetFunction(propD, propE));
 
     // The selected converter must also be the one returned by lookup.
-    const auto* converter =
-        gtPropConversion().findConverterWithInheritance(
-            GtTestRegistryPropD::staticMetaObject,
-            GtTestRegistryPropE::staticMetaObject);
+    const auto* converter = gtPropConversion().findConverterWithInheritance(
+        GtTestRegistryPropD::staticMetaObject,
+        GtTestRegistryPropE::staticMetaObject);
 
     ASSERT_NE(converter, nullptr);
     EXPECT_EQ(
@@ -319,8 +317,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
             GtTestRegistryPropD::staticMetaObject.className()));
     EXPECT_EQ(
         converter->toClassName(),
-        QString::fromLatin1(
-            GtTestRegistryPropE::staticMetaObject.className()));
+        QString::fromLatin1(GtTestRegistryPropE::staticMetaObject.className()));
 }
 
 
