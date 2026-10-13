@@ -118,15 +118,9 @@ addActionBefore(QMenu& menu, QAction* before, const GtObjectUIAction& uiAction,
             if (isEnabled) action->setEnabled(isEnabled(parentObj, targetObj));
         };
 
-        if (menu.isVisible())
-        {
-            updateState();
-        }
-        else
-        {
-            // -> use only one slot-call for both
-            QObject::connect(&menu, &QMenu::aboutToShow, action, updateState);
-        }
+        updateState();
+
+        QObject::connect(&menu, &QMenu::aboutToShow, action, updateState);
     }
 
     // icon

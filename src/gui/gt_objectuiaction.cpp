@@ -76,7 +76,7 @@ GtObjectUIAction::fromMethodName(const QString& methodName)
     };
 }
 
-GtObjectUIAction::GtObjectUIAction() noexcept :
+GtObjectUIAction::GtObjectUIAction() :
     pimpl(std::make_unique<Impl>())
 { }
 
@@ -92,16 +92,16 @@ GtObjectUIAction::GtObjectUIAction(QString name, InvokableActionMethod method) :
     pimpl(std::make_unique<Impl>(std::move(name), std::move(method)))
 { }
 
-GtObjectUIAction::GtObjectUIAction(const GtObjectUIAction& o) noexcept :
+GtObjectUIAction::GtObjectUIAction(const GtObjectUIAction& o):
     pimpl(std::make_unique<Impl>(*o.pimpl))
 { }
 
-GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o) noexcept :
+GtObjectUIAction::GtObjectUIAction(GtObjectUIAction&& o):
     pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
 { }
 
 GtObjectUIAction&
-GtObjectUIAction::operator=(const GtObjectUIAction& o) noexcept
+GtObjectUIAction::operator=(const GtObjectUIAction& o)
 {
     GtObjectUIAction tmp{o};
     swap(tmp);
@@ -109,7 +109,7 @@ GtObjectUIAction::operator=(const GtObjectUIAction& o) noexcept
 }
 
 GtObjectUIAction&
-GtObjectUIAction::operator=(GtObjectUIAction&& o) noexcept
+GtObjectUIAction::operator=(GtObjectUIAction&& o)
 {
     GtObjectUIAction tmp{std::move(o)};
     swap(tmp);
@@ -119,55 +119,55 @@ GtObjectUIAction::operator=(GtObjectUIAction&& o) noexcept
 GtObjectUIAction::~GtObjectUIAction() noexcept = default;
 
 bool
-GtObjectUIAction::isEmpty() const
+GtObjectUIAction::isEmpty() const noexcept
 {
     return pimpl->name.isEmpty();
 }
 
 bool
-GtObjectUIAction::isSeparator() const
+GtObjectUIAction::isSeparator() const noexcept
 {
     return isEmpty();
 }
 
 const QString&
-GtObjectUIAction::name() const
+GtObjectUIAction::name() const noexcept
 {
     return pimpl->name;
 }
 
 const QIcon&
-GtObjectUIAction::icon() const
+GtObjectUIAction::icon() const noexcept
 {
     return pimpl->icon;
 }
 
 const GtObjectUIAction::InvokableActionMethod&
-GtObjectUIAction::method() const
+GtObjectUIAction::method() const noexcept
 {
     return pimpl->method;
 }
 
 const GtObjectUIAction::InvokableVerificationMethod&
-GtObjectUIAction::verificationMethod() const
+GtObjectUIAction::verificationMethod() const noexcept
 {
     return pimpl->verification;
 }
 
 const GtObjectUIAction::InvokableVisibilityMethod&
-GtObjectUIAction::visibilityMethod() const
+GtObjectUIAction::visibilityMethod() const noexcept
 {
     return pimpl->visibility;
 }
 
 const QKeySequence&
-GtObjectUIAction::shortCut() const
+GtObjectUIAction::shortCut() const noexcept
 {
     return pimpl->shortCut;
 }
 
 int
-GtObjectUIAction::orderPriority() const
+GtObjectUIAction::orderPriority() const noexcept
 {
     return pimpl->priority;
 }
@@ -299,7 +299,7 @@ GtObjectUIAction::registerShortCut(const QString& id,
 }
 
 GtObjectUIAction&
-GtObjectUIAction::setOrderPriority(int priority)
+GtObjectUIAction::setOrderPriority(int priority) noexcept
 {
     pimpl->priority = priority;
     return *this;
@@ -308,11 +308,6 @@ GtObjectUIAction::setOrderPriority(int priority)
 void
 GtObjectUIAction::swap(GtObjectUIAction& other) noexcept
 {
-    std::swap(pimpl->name, other.pimpl->name);
-    std::swap(pimpl->icon, other.pimpl->icon);
-    std::swap(pimpl->method, other.pimpl->method);
-    std::swap(pimpl->verification, other.pimpl->verification);
-    std::swap(pimpl->visibility, other.pimpl->visibility);
-    std::swap(pimpl->shortCut, other.pimpl->shortCut);
-    std::swap(pimpl->priority, other.pimpl->priority);
+    using std::swap;
+    swap(pimpl, other.pimpl);
 }
