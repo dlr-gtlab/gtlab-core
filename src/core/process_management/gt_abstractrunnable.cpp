@@ -11,7 +11,6 @@
 #include "gt_processcomponent.h"
 
 #include "gt_abstractrunnable.h"
-#include "gt_accesstracking.h"
 
 GtAbstractRunnable::GtAbstractRunnable() : m_successfulRun(false)
 {
@@ -20,17 +19,6 @@ GtAbstractRunnable::GtAbstractRunnable() : m_successfulRun(false)
 GtAbstractRunnable::~GtAbstractRunnable()
 {
     qDeleteAll(m_linkedObjects);
-}
-
-const std::shared_ptr<GtAccessTracker>&
-GtAbstractRunnable::accessTracker()
-{
-    if (!m_accessTracker)
-    {
-        m_accessTracker = std::make_shared<GtAccessTracker>();
-    }
-
-    return m_accessTracker;
 }
 
 const QList<GtObject*>&

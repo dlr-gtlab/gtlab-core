@@ -312,6 +312,23 @@ findTopLevelRecording(const TestRecorder& recorder, const QString& componentUuid
     return nullptr;
 }
 
+/**
+ * @brief Finds a child recording of the given parent (matched by uuid and name).
+ */
+const TestRecorder::Recording*
+findChildRecording(const TestRecorder& recorder, const QUuid& parentId, const QString& componentUuid, const QString& name)
+{
+    for (const auto& rec : recorder.recordings)
+    {
+        if (rec.parentId == parentId && rec.componentUuid == QUuid(componentUuid) && rec.componentName == name)
+        {
+            return &rec;
+        }
+    }
+
+    return nullptr;
+}
+
 }
 
 class TestAccessRecording : public ::testing::Test
@@ -381,8 +398,9 @@ TEST_F(TestAccessRecording, taskExecutionDeliversThreeRecordings)
     EXPECT_EQ(executor.startTask(group->task.get()), GtCoreProcessExecutor::TaskExecState::Started);
 
     // the worker thread delivers the calculator- and then the task-level
-    // recording; the main thread delivers the passive execution-level
-    // recording. Match by properties, never by vector position.
+    // recording (nested under the context); the main thread delivers the
+    // execution-level (context) recording. Match by properties, never by
+    // vector position.
     ASSERT_EQ(recorder.recordCalls, 3);
 
     const auto* calc = findComponentRecording(recorder, group->calc->uuid(), QStringLiteral("calculator"));
@@ -394,17 +412,24 @@ TEST_F(TestAccessRecording, taskExecutionDeliversThreeRecordings)
     EXPECT_TRUE(calc->accessedObjects.contains(QUuid(group->calc->uuid())));
     EXPECT_LE(calc->startTime, calc->finishTime);
 
-    // the task-level recording is the task's own tracked execution; the
-    // execution-level recording is passive and carries the working objects of
-    // the execution (the mementized direct source children: data + task), so
-    // the two are disambiguated by the data object's uuid
-    auto ownAccesses = [&group](const QSet<QUuid>& accessed) {
-        return !accessed.isEmpty() && !accessed.contains(QUuid(group->data->uuid()));
-    };
-    auto executionAccesses = [&group](const QSet<QUuid>& accessed) {
-        return accessed.contains(QUuid(group->data->uuid()));
-    };
-    const auto* taskLevel = findTopLevelRecording(recorder, group->task->uuid(), ownAccesses);
+    // the context (execution-level) recording is now the only top-level
+    // recording of the run: the task's own recording nests under it through
+    // the parent link instead of being a sibling
+    const auto* contextRec = findTopLevelRecording(recorder, group->task->uuid(), [](const QSet<QUuid>&) { return true; });
+    ASSERT_NE(contextRec, nullptr);
+    EXPECT_EQ(contextRec->componentClassName, "GtTask");
+    EXPECT_EQ(contextRec->componentName, QStringLiteral("task"));
+    EXPECT_TRUE(contextRec->finished);
+    EXPECT_EQ(contextRec->outcome, GtProcessComponent::FINISHED);
+    // the context recording carries the working objects of the execution
+    // (the mementized direct source children: data + task)
+    EXPECT_TRUE(contextRec->accessedObjects.contains(QUuid(group->data->uuid())));
+    EXPECT_TRUE(contextRec->accessedObjects.contains(QUuid(group->task->uuid())));
+    EXPECT_LE(contextRec->startTime, contextRec->finishTime);
+
+    // the task-level recording is the task's own tracked execution and nests
+    // under the context recording
+    const auto* taskLevel = findChildRecording(recorder, contextRec->id, group->task->uuid(), QStringLiteral("task"));
     ASSERT_NE(taskLevel, nullptr);
     EXPECT_EQ(taskLevel->componentClassName, "GtTask");
     EXPECT_EQ(taskLevel->componentName, QStringLiteral("task"));
@@ -417,24 +442,14 @@ TEST_F(TestAccessRecording, taskExecutionDeliversThreeRecordings)
     EXPECT_FALSE(taskLevel->accessedObjects.contains(QUuid(group->data->uuid())));
     EXPECT_LE(taskLevel->startTime, taskLevel->finishTime);
 
-    const auto* execLevel = findTopLevelRecording(recorder, group->task->uuid(), executionAccesses);
-    ASSERT_NE(execLevel, nullptr);
-    EXPECT_EQ(execLevel->componentClassName, "GtTask");
-    EXPECT_EQ(execLevel->componentName, QStringLiteral("task"));
-    EXPECT_TRUE(execLevel->finished);
-    EXPECT_EQ(execLevel->outcome, GtProcessComponent::FINISHED);
-    // the passive execution recording carries the working objects of the
-    // execution: the mementized direct source children (data + task)
-    EXPECT_TRUE(execLevel->accessedObjects.contains(QUuid(group->data->uuid())));
-    EXPECT_TRUE(execLevel->accessedObjects.contains(QUuid(group->task->uuid())));
-    EXPECT_LE(execLevel->startTime, execLevel->finishTime);
-
     // the calculator executed inside the task: its recording is a child of
-    // the task recording, and the passive execution recording spans the whole
-    // run (the executor keeps it alive until the worker finished)
+    // the task's own recording, which is a child of the context recording,
+    // and the context recording spans the whole run (the executor keeps it
+    // alive until the worker finished)
     EXPECT_EQ(calc->parentId, taskLevel->id);
-    EXPECT_LE(execLevel->startTime, taskLevel->startTime);
-    EXPECT_GE(execLevel->finishTime, taskLevel->finishTime);
+    EXPECT_EQ(taskLevel->parentId, contextRec->id);
+    EXPECT_LE(contextRec->startTime, taskLevel->startTime);
+    EXPECT_GE(contextRec->finishTime, taskLevel->finishTime);
 }
 
 TEST_F(TestAccessRecording, sequentialExecutionsDeliverSeparateRecordings)
@@ -465,56 +480,46 @@ TEST_F(TestAccessRecording, sequentialExecutionsDeliverSeparateRecordings)
     EXPECT_EQ(executor.startTask(group2->task.get()), GtCoreProcessExecutor::TaskExecState::Started);
     ASSERT_EQ(recorder.recordCalls, 6);
 
-    // execution 1: three recordings with a passive execution level; the task
-    // level and the execution level are disambiguated by the group's data
-    // uuid, because the execution level carries the working objects of the
-    // whole source (both groups are direct source children)
-    auto ownAccesses1 = [&group1](const QSet<QUuid>& accessed) {
-        return !accessed.isEmpty() && !accessed.contains(QUuid(group1->data->uuid()));
-    };
-    auto executionAccesses1 = [&group1](const QSet<QUuid>& accessed) {
-        return accessed.contains(QUuid(group1->data->uuid()));
-    };
-    const auto* task1 = findTopLevelRecording(recorder, group1->task->uuid(), ownAccesses1);
+    // execution 1: the context (execution-level) recording is the only
+    // top-level recording of group1's task; the task's own recording nests
+    // under it. The context is the whole source project, so its working
+    // objects already include the second group's data
+    const auto* context1 = findTopLevelRecording(recorder, group1->task->uuid(), [](const QSet<QUuid>&) { return true; });
+    ASSERT_NE(context1, nullptr);
+    const auto* task1 = findChildRecording(recorder, context1->id, group1->task->uuid(), QStringLiteral("task"));
     ASSERT_NE(task1, nullptr);
     EXPECT_EQ(task1->outcome, GtProcessComponent::FINISHED);
+    EXPECT_EQ(task1->parentId, context1->id);
     const auto* calc1 = findComponentRecording(recorder, group1->calc->uuid(), QStringLiteral("calculator"));
     ASSERT_NE(calc1, nullptr);
     EXPECT_EQ(calc1->parentId, task1->id);
     // each execution only accessed the objects of its own task group
     EXPECT_TRUE(calc1->accessedObjects.contains(QUuid(group1->data->uuid())));
     EXPECT_FALSE(calc1->accessedObjects.contains(QUuid(group2->data->uuid())));
-    const auto* exec1 = findTopLevelRecording(recorder, group1->task->uuid(), executionAccesses1);
-    ASSERT_NE(exec1, nullptr);
-    // the execution context is the whole source project: the working objects
-    // of the first execution already include the second group's data
-    EXPECT_TRUE(exec1->accessedObjects.contains(QUuid(group2->data->uuid())));
+    // the working objects of the first execution span the whole source: they
+    // include the second group's data
+    EXPECT_TRUE(context1->accessedObjects.contains(QUuid(group2->data->uuid())));
 
-    // execution 2: three more recordings with a fresh execution level
-    auto ownAccesses2 = [&group2](const QSet<QUuid>& accessed) {
-        return !accessed.isEmpty() && !accessed.contains(QUuid(group2->data->uuid()));
-    };
-    auto executionAccesses2 = [&group2](const QSet<QUuid>& accessed) {
-        return accessed.contains(QUuid(group2->data->uuid()));
-    };
-    const auto* task2 = findTopLevelRecording(recorder, group2->task->uuid(), ownAccesses2);
+    // execution 2: three more recordings with a fresh context recording
+    const auto* context2 = findTopLevelRecording(recorder, group2->task->uuid(), [](const QSet<QUuid>&) { return true; });
+    ASSERT_NE(context2, nullptr);
+    const auto* task2 = findChildRecording(recorder, context2->id, group2->task->uuid(), QStringLiteral("task"));
     ASSERT_NE(task2, nullptr);
     EXPECT_EQ(task2->outcome, GtProcessComponent::FINISHED);
+    EXPECT_EQ(task2->parentId, context2->id);
     const auto* calc2 = findComponentRecording(recorder, group2->calc->uuid(), QStringLiteral("calculator"));
     ASSERT_NE(calc2, nullptr);
     EXPECT_EQ(calc2->parentId, task2->id);
     EXPECT_TRUE(calc2->accessedObjects.contains(QUuid(group2->data->uuid())));
     EXPECT_FALSE(calc2->accessedObjects.contains(QUuid(group1->data->uuid())));
-    const auto* exec2 = findTopLevelRecording(recorder, group2->task->uuid(), executionAccesses2);
-    ASSERT_NE(exec2, nullptr);
-    // symmetric to exec1: the working objects of the second execution include
-    // the first group's data as well
-    EXPECT_TRUE(exec2->accessedObjects.contains(QUuid(group1->data->uuid())));
+    // symmetric to context1: the working objects of the second execution
+    // include the first group's data
+    EXPECT_TRUE(context2->accessedObjects.contains(QUuid(group1->data->uuid())));
 
     // each execution produced a fresh set of recordings
+    EXPECT_NE(context1->id, context2->id);
     EXPECT_NE(task1->id, task2->id);
     EXPECT_NE(calc1->id, calc2->id);
-    EXPECT_NE(exec1->id, exec2->id);
 }
 
 TEST_F(TestAccessRecording, noRecorderMeansNoRecording)
@@ -820,6 +825,65 @@ TEST_F(TestAccessRecording, deliverySuspendsTracking)
     // the backend's read happened with tracking suspended and must not have
     // landed in the parent's recording
     EXPECT_FALSE(parent.accessedObjects().contains(QUuid(backendData->uuid())));
+}
+
+TEST_F(TestAccessRecording, nestedScopeRoutesAccessesToActiveRecording)
+{
+    // three standalone, trackable data objects (the tracking hook is
+    // self-contained, so no project is needed)
+    auto dataA = std::make_unique<TestDataObject>();
+    auto dataB = std::make_unique<TestDataObject>();
+    auto dataC = std::make_unique<TestDataObject>();
+
+    // execution-level (context) recording: started and made active on this
+    // thread for the whole block, as the executor does on the worker thread
+    GtRecording context;
+    context.setComponentInfo(makeUuid(100), "GtTask", "context");
+    context.setTracker(std::make_unique<GtAccessTracker>());
+    context.start();
+
+    // component-level recording nested under the context (as the task's own
+    // recording is under the context recording on the worker thread)
+    GtRecording component;
+    component.setComponentInfo(makeUuid(101), "TestTrackingCalculator", "component");
+    component.setParentId(context.id());
+    component.setTracker(std::make_unique<GtAccessTracker>());
+    component.start();
+
+    {
+        GtRecordingScope contextScope(context);
+        EXPECT_EQ(GtRecordingScope::currentRecording(), &context);
+
+        // context-level reads are routed to the context recording's tracker
+        (void)dataA->m_value.getVal();
+        (void)dataB->m_value.getVal();
+
+        {
+            GtRecordingScope componentScope(component);
+            EXPECT_EQ(GtRecordingScope::currentRecording(), &component);
+
+            // a read made while the nested scope is active is routed to the
+            // component recording, not the context
+            (void)dataC->m_value.getVal();
+        }
+
+        // the nested scope closed and restored the context as active
+        EXPECT_EQ(GtRecordingScope::currentRecording(), &context);
+        // another context-level read (still routed to the context)
+        (void)dataB->m_value.getVal();
+    }
+
+    context.finish(GtProcessComponent::FINISHED);
+    component.finish(GtProcessComponent::FINISHED);
+
+    // the component recording captured exactly the accesses made inside its
+    // scope (dataC), no more
+    EXPECT_EQ(component.accessedObjects(), QSet<QUuid>{QUuid(dataC->uuid())});
+    // the context recording captured the context-level reads (dataA, dataB)
+    // but not the read that belonged to the nested scope (dataC)
+    EXPECT_TRUE(context.accessedObjects().contains(QUuid(dataA->uuid())));
+    EXPECT_TRUE(context.accessedObjects().contains(QUuid(dataB->uuid())));
+    EXPECT_FALSE(context.accessedObjects().contains(QUuid(dataC->uuid())));
 }
 
 #include "test_gt_accessrecording.moc"

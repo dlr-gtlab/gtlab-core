@@ -2,7 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gt_runnable.cpp
+ * Source File: gt_accesstracking.h
  *
  *  Created on: 19.08.2026
  *  Author: Robert Marcenko (AT-TWK)
@@ -17,7 +17,6 @@
 
 #include <array>
 #include <cstddef>
-#include <memory>
 
 
 class GT_DATAMODEL_EXPORT GtAccessTracker
@@ -68,7 +67,6 @@ public:
      */
     explicit GtAccessTrackerScope(GtAccessTracker* tracker);
 
-    explicit GtAccessTrackerScope(std::shared_ptr<GtAccessTracker> tracker);
     ~GtAccessTrackerScope();
     GtAccessTrackerScope(const GtAccessTrackerScope &) = delete;
     GtAccessTrackerScope & operator = (const GtAccessTrackerScope &) = delete;

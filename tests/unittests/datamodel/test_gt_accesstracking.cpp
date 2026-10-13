@@ -59,55 +59,55 @@ TEST(GtAccessTracker, currentIsNullOnFreshThread)
 
 TEST(GtAccessTracker, scopeInstallsAndRestoresCurrentTracker)
 {
-    auto tracker = std::make_shared<GtAccessTracker>();
+    GtAccessTracker tracker;
 
     EXPECT_EQ(GtAccessTracker::current(), nullptr);
     {
-        GtAccessTrackerScope scope(tracker);
-        EXPECT_EQ(GtAccessTracker::current(), tracker.get());
+        GtAccessTrackerScope scope(&tracker);
+        EXPECT_EQ(GtAccessTracker::current(), &tracker);
     }
     EXPECT_EQ(GtAccessTracker::current(), nullptr);
 }
 
 TEST(GtAccessTracker, nestedScopesRestoreOuterTracker)
 {
-    auto outer = std::make_shared<GtAccessTracker>();
-    auto inner = std::make_shared<GtAccessTracker>();
+    GtAccessTracker outer;
+    GtAccessTracker inner;
 
     {
-        GtAccessTrackerScope outerScope(outer);
-        EXPECT_EQ(GtAccessTracker::current(), outer.get());
+        GtAccessTrackerScope outerScope(&outer);
+        EXPECT_EQ(GtAccessTracker::current(), &outer);
         {
-            GtAccessTrackerScope innerScope(inner);
-            EXPECT_EQ(GtAccessTracker::current(), inner.get());
-            inner->addAccessedProperty(makeUuid(42));
+            GtAccessTrackerScope innerScope(&inner);
+            EXPECT_EQ(GtAccessTracker::current(), &inner);
+            inner.addAccessedProperty(makeUuid(42));
         }
-        EXPECT_EQ(GtAccessTracker::current(), outer.get());
+        EXPECT_EQ(GtAccessTracker::current(), &outer);
     }
     EXPECT_EQ(GtAccessTracker::current(), nullptr);
 
     // Writes in the inner scope must have reached only the inner tracker
-    EXPECT_EQ(outer->count(), 0u);
-    EXPECT_EQ(inner->count(), 1u);
-    EXPECT_TRUE(inner->accessedObjects().contains(makeUuid(42)));
+    EXPECT_EQ(outer.count(), 0u);
+    EXPECT_EQ(inner.count(), 1u);
+    EXPECT_TRUE(inner.accessedObjects().contains(makeUuid(42)));
 }
 
 TEST(GtAccessTracker, nullScopeDisablesTracking)
 {
-    auto tracker = std::make_shared<GtAccessTracker>();
+    GtAccessTracker tracker;
 
     {
         // a null scope is an explicit disable: while it is active the
         // tracker slot is cleared, and on exit the previous tracker is
         // restored
-        GtAccessTrackerScope trackerScope(tracker);
-        EXPECT_EQ(GtAccessTracker::current(), tracker.get());
+        GtAccessTrackerScope trackerScope(&tracker);
+        EXPECT_EQ(GtAccessTracker::current(), &tracker);
 
         {
             GtAccessTrackerScope scope(nullptr);
             EXPECT_EQ(GtAccessTracker::current(), nullptr);
         }
-        EXPECT_EQ(GtAccessTracker::current(), tracker.get());
+        EXPECT_EQ(GtAccessTracker::current(), &tracker);
     }
     // leaving the outermost scope restores the null context
     EXPECT_EQ(GtAccessTracker::current(), nullptr);

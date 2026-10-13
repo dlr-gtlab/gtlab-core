@@ -539,10 +539,12 @@ GtCoreProcessExecutor::setupTaskRunner()
     connect(runner, &GtTaskRunner::finished,
             this, &GtCoreProcessExecutor::onTaskRunnerFinished);
 
-    // start access recording for the new execution context; the recording is
-    // passive here (no tracker) and reflects the pre-merge task state: the
-    // per-execution details are captured by the GtRecordingScopes that
-    // GtProcessComponent::execute() opens on the worker thread
+    // start access recording for the new execution context; the recording
+    // is active here (its own tracker) and reflects the pre-merge task
+    // state: it is handed to the runnable, which activates it on the worker
+    // thread, so the per-execution recordings opened by
+    // GtProcessComponent::execute() nest under it and all accesses outside
+    // those scopes are attributed to the context
     if (gt::isAccessRecordingEnabled())
     {
         auto recording = std::make_unique<GtRecording>();
@@ -551,9 +553,9 @@ GtCoreProcessExecutor::setupTaskRunner()
                                     m_current->objectName());
 
         // the working objects of this execution are the source mementos the
-        // task runner setup just transferred to the runnable; the passive
-        // execution recording has no tracker of its own, so the ids are
-        // added explicitly before the recording is started
+        // task runner setup just transferred to the runnable; the ids are
+        // added explicitly because they form the context's baseline set of
+        // accessed objects regardless of whether they are touched again
         QSet<QUuid> workingObjects;
         for (const GtObjectMemento& memento : pimpl->currentRunnable->inputData())
         {
@@ -561,7 +563,9 @@ GtCoreProcessExecutor::setupTaskRunner()
         }
         recording->addAccessedObjects(workingObjects);
 
+        recording->setTracker(std::make_unique<GtAccessTracker>());
         recording->start();
+        pimpl->currentRunnable->setContextRecording(recording.get());
         pimpl->currentRecording = std::move(recording);
     }
 

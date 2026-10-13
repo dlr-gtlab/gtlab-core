@@ -15,6 +15,7 @@
 #include <optional>
 
 #include "gt_runnable.h"
+#include "gt_recording.h"
 #include "gt_objectmemento.h"
 #include "gt_objectfactory.h"
 #include "gt_coreapplication.h"
@@ -42,6 +43,16 @@ GtRunnable::run()
     if (m_executionContext.isValid())
     {
         contextScope.emplace(m_executionContext);
+    }
+
+    // Activate the execution-context recording on the worker thread:
+    // property accesses outside the per-execution scopes opened by
+    // GtProcessComponent::execute() are attributed to the context, and
+    // those per-execution recordings link to it as their parent
+    std::optional<GtRecordingScope> recordingScope;
+    if (m_contextRecording != nullptr)
+    {
+        recordingScope.emplace(*m_contextRecording);
     }
 
     bool success = true;
@@ -157,6 +168,12 @@ bool
 GtRunnable::clearTempDir(const QString& path)
 {
     return GtCoreApplication::removeTempDir(path);
+}
+
+void
+GtRunnable::setContextRecording(GtRecording* recording)
+{
+    m_contextRecording = recording;
 }
 
 void

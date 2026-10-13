@@ -17,6 +17,8 @@
 
 #include "gt_processcomponent.h"
 
+class GtRecording;
+
 /**
  * @brief The GtRunnable class
  */
@@ -71,6 +73,19 @@ public:
      */
     bool clearTempDir(const QString& path) override;
 
+    /**
+     * @brief Assigns the recording of the execution context.
+     *
+     * Non-owning: the recording is owned by the executor and outlives
+     * run(). When set, run() activates it on the worker thread so that
+     * property accesses outside the per-execution scopes opened by
+     * GtProcessComponent::execute() are attributed to the context, and
+     * those per-execution recordings nest under it as children.
+     *
+     * @param recording Context recording, or nullptr
+     */
+    void setContextRecording(GtRecording* recording);
+
 private:
 
     /// custom project path (by default empty)
@@ -78,6 +93,9 @@ private:
 
     /// Context associated with this execution.
     GtExecutionContext m_executionContext;
+
+    /// Execution-context recording, activated on the worker thread (borrowed)
+    GtRecording* m_contextRecording{nullptr};
 
     /**
      * @brief transferObjects

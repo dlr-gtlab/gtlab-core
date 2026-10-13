@@ -241,7 +241,7 @@ void
 deliverRecording(const GtRecording& recording)
 {
     // Resolve the delivery target: an explicitly registered single backend
-    // (the path also used when no application is running) takes precedence;
+    // (the path also used when no application is running, when testing?) takes precedence;
     // otherwise all backends registered with the application's recording
     // manager receive the recording
     GtAbstractRecorder* recorder = g_accessRecorder.load(std::memory_order_acquire);

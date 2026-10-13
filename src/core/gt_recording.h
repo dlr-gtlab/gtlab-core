@@ -32,10 +32,13 @@
  * and holds no live object references: once finished it is a plain value that
  * can be handed to a GtAbstractRecorder.
  *
- * A recording instance is not thread-safe: create, activate (via
- * GtRecordingScope), finalize and deliver it from a single context (one
- * thread). The thread-local activation slots keep other threads isolated but
- * do not make the object thread-safe.
+ * A recording instance is not thread-safe. The supported lifecycle is:
+ * create, prefill and start it on the owning thread; activate it (via
+ * GtRecordingScope) on the worker thread, where the scope only reads the
+ * recording and routes property accesses into its tracker; and finalize and
+ * deliver it on the owning thread once the worker has finished. The
+ * thread-local activation slots keep other threads isolated but do not make
+ * the object thread-safe.
  */
 class GT_CORE_EXPORT GtRecording
 {
