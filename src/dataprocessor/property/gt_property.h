@@ -233,8 +233,8 @@ inline void GtProperty<ParamType>::setValFromConnection()
 
     // this is a workaround to keep the current interface of properties
     // but also enables the setting of the property via a connection
-    auto cleanup = gt::finally(
-        [oldCon = m_connection, this]() { m_connection = oldCon; });
+    auto cleanup =
+        gt::finally([oldCon = m_connection, this]() { m_connection = oldCon; });
     Q_UNUSED(cleanup);
     m_connection = {};
 

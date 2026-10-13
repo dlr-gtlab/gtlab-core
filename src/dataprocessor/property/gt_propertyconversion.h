@@ -41,34 +41,28 @@ namespace gt
 
         namespace fromDouble
         {
-            bool canConnectToDouble(
-                GtAbstractProperty const& source,
-                GtAbstractProperty const& target);
+            bool canConnectToDouble(GtAbstractProperty const& source,
+                                    GtAbstractProperty const& target);
 
-            conversionSuccess toInt(
-                GtAbstractProperty const& source,
-                GtAbstractProperty& target);
+            conversionSuccess toInt(GtAbstractProperty const& source,
+                                    GtAbstractProperty& target);
 
-            bool canConnectToInt(
-                GtAbstractProperty const& source,
-                GtAbstractProperty const& target);
+            bool canConnectToInt(GtAbstractProperty const& source,
+                                 GtAbstractProperty const& target);
 
 
         } // namespace fromDouble
 
         namespace fromInt
         {
-            bool canConnectToInt(
-                GtAbstractProperty const& source,
-                GtAbstractProperty const& target);
+            bool canConnectToInt(GtAbstractProperty const& source,
+                                 GtAbstractProperty const& target);
 
-            conversionSuccess toDouble(
-                GtAbstractProperty const& source,
-                GtAbstractProperty& target);
+            conversionSuccess toDouble(GtAbstractProperty const& source,
+                                       GtAbstractProperty& target);
 
-            bool canConnectToDouble(
-                GtAbstractProperty const& source,
-                GtAbstractProperty const& target);
+            bool canConnectToDouble(GtAbstractProperty const& source,
+                                    GtAbstractProperty const& target);
         } // namespace fromInt
 
     } // namespace conversion

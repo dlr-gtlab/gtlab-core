@@ -123,19 +123,13 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
     const auto toChain = inheritanceChain(to);
 
     // Smaller index means a more specific type.
-    const auto findTypeIndex =
-        [](const auto& chain, const QString& className)
-    {
-        const auto it = std::find_if(
-            chain.cbegin(),
-            chain.cend(),
-            [&className](const QMetaObject* type)
-            {
-                return className == type->className();
-            });
+    const auto findTypeIndex = [](const auto& chain, const QString& className) {
+        const auto it = std::find_if(chain.cbegin(), chain.cend(),
+                                     [&className](const QMetaObject* type) {
+                                         return className == type->className();
+                                     });
 
-        return static_cast<std::size_t>(
-            std::distance(chain.cbegin(), it));
+        return static_cast<std::size_t>(std::distance(chain.cbegin(), it));
     };
 
     const GtPropertyConverter* bestConverter = nullptr;
@@ -145,14 +139,13 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
 
     for (const GtPropertyConverter& converter : m_canConvertList)
     {
-        const auto fromIndex = findTypeIndex(
-            fromChain, converter.fromClassName());
+        const auto fromIndex =
+            findTypeIndex(fromChain, converter.fromClassName());
 
         // Source type is not part of the inheritance chain.
         if (fromIndex == fromChain.size()) continue;
 
-        const auto toIndex = findTypeIndex(
-            toChain, converter.toClassName());
+        const auto toIndex = findTypeIndex(toChain, converter.toClassName());
 
         // Target type is not part of the inheritance chain.
         if (toIndex == toChain.size()) continue;
@@ -162,8 +155,7 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
         // 2. Most specific target type
         const bool isBetter =
             fromIndex < bestFromIndex ||
-            (fromIndex == bestFromIndex &&
-             toIndex < bestToIndex);
+            (fromIndex == bestFromIndex && toIndex < bestToIndex);
 
         if (isBetter)
         {
