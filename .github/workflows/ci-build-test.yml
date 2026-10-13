@@ -26,7 +26,7 @@ jobs:
         wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
         mkdir $HOME/build_deps
         tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
-        echo "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-linux\share\cmake\hdf5" >> $GITHUB_ENV
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> $GITHUB_ENV
 
     - name: Install Ninja (windows)    # Ninja is not available in GitHub-provided images,
                                        # see https://github.com/actions/runner-images/issues/514
@@ -55,14 +55,27 @@ jobs:
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
       run: |
+        python3 -m pip install -r tests/systemtests/requirements.txt
         cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=install
         cmake --build build --target install --config=Debug
+
+    - name: Build external module consumer (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -Dhdf5_DIR="$HDF5_DIR"
+        cmake --build build/external-consumer --config Debug
+
+    - name: Build external module consumer (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer "-DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE\install" "-Dhdf5_DIR=$env:HDF5_DIR"
+        cmake --build build/external-consumer --config Debug
 
     - name: Unit Tests - Windows
       if: startsWith(matrix.os, 'windows')
       shell: cmd /C call {0}
       run: |
-        set PATH=%cd%\build\install\binDebug;%HDF5_BIN_DIR%;%PATH%
+        set PATH=%cd%\install\binDebug;%HDF5_BIN_DIR%;%PATH%
         cd build
         .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
 
@@ -74,13 +87,15 @@ jobs:
 
     - name: System Tests - Linux
       if: matrix.os == 'ubuntu-latest'
-      working-directory: tests/systemtests
-      env:
-        GTLAB_CONSOLE: ${{ github.workspace }}/build/GTlabConsole
-        QT_QPA_PLATFORM: offscreen
       run: |
-        python3 -m pip install -r requirements.txt
-        python3 -m pytest
+        ctest --test-dir build -C Debug -L SystemTest --output-on-failure
+
+    - name: System Test - Module ABI (Windows)
+      if: startsWith(matrix.os, 'windows')
+      shell: cmd /C call {0}
+      run: |
+        set PATH=%cd%\install\binDebug;%HDF5_BIN_DIR%;%PATH%
+        ctest --test-dir build -C Debug -R SystemTest.ModuleAbiCompatibility --output-on-failure
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

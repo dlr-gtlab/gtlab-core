@@ -16,3 +16,6 @@
 - [ ] All tests run without failure.
 - [ ] The changelog has been extended, if this MR contains important changes from the users's point of view.
 - [ ] New interface methods / functions are exported via `EXPORT`. Non-interface functions are NOT exported.
+- [ ] The module ABI impact has been considered. The first PR that introduces a binary-incompatible change bumps `GTLAB_MODULE_ABI` in that PR;
+      follow-up changes in the same ABI generation keep that value unless they intentionally establish another compatibility boundary.
+      Patch releases must not introduce ABI breaks.
