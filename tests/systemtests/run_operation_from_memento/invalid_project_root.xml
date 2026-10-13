@@ -1,0 +1,13 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="GtObjectGroup" uuid="{e55fca41-5178-484f-979c-2741154a796b}" name="Invalid Project">
+  <objectlist>
+    <object class="GtObjectGroup" uuid="{85eae9dd-e9d3-4f5d-9af2-83f4502e6511}" name="Invalid Root">
+      <objectlist/>
+    </object>
+  </objectlist>
+</object>

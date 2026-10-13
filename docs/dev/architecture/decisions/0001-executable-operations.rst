@@ -42,8 +42,8 @@ Execution state
 
 The originating operation, an execution-local reconstructed operation, the
 detached input, and the optional detached result payload are separate objects
-with separate lifetimes. ``GtOperationExecutionResult`` is a value envelope
-containing the operation status, code, message, and optional result payload.
+with separate lifetimes. ``GtOperationExecutionResult`` contains the operation status, code, message,
+and optional result payload.
 Detached input and result payloads must not contain borrowed pointers into the
 originating project.
 
