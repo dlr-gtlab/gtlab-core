@@ -59,22 +59,35 @@ public:
     }
 };
 
-/// Backend that reports its own destruction
+/// Backend that reports its own destruction and record calls through
+/// externally owned flags. The flags are owned by the test (not by the
+/// backend) so they remain valid after the backend has been destroyed -
+/// reading members of a destroyed object would be undefined behavior.
 class FlagRecorder final : public GtAbstractRecorder
 {
 public:
-    std::atomic<int> recordCalls{0};
-    std::atomic<bool> destroyed{false};
+    FlagRecorder(std::atomic<int>* recordCalls, std::atomic<bool>* destroyed) :
+        m_recordCalls(recordCalls),
+        m_destroyed(destroyed)
+    {
+    }
 
     ~FlagRecorder() override
     {
-        destroyed = true;
+        *m_destroyed = true;
     }
 
     void record(const GtRecording& recording) override
     {
-        ++recordCalls;
+        ++*m_recordCalls;
     }
+
+private:
+    /// Test-owned record-call counter
+    std::atomic<int>* m_recordCalls;
+
+    /// Test-owned destruction flag
+    std::atomic<bool>* m_destroyed;
 };
 
 class TestRecordingApplication final : public GtCoreApplication
@@ -199,22 +212,24 @@ TEST(GtRecordingManager, backendFailuresNeverPropagate)
 
 TEST(GtRecordingManager, ownsBackendsAndDestroysThemWithoutCallback)
 {
-    auto recorder = std::make_unique<FlagRecorder>();
-    FlagRecorder* raw = recorder.get();
+    // The backend's state is tracked in flags owned by the test (not by the
+    // backend), so they remain readable after the manager destroys the backend
+    std::atomic<int> recordCalls{0};
+    std::atomic<bool> destroyed{false};
 
     GtRecording recording = makeFinishedRecording(5, "component", GtProcessComponent::FINISHED);
 
     {
         GtRecordingManager manager;
-        manager.addRecorder(std::move(recorder));
+        manager.addRecorder(std::make_unique<FlagRecorder>(&recordCalls, &destroyed));
         manager.deliver(recording);
 
-        EXPECT_EQ(raw->recordCalls.load(), 1);
-        EXPECT_FALSE(raw->destroyed.load());
-    } // manager destroyed here
+        EXPECT_EQ(recordCalls.load(), 1);
+        EXPECT_FALSE(destroyed.load());
+    } // manager destroyed here: destroys the backend without calling it back
 
-    EXPECT_TRUE(raw->destroyed.load());
-    EXPECT_EQ(raw->recordCalls.load(), 1); // no extra callback from the destructor
+    EXPECT_TRUE(destroyed.load());
+    EXPECT_EQ(recordCalls.load(), 1); // no extra delivery from the destructor
 }
 
 TEST(GtRecordingManager, concurrentDeliveriesReachAllBackends)

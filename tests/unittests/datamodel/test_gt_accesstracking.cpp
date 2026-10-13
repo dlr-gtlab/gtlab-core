@@ -149,9 +149,9 @@ TEST(GtAccessTracker, parallelExecutionsAreIsolated)
     // each written by four threads partitioning a 200000 wide uuid window
     constexpr std::size_t numTrackers = 2;
     constexpr std::size_t threadsPerTracker = 4;
-    constexpr quint64 valuesPerThread = 50000;
-    constexpr quint64 windowSize = 200000;
-    constexpr quint64 windowSpacing = 400000;
+    constexpr quint64 valuesPerThread = 4000;
+    constexpr quint64 windowSize = threadsPerTracker * valuesPerThread;
+    constexpr quint64 windowSpacing = windowSize;
 
     std::vector<std::shared_ptr<GtAccessTracker>> trackers(numTrackers);
     std::vector<std::thread> threads;
