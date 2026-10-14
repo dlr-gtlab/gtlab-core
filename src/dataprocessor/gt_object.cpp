@@ -19,6 +19,7 @@
 #include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_objectfactory.h"
+#include "gt_recordinghooks.h"
 #include "property/gt_dummyproperty.h"
 
 #include "gt_propertyconnection.h"
@@ -164,7 +165,11 @@ GtObject::GtObject(GtObject* parent) :
     connect(this, SIGNAL(objectNameChanged(QString)), SLOT(changed()));
 }
 
-GtObject::~GtObject() = default;
+GtObject::~GtObject()
+{
+    // the derived part is already destroyed; only identity and UUID remain
+    gt::detail::recordObjectDestroyed(parentObject(), *this);
+}
 
 GtObject::ObjectFlags
 GtObject::objectFlags() const
@@ -313,6 +318,9 @@ GtObject::appendChildUnchecked(GtObject* c)
     c->disconnectFromParent();
     c->setParent(this);
 
+    // Qt refuses to set a parent living in another thread
+    if (c->parent() == this) gt::detail::recordObjectAttached(*this, *c);
+
     connect(c, qOverload<GtObject*>(&GtObject::dataChanged),
             this, qOverload<GtObject*>(&GtObject::dataChanged));
     connect(c, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
@@ -409,6 +417,8 @@ GtObject::disconnectFromParent()
 {
     if (GtObject* p = parentObject())
     {
+        gt::detail::recordObjectDetached(*p, *this);
+
         // disconnect old signals and slots
         disconnect(this, qOverload<GtObject*>(&GtObject::dataChanged),
                    p, qOverload<GtObject*>(&GtObject::dataChanged));

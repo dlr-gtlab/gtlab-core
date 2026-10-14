@@ -12,6 +12,7 @@
 #include <atomic>
 
 class GtAbstractProperty;
+class GtObject;
 class GtRecordingSession;
 
 /**
@@ -41,6 +42,18 @@ GT_DATAMODEL_EXPORT void leavePropertyRead() noexcept;
 /// Forwards a change reported by the property to the active session
 GT_DATAMODEL_EXPORT void recordPropertyWritten(
     const GtAbstractProperty& property) noexcept;
+
+/// Called by GtObject after a child was attached
+GT_DATAMODEL_EXPORT void recordObjectAttached(const GtObject& parent,
+                                              const GtObject& child) noexcept;
+
+/// Called by GtObject before a child is detached
+GT_DATAMODEL_EXPORT void recordObjectDetached(const GtObject& parent,
+                                              const GtObject& child) noexcept;
+
+/// Called by ~GtObject; parent is nullptr if the object has no parent
+GT_DATAMODEL_EXPORT void recordObjectDestroyed(const GtObject* parent,
+                                               const GtObject& object) noexcept;
 
 /**
  * @brief Marks a property read for the lifetime of the scope.
