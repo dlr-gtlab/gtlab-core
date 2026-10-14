@@ -171,12 +171,6 @@ GtTaskRunner::dataToMerge() const
 }
 
 GtObjectMementoDiff
-GtTaskRunner::dataDiffToMerge() const
-{
-    return dataDiffFor(m_dataToMerge);
-}
-
-GtObjectMementoDiff
 GtTaskRunner::dataDiffFor(const QList<GtObjectMemento>& initialAndResultData)
 {
     GtObjectMementoDiff diff;

@@ -228,7 +228,7 @@ TEST_F(TestGtTaskRunner, taskNoOpDoesNotRevertConcurrentSourceEdit)
     runnable->appendOutputMemento(taskResult);
     runnable->finish();
 
-    GtObjectMementoDiff diff = runner.dataDiffToMerge();
+    GtObjectMementoDiff diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
     ASSERT_TRUE(source.applyDiff(diff));
     EXPECT_EQ(sourceChild.objectName(), "user edit");
 }
@@ -245,13 +245,13 @@ TEST_F(TestGtTaskRunner, taskDiffPreservesUnrelatedEditsAndWinsConflicts)
 
     sourceChild.setObjectName("task A");
     const GtObjectMemento taskResult = sourceChild.toMemento();
-    sourceChild.setObjectName("initial A");
+    sourceChild.setObjectName("user A");
     otherSourceChild.setObjectName("user B");
 
     runnable->appendOutputMemento(taskResult);
     runnable->finish();
 
-    GtObjectMementoDiff diff = runner.dataDiffToMerge();
+    GtObjectMementoDiff diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
     ASSERT_TRUE(source.applyDiff(diff));
     EXPECT_EQ(sourceChild.objectName(), "task A");
     EXPECT_EQ(otherSourceChild.objectName(), "user B");

@@ -64,11 +64,6 @@ public:
     const QList<GtObjectMemento>& dataToMerge() const;
 
     /**
-     * @brief Returns the task changes relative to the data at task start.
-     */
-    GtObjectMementoDiff dataDiffToMerge() const;
-
-    /**
      * @brief Creates a task diff from alternating initial and result mementos.
      */
     static GtObjectMementoDiff dataDiffFor(
