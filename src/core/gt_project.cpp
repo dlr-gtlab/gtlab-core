@@ -1010,7 +1010,7 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 bool
 GtProject::saveProcessData(QDomElement& /*root*/, QDomDocument& /*doc*/)
 {
-    GtProcessData* pd = processData();
+    const GtProcessData* pd = processData();
 
     if (pd)
     {
@@ -1029,7 +1029,7 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 
     if (ld)
     {
-        foreach (GtLabel* label, ld->findDirectChildren<GtLabel*>())
+        foreach (const GtLabel* label, ld->findDirectChildren<GtLabel*>())
         {
             GtObjectMemento memento = label->toMemento();
             ldElement.appendChild(memento.documentElement());
