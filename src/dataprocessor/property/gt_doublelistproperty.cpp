@@ -29,6 +29,7 @@ QVariant
 GtDoubleListProperty::valueToVariant(const QString& /*unit*/,
                                      bool* success) const
 {
+    gt::detail::PropertyReadScope readScope(*this);
     QVariant variant = QVariant::fromValue(m_value);
 
     return gt::valueSuccess(variant, success);

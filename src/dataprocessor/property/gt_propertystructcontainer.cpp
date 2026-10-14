@@ -34,6 +34,9 @@ struct GtPropertyStructContainer::Impl
     std::map<TypeIdStr, GtPropertyStructDefinition> allowedTypes;
     gt::PolyVector<GtPropertyStructInstance> entries;
     int flags = {0};
+
+    /// Object that registered this container, used for recording
+    const GtObject* owner{nullptr};
     GtPropertyStructContainer::ContainerType type;
 };
 
@@ -125,6 +128,8 @@ GtPropertyStructContainer::newEntry(QString typeID, const_iterator position,
 
     auto newEntryIter = pimpl->entries.insert(position,
                           structureDefinition.newInstance(id));
+
+    if (pimpl->owner) newEntryIter->setOwnerObject(*pimpl->owner);
 
     emit entryAdded(std::distance(begin(), newEntryIter));
 
@@ -308,4 +313,15 @@ GtPropertyStructInstance&
 GtPropertyStructContainer::operator[](size_t idx)
 {
     return pimpl->entries[idx];
+}
+
+void
+GtPropertyStructContainer::setOwnerObject(const GtObject& owner)
+{
+    pimpl->owner = &owner;
+
+    for (GtPropertyStructInstance& entry : pimpl->entries)
+    {
+        entry.setOwnerObject(owner);
+    }
 }
