@@ -108,6 +108,9 @@ struct GtRecordingSession::Impl
     bool used{false};
     bool startFailed{false};
 
+    /// Whether run() is currently executing the work
+    std::atomic<bool> running{false};
+
     void buildMembership()
     {
         QWriteLocker locker(&membershipLock);
@@ -327,6 +330,7 @@ GtRecordingSession::start()
         pimpl->faulted = true;
     }
 
+    pimpl->running = true;
     currentSession = this;
     return true;
 }
@@ -334,6 +338,7 @@ GtRecordingSession::start()
 void
 GtRecordingSession::finish(bool success) noexcept
 {
+    pimpl->running = false;
     currentSession = pimpl->parent;
     --gt::detail::runningRecordings;
 
@@ -432,4 +437,19 @@ gt::detail::recordObjectDestroyed(const GtObject* parent,
 
     // the address may be reused by a new object
     session->forget(object);
+}
+
+gt::detail::GtRecordingScope::GtRecordingScope(
+    GtRecordingSession& session) noexcept :
+    m_active(session.pimpl->running.load())
+{
+    if (!m_active) return;
+
+    m_previous = currentSession;
+    currentSession = &session;
+}
+
+gt::detail::GtRecordingScope::~GtRecordingScope()
+{
+    if (m_active) currentSession = m_previous;
 }
