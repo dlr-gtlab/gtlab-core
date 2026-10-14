@@ -91,7 +91,6 @@ public:
                                bool fetchInitialVersion) const noexcept(false);
 
 private:
-
     /// Class name of the externalized object.
     QString m_className;
     /// Hash of the externalized object's data.

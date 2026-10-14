@@ -79,7 +79,8 @@ struct GtProject::Impl
         path(projectPath),
         pathProp(QStringLiteral("path"), GtProject::tr("Path"),
                  GtProject::tr("Project path"), projectPath)
-    { }
+    {
+    }
 
     /// Path to project directory on hard drive
     QString path;
@@ -111,8 +112,7 @@ struct GtProject::Impl
     QString comment;
 };
 
-GtProject::GtProject(const QString& path) :
-    pimpl(std::make_unique<Impl>(path))
+GtProject::GtProject(const QString& path) : pimpl(std::make_unique<Impl>(path))
 {
     pimpl->valid = loadMetaData();
     pimpl->upgradesAvailable = checkForUpgrades();
@@ -123,11 +123,11 @@ GtProject::GtProject(const QString& path) :
 
     if (gtApp)
     {
-        connect(&pimpl->projectSettings, &GtProjectSettings::changed, this, [](){
-            if (gtApp->session()) gtApp->session()->save();
-        });
+        connect(&pimpl->projectSettings, &GtProjectSettings::changed, this,
+                []() {
+                    if (gtApp->session()) gtApp->session()->save();
+                });
     }
-
 }
 
 void
@@ -610,7 +610,8 @@ GtProject::updateClassModuleIds()
             moduleId = factory->moduleId(className);
         }
         if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
-        if (moduleId.isEmpty()) moduleId = pimpl->classModuleIds.value(className);
+        if (moduleId.isEmpty())
+            moduleId = pimpl->classModuleIds.value(className);
         if (!moduleId.isEmpty()) updated.insert(className, moduleId);
     }
     pimpl->classModuleIds = std::move(updated);
@@ -725,8 +726,8 @@ GtProject::readModuleData()
         // check for old module file and rename it
         renameOldModuleFile(pimpl->path, mid);
 
-        QString filename = pimpl->path + QDir::separator() + mid.toLower() + "." +
-                           moduleExtension();
+        QString filename = pimpl->path + QDir::separator() + mid.toLower() +
+                           "." + moduleExtension();
 
         QFile file(filename);
 
@@ -801,7 +802,8 @@ GtProject::readModuleData()
 
         package->setUuid(uuid);
 
-        if (!package->readData(root) || !package->readMiscData(QDir(pimpl->path)))
+        if (!package->readData(root) ||
+            !package->readMiscData(QDir(pimpl->path)))
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to read module data!")
@@ -862,7 +864,8 @@ GtProject::saveModuleData()
 
         document.appendChild(rootElement);
 
-        if (!package->saveData(rootElement, document) || !package->saveMiscData(QDir(pimpl->path)))
+        if (!package->saveData(rootElement, document) ||
+            !package->saveMiscData(QDir(pimpl->path)))
         {
             gtWarning().noquote()
                     << tr("Failed to save module data!")
@@ -874,8 +877,8 @@ GtProject::saveModuleData()
             pimpl->classModuleIds, rootElement);
         gt::xml::writeClassModuleMap(rootElement, document, moduleMappings);
 
-        QString filename = pimpl->path + QDir::separator() + mid.toLower() + "." +
-                           moduleExtension();
+        QString filename = pimpl->path + QDir::separator() + mid.toLower() +
+                           "." + moduleExtension();
 
         if (!saveProjectFiles(filename, document))
         {

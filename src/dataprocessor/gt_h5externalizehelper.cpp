@@ -139,13 +139,11 @@ updateAttributes(const GenH5::DataSet& dset, QString const& hash)
     }
     dset.writeAttribute(S_EXT_HASH_ATTR, hashData);
 }
-
 }
 
 GtH5ExternalizeHelper::GtH5ExternalizeHelper(const GtExternalizedObject& obj) :
     m_className(QString::fromLatin1(obj.metaObject()->className())),
-    m_extHash(obj.extHash()),
-    m_objUuid(obj.uuid())
+    m_extHash(obj.extHash()), m_objUuid(obj.uuid())
 { }
 
 GenH5::File
@@ -188,7 +186,7 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
     {
 
         // try retrieving by path
-        auto group =  file.root().createGroup(m_className.toUtf8());
+        auto group = file.root().createGroup(m_className.toUtf8());
         dset = group.createDataSet(m_objUuid.toUtf8(), dataType, dataSpace);
 
         // update ref
