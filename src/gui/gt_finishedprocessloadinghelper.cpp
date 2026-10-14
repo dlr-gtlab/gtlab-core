@@ -11,10 +11,8 @@
 #include <utility>
 
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
-    QList<GtTaskMementoPair> data, QPointer<GtObject> source,
-    const QString& /* taskName */) :
-    m_data(std::move(data)), m_sumDiff(std::make_unique<GtObjectMementoDiff>()),
-    m_source(source)
+    QList<GtTaskMementoPair> data) :
+    m_data(std::move(data)), m_sumDiff(std::make_unique<GtObjectMementoDiff>())
 {
 
 }

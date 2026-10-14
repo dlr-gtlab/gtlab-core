@@ -34,7 +34,8 @@ struct GtTaskMementoPair
 
     bool hasMatchingUuids() const
     {
-        return !initial.isNull() && initial.uuid() == result.uuid();
+        return !initial.isNull() && !result.isNull() &&
+               initial.uuid() == result.uuid();
     }
 };
 
@@ -90,8 +91,10 @@ private:
     /// source object
     QPointer<GtObject> m_source;
 
-    /// Task-start snapshots before completion and task-start/result pairs after
-    /// completion
+    /// Task-start snapshots used to match runnable output
+    QList<GtObjectMemento> m_initialData;
+
+    /// Task-start and task-result pairs to merge after completion
     QList<GtTaskMementoPair> m_dataToMerge;
 
     /// Map of all process components and their cloned counterpart

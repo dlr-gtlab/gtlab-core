@@ -45,8 +45,7 @@ GtProcessExecutor::handleTaskFinishedHelper(
         m_task = task;
 
         GtFinishedProcessLoadingHelper* helper =
-            new GtFinishedProcessLoadingHelper(std::move(changedData), m_source,
-                                               m_task->objectName());
+            new GtFinishedProcessLoadingHelper(std::move(changedData));
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 

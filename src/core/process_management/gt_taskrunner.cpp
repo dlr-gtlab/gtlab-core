@@ -92,6 +92,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
     m_source = source;
 
     // free data to merge list
+    m_initialData.clear();
     m_dataToMerge.clear();
 
     // clear component mapping
@@ -111,7 +112,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
         }
 
         GtObjectMemento memento = srcObj->toMemento();
-        m_dataToMerge.append({memento, GtObjectMemento{}});
+        m_initialData.append(memento);
         m_runnable->appendSourceData(memento);
     }
 
@@ -322,15 +323,16 @@ GtTaskRunner::handleRunnableFinished()
     disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
                this, &GtTaskRunner::handleRunnableFinished);
 
-    const QList<GtTaskMementoPair> initialData = m_dataToMerge;
+    const QList<GtObjectMemento> initialData = m_initialData;
+    m_initialData.clear();
     m_dataToMerge.clear();
     bool missingInitialSnapshot = false;
     for (const GtObjectMemento& result : m_runnable->outputData())
     {
         const GtObjectMemento* initial = nullptr;
-        for (const GtTaskMementoPair& pair : initialData)
+        for (const GtObjectMemento& memento : initialData)
         {
-            initial = findMemento(pair.initial, result.uuid());
+            initial = findMemento(memento, result.uuid());
             if (initial)
             {
                 break;

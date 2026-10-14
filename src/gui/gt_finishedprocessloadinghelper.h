@@ -3,22 +3,16 @@
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
- 
 #ifndef GTFINISHEDPROCESSLOADINGHELPER_H
 #define GTFINISHEDPROCESSLOADINGHELPER_H
 
-
-#include <QPointer>
-#include "gt_abstractloadinghelper.h"
-#include "gt_taskrunner.h"
-
-#include "gt_gui_exports.h"
-
 #include <memory>
 
-class GtObject;
-class GtObjectMemento;
-class GtObjectMementoDiff;
+#include "gt_gui_exports.h"
+#include "gt_abstractloadinghelper.h"
+#include "gt_objectmementodiff.h"
+#include "gt_taskrunner.h"
+
 /**
  * @brief The GtFinishedProcessLoadingHelper class
  * Calculates the completed task diff in the GUI loading procedure.
@@ -31,14 +25,9 @@ class GT_GUI_EXPORT GtFinishedProcessLoadingHelper :
 public:
     /**
      * @brief GtFinishedProcessLoadingHelper
-     * @param data Initial and result mementos to compare
-     * @param sumDiff Resulting task diff
-     * @param source Source object receiving the task diff
-     * @param taskName Name of the task being merged
+     * @param data Initial and result memento pairs to compare
      */
-    GtFinishedProcessLoadingHelper(QList<GtTaskMementoPair> data,
-                                   QPointer<GtObject> source,
-                                   const QString& taskName);
+    explicit GtFinishedProcessLoadingHelper(QList<GtTaskMementoPair> data);
 
     ~GtFinishedProcessLoadingHelper();
 
@@ -65,9 +54,6 @@ private:
 
     /// Whether the task mementos formed valid pairs
     bool m_valid{false};
-
-    /// source object to apply the diff to
-    QPointer<GtObject> m_source;
 };
 
 #endif // GTFINISHEDPROCESSLOADINGHELPER_H

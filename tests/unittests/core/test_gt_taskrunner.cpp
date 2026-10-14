@@ -118,6 +118,7 @@ TEST_F(TestGtTaskRunner, setUpCopiesSourceAndQueuesClonedTask)
     ASSERT_TRUE(runner.setUp(runnable.get(), &source));
 
     EXPECT_EQ(runnable->sourceDataCount(), 1);
+    EXPECT_TRUE(runner.dataToMerge().isEmpty());
     EXPECT_EQ(runnable->queueSize(), 1);
 
     auto* queuedTask = qobject_cast<GtTask*>(runnable->queuedComponent());
@@ -265,6 +266,8 @@ TEST_F(TestGtTaskRunner, dataDiffForRejectsMismatchedMementoPairs)
 {
     GtTaskMementoPair mismatchedPair{sourceChild.toMemento(),
                                      otherSourceChild.toMemento()};
+    GtTaskMementoPair missingResult{sourceChild.toMemento(), GtObjectMemento{}};
 
     EXPECT_FALSE(GtTaskRunner::dataDiffFor({mismatchedPair}).has_value());
+    EXPECT_FALSE(GtTaskRunner::dataDiffFor({missingResult}).has_value());
 }
