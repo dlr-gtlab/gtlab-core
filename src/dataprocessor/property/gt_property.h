@@ -219,9 +219,6 @@ inline void GtProperty<ParamType>::setValFromConnection()
     // check connection
     if (!m_connection) return;
 
-    // TODO: Add here how to convert values is a conversion function is given
-    // and give feedback if the conversion was lossy
-
     const GtAbstractProperty* source = gt::getConnectedProperty(*m_connection);
 
     if (!source) return;
@@ -249,7 +246,6 @@ inline void GtProperty<ParamType>::setValFromConnection()
                           "infomation loss.")
                            .arg(source->ident(), ident());
     }
-
 }
 
 template<class ParamType>

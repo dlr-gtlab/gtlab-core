@@ -100,13 +100,24 @@ GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
     const GtPropertyConverter* converter =
         findConverterWithInheritance(from, to);
 
-    if (!converter) return {};
+    // if no converter is given at all
+    if (!converter)
+    {
+        // default behaviour for identical metatypes
+        if (from.className() == to.className())
+        {
+            return gt::conversion::defaultConverter;
+        }
+
+        return {};
+    }
 
     gt::conversion::convert func = converter->convertFunc();
 
     if (func) return func;
 
-    // default behaviour for identical metatypes
+    // default behaviour for identical metatypes if converter is registered
+    // but without defined conversion function
     if (from.className() == to.className())
     {
         return gt::conversion::defaultConverter;
