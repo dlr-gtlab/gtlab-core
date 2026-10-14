@@ -259,6 +259,11 @@ signals:
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
+
+    friend class GtObject;
+
+    /// Sets the owner of all current and future entries (used for recording)
+    void setOwnerObject(const GtObject& owner);
 };
 
 #endif // GTPROPERTYSTRUCTCONTAINER_H

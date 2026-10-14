@@ -20,6 +20,9 @@
 #include <QVariant>
 
 #include "gt_propertyconnection.h"
+#include "gt_recordinghooks.h"
+
+class GtObject;
 
 /**
  * @brief The GtAbstractProperty class
@@ -288,6 +291,13 @@ public:
     void setCollapsedByDefault(bool collapsed);
     bool collapsedByDefault() const;
 
+    /**
+     * @brief Returns the object that registered this property (directly, as
+     * sub-property or as property container entry), or nullptr.
+     * Used to attribute recorded accesses to their object.
+     */
+    const GtObject* ownerObject() const;
+
 protected:
     /**
      * @brief GtAbstractProperty
@@ -339,6 +349,15 @@ private:
     /// Private implementation
     class Impl;
     std::unique_ptr<Impl> m_pimpl;
+
+    friend class GtObject;
+    friend class GtPropertyStructContainer;
+
+    /**
+     * @brief Sets the owner of this property and its sub-properties and
+     * connects changed() to the recording hook once.
+     */
+    void setOwnerObject(const GtObject& owner);
 
 private slots:
     /**

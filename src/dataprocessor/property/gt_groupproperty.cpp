@@ -56,6 +56,9 @@ GtGroupProperty::generateSummary()
         return;
     }
 
+    // reading the sub-properties for the summary is not a data access
+    gt::detail::SuppressRecordingScope noRecording;
+
     m_value = QStringLiteral("[");
     for (int i = 0; i < m_subProperties.size() - 1; i++)
     {

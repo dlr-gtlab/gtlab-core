@@ -27,7 +27,11 @@ public:
     ParamType& get();
     ParamType const & get() const;
 
-    ParamType& operator()(void){return m_value;}
+    ParamType& operator()(void)
+    {
+        gt::detail::PropertyReadScope readScope(*this);
+        return m_value;
+    }
 
     virtual operator ParamType () const
     {
@@ -140,12 +144,14 @@ private:
 template<class ParamType>
 inline ParamType& GtProperty<ParamType>::get()
 {
+    gt::detail::PropertyReadScope readScope(*this);
     return m_value;
 }
 
 template<class ParamType>
 inline ParamType const & GtProperty<ParamType>::get() const
 {
+    gt::detail::PropertyReadScope readScope(*this);
     return m_value;
 }
 
@@ -153,6 +159,7 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
+    gt::detail::PropertyReadScope readScope(*this);
     return m_value;
 }
 
@@ -160,6 +167,8 @@ template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
                                                bool* success) const
 {
+    gt::detail::PropertyReadScope readScope(*this);
+
     if (unit.isEmpty())
     {
         return gt::valueSuccess(getVal(), success);
