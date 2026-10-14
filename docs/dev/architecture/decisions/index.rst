@@ -11,3 +11,4 @@ implementation design.
 
    0001-executable-operations
    0002-calculator-executor-interface
+   0003-opt-in-recording
