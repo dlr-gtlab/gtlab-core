@@ -34,15 +34,14 @@ namespace
             return &root;
         }
 
-        for (const GtObjectMemento& child : root.childObjects)
-        {
-            if (const GtObjectMemento* match = findMemento(child, uuid))
-            {
-                return match;
-            }
-        }
+        const GtObjectMemento* match = nullptr;
+        std::any_of(root.childObjects.cbegin(), root.childObjects.cend(),
+                    [&match, &uuid](const GtObjectMemento& child) {
+            match = findMemento(child, uuid);
+            return match != nullptr;
+        });
 
-        return nullptr;
+        return match;
     }
 } // namespace
 
