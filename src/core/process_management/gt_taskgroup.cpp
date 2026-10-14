@@ -10,11 +10,16 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QRegularExpression>
 #include <QDomDocument>
 #include <QDomElement>
+
+#include <memory>
+#include <vector>
 
 #include "gt_algorithms.h"
 #include "gt_logging.h"
@@ -53,6 +58,43 @@ fromVariantMap(const QVariantMap& mappings)
         result.insert(it.key(), it.value().toString());
     }
     return result;
+}
+
+QString taskFilePath(const QString& groupPath, const QString& taskUuid)
+{
+    static const QRegularExpression uuidPattern(
+        QStringLiteral("^(?:\\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"
+                       "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                       "[0-9a-fA-F]{12}\\}|"
+                       "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"
+                       "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                       "[0-9a-fA-F]{12})$"));
+
+    if (!uuidPattern.match(taskUuid).hasMatch())
+    {
+        gtError() << QObject::tr("Invalid task UUID (%1)").arg(taskUuid);
+        return {};
+    }
+
+    const QString canonicalGroupPath = QFileInfo(groupPath).canonicalFilePath();
+    if (canonicalGroupPath.isEmpty())
+    {
+        gtError() << QObject::tr("Could not resolve task group directory (%1)")
+                         .arg(groupPath);
+        return {};
+    }
+
+    const QString filePath =
+        QDir(canonicalGroupPath)
+            .filePath(taskUuid + QString::fromLatin1(S_TASK_FILE_EXT));
+    if (QFileInfo(filePath).absolutePath() != canonicalGroupPath ||
+        QFileInfo(filePath).isSymLink())
+    {
+        gtError() << QObject::tr("Task file path is outside its task group");
+        return {};
+    }
+
+    return filePath;
 }
 
 void
@@ -169,16 +211,22 @@ GtTaskGroup::read(const QString& projectPath,
 
     // active tasks
     QJsonArray activeTasks = json[QStringLiteral("active")].toArray();
+    std::vector<std::unique_ptr<GtObject>> tasks;
 
     for (const auto& e : qAsConst(activeTasks))
     {
-        auto newTask = m_pimpl->createTaskFromFile(
-                    dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
+        const QString taskPath = taskFilePath(dir.absolutePath(), e.toString());
+        if (taskPath.isEmpty())
+        {
+            return false;
+        }
+
+        auto newTask = m_pimpl->createTaskFromFile(taskPath);
 
         if (!newTask)
         {
             gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
-            continue;
+            return false;
         }
 
         if (newTask.get()->isDummy())
@@ -192,7 +240,12 @@ GtTaskGroup::read(const QString& projectPath,
             assert(qobject_cast<GtTask*>(newTask.get()) && "newTask must be of type GtTask.");
         }
 
-        appendChild(newTask.release());
+        tasks.push_back(std::move(newTask));
+    }
+
+    for (auto& task : tasks)
+    {
+        appendChild(task.release());
     }
 
     acceptChangesRecursively();
@@ -342,8 +395,12 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
         return false;
     }
 
-    const QString fileName = groupPath(projectPath, scope, groupId) + QDir::separator()
-            + taskUuid + S_TASK_FILE_EXT;
+    const QString fileName =
+        taskFilePath(groupPath(projectPath, scope, groupId), taskUuid);
+    if (fileName.isEmpty())
+    {
+        return false;
+    }
 
     gtDebug().medium().nospace() << "writing task file (" << fileName << ")...";
 
@@ -593,8 +650,11 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 bool
 GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) const
 {
-    QString taskFile(groupPath + QDir::separator() + task->uuid() +
-                   S_TASK_FILE_EXT);
+    const QString taskFile = taskFilePath(groupPath, task->uuid());
+    if (taskFile.isEmpty())
+    {
+        return false;
+    }
 
 
     QDomDocument doc;

@@ -519,10 +519,18 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
         container->blockSignals(true);
 
         // if group not already initialized. do it now!!! last chance my friend
-        group->read(projectPath, scope);
-        group->acceptChanges();
+        const bool read = group->read(projectPath, scope);
+        if (read)
+        {
+            group->acceptChanges();
+        }
 
         container->blockSignals(false);
+
+        if (!read)
+        {
+            return false;
+        }
     }
 
     return true;

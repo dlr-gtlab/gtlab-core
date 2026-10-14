@@ -18,6 +18,8 @@
 #include "gt_objectfactory.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
+#include "gt_label.h"
+#include "gt_labeldata.h"
 #include "gt_processdata.h"
 #include "gt_propertyconnection.h"
 #include "gt_objectlinkproperty.h"
@@ -356,12 +358,17 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
 
     auto* processData = source->processData();
     ASSERT_NE(processData, nullptr);
+    auto* projectTarget = new GtLabel(QStringLiteral("Project Target"));
+    ASSERT_TRUE(source->labelData()->addLabel(projectTarget));
+    const QString projectTargetUuid = projectTarget->uuid();
+
     auto* taskGroup = processData->createNewTaskGroup(
         QStringLiteral("Uuid Test Group"), GtTaskGroup::USER);
     ASSERT_NE(taskGroup, nullptr);
     auto* task = new ProjectUuidTask;
     task->setFactory(taskFactory);
     task->setObjectName(QStringLiteral("Uuid Test Task"));
+    task->link()->setVal(projectTargetUuid);
     auto* target = new ProjectUuidLinkObject;
     target->setObjectName(QStringLiteral("Task Target"));
     auto* linkedObject = new ProjectUuidLinkObject;
@@ -383,6 +390,9 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
     const QString connectionUuid = connection->uuid();
     ASSERT_TRUE(taskGroup->appendChild(task));
     const QString taskUuid = task->uuid();
+    ASSERT_EQ(task->link()->linkedObject(), projectTarget);
+
+    ASSERT_TRUE(gtDataModel->saveProject(source));
 
     GtProjectProvider provider(source);
     const QString duplicatePath = gtTestHelper->newTempDir().absolutePath();
@@ -395,9 +405,19 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
               task);
     EXPECT_EQ(linkedObject->link()->linkedObject(task), target);
 
-    GtTaskGroup reopenedGroup(QStringLiteral("Uuid Test Group"));
-    ASSERT_TRUE(reopenedGroup.read(duplicatePath, GtTaskGroup::USER));
-    auto* reopenedTask = reopenedGroup.findDirectChild<ProjectUuidTask*>(
+    ASSERT_TRUE(gtDataModel->closeProject(source));
+    GtProject* duplicateProject = duplicate.release();
+    ASSERT_TRUE(gtDataModel->newProject(duplicateProject, false));
+    ASSERT_TRUE(gtDataModel->openProject(duplicateProject));
+    EXPECT_EQ(duplicateProject->objectName(),
+              QStringLiteral("Task Duplicate Project"));
+    EXPECT_EQ(duplicateProject->path(), duplicatePath);
+
+    auto* reopenedGroup =
+        duplicateProject->processData()->findChild<GtTaskGroup*>(
+            QStringLiteral("Uuid Test Group"));
+    ASSERT_NE(reopenedGroup, nullptr);
+    auto* reopenedTask = reopenedGroup->findDirectChild<ProjectUuidTask*>(
         QStringLiteral("Uuid Test Task"));
     ASSERT_NE(reopenedTask, nullptr);
     EXPECT_EQ(reopenedTask->uuid(), taskUuid);
@@ -413,6 +433,14 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
     EXPECT_EQ(reopenedLinkedObject->uuid(), linkedObjectUuid);
     EXPECT_EQ(reopenedLinkedObject->link()->linkedObject(reopenedTask),
               reopenedTarget);
+    auto* reopenedProjectTarget =
+        duplicateProject->labelData()->findDirectChild<GtLabel*>(
+            QStringLiteral("Project Target"));
+    ASSERT_NE(reopenedProjectTarget, nullptr);
+    EXPECT_EQ(reopenedProjectTarget->uuid(), projectTargetUuid);
+    EXPECT_EQ(reopenedTask->link()->linkedObject(), reopenedProjectTarget);
+    EXPECT_EQ(reopenedProjectTarget->parent(), duplicateProject->labelData());
+
     auto* reopenedConnection = qobject_cast<GtPropertyConnection*>(
         reopenedTask->getObjectByUuid(connectionUuid));
     ASSERT_NE(reopenedConnection, nullptr);
@@ -420,6 +448,23 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
     EXPECT_EQ(reopenedConnection->targetUuid(), targetUuid);
     reopenedConnection->makeConnection();
     EXPECT_TRUE(reopenedConnection->isConnected());
+
+    ASSERT_TRUE(gtDataModel->closeProject(duplicateProject));
+    ASSERT_TRUE(gtDataModel->openProject(source));
+    EXPECT_EQ(source->objectName(), QStringLiteral("Task Source Project"));
+    auto* reopenedSourceTask =
+        source->processData()->findChild<ProjectUuidTask*>(
+            QStringLiteral("Uuid Test Task"));
+    ASSERT_NE(reopenedSourceTask, nullptr);
+    auto* reopenedSourceTarget = source->labelData()->findDirectChild<GtLabel*>(
+        QStringLiteral("Project Target"));
+    ASSERT_NE(reopenedSourceTarget, nullptr);
+    EXPECT_EQ(reopenedSourceTask->link()->linkedObject(), reopenedSourceTarget);
+    auto* reopenedSourceConnection = qobject_cast<GtPropertyConnection*>(
+        reopenedSourceTask->getObjectByUuid(connectionUuid));
+    ASSERT_NE(reopenedSourceConnection, nullptr);
+    reopenedSourceConnection->makeConnection();
+    EXPECT_TRUE(reopenedSourceConnection->isConnected());
 
     EXPECT_TRUE(
         gtObjectFactory->unregisterClass(ProjectUuidTask::staticMetaObject));
@@ -430,6 +475,54 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
         EXPECT_TRUE(gtObjectFactory->unregisterClass(
             ProjectUuidLinkObject::staticMetaObject));
     }
+}
+
+TEST_F(ProjectLifecycleTest, duplicateFailsWhenTaskGroupsCannotBeLoaded)
+{
+    GtProject* source = createProject(QStringLiteral("Task Source Project"));
+    ASSERT_NE(source, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(source, true));
+
+    auto* taskFactory = gtProcessFactory->taskFactory();
+    ASSERT_TRUE(taskFactory->registerClass(ProjectUuidTask::staticMetaObject,
+                                           QStringLiteral("Core")));
+    ASSERT_TRUE(gtObjectFactory->registerClass(
+        ProjectUuidTask::staticMetaObject, QStringLiteral("Core")));
+
+    auto* processData = source->processData();
+    ASSERT_NE(processData, nullptr);
+    auto* group = processData->createNewTaskGroup(
+        QStringLiteral("Unreadable Group"), GtTaskGroup::USER);
+    ASSERT_NE(group, nullptr);
+    auto* task = new ProjectUuidTask;
+    task->setFactory(taskFactory);
+    ASSERT_TRUE(group->appendChild(task));
+    const QString taskUuid = task->uuid();
+    ASSERT_TRUE(gtDataModel->saveProject(source));
+    const QString groupPath = GtTaskGroup::groupPath(
+        source->path(), GtTaskGroup::USER, QStringLiteral("Unreadable Group"));
+    const QString taskFile = groupPath + QDir::separator() + taskUuid +
+                             QStringLiteral(".gttask");
+
+    ASSERT_TRUE(gtDataModel->closeProject(source));
+    ASSERT_TRUE(QFile::remove(taskFile));
+    ASSERT_TRUE(gtDataModel->openProject(source));
+    ASSERT_NE(source->processData(), nullptr);
+    EXPECT_FALSE(source->processData()->initAllTaskGroups(source->path()));
+
+    GtProjectProvider provider(source);
+    const QString duplicatePath = gtTestHelper->newTempDir().absolutePath();
+    EXPECT_EQ(provider.duplicateProject(QStringLiteral("Failed Duplicate"),
+                                        duplicatePath),
+              nullptr);
+    EXPECT_EQ(provider.project(), source);
+    EXPECT_TRUE(source->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), source);
+
+    EXPECT_TRUE(
+        gtObjectFactory->unregisterClass(ProjectUuidTask::staticMetaObject));
+    EXPECT_TRUE(
+        taskFactory->unregisterClass(ProjectUuidTask::staticMetaObject));
 }
 
 #include "test_gt_coredatamodel.moc"
