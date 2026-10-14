@@ -13,3 +13,4 @@ implementation design.
    0002-module-binary-compatibility
    0002-calculator-executor-interface
    0003-dynamic-properties
+   0003-opt-in-recording
