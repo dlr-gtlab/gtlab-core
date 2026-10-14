@@ -18,10 +18,40 @@
 #include <functional>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 class GtObject;
 class GtAbstractProperty;
 class GtRecordingObserver;
+class GtRecordingSession;
+
+namespace gt
+{
+namespace detail
+{
+
+/**
+ * @brief Activates a running session on the current thread for the lifetime
+ * of the scope and restores the previous session afterwards. Does nothing if
+ * the session is not running. Used by gt::propagateRecording(); not intended
+ * for direct use.
+ */
+class GT_DATAMODEL_EXPORT GtRecordingScope
+{
+public:
+    explicit GtRecordingScope(GtRecordingSession& session) noexcept;
+    ~GtRecordingScope();
+
+    GtRecordingScope(const GtRecordingScope&) = delete;
+    GtRecordingScope& operator=(const GtRecordingScope&) = delete;
+
+private:
+    GtRecordingSession* m_previous{nullptr};
+    bool m_active{false};
+};
+
+} // namespace detail
+} // namespace gt
 
 /**
  * @brief One opt-in recording of one execution.
@@ -174,8 +204,49 @@ private:
 
     friend void gt::detail::recordObjectDestroyed(const GtObject*,
                                                   const GtObject&) noexcept;
+    friend class gt::detail::GtRecordingScope;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtRecordingSession::Events)
+
+namespace gt
+{
+
+/**
+ * @brief Wraps a callable so that it runs in the recording session that is
+ * active when the wrapper is created.
+ *
+ * Thread-local recording state does not propagate to new threads. Wrap the
+ * entry point of every worker thread whose accesses should be recorded:
+ *
+ * @code
+ * std::thread worker(gt::propagateRecording([&] {
+ *     calculateSomething();
+ * }));
+ * worker.join();
+ * @endcode
+ *
+ * The wrapper activates the captured session in the worker and restores the
+ * worker's previous state on exit, also on exceptions. Without an active
+ * session the callable runs unchanged. No new session is created. Workers
+ * must be joined before the recorded work returns.
+ */
+template <typename Callable>
+auto
+propagateRecording(Callable&& callable)
+{
+    GtRecordingSession* session = GtRecordingSession::current();
+
+    return [session, fn = std::forward<Callable>(callable)]() mutable
+        -> decltype(auto)
+    {
+        if (!session) return std::invoke(fn);
+
+        detail::GtRecordingScope scope(*session);
+        return std::invoke(fn);
+    };
+}
+
+} // namespace gt
 
 #endif // GTRECORDINGSESSION_H
