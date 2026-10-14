@@ -24,6 +24,7 @@ set(headers
     gt_gui_exports.h
     gt_application.h
     gt_guiutilities.h
+    gt_processdockpage.h
     gt_icons.h
     gt_mdiinterface.h
     gt_mdiitem.h
@@ -209,6 +210,7 @@ set(sources
     dialogs/project_upgrader/gt_projectupgradesettingspage.cpp
     dialogs/project_upgrader/gt_projectupgradestartpage.cpp
     gt_application.cpp
+    gt_processdockpage.cpp
     gt_colors.cpp
     gt_guiutilities.cpp
     gt_icons.cpp
