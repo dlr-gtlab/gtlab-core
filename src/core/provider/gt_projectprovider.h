@@ -214,7 +214,6 @@ private:
      * @return
      */
     bool generateModuleFile(const QString& id);
-
 };
 
 #endif // GTPROJECTPROVIDER_H
