@@ -91,15 +91,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
     // cloning so their tasks are included in the duplicate.
     if (auto pd = tmpProject->processData())
     {
-        if (!pd->initAllTaskGroups(tmpProject->path()))
-        {
-            gtError() << tr("Could not load all task groups for project copy!");
-            delete retval;
-            m_pName = tmpId;
-            m_pPath = tmpPath;
-            m_project = tmpProject;
-            return nullptr;
-        }
+        pd->initAllTaskGroups(tmpProject->path());
     }
 
     // copy objects

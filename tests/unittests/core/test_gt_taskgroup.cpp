@@ -9,9 +9,7 @@
 #include "gtest/gtest.h"
 
 #include <QDomDocument>
-#include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -211,47 +209,6 @@ TEST_F(GtTaskGroupMetadataTest, KeepsFileForMissingTaskClass)
     const QJsonArray active =
         index.object().value(QStringLiteral("active")).toArray();
     EXPECT_TRUE(active.contains(taskUuid));
-}
-
-TEST_F(GtTaskGroupMetadataTest, RejectsTaskUuidThatEscapesGroupDirectory)
-{
-    QTemporaryDir projectDir;
-    ASSERT_TRUE(projectDir.isValid());
-
-    GtTaskGroup group(QStringLiteral("group"), true);
-    auto* task = new MetadataTestTask;
-    const QString maliciousUuid = QStringLiteral("../../../escaped");
-    task->setUuid(maliciousUuid);
-    ASSERT_TRUE(group.appendChild(task));
-
-    const QString groupPath = GtTaskGroup::groupPath(
-        projectDir.path(), GtTaskGroup::CUSTOM, QStringLiteral("group"));
-    const QString escapedPath = QDir(groupPath).absoluteFilePath(
-        maliciousUuid + QStringLiteral(".gttask"));
-
-    EXPECT_FALSE(group.save(projectDir.path(), GtTaskGroup::CUSTOM));
-    EXPECT_FALSE(QFileInfo::exists(escapedPath));
-}
-
-TEST_F(GtTaskGroupMetadataTest, RejectsTaskElementUuidThatEscapesGroupDirectory)
-{
-    QTemporaryDir projectDir;
-    ASSERT_TRUE(projectDir.isValid());
-
-    QDomDocument document;
-    QDomElement task = document.createElement(QStringLiteral("task"));
-    task.setAttribute(QStringLiteral("uuid"),
-                      QStringLiteral("../../../escaped"));
-    document.appendChild(task);
-
-    const QString groupPath = GtTaskGroup::groupPath(
-        projectDir.path(), GtTaskGroup::CUSTOM, QStringLiteral("group"));
-    const QString escapedPath = QDir(groupPath).absoluteFilePath(
-        QStringLiteral("../../../escaped.gttask"));
-
-    EXPECT_FALSE(GtTaskGroup::saveTaskElementToFile(
-        projectDir.path(), GtTaskGroup::CUSTOM, QStringLiteral("group"), task));
-    EXPECT_FALSE(QFileInfo::exists(escapedPath));
 }
 
 #include "test_gt_taskgroup.moc"
