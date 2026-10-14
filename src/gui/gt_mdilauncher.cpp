@@ -26,6 +26,8 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 #include "gt_tabwidget.h"
+#include "gt_guifactory.h"
+#include "gt_guilayoutadapter.h"
 
 static const QString S_WINDOW_PREFIX = QStringLiteral("GTlab - ");
 
@@ -124,6 +126,8 @@ struct GtMdiLauncher::Impl
     /// Mdi area widget
     QPointer<QTabWidget> area{nullptr};
 
+    QPointer<GtGuiLayoutAdapter> adapter{};
+
     /// Registered dock widget meta objects
     QHash<QString, QMetaObject> dockWidgets;
 
@@ -196,6 +200,7 @@ GtMdiLauncher::mdiItemAllowed(GtMdiItem* mdiItem)
     {
         return false;
     }
+
 
     if (openItemIds().contains(mdiId))
     {
@@ -324,6 +329,12 @@ GtMdiLauncher::setMdiArea(QTabWidget* area)
 
     connect(pimpl->area, SIGNAL(tabCloseRequested(int)), this,
             SLOT(onCloseTabRequest(int)));
+}
+
+void
+GtMdiLauncher::setAdapter(GtGuiLayoutAdapter& adapter)
+{
+    pimpl->adapter = &adapter;
 }
 
 bool
@@ -490,6 +501,8 @@ GtMdiLauncher::toolbarActions(QWidget* subWindow) const
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
+    GtGuiFactory::instance()->registerDockWidget(metaObj, GT_MODULENAME());
+
     if (pimpl->dockWidgets.contains(metaObj.className()))
     {
         gtWarning().medium()
@@ -501,6 +514,13 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
     pimpl->dockWidgets.insert(metaObj.className(), metaObj);
 
     return true;
+}
+
+bool
+GtMdiLauncher::registerClass(QMetaObject metaObj)
+{
+    GtGuiFactory::instance()->registerGuiItem(metaObj, GT_MODULENAME());
+    return GtAbstractObjectFactory::registerClass(metaObj);
 }
 
 bool
@@ -530,7 +550,7 @@ GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
 
     for (const QMetaObject& metaObj : metaData)
     {
-        pimpl->dockWidgets.insert(metaObj.className(), metaObj);
+        registerDockWidget(metaObj); // checks if widget exists twice
     }
 
     return true;

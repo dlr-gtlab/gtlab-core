@@ -60,6 +60,7 @@
 
 #include <QQuickWidget>
 #include <QQmlContext>
+#include <QLabel>
 
 #include <algorithm>
 
@@ -79,6 +80,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_processQueue(nullptr),
     m_mainWindowToolbar(new GtMainToolbar(this))
 {
+    hide();
+
 #if USE_ALTERNATIVE_DOCKING_SYSTEM
     ui->setupUi(this);
 
@@ -87,9 +90,22 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     manager->setObjectName(QStringLiteral("DockManager"));
     manager->setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
 
+    // Set central widget
+    ads::CDockWidget* centralDockWidget = manager->createDockWidget("CentralWidget");
+    {
+        QLabel* label = new QLabel();
+        label->setText("This is a DockArea which is always visible.");
+        label->setAlignment(Qt::AlignCenter);
+        centralDockWidget->setWidget(label);
+    }
+    centralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
+    auto* centralDockArea = manager->setCentralWidget(centralDockWidget);
+    assert(centralDockArea);
+
     auto* area = new ads::CDockWidget(manager, QStringLiteral("Home"));
     area->setWidget(ui->centralwidget);
     manager->setCentralWidget(area);
+    manager->addDockWidgetTabToArea(area, centralDockArea);
 
     setupDockWidgets();
 #else
@@ -291,6 +307,7 @@ GtMainWin::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
 
+    gtDebug() << "ABOUT TO SHOW...";
     QTimer::singleShot(0, this, SLOT(initAfterStartup()));
 }
 
@@ -923,7 +940,7 @@ GtMainWin::printCurrentMdiItem()
 {
     if (ui->mdiArea->count() != 0)
     {
-        gtMdiLauncher->print(ui->mdiArea->currentWidget());
+        gtMdiLauncher->printCurrentWindow();
     }
     else
     {
@@ -1054,7 +1071,6 @@ GtMainWin::onCollectionEntryClicked()
     coll->setCollection(gtMdiLauncher->collection(colId));
 
     QWidget* subWin = item->widget();
-
     if (!subWin)
     {
         return;
@@ -1205,6 +1221,7 @@ GtMainWin::initAfterStartup()
     }
 
     emit guiInitialized();
+    gtDebug() << "NOW SHOWING";
 }
 
 void

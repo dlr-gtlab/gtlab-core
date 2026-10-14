@@ -61,6 +61,8 @@ GtMdiItem::GtMdiItem() :
     m_d(nullptr),
     pimpl(std::make_unique<Impl>())
 {
+    m_frame->hide();
+
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),

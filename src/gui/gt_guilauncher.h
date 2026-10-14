@@ -7,13 +7,42 @@
  *  Author: Marius Bröcker <marius.broecker@dlr.de>
  */
 
-#ifndef GTGUILAUNCHER_H
-#define GTGUILAUNCHER_H
+#ifndef GT_GUILAUNCHER_H
+#define GT_GUILAUNCHER_H
 
-class GtGuiLauncher
+#include "gt_gui_exports.h"
+
+#include <gt_platform.h>
+#include <gt_globals.h>
+
+#include <QObject>
+#include <QPointer>
+
+class GT_GUI_EXPORT GtGuiLauncher final : public QObject
 {
 public:
+
+    ~GtGuiLauncher() noexcept override;
+
+    /**
+     * @brief Returns the current instance of this launcher
+     * @return Self
+     */
+    GT_NO_DISCARD
+    static GtGuiLauncher* instance() noexcept;
+
+private:
     GtGuiLauncher();
+
+    struct Impl;
+    std::unique_ptr<Impl> impl;
+
+    /// wrapper for impl for const-correct access
+    GT_NO_DISCARD
+    Impl* pimpl() noexcept;
+    /// wrapper for impl for const-correct access
+    GT_NO_DISCARD
+    Impl const* pimpl() const noexcept;
 };
 
-#endif // GTGUILAUNCHER_H
+#endif // GT_GUILAUNCHER_H

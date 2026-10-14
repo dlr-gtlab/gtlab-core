@@ -11,6 +11,7 @@
 #include <gt_project.h>
 #include <gt_markdowneditor.h>
 #include <gt_mdilauncher.h>
+#include <gt_startuppage.h>
 
 #include <gt_icons.h>
 
@@ -180,7 +181,7 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
     if (mainwin)
     {
         connect(homeAction, &GtQmlAction::triggered, this, []() {
-            gtMdiLauncher->open("GtStartupPage");
+            gtMdiLauncher->open(GT_CLASSNAME(GtStartupPage));
         });
 
         connect(newProjectAction, SIGNAL(triggered()), mainwin,

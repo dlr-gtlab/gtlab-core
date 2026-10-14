@@ -7,8 +7,10 @@
  *  Author: Marius Bröcker <marius.broecker@dlr.de>
  */
 
-#ifndef GTGUIFACTORY_H
-#define GTGUIFACTORY_H
+#ifndef GT_GUIFACTORY_H
+#define GT_GUIFACTORY_H
+
+#include "gt_gui_exports.h"
 
 #include <gt_platform.h>
 #include <gt_globals.h>
@@ -16,11 +18,13 @@
 #include <memory>
 
 #include <QMetaObject>
-#include <QLatin1String>
 
 class QWidget;
 
-class GtGuiFactory final
+class GtDockWidget;
+class GtMdiItem;
+
+class GT_GUI_EXPORT GtGuiFactory final
 {
 public:
 
@@ -40,7 +44,7 @@ public:
      * @return New widget. May be null.
      */
     GT_NO_DISCARD
-    std::unique_ptr<QWidget> makeDockWidget(QString const& className) const;
+    std::unique_ptr<GtDockWidget> makeDockWidget(QString const& className) const;
 
     /**
      * @brief Attempts to instantiate a new gui item of the corresponding
@@ -49,7 +53,7 @@ public:
      * @return New widget. May be null.
      */
     GT_NO_DISCARD
-    std::unique_ptr<QWidget> makeGuiItem(QString const& className) const;
+    std::unique_ptr<GtMdiItem> makeGuiItem(QString const& className) const;
 
     /**
      * @brief Registers a dock widget using the meta object provided.
@@ -155,4 +159,4 @@ private:
     Impl const* pimpl() const noexcept;
 };
 
-#endif // GTGUIFACTORY_H
+#endif // GT_GUIFACTORY_H

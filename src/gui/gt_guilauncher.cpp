@@ -9,8 +9,33 @@
 
 #include "gt_guilauncher.h"
 
-GtGuiLauncher::GtGuiLauncher()
+struct GtGuiLauncher::Impl
 {
 
+
+}; // struct Impl
+
+GtGuiLauncher::GtGuiLauncher() :
+    impl{std::make_unique<Impl>()}
+{ }
+
+GtGuiLauncher::~GtGuiLauncher() noexcept = default;
+
+GtGuiLauncher* GtGuiLauncher::instance() noexcept
+{
+    static GtGuiLauncher self;
+    return &self;
+}
+
+GtGuiLauncher::Impl*
+GtGuiLauncher::pimpl() noexcept
+{
+    return impl.get();
+}
+
+const GtGuiLauncher::Impl*
+GtGuiLauncher::pimpl() const noexcept
+{
+    return impl.get();
 }
 

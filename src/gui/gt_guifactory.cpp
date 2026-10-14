@@ -11,6 +11,8 @@
 
 #include "gt_qtutilities.h"
 #include "gt_finally.h"
+#include "gt_dockwidget.h"
+#include "gt_mdiitem.h"
 
 #include <QObject>
 #include <QHash>
@@ -96,6 +98,13 @@ GtGuiFactory::GtGuiFactory() :
 
 GtGuiFactory::~GtGuiFactory() noexcept = default;
 
+GtGuiFactory*
+GtGuiFactory::instance() noexcept
+{
+    static GtGuiFactory self;
+    return &self;
+}
+
 GtGuiFactory::Impl*
 GtGuiFactory::pimpl() noexcept
 {
@@ -108,23 +117,16 @@ GtGuiFactory::pimpl() const noexcept
     return impl.get();
 }
 
-GtGuiFactory*
-GtGuiFactory::instance() noexcept
-{
-    static GtGuiFactory self;
-    return &self;
-}
-
-std::unique_ptr<QWidget>
+std::unique_ptr<GtDockWidget>
 GtGuiFactory::makeDockWidget(QString const& className) const
 {
-    return pimpl()->make<QWidget>(pimpl()->dockWidgets, className);
+    return pimpl()->make<GtDockWidget>(pimpl()->dockWidgets, className);
 }
 
-std::unique_ptr<QWidget>
+std::unique_ptr<GtMdiItem>
 GtGuiFactory::makeGuiItem(const QString& className) const
 {
-    return pimpl()->make<QWidget>(pimpl()->guiItems, className);
+    return pimpl()->make<GtMdiItem>(pimpl()->guiItems, className);
 }
 
 bool
