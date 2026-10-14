@@ -37,9 +37,9 @@ namespace
         const GtObjectMemento* match = nullptr;
         std::any_of(root.childObjects.cbegin(), root.childObjects.cend(),
                     [&match, &uuid](const GtObjectMemento& child) {
-            match = findMemento(child, uuid);
-            return match != nullptr;
-        });
+                        match = findMemento(child, uuid);
+                        return match != nullptr;
+                    });
 
         return match;
     }
