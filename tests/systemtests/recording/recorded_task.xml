@@ -1,0 +1,33 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="TestRecordingTask" uuid="{6f3c2a51-8a0e-4c7b-9d42-1b7e5f0a9c13}" name="Recording Task">
+ <property type="bool" name="skip">false</property>
+ <property type="QString" name="processRunner"/>
+ <property type="QString" name="execLabel"/>
+ <property type="QString" name="execMode">TestRecordingExecutor</property>
+ <property type="QString" name="target">{2f96bc74-bdec-407c-9cec-ece2a13da5c2}</property>
+ <objectlist>
+  <object class="TestMementoProjectCalculator" uuid="{0c4e8f6a-2b1d-4e3f-a5c7-9d8b6a4e2f10}" name="Recorded Child">
+   <property type="bool" name="skip">false</property>
+   <property type="QString" name="execLabel"/>
+   <property type="QString" name="execMode">parent</property>
+   <property type="bool" name="failOnWarn">false</property>
+   <property type="QString" name="target">{2f96bc74-bdec-407c-9cec-ece2a13da5c2}</property>
+   <property type="int" name="inputValue">40</property>
+   <property type="QString" name="sideEffectFile"/>
+  </object>
+  <object class="TestMementoProjectCalculator" uuid="{7a9d3c5e-1f2b-4d6a-8c0e-3b5f7d9a1c24}" name="Local Child">
+   <property type="bool" name="skip">false</property>
+   <property type="QString" name="execLabel"/>
+   <property type="QString" name="execMode">local</property>
+   <property type="bool" name="failOnWarn">false</property>
+   <property type="QString" name="target">{2f96bc74-bdec-407c-9cec-ece2a13da5c2}</property>
+   <property type="int" name="inputValue">50</property>
+   <property type="QString" name="sideEffectFile"/>
+  </object>
+ </objectlist>
+</object>
