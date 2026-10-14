@@ -14,6 +14,7 @@
 #include "gt_abstractrunnable.h"
 #include "gt_labeldata.h"
 #include "gt_objectfactory.h"
+#include "gt_objectmementodiff.h"
 #include "gt_processdata.h"
 #include "gt_task.h"
 #include "gt_taskrunner.h"
@@ -39,6 +40,11 @@ public:
     void appendOutputObject(const GtObject& obj)
     {
         m_outputData << GtObjectMemento(&obj);
+    }
+
+    void appendOutputMemento(const GtObjectMemento& memento)
+    {
+        m_outputData << memento;
     }
 
     void finish()
@@ -84,6 +90,7 @@ protected:
     GtTask childTask;
     GtObject source;
     GtObject sourceChild;
+    GtObject otherSourceChild;
 };
 
 TEST_F(TestGtTaskRunner, setUpRejectsInvalidInput)
@@ -174,4 +181,46 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)
     EXPECT_TRUE(finished);
     ASSERT_EQ(runner.dataToMerge().size(), 1);
     EXPECT_EQ(runner.dataToMerge().front().uuid(), resultObject.uuid());
+}
+
+TEST_F(TestGtTaskRunner, taskNoOpDoesNotRevertConcurrentSourceEdit)
+{
+    auto* runnable = new TestTaskRunnerRunnable;
+    GtTaskRunner runner(&task);
+    sourceChild.setObjectName("initial");
+
+    ASSERT_TRUE(runner.setUp(runnable, &source));
+
+    const GtObjectMemento taskResult = sourceChild.toMemento();
+    sourceChild.setObjectName("user edit");
+    runnable->appendOutputMemento(taskResult);
+    runnable->finish();
+
+    GtObjectMementoDiff diff = runner.dataDiffToMerge();
+    ASSERT_TRUE(source.applyDiff(diff));
+    EXPECT_EQ(sourceChild.objectName(), "user edit");
+}
+
+TEST_F(TestGtTaskRunner, taskDiffPreservesUnrelatedEditsAndWinsConflicts)
+{
+    auto* runnable = new TestTaskRunnerRunnable;
+    GtTaskRunner runner(&task);
+    sourceChild.setObjectName("initial A");
+    otherSourceChild.setObjectName("initial B");
+    ASSERT_TRUE(source.appendChild(&otherSourceChild));
+
+    ASSERT_TRUE(runner.setUp(runnable, &source));
+
+    sourceChild.setObjectName("task A");
+    const GtObjectMemento taskResult = sourceChild.toMemento();
+    sourceChild.setObjectName("initial A");
+    otherSourceChild.setObjectName("user B");
+
+    runnable->appendOutputMemento(taskResult);
+    runnable->finish();
+
+    GtObjectMementoDiff diff = runner.dataDiffToMerge();
+    ASSERT_TRUE(source.applyDiff(diff));
+    EXPECT_EQ(sourceChild.objectName(), "task A");
+    EXPECT_EQ(otherSourceChild.objectName(), "user B");
 }

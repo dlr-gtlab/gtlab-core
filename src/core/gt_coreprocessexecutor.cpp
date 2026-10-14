@@ -8,7 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
 #include "gt_logging.h"
@@ -353,12 +352,13 @@ GtCoreProcessExecutor::execute()
 
 void
 GtCoreProcessExecutor::handleTaskFinishedHelper(
-        QList<GtObjectMemento>& changedData, GtTask* task)
+        GtObjectMementoDiff& dataDiff, GtTask* task)
 {
     assert(task);
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
-    gtDebugId(GT_EXEC_ID).medium() << "changed data =" << changedData.size();
+    gtDebugId(GT_EXEC_ID).medium() << "data diff steps ="
+                                   << dataDiff.numberOfDiffSteps();
     gtDebugId(GT_EXEC_ID).medium() << "source =" << m_source;
 
     bool ok = true;
@@ -367,54 +367,7 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
     // calculators included in the task
     if (m_source)
     {
-        QDir tempDir;
-
-        tempDir = gtApp->applicationTempDir();
-
-        GtObjectMementoDiff sumDiff;
-
-        gtDebugId(GT_EXEC_ID).medium() << "generating sum diff...";
-
-        for (GtObjectMemento const& memento : qAsConst(changedData))
-        {
-            gtDebugId(GT_EXEC_ID).medium() << "analysing changed data...";
-
-            GtObject* target = m_source->getObjectByUuid(memento.uuid());
-
-            if (target)
-            {
-                gtDebugId(GT_EXEC_ID).medium()
-                        << "target found =" << target->objectName();
-
-                GtObjectMemento old = target->toMemento(true);
-                GtObjectMementoDiff diff(old, memento);
-
-                QString filename = target->objectName() +
-                                   QStringLiteral(".xml");
-
-                QFile file(tempDir.absoluteFilePath(filename));
-
-                if (file.open(QFile::WriteOnly))
-                {
-                    QTextStream TextStream(&file);
-                    TextStream << diff.toByteArray();
-                    TextStream << "######### new";
-                    TextStream << memento.toByteArray();
-                    TextStream << "######### old";
-                    TextStream << old.toByteArray();
-                    file.close();
-                }
-
-                sumDiff << diff;
-            }
-            else
-            {
-                gtWarningId(GT_EXEC_ID) << tr("Target for memento diff not found");
-                ok = false;
-            }
-        }
-
-        if (!m_source->applyDiff(sumDiff))
+        if (!m_source->applyDiff(dataDiff))
         {
             gtWarningId(GT_EXEC_ID) << tr("Failed to apply memento diff!");
             ok = false;
@@ -554,7 +507,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 
     clearCurrentTask();
 
-    QList<GtObjectMemento> changedData = taskRunner->dataToMerge();
+    GtObjectMementoDiff dataDiff = taskRunner->dataDiffToMerge();
 
     if (pimpl->save)
     {
@@ -566,7 +519,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         if (finishedTask->currentState() == GtProcessComponent::FINISHED ||
             finishedTask->currentState() == GtProcessComponent::WARN_FINISHED)
         {
-            handleTaskFinishedHelper(changedData, finishedTask);
+            handleTaskFinishedHelper(dataDiff, finishedTask);
         }
     }
 

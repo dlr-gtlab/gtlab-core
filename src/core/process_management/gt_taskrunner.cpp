@@ -10,6 +10,7 @@
  */
 
 #include <QThreadPool>
+#include <algorithm>
 
 #include "gt_logging.h"
 #include "gt_processcomponent.h"
@@ -19,11 +20,13 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
+#include "gt_objectmementodiff.h"
 
 #include "gt_taskrunner.h"
 
 GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
-    m_source(nullptr)
+    m_source(nullptr),
+    m_dataDiffToMerge(std::make_unique<GtObjectMementoDiff>())
 {
 }
 
@@ -67,6 +70,8 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
 
     // free data to merge list
     m_dataToMerge.clear();
+    m_initialData.clear();
+    *m_dataDiffToMerge = GtObjectMementoDiff{};
 
     // clear component mapping
     m_componentMap.clear();
@@ -84,7 +89,9 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
             continue;
         }
 
-        m_runnable->appendSourceData(srcObj->toMemento());
+        GtObjectMemento memento = srcObj->toMemento();
+        m_initialData.append(memento);
+        m_runnable->appendSourceData(memento);
     }
 
     GtTask* taskCopy = cloneTask();
@@ -140,6 +147,12 @@ const QList<GtObjectMemento>&
 GtTaskRunner::dataToMerge() const
 {
     return m_dataToMerge;
+}
+
+const GtObjectMementoDiff&
+GtTaskRunner::dataDiffToMerge() const
+{
+    return *m_dataDiffToMerge;
 }
 
 GtTask*
@@ -274,7 +287,21 @@ GtTaskRunner::handleRunnableFinished()
     disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
                this, &GtTaskRunner::handleRunnableFinished);
 
-    m_dataToMerge.append(m_runnable->outputData());
+    m_dataToMerge = m_runnable->outputData();
+
+    for (const GtObjectMemento& result : qAsConst(m_dataToMerge))
+    {
+        auto initial = std::find_if(m_initialData.cbegin(), m_initialData.cend(),
+            [&result](const GtObjectMemento& memento)
+            {
+                return memento.uuid() == result.uuid();
+            });
+
+        if (initial != m_initialData.cend())
+        {
+            *m_dataDiffToMerge << GtObjectMementoDiff(*initial, result);
+        }
+    }
 
     delete m_runnable;
 

@@ -25,6 +25,7 @@ class GtRunnable;
 class GtCalculator;
 class GtTaskRunner;
 class GtProjectExecutionGuard;
+class GtObjectMementoDiff;
 
 class GtObjectLinkProperty;
 
@@ -227,10 +228,10 @@ protected:
 
     /**
      * @brief Virtual method to merge memento data
-     * @param changedData Memento to merge
+     * @param dataDiff Task changes relative to the task-start snapshot
      * @param task Finished task
      */
-    virtual void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
+    virtual void handleTaskFinishedHelper(GtObjectMementoDiff& dataDiff,
                                           GtTask* task);
 
     /**

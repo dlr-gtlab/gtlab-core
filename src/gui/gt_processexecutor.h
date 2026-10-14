@@ -39,7 +39,7 @@ protected:
      * @param changedData
      * @param task
      */
-    void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
+    void handleTaskFinishedHelper(GtObjectMementoDiff& dataDiff,
                                   GtTask* task) override;
 
     /**

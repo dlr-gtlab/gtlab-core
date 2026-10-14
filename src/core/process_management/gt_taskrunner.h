@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QEventLoop>
+#include <memory>
 
 #include "gt_objectmemento.h"
 
@@ -25,6 +26,7 @@ class GtAbstractRunnable;
 class GtProcessComponent;
 class GtObject;
 class GtObjectLinkProperty;
+class GtObjectMementoDiff;
 
 /**
  * @brief The GtTaskRunner class
@@ -63,6 +65,11 @@ public:
      */
     const QList<GtObjectMemento>& dataToMerge() const;
 
+    /**
+     * @brief Returns the task changes relative to the data at task start.
+     */
+    const GtObjectMementoDiff& dataDiffToMerge() const;
+
 private:
     /// pointer to task
     QPointer<GtTask> m_task;
@@ -75,6 +82,12 @@ private:
 
     /// Container constiting of data to merge back into central data model
     QList<GtObjectMemento> m_dataToMerge;
+
+    /// Diff from the source data at task start to the task result
+    std::unique_ptr<GtObjectMementoDiff> m_dataDiffToMerge;
+
+    /// Source data snapshots passed to the runnable
+    QList<GtObjectMemento> m_initialData;
 
     /// Map of all process components and their cloned counterpart
     QMap<GtProcessComponent*, GtProcessComponent*> m_componentMap;
