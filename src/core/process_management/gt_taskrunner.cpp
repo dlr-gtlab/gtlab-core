@@ -24,6 +24,28 @@
 
 #include "gt_taskrunner.h"
 
+namespace
+{
+    const GtObjectMemento* findMemento(const GtObjectMemento& root,
+                                       const QString& uuid)
+    {
+        if (root.uuid() == uuid)
+        {
+            return &root;
+        }
+
+        for (const GtObjectMemento& child : root.childObjects)
+        {
+            if (const GtObjectMemento* match = findMemento(child, uuid))
+            {
+                return match;
+            }
+        }
+
+        return nullptr;
+    }
+} // namespace
+
 GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
     m_source(nullptr)
 {
@@ -153,8 +175,7 @@ GtTaskRunner::dataDiffToMerge() const
 }
 
 GtObjectMementoDiff
-GtTaskRunner::dataDiffFor(
-        const QList<GtObjectMemento>& initialAndResultData)
+GtTaskRunner::dataDiffFor(const QList<GtObjectMemento>& initialAndResultData)
 {
     GtObjectMementoDiff diff;
 
@@ -301,19 +322,35 @@ GtTaskRunner::handleRunnableFinished()
 
     const QList<GtObjectMemento> initialData = m_dataToMerge;
     m_dataToMerge.clear();
+    bool missingInitialSnapshot = false;
     for (const GtObjectMemento& result : m_runnable->outputData())
     {
-        auto initial = std::find_if(initialData.cbegin(), initialData.cend(),
-            [&result](const GtObjectMemento& memento)
+        const GtObjectMemento* initial = nullptr;
+        for (const GtObjectMemento& memento : initialData)
+        {
+            initial = findMemento(memento, result.uuid());
+            if (initial)
             {
-                return memento.uuid() == result.uuid();
-            });
+                break;
+            }
+        }
 
-        if (initial != initialData.cend())
+        if (initial)
         {
             m_dataToMerge.append(*initial);
             m_dataToMerge.append(result);
         }
+        else
+        {
+            missingInitialSnapshot = true;
+            gtError() << tr("Task output has no initial data snapshot:")
+                      << result.uuid();
+        }
+    }
+
+    if (missingInitialSnapshot && m_task)
+    {
+        m_task->setState(GtProcessComponent::FAILED);
     }
 
     delete m_runnable;

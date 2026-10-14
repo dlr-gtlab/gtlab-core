@@ -183,6 +183,38 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)
     EXPECT_EQ(runner.dataToMerge().back().uuid(), sourceChild.uuid());
 }
 
+TEST_F(TestGtTaskRunner, handleRunnableFinishedMatchesNestedOutputSnapshots)
+{
+    auto* runnable = new TestTaskRunnerRunnable;
+    GtTaskRunner runner(&task);
+    ASSERT_TRUE(sourceChild.appendChild(&otherSourceChild));
+    otherSourceChild.setObjectName("nested result");
+
+    ASSERT_TRUE(runner.setUp(runnable, &source));
+
+    runnable->appendOutputObject(otherSourceChild);
+    runnable->finish();
+
+    ASSERT_EQ(runner.dataToMerge().size(), 2);
+    EXPECT_EQ(runner.dataToMerge().front().uuid(), otherSourceChild.uuid());
+    EXPECT_EQ(runner.dataToMerge().back().uuid(), otherSourceChild.uuid());
+}
+
+TEST_F(TestGtTaskRunner, handleRunnableFinishedFailsForOutputWithoutSnapshot)
+{
+    auto* runnable = new TestTaskRunnerRunnable;
+    GtTaskRunner runner(&task);
+    otherSourceChild.setObjectName("unmatched result");
+
+    ASSERT_TRUE(runner.setUp(runnable, &source));
+
+    runnable->appendOutputObject(otherSourceChild);
+    runnable->finish();
+
+    EXPECT_TRUE(runner.dataToMerge().isEmpty());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+}
+
 TEST_F(TestGtTaskRunner, taskNoOpDoesNotRevertConcurrentSourceEdit)
 {
     auto* runnable = new TestTaskRunnerRunnable;

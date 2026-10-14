@@ -358,8 +358,8 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
     GtObjectMementoDiff dataDiff = GtTaskRunner::dataDiffFor(changedData);
-    gtDebugId(GT_EXEC_ID).medium() << "data diff steps ="
-                                   << dataDiff.numberOfDiffSteps();
+    gtDebugId(GT_EXEC_ID).medium()
+        << "data diff steps =" << dataDiff.numberOfDiffSteps();
     gtDebugId(GT_EXEC_ID).medium() << "source =" << m_source;
 
     bool ok = true;

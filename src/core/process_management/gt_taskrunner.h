@@ -72,7 +72,7 @@ public:
      * @brief Creates a task diff from alternating initial and result mementos.
      */
     static GtObjectMementoDiff dataDiffFor(
-            const QList<GtObjectMemento>& initialAndResultData);
+        const QList<GtObjectMemento>& initialAndResultData);
 
 private:
     /// pointer to task
