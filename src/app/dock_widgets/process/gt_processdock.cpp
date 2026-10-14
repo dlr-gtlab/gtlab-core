@@ -979,6 +979,10 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
     QModelIndex srcIndex = mapToSource(current);
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
     updateButtons(obj);
+
+    // Restoring an index after a model reset can select the same object again.
+    if (obj && obj == gtApp->selectedObject()) return;
+
     emit selectedObjectChanged(obj);
 }
 

@@ -94,4 +94,3 @@ class GTlabCore(ConanFile):
             self.cpp_info.components["DataProcessor"].defines = ['GT_DATAMODEL_LIB']
             self.cpp_info.components["Core"].defines = ['GT_CORE_LIB']
             self.cpp_info.components["Gui"].defines = ['GT_GUI_LIB']
-
