@@ -48,6 +48,17 @@ else()
             LABELS "SystemTest;Batch"
         )
 
+        add_test(
+            NAME SystemTest.Recording
+            COMMAND ${Python3_EXECUTABLE} -m pytest
+                    ${CMAKE_CURRENT_SOURCE_DIR}/recording/test_recording.py
+        )
+
+        set_tests_properties(SystemTest.Recording PROPERTIES
+            ENVIRONMENT "GTLAB_CONSOLE=$<TARGET_FILE:GTlabConsole>;QT_QPA_PLATFORM=offscreen"
+            LABELS "SystemTest;Recording"
+        )
+
         set(GTLAB_SYSTEMTESTS_ENABLED TRUE PARENT_SCOPE)
     else()
         message(WARNING

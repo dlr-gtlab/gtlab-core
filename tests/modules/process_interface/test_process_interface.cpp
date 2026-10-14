@@ -15,6 +15,8 @@
 #include "test_crashonexecutecalculator.h"
 #include "test_sleepcalculator.h"
 #include "test_progresscalculator.h"
+#include "test_recordingexecutor.h"
+#include "test_recordingtask.h"
 
 #include "test_process_interface.h"
 
@@ -94,6 +96,39 @@ TestProcessInterface::calculators()
     metaData << mementoProject;
 
     return metaData;
+}
+
+QList<GtTaskData>
+TestProcessInterface::tasks()
+{
+    GtTaskData recording = GT_TASK_DATA(TestRecordingTask);
+    recording->id = QStringLiteral("Recording Task");
+    recording->version = GtVersionNumber(0, 1);
+    recording->author = QStringLiteral("DLR");
+    recording->category = QStringLiteral("Testing");
+    recording->description =
+        QStringLiteral("Logs setUp() calls for the recording system test");
+    recording->status = GtTaskDataImpl::RELEASE;
+
+    return {recording};
+}
+
+QString
+TestProcessInterface::executorId()
+{
+    return QStringLiteral("TestRecordingExecutor");
+}
+
+QString
+TestProcessInterface::executorDescription()
+{
+    return QStringLiteral("Records executions with a logging observer");
+}
+
+QMetaObject
+TestProcessInterface::executor()
+{
+    return TestRecordingExecutor::staticMetaObject;
 }
 
 QList<QMetaObject>
