@@ -106,6 +106,17 @@ private:
     /// Qml toolbar widget
     QPointer<GtMainToolbar> m_mainWindowToolbar;
 
+    /**
+     * @brief Adds a project to the session and requests opening it through the
+     * project UI.
+     * @param project Project to add.
+     * @param reuseExisting Whether an existing project at the same path is
+     * accepted as already in the session.
+     * @return Whether the project was added or an existing session project was found.
+     */
+    bool addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
+                                  bool reuseExisting);
+
 
     /**
      * @brief setupDockWidgets

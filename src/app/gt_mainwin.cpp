@@ -56,11 +56,27 @@
 #include <QStyleFactory>
 #include <QSettings>
 #include <QShortcut>
+#include <QFileInfo>
+#include <QMessageBox>
 
 #include <QQuickWidget>
 #include <QQmlContext>
 
 #include <algorithm>
+
+namespace
+{
+
+    QString canonicalProjectPath(const QString& path)
+    {
+        const QFileInfo pathInfo(path);
+        const QString canonicalPath = pathInfo.canonicalFilePath();
+        return QDir::cleanPath(canonicalPath.isEmpty()
+                                   ? pathInfo.absoluteFilePath()
+                                   : canonicalPath);
+    }
+
+} // namespace
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
@@ -506,6 +522,62 @@ GtMainWin::widgetStructureHelper(QWidget* wid, int indent)
     }
 }
 
+bool
+GtMainWin::addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
+                                    bool reuseExisting)
+{
+    if (!project)
+    {
+        return false;
+    }
+
+    if (reuseExisting)
+    {
+        const QString requestedPath = canonicalProjectPath(project->path());
+        const auto sessionProjects = gtDataModel->projects();
+
+        const bool pathAlreadyInSession = std::any_of(
+            sessionProjects.cbegin(), sessionProjects.cend(),
+            [&requestedPath](const GtProject* projectInSession) {
+                return canonicalProjectPath(projectInSession->path()) ==
+                       requestedPath;
+            });
+
+        if (pathAlreadyInSession)
+        {
+            return true;
+        }
+
+        const GtProject* requestedProject = project.get();
+        const bool nameAlreadyInSession =
+            std::any_of(sessionProjects.cbegin(), sessionProjects.cend(),
+                        [requestedProject](const GtProject* projectInSession) {
+                            return projectInSession->objectName() ==
+                                   requestedProject->objectName();
+                        });
+
+        if (nameAlreadyInSession)
+        {
+            const QString message =
+                tr("A project named '%1' is already in the session at a "
+                   "different path.")
+                    .arg(project->objectName());
+            QMessageBox::warning(this, tr("Import Project"), message);
+            return false;
+        }
+    }
+
+    GtProject* projectToOpen = project.get();
+    if (!gtDataModel->newProject(projectToOpen, false))
+    {
+        return false;
+    }
+
+    projectToOpen = project.release();
+    GtProjectUI::openProject(projectToOpen);
+    return true;
+}
+
 void
 GtMainWin::showProjectWizard()
 {
@@ -515,17 +587,11 @@ GtMainWin::showProjectWizard()
 
     if (wizard.exec())
     {
-        GtProject* project = provider.project();
-
-        if (!gtDataModel->newProject(project, true))
+        if (!addProjectAndRequestOpen(
+                std::unique_ptr<GtProject>(provider.project()), false))
         {
-            delete project;
             gtError() << tr("Created project can not be added to session. Abort");
             return;
-        }
-        else
-        {
-            GtProjectUI::openProject(project);
         }
     }
 }
@@ -546,21 +612,9 @@ GtMainWin::importProject()
     }
 
     GtProjectProvider provider(filename);
-    GtProject* loadedProject = provider.project();
+    std::unique_ptr<GtProject> loadedProject(provider.project());
 
-    bool isNewProject = gtDataModel->newProject(loadedProject, true);
-
-
-    // the project already exists in the session, open this instead
-    auto projectInSession = gtDataModel->findProject(loadedProject->objectName());
-
-    if (!isNewProject) delete loadedProject;
-
-    if (projectInSession && !projectInSession->isOpen())
-    {
-        GtProjectUI::switchToProject(*projectInSession);
-    }
-    else
+    if (!addProjectAndRequestOpen(std::move(loadedProject), true))
     {
         gtWarning() << tr("Cannot open the project");
     }
