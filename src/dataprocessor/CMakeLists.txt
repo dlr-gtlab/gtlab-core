@@ -57,6 +57,7 @@ set(HEADERS
     gt_factorygroup.h
     gt_finally.h
     gt_qtutilities.h
+    gt_recordinghooks.h
     gt_recordingobserver.h
     gt_recordingsession.h
     gt_typetraits.h

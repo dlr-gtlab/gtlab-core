@@ -1212,6 +1212,7 @@ GtObject::registerProperty(GtAbstractProperty& property)
     }
 
     connectProperty(property);
+    property.setOwnerObject(*this);
 
     pimpl->properties.append(&property);
 
@@ -1239,6 +1240,7 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
     }
 
     pimpl->propertyContainer.push_back(c);
+    c.setOwnerObject(*this);
 
     connect(&c, &GtPropertyStructContainer::entryChanged, this,
             [this](int, GtAbstractProperty* property) {

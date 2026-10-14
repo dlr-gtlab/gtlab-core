@@ -6,6 +6,7 @@
 
 #include "gt_recordingsession.h"
 
+#include "gt_abstractproperty.h"
 #include "gt_logging.h"
 #include "gt_object.h"
 #include "gt_recordingobserver.h"
@@ -21,6 +22,9 @@ namespace
 
 /// Session active on the current thread
 thread_local GtRecordingSession* currentSession = nullptr;
+
+/// Nesting depth of property reads on the current thread
+thread_local int propertyReadDepth = 0;
 
 /// Clears the active session of the current thread for its lifetime, so that
 /// observer callbacks never create observations.
@@ -246,6 +250,7 @@ GtRecordingSession::start()
         return false;
     }
     pimpl->used = true;
+    ++gt::detail::runningRecordings;
 
     pimpl->parent = currentSession;
     pimpl->parentId = pimpl->parent ? pimpl->parent->id() : QUuid();
@@ -270,10 +275,62 @@ void
 GtRecordingSession::finish(bool success) noexcept
 {
     currentSession = pimpl->parent;
+    --gt::detail::runningRecordings;
 
     if (pimpl->startFailed) return;
 
     callObserver("recordingFinished", [this, success]() {
         pimpl->observer.recordingFinished(*this, success);
     });
+}
+
+std::atomic<int> gt::detail::runningRecordings{0};
+
+void
+gt::detail::enterPropertyRead(const GtAbstractProperty& property) noexcept
+{
+    // only the outermost read is reported
+    if (propertyReadDepth++ > 0) return;
+
+    GtRecordingSession* session = currentSession;
+    if (!session) return;
+
+    if (const GtObject* owner = property.ownerObject())
+    {
+        session->notifyPropertyRead(*owner, property);
+    }
+}
+
+void
+gt::detail::leavePropertyRead() noexcept
+{
+    --propertyReadDepth;
+}
+
+void
+gt::detail::recordPropertyWritten(const GtAbstractProperty& property) noexcept
+{
+    if (!isAnyRecordingRunning()) return;
+
+    GtRecordingSession* session = currentSession;
+    if (!session) return;
+
+    if (const GtObject* owner = property.ownerObject())
+    {
+        session->notifyPropertyWritten(*owner, property);
+    }
+}
+
+gt::detail::SuppressRecordingScope::SuppressRecordingScope() noexcept :
+    m_active(isAnyRecordingRunning())
+{
+    if (!m_active) return;
+
+    m_previous = currentSession;
+    currentSession = nullptr;
+}
+
+gt::detail::SuppressRecordingScope::~SuppressRecordingScope()
+{
+    if (m_active) currentSession = m_previous;
 }
