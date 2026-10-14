@@ -501,8 +501,8 @@ TEST_F(ProjectLifecycleTest, duplicateFailsWhenTaskGroupsCannotBeLoaded)
     ASSERT_TRUE(gtDataModel->saveProject(source));
     const QString groupPath = GtTaskGroup::groupPath(
         source->path(), GtTaskGroup::USER, QStringLiteral("Unreadable Group"));
-    const QString taskFile = groupPath + QDir::separator() + taskUuid +
-                             QStringLiteral(".gttask");
+    const QString taskFile =
+        groupPath + QDir::separator() + taskUuid + QStringLiteral(".gttask");
 
     ASSERT_TRUE(gtDataModel->closeProject(source));
     ASSERT_TRUE(QFile::remove(taskFile));
