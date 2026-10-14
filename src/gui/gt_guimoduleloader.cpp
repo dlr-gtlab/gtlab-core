@@ -181,8 +181,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // importer interface
-    const GtImporterInterface* impp = checkInterface<GtImporterInterface>(
-        plugin->ident(), plugin);
+    const GtImporterInterface* impp =
+        checkInterface<GtImporterInterface>(plugin->ident(), plugin);
 
     if (impp)
     {
@@ -202,8 +202,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // exporter interface
-    const GtExporterInterface* expp = checkInterface<GtExporterInterface>(
-        plugin->ident(), plugin);
+    const GtExporterInterface* expp =
+        checkInterface<GtExporterInterface>(plugin->ident(), plugin);
 
     if (expp)
     {
@@ -246,8 +246,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // collection interface
-    const GtCollectionInterface* coll = checkInterface<GtCollectionInterface>(
-        plugin->ident(), plugin);
+    const GtCollectionInterface* coll =
+        checkInterface<GtCollectionInterface>(plugin->ident(), plugin);
 
     if (coll)
     {
