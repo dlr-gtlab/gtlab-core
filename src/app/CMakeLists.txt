@@ -93,7 +93,7 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms 
+set(forms
     ui/gt_mainwin.ui
     preferences/pages/gt_moduledirectoriestab.ui
 )
@@ -220,6 +220,8 @@ target_include_directories(GTlab PRIVATE
     dock_widgets/labels
 )
 
+find_package(qtadvanceddocking-qt5 REQUIRED)
+
 target_link_libraries(GTlab
     PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
@@ -227,6 +229,7 @@ target_link_libraries(GTlab
     Qt${QT_VERSION_MAJOR}::QuickWidgets
     Qt${QT_VERSION_MAJOR}::QuickControls2
     Qt${QT_VERSION_MAJOR}::Test
+    ads::qtadvanceddocking-qt5
     GTlabDataProcessor
     GTlabCore
     GTlabGui

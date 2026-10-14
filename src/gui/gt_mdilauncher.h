@@ -12,6 +12,7 @@
 #define GTMDILAUNCHER_H
 
 #include "gt_gui_exports.h"
+#include "gt_globals.h"
 
 #include "gt_abstractobjectfactory.h"
 
@@ -27,6 +28,7 @@ class GtMdiItem;
 class GtCollectionInterface;
 class GtAbstractCollectionSettings;
 class GtQmlAction;
+class GtGuiLayoutAdapter;
 
 /**
  * @brief The GtMdiLauncher class
@@ -50,7 +52,10 @@ public:
      * @brief setMdiArea
      * @param area
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setAdapter` instead")
     void setMdiArea(QTabWidget* area);
+
+    void setAdapter(GtGuiLayoutAdapter& adapter);
 
     /**
      * @brief Checks if all mdiItems are invokable and registers their
@@ -142,6 +147,8 @@ public:
      * @return true in case of success, else false
      */
     bool registerDockWidget(QMetaObject metaObj);
+
+    bool registerClass(QMetaObject metaObj) override;
 
 protected:
     /**

@@ -80,7 +80,7 @@ if (NOT DEFINED VCPKG_TARGET_TRIPLET)
 endif()
 
 if (NOT BUILD_SHARED_LIBS)
-    message(WARNING "Static library builds of GTlab are not yet fully supported.") 
+    message(WARNING "Static library builds of GTlab are not yet fully supported.")
 endif()
 
 if (NOT TARGET GTlab::Logging)

@@ -88,8 +88,6 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 
     frame->setAutoFillBackground(true);
 
-    m_treeView->setFrameStyle(QTreeView::NoFrame);
-
     setWidget(frame);
 
     connect(m_treeView, SIGNAL(searchRequest()), m_search,

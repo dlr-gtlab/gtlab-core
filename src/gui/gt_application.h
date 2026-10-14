@@ -121,9 +121,14 @@ public:
      */
     bool duplicatePerspective(const QString& source, const QString& target);
 
+    GtPerspective* perspective();
+
+    GtPerspective const* perspective() const;
+
     /**
      * @brief savePerspective
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `perspective()` instead")
     void savePerspectiveData(const QByteArray& geometry,
                              const QByteArray& state);
 
@@ -131,7 +136,8 @@ public:
      * @brief loadPerspectiveData
      * @return
      */
-    QPair<QByteArray, QByteArray> loadPerspectiveData();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `perspective()` instead")
+    QPair<QByteArray, QByteArray> loadPerspectiveData() const;
 
     /**
      * @brief initShortCuts - intializaion of the short-cuts based

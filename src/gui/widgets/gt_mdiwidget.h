@@ -35,4 +35,7 @@ signals:
     void redockWidget();
 };
 
+// TODO: rename clss and file
+using GtDockableWidget = GtMdiWidget;
+
 #endif // GTMDIWIDGET_H

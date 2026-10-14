@@ -42,6 +42,7 @@
 #include "gt_taskdata.h"
 #include "gt_taskfactory.h"
 #include "gt_splashscreen.h"
+#include "gt_guifactory.h"
 
 #include "gt_aboutdialog.h"
 
@@ -305,13 +306,13 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
     entry(itemNames, tr("Tasks"));
 
     // mdi items
-    entry(gtMdiLauncher->knownClasses(), tr("MDI Items"));
+    entry(GtGuiFactory::instance()->knownGuiItems(), tr("MDI Items"));
 
     // ui objects
     entry(gtApp->knownUIObjects(), tr("UI Objects"));
 
     // dock widgets
-    entry(gtMdiLauncher->dockWidgetIds(), tr("Dock Widgets"));
+    entry(GtGuiFactory::instance()->knownDockWidgets(), tr("Dock Widgets"));
 }
 
 QString

@@ -44,6 +44,7 @@
 #include "gt_examplesmdiwidget.h"
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
+#include "gt_perspective.h"
 
 #include <QDir>
 #include <QKeyEvent>
@@ -59,8 +60,17 @@
 
 #include <QQuickWidget>
 #include <QQmlContext>
+#include <QLabel>
 
 #include <algorithm>
+
+#define USE_ALTERNATIVE_DOCKING_SYSTEM 1
+
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+#include <qtadvanceddocking-qt5/DockManager.h>
+#include <qtadvanceddocking-qt5/DockWidget.h>
+#include <qtadvanceddocking-qt5/DockAreaWidget.h>
+#endif
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
@@ -70,10 +80,42 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_processQueue(nullptr),
     m_mainWindowToolbar(new GtMainToolbar(this))
 {
+    hide();
+
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    ui->setupUi(this);
+
+    ui->centralwidget->setParent(nullptr);
+    auto* manager = new ads::CDockManager(this);
+    manager->setObjectName(QStringLiteral("DockManager"));
+    manager->setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
+
+    // Set central widget
+    ads::CDockWidget* centralDockWidget = manager->createDockWidget("CentralWidget");
+    {
+        QLabel* label = new QLabel();
+        label->setText("This is a DockArea which is always visible.");
+        label->setAlignment(Qt::AlignCenter);
+        centralDockWidget->setWidget(label);
+    }
+    centralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
+    auto* centralDockArea = manager->setCentralWidget(centralDockWidget);
+    assert(centralDockArea);
+
+    auto* area = new ads::CDockWidget(manager, QStringLiteral("Home"));
+    area->setWidget(ui->centralwidget);
+    manager->setCentralWidget(area);
+    manager->addDockWidgetTabToArea(area, centralDockArea);
+
+    setupDockWidgets();
+#else
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
 
     ui->setupUi(this);
+
+    setCentralWidget(ui->centralwidget);
+#endif
 
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
@@ -265,6 +307,7 @@ GtMainWin::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
 
+    gtDebug() << "ABOUT TO SHOW...";
     QTimer::singleShot(0, this, SLOT(initAfterStartup()));
 }
 
@@ -416,20 +459,72 @@ GtMainWin::resizeEvent(QResizeEvent *event)
 void
 GtMainWin::setupDockWidgets()
 {
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+#endif
     foreach (const QString& id, gtMdiLauncher->dockWidgetIds())
     {
         const QMetaObject& metaObj = gtMdiLauncher->dockWidget(id);
 
-        GtDockWidget* dock = qobject_cast<GtDockWidget*>(metaObj.newInstance());
+        GtDockWidget* legacyDock = qobject_cast<GtDockWidget*>(metaObj.newInstance());
 
-        if (dock)
+        if (legacyDock)
         {
-            dock->setWindowTitle(dock->objectName());
-            dock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
-            addDockWidget(dock->getDockWidgetArea(), dock);
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+            auto* dock = new ads::CDockWidget(manager, legacyDock->objectName());
+            dock->setIcon(legacyDock->getIcon());
+            dock->setWidget(legacyDock);
+            dock->setObjectName(legacyDock->objectName());
+            auto* area = manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
+            legacyDock->setTitleBarWidget(new QWidget());
+            legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
-            // add dockwidgets to map and initialize actions with null pointer
-            m_dockWidgets.insert(dock, nullptr);
+            // style buttons more appropriately
+            for (auto* child : area->findChildren<QPushButton*>(QStringLiteral("tabCloseButton")))
+            {
+                child->setFlat(true);
+                child->resize(child->height(), child->height());
+            }
+
+            // remove frames
+            dock->setFrameShape(QFrame::NoFrame);
+            for (auto* child : dock->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
+            {
+                child->setFrameShape(QFrame::NoFrame);
+            }
+
+            using DockWidget = ads::CDockWidget;
+#else
+            legacyDock->setWindowTitle(legacyDock->objectName());
+            legacyDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
+            addDockWidget(legacyDock->getDockWidgetArea(), legacyDock);
+
+            using DockWidget = GtDockWidget;
+            auto* dock = legacyDock;
+#endif
+            connect(this, &GtMainWin::guiInitialized, dock, [this, legacyDock, dock](){
+
+                // add entries to menu
+                QAction* action = ui->menuDock_Widgets->addAction(dock->windowTitle());
+                action->setIcon(dock->windowIcon());
+                action->setCheckable(true);
+                action->setChecked(dock->isVisible());
+
+                connect(dock, &DockWidget::visibilityChanged,
+                        action, [action](bool isVisible){
+                    if (action->isChecked() != isVisible)
+                    {
+                        action->setChecked(isVisible);
+                    }
+                });
+                connect(action, &QAction::triggered,
+                        dock, [action, dock](){
+                    dock->setVisible(action->isChecked());
+                });
+
+                legacyDock->initAfterStartup();
+            });
         }
     }
 }
@@ -771,15 +866,33 @@ GtMainWin::onPerspectiveAction(QObject* widget)
 void
 GtMainWin::loadPerspectiveSettings(const QString& /*id*/)
 {
-    QPair<QByteArray, QByteArray> persData = gtApp->loadPerspectiveData();
-    restoreGeometry(persData.first);
-    restoreState(persData.second);
+    GtPerspective* perspective = gtApp->perspective();
+    if (!perspective) return;
+
+    restoreGeometry(perspective->loadGeometry());
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+    constexpr int version = 0;
+    manager->restoreState(perspective->loadDockState(), version);
+#endif
+    restoreState(perspective->loadState());
 }
 
 void
 GtMainWin::savePerspectiveSettings()
 {
-    gtApp->savePerspectiveData(saveGeometry(), saveState());
+    GtPerspective* perspective = gtApp->perspective();
+    if (!perspective) return;
+
+    perspective->saveGeometry(saveGeometry());
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+    constexpr int version = 0;
+    perspective->saveDockState(manager->saveState(version));
+#endif
+    perspective->saveState(saveState());
 }
 
 void
@@ -827,7 +940,7 @@ GtMainWin::printCurrentMdiItem()
 {
     if (ui->mdiArea->count() != 0)
     {
-        gtMdiLauncher->print(ui->mdiArea->currentWidget());
+        gtMdiLauncher->printCurrentWindow();
     }
     else
     {
@@ -958,7 +1071,6 @@ GtMainWin::onCollectionEntryClicked()
     coll->setCollection(gtMdiLauncher->collection(colId));
 
     QWidget* subWin = item->widget();
-
     if (!subWin)
     {
         return;
@@ -1094,6 +1206,7 @@ GtMainWin::initAfterStartup()
     {
         return;
     }
+    m_firstTimeShowEvent = false;
 
     // open startup page
     if (gtApp->settings()->showStartupPage())
@@ -1108,26 +1221,7 @@ GtMainWin::initAfterStartup()
     }
 
     emit guiInitialized();
-
-    // initialize dock widgets
-    gt::for_each_key (m_dockWidgets, [this](GtDockWidget* e)
-    {
-        // add entries to menu
-        QAction* dockAct =
-            ui->menuDock_Widgets->addAction(e->windowTitle());
-        dockAct->setCheckable(true);
-        dockAct->setChecked(e->isVisible());
-
-        m_dockWidgets[e] = dockAct;
-
-        connect(e, SIGNAL(visibilityChanged(bool)),
-                SLOT(onDockVisibilityChange(bool)));
-        connect(dockAct, SIGNAL(triggered(bool)), SLOT(onDockActionClicked()));
-
-        e->initAfterStartup();
-    });
-
-    m_firstTimeShowEvent = false;
+    gtDebug() << "NOW SHOWING";
 }
 
 void
@@ -1156,62 +1250,6 @@ GtMainWin::onObjectSelected(GtObject* /* obj */ )
 }
 
 void
-GtMainWin::onDockVisibilityChange(bool /*val*/)
-{
-    GtDockWidget* dock = qobject_cast<GtDockWidget*>(sender());
-
-    if (!dock)
-    {
-        return;
-    }
-
-    if (!m_dockWidgets.contains(dock))
-    {
-        return;
-    }
-
-    QAction* act = m_dockWidgets.value(dock);
-
-    if (!act)
-    {
-        return;
-    }
-
-    bool isVisible = false;
-
-    if ((dock->isVisible() || !tabifiedDockWidgets(dock).isEmpty()))
-    {
-        isVisible = true;
-    }
-
-    if (act->isChecked() == isVisible)
-    {
-        return;
-    }
-
-    act->setChecked(isVisible);
-}
-
-void
-GtMainWin::onDockActionClicked()
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-
-    if (!action)
-    {
-        return;
-    }
-
-    gt::for_each_key(m_dockWidgets, [this, action](GtDockWidget* e)
-    {
-        if (m_dockWidgets.value(e) == action)
-        {
-            e->setVisible(action->isChecked());
-        }
-    });
-}
-
-void
 GtMainWin::onWidgetStructureClicked()
 {
     gtDebug() << "widget structure...";
@@ -1236,7 +1274,7 @@ GtMainWin::onEditorWindowActive(int editorIndex)
     {
         // all windows closed
         m_mainWindowToolbar->setEditorActions({});
-        currentMdiItemPrintable(false);
+        emit currentMdiItemPrintable(false);
         return;
     }
 
@@ -1250,7 +1288,7 @@ void
 GtMainWin::setTheme(bool /*dark*/)
 {
     gt::gui::applyThemeToApplication();
-    gt::gui::applyThemeToWidget(ui->mdiArea);
+    gt::gui::applyThemeToWidget(centralWidget());
 
     // update all standalone widgets (i.e. windows)
     QWidgetList const& windows = QApplication::topLevelWidgets();
