@@ -27,6 +27,12 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
 
     const double rounded = std::round(baseValue);
 
+    if (rounded < std::numeric_limits<int>::lowest() ||
+        rounded > std::numeric_limits<int>::max())
+    {
+        return gt::conversion::conversionSuccess::Failed;
+    }
+
     int result = static_cast<int>(rounded);
 
     if (to.lowSideBoundaryActive() && result < to.lowSideBoundary())
