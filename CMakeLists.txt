@@ -30,7 +30,7 @@ project(GTlab-Core VERSION 2.1.0)
 set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
 # Bump this value only when a change breaks the binary compatibility contract
 # for modules. Keep it independent of the GTlab product version.
-set(GTLAB_MODULE_ABI "2.1")
+set(GTLAB_MODULE_ABI "2.2")
 
 # Master builds may add GTlab Core and its modules as sibling directories.
 # Normal variables set here are not visible to those sibling directories when

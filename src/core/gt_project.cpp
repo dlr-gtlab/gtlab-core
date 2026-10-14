@@ -73,20 +73,57 @@ taskClassModuleIds(const QString& projectPath)
 
 } // namespace
 
-GtProject::GtProject(const QString& path) :
-    m_path(path),
-    m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
+struct GtProject::Impl
 {
-    m_valid = loadMetaData();
-    m_upgradesAvailable = checkForUpgrades();
+    explicit Impl(const QString& projectPath) :
+        path(projectPath),
+        pathProp(QStringLiteral("path"), GtProject::tr("Path"),
+                 GtProject::tr("Project path"), projectPath)
+    { }
 
-    m_pathProp.setReadOnly(true);
+    /// Path to project directory on hard drive
+    QString path;
 
-    registerProperty(m_pathProp);
+    /// True if project data was successfully loaded
+    bool valid{false};
+
+    /// True if project data is currently loaded into the data model
+    bool isOpen{false};
+
+    /// True if project data upgrades are available
+    bool upgradesAvailable{false};
+
+    /// Whether to internalize all external data when saving
+    bool internalizeOnSave{false};
+
+    GtProjectSettings projectSettings;
+
+    /// List of all project module ids
+    QStringList moduleIds;
+
+    /// Module ids associated with classes used by this project
+    QMap<QString, QString> classModuleIds;
+
+    /// Project path property. Only used for visualization in the GUI.
+    GtStringProperty pathProp;
+
+    /// User definable comment
+    QString comment;
+};
+
+GtProject::GtProject(const QString& path) :
+    pimpl(std::make_unique<Impl>(path))
+{
+    pimpl->valid = loadMetaData();
+    pimpl->upgradesAvailable = checkForUpgrades();
+
+    pimpl->pathProp.setReadOnly(true);
+
+    registerProperty(pimpl->pathProp);
 
     if (gtApp)
     {
-        connect(&m_projectSettings, &GtProjectSettings::changed, this, [](){
+        connect(&pimpl->projectSettings, &GtProjectSettings::changed, this, [](){
             if (gtApp->session()) gtApp->session()->save();
         });
     }
@@ -102,7 +139,7 @@ GtProject::setModuleIds(const QStringList& list)
     }
     else
     {
-        m_moduleIds = list;
+        pimpl->moduleIds = list;
     }
 }
 
@@ -127,32 +164,32 @@ GtProject::moduleExtension()
 const GtProjectSettings &
 GtProject::getProjectSettings() const
 {
-    return m_projectSettings;
+    return pimpl->projectSettings;
 }
 
 GtProjectSettings &
 GtProject::projectSettings()
 {
-    return m_projectSettings;
+    return pimpl->projectSettings;
 }
 
 QString
 GtProject::comment() const
 {
-    return m_comment;
+    return pimpl->comment;
 }
 
 void
 GtProject::setComment(const QString& comment)
 {
-    m_comment = comment;
+    pimpl->comment = comment;
     changed();
 }
 
 void
 GtProject::setInternalizeOnSave(bool value)
 {
-    m_internalizeOnSave = value;
+    pimpl->internalizeOnSave = value;
 }
 
 QStringList
@@ -205,7 +242,7 @@ GtProject::upgradeProjectData()
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    QDir pdir(m_path);
+    QDir pdir(pimpl->path);
     pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
 
     QStringList entryList;
@@ -218,7 +255,7 @@ GtProject::upgradeProjectData()
     entryList << pdir.absoluteFilePath(mainFilename());
 
     //exted list with task files
-    QString tasksPath = m_path + "/tasks";
+    QString tasksPath = pimpl->path + "/tasks";
     QDirIterator it(tasksPath,
                     QStringList() << "*.gttask",
                     QDir::Files,
@@ -243,8 +280,8 @@ GtProject::upgradeProjectData()
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
 
-    m_valid = loadMetaData();
-    m_upgradesAvailable = checkForUpgrades();
+    pimpl->valid = loadMetaData();
+    pimpl->upgradesAvailable = checkForUpgrades();
 }
 
 
@@ -313,7 +350,7 @@ GtProject::createBackup(QString const& message) const
         return;
     }
 
-    QDir pdir(m_path);
+    QDir pdir(pimpl->path);
 
     assert(pdir.exists());
 
@@ -476,18 +513,18 @@ GtProject::loadMetaData()
     if (!cdata.isNull())
     {
         //gtDebug() << "(" << projectname << ") comment found!";
-        m_comment = cdata.text();
+        pimpl->comment = cdata.text();
     }
 
     // module meta data
     readModuleMetaData(root);
-    m_classModuleIds = gt::xml::readClassModuleMap(root);
+    pimpl->classModuleIds = gt::xml::readClassModuleMap(root);
     const auto taskMappings = taskClassModuleIds(path());
     for (auto it = taskMappings.cbegin(); it != taskMappings.cend(); ++it)
     {
-        if (!m_classModuleIds.contains(it.key()))
+        if (!pimpl->classModuleIds.contains(it.key()))
         {
-            m_classModuleIds.insert(it.key(), it.value());
+            pimpl->classModuleIds.insert(it.key(), it.value());
         }
     }
 
@@ -497,7 +534,7 @@ GtProject::loadMetaData()
 bool
 GtProject::checkForUpgrades() const
 {
-    if (!m_valid)
+    if (!pimpl->valid)
     {
         return false;
     }
@@ -515,7 +552,7 @@ GtProject::checkForUpgrades() const
 void
 GtProject::readModuleMetaData(const QDomElement& root)
 {
-    m_moduleIds.clear();
+    pimpl->moduleIds.clear();
 
     /* module informations */
     QDomElement mdata = root.firstChildElement(QStringLiteral("MODULES"));
@@ -534,7 +571,7 @@ GtProject::readModuleMetaData(const QDomElement& root)
         {
             gtWarning() << objectName() << ": " <<  tr("Invalid module found!");
         }
-        else if (m_moduleIds.contains(mid))
+        else if (pimpl->moduleIds.contains(mid))
         {
             gtWarning() << objectName() << ": "
                         <<  tr("Multiple module definition!")
@@ -547,7 +584,7 @@ GtProject::readModuleMetaData(const QDomElement& root)
                 gtWarning().nospace() << objectName() << ": "
                                       << tr("Unknown module: ") << mid;
             }
-            m_moduleIds << mid;
+            pimpl->moduleIds << mid;
         }
 
         module = module.nextSiblingElement(QStringLiteral("MODULE"));
@@ -559,7 +596,7 @@ GtProject::readModuleMetaData(const QDomElement& root)
 void
 GtProject::updateClassModuleIds()
 {
-    QMap<QString, QString> updated = m_classModuleIds;
+    QMap<QString, QString> updated = pimpl->classModuleIds;
     for (const GtObject* object : findChildren<GtObject*>())
     {
         const QString className = object->isDummy()
@@ -573,10 +610,10 @@ GtProject::updateClassModuleIds()
             moduleId = factory->moduleId(className);
         }
         if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
-        if (moduleId.isEmpty()) moduleId = m_classModuleIds.value(className);
+        if (moduleId.isEmpty()) moduleId = pimpl->classModuleIds.value(className);
         if (!moduleId.isEmpty()) updated.insert(className, moduleId);
     }
-    m_classModuleIds = std::move(updated);
+    pimpl->classModuleIds = std::move(updated);
 }
 
 GtObject*
@@ -669,7 +706,7 @@ GtProject::readModuleData()
 {
     GtObjectList retval;
 
-    foreach (const QString& mid, m_moduleIds)
+    foreach (const QString& mid, pimpl->moduleIds)
     {
         if (!gtApp->moduleIds().contains(mid))
         {
@@ -686,9 +723,9 @@ GtProject::readModuleData()
         }
 
         // check for old module file and rename it
-        renameOldModuleFile(m_path, mid);
+        renameOldModuleFile(pimpl->path, mid);
 
-        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
+        QString filename = pimpl->path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         QFile file(filename);
@@ -736,9 +773,9 @@ GtProject::readModuleData()
         for (auto it = moduleMappings.cbegin(); it != moduleMappings.cend();
              ++it)
         {
-            if (!m_classModuleIds.contains(it.key()))
+            if (!pimpl->classModuleIds.contains(it.key()))
             {
-                m_classModuleIds.insert(it.key(), it.value());
+                pimpl->classModuleIds.insert(it.key(), it.value());
             }
         }
 
@@ -764,7 +801,7 @@ GtProject::readModuleData()
 
         package->setUuid(uuid);
 
-        if (!package->readData(root) || !package->readMiscData(QDir(m_path)))
+        if (!package->readData(root) || !package->readMiscData(QDir(pimpl->path)))
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to read module data!")
@@ -796,7 +833,7 @@ GtProject::saveModuleData()
         // saving may continue
     }
 
-    foreach (const QString& mid, m_moduleIds)
+    foreach (const QString& mid, pimpl->moduleIds)
     {
         gtDebug().noquote() << tr("saving module data")
                            << QStringLiteral("\"") + mid +
@@ -825,7 +862,7 @@ GtProject::saveModuleData()
 
         document.appendChild(rootElement);
 
-        if (!package->saveData(rootElement, document) || !package->saveMiscData(QDir(m_path)))
+        if (!package->saveData(rootElement, document) || !package->saveMiscData(QDir(pimpl->path)))
         {
             gtWarning().noquote()
                     << tr("Failed to save module data!")
@@ -834,10 +871,10 @@ GtProject::saveModuleData()
         }
 
         const auto moduleMappings = gt::xml::classModuleMapForObjects(
-            m_classModuleIds, rootElement);
+            pimpl->classModuleIds, rootElement);
         gt::xml::writeClassModuleMap(rootElement, document, moduleMappings);
 
-        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
+        QString filename = pimpl->path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         if (!saveProjectFiles(filename, document))
@@ -884,7 +921,7 @@ GtProject::saveProjectOverallData()
 
     QDomElement commentElement =
             document.createElement(QStringLiteral("comment"));
-    QDomText cTxt = document.createTextNode(m_comment);
+    QDomText cTxt = document.createTextNode(pimpl->comment);
     commentElement.appendChild(cTxt);
     rootElement.appendChild(commentElement);
 
@@ -893,7 +930,7 @@ GtProject::saveProjectOverallData()
         return false;
     }
 
-    gt::xml::writeClassModuleMap(rootElement, document, m_classModuleIds);
+    gt::xml::writeClassModuleMap(rootElement, document, pimpl->classModuleIds);
 
     if (!saveProcessData(rootElement, document))
     {
@@ -907,7 +944,7 @@ GtProject::saveProjectOverallData()
 
     document.appendChild(rootElement);
 
-    QString filename = m_path + QDir::separator() + mainFilename();
+    QString filename = pimpl->path + QDir::separator() + mainFilename();
 
     return saveProjectFiles(filename, document);
 }
@@ -919,7 +956,7 @@ GtProject::saveExternalizedObjectData()
     auto objects = findChildren<GtExternalizedObject*>();
 
     // force internalization of all objects
-    if (m_internalizeOnSave)
+    if (pimpl->internalizeOnSave)
     {
         gtDebug() << "Internalizing object data...";
 
@@ -961,7 +998,7 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 {
     QDomElement modulesElement = doc.createElement(QStringLiteral("MODULES"));
 
-    foreach (const QString& mid, m_moduleIds)
+    foreach (const QString& mid, pimpl->moduleIds)
     {
         QDomElement moduleElement = doc.createElement(QStringLiteral("MODULE"));
         moduleElement.setAttribute(QStringLiteral("name"), mid);
@@ -1075,7 +1112,7 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
 {
     gtDebug() << "GtProject::updateModuleFootprint...";
 
-    auto document = readProjectData(m_path);
+    auto document = readProjectData(pimpl->path);
     if (document.isNull())
     {
         return;
@@ -1150,10 +1187,28 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
 
 GtProject::~GtProject() = default;
 
+void
+GtProject::markOpen()
+{
+    pimpl->isOpen = true;
+}
+
+void
+GtProject::markClosed()
+{
+    pimpl->isOpen = false;
+}
+
+QMap<QString, QString>&
+GtProject::classModuleIds()
+{
+    return pimpl->classModuleIds;
+}
+
 const QString&
 GtProject::path() const
 {
-    return m_path;
+    return pimpl->path;
 }
 
 QString
@@ -1166,19 +1221,19 @@ GtProject::moduleDataPath(const QString &moduleId) const
 bool
 GtProject::isValid() const
 {
-    return m_valid;
+    return pimpl->valid;
 }
 
 bool
 GtProject::isOpen() const
 {
-    return m_isOpen;
+    return pimpl->isOpen;
 }
 
 bool
 GtProject::upgradesAvailable() const
 {
-    return m_upgradesAvailable;
+    return pimpl->upgradesAvailable;
 }
 
 bool
@@ -1317,13 +1372,13 @@ GtProject::findPackage(const QString& mid)
 const QStringList&
 GtProject::moduleIds() const
 {
-    return m_moduleIds;
+    return pimpl->moduleIds;
 }
 
 QString
 GtProject::classModuleId(const QString& className) const
 {
-    return m_classModuleIds.value(className);
+    return pimpl->classModuleIds.value(className);
 }
 
 int
@@ -1463,7 +1518,7 @@ GtProject::renameProject(const QString& str)
 
     document.appendChild(projectData);
 
-    QString filename = m_path + QDir::separator() + mainFilename();
+    QString filename = pimpl->path + QDir::separator() + mainFilename();
 
     QFile file(filename);
 
@@ -1489,7 +1544,7 @@ GtProject::renameProject(const QString& str)
 QString
 GtProject::readFootprint() const
 {
-    QString filename = m_path + QDir::separator() + mainFilename();
+    QString filename = pimpl->path + QDir::separator() + mainFilename();
 
     QFile file(filename);
 
