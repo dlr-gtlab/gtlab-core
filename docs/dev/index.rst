@@ -85,6 +85,7 @@ Your first module
    modules/shared_functions
    modules/user_interface
    modules/logging
+   modules/recording
 
 .. toctree::
    :caption: Concepts
