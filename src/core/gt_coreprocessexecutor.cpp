@@ -10,6 +10,7 @@
 
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <utility>
 #include "gt_logging.h"
 #include "gt_runnable.h"
 #include "gt_project.h"
@@ -352,14 +353,22 @@ GtCoreProcessExecutor::execute()
 
 void
 GtCoreProcessExecutor::handleTaskFinishedHelper(
-        QList<GtObjectMemento>& changedData, GtTask* task)
+    QList<GtTaskMementoPair> changedData, GtTask* task)
 {
     assert(task);
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
-    GtObjectMementoDiff dataDiff = GtTaskRunner::dataDiffFor(changedData);
+    auto dataDiff = GtTaskRunner::dataDiffFor(changedData);
+    if (!dataDiff)
+    {
+        gtWarningId(GT_EXEC_ID)
+            << tr("Task memento pairs could not be converted into a diff!");
+        task->setState(GtProcessComponent::FAILED);
+        return;
+    }
+
     gtDebugId(GT_EXEC_ID).medium()
-        << "data diff steps =" << dataDiff.numberOfDiffSteps();
+        << "data diff steps =" << dataDiff->numberOfDiffSteps();
     gtDebugId(GT_EXEC_ID).medium() << "source =" << m_source;
 
     bool ok = true;
@@ -368,7 +377,7 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
     // calculators included in the task
     if (m_source)
     {
-        if (!m_source->applyDiff(dataDiff))
+        if (!m_source->applyDiff(*dataDiff))
         {
             gtWarningId(GT_EXEC_ID) << tr("Failed to apply memento diff!");
             ok = false;
@@ -508,7 +517,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 
     clearCurrentTask();
 
-    QList<GtObjectMemento> changedData = taskRunner->dataToMerge();
+    QList<GtTaskMementoPair> changedData = taskRunner->dataToMerge();
 
     if (pimpl->save)
     {
@@ -520,7 +529,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         if (finishedTask->currentState() == GtProcessComponent::FINISHED ||
             finishedTask->currentState() == GtProcessComponent::WARN_FINISHED)
         {
-            handleTaskFinishedHelper(changedData, finishedTask);
+            handleTaskFinishedHelper(std::move(changedData), finishedTask);
         }
     }
 

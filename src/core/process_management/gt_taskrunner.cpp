@@ -111,7 +111,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
         }
 
         GtObjectMemento memento = srcObj->toMemento();
-        m_dataToMerge.append(memento);
+        m_dataToMerge.append({memento, GtObjectMemento{}});
         m_runnable->appendSourceData(memento);
     }
 
@@ -164,21 +164,27 @@ GtTaskRunner::run()
     tp->start(m_runnable);
 }
 
-const QList<GtObjectMemento>&
+const QList<GtTaskMementoPair>&
 GtTaskRunner::dataToMerge() const
 {
     return m_dataToMerge;
 }
 
-GtObjectMementoDiff
-GtTaskRunner::dataDiffFor(const QList<GtObjectMemento>& initialAndResultData)
+std::optional<GtObjectMementoDiff>
+GtTaskRunner::dataDiffFor(const QList<GtTaskMementoPair>& mementoPairs)
 {
     GtObjectMementoDiff diff;
 
-    for (qsizetype i = 0; i + 1 < initialAndResultData.size(); i += 2)
+    for (const GtTaskMementoPair& pair : mementoPairs)
     {
-        diff << GtObjectMementoDiff(initialAndResultData.at(i),
-                                    initialAndResultData.at(i + 1));
+        if (!pair.hasMatchingUuids())
+        {
+            gtError() << tr("Task result does not match its initial snapshot:")
+                      << pair.result.uuid();
+            return std::nullopt;
+        }
+
+        diff << GtObjectMementoDiff(pair.initial, pair.result);
     }
 
     return diff;
@@ -316,15 +322,15 @@ GtTaskRunner::handleRunnableFinished()
     disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
                this, &GtTaskRunner::handleRunnableFinished);
 
-    const QList<GtObjectMemento> initialData = m_dataToMerge;
+    const QList<GtTaskMementoPair> initialData = m_dataToMerge;
     m_dataToMerge.clear();
     bool missingInitialSnapshot = false;
     for (const GtObjectMemento& result : m_runnable->outputData())
     {
         const GtObjectMemento* initial = nullptr;
-        for (const GtObjectMemento& memento : initialData)
+        for (const GtTaskMementoPair& pair : initialData)
         {
-            initial = findMemento(memento, result.uuid());
+            initial = findMemento(pair.initial, result.uuid());
             if (initial)
             {
                 break;
@@ -333,8 +339,7 @@ GtTaskRunner::handleRunnableFinished()
 
         if (initial)
         {
-            m_dataToMerge.append(*initial);
-            m_dataToMerge.append(result);
+            m_dataToMerge.append({*initial, result});
         }
         else
         {

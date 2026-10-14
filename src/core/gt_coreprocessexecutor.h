@@ -13,6 +13,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_object.h"
+#include "gt_taskrunner.h"
 
 #include <QObject>
 #include <QPointer>
@@ -230,7 +231,7 @@ protected:
      * @param changedData Initial and result mementos to merge
      * @param task Finished task
      */
-    virtual void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
+    virtual void handleTaskFinishedHelper(QList<GtTaskMementoPair> changedData,
                                           GtTask* task);
 
     /**

@@ -10,6 +10,7 @@
 
 #include <QPointer>
 #include "gt_abstractloadinghelper.h"
+#include "gt_taskrunner.h"
 
 #include "gt_gui_exports.h"
 
@@ -35,7 +36,7 @@ public:
      * @param source Source object receiving the task diff
      * @param taskName Name of the task being merged
      */
-    GtFinishedProcessLoadingHelper(QList<GtObjectMemento>* data,
+    GtFinishedProcessLoadingHelper(QList<GtTaskMementoPair> data,
                                    QPointer<GtObject> source,
                                    const QString& taskName);
 
@@ -53,12 +54,17 @@ public:
      */
     GtObjectMementoDiff* sumDiff() const;
 
+    bool isValid() const;
+
 private:
-    /// pointer to data to work on
-    QList<GtObjectMemento>* m_data;
+    /// Task mementos owned for the duration of the loading procedure
+    QList<GtTaskMementoPair> m_data;
 
     /// pointer to summed diff object (result)
     std::unique_ptr<GtObjectMementoDiff> m_sumDiff;
+
+    /// Whether the task mementos formed valid pairs
+    bool m_valid{false};
 
     /// source object to apply the diff to
     QPointer<GtObject> m_source;

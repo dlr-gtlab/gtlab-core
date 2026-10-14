@@ -178,9 +178,9 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)
     runnable->finish();
 
     EXPECT_TRUE(finished);
-    ASSERT_EQ(runner.dataToMerge().size(), 2);
-    EXPECT_EQ(runner.dataToMerge().front().uuid(), sourceChild.uuid());
-    EXPECT_EQ(runner.dataToMerge().back().uuid(), sourceChild.uuid());
+    ASSERT_EQ(runner.dataToMerge().size(), 1);
+    EXPECT_EQ(runner.dataToMerge().front().initial.uuid(), sourceChild.uuid());
+    EXPECT_EQ(runner.dataToMerge().front().result.uuid(), sourceChild.uuid());
 }
 
 TEST_F(TestGtTaskRunner, handleRunnableFinishedMatchesNestedOutputSnapshots)
@@ -195,9 +195,11 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedMatchesNestedOutputSnapshots)
     runnable->appendOutputObject(otherSourceChild);
     runnable->finish();
 
-    ASSERT_EQ(runner.dataToMerge().size(), 2);
-    EXPECT_EQ(runner.dataToMerge().front().uuid(), otherSourceChild.uuid());
-    EXPECT_EQ(runner.dataToMerge().back().uuid(), otherSourceChild.uuid());
+    ASSERT_EQ(runner.dataToMerge().size(), 1);
+    EXPECT_EQ(runner.dataToMerge().front().initial.uuid(),
+              otherSourceChild.uuid());
+    EXPECT_EQ(runner.dataToMerge().front().result.uuid(),
+              otherSourceChild.uuid());
 }
 
 TEST_F(TestGtTaskRunner, handleRunnableFinishedFailsForOutputWithoutSnapshot)
@@ -228,8 +230,9 @@ TEST_F(TestGtTaskRunner, taskNoOpDoesNotRevertConcurrentSourceEdit)
     runnable->appendOutputMemento(taskResult);
     runnable->finish();
 
-    GtObjectMementoDiff diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
-    ASSERT_TRUE(source.applyDiff(diff));
+    auto diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
+    ASSERT_TRUE(diff.has_value());
+    ASSERT_TRUE(source.applyDiff(*diff));
     EXPECT_EQ(sourceChild.objectName(), "user edit");
 }
 
@@ -251,8 +254,17 @@ TEST_F(TestGtTaskRunner, taskDiffPreservesUnrelatedEditsAndWinsConflicts)
     runnable->appendOutputMemento(taskResult);
     runnable->finish();
 
-    GtObjectMementoDiff diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
-    ASSERT_TRUE(source.applyDiff(diff));
+    auto diff = GtTaskRunner::dataDiffFor(runner.dataToMerge());
+    ASSERT_TRUE(diff.has_value());
+    ASSERT_TRUE(source.applyDiff(*diff));
     EXPECT_EQ(sourceChild.objectName(), "task A");
     EXPECT_EQ(otherSourceChild.objectName(), "user B");
+}
+
+TEST_F(TestGtTaskRunner, dataDiffForRejectsMismatchedMementoPairs)
+{
+    GtTaskMementoPair mismatchedPair{sourceChild.toMemento(),
+                                     otherSourceChild.toMemento()};
+
+    EXPECT_FALSE(GtTaskRunner::dataDiffFor({mismatchedPair}).has_value());
 }
