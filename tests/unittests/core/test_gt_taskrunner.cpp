@@ -166,8 +166,7 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)
 {
     auto* runnable = new TestTaskRunnerRunnable;
     GtTaskRunner runner(&task);
-    GtObject resultObject;
-    resultObject.setObjectName("result");
+    sourceChild.setObjectName("result");
 
     ASSERT_TRUE(runner.setUp(runnable, &source));
 
@@ -175,12 +174,13 @@ TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)
     QObject::connect(&runner, &GtTaskRunner::finished,
                      [&finished]() { finished = true; });
 
-    runnable->appendOutputObject(resultObject);
+    runnable->appendOutputObject(sourceChild);
     runnable->finish();
 
     EXPECT_TRUE(finished);
-    ASSERT_EQ(runner.dataToMerge().size(), 1);
-    EXPECT_EQ(runner.dataToMerge().front().uuid(), resultObject.uuid());
+    ASSERT_EQ(runner.dataToMerge().size(), 2);
+    EXPECT_EQ(runner.dataToMerge().front().uuid(), sourceChild.uuid());
+    EXPECT_EQ(runner.dataToMerge().back().uuid(), sourceChild.uuid());
 }
 
 TEST_F(TestGtTaskRunner, taskNoOpDoesNotRevertConcurrentSourceEdit)

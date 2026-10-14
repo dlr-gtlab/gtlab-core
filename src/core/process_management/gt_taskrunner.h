@@ -17,7 +17,6 @@
 #include <QObject>
 #include <QPointer>
 #include <QEventLoop>
-#include <memory>
 
 #include "gt_objectmemento.h"
 
@@ -60,15 +59,20 @@ public:
     void run();
 
     /**
-     * @brief Returns list of data to merge.
-     * @return List of data to merge.
+     * @brief Returns alternating task-start and task-result mementos.
      */
     const QList<GtObjectMemento>& dataToMerge() const;
 
     /**
      * @brief Returns the task changes relative to the data at task start.
      */
-    const GtObjectMementoDiff& dataDiffToMerge() const;
+    GtObjectMementoDiff dataDiffToMerge() const;
+
+    /**
+     * @brief Creates a task diff from alternating initial and result mementos.
+     */
+    static GtObjectMementoDiff dataDiffFor(
+            const QList<GtObjectMemento>& initialAndResultData);
 
 private:
     /// pointer to task
@@ -82,12 +86,6 @@ private:
 
     /// Container constiting of data to merge back into central data model
     QList<GtObjectMemento> m_dataToMerge;
-
-    /// Diff from the source data at task start to the task result
-    std::unique_ptr<GtObjectMementoDiff> m_dataDiffToMerge;
-
-    /// Source data snapshots passed to the runnable
-    QList<GtObjectMemento> m_initialData;
 
     /// Map of all process components and their cloned counterpart
     QMap<GtProcessComponent*, GtProcessComponent*> m_componentMap;

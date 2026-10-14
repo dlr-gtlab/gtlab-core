@@ -25,8 +25,7 @@
 #include "gt_taskrunner.h"
 
 GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
-    m_source(nullptr),
-    m_dataDiffToMerge(std::make_unique<GtObjectMementoDiff>())
+    m_source(nullptr)
 {
 }
 
@@ -70,8 +69,6 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
 
     // free data to merge list
     m_dataToMerge.clear();
-    m_initialData.clear();
-    *m_dataDiffToMerge = GtObjectMementoDiff{};
 
     // clear component mapping
     m_componentMap.clear();
@@ -90,7 +87,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
         }
 
         GtObjectMemento memento = srcObj->toMemento();
-        m_initialData.append(memento);
+        m_dataToMerge.append(memento);
         m_runnable->appendSourceData(memento);
     }
 
@@ -149,10 +146,25 @@ GtTaskRunner::dataToMerge() const
     return m_dataToMerge;
 }
 
-const GtObjectMementoDiff&
+GtObjectMementoDiff
 GtTaskRunner::dataDiffToMerge() const
 {
-    return *m_dataDiffToMerge;
+    return dataDiffFor(m_dataToMerge);
+}
+
+GtObjectMementoDiff
+GtTaskRunner::dataDiffFor(
+        const QList<GtObjectMemento>& initialAndResultData)
+{
+    GtObjectMementoDiff diff;
+
+    for (qsizetype i = 0; i + 1 < initialAndResultData.size(); i += 2)
+    {
+        diff << GtObjectMementoDiff(initialAndResultData.at(i),
+                                    initialAndResultData.at(i + 1));
+    }
+
+    return diff;
 }
 
 GtTask*
@@ -287,19 +299,20 @@ GtTaskRunner::handleRunnableFinished()
     disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
                this, &GtTaskRunner::handleRunnableFinished);
 
-    m_dataToMerge = m_runnable->outputData();
-
-    for (const GtObjectMemento& result : qAsConst(m_dataToMerge))
+    const QList<GtObjectMemento> initialData = m_dataToMerge;
+    m_dataToMerge.clear();
+    for (const GtObjectMemento& result : m_runnable->outputData())
     {
-        auto initial = std::find_if(m_initialData.cbegin(), m_initialData.cend(),
+        auto initial = std::find_if(initialData.cbegin(), initialData.cend(),
             [&result](const GtObjectMemento& memento)
             {
                 return memento.uuid() == result.uuid();
             });
 
-        if (initial != m_initialData.cend())
+        if (initial != initialData.cend())
         {
-            *m_dataDiffToMerge << GtObjectMementoDiff(*initial, result);
+            m_dataToMerge.append(*initial);
+            m_dataToMerge.append(result);
         }
     }
 

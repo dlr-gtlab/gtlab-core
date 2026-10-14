@@ -4,14 +4,17 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
-#include <utility>
-
 #include "gt_objectmementodiff.h"
+#include "gt_taskrunner.h"
 #include "gt_finishedprocessloadinghelper.h"
 
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
-        GtObjectMementoDiff dataDiff) :
-    m_sumDiff(std::make_unique<GtObjectMementoDiff>(std::move(dataDiff)))
+        QList<GtObjectMemento>* data,
+        QPointer<GtObject> source,
+        const QString& /* taskName */) :
+    m_data(data),
+    m_sumDiff(std::make_unique<GtObjectMementoDiff>()),
+    m_source(source)
 {
 
 }
@@ -21,6 +24,7 @@ GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper() = default;
 void
 GtFinishedProcessLoadingHelper::run()
 {
+    *m_sumDiff = GtTaskRunner::dataDiffFor(*m_data);
 }
 
 GtObjectMementoDiff*

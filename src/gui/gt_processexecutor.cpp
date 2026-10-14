@@ -32,7 +32,8 @@ GtProcessExecutor::GtProcessExecutor(QObject* parent) :
 }
 
 void
-GtProcessExecutor::handleTaskFinishedHelper(GtObjectMementoDiff& dataDiff,
+GtProcessExecutor::handleTaskFinishedHelper(
+        QList<GtObjectMemento>& changedData,
                                             GtTask* task)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(gui mode)";
@@ -44,7 +45,8 @@ GtProcessExecutor::handleTaskFinishedHelper(GtObjectMementoDiff& dataDiff,
         m_task = task;
 
         GtFinishedProcessLoadingHelper* helper =
-                new GtFinishedProcessLoadingHelper(dataDiff);
+                new GtFinishedProcessLoadingHelper(&changedData, m_source,
+                                                   m_task->objectName());
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 

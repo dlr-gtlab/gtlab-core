@@ -352,11 +352,12 @@ GtCoreProcessExecutor::execute()
 
 void
 GtCoreProcessExecutor::handleTaskFinishedHelper(
-        GtObjectMementoDiff& dataDiff, GtTask* task)
+        QList<GtObjectMemento>& changedData, GtTask* task)
 {
     assert(task);
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
+    GtObjectMementoDiff dataDiff = GtTaskRunner::dataDiffFor(changedData);
     gtDebugId(GT_EXEC_ID).medium() << "data diff steps ="
                                    << dataDiff.numberOfDiffSteps();
     gtDebugId(GT_EXEC_ID).medium() << "source =" << m_source;
@@ -507,7 +508,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 
     clearCurrentTask();
 
-    GtObjectMementoDiff dataDiff = taskRunner->dataDiffToMerge();
+    QList<GtObjectMemento> changedData = taskRunner->dataToMerge();
 
     if (pimpl->save)
     {
@@ -519,7 +520,7 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         if (finishedTask->currentState() == GtProcessComponent::FINISHED ||
             finishedTask->currentState() == GtProcessComponent::WARN_FINISHED)
         {
-            handleTaskFinishedHelper(dataDiff, finishedTask);
+            handleTaskFinishedHelper(changedData, finishedTask);
         }
     }
 
