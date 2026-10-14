@@ -88,12 +88,6 @@ public:
     virtual bool run() = 0;
 
     /**
-     * @brief Returns list of all linked datamodel objects.
-     * @return List of linked datamodel objects.
-     */
-    using GtProcessComponent::linkedObjects;
-
-    /**
      * @brief Returns true if run should be marked as failed if warning flag
      * is activated. Otherwise false is returnes.
      * @return Whether run should be marked as failed or not.

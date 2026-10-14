@@ -66,6 +66,15 @@ The base ``exec(GtTask*)`` implementation falls back to local execution of
 the task and emits a warning. Every registered executor id remains a valid
 task mode, and calculator-only executor plugins keep working.
 
+Executors are calculator executors first. ``exec(GtCalculator*)`` stays pure
+virtual: every executor must be able to run a calculator, and task-only
+executors are not supported for now. Task execution is an optional extension;
+an executor that does not override ``exec(GtTask*)`` runs the task locally and
+logs a warning.
+
+Link resolution and ``setUp()`` run in ``GtTask::exec()`` before the executor
+is called; the executor wraps the task iteration only.
+
 Executor lifetime
 ~~~~~~~~~~~~~~~~~
 
@@ -88,6 +97,10 @@ API and ABI impact
 The execution accessors move from ``GtCalculator`` to ``GtProcessComponent``.
 Existing call sites keep compiling; ``execMode()`` now returns the effective
 mode by value (``QString``) instead of the stored value (``const QString&``).
+Both ``linkedObjects()`` overloads become public on ``GtProcessComponent`` so
+executors can access the linked objects of any process component, including
+tasks. ``GtTask::exec()`` clears the list before resolving links, as
+``GtCalculator::exec()`` already does.
 The new virtuals on ``GtAbstractCalculatorExecutor`` and the changed class
 layouts of ``GtProcessComponent`` and ``GtCalculator`` are an ABI change:
 modules and executor plugins must be recompiled. The change lands in 2.1; the
