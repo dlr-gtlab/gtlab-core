@@ -99,6 +99,7 @@ struct GtRecordingSession::Impl
 
     /// Observed roots and their descendants
     mutable QReadWriteLock membershipLock;
+    QSet<const GtObject*> rootSet;
     QSet<const GtObject*> observed;
 
     /// Set once an event callback failed; no further events are forwarded
@@ -114,6 +115,7 @@ struct GtRecordingSession::Impl
         {
             if (!root) continue;
 
+            rootSet.insert(root);
             observed.insert(root);
             for (const GtObject* child :
                  root->QObject::findChildren<GtObject*>())
@@ -121,6 +123,43 @@ struct GtRecordingSession::Impl
                 observed.insert(child);
             }
         }
+    }
+
+    /// Sets the membership of a subtree; roots always stay observed.
+    /// Requires the write lock.
+    void setSubtreeObserved(const GtObject& object, bool parentObserved)
+    {
+        bool const isObserved = parentObserved || rootSet.contains(&object);
+
+        if (isObserved) observed.insert(&object);
+        else observed.remove(&object);
+
+        for (const QObject* child : object.children())
+        {
+            if (auto* c = qobject_cast<const GtObject*>(child))
+            {
+                setSubtreeObserved(*c, isObserved);
+            }
+        }
+    }
+
+    void updateOnAttach(const GtObject& parent, const GtObject& child)
+    {
+        QWriteLocker locker(&membershipLock);
+        setSubtreeObserved(child, observed.contains(&parent));
+    }
+
+    void updateOnDetach(const GtObject& child)
+    {
+        QWriteLocker locker(&membershipLock);
+        setSubtreeObserved(child, false);
+    }
+
+    void forget(const GtObject& object)
+    {
+        QWriteLocker locker(&membershipLock);
+        observed.remove(&object);
+        rootSet.remove(&object);
     }
 
     template <typename Callback>
@@ -215,6 +254,12 @@ void
 GtRecordingSession::notifyObjectAttached(const GtObject& parent,
                                          const GtObject& child)
 {
+    // suspended parent sessions keep their observed tree up to date
+    for (GtRecordingSession* s = this; s; s = s->pimpl->parent)
+    {
+        s->pimpl->updateOnAttach(parent, child);
+    }
+
     if (!isObserved(parent)) return;
 
     pimpl->dispatch(ObjectAttached, [&]() {
@@ -226,11 +271,26 @@ void
 GtRecordingSession::notifyObjectDetached(const GtObject& parent,
                                          const GtObject& child)
 {
-    if (!isObserved(parent)) return;
+    if (isObserved(parent))
+    {
+        pimpl->dispatch(ObjectDetached, [&]() {
+            pimpl->observer.objectDetached(parent, child);
+        });
+    }
 
-    pimpl->dispatch(ObjectDetached, [&]() {
-        pimpl->observer.objectDetached(parent, child);
-    });
+    for (GtRecordingSession* s = this; s; s = s->pimpl->parent)
+    {
+        s->pimpl->updateOnDetach(child);
+    }
+}
+
+void
+GtRecordingSession::forget(const GtObject& object)
+{
+    for (GtRecordingSession* s = this; s; s = s->pimpl->parent)
+    {
+        s->pimpl->forget(object);
+    }
 }
 
 GtRecordingSession*
@@ -333,4 +393,43 @@ gt::detail::SuppressRecordingScope::SuppressRecordingScope() noexcept :
 gt::detail::SuppressRecordingScope::~SuppressRecordingScope()
 {
     if (m_active) currentSession = m_previous;
+}
+
+void
+gt::detail::recordObjectAttached(const GtObject& parent,
+                                 const GtObject& child) noexcept
+{
+    if (!isAnyRecordingRunning()) return;
+
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->notifyObjectAttached(parent, child);
+    }
+}
+
+void
+gt::detail::recordObjectDetached(const GtObject& parent,
+                                 const GtObject& child) noexcept
+{
+    if (!isAnyRecordingRunning()) return;
+
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->notifyObjectDetached(parent, child);
+    }
+}
+
+void
+gt::detail::recordObjectDestroyed(const GtObject* parent,
+                                  const GtObject& object) noexcept
+{
+    if (!isAnyRecordingRunning()) return;
+
+    GtRecordingSession* session = currentSession;
+    if (!session) return;
+
+    if (parent) session->notifyObjectDetached(*parent, object);
+
+    // the address may be reused by a new object
+    session->forget(object);
 }

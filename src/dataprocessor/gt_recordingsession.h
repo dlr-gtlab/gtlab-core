@@ -8,6 +8,7 @@
 #define GTRECORDINGSESSION_H
 
 #include "gt_datamodel_exports.h"
+#include "gt_recordinghooks.h"
 
 #include <QFlags>
 #include <QList>
@@ -137,7 +138,18 @@ public:
                             const GtAbstractProperty& property);
     void notifyPropertyWritten(const GtObject& owner,
                                const GtAbstractProperty& property);
+
+    /**
+     * @brief Updates the observed tree of this session and of its suspended
+     * parent sessions. Reports the event if the parent is observed.
+     */
     void notifyObjectAttached(const GtObject& parent, const GtObject& child);
+
+    /**
+     * @brief Reports the event if the parent is observed and removes the
+     * child's subtree from the observed tree of this session and of its
+     * suspended parent sessions.
+     */
     void notifyObjectDetached(const GtObject& parent, const GtObject& child);
 
     /**
@@ -156,6 +168,12 @@ private:
 
     /// Restores the previous session and finishes the recording.
     void finish(bool success) noexcept;
+
+    /// Removes a destroyed object from the observed trees of the chain
+    void forget(const GtObject& object);
+
+    friend void gt::detail::recordObjectDestroyed(const GtObject*,
+                                                  const GtObject&) noexcept;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtRecordingSession::Events)
