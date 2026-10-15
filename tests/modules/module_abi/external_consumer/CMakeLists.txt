@@ -11,6 +11,13 @@ set(_consumer_install_bindir "${CMAKE_INSTALL_BINDIR}")
 set(_consumer_install_libdir "${CMAKE_INSTALL_LIBDIR}")
 
 find_package(GTlab CONFIG REQUIRED)
+set(_first_runtime_dir "${GTLAB_INSTALL_RUNTIME_DIR}")
+set(_first_moduledir "${GTLAB_INSTALL_MODULEDIR}")
+find_package(GTlab CONFIG REQUIRED)
+if (NOT GTLAB_INSTALL_RUNTIME_DIR STREQUAL _first_runtime_dir
+        OR NOT GTLAB_INSTALL_MODULEDIR STREQUAL _first_moduledir)
+    message(FATAL_ERROR "Repeated find_package(GTlab) changed the exported install layout")
+endif()
 gtlab_standard_setup()
 
 if (NOT CMAKE_INSTALL_BINDIR STREQUAL _consumer_install_bindir
@@ -83,11 +90,23 @@ if (APPLE OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set(CMAKE_SKIP_INSTALL_RPATH FALSE)
         set(CMAKE_INSTALL_RPATH "$ORIGIN/packager-path")
         add_executable(RpathOverrideProbe EXCLUDE_FROM_ALL external_abi_smoke.cpp)
-        gtlab_set_install_rpath(RpathOverrideProbe RELEASE_DIR "bin/modules")
+        gtlab_set_install_rpath(RpathOverrideProbe RELEASE_DIR "bin/modules"
+            INCLUDE_MODULE_DIR)
         get_target_property(_override_rpath RpathOverrideProbe INSTALL_RPATH)
         if (NOT _override_rpath STREQUAL "$ORIGIN/packager-path")
             message(FATAL_ERROR
                 "CMAKE_INSTALL_RPATH override was not preserved: ${_override_rpath}")
+        endif()
+
+        add_executable(RpathTargetOverrideProbe EXCLUDE_FROM_ALL external_abi_smoke.cpp)
+        set_target_properties(RpathTargetOverrideProbe PROPERTIES
+            INSTALL_RPATH "$ORIGIN/target-path")
+        gtlab_set_install_rpath(RpathTargetOverrideProbe RELEASE_DIR "bin/modules"
+            INCLUDE_MODULE_DIR)
+        get_target_property(_target_override_rpath RpathTargetOverrideProbe INSTALL_RPATH)
+        if (NOT _target_override_rpath STREQUAL "$ORIGIN/target-path")
+            message(FATAL_ERROR
+                "Target INSTALL_RPATH override was not preserved: ${_target_override_rpath}")
         endif()
     endfunction()
     assert_gtlab_rpath_override()

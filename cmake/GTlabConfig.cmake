@@ -18,11 +18,15 @@ if (NOT DEFINED GTLAB_INSTALL_LIBDIR)
   set(GTLAB_INSTALL_LIBDIR "@GTLAB_INSTALL_LIBDIR@")
 endif()
 
-if (DEFINED GTLAB_INSTALL_RUNTIME_DIR)
+set(_gtlab_default_runtime_dir
+    "$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>")
+if (DEFINED GTLAB_INSTALL_RUNTIME_DIR
+    AND NOT ( @GTLAB_INSTALL_RUNTIME_DIR_IS_DEFAULT@
+        AND "${GTLAB_INSTALL_RUNTIME_DIR}" STREQUAL "${_gtlab_default_runtime_dir}"))
   set(_gtlab_runtime_dir_overridden TRUE)
 elseif (@GTLAB_INSTALL_RUNTIME_DIR_IS_DEFAULT@)
   set(GTLAB_INSTALL_RUNTIME_DIR
-      "$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>")
+      "${_gtlab_default_runtime_dir}")
   set(_gtlab_runtime_dir_overridden FALSE)
 else()
   set(GTLAB_INSTALL_RUNTIME_DIR "@GTLAB_INSTALL_RUNTIME_DIR@")
@@ -41,13 +45,17 @@ else()
   set(GTLAB_INSTALL_RUNTIME_DIR_DEBUG "${GTLAB_INSTALL_DEBUG_BINDIR}")
 endif()
 
-if (DEFINED GTLAB_INSTALL_MODULEDIR)
+set(_gtlab_default_module_dir "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+if (DEFINED GTLAB_INSTALL_MODULEDIR
+    AND NOT (@GTLAB_INSTALL_MODULEDIR_IS_DEFAULT@
+        AND NOT DEFINED CMAKE_INSTALL_MODULEDIR
+        AND "${GTLAB_INSTALL_MODULEDIR}" STREQUAL "${_gtlab_default_module_dir}"))
   set(_gtlab_moduledir_overridden TRUE)
 elseif (DEFINED CMAKE_INSTALL_MODULEDIR)
   set(GTLAB_INSTALL_MODULEDIR "${CMAKE_INSTALL_MODULEDIR}")
   set(_gtlab_moduledir_overridden TRUE)
 elseif (@GTLAB_INSTALL_MODULEDIR_IS_DEFAULT@)
-  set(GTLAB_INSTALL_MODULEDIR "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+  set(GTLAB_INSTALL_MODULEDIR "${_gtlab_default_module_dir}")
   set(_gtlab_moduledir_overridden FALSE)
 else()
   set(GTLAB_INSTALL_MODULEDIR "@GTLAB_INSTALL_MODULEDIR@")
