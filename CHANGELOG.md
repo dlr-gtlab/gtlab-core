@@ -31,9 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
 
 ### Changed
- - Standardized the CMake installation layout: GTlab libraries now install directly into `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`. Deployment scripts relying on the old location may need updating. - #1621
- - Improved module build and installation: `add_gtlab_module()` now supports configurable install directories, places module binaries in `build/modules` by default, and uses relocatable library search paths. - #1621
- - Building GTlab and external modules using its CMake integration now requires CMake 3.18 or newer. - #1621
  - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
  - GTlab modules now use ABI-tagged filenames and embedded Core/ABI metadata.
@@ -52,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+ - Standardized CMake install and module paths (libraries in `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`, modules in `build/modules`) and added relocatable RPATHs. Deployment scripts may need updating. - #1621
+ - GTlab and external modules now require CMake 3.18 or newer. - #1621
 
 ### Fixed
  - Fixed object links and property connections becoming invalid after using Save Project As - #31
