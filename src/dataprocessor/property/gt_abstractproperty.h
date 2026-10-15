@@ -345,6 +345,15 @@ protected:
      */
     virtual void setValFromConnection();
 
+    /**
+     * @brief Reports a change of this property: notifies the owning object
+     * (sets HasOwnChanges and emits dataChanged()), calls the recording hook
+     * and emits changed().
+     * Use this instead of emitting changed() directly, otherwise the owning
+     * object is not notified.
+     */
+    void notifyChanged();
+
 private:
     /// Private implementation
     class Impl;
@@ -354,10 +363,16 @@ private:
     friend class GtPropertyStructContainer;
 
     /**
-     * @brief Sets the owner of this property and its sub-properties and
-     * connects changed() to the recording hook once.
+     * @brief Sets the owner of this property and its sub-properties. Changes
+     * of owned properties are reported to the recording hook.
      */
     void setOwnerObject(const GtObject& owner);
+
+    /**
+     * @brief Lets changes of this property mark the owner as changed and
+     * emit its dataChanged() signal. Called by GtObject on registration.
+     */
+    void enableOwnerNotification();
 
 private slots:
     /**
