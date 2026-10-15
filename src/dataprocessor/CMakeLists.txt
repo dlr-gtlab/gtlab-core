@@ -123,6 +123,7 @@ set(SOURCES
     gt_objectgroup.cpp
     gt_package.cpp
     gt_factorygroup.cpp
+    gt_finally.cpp
     gt_xmlutilities.cpp
     gt_qtutilities.cpp
     internal/varianthasher.cpp
