@@ -60,9 +60,12 @@ class BumpVersionTest(unittest.TestCase):
     def test_alpha_beta_rc_final_and_patch(self):
         steps = (
             (("--new-version", "2.1.0-alpha.1", "stage"), "2.1.0-alpha.1"),
+            (("development",), "2.1.0-alpha.1.dev"),
             (("serial",), "2.1.0-alpha.2"),
             (("--new-version", "2.1.0-beta.1", "stage"), "2.1.0-beta.1"),
+            (("development",), "2.1.0-beta.1.dev"),
             (("--new-version", "2.1.0-rc.1", "stage"), "2.1.0-rc.1"),
+            (("development",), "2.1.0-rc.1.dev"),
             (("stage",), "2.1.0"),
             (("patch",), "2.1.1"),
             (("patch",), "2.1.2"),
@@ -72,10 +75,21 @@ class BumpVersionTest(unittest.TestCase):
                 self.bump(*args)
                 self.check_version(version, version.split("-")[0])
 
+    def test_stable_to_next_patch_dev_to_final(self):
+        self.bump("--new-version", "2.1.0", "stage")
+        self.bump("--new-version", "2.1.1-dev", "patch")
+        self.check_version("2.1.1-dev", "2.1.1")
+        self.bump("--new-version", "2.1.1", "stage")
+        self.check_version("2.1.1", "2.1.1")
+        self.bump("--new-version", "2.1.2-dev", "patch")
+        self.check_version("2.1.2-dev", "2.1.2")
+
     def test_opt_in_to_patch_prerelease(self):
         self.bump("--new-version", "2.1.0", "stage")
         self.bump("--new-version", "2.1.1-alpha.1", "patch")
         self.check_version("2.1.1-alpha.1", "2.1.1")
+        self.bump("development")
+        self.check_version("2.1.1-alpha.1.dev", "2.1.1")
         self.bump("serial")
         self.check_version("2.1.1-alpha.2", "2.1.1")
         self.bump("--new-version", "2.1.1-rc.1", "stage")
