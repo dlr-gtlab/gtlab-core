@@ -4,6 +4,7 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 
 #include "gtest/gtest.h"
@@ -18,6 +19,8 @@
 
 #include "slotadaptor.h"
 #include <QtConcurrent/QtConcurrent>
+
+#include <thread>
 
 /// This is a test fixture that does a init for each test
 class TestGtObject : public ::testing::Test
@@ -515,4 +518,96 @@ TEST_F(TestGtObject, bug539)
 
     EXPECT_EQ(parent.findDirectChildren<TestObject*>().size(), 1);
     EXPECT_EQ(parent.findDirectChildren<TestSpecialGtObject*>().size(), 1);
+}
+
+namespace
+{
+
+/// Registers properties that it does not own
+class PropertyOwner : public GtObject
+{
+public:
+    void reg(GtAbstractProperty& prop) { registerProperty(prop); }
+};
+
+} // namespace
+
+TEST(GtObjectPropertyNotification, changeNotifiesOwner)
+{
+    TestSpecialGtObject obj;
+    obj.acceptChanges();
+
+    GtObject* sender = nullptr;
+    GtAbstractProperty* changedProp = nullptr;
+    QObject::connect(&obj, qOverload<GtObject*, GtAbstractProperty*>(
+                         &GtObject::dataChanged),
+                     [&](GtObject* o, GtAbstractProperty* p) {
+        sender = o;
+        changedProp = p;
+    });
+
+    obj.m_doubleProp.setVal(42.0);
+
+    EXPECT_EQ(sender, &obj);
+    EXPECT_EQ(changedProp, &obj.m_doubleProp);
+    EXPECT_TRUE(obj.hasChanges());
+}
+
+TEST(GtObjectPropertyNotification, unownedPropertyOnlyEmitsChanged)
+{
+    GtDoubleProperty prop("prop", "Prop");
+    EXPECT_EQ(prop.ownerObject(), nullptr);
+
+    int changedCount = 0;
+    QObject::connect(&prop, &GtAbstractProperty::changed,
+                     [&changedCount]() { ++changedCount; });
+
+    prop.setVal(1.0);
+    EXPECT_EQ(changedCount, 1);
+}
+
+TEST(GtObjectPropertyNotification, ownerDestroyedBeforeProperty)
+{
+    GtDoubleProperty prop("prop", "Prop");
+
+    int changedCount = 0;
+    QObject::connect(&prop, &GtAbstractProperty::changed,
+                     [&changedCount]() { ++changedCount; });
+
+    {
+        PropertyOwner owner;
+        owner.reg(prop);
+        EXPECT_EQ(prop.ownerObject(), &owner);
+    }
+
+    EXPECT_EQ(prop.ownerObject(), nullptr);
+
+    // must not access the destroyed owner
+    prop.setVal(1.0);
+    EXPECT_EQ(changedCount, 1);
+}
+
+TEST(GtObjectPropertyNotification, changeFromOtherThreadIsQueued)
+{
+    TestSpecialGtObject obj;
+    obj.acceptChanges();
+
+    QThread* emittingThread = nullptr;
+    QObject::connect(&obj, qOverload<GtObject*, GtAbstractProperty*>(
+                         &GtObject::dataChanged),
+                     &obj, [&emittingThread](GtObject*, GtAbstractProperty*) {
+        emittingThread = QThread::currentThread();
+    }, Qt::DirectConnection);
+
+    // std::thread: QFuture::waitForFinished() may run the task inline
+    std::thread worker([&obj]() {
+        obj.m_doubleProp.setVal(42.0);
+    });
+    worker.join();
+
+    // delivered in the object's thread, like the former auto connection
+    EXPECT_EQ(emittingThread, nullptr);
+    QCoreApplication::sendPostedEvents(&obj);
+    EXPECT_EQ(emittingThread, obj.thread());
+    EXPECT_TRUE(obj.hasChanges());
 }
