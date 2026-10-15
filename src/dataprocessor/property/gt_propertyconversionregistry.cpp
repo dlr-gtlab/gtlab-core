@@ -44,8 +44,7 @@ GtPropertyConversionRegistry::getInstance()
 
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to,
-    gt::conversion::convert convert,
+    QMetaObject from, QMetaObject to, gt::conversion::convert convert,
     gt::conversion::isCompatible canConnect)
 {
     if (!convert)
@@ -71,7 +70,7 @@ GtPropertyConversionRegistry::registerConnectionCompatibility(
 
 gt::conversion::isCompatible
 GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
-                                                 const QMetaObject& to) const
+                                                   const QMetaObject& to) const
 {
     const GtPropertyConverter* converter =
         findConverterWithInheritance(from, to);
@@ -217,8 +216,8 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
         gt::conversion::fromInt::canConnectToDouble);
 
     // converter from int to bool
-    registerConnectionCompatibility(
-        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
-        gt::conversion::fromInt::toBool,
-        gt::conversion::fromInt::canConnectToBool);
+    registerConnectionCompatibility(GtIntProperty::staticMetaObject,
+                                    GtBoolProperty::staticMetaObject,
+                                    gt::conversion::fromInt::toBool,
+                                    gt::conversion::fromInt::canConnectToBool);
 }
