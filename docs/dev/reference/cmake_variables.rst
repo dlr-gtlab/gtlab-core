@@ -17,6 +17,12 @@ Build options
    * - ``CMAKE_PREFIX_PATH``
      - Unset
      - Search path for dependencies, including an installed GTlab.
+   * - ``CMAKE_BUILD_TYPE``
+     - ``Release`` (Core)
+     - Build configuration for single-config generators.
+   * - ``Qt5_DIR`` / ``Qt6_DIR``
+     - Unset
+     - Location of the Qt CMake package to use.
    * - ``BUILD_WITH_HDF5``
      - ``ON``
      - Enable HDF5 support in GTlab Core.
@@ -26,6 +32,9 @@ Build options
    * - ``BUILD_TESTMODULES``
      - ``OFF``
      - Build the test modules.
+   * - ``BUILD_WITH_COVERAGE``
+     - ``OFF``
+     - Enable code coverage instrumentation (Linux).
    * - ``GTLAB_USE_BUNDLED_LOGGING``
      - ``ON``
      - Download and build GTlab Logging instead of using an external installation.
