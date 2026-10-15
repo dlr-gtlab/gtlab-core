@@ -8,9 +8,6 @@
  *  E-Mail: marius.broecker@dlr.de
  */
 
-// dsiable assert in gt::finally for unittests
-#define GT_FINALLY_DISABLE_ASSERT
-
 #include <QMutex>
 #include <QByteArray>
 #include <QString>

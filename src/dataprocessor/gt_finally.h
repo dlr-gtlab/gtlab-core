@@ -47,16 +47,16 @@ public:
     Finally() noexcept : m_invoked{true}
     {
         static_assert(std::is_nothrow_default_constructible<Functor>::value,
-                      "Functor must be nothrow default constructible");
+                      "Functor must be nothrow default-constructible!");
     }
 
     /// constructor by moving functor
     explicit Finally(Functor func) noexcept :
-        m_func{take(func)}, m_invoked{false}
+        m_func{std::move_if_noexcept(func)}, m_invoked{false}
     {
         static_assert(std::is_nothrow_move_constructible<Functor>::value ||
                           std::is_nothrow_copy_constructible<Functor>::value,
-                      "Functor must be nothrow move- or copy-constructible");
+                      "Functor must be nothrow move- or copy-constructible!");
     }
 
     // no copy
@@ -65,7 +65,7 @@ public:
 
     // move allowed
     Finally(Finally&& other) noexcept :
-        m_func{take(other.m_func)}, m_invoked{other.m_invoked}
+        m_func{std::move_if_noexcept(other.m_func)}, m_invoked{other.m_invoked}
     {
         other.clear();
     };
@@ -123,6 +123,9 @@ public:
      */
     void swap(Finally& other) noexcept
     {
+        static_assert(std::is_nothrow_swappable<Functor>::value,
+                      "Functor must be nothrow swappable!");
+
         using std::swap; // ADL
         swap(m_func, other.m_func);
         swap(m_invoked, other.m_invoked);
@@ -172,24 +175,6 @@ private:
             {
                 detail::logCriticalException(__FUNCTION__);
             }
-#ifndef GT_FINALLY_DISABLE_ASSERT
-            assert(!"gt::Finally threw an exception");
-#endif
-        }
-    }
-
-    /// copies/moves functor object safely
-    static constexpr decltype(auto) take(Functor& f) noexcept
-    {
-        if constexpr (std::is_nothrow_move_constructible<Functor>::value)
-        {
-            // move
-            return std::move(f);
-        }
-        else
-        {
-            // copy
-            return static_cast<const Functor&>(f);
         }
     }
 };
@@ -216,7 +201,7 @@ template <typename Functor,
 inline auto finally(Functor func) noexcept(
     std::is_nothrow_move_constructible<Functor>::value)
 {
-    return Finally<Functor>{std::move(func)};
+    return Finally<Functor>{std::move_if_noexcept(func)};
 }
 
 /**
