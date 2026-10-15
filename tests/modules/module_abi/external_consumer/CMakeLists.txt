@@ -104,7 +104,7 @@ set(_installed_gtlab_console
     "${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>/${_gtlab_console_name}")
 
 set(_test_environment)
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
     set(_runtime_library_targets GTlabLogging GenH5)
     get_target_property(_genh5_link_libraries GenH5 INTERFACE_LINK_LIBRARIES)
     foreach(_dependency IN LISTS _genh5_link_libraries)
@@ -121,8 +121,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         list(APPEND _runtime_library_dirs "$<TARGET_FILE_DIR:${_target}>")
     endforeach()
     list(JOIN _runtime_library_dirs ":" _runtime_library_path)
+    if (APPLE)
+        set(_runtime_library_path_variable DYLD_LIBRARY_PATH)
+    else()
+        set(_runtime_library_path_variable LD_LIBRARY_PATH)
+    endif()
     list(APPEND _test_environment
-        "LD_LIBRARY_PATH=${_runtime_library_path}:$ENV{LD_LIBRARY_PATH}")
+        "${_runtime_library_path_variable}=${_runtime_library_path}:$ENV{${_runtime_library_path_variable}}")
 endif()
 
 add_test(NAME ExternalModuleInstallLayout
