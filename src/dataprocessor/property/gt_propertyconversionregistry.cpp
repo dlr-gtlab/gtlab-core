@@ -72,93 +72,47 @@ gt::conversion::isCompatible
 GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
                                                    const QMetaObject& to) const
 {
-    const GtPropertyConverter* converter =
-        findConverterWithInheritance(from, to);
+    const auto match = findBestConverterWithInheritance(
+        from, to, LookupPurpose::Compatibility);
 
-    if (!converter) return {};
+    if (!match.found) return {};
 
-    return converter->isCompatibletFunc();
+    if (!match.converter)
+    {
+        return gt::conversion::defaultCompatibility();
+    }
+
+    return match.converter->isCompatibletFunc();
 }
 
 gt::conversion::convert
 GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
                                               const QMetaObject& to) const
 {
-    const GtPropertyConverter* converter =
-        findConverterWithInheritance(from, to);
+    const auto match = findBestConverterWithInheritance(
+        from, to, LookupPurpose::Conversion);
 
-    // A specifically registered converter takes precedence.
-    if (converter)
-    {
-        const auto func = converter->convertFunc();
+    if (!match.found) return {};
 
-        if (func)
-        {
-            return func;
-        }
-    }
-
-    // Identical property types can use the default converter,
-    // even if no explicit registration exists.
-    if (from.className() == to.className())
+    if (!match.converter)
     {
         return gt::conversion::defaultConverter;
     }
 
-    return {};
+    return match.converter->convertFunc();
 }
 
 const GtPropertyConverter*
 GtPropertyConversionRegistry::findConverterWithInheritance(
     const QMetaObject& from, const QMetaObject& to) const
 {
-    const auto fromChain = inheritanceChain(from);
-    const auto toChain = inheritanceChain(to);
+    const auto match = findBestConverterWithInheritance(
+        from,
+        to,
+        LookupPurpose::AnyRegistered,
+        false);
 
-    // Smaller index means a more specific type.
-    const auto findTypeIndex = [](const auto& chain, const QString& className) {
-        const auto it = std::find_if(chain.cbegin(), chain.cend(),
-                                     [&className](const QMetaObject* type) {
-                                         return className == type->className();
-                                     });
-
-        return static_cast<std::size_t>(std::distance(chain.cbegin(), it));
-    };
-
-    const GtPropertyConverter* bestConverter = nullptr;
-
-    std::size_t bestFromIndex = fromChain.size();
-    std::size_t bestToIndex = toChain.size();
-
-    for (const GtPropertyConverter& converter : m_canConvertList)
-    {
-        const auto fromIndex =
-            findTypeIndex(fromChain, converter.fromClassName());
-
-        // Source type is not part of the inheritance chain.
-        if (fromIndex == fromChain.size()) continue;
-
-        const auto toIndex = findTypeIndex(toChain, converter.toClassName());
-
-        // Target type is not part of the inheritance chain.
-        if (toIndex == toChain.size()) continue;
-
-        // Lexicographic ranking:
-        // 1. Most specific source type
-        // 2. Most specific target type
-        const bool isBetter =
-            fromIndex < bestFromIndex ||
-            (fromIndex == bestFromIndex && toIndex < bestToIndex);
-
-        if (isBetter)
-        {
-            bestConverter = &converter;
-            bestFromIndex = fromIndex;
-            bestToIndex = toIndex;
-        }
-    }
-
-    return bestConverter;
+    return match.converter;
 }
 
 QStringList
@@ -192,6 +146,127 @@ GtPropertyConversionRegistry::connectionCheckAvailable(
     return function(a, b);
 }
 
+GtPropertyConversionRegistry::ConverterMatch
+GtPropertyConversionRegistry::findBestConverterWithInheritance(
+    const QMetaObject& from, const QMetaObject& to, LookupPurpose purpose,
+    bool includeImplicit) const
+{
+    const auto fromChain = inheritanceChain(from);
+    const auto toChain = inheritanceChain(to);
+
+    const auto findTypeIndex =
+        [](const auto& chain, const QString& className)
+    {
+        const auto it = std::find_if(
+            chain.cbegin(),
+            chain.cend(),
+            [&className](const QMetaObject* type)
+            {
+                return className == type->className();
+            });
+
+        return static_cast<std::size_t>(
+            std::distance(chain.cbegin(), it));
+    };
+
+    ConverterMatch best;
+
+    const auto considerCandidate =
+        [&best](
+            const GtPropertyConverter* candidate,
+            std::size_t fromIndex,
+            std::size_t toIndex)
+    {
+        const auto score = fromIndex + toIndex;
+        const auto bestScore = best.fromIndex + best.toIndex;
+
+        const bool isBetter =
+            !best.found ||
+            score < bestScore ||
+            (score == bestScore &&
+             fromIndex < best.fromIndex) ||
+            (score == bestScore &&
+             fromIndex == best.fromIndex &&
+             toIndex == best.toIndex &&
+             candidate != nullptr &&
+             best.converter == nullptr);
+
+        if (isBetter)
+        {
+            best.converter = candidate;
+            best.found = true;
+            best.fromIndex = fromIndex;
+            best.toIndex = toIndex;
+        }
+    };
+
+    // 1. Consider registered converters.
+    for (const GtPropertyConverter& converter : m_canConvertList)
+    {
+        const auto fromIndex =
+            findTypeIndex(fromChain, converter.fromClassName());
+
+        if (fromIndex == fromChain.size()) continue;
+
+        const auto toIndex =
+            findTypeIndex(toChain, converter.toClassName());
+
+        if (toIndex == toChain.size()) continue;
+
+        // Only consider converters that provide the requested function.
+        if (purpose == LookupPurpose::Conversion &&
+            !converter.convertFunc())
+        {
+            continue;
+        }
+
+        if (purpose == LookupPurpose::Compatibility &&
+            !converter.isCompatibletFunc())
+        {
+            continue;
+        }
+
+        considerCandidate(&converter, fromIndex, toIndex);
+    }
+
+    if (!includeImplicit)
+    {
+        return best;
+    }
+
+    // 2. Consider implicit candidates for common property classes.
+    for (std::size_t i = 0; i < fromChain.size(); ++i)
+    {
+        for (std::size_t j = 0; j < toChain.size(); ++j)
+        {
+            const QMetaObject* commonType = fromChain[i];
+
+            if (QString::fromLatin1(commonType->className()) !=
+                QString::fromLatin1(toChain[j]->className()))
+            {
+                continue;
+            }
+
+            // Ignore common ancestors outside the property hierarchy,
+            // such as QObject.
+            const bool isPropertyType =
+                commonType == &GtAbstractProperty::staticMetaObject ||
+                commonType->inherits(
+                    &GtAbstractProperty::staticMetaObject);
+
+            if (!isPropertyType)
+            {
+                continue;
+            }
+
+            // nullptr identifies the implicit default converter.
+            considerCandidate(nullptr, i, j);
+        }
+    }
+
+    return best;
+}
+
 GtPropertyConversionRegistry::GtPropertyConversionRegistry()
 {
     registerBasicPropertyConvertersImpl();
@@ -220,4 +295,10 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
                                     GtBoolProperty::staticMetaObject,
                                     gt::conversion::fromInt::toBool,
                                     gt::conversion::fromInt::canConnectToBool);
+
+    // converter from bool to nit
+    registerConnectionCompatibility(GtBoolProperty::staticMetaObject,
+                                    GtIntProperty::staticMetaObject,
+                                    gt::conversion::fromBool::toInt,
+                                    gt::conversion::fromBool::canConnectToInt);
 }

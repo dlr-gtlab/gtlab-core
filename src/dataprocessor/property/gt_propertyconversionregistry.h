@@ -83,6 +83,27 @@ public:
                                   GtAbstractProperty const& b);
 
 private:
+    enum class LookupPurpose
+    {
+        AnyRegistered,
+        Conversion,
+        Compatibility
+    };
+
+    struct ConverterMatch
+    {
+        const GtPropertyConverter* converter = nullptr;
+        bool found = false;
+        std::size_t fromIndex = 0;
+        std::size_t toIndex = 0;
+    };
+
+    ConverterMatch findBestConverterWithInheritance(
+        const QMetaObject& from,
+        const QMetaObject& to,
+        LookupPurpose purpose,
+        bool includeImplicit = true) const;
+
     GtPropertyConversionRegistry();
     ~GtPropertyConversionRegistry() = default;
 

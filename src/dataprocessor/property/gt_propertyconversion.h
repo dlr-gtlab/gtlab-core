@@ -106,6 +106,7 @@ namespace gt
         gt::conversion::ConversionResult<QVariant> defaultConverter(
             const GtAbstractProperty& source, const GtAbstractProperty& target);
 
+        gt::conversion::isCompatible defaultCompatibility();
 
         namespace fromDouble
         {
