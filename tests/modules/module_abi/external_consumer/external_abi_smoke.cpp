@@ -5,6 +5,7 @@
  */
 
 #include <gt_moduleinterface.h>
+#ifndef GTLAB_ABI_TEST_NO_ADJACENT_DEPENDENCY
 #include <QFile>
 
 extern "C" int externalAbiDependencyValue();
@@ -34,6 +35,7 @@ namespace
     ExternalModuleLoadMarker loadMarker;
 
 } // namespace
+#endif
 
 // Minimal external module used to verify the installed GTlab package exports
 // the ABI metadata and CMake integration required by downstream consumers.

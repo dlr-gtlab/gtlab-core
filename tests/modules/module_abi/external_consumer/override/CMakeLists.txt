@@ -8,3 +8,5 @@ add_gtlab_module(ExternalAbiOverrideSmoke
     SOURCES "${CMAKE_CURRENT_LIST_DIR}/../external_abi_smoke.cpp"
 )
 target_link_libraries(ExternalAbiOverrideSmoke PRIVATE GTlab::Core)
+target_compile_definitions(ExternalAbiOverrideSmoke
+    PRIVATE GTLAB_ABI_TEST_NO_ADJACENT_DEPENDENCY)
