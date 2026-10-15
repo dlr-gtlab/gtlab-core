@@ -11,7 +11,6 @@ set(_consumer_install_bindir "${CMAKE_INSTALL_BINDIR}")
 set(_consumer_install_libdir "${CMAKE_INSTALL_LIBDIR}")
 
 find_package(GTlab CONFIG REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 gtlab_standard_setup()
 
 if (NOT CMAKE_INSTALL_BINDIR STREQUAL _consumer_install_bindir
@@ -47,12 +46,6 @@ target_link_libraries(ExternalAbiSmoke PRIVATE
 install(TARGETS ExternalAbiAdjacentDependency
     LIBRARY DESTINATION "${GTLAB_INSTALL_MODULEDIR}"
     RUNTIME DESTINATION "${GTLAB_INSTALL_MODULEDIR}"
-)
-
-add_executable(ExternalModuleLoader module_loader.cpp)
-target_link_libraries(ExternalModuleLoader PRIVATE Qt${QT_VERSION_MAJOR}::Core)
-install(TARGETS ExternalModuleLoader
-    RUNTIME DESTINATION "${GTLAB_INSTALL_BINDIR}"
 )
 
 if (APPLE OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -102,6 +95,14 @@ endif()
 
 add_subdirectory(override)
 
+if (WIN32)
+    set(_gtlab_console_name "GTlabConsole.exe")
+else()
+    set(_gtlab_console_name "GTlabConsole")
+endif()
+set(_installed_gtlab_console
+    "${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>/${_gtlab_console_name}")
+
 add_test(NAME ExternalModuleInstallLayout
     COMMAND ${CMAKE_COMMAND}
         "-DEXPECTED_BUILD_MODULEDIR=${CMAKE_BINARY_DIR}/modules"
@@ -114,7 +115,7 @@ add_test(NAME ExternalModuleInstallLayout
         "-DOVERRIDE_MODULEDIR=consumer-modules"
         "-DOVERRIDE_MODULE=$<TARGET_FILE_NAME:ExternalAbiOverrideSmoke>"
         "-DADJACENT_DEPENDENCY=$<TARGET_FILE_NAME:ExternalAbiAdjacentDependency>"
-        "-DMODULE_LOADER=$<TARGET_FILE:ExternalModuleLoader>"
+        "-DCONSOLE=${_installed_gtlab_console}"
         "-DINSTALLED_MODULE=${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_MODULEDIR_DEBUG},${GTLAB_INSTALL_MODULEDIR_RELEASE}>/$<TARGET_FILE_NAME:ExternalAbiSmoke>"
         "-DLOAD_MARKER=${CMAKE_BINARY_DIR}/external-module-loaded.txt"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_install.cmake")

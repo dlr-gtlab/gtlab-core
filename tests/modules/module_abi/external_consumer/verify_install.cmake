@@ -39,7 +39,7 @@ execute_process(
     COMMAND "${CMAKE_COMMAND}" -E env
         "QT_QPA_PLATFORM=offscreen"
         "GTLAB_ABI_TEST_MARKER=${LOAD_MARKER}"
-        "${MODULE_LOADER}" "${INSTALLED_MODULE}"
+        "${CONSOLE}" load_module "${INSTALLED_MODULE}"
     RESULT_VARIABLE _load_result
     OUTPUT_VARIABLE _load_stdout
     ERROR_VARIABLE _load_stderr
