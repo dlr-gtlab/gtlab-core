@@ -106,7 +106,7 @@ set(_installed_gtlab_console
 set(_test_environment)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     list(APPEND _test_environment
-        "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:GTlabLogging>:$ENV{LD_LIBRARY_PATH}")
+        "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:GTlabLogging>:$<TARGET_FILE_DIR:GenH5>:$ENV{LD_LIBRARY_PATH}")
 endif()
 
 add_test(NAME ExternalModuleInstallLayout
