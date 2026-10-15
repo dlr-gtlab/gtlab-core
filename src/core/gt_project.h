@@ -325,8 +325,11 @@ private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
+    /// marks the project as open
     void markOpen();
+    /// marks the project as closed
     void markClosed();
+    /// returns a map that maps classes to module ids
     QMap<QString, QString>& classModuleIds();
 
     /**
