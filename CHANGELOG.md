@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
 
 ### Changed
+ - Standardized the CMake installation layout: GTlab libraries now install directly into `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`. Deployment scripts relying on the old location may need updating. - #1621
+ - Improved module build and installation: `add_gtlab_module()` now supports configurable install directories, places module binaries in `build/modules` by default, and uses relocatable library search paths. - #1621
+ - Building GTlab and external modules using its CMake integration now requires CMake 3.18 or newer. - #1621
  - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
  - GTlab modules now use ABI-tagged filenames and embedded Core/ABI metadata.
