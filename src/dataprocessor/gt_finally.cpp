@@ -10,7 +10,6 @@
 #include "gt_finally.h"
 
 #include <gt_logging.h>
-#include <typeinfo>
 
 void
 gt::detail::logCriticalException(const char* origin, const char* what) noexcept
