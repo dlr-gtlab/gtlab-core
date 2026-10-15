@@ -85,9 +85,8 @@ TEST(TestGtPropertyConversionRegistry, registerIsCompatible)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropF::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
                 return gt::conversion::ConversionResult<bool>::success(true);
@@ -129,9 +128,8 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -151,9 +149,8 @@ TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -162,9 +159,8 @@ TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -229,9 +225,8 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropA::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
                 return gt::conversion::ConversionResult<bool>::success(true);
@@ -287,9 +282,8 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
                 return gt::conversion::ConversionResult<bool>::success(true);
@@ -304,9 +298,8 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtAbstractProperty::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -340,9 +333,8 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
-        [](GtAbstractProperty const& a,
-           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
-        {
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
@@ -411,9 +403,9 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
 
 TEST(TestGtPropertyConversionRegistry, converterAccessors)
 {
-    const auto convert =
-        [](GtAbstractProperty const&,
-           GtAbstractProperty const&) -> gt::conversion::ConversionResult<double> {
+    const auto convert = [](GtAbstractProperty const&,
+                            GtAbstractProperty const&)
+        -> gt::conversion::ConversionResult<double> {
         return gt::conversion::ConversionResult<double>::success(1.0);
     };
 

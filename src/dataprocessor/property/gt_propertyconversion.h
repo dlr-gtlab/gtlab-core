@@ -24,7 +24,7 @@ namespace gt
             Failed
         };
 
-        template<typename T>
+        template <typename T>
         struct ConversionResult
         {
             using value_type = T;
@@ -51,20 +51,19 @@ namespace gt
         using erasedConversionResult = ConversionResult<QVariant>;
 
         using convert = std::function<erasedConversionResult(
-            const GtAbstractProperty& from,
-            const GtAbstractProperty& to)>;
+            const GtAbstractProperty& from, const GtAbstractProperty& to)>;
 
-        template<typename Converter>
+        template <typename Converter>
         gt::conversion::convert eraseConverter(Converter converter)
         {
             return [converter = std::move(converter)](
                        const GtAbstractProperty& from,
                        const GtAbstractProperty& to) mutable
-                   -> gt::conversion::erasedConversionResult
-            {
+                       -> gt::conversion::erasedConversionResult {
                 auto result = converter(from, to);
 
-                if (result.status == gt::conversion::conversionSuccess::Failed ||
+                if (result.status ==
+                        gt::conversion::conversionSuccess::Failed ||
                     !result.value)
                 {
                     return gt::conversion::erasedConversionResult::failed();
@@ -105,8 +104,7 @@ namespace gt
          * @return
          */
         gt::conversion::ConversionResult<QVariant> defaultConverter(
-            const GtAbstractProperty& source,
-            const GtAbstractProperty& target);
+            const GtAbstractProperty& source, const GtAbstractProperty& target);
 
 
         namespace fromDouble

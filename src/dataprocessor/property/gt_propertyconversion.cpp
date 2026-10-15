@@ -99,9 +99,8 @@ gt::conversion::fromInt::canConnectToDouble(const GtAbstractProperty& source,
 }
 
 gt::conversion::ConversionResult<QVariant>
-gt::conversion::defaultConverter(
-    const GtAbstractProperty& source,
-    const GtAbstractProperty& target)
+gt::conversion::defaultConverter(const GtAbstractProperty& source,
+                                 const GtAbstractProperty& target)
 {
     const QVariant sourceVal = source.valueToVariant();
     const QVariant targetVal = target.valueToVariant();

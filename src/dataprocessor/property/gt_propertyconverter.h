@@ -22,22 +22,18 @@ public:
                         gt::conversion::isCompatible isCompatible = {});
 
     template <typename Converter,
-              std::enable_if_t<std::is_invocable_v< Converter&,
-                                                   const GtAbstractProperty&,
-                                                   const GtAbstractProperty&> &&
-                                   !std::is_same_v<std::decay_t<Converter>,
-                                                   gt::conversion::convert>,
-                               int> = 0>
-    GtPropertyConverter(
-        QMetaObject from,
-        QMetaObject to,
-        Converter&& conversion,
-        gt::conversion::isCompatible isCompatible = {})
-        : GtPropertyConverter(
-            std::move(from),
-            std::move(to),
-            gt::conversion::eraseConverter(
-                std::forward<Converter>(conversion)),
+              std::enable_if_t<
+                  std::is_invocable_v<Converter&, const GtAbstractProperty&,
+                                      const GtAbstractProperty&> &&
+                      !std::is_same_v<std::decay_t<Converter>,
+                                      gt::conversion::convert>,
+                  int> = 0>
+    GtPropertyConverter(QMetaObject from, QMetaObject to,
+                        Converter&& conversion,
+                        gt::conversion::isCompatible isCompatible = {}) :
+        GtPropertyConverter(
+            std::move(from), std::move(to),
+            gt::conversion::eraseConverter(std::forward<Converter>(conversion)),
             std::move(isCompatible))
     {
     }

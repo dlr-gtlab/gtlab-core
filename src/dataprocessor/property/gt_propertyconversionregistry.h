@@ -36,26 +36,19 @@ public:
      * @param f
      */
     void registerConnectionCompatibility(
-        QMetaObject from, QMetaObject to,
-        gt::conversion::convert convert,
+        QMetaObject from, QMetaObject to, gt::conversion::convert convert,
         gt::conversion::isCompatible canConnect = {});
 
-    template<typename Converter>
+    template <typename Converter>
     void registerConnectionCompatibility(
-        const QMetaObject& from,
-        const QMetaObject& to,
-        Converter&& conversion,
+        const QMetaObject& from, const QMetaObject& to, Converter&& conversion,
         gt::conversion::isCompatible canConnect)
     {
         auto erasedConversion =
-            gt::conversion::eraseConverter(
-                std::forward<Converter>(conversion));
+            gt::conversion::eraseConverter(std::forward<Converter>(conversion));
 
-        registerConnectionCompatibility(
-            from,
-            to,
-            std::move(erasedConversion),
-            std::move(canConnect));
+        registerConnectionCompatibility(from, to, std::move(erasedConversion),
+                                        std::move(canConnect));
     }
 
     /**
