@@ -17,7 +17,9 @@
 #include <QObject>
 #include <QPointer>
 #include <QEventLoop>
+#include <optional>
 
+#include "gt_objectmementodiff.h"
 #include "gt_objectmemento.h"
 
 class GtTask;
@@ -25,6 +27,17 @@ class GtAbstractRunnable;
 class GtProcessComponent;
 class GtObject;
 class GtObjectLinkProperty;
+struct GtTaskMementoPair
+{
+    GtObjectMemento initial;
+    GtObjectMemento result;
+
+    bool hasMatchingUuids() const
+    {
+        return !initial.isNull() && !result.isNull() &&
+               initial.uuid() == result.uuid();
+    }
+};
 
 /**
  * @brief The GtTaskRunner class
@@ -58,10 +71,15 @@ public:
     void run();
 
     /**
-     * @brief Returns list of data to merge.
-     * @return List of data to merge.
+     * @brief Returns task-start and task-result memento pairs.
      */
-    const QList<GtObjectMemento>& dataToMerge() const;
+    const QList<GtTaskMementoPair>& dataToMerge() const;
+
+    /**
+     * @brief Creates a task diff from initial and result memento pairs.
+     */
+    static std::optional<GtObjectMementoDiff> dataDiffFor(
+        const QList<GtTaskMementoPair>& mementoPairs);
 
 private:
     /// pointer to task
@@ -73,8 +91,11 @@ private:
     /// source object
     QPointer<GtObject> m_source;
 
-    /// Container constiting of data to merge back into central data model
-    QList<GtObjectMemento> m_dataToMerge;
+    /// Task-start snapshots used to match runnable output
+    QList<GtObjectMemento> m_initialData;
+
+    /// Task-start and task-result pairs to merge after completion
+    QList<GtTaskMementoPair> m_dataToMerge;
 
     /// Map of all process components and their cloned counterpart
     QMap<GtProcessComponent*, GtProcessComponent*> m_componentMap;

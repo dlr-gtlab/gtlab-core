@@ -10,6 +10,7 @@
  */
 
 #include <QThreadPool>
+#include <algorithm>
 
 #include "gt_logging.h"
 #include "gt_processcomponent.h"
@@ -19,8 +20,34 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
+#include "gt_finally.h"
+#include "gt_objectmementodiff.h"
 
 #include "gt_taskrunner.h"
+
+namespace
+{
+    const GtObjectMemento* findMemento(const GtObjectMemento& root,
+                                       const QString& uuid)
+    {
+        if (root.uuid() == uuid)
+        {
+            return &root;
+        }
+
+        const GtObjectMemento* match = nullptr;
+        if (std::any_of(root.childObjects.cbegin(), root.childObjects.cend(),
+                        [&match, &uuid](const GtObjectMemento& child) {
+                            match = findMemento(child, uuid);
+                            return match != nullptr;
+                        }))
+        {
+            return match;
+        }
+
+        return nullptr;
+    }
+} // namespace
 
 GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
     m_source(nullptr)
@@ -66,6 +93,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
     m_source = source;
 
     // free data to merge list
+    m_initialData.clear();
     m_dataToMerge.clear();
 
     // clear component mapping
@@ -84,7 +112,9 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
             continue;
         }
 
-        m_runnable->appendSourceData(srcObj->toMemento());
+        GtObjectMemento memento = srcObj->toMemento();
+        m_initialData.append(memento);
+        m_runnable->appendSourceData(memento);
     }
 
     GtTask* taskCopy = cloneTask();
@@ -136,10 +166,30 @@ GtTaskRunner::run()
     tp->start(m_runnable);
 }
 
-const QList<GtObjectMemento>&
+const QList<GtTaskMementoPair>&
 GtTaskRunner::dataToMerge() const
 {
     return m_dataToMerge;
+}
+
+std::optional<GtObjectMementoDiff>
+GtTaskRunner::dataDiffFor(const QList<GtTaskMementoPair>& mementoPairs)
+{
+    GtObjectMementoDiff diff;
+
+    for (const GtTaskMementoPair& pair : mementoPairs)
+    {
+        if (!pair.hasMatchingUuids())
+        {
+            gtError() << tr("Task result does not match its initial snapshot:")
+                      << pair.result.uuid();
+            return std::nullopt;
+        }
+
+        diff << GtObjectMementoDiff(pair.initial, pair.result);
+    }
+
+    return diff;
 }
 
 GtTask*
@@ -271,12 +321,44 @@ GtTaskRunner::handleRunnableFinished()
         return;
     }
 
-    disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
-               this, &GtTaskRunner::handleRunnableFinished);
+    {
+        auto cleanup = gt::finally([this]() {
+            m_initialData.clear();
+            delete m_runnable.data();
+        });
 
-    m_dataToMerge.append(m_runnable->outputData());
+        m_dataToMerge.clear();
+        bool missingInitialSnapshot = false;
+        for (const GtObjectMemento& result : m_runnable->outputData())
+        {
+            const auto initialRoot = std::find_if(
+                m_initialData.cbegin(), m_initialData.cend(),
+                [&result](const GtObjectMemento& memento) {
+                    return findMemento(memento, result.uuid()) != nullptr;
+                });
 
-    delete m_runnable;
+            const GtObjectMemento* initial = nullptr;
+            if (initialRoot != m_initialData.cend())
+            {
+                initial = findMemento(*initialRoot, result.uuid());
+            }
+
+            if (!initial)
+            {
+                missingInitialSnapshot = true;
+                gtError() << tr("Task output has no initial data snapshot:")
+                          << result.uuid();
+                continue;
+            }
+
+            m_dataToMerge.append({*initial, result});
+        }
+
+        if (missingInitialSnapshot && m_task)
+        {
+            m_task->setState(GtProcessComponent::FAILED);
+        }
+    }
 
     emit finished();
 }
