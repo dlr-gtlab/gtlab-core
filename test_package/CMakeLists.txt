@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 project(GTlab-Conan-TestPackage)
 
 find_package(GTlab REQUIRED)

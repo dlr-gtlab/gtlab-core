@@ -2,6 +2,72 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
+if (CMAKE_VERSION VERSION_LESS "3.18")
+  message(FATAL_ERROR "GTlab requires CMake 3.18 or newer")
+endif()
+
+# Export GTlab's install layout without changing the consumer's standard
+# CMAKE_INSTALL_* variables. Values supplied by the consumer take precedence.
+if (NOT DEFINED GTLAB_INSTALL_BINDIR)
+  set(GTLAB_INSTALL_BINDIR "@GTLAB_INSTALL_BINDIR@")
+endif()
+if (NOT DEFINED GTLAB_INSTALL_DEBUG_BINDIR)
+  set(GTLAB_INSTALL_DEBUG_BINDIR "@GTLAB_INSTALL_DEBUG_BINDIR@")
+endif()
+if (NOT DEFINED GTLAB_INSTALL_LIBDIR)
+  set(GTLAB_INSTALL_LIBDIR "@GTLAB_INSTALL_LIBDIR@")
+endif()
+
+if (DEFINED GTLAB_INSTALL_RUNTIME_DIR)
+  set(_gtlab_runtime_dir_overridden TRUE)
+elseif (@GTLAB_INSTALL_RUNTIME_DIR_IS_DEFAULT@)
+  set(GTLAB_INSTALL_RUNTIME_DIR
+      "$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>")
+  set(_gtlab_runtime_dir_overridden FALSE)
+else()
+  set(GTLAB_INSTALL_RUNTIME_DIR "@GTLAB_INSTALL_RUNTIME_DIR@")
+  set(_gtlab_runtime_dir_overridden TRUE)
+endif()
+if (_gtlab_runtime_dir_overridden AND "${GTLAB_INSTALL_RUNTIME_DIR}" MATCHES "\\$<")
+  message(FATAL_ERROR
+      "A custom GTLAB_INSTALL_RUNTIME_DIR must be a path; override the release and Debug bindirs separately.")
+endif()
+
+if (_gtlab_runtime_dir_overridden)
+  set(GTLAB_INSTALL_RUNTIME_DIR_RELEASE "${GTLAB_INSTALL_RUNTIME_DIR}")
+  set(GTLAB_INSTALL_RUNTIME_DIR_DEBUG "${GTLAB_INSTALL_RUNTIME_DIR}")
+else()
+  set(GTLAB_INSTALL_RUNTIME_DIR_RELEASE "${GTLAB_INSTALL_BINDIR}")
+  set(GTLAB_INSTALL_RUNTIME_DIR_DEBUG "${GTLAB_INSTALL_DEBUG_BINDIR}")
+endif()
+
+if (DEFINED GTLAB_INSTALL_MODULEDIR)
+  set(_gtlab_moduledir_overridden TRUE)
+elseif (DEFINED CMAKE_INSTALL_MODULEDIR)
+  set(GTLAB_INSTALL_MODULEDIR "${CMAKE_INSTALL_MODULEDIR}")
+  set(_gtlab_moduledir_overridden TRUE)
+elseif (@GTLAB_INSTALL_MODULEDIR_IS_DEFAULT@)
+  set(GTLAB_INSTALL_MODULEDIR "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+  set(_gtlab_moduledir_overridden FALSE)
+else()
+  set(GTLAB_INSTALL_MODULEDIR "@GTLAB_INSTALL_MODULEDIR@")
+  set(_gtlab_moduledir_overridden TRUE)
+endif()
+if (_gtlab_moduledir_overridden AND "${GTLAB_INSTALL_MODULEDIR}" MATCHES "\\$<")
+  message(FATAL_ERROR "A custom GTLAB_INSTALL_MODULEDIR must be a path, not a generator expression.")
+endif()
+
+if (_gtlab_moduledir_overridden)
+  set(GTLAB_INSTALL_MODULEDIR_RELEASE "${GTLAB_INSTALL_MODULEDIR}")
+  set(GTLAB_INSTALL_MODULEDIR_DEBUG "${GTLAB_INSTALL_MODULEDIR}")
+elseif (_gtlab_runtime_dir_overridden)
+  set(GTLAB_INSTALL_MODULEDIR_RELEASE "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+  set(GTLAB_INSTALL_MODULEDIR_DEBUG "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+else()
+  set(GTLAB_INSTALL_MODULEDIR_RELEASE "${GTLAB_INSTALL_BINDIR}/modules")
+  set(GTLAB_INSTALL_MODULEDIR_DEBUG "${GTLAB_INSTALL_DEBUG_BINDIR}/modules")
+endif()
+
 # - Config file for the GTlab package
 include(CMakeFindDependencyMacro)
 

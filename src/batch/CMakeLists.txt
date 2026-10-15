@@ -53,6 +53,9 @@ target_link_libraries(GTlabConsole
     Qt${QT_VERSION_MAJOR}::Xml
 )
 
-install(TARGETS GTlabConsole DESTINATION ${CMAKE_INSTALL_BINDIR})
+gtlab_set_install_rpath(GTlabConsole
+    "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}"
+    "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}")
+install(TARGETS GTlabConsole DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}")
 
 ######################################################################

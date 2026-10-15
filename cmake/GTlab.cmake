@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-# This function set some variables that are common
-# to the gtlab build system.
-# It makes sure, that libraries are put into the root build folder,
-# sets the debug postfix "-d" and sets the "binDebug" folder in
-# Debug mode
+# Apply build defaults that are common to the GTlab ecosystem.
+# Install directory variables are provided by GNUInstallDirs and the GTlab
+# package layout; this helper deliberately leaves CMAKE_INSTALL_* untouched.
 #
 # usage:
 #   gtlab_standard_setup()
@@ -24,35 +22,88 @@ macro(gtlab_standard_setup)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
 
 
-    if(NOT DEFINED CMAKE_INSTALL_BINDIR)
-        set(CMAKE_INSTALL_BINDIR "$<$<CONFIG:DEBUG>:binDebug>$<$<NOT:$<CONFIG:DEBUG>>:bin>")
-    endif(NOT DEFINED CMAKE_INSTALL_BINDIR)
-
-    if(NOT DEFINED CMAKE_INSTALL_MODULEDIR)
-        if (IS_DIRECTORY ${CMAKE_INSTALL_PREFIX}/build)
-          message(STATUS "Deploying into GTlab build dir")
-          set(CMAKE_INSTALL_MODULEDIR build/modules)
-
-        else ()
-          set(CMAKE_INSTALL_MODULEDIR ${CMAKE_INSTALL_BINDIR}/modules)
-        endif()
-    endif(NOT DEFINED CMAKE_INSTALL_MODULEDIR)
-
-    if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-        set(CMAKE_INSTALL_LIBDIR "lib")
-    endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-
     if(NOT DEFINED CMAKE_DEBUG_POSTFIX)
         set(CMAKE_DEBUG_POSTFIX "-d")
     endif()
 
-    if(NOT DEFINED CMAKE_INSTALL_DOCDIR)
-        set(CMAKE_INSTALL_DOCDIR "share/doc/gtlab/")
-    endif(NOT DEFINED CMAKE_INSTALL_DOCDIR)
-
     # Instruct CMake to run moc automatically when needed.
     set(CMAKE_AUTOMOC ON)
 endmacro()
+
+function(_gtlab_get_layout_value name fallback output)
+  if (DEFINED ${name})
+    set(_value "${${name}}")
+  else()
+    get_property(_value GLOBAL PROPERTY "${name}")
+  endif()
+
+  if (NOT _value)
+    set(_value "${fallback}")
+  endif()
+  set(${output} "${_value}" PARENT_SCOPE)
+endfunction()
+
+function(_gtlab_get_relative_install_rpath output install_from install_to)
+  if (APPLE)
+    set(_origin "@loader_path")
+  else()
+    set(_origin "$ORIGIN")
+  endif()
+
+  if (IS_ABSOLUTE "${install_from}")
+    set(_from_path "${install_from}")
+  else()
+    set(_from_path "${CMAKE_INSTALL_PREFIX}/${install_from}")
+  endif()
+  if (IS_ABSOLUTE "${install_to}")
+    set(_to_path "${install_to}")
+  else()
+    set(_to_path "${CMAKE_INSTALL_PREFIX}/${install_to}")
+  endif()
+
+  file(RELATIVE_PATH _relative_path "${_from_path}" "${_to_path}")
+  if (_relative_path STREQUAL ".")
+    set(_rpath "${_origin}")
+  else()
+    set(_rpath "${_origin}/${_relative_path}")
+  endif()
+  set(${output} "${_rpath}" PARENT_SCOPE)
+endfunction()
+
+# Set a relocatable install RPATH from one or two configuration-specific
+# install directories to GTlab's library directory. Existing CMake RPATH
+# controls and target-level overrides take precedence.
+function(gtlab_set_install_rpath target install_dir_release)
+  if ((NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      OR CMAKE_SKIP_RPATH OR CMAKE_SKIP_INSTALL_RPATH)
+    return()
+  endif()
+  if (DEFINED CMAKE_INSTALL_RPATH AND NOT "${CMAKE_INSTALL_RPATH}" STREQUAL "")
+    return()
+  endif()
+
+  get_target_property(_target_install_rpath "${target}" INSTALL_RPATH)
+  if (_target_install_rpath AND NOT _target_install_rpath STREQUAL "_target_install_rpath-NOTFOUND")
+    return()
+  endif()
+
+  _gtlab_get_layout_value(GTLAB_INSTALL_LIBDIR "lib" _libdir)
+  _gtlab_get_relative_install_rpath(_release_rpath "${install_dir_release}" "${_libdir}")
+
+  if (ARGC GREATER 2)
+    set(_install_dir_debug "${ARGV2}")
+    _gtlab_get_relative_install_rpath(_debug_rpath "${_install_dir_debug}" "${_libdir}")
+    if (NOT "${_debug_rpath}" STREQUAL "${_release_rpath}")
+      set(_install_rpath "$<IF:$<CONFIG:Debug>,${_debug_rpath},${_release_rpath}>")
+    else()
+      set(_install_rpath "${_release_rpath}")
+    endif()
+  else()
+    set(_install_rpath "${_release_rpath}")
+  endif()
+
+  set_target_properties("${target}" PROPERTIES INSTALL_RPATH "${_install_rpath}")
+endfunction()
 
 # This function adds the packages of GTlab's devtools
 # to the cmake prefix path. It adds the GTLAB_DEVTOOLS_DIR
@@ -131,12 +182,37 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
           "In add_gtlab_module: GTLAB_CORE_VERSION and GTLAB_MODULE_ABI must be defined")
   endif()
 
+  _gtlab_get_layout_value(GTLAB_INSTALL_BINDIR "bin" _install_bindir)
+  _gtlab_get_layout_value(GTLAB_INSTALL_DEBUG_BINDIR "binDebug" _install_debug_bindir)
+  _gtlab_get_layout_value(GTLAB_INSTALL_LIBDIR "lib" _install_libdir)
+  set(GTLAB_INSTALL_LIBDIR "${_install_libdir}")
+  _gtlab_get_layout_value(GTLAB_INSTALL_MODULEDIR
+      "${_install_bindir}/modules" _install_moduledir)
+  _gtlab_get_layout_value(GTLAB_INSTALL_MODULEDIR_RELEASE
+      "${_install_moduledir}" _install_moduledir_release)
+  _gtlab_get_layout_value(GTLAB_INSTALL_MODULEDIR_DEBUG
+      "${_install_moduledir}" _install_moduledir_debug)
+  if (NOT "${_install_moduledir}" MATCHES "\\$<")
+    set(_install_moduledir_release "${_install_moduledir}")
+    set(_install_moduledir_debug "${_install_moduledir}")
+  endif()
+  _gtlab_get_layout_value(GTLAB_BUILD_MODULEDIR
+      "${CMAKE_BINARY_DIR}/modules" _build_moduledir)
+  if (NOT IS_ABSOLUTE "${_build_moduledir}")
+    get_filename_component(_build_moduledir "${_build_moduledir}" ABSOLUTE
+        BASE_DIR "${CMAKE_BINARY_DIR}")
+  endif()
+
   add_library(${GTLAB_ADD_MODULE_TARGET} SHARED ${GTLAB_ADD_MODULE_SOURCES})
 
   set_target_properties(${GTLAB_ADD_MODULE_TARGET} PROPERTIES
       PREFIX ""
       DEBUG_POSTFIX ""
-      OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}.gtm.${GTLAB_MODULE_ABI}")
+      OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}.gtm.${GTLAB_MODULE_ABI}"
+      LIBRARY_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>"
+      RUNTIME_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>")
+  set_property(TARGET ${GTLAB_ADD_MODULE_TARGET} PROPERTY
+      GTLAB_MODULE_OUTPUT_DIRECTORY_MANAGED TRUE)
   set_property(TARGET ${GTLAB_ADD_MODULE_TARGET} APPEND PROPERTY
       AUTOMOC_MOC_OPTIONS
       "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
@@ -146,35 +222,31 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
   target_compile_definitions(${GTLAB_ADD_MODULE_TARGET}
     PRIVATE -DGT_MODULE_ID="${GTLAB_ADD_MODULE_MODULE_ID}")
 
-  # set rpath for linux
-  if (UNIX)
-      set_target_properties(${GTLAB_ADD_MODULE_TARGET}
-          PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/.."
-                     INSTALL_RPATH_USE_LINK_PATH FALSE)
-  endif (UNIX)
+  gtlab_set_install_rpath(${GTLAB_ADD_MODULE_TARGET}
+      "${_install_moduledir_release}" "${_install_moduledir_debug}")
 
 
   if (UNIX)
     install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
         LIBRARY DESTINATION
-        ${CMAKE_INSTALL_MODULEDIR}
+        ${_install_moduledir}
     )
   else(UNIX)
     install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
         RUNTIME DESTINATION
-        ${CMAKE_INSTALL_MODULEDIR}
+        ${_install_moduledir}
     )
   endif(UNIX)
 
   # Copy of README and CHANGELOG to meta directory
   if (DEFINED GTLAB_ADD_MODULE_README_FILE)
     install(FILES ${GTLAB_ADD_MODULE_README_FILE}
-            DESTINATION ${CMAKE_INSTALL_MODULEDIR}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
+            DESTINATION ${_install_moduledir}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
   endif()
 
   if (DEFINED GTLAB_ADD_MODULE_CHANGELOG_FILE)
     install(FILES ${GTLAB_ADD_MODULE_CHANGELOG_FILE}
-            DESTINATION ${CMAKE_INSTALL_MODULEDIR}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
+            DESTINATION ${_install_moduledir}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
   endif()
 
   if (DEFINED GTLAB_ADD_MODULE_EXAMPLES_DIR)

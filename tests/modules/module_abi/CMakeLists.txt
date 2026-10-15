@@ -33,9 +33,6 @@ add_gtlab_module(AbiTestModule
     SOURCES ${ABI_TEST_MODULE_SOURCES}
 )
 target_link_libraries(AbiTestModule PRIVATE GTlab::Core AbiAdjacentDependency)
-set_target_properties(AbiTestModule PROPERTIES
-    BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH "$ORIGIN")
 set_abi_test_output_directory(AbiTestModule)
 
 function(add_abi_test_variant target filename_abi metadata_abi)

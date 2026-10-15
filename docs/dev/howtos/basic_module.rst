@@ -33,7 +33,7 @@ into the module repository.
 
 .. code-block:: cmake
 
-  cmake_minimum_required(VERSION 3.15)
+  cmake_minimum_required(VERSION 3.18)
   project(MyModule VERSION 0.1.0 LANGUAGES CXX)
 
   find_package(GTlab REQUIRED)
@@ -54,10 +54,30 @@ into the module repository.
   )
 
 ``add_gtlab_module`` creates the shared library, defines ``GT_MODULE_ID``, and
-installs the library in GTlab's module directory. Treat ``MODULE_ID`` as a
+installs the library in GTlab's configuration-specific module directory.
+Release modules default to ``bin/modules`` and Debug modules to
+``binDebug/modules``. Their build-tree binaries default to
+``<build-directory>/modules`` for every configuration, including multi-config
+generators. Treat ``MODULE_ID`` as a
 persistent identifier: it identifies settings, log messages, metadata, and
 stored module data. Changing it after releasing the module can make existing
 installations and projects inconsistent.
+
+The installed GTlab package exports these layout variables for module
+projects: ``GTLAB_INSTALL_BINDIR`` (defaulting to ``CMAKE_INSTALL_BINDIR``),
+``GTLAB_INSTALL_DEBUG_BINDIR`` (defaulting to ``binDebug``),
+``GTLAB_INSTALL_LIBDIR`` (defaulting to ``CMAKE_INSTALL_LIBDIR``),
+``GTLAB_INSTALL_RUNTIME_DIR``, and ``GTLAB_INSTALL_MODULEDIR``. Set a
+``GTLAB_INSTALL_*`` variable before ``find_package(GTlab)`` to override the
+corresponding GTlab default. The consumer's own ``CMAKE_INSTALL_*`` variables
+are left unchanged. Set ``GTLAB_BUILD_MODULEDIR`` to change the module output
+directory in the build tree.
+
+For system packaging, configure Core with standard GNUInstallDirs values, for
+example ``-DCMAKE_INSTALL_LIBDIR=lib64`` or
+``-DCMAKE_INSTALL_LIBDIR=lib/x86_64-linux-gnu``. Installed executables,
+libraries, and modules use relocatable install RPATHs to find GTlab libraries;
+standard CMake RPATH settings can override or disable those defaults.
 
 The helper names the native library automatically using the GTlab module ABI,
 for example ``MyModule.gtm.2.1.so`` or ``MyModule.gtm.2.1.dll``. The
@@ -123,7 +143,8 @@ Configure against the GTlab installation and select a writable install prefix:
 
   cmake -S . -B build \
     -DCMAKE_PREFIX_PATH=/path/to/gtlab \
-    -DCMAKE_INSTALL_PREFIX=/path/to/gtlab
+    -DCMAKE_INSTALL_PREFIX=/path/to/gtlab \
+    -DCMAKE_INSTALL_LIBDIR=lib64
   cmake --build build
   cmake --install build
 

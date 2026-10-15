@@ -8,7 +8,7 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #          \____/ /_/ /_/\__,_/_.___/
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 
 # make sure conan can be used
 if (EXISTS ${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
@@ -26,6 +26,85 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
 endif()
 
 project(GTlab-Core VERSION 2.1.0)
+
+include(GNUInstallDirs)
+
+# Keep the standard CMake install variables intact. These GTlab variables
+# provide the installed layout to Core itself and to external module projects.
+if(NOT DEFINED GTLAB_INSTALL_BINDIR)
+    set(GTLAB_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}")
+endif()
+if(NOT DEFINED GTLAB_INSTALL_DEBUG_BINDIR)
+    set(GTLAB_INSTALL_DEBUG_BINDIR "binDebug")
+endif()
+if(NOT DEFINED GTLAB_INSTALL_LIBDIR)
+    set(GTLAB_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+endif()
+
+set(_gtlab_default_runtime_dir
+    "$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>")
+if(NOT DEFINED GTLAB_INSTALL_RUNTIME_DIR)
+    set(GTLAB_INSTALL_RUNTIME_DIR "${_gtlab_default_runtime_dir}")
+endif()
+
+if(DEFINED CMAKE_INSTALL_MODULEDIR)
+    set(_gtlab_default_module_dir "${CMAKE_INSTALL_MODULEDIR}")
+else()
+    set(_gtlab_default_module_dir "${GTLAB_INSTALL_RUNTIME_DIR}/modules")
+endif()
+if(NOT DEFINED GTLAB_INSTALL_MODULEDIR)
+    set(GTLAB_INSTALL_MODULEDIR "${_gtlab_default_module_dir}")
+endif()
+if(NOT DEFINED GTLAB_BUILD_MODULEDIR)
+    set(GTLAB_BUILD_MODULEDIR "${CMAKE_BINARY_DIR}/modules")
+endif()
+
+if("${GTLAB_INSTALL_RUNTIME_DIR}" STREQUAL "${_gtlab_default_runtime_dir}")
+    set(GTLAB_INSTALL_RUNTIME_DIR_IS_DEFAULT TRUE)
+    set(GTLAB_INSTALL_RUNTIME_DIR_RELEASE "${GTLAB_INSTALL_BINDIR}")
+    set(GTLAB_INSTALL_RUNTIME_DIR_DEBUG "${GTLAB_INSTALL_DEBUG_BINDIR}")
+else()
+    set(GTLAB_INSTALL_RUNTIME_DIR_IS_DEFAULT FALSE)
+    if("${GTLAB_INSTALL_RUNTIME_DIR}" MATCHES "\\$<")
+        message(FATAL_ERROR
+            "A custom GTLAB_INSTALL_RUNTIME_DIR must be a relative path, not a generator expression. "
+            "Override GTLAB_INSTALL_BINDIR and GTLAB_INSTALL_DEBUG_BINDIR instead.")
+    endif()
+    set(GTLAB_INSTALL_RUNTIME_DIR_RELEASE "${GTLAB_INSTALL_RUNTIME_DIR}")
+    set(GTLAB_INSTALL_RUNTIME_DIR_DEBUG "${GTLAB_INSTALL_RUNTIME_DIR}")
+endif()
+
+if("${GTLAB_INSTALL_MODULEDIR}" STREQUAL "${_gtlab_default_module_dir}"
+        AND NOT DEFINED CMAKE_INSTALL_MODULEDIR)
+    set(GTLAB_INSTALL_MODULEDIR_IS_DEFAULT TRUE)
+    set(GTLAB_INSTALL_MODULEDIR_RELEASE
+        "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}/modules")
+    set(GTLAB_INSTALL_MODULEDIR_DEBUG
+        "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}/modules")
+else()
+    set(GTLAB_INSTALL_MODULEDIR_IS_DEFAULT FALSE)
+    if("${GTLAB_INSTALL_MODULEDIR}" MATCHES "\\$<")
+        message(FATAL_ERROR
+            "A custom GTLAB_INSTALL_MODULEDIR must be a relative path, not a generator expression.")
+    endif()
+    set(GTLAB_INSTALL_MODULEDIR_RELEASE "${GTLAB_INSTALL_MODULEDIR}")
+    set(GTLAB_INSTALL_MODULEDIR_DEBUG "${GTLAB_INSTALL_MODULEDIR}")
+endif()
+
+foreach(_gtlab_layout_variable
+        GTLAB_INSTALL_BINDIR
+        GTLAB_INSTALL_DEBUG_BINDIR
+        GTLAB_INSTALL_LIBDIR
+        GTLAB_INSTALL_RUNTIME_DIR
+        GTLAB_INSTALL_RUNTIME_DIR_RELEASE
+        GTLAB_INSTALL_RUNTIME_DIR_DEBUG
+        GTLAB_INSTALL_MODULEDIR
+        GTLAB_INSTALL_MODULEDIR_RELEASE
+        GTLAB_INSTALL_MODULEDIR_DEBUG
+        GTLAB_BUILD_MODULEDIR)
+    set_property(GLOBAL PROPERTY "${_gtlab_layout_variable}"
+        "${${_gtlab_layout_variable}}")
+endforeach()
 
 set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
 # Bump this value only when a change breaks the binary compatibility contract
@@ -108,10 +187,10 @@ add_subdirectory(docs)
 # ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
 # License installation
-install(DIRECTORY LICENSES/ DESTINATION share/gtlab/LICENSES)
+install(DIRECTORY LICENSES/ DESTINATION "${CMAKE_INSTALL_DATADIR}/gtlab/LICENSES")
 
 # write exports
-install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+install(EXPORT GTlabTargets DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 # create package version file
 include(CMakePackageConfigHelpers)
@@ -124,7 +203,7 @@ write_basic_package_version_file(
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlabConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/GTlab"
+    INSTALL_DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab"
     NO_SET_AND_CHECK_MACRO
     NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
@@ -134,7 +213,7 @@ install (FILES
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/GTlabConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+  DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)

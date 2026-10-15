@@ -270,14 +270,10 @@ target_include_directories(GTlabCore
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/states>
 
     # includes for consumer after install
-    $<INSTALL_INTERFACE:include/core>
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core>"
 )
 
-set_target_properties(GTlabCore PROPERTIES 
-  AUTORCC ON
-  # set rpath to lib directory, since it is installed to lib/core
-  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/.."
-)
+set_target_properties(GTlabCore PROPERTIES AUTORCC ON)
 
 target_link_libraries(GTlabCore
     PUBLIC
@@ -286,13 +282,15 @@ target_link_libraries(GTlabCore
     GTlab::DataProcessor
 )
 
+gtlab_set_install_rpath(GTlabCore "${GTLAB_INSTALL_LIBDIR}")
+
 install(TARGETS GTlabCore
     EXPORT GTlabTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    RUNTIME DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}"
+    LIBRARY DESTINATION "${GTLAB_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${GTLAB_INSTALL_LIBDIR}"
 )
 
-install(FILES ${headers} DESTINATION include/core)
-install(FILES ${hdr_private} DESTINATION include/core/internal)
+install(FILES ${headers} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core")
+install(FILES ${hdr_private} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core/internal")
 ######################################################################
