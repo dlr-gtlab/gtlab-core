@@ -27,3 +27,33 @@ foreach(_module_spec
             "Expected installed module '${PREFIX}/${_module_dir}/${_module_name}'")
     endif()
 endforeach()
+
+get_filename_component(_installed_module_dir "${INSTALLED_MODULE}" DIRECTORY)
+set(_adjacent_dependency "${_installed_module_dir}/${ADJACENT_DEPENDENCY}")
+if (NOT EXISTS "${_adjacent_dependency}")
+    message(FATAL_ERROR "Expected adjacent module dependency '${_adjacent_dependency}'")
+endif()
+
+file(REMOVE "${LOAD_MARKER}")
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" -E env
+        "QT_QPA_PLATFORM=offscreen"
+        "GTLAB_ABI_TEST_MARKER=${LOAD_MARKER}"
+        "${MODULE_LOADER}" "${INSTALLED_MODULE}"
+    RESULT_VARIABLE _load_result
+    OUTPUT_VARIABLE _load_stdout
+    ERROR_VARIABLE _load_stderr
+)
+if (NOT _load_result EQUAL 0)
+    message(FATAL_ERROR
+        "Could not load installed module '${INSTALLED_MODULE}' with its adjacent dependency.\n"
+        "stdout: ${_load_stdout}\nstderr: ${_load_stderr}")
+endif()
+if (NOT EXISTS "${LOAD_MARKER}")
+    message(FATAL_ERROR "The installed module did not execute its load marker")
+endif()
+file(READ "${LOAD_MARKER}" _load_marker_contents)
+if (NOT _load_marker_contents STREQUAL "1621")
+    message(FATAL_ERROR
+        "The installed module did not call its adjacent dependency: ${_load_marker_contents}")
+endif()

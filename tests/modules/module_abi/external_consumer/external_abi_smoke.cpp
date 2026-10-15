@@ -5,6 +5,35 @@
  */
 
 #include <gt_moduleinterface.h>
+#include <QFile>
+
+extern "C" int externalAbiDependencyValue();
+
+namespace
+{
+
+struct ExternalModuleLoadMarker
+{
+    ExternalModuleLoadMarker()
+    {
+        const QString path =
+            QString::fromLocal8Bit(qgetenv("GTLAB_ABI_TEST_MARKER"));
+        if (path.isEmpty())
+        {
+            return;
+        }
+
+        QFile marker(path);
+        if (marker.open(QIODevice::WriteOnly))
+        {
+            marker.write(QByteArray::number(externalAbiDependencyValue()));
+        }
+    }
+};
+
+ExternalModuleLoadMarker loadMarker;
+
+} // namespace
 
 // Minimal external module used to verify the installed GTlab package exports
 // the ABI metadata and CMake integration required by downstream consumers.

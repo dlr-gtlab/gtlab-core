@@ -1,0 +1,10 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * SPDX-License-Identifier: MPL-2.0+
+ */
+
+extern "C" int externalAbiDependencyValue()
+{
+    return 1621;
+}

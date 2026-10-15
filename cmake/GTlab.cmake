@@ -19,7 +19,7 @@ macro(gtlab_standard_setup)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR})
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
 
 
     if(NOT DEFINED CMAKE_DEBUG_POSTFIX)
@@ -73,31 +73,49 @@ endfunction()
 # Set a relocatable install RPATH from one or two configuration-specific
 # install directories to GTlab's library directory. Existing CMake RPATH
 # controls and target-level overrides take precedence.
-function(gtlab_set_install_rpath target install_dir_release)
+function(gtlab_set_install_rpath target)
+  cmake_parse_arguments(PARSE_ARGV 1 GTLAB_RPATH "INCLUDE_MODULE_DIR"
+      "RELEASE_DIR;DEBUG_DIR" "")
+  if (NOT GTLAB_RPATH_RELEASE_DIR)
+    message(FATAL_ERROR "gtlab_set_install_rpath() requires RELEASE_DIR")
+  endif()
+
   if ((NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
       OR CMAKE_SKIP_RPATH OR CMAKE_SKIP_INSTALL_RPATH)
     return()
   endif()
-  if (DEFINED CMAKE_INSTALL_RPATH AND NOT "${CMAKE_INSTALL_RPATH}" STREQUAL "")
-    return()
-  endif()
 
   get_target_property(_target_install_rpath "${target}" INSTALL_RPATH)
-  if (_target_install_rpath AND NOT _target_install_rpath STREQUAL "_target_install_rpath-NOTFOUND")
-    return()
+  if (DEFINED CMAKE_INSTALL_RPATH AND NOT "${CMAKE_INSTALL_RPATH}" STREQUAL "")
+    set(_release_rpath "${CMAKE_INSTALL_RPATH}")
+    set(_debug_rpath "${CMAKE_INSTALL_RPATH}")
+  elseif (_target_install_rpath AND NOT _target_install_rpath STREQUAL "_target_install_rpath-NOTFOUND")
+    set(_release_rpath "${_target_install_rpath}")
+    set(_debug_rpath "${_target_install_rpath}")
+  else()
+    _gtlab_get_layout_value(GTLAB_INSTALL_LIBDIR "lib" _libdir)
+    _gtlab_get_relative_install_rpath(_release_rpath "${GTLAB_RPATH_RELEASE_DIR}" "${_libdir}")
+    if (GTLAB_RPATH_DEBUG_DIR)
+      _gtlab_get_relative_install_rpath(_debug_rpath "${GTLAB_RPATH_DEBUG_DIR}" "${_libdir}")
+    else()
+      set(_debug_rpath "${_release_rpath}")
+    endif()
   endif()
 
-  _gtlab_get_layout_value(GTLAB_INSTALL_LIBDIR "lib" _libdir)
-  _gtlab_get_relative_install_rpath(_release_rpath "${install_dir_release}" "${_libdir}")
-
-  if (ARGC GREATER 2)
-    set(_install_dir_debug "${ARGV2}")
-    _gtlab_get_relative_install_rpath(_debug_rpath "${_install_dir_debug}" "${_libdir}")
-    if (NOT "${_debug_rpath}" STREQUAL "${_release_rpath}")
-      set(_install_rpath "$<IF:$<CONFIG:Debug>,${_debug_rpath},${_release_rpath}>")
+  if (GTLAB_RPATH_INCLUDE_MODULE_DIR)
+    if (APPLE)
+      set(_module_origin "@loader_path")
     else()
-      set(_install_rpath "${_release_rpath}")
+      set(_module_origin "$ORIGIN")
     endif()
+    list(PREPEND _release_rpath "${_module_origin}")
+    list(PREPEND _debug_rpath "${_module_origin}")
+    list(REMOVE_DUPLICATES _release_rpath)
+    list(REMOVE_DUPLICATES _debug_rpath)
+  endif()
+
+  if (NOT "${_debug_rpath}" STREQUAL "${_release_rpath}")
+    set(_install_rpath "$<IF:$<CONFIG:Debug>,${_debug_rpath},${_release_rpath}>")
   else()
     set(_install_rpath "${_release_rpath}")
   endif()
@@ -211,6 +229,17 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
       OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}.gtm.${GTLAB_MODULE_ABI}"
       LIBRARY_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>"
       RUNTIME_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>")
+  set(_gtlab_output_configs ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE}
+      Debug Release RelWithDebInfo MinSizeRel)
+  list(REMOVE_DUPLICATES _gtlab_output_configs)
+  foreach(_config IN LISTS _gtlab_output_configs)
+    if (NOT _config STREQUAL "")
+      string(TOUPPER "${_config}" _config_upper)
+      set_target_properties(${GTLAB_ADD_MODULE_TARGET} PROPERTIES
+          LIBRARY_OUTPUT_DIRECTORY_${_config_upper} "${_build_moduledir}"
+          RUNTIME_OUTPUT_DIRECTORY_${_config_upper} "${_build_moduledir}")
+    endif()
+  endforeach()
   set_property(TARGET ${GTLAB_ADD_MODULE_TARGET} PROPERTY
       GTLAB_MODULE_OUTPUT_DIRECTORY_MANAGED TRUE)
   set_property(TARGET ${GTLAB_ADD_MODULE_TARGET} APPEND PROPERTY
@@ -223,7 +252,9 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
     PRIVATE -DGT_MODULE_ID="${GTLAB_ADD_MODULE_MODULE_ID}")
 
   gtlab_set_install_rpath(${GTLAB_ADD_MODULE_TARGET}
-      "${_install_moduledir_release}" "${_install_moduledir_debug}")
+      RELEASE_DIR "${_install_moduledir_release}"
+      DEBUG_DIR "${_install_moduledir_debug}"
+      INCLUDE_MODULE_DIR)
 
 
   if (UNIX)
