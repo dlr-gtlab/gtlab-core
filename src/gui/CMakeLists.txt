@@ -463,7 +463,7 @@ target_link_libraries(GTlabGui
 )
 
 
-gtlab_set_install_rpath(GTlabGui "${GTLAB_INSTALL_LIBDIR}")
+gtlab_set_install_rpath(GTlabGui RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
 
 
 install(TARGETS GTlabGui

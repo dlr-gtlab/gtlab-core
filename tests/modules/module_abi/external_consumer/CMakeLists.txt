@@ -7,11 +7,11 @@ project(GTlabExternalAbiConsumer LANGUAGES CXX)
 enable_testing()
 
 include(GNUInstallDirs)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 set(_consumer_install_bindir "${CMAKE_INSTALL_BINDIR}")
 set(_consumer_install_libdir "${CMAKE_INSTALL_LIBDIR}")
 
 find_package(GTlab CONFIG REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 gtlab_standard_setup()
 
 if (NOT CMAKE_INSTALL_BINDIR STREQUAL _consumer_install_bindir

@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: MPL-2.0+
  */
 
-extern "C" int externalAbiDependencyValue()
+extern "C" int
+externalAbiDependencyValue()
 {
     return 1621;
 }

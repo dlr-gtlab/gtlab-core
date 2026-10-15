@@ -282,7 +282,7 @@ target_link_libraries(GTlabCore
     GTlab::DataProcessor
 )
 
-gtlab_set_install_rpath(GTlabCore "${GTLAB_INSTALL_LIBDIR}")
+gtlab_set_install_rpath(GTlabCore RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
 
 install(TARGETS GTlabCore
     EXPORT GTlabTargets

@@ -12,26 +12,26 @@ extern "C" int externalAbiDependencyValue();
 namespace
 {
 
-struct ExternalModuleLoadMarker
-{
-    ExternalModuleLoadMarker()
+    struct ExternalModuleLoadMarker
     {
-        const QString path =
-            QString::fromLocal8Bit(qgetenv("GTLAB_ABI_TEST_MARKER"));
-        if (path.isEmpty())
+        ExternalModuleLoadMarker()
         {
-            return;
-        }
+            const QString path =
+                QString::fromLocal8Bit(qgetenv("GTLAB_ABI_TEST_MARKER"));
+            if (path.isEmpty())
+            {
+                return;
+            }
 
-        QFile marker(path);
-        if (marker.open(QIODevice::WriteOnly))
-        {
-            marker.write(QByteArray::number(externalAbiDependencyValue()));
+            QFile marker(path);
+            if (marker.open(QIODevice::WriteOnly))
+            {
+                marker.write(QByteArray::number(externalAbiDependencyValue()));
+            }
         }
-    }
-};
+    };
 
-ExternalModuleLoadMarker loadMarker;
+    ExternalModuleLoadMarker loadMarker;
 
 } // namespace
 
@@ -53,3 +53,5 @@ public:
         return QStringLiteral("External module package smoke test");
     }
 };
+
+#include "external_abi_smoke.moc"

@@ -209,7 +209,8 @@ if (BUILD_WITH_HDF5)
     )
 endif(BUILD_WITH_HDF5)
 
-gtlab_set_install_rpath(GTlabDataProcessor "${GTLAB_INSTALL_LIBDIR}")
+gtlab_set_install_rpath(GTlabDataProcessor
+    RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
 
 install(TARGETS GTlabDataProcessor
     EXPORT GTlabTargets

@@ -54,8 +54,8 @@ target_link_libraries(GTlabConsole
 )
 
 gtlab_set_install_rpath(GTlabConsole
-    "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}"
-    "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}")
+    RELEASE_DIR "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}"
+    DEBUG_DIR "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}")
 install(TARGETS GTlabConsole DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}")
 
 ######################################################################

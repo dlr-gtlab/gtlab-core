@@ -8,7 +8,8 @@
 #include <QDebug>
 #include <QLibrary>
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     QCoreApplication application(argc, argv);
     if (argc != 2)
@@ -20,7 +21,8 @@ int main(int argc, char* argv[])
     QLibrary module(QString::fromLocal8Bit(argv[1]));
     if (!module.load())
     {
-        qCritical() << "Failed to load installed module:" << module.errorString();
+        qCritical() << "Failed to load installed module:"
+                    << module.errorString();
         return 1;
     }
 
