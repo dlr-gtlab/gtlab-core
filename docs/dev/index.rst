@@ -110,6 +110,7 @@ Your first module
    :hidden:
 
    basics/building
+   howtos/releasing
    architecture/index
    api
    genindex
