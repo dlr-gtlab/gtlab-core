@@ -103,8 +103,16 @@ endif()
 set(_installed_gtlab_console
     "${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>/${_gtlab_console_name}")
 
+set(_test_environment)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND _test_environment
+        "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:GTlabLogging>:$ENV{LD_LIBRARY_PATH}")
+endif()
+
 add_test(NAME ExternalModuleInstallLayout
     COMMAND ${CMAKE_COMMAND}
+        -E env ${_test_environment}
+        ${CMAKE_COMMAND}
         "-DEXPECTED_BUILD_MODULEDIR=${CMAKE_BINARY_DIR}/modules"
         "-DBUILD_MODULE=$<TARGET_FILE:ExternalAbiSmoke>"
         "-DPREFIX=${CMAKE_INSTALL_PREFIX}"
