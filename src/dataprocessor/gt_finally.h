@@ -53,8 +53,8 @@ public:
     explicit Finally(Functor func) noexcept :
         m_func{take(func)}, m_invoked{false}
     {
-         static_assert(std::is_nothrow_move_constructible<Functor>::value ||
-                       std::is_nothrow_copy_constructible<Functor>::value,
+        static_assert(std::is_nothrow_move_constructible<Functor>::value ||
+                          std::is_nothrow_copy_constructible<Functor>::value,
                       "Functor must be nothrow move- or copy-constructible");
     }
 
@@ -212,8 +212,8 @@ private:
  */
 template <typename Functor,
           typename = std::enable_if_t<std::is_invocable<Functor>::value>>
-inline auto finally(Functor func)
-    noexcept(std::is_nothrow_move_constructible<Functor>::value)
+inline auto finally(Functor func) noexcept(
+    std::is_nothrow_move_constructible<Functor>::value)
 {
     return Finally<Functor>{std::move(func)};
 }
@@ -236,9 +236,10 @@ inline auto finally(Functor func)
  * @tparam U Base class in which the member method is implemented
  * (defaults to T)
  */
-template <typename T, typename F,
-          typename = std::enable_if_t<std::is_member_function_pointer<F>::value &&
-                                      std::is_invocable<F, T*>::value>>
+template <
+    typename T, typename F,
+    typename = std::enable_if_t<std::is_member_function_pointer<F>::value &&
+                                std::is_invocable<F, T*>::value>>
 inline auto finally(T* t, F f) noexcept
 {
     // construct helper lambda
