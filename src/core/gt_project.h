@@ -15,6 +15,7 @@
 
 #include <QStringList>
 #include <QMap>
+#include <memory>
 
 #include "gt_object.h"
 #include "gt_session.h"
@@ -321,44 +322,15 @@ protected:
     void setModuleIds(const QStringList& list);
 
 private:
-    void markOpen()
-    {
-        m_isOpen = true;
-    }
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
-    void markClosed()
-    {
-        m_isOpen = false;
-    }
-
-    /// Path to project directory on hard drive
-    QString m_path;
-
-    /// True if project data was successfully loaded
-    bool m_valid;
-
-    /// True if project data is currently loaded into the data model
-    bool m_isOpen{false};
-
-    /// True if project data upgrades are available
-    bool m_upgradesAvailable{false};
-
-    /// Whether to internalize all external data when saving
-    bool m_internalizeOnSave{false};
-
-    GtProjectSettings m_projectSettings;
-
-    /// List of all project module ids
-    QStringList m_moduleIds;
-
-    /// Module ids associated with classes used by this project
-    QMap<QString, QString> m_classModuleIds;
-
-    /// Project path property. Only used for visualization in the GUI.
-    GtStringProperty m_pathProp;
-
-    /// User definable comment
-    QString m_comment;
+    /// marks the project as open
+    void markOpen();
+    /// marks the project as closed
+    void markClosed();
+    /// returns a map that maps classes to module ids
+    QMap<QString, QString>& classModuleIds();
 
     /**
      * @brief loadMetaData
@@ -423,9 +395,8 @@ private:
      * @brief saveModuleMetaData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveModuleMetaData(QDomElement& root, QDomDocument& doc);
+    void saveModuleMetaData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief saveProcessData
@@ -439,9 +410,8 @@ private:
      * @brief saveLabelData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveLabelData(QDomElement& root, QDomDocument& doc);
+    void saveLabelData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief readProjectData

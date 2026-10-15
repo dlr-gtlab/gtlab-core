@@ -33,7 +33,7 @@ public:
                                     const QString& className,
                                     const QString& moduleId)
     {
-        project.m_classModuleIds.insert(className, moduleId);
+        project.classModuleIds().insert(className, moduleId);
     }
 
     static GtObject* readProcessData(GtProject& project)
