@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QDateTime>
+#include <QSet>
 
 #include "gt_project.h"
 #include "gt_coredatamodel.h"
@@ -38,6 +39,7 @@
 #include "gt_filesystem.h"
 #include "gt_abstractloadinghelper.h"
 #include "gt_batchsaver.h"
+#include "gt_projectdependencyanalyzer.h"
 
 #include "internal/gt_moduleupgrader.h"
 
@@ -875,9 +877,10 @@ GtProject::saveProjectOverallData()
     rootElement.setAttribute(QStringLiteral("version"),
                              gtApp->version().toString());
 
-    // footprint
+    // footprint is derived from the modules that the project requires,
+    // not from all modules loaded in the current GTlab environment
     QDomDocument footPrintDoc;
-    GtFootprint footPrint;
+    GtFootprint footPrint = createProjectFootprint();
     footPrintDoc.setContent(footPrint.exportToXML(), true);
 
     rootElement.appendChild(footPrintDoc.documentElement());
@@ -888,10 +891,7 @@ GtProject::saveProjectOverallData()
     commentElement.appendChild(cTxt);
     rootElement.appendChild(commentElement);
 
-    if (!saveModuleMetaData(rootElement, document))
-    {
-        return false;
-    }
+    saveModuleMetaData(rootElement, document);
 
     gt::xml::writeClassModuleMap(rootElement, document, m_classModuleIds);
 
@@ -900,10 +900,7 @@ GtProject::saveProjectOverallData()
         return false;
     }
 
-    if (!saveLabelData(rootElement, document))
-    {
-        return false;
-    }
+    saveLabelData(rootElement, document);
 
     document.appendChild(rootElement);
 
@@ -956,7 +953,7 @@ GtProject::saveExternalizedObjectData()
     return success;
 }
 
-bool
+void
 GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 {
     QDomElement modulesElement = doc.createElement(QStringLiteral("MODULES"));
@@ -971,24 +968,22 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
     }
 
     root.appendChild(modulesElement);
-
-    return true;
 }
 
 bool
 GtProject::saveProcessData(QDomElement& /*root*/, QDomDocument& /*doc*/)
 {
-    GtProcessData* pd = processData();
+    const GtProcessData* pd = processData();
 
     if (pd)
     {
-        pd->save(path());
+        return pd->save(path());
     }
 
     return true;
 }
 
-bool
+void
 GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 {
     QDomElement ldElement = doc.createElement(QStringLiteral("LABELS"));
@@ -997,7 +992,7 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 
     if (ld)
     {
-        foreach (GtLabel* label, ld->findDirectChildren<GtLabel*>())
+        foreach (const GtLabel* label, ld->findDirectChildren<GtLabel*>())
         {
             GtObjectMemento memento = label->toMemento();
             ldElement.appendChild(memento.documentElement());
@@ -1005,8 +1000,6 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
     }
 
     root.appendChild(ldElement);
-
-    return true;
 }
 
 QDomDocument
@@ -1068,6 +1061,101 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
         filePath,
         doc,
         projectSettings().ownObjectFileSerializationEnabled());
+}
+
+GtFootprint
+GtProject::createProjectFootprint() const
+{
+    // determine the modules that the current project uses directly
+    GtProjectDependencyAnalyzer analyzer(this);
+
+    // resolve the complete set of modules that the project requires,
+    // including transitive module dependencies
+    const gt::Modules modules = gtApp ? gtApp->modules() : gt::Modules{};
+    const auto requirements = modules.requirementsFor(
+        QStringList(analyzer.directlyRequiredModuleIds().cbegin(),
+                    analyzer.directlyRequiredModuleIds().cend()));
+
+    QSet<QString> requiredModules{requirements.moduleIds.cbegin(),
+                                  requirements.moduleIds.cend()};
+
+    // entries that cannot be resolved must not lead to a pruning of the
+    // previously stored footprint
+    QSet<QString> unresolved{requirements.unresolved.cbegin(),
+                             requirements.unresolved.cend()};
+    unresolved.unite(analyzer.unknownUsedClassNames());
+
+    // Data of a selected module that is not materialized in memory (e.g.
+    // because the module is currently not available) cannot be scanned for
+    // used classes. As long as the module data file exists on disk, treat
+    // the module as required and unresolved, so that its footprint entry
+    // is preserved instead of being silently dropped.
+    for (const QString& mid : m_moduleIds)
+    {
+        if (requiredModules.contains(mid))
+        {
+            continue;
+        }
+
+        const QString moduleFile = m_path + QDir::separator() + mid.toLower() +
+                                   QStringLiteral(".") + moduleExtension();
+
+        if (QFile::exists(moduleFile) && !findPackage(mid))
+        {
+            requiredModules.insert(mid);
+            unresolved.insert(mid);
+        }
+    }
+
+    // read the previously stored footprint to preserve version information
+    QMap<QString, GtVersionNumber> oldModules;
+    const QString oldFootprintData = readFootprint();
+    if (!oldFootprintData.isEmpty())
+    {
+        oldModules = GtFootprint(oldFootprintData).modules();
+    }
+
+    QMap<QString, GtVersionNumber> moduleVersions;
+
+    for (const QString& mid : requiredModules)
+    {
+        // prefer the version known to the current environment
+        GtVersionNumber version = modules.version(mid);
+
+        // a required but currently unavailable module keeps its previously
+        // stored version (if known). A module version is never invented.
+        if (version.isNull())
+        {
+            version = oldModules.value(mid, GtVersionNumber());
+        }
+
+        moduleVersions.insert(mid, version);
+    }
+
+    // If the dependency metadata of a required module is unavailable, its
+    // transitive dependency closure cannot be recomputed safely. In this
+    // case, keep previously stored footprint entries that cannot be proven
+    // unused because of the unresolved dependency. Once all required module
+    // metadata is available again, a later save can fully recompute the
+    // closure and remove stale entries.
+    if (!unresolved.isEmpty())
+    {
+        gtDebug() << tr("Project footprint cannot be recalculated completely"
+                        " (unresolved dependencies: %1).")
+                         .arg(
+                             QStringList(unresolved.cbegin(), unresolved.cend())
+                                 .join(", "));
+
+        for (auto it = oldModules.cbegin(); it != oldModules.cend(); ++it)
+        {
+            if (!moduleVersions.contains(it.key()))
+            {
+                moduleVersions.insert(it.key(), it.value());
+            }
+        }
+    }
+
+    return GtFootprint::fromProjectModules(moduleVersions);
 }
 
 void
@@ -1312,6 +1400,12 @@ GtProject::findPackage(const QString& mid)
     });
 
     return iter != std::end(childs) ? *iter : nullptr;
+}
+
+const GtPackage*
+GtProject::findPackage(const QString& mid) const
+{
+    return const_cast<GtProject*>(this)->findPackage(mid);
 }
 
 const QStringList&

@@ -527,6 +527,12 @@ GtCoreApplication::loadSingleModule(const QString& moduleFilePath)
     return m_moduleLoader->loadSingleModule(moduleFilePath);
 }
 
+gt::Modules
+GtCoreApplication::modules() const
+{
+    return gt::Modules{m_moduleLoader.get()};
+}
+
 QStringList
 GtCoreApplication::moduleIds()
 {
@@ -563,12 +569,8 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id) const
 {
-    if (!m_moduleLoader)
-    {
-        return GtVersionNumber();
-    }
-
-    return m_moduleLoader->moduleVersion(id);
+    // delegate to the module access of the application
+    return modules().version(id);
 }
 
 QString

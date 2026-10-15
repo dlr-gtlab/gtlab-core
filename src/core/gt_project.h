@@ -32,6 +32,7 @@ class GtPackage;
 class GtLabelData;
 class GtLabel;
 class GtVersionNumber;
+class GtFootprint;
 
 /**
  * @brief The GtProject class
@@ -126,6 +127,7 @@ public:
      * @return Package
      */
     GtPackage* findPackage(const QString& mid);
+    GtPackage const* findPackage(const QString& mid) const;
 
     /**
      * @brief moduleIds
@@ -423,9 +425,8 @@ private:
      * @brief saveModuleMetaData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveModuleMetaData(QDomElement& root, QDomDocument& doc);
+    void saveModuleMetaData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief saveProcessData
@@ -439,9 +440,8 @@ private:
      * @brief saveLabelData
      * @param root
      * @param doc
-     * @return success
      */
-    bool saveLabelData(QDomElement& root, QDomDocument& doc);
+    void saveLabelData(QDomElement& root, QDomDocument& doc);
 
     /**
      * @brief readProjectData
@@ -478,6 +478,13 @@ private:
      * @param modIds Module identification strings.
      */
     void updateModuleFootprint(const QStringList &modIds);
+
+    /**
+     * @brief Creates the footprint from modules required by project data.
+     * Unresolved dependencies preserve the previously stored footprint entries.
+     * @return Project-specific footprint
+     */
+    GtFootprint createProjectFootprint() const;
 };
 
 namespace gt {
