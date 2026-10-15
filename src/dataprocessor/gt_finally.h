@@ -11,12 +11,25 @@
 #ifndef GT_FINALLY_H
 #define GT_FINALLY_H
 
+#include <cassert>
 #include <utility>
+#include <type_traits>
+#include <exception>
 
-#include <gt_version.h>
+#include <gt_datamodel_exports.h>
 
 namespace gt
 {
+
+    namespace detail
+    {
+        /// logs that an exception occurred at `origin` and a description
+        /// (`what`) if available
+        GT_DATAMODEL_EXPORT
+        void logCriticalException(const char* origin,
+                                  const char* what = nullptr) noexcept;
+
+    } // namespace detail
 
 /**
  * @brief The Finally class.
@@ -26,12 +39,23 @@ template <typename Functor>
 class Finally
 {
 public:
-    Finally() noexcept : m_invoked(true)
+    /// expose Functor-type
+    using function_type = Functor;
+
+    /// default constructor
+    Finally() noexcept : m_invoked{true}
     {
+        static_assert(std::is_nothrow_default_constructible<Functor>::value,
+                      "Functor must be nothrow default constructible");
     }
 
-    explicit Finally(Functor func) noexcept : m_func{std::move(func)}
+    /// constructor by moving functor
+    explicit Finally(Functor func) noexcept :
+        m_func{take(func)}, m_invoked{false}
     {
+         static_assert(std::is_nothrow_move_constructible<Functor>::value ||
+                       std::is_nothrow_copy_constructible<Functor>::value,
+                      "Functor must be nothrow move- or copy-constructible");
     }
 
     // no copy
@@ -40,7 +64,7 @@ public:
 
     // move allowed
     Finally(Finally&& other) noexcept :
-        m_func{std::move(other.m_func)}, m_invoked{other.m_invoked}
+        m_func{take(other.m_func)}, m_invoked{other.m_invoked}
     {
         other.clear();
     };
@@ -123,20 +147,62 @@ private:
      */
     void invoke() noexcept
     {
-        // call cleanup function
-        if (!isNull()) m_func();
+        if (isNull()) return;
+
+        // no exception must escape
+        if constexpr (std::is_nothrow_invocable<Functor>::value)
+        {
+            // call functor and explicitly ignore return value
+            static_cast<void>(m_func());
+        }
+        // Functor may throw, swallow any exception
+        else
+        {
+            try
+            {
+                static_cast<void>(m_func());
+                return;
+            }
+            catch (std::exception const& e)
+            {
+                detail::logCriticalException(__FUNCTION__, e.what());
+            }
+            catch (...)
+            {
+                detail::logCriticalException(__FUNCTION__);
+            }
+#ifndef GT_FINALLY_DISABLE_ASSERT
+            assert(!"gt::Finally threw an exception");
+#endif
+        }
+    }
+
+    /// copies/moves functor object safely
+    static constexpr decltype(auto) take(Functor& f) noexcept
+    {
+        if constexpr (std::is_nothrow_move_constructible<Functor>::value)
+        {
+            // move
+            return std::move(f);
+        }
+        else
+        {
+            // copy
+            return static_cast<const Functor&>(f);
+        }
     }
 };
 
 /**
- * @brief Makes a finally object from a lambda
+ * @brief Makes a finally object from a functor (e.g. a lambda). The functor
+ * must be move or copy constructibe and gurantee not to throw (use noexcept).
  *
  * Usage:
  *
  * {
  *     QLockFile lockFile{...};
  *
- *     auto cleanup = gt::finally([&](){
+ *     auto cleanup = gt::finally([&]() noexcept {
  *         lockFile.unlock();
  *     });
  * }
@@ -144,8 +210,10 @@ private:
  * @param t object
  * @param func Function to call on cleanup
  */
-template<typename Functor>
+template <typename Functor,
+          typename = std::enable_if_t<std::is_invocable<Functor>::value>>
 inline auto finally(Functor func)
+    noexcept(std::is_nothrow_move_constructible<Functor>::value)
 {
     return Finally<Functor>{std::move(func)};
 }
@@ -165,17 +233,17 @@ inline auto finally(Functor func)
  * @param func Member function to call on cleanup
  * @tparam T Object type to call memeber method on
  * @tparam R Return value of member method
- * @tparam U Base class in whcih the member method is implemented (defaults to T)
+ * @tparam U Base class in which the member method is implemented
+ * (defaults to T)
  */
-template<typename T, typename R, typename U = T>
-inline auto finally(T* t, R(U::*func)())
+template <typename T, typename F,
+          typename = std::enable_if_t<std::is_member_function_pointer<F>::value &&
+                                      std::is_invocable<F, T*>::value>>
+inline auto finally(T* t, F f) noexcept
 {
     // construct helper lambda
-    return finally([obj = t, func](){
-        if (obj && func)
-        {
-            (obj->*func)();
-        }
+    return finally([t, f]() noexcept(std::is_nothrow_invocable<F, T*>::value) {
+        if (t && f) static_cast<void>(std::invoke(f, t));
     });
 }
 

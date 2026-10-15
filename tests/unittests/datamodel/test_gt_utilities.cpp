@@ -8,6 +8,9 @@
  *  E-Mail: marius.broecker@dlr.de
  */
 
+// dsiable assert in gt::finally for unittests
+#define GT_FINALLY_DISABLE_ASSERT
+
 #include <QMutex>
 #include <QByteArray>
 #include <QString>
@@ -160,7 +163,161 @@ TEST_F(TestGtUtilities, container_const_cast)
     EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 
-TEST_F(TestGtUtilities, finally_member)
+TEST_F(TestGtUtilities, finally_nothrow_member_function)
+{
+    QMutex m;
+    m.lock();
+
+    auto finally = gt::finally(&m, &QMutex::unlock);
+    static_assert(std::is_nothrow_invocable<
+                      decltype(&QMutex::unlock), QMutex*>::value,
+                  "Must use noexcept member function");
+    static_assert(std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected wrapping lambda to be noexcept too");
+}
+
+TEST_F(TestGtUtilities, finally_throwable_member_function)
+{
+    QString s;
+
+    auto finally = gt::finally(&s, &QString::clear);
+    static_assert(!std::is_nothrow_invocable<
+                      decltype(&QString::clear), QString*>::value,
+                  "Must use nnoexcept(false) member function");
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected wrapping lambda to be noexcept(false) too");
+}
+
+TEST_F(TestGtUtilities, finally_nothrow_lambda)
+{
+    // by default lambda are noexcept(false)
+    auto finally = gt::finally([]() noexcept {});
+    static_assert(std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected lambda to be noexcept");
+}
+
+TEST_F(TestGtUtilities, finally_throwable_lambda)
+{
+    // by default lambda are noexcept(false)
+    auto finally = gt::finally([]() {});
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected lambda to be noexcept(false)");
+}
+
+TEST_F(TestGtUtilities, finally_nothrow_std_function)
+{
+    // std::functions are always noexcept(false) and may throw
+    auto finally = gt::finally(std::function<void()>([]() noexcept {}));
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected lambda to be noexcept(false)");
+}
+
+TEST_F(TestGtUtilities, finally_throwable_std_function)
+{
+    // std::functions are always noexcept(false) and may throw
+    auto finally = gt::finally(std::function<void()>([]() {}));
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(finally)::function_type>::value,
+                  "Expected lambda to be noexcept(false)");
+}
+
+// gt::Finally must not throw on invocation -> should swallow all exceptions
+TEST_F(TestGtUtilities, finally_invoke_with_exception)
+{
+    EXPECT_NO_THROW(
+        {
+            auto finally = gt::finally([](){
+                throw std::logic_error("this is a test exception");
+            });
+        }
+        );
+    EXPECT_NO_THROW(
+        {
+            auto finally = gt::finally([](){
+                throw 42;
+            });
+        }
+        );
+}
+
+// only copy ctor is noexcept(true)
+class CopyConstructible
+{
+public:
+    CopyConstructible() noexcept(true) {}
+    CopyConstructible(CopyConstructible const&) noexcept(true) {}
+    CopyConstructible(CopyConstructible&&) noexcept(false)
+    {
+        throw std::logic_error{"should not have been called!"};
+    }
+    CopyConstructible& operator=(CopyConstructible const&) = delete;
+    CopyConstructible& operator=(CopyConstructible&&) = delete;
+    ~CopyConstructible() noexcept {}
+
+    void operator()() noexcept {}
+
+    // custom swap function is needed
+    friend void swap(CopyConstructible& a, CopyConstructible& b) noexcept { }
+};
+
+// only move ctor is noexcept(true)
+class MoveConstructible
+{
+public:
+    MoveConstructible() noexcept(true) {}
+    MoveConstructible(MoveConstructible const&) noexcept(false)
+    {
+        throw std::logic_error{"should not have been called!"};
+    }
+    MoveConstructible(MoveConstructible&&) noexcept(true) {};
+    MoveConstructible& operator=(MoveConstructible const&) = delete;
+    MoveConstructible& operator=(MoveConstructible&&) = delete;
+    ~MoveConstructible() noexcept {}
+
+    void operator()() noexcept {}
+
+    // custom swap function is needed
+    friend void swap(MoveConstructible& a, MoveConstructible& b) noexcept { }
+};
+
+TEST_F(TestGtUtilities, finally_nothrow_copy_constructible)
+{
+    // must not use `gt::finally wrapper` function,
+    // as it would call the move constructor
+    auto finally = gt::Finally<CopyConstructible>{CopyConstructible{}};
+    Q_UNUSED(finally);
+
+    // test move assignment
+    decltype(finally) target{};
+    EXPECT_TRUE(target.isNull());
+    EXPECT_FALSE(finally.isNull());
+
+    target = std::move(finally);
+    EXPECT_FALSE(target.isNull());
+    EXPECT_TRUE(finally.isNull());
+}
+
+TEST_F(TestGtUtilities, finally_nothrow_move_constructible)
+{
+    auto finally = gt::finally(MoveConstructible{});
+    Q_UNUSED(finally);
+
+    // test move assignment
+    decltype(finally) target{};
+    EXPECT_TRUE(target.isNull());
+    EXPECT_FALSE(finally.isNull());
+
+    target = std::move(finally);
+    EXPECT_FALSE(target.isNull());
+    EXPECT_TRUE(finally.isNull());
+}
+
+TEST_F(TestGtUtilities, finally_member_function)
 {
     QMutex m;
 
@@ -242,17 +399,17 @@ struct MyMoveOnlyFunctor
 {
     bool moved = false, called = false;
 
-    MyMoveOnlyFunctor() = default;
+    MyMoveOnlyFunctor() noexcept = default;
 
     MyMoveOnlyFunctor(MyMoveOnlyFunctor const&) = delete;
     MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor const&) = delete;
 
-    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) : called{o.called}
+    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) noexcept : called{o.called}
     {
         o.moved = true;
     }
 
-    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor&& o)
+    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor&& o) noexcept
     {
         called = o.called;
         moved = false;
@@ -260,7 +417,7 @@ struct MyMoveOnlyFunctor
         return *this;
     }
 
-    void operator()()
+    void operator()() noexcept
     {
         called = true;
     }
@@ -292,6 +449,32 @@ TEST_F(TestGtUtilities, finally_move_functor)
     EXPECT_TRUE(finally2.get().called);
     EXPECT_FALSE(finally3.get().moved);
     EXPECT_TRUE(finally3.get().called);
+}
+
+TEST_F(TestGtUtilities, finally_move_std_function)
+{
+    bool called = false;
+    std::function<void()> myFunction = [&]() { called = true; };
+
+    auto finally1 = gt::finally(myFunction);
+
+    auto finally2 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_FALSE(called);
+
+    finally2.finalize();
+
+    EXPECT_TRUE(called);
+
+    called = false;
+
+    decltype(finally1) finally3;
+    finally3 = gt::finally(myFunction);
+
+    finally3.finalize();
+
+    EXPECT_TRUE(called);
 }
 
 TEST_F(TestGtUtilities, clamp)
