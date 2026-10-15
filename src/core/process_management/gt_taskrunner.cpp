@@ -20,6 +20,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
+#include "gt_finally.h"
 #include "gt_objectmementodiff.h"
 
 #include "gt_taskrunner.h"
@@ -320,35 +321,36 @@ GtTaskRunner::handleRunnableFinished()
         return;
     }
 
-    disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
-               this, &GtTaskRunner::handleRunnableFinished);
+    auto cleanup = gt::finally([this]() {
+        m_initialData.clear();
+        delete m_runnable.data();
+    });
 
-    const QList<GtObjectMemento> initialData = m_initialData;
-    m_initialData.clear();
     m_dataToMerge.clear();
     bool missingInitialSnapshot = false;
     for (const GtObjectMemento& result : m_runnable->outputData())
     {
+        const auto initialRoot = std::find_if(
+            m_initialData.cbegin(), m_initialData.cend(),
+            [&result](const GtObjectMemento& memento) {
+                return findMemento(memento, result.uuid()) != nullptr;
+            });
+
         const GtObjectMemento* initial = nullptr;
-        for (const GtObjectMemento& memento : initialData)
+        if (initialRoot != m_initialData.cend())
         {
-            initial = findMemento(memento, result.uuid());
-            if (initial)
-            {
-                break;
-            }
+            initial = findMemento(*initialRoot, result.uuid());
         }
 
-        if (initial)
-        {
-            m_dataToMerge.append({*initial, result});
-        }
-        else
+        if (!initial)
         {
             missingInitialSnapshot = true;
             gtError() << tr("Task output has no initial data snapshot:")
                       << result.uuid();
+            continue;
         }
+
+        m_dataToMerge.append({*initial, result});
     }
 
     if (missingInitialSnapshot && m_task)
@@ -356,7 +358,7 @@ GtTaskRunner::handleRunnableFinished()
         m_task->setState(GtProcessComponent::FAILED);
     }
 
-    delete m_runnable;
+    cleanup.finalize();
 
     emit finished();
 }
