@@ -163,8 +163,9 @@ attached, detached, moved or deleted. Roots always stay observed.
      - An accessor of an observed object marked with
        ``gt::ObjectValueReadScope`` runs (see below).
    * - ``propertyWritten``
-     - A property of an observed object emits ``changed()``, even if the
-       value did not change.
+     - A property of an observed object reports a change through
+       ``notifyChanged()`` (e.g. ``setVal()``), even if the value did not
+       change.
    * - ``objectValueWritten``
      - A setter of an observed object calls
        ``gt::recordObjectValueWritten()`` (see below).
@@ -266,6 +267,8 @@ Limits
 * Code that reads property member values directly bypasses the read hooks.
   Own accessors are recorded only if they use ``gt::ObjectValueReadScope``
   or ``gt::recordObjectValueWritten()``.
+* Property classes that emit ``changed()`` directly instead of calling
+  ``notifyChanged()`` bypass the write hook.
 * No ``objectAccessed()`` event; mutations through mutable references are
   reported as reads.
 
