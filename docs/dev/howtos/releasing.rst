@@ -1,93 +1,111 @@
 Releasing GTlab Core
 ====================
 
-GTlab Core uses ``bump2version`` (version 1.0.1) to update version files,
-create a release commit, and create a Git tag.
+GTlab Core uses ``bump2version`` (version 1.0.1) to update the version files.
+By default, it creates a version commit and a local Git tag using the SemVer
+format (for example, ``v2.1.0`` or ``v2.1.0-alpha.1``). Older tags such as
+``2-0-14`` remain unchanged.
 
-New releases use SemVer tags such as ``v2.1.0-alpha.1`` or ``v2.1.0``.
-Historical tags in the ``2-0-14`` format are unchanged. The numeric CMake
-project version remains ``2.1.0`` throughout the 2.1 prerelease cycle.
+Run release commands from a clean working tree. Use ``--dry-run --verbose``
+to inspect a bump before executing it. The CMake project version contains
+only the numeric major, minor and patch components.
 
-Release commands
-----------------
 
-Run commands in a clean working tree at the commit to be released. Inspect the
-proposed changes first (use ``--dry-run --verbose`` before an actual bump):
+Stable releases (major, minor, patch)
+-------------------------------------
+
+When the current version is already **stable**, choose the required increment:
 
 .. code-block:: console
 
-   bump2version --dry-run --verbose --new-version 2.1.0-alpha.1 stage
+   # Starting from 2.1.0, choose one:
+   bump2version patch   # 2.1.0 -> 2.1.1
+   bump2version minor   # 2.1.0 -> 2.2.0
+   bump2version major   # 2.1.0 -> 3.0.0
+
+When the working version already targets the intended release (for example
+``2.1.1-dev`` or ``2.1.0-rc.1.dev``), **do not increment the numeric version
+again**. Instead, explicitly select the final version:
+
+.. code-block:: console
+
+   bump2version --new-version 2.1.1 stage  # 2.1.1-dev -> 2.1.1
+   bump2version --new-version 2.1.0 stage  # 2.1.0-rc.1.dev -> 2.1.0
+
+Before creating a stable release, finalize the corresponding changelog section
+(for example, ``[2.1.0] - YYYY-MM-DD`` or ``[2.1.1] - YYYY-MM-DD``) and commit
+it. ``bump2version`` does not update ``CHANGELOG.md`` automatically.
+
+After the release bump:
+
+1. Push the release commit and tag, for example
+   ``git push origin master v2.1.1``.
+2. Check the tag build and tests, then publish a GitHub Release for the tag.
+3. Move ``master`` to a development version as described below.
+
+
+Development versions
+--------------------
+
+After every release, move ``master`` to a distinguishable **development**
+version. Always use ``--no-tag``: the version change should create a commit,
+but it must **not** create a release tag.
+
+After a numbered prerelease, append ``.dev`` to the released version:
+
+.. code-block:: console
+
+   bump2version --no-tag development  # 2.1.0-alpha.1 -> 2.1.0-alpha.1.dev
+
+After a stable release, choose the version currently being developed.
+Examples starting from ``2.1.0``:
+
+.. code-block:: console
+
+   # Choose the next planned development version:
+   bump2version --no-tag --new-version 2.1.1-dev patch  # patch development
+   bump2version --no-tag --new-version 2.2.0-dev minor  # minor development
+   bump2version --no-tag --new-version 3.0.0-dev major  # major development
+
+Push the development commit with ``git push origin master``.
+
+.. important::
+
+   From ``2.1.1-dev``, a plain ``bump2version patch`` would produce
+   ``2.1.2`` and skip the intended patch release. Use
+   ``bump2version --new-version 2.1.1 stage`` to release ``2.1.1``.
+
+   SemVer sorts ``2.1.0-alpha.1.dev`` after ``2.1.0-alpha.1`` and before
+   ``2.1.0-alpha.2``. Do not use ``alpha.2.dev`` immediately after
+   publishing ``alpha.1``.
+
+
+Prereleases (alpha, beta, rc)
+-----------------------------
+
+Prereleases use the same versioning tool and receive normal release tags.
+For example, starting from ``2.1.0-dev``:
+
+.. code-block:: console
+
    bump2version --new-version 2.1.0-alpha.1 stage
 
-After the release tag is created, immediately bump ``master`` to a distinct
-development version. This creates a versioning commit but **not a tag**:
+To release further prereleases, choose the appropriate command:
 
 .. code-block:: console
 
-   bump2version --no-tag development             # alpha.1 -> alpha.1.dev
+   bump2version serial                           # alpha.1.dev -> alpha.2
+   bump2version --new-version 2.1.0-beta.1 stage # alpha.N.dev -> beta.1
+   bump2version --new-version 2.1.0-rc.1 stage   # beta.N.dev -> rc.1
 
-The development build after ``alpha.1`` is ``2.1.0-alpha.1.dev``.
-SemVer orders it after ``alpha.1`` but before ``alpha.2``.
-Do not use ``alpha.2.dev``: that version sorts *after* ``alpha.2``.
+The same pattern can be used for a patch prerelease, for example
+``bump2version --new-version 2.1.1-alpha.1 patch``.
 
-To publish another prerelease, or to finish the prerelease sequence:
+After **each** prerelease, push the tagged release commit, publish it as a
+GitHub *prerelease* after the tag build passes, and then create the untagged
+``.dev`` commit using the development procedure above.
 
-.. code-block:: console
-
-   bump2version serial                            # alpha.1.dev -> alpha.2
-   bump2version --new-version 2.1.0-beta.1 stage  # alpha.N -> beta.1
-   bump2version --new-version 2.1.0-rc.1 stage    # beta.N -> rc.1
-   bump2version stage                             # rc.N -> 2.1.0
-
-From a **stable** version, a normal patch release uses the same command as before:
-
-.. code-block:: console
-
-   bump2version patch                             # 2.1.0 -> 2.1.1
-
-The stage part has ``first_value = stable``, so incrementing patch, minor or
-major produces a stable version by default, without a ``-dev`` suffix.
-After a stable release, bump to the **next patch development** version.
-When that patch is ready, remove ``-dev`` without increasing the patch again:
-
-.. code-block:: console
-
-   bump2version --no-tag --new-version 2.1.1-dev patch  # 2.1.0 -> 2.1.1-dev
-   bump2version --new-version 2.1.1 stage               # 2.1.1-dev -> 2.1.1
-
-Do **not** run bare ``bump2version patch`` from ``2.1.1-dev``: it would
-skip to ``2.1.2``. The short ``patch`` command works for a **stable**
-starting version, for example on a maintenance branch.
-
-For a patch prerelease instead, select it explicitly:
-
-.. code-block:: console
-
-   bump2version --new-version 2.1.2-alpha.1 patch
-
-By default, ``bump2version`` creates **both a Git commit and a local tag**.
-Always use ``--no-tag`` for development bumps (they still create commits).
-Push the commit and tag after verification, for example:
-
-.. code-block:: console
-
-   git push origin master v2.1.0-alpha.1
-
-Release notes and changelog
----------------------------
-
-Alpha, beta and release candidate releases do **not** create individual
-sections in ``CHANGELOG.md``. Maintain the ``[Unreleased 2.1]`` section
-throughout the 2.1 development cycle. For the final ``2.1.0`` release,
-rename that section to ``[2.1.0] - YYYY-MM-DD``, and open the next
-unreleased section as needed.
-
-For a stable patch release ``2.1.1``, maintain an unreleased patch section and
-finalize it to ``[2.1.1] - YYYY-MM-DD`` before releasing. Commit the
-changelog edit **before** running the stable-release bump so its tag
-includes it. The tool intentionally does not edit the changelog because it
-must remain untouched for prereleases.
-
-Create a GitHub Release for the pushed tag separately, marking alpha/beta/rc
-tags as prereleases. Ensure the tag build and tests pass before publishing
-release artifacts.
+Do not create individual changelog sections for alpha, beta or rc releases.
+Keep changes under ``[Unreleased 2.1]`` throughout the 2.1 prerelease cycle.
+When publishing the final ``2.1.0`` release, consolidate those entries as
+described in the stable-release section.
