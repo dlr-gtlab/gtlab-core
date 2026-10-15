@@ -11,6 +11,7 @@
 #include "gt_propertyconversion.h"
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
+#include "gt_boolproperty.h"
 #include "gt_propertyconversion.h"
 
 namespace
@@ -43,46 +44,33 @@ GtPropertyConversionRegistry::getInstance()
 
 void
 GtPropertyConversionRegistry::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to, gt::conversion::canConnect canConnect)
+    QMetaObject from, QMetaObject to,
+    gt::conversion::convert convert,
+    gt::conversion::isCompatible canConnect)
 {
-    if (canConnect)
+    if (!convert)
     {
-        QStringList avails = converterAvailable(from.className());
-
-        if (!avails.contains(to.className()))
-        {
-            m_canConvertList.append(
-                GtPropertyConverter(from, to, {}, canConnect));
-        }
+        gtWarning() << QObject::tr("Registration of a converter is invalid if "
+                                   "no conversion function is given");
+        return;
     }
+
+    QStringList avails = converterAvailable(from.className());
+
+    if (avails.contains(to.className()))
+    {
+        gtWarning() << QObject::tr("Registration for a property converter "
+                                   "from %1 to %2 is ignored as there is an"
+                                   " existing one.")
+                           .arg(from.className(), to.className());
+        return;
+    }
+
+    m_canConvertList.append(GtPropertyConverter(from, to, convert, canConnect));
 }
 
-void
-GtPropertyConversionRegistry::registerConnectionCompatibility(
-    QMetaObject from, QMetaObject to, gt::conversion::convert convert,
-    gt::conversion::canConnect canConnect)
-{
-    if (convert)
-    {
-        QStringList avails = converterAvailable(from.className());
-
-        if (!avails.contains(to.className()))
-        {
-            m_canConvertList.append(
-                GtPropertyConverter(from, to, convert, canConnect));
-        }
-        else
-        {
-            gtWarning() << QObject::tr("Registration for a property converter "
-                                       "from %1 to %2 is ignored as there is an"
-                                       " existing one.")
-                               .arg(from.className(), to.className());
-        }
-    }
-}
-
-gt::conversion::canConnect
-GtPropertyConversionRegistry::canConnectFunction(const QMetaObject& from,
+gt::conversion::isCompatible
+GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
                                                  const QMetaObject& to) const
 {
     const GtPropertyConverter* converter =
@@ -90,7 +78,7 @@ GtPropertyConversionRegistry::canConnectFunction(const QMetaObject& from,
 
     if (!converter) return {};
 
-    return converter->canConnectFunc();
+    return converter->isCompatibletFunc();
 }
 
 gt::conversion::convert
@@ -100,24 +88,19 @@ GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
     const GtPropertyConverter* converter =
         findConverterWithInheritance(from, to);
 
-    // if no converter is given at all
-    if (!converter)
+    // A specifically registered converter takes precedence.
+    if (converter)
     {
-        // default behaviour for identical metatypes
-        if (from.className() == to.className())
-        {
-            return gt::conversion::defaultConverter;
-        }
+        const auto func = converter->convertFunc();
 
-        return {};
+        if (func)
+        {
+            return func;
+        }
     }
 
-    gt::conversion::convert func = converter->convertFunc();
-
-    if (func) return func;
-
-    // default behaviour for identical metatypes if converter is registered
-    // but without defined conversion function
+    // Identical property types can use the default converter,
+    // even if no explicit registration exists.
     if (from.className() == to.className())
     {
         return gt::conversion::defaultConverter;
@@ -199,7 +182,7 @@ bool
 GtPropertyConversionRegistry::connectionCheckAvailable(
     const GtAbstractProperty& a, const GtAbstractProperty& b)
 {
-    auto function = canConnectFunction(*a.metaObject(), *b.metaObject());
+    auto function = isCompatibleFunction(*a.metaObject(), *b.metaObject());
 
     // if no connectionCheck function is available check based
     if (!function)
@@ -232,4 +215,10 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject,
         gt::conversion::fromInt::toDouble,
         gt::conversion::fromInt::canConnectToDouble);
+
+    // converter from int to bool
+    registerConnectionCompatibility(
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject,
+        gt::conversion::fromInt::toBool,
+        gt::conversion::fromInt::canConnectToBool);
 }

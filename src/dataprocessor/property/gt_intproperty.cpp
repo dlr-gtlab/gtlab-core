@@ -44,6 +44,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
     static auto initOnce = []() {
         gtPropConversion().registerConnectionCompatibility(
             GtIntProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+            gt::conversion::defaultConverter,
             gt::conversion::fromInt::canConnectToInt);
 
         return 0;

@@ -33,6 +33,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         gtPropConversion().registerConnectionCompatibility(
             GtDoubleProperty::staticMetaObject,
             GtDoubleProperty::staticMetaObject,
+            gt::conversion::defaultConverter,
             gt::conversion::fromDouble::canConnectToDouble);
 
         return 0;

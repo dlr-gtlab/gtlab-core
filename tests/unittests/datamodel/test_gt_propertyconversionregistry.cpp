@@ -37,9 +37,9 @@ TEST(TestGtPropertyConversionRegistry, builtInConversionRegistration)
         GtDoubleProperty::staticMetaObject, GtIntProperty::staticMetaObject));
     EXPECT_TRUE(gtPropConversion().convertFunction(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject));
-    EXPECT_TRUE(gtPropConversion().canConnectFunction(
+    EXPECT_TRUE(gtPropConversion().isCompatibleFunction(
         GtDoubleProperty::staticMetaObject, GtIntProperty::staticMetaObject));
-    EXPECT_TRUE(gtPropConversion().canConnectFunction(
+    EXPECT_TRUE(gtPropConversion().isCompatibleFunction(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject));
 
     EXPECT_TRUE(doubleProp.canConnect(intProp));
@@ -50,16 +50,16 @@ TEST(TestGtPropertyConversionRegistry, builtInConversionRegistration)
                     .contains("GtIntProperty"));
 }
 
-TEST(TestGtPropertyConversionRegistry, canConnectFunctionUnregistered)
+TEST(TestGtPropertyConversionRegistry, isCompatibleFunctionUnregistered)
 {
     // no function is registered for this property type pair
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject));
     EXPECT_FALSE(gtPropConversion().convertFunction(
         GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject));
 }
 
-TEST(TestGtPropertyConversionRegistry, canConnectWithoutRegisteredFunction)
+TEST(TestGtPropertyConversionRegistry, isCompatibleWithoutRegisteredFunction)
 {
     GtStringProperty stringProp1("string1", "stringProp1");
     GtStringProperty stringProp2("string2", "stringProp2");
@@ -75,7 +75,7 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithoutRegisteredFunction)
     EXPECT_FALSE(intProp.canConnect(stringProp1));
 }
 
-TEST(TestGtPropertyConversionRegistry, registerCanConnect)
+TEST(TestGtPropertyConversionRegistry, registerIsCompatible)
 {
     GtTestRegistryPropF propF;
     propF.setObjectName("testRegistryF");
@@ -85,11 +85,21 @@ TEST(TestGtPropertyConversionRegistry, registerCanConnect)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropF::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            if (a.objectName() == "testRegistryF")
+            {
+                return gt::conversion::ConversionResult<bool>::success(true);
+            }
+
+            return gt::conversion::ConversionResult<bool>::failed();
+        },
         [](GtAbstractProperty const& a, GtAbstractProperty const&) -> bool {
             return a.objectName() == "testRegistryF";
         });
 
-    const auto function = gtPropConversion().canConnectFunction(
+    const auto function = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropF::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject);
 
@@ -104,7 +114,7 @@ TEST(TestGtPropertyConversionRegistry, registerCanConnect)
     EXPECT_FALSE(otherPropF.canConnect(propG));
 
     // the lookup is directional
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropF::staticMetaObject));
 }
@@ -119,6 +129,11 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
         });
@@ -136,17 +151,27 @@ TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
         });
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
         });
 
-    const auto function = gtPropConversion().canConnectFunction(
+    const auto function = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject);
 
@@ -160,7 +185,7 @@ TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
     EXPECT_EQ(available.count("GtTestRegistryPropI"), 1);
 
     // the reversed direction is not affected
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropI::staticMetaObject,
         GtTestRegistryPropH::staticMetaObject));
     EXPECT_FALSE(propI.canConnect(propH));
@@ -177,11 +202,7 @@ TEST(TestGtPropertyConversionRegistry, emptyFunctionRegistrationIgnored)
         GtTestRegistryPropI::staticMetaObject,
         GtTestRegistryPropH::staticMetaObject, gt::conversion::convert{});
 
-    gtPropConversion().registerConnectionCompatibility(
-        GtTestRegistryPropI::staticMetaObject,
-        GtTestRegistryPropH::staticMetaObject, gt::conversion::canConnect{});
-
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropI::staticMetaObject,
         GtTestRegistryPropH::staticMetaObject));
     EXPECT_FALSE(gtPropConversion().convertFunction(
@@ -208,11 +229,21 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropA::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            if (a.objectName() == "testRegistryF")
+            {
+                return gt::conversion::ConversionResult<bool>::success(true);
+            }
+
+            return gt::conversion::ConversionResult<bool>::failed();
+        },
         [](GtAbstractProperty const& a, GtAbstractProperty const&) -> bool {
             return a.objectName() == "testRegistryA";
         });
 
-    const auto function = gtPropConversion().canConnectFunction(
+    const auto function = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropA::staticMetaObject,
         GtTestRegistryPropB::staticMetaObject);
 
@@ -228,7 +259,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
 
     // the lookup is directional, a base to type registration does not
     // extend the from type
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropB::staticMetaObject,
         GtTestRegistryPropA::staticMetaObject));
     EXPECT_FALSE(propB.canConnect(propA));
@@ -256,6 +287,16 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            if (a.objectName() == "testRegistryF")
+            {
+                return gt::conversion::ConversionResult<bool>::success(true);
+            }
+
+            return gt::conversion::ConversionResult<bool>::failed();
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return false;
         });
@@ -263,11 +304,16 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtAbstractProperty::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
         });
 
-    const auto functionDE = gtPropConversion().canConnectFunction(
+    const auto functionDE = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject);
 
@@ -275,7 +321,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     EXPECT_FALSE(functionDE(propD, propE));
 
     // Base-type fallback still works for C -> E.
-    const auto functionCE = gtPropConversion().canConnectFunction(
+    const auto functionCE = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropC::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject);
 
@@ -283,7 +329,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     EXPECT_TRUE(functionCE(propC, propE));
 
     // No registration matches the pair (C, D).
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropC::staticMetaObject,
         GtTestRegistryPropD::staticMetaObject));
 
@@ -294,11 +340,16 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
+        [](GtAbstractProperty const& a,
+           GtAbstractProperty const& b) -> gt::conversion::ConversionResult<bool>
+        {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        },
         [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
             return true;
         });
 
-    const auto specificTargetFunction = gtPropConversion().canConnectFunction(
+    const auto specificTargetFunction = gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject);
 
@@ -320,37 +371,6 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
 }
 
 
-TEST(TestGtPropertyConversionRegistry, convertOnlyRegistration)
-{
-    GtTestRegistryPropC propC;
-    GtTestRegistryPropD propD;
-
-    // a converter registered without a canConnect function does not
-    // enable a connection for the property type pair
-    gtPropConversion().registerConnectionCompatibility(
-        GtTestRegistryPropC::staticMetaObject,
-        GtTestRegistryPropD::staticMetaObject,
-        [](GtAbstractProperty const&,
-           GtAbstractProperty&) -> gt::conversion::conversionSuccess {
-            return gt::conversion::conversionSuccess::Success;
-        });
-
-    const auto conversion = gtPropConversion().convertFunction(
-        GtTestRegistryPropC::staticMetaObject,
-        GtTestRegistryPropD::staticMetaObject);
-
-    ASSERT_TRUE(conversion);
-    EXPECT_EQ(conversion(propC, propD),
-              gt::conversion::conversionSuccess::Success);
-
-    EXPECT_FALSE(gtPropConversion().canConnectFunction(
-        GtTestRegistryPropC::staticMetaObject,
-        GtTestRegistryPropD::staticMetaObject));
-
-    EXPECT_FALSE(propC.canConnect(propD));
-    EXPECT_FALSE(propD.canConnect(propC));
-}
-
 TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
 {
     GtDoubleProperty doubleProp("double", "doubleName", "doubleBrief",
@@ -362,13 +382,13 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
     ASSERT_TRUE(conversion);
 
     // rounding with information loss
-    EXPECT_EQ(conversion(doubleProp, intProp),
+    EXPECT_EQ(conversion(doubleProp, intProp).status,
               gt::conversion::conversionSuccess::Lossy);
     EXPECT_EQ(intProp.getVal(), 5);
 
     // exact conversion without loss
     doubleProp.setVal(4.0);
-    EXPECT_EQ(conversion(doubleProp, intProp),
+    EXPECT_EQ(conversion(doubleProp, intProp).status,
               gt::conversion::conversionSuccess::Success);
     EXPECT_EQ(intProp.getVal(), 4);
 
@@ -380,7 +400,7 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
     const auto intToDouble = gtPropConversion().convertFunction(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject);
     ASSERT_TRUE(intToDouble);
-    EXPECT_EQ(intToDouble(intSource, doubleTarget),
+    EXPECT_EQ(intToDouble(intSource, doubleTarget).status,
               gt::conversion::conversionSuccess::Success);
     EXPECT_DOUBLE_EQ(doubleTarget.getVal(), 7.0);
 
@@ -393,8 +413,8 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
 {
     const auto convert =
         [](GtAbstractProperty const&,
-           GtAbstractProperty&) -> gt::conversion::conversionSuccess {
-        return gt::conversion::conversionSuccess::Success;
+           GtAbstractProperty const&) -> gt::conversion::ConversionResult<double> {
+        return gt::conversion::ConversionResult<double>::success(1.0);
     };
 
     const auto canConnect = [](GtAbstractProperty const&,
@@ -409,8 +429,8 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     EXPECT_EQ(conversionOnly.fromClassName(), "GtIntProperty");
     EXPECT_EQ(conversionOnly.toClassName(), "GtDoubleProperty");
     EXPECT_TRUE(conversionOnly.conversionDefined());
-    EXPECT_FALSE(conversionOnly.canConnectDefined());
-    EXPECT_FALSE(conversionOnly.canConnectFunc());
+    EXPECT_FALSE(conversionOnly.isCompatibleDefined());
+    EXPECT_FALSE(conversionOnly.isCompatibletFunc());
 
     GtPropertyConverter convertInvalid(GtIntProperty::staticMetaObject,
                                        GtDoubleProperty::staticMetaObject, {},
@@ -423,9 +443,9 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
         convert, canConnect);
 
     EXPECT_TRUE(conversionAndCanConnect.conversionDefined());
-    EXPECT_TRUE(conversionAndCanConnect.canConnectDefined());
+    EXPECT_TRUE(conversionAndCanConnect.isCompatibleDefined());
 
-    const auto function = conversionAndCanConnect.canConnectFunc();
+    const auto function = conversionAndCanConnect.isCompatibletFunc();
     ASSERT_TRUE(function);
     EXPECT_TRUE(function(GtIntProperty("int", "intName"),
                          GtDoubleProperty("double", "doubleName", "doubleBrief",
@@ -436,7 +456,7 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     GtIntProperty intProp("int", "intName");
     GtDoubleProperty doubleProp("double", "doubleName", "doubleBrief",
                                 GtUnit::Category::None, 0.0);
-    EXPECT_EQ(convertFunc(intProp, doubleProp),
+    EXPECT_EQ(convertFunc(intProp, doubleProp).status,
               gt::conversion::conversionSuccess::Success);
 }
 

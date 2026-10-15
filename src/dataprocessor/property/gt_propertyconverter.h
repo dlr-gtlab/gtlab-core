@@ -18,21 +18,39 @@ class GT_DATAMODEL_EXPORT GtPropertyConverter
 {
 public:
     GtPropertyConverter(QMetaObject from, QMetaObject to,
-                        gt::conversion::convert conversion);
-
-    GtPropertyConverter(QMetaObject from, QMetaObject to,
                         gt::conversion::convert conversion,
-                        gt::conversion::canConnect canConnect);
+                        gt::conversion::isCompatible isCompatible = {});
+
+    template <typename Converter,
+              std::enable_if_t<std::is_invocable_v< Converter&,
+                                                   const GtAbstractProperty&,
+                                                   const GtAbstractProperty&> &&
+                                   !std::is_same_v<std::decay_t<Converter>,
+                                                   gt::conversion::convert>,
+                               int> = 0>
+    GtPropertyConverter(
+        QMetaObject from,
+        QMetaObject to,
+        Converter&& conversion,
+        gt::conversion::isCompatible isCompatible = {})
+        : GtPropertyConverter(
+            std::move(from),
+            std::move(to),
+            gt::conversion::eraseConverter(
+                std::forward<Converter>(conversion)),
+            std::move(isCompatible))
+    {
+    }
 
     QString fromClassName() const;
 
     QString toClassName() const;
 
-    gt::conversion::canConnect canConnectFunc() const;
+    gt::conversion::isCompatible isCompatibletFunc() const;
 
     gt::conversion::convert convertFunc() const;
 
-    bool canConnectDefined() const;
+    bool isCompatibleDefined() const;
 
     bool conversionDefined() const;
 
@@ -41,7 +59,7 @@ private:
 
     QMetaObject m_to;
 
-    gt::conversion::canConnect m_canConnect;
+    gt::conversion::isCompatible m_isCompatibleFunc;
 
     gt::conversion::convert m_conversion;
 };
