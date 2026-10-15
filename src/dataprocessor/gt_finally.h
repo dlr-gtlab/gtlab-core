@@ -15,6 +15,7 @@
 #include <utility>
 #include <type_traits>
 #include <exception>
+#include <functional>
 
 #include <gt_datamodel_exports.h>
 
