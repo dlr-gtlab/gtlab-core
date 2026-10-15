@@ -105,6 +105,13 @@ Your first module
    changelog
 
 .. toctree::
+   :caption: Reference
+   :maxdepth: 2
+   :hidden:
+
+   reference/cmake_variables
+
+.. toctree::
    :caption: Core contributors
    :maxdepth: 2
    :hidden:
