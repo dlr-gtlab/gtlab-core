@@ -5,6 +5,37 @@
  */
 
 #include <gt_moduleinterface.h>
+#ifndef GTLAB_ABI_TEST_NO_ADJACENT_DEPENDENCY
+#include <QFile>
+
+extern "C" int externalAbiDependencyValue();
+
+namespace
+{
+
+    struct ExternalModuleLoadMarker
+    {
+        ExternalModuleLoadMarker()
+        {
+            const QString path =
+                QString::fromLocal8Bit(qgetenv("GTLAB_ABI_TEST_MARKER"));
+            if (path.isEmpty())
+            {
+                return;
+            }
+
+            QFile marker(path);
+            if (marker.open(QIODevice::WriteOnly))
+            {
+                marker.write(QByteArray::number(externalAbiDependencyValue()));
+            }
+        }
+    };
+
+    ExternalModuleLoadMarker loadMarker;
+
+} // namespace
+#endif
 
 // Minimal external module used to verify the installed GTlab package exports
 // the ABI metadata and CMake integration required by downstream consumers.
@@ -24,3 +55,5 @@ public:
         return QStringLiteral("External module package smoke test");
     }
 };
+
+#include "external_abi_smoke.moc"

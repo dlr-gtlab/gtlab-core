@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+ - Standardized CMake install and module paths (libraries in `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`, modules in `build/modules`) and added relocatable RPATHs. Deployment scripts may need updating. - #1621
+ - GTlab and external modules now require CMake 3.18 or newer. - #1621
 
 ### Fixed
  - Fixed object links and property connections becoming invalid after using Save Project As - #31

@@ -446,7 +446,7 @@ target_include_directories(GTlabGui PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models>
 
     # includes for consumer after install
-    $<INSTALL_INTERFACE:include/core>
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core>"
 )
 
 target_link_libraries(GTlabGui
@@ -463,18 +463,16 @@ target_link_libraries(GTlabGui
 )
 
 
-set_target_properties(GTlabGui PROPERTIES 
-  # set rpath to lib directory, since it is installed to lib/core
-  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/..") 
+gtlab_set_install_rpath(GTlabGui RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
 
 
 install(TARGETS GTlabGui
     EXPORT GTlabTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    RUNTIME DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}"
+    LIBRARY DESTINATION "${GTLAB_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${GTLAB_INSTALL_LIBDIR}"
 )
 
-install(FILES ${headers} DESTINATION include/core)
+install(FILES ${headers} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core")
 
 ######################################################################

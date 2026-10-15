@@ -8,7 +8,7 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #          \____/ /_/ /_/\__,_/_.___/
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 
 # make sure conan can be used
 if (EXISTS ${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
@@ -26,6 +26,8 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
 endif()
 
 project(GTlab-Core VERSION 2.1.0)
+
+include("${PROJECT_SOURCE_DIR}/cmake/GTlabInstallLayout.cmake")
 
 set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
 # Bump this value only when a change breaks the binary compatibility contract
@@ -108,10 +110,10 @@ add_subdirectory(docs)
 # ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
 # License installation
-install(DIRECTORY LICENSES/ DESTINATION share/gtlab/LICENSES)
+install(DIRECTORY LICENSES/ DESTINATION "${CMAKE_INSTALL_DATADIR}/gtlab/LICENSES")
 
 # write exports
-install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+install(EXPORT GTlabTargets DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 # create package version file
 include(CMakePackageConfigHelpers)
@@ -124,7 +126,7 @@ write_basic_package_version_file(
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlabConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/GTlab"
+    INSTALL_DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab"
     NO_SET_AND_CHECK_MACRO
     NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
@@ -134,7 +136,7 @@ install (FILES
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/GTlabConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+  DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)

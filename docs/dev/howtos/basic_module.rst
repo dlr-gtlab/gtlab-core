@@ -33,7 +33,7 @@ into the module repository.
 
 .. code-block:: cmake
 
-  cmake_minimum_required(VERSION 3.15)
+  cmake_minimum_required(VERSION 3.18)
   project(MyModule VERSION 0.1.0 LANGUAGES CXX)
 
   find_package(GTlab REQUIRED)
@@ -54,10 +54,10 @@ into the module repository.
   )
 
 ``add_gtlab_module`` creates the shared library, defines ``GT_MODULE_ID``, and
-installs the library in GTlab's module directory. Treat ``MODULE_ID`` as a
-persistent identifier: it identifies settings, log messages, metadata, and
-stored module data. Changing it after releasing the module can make existing
-installations and projects inconsistent.
+sets up its installation. Treat ``MODULE_ID`` as a persistent identifier: it
+identifies settings, log messages, metadata, and stored module data. Changing
+it after releasing the module can make existing installations and projects
+inconsistent.
 
 The helper names the native library automatically using the GTlab module ABI,
 for example ``MyModule.gtm.2.1.so`` or ``MyModule.gtm.2.1.dll``. The
@@ -127,12 +127,19 @@ Configure against the GTlab installation and select a writable install prefix:
   cmake --build build
   cmake --install build
 
+By default, the module binary is built in ``build/modules`` and installed to
+``bin/modules`` (Release) or ``binDebug/modules`` (Debug). GTlab configures
+the library search paths automatically.
+
 If you cannot install the module into the GTlab installation, choose a separate
 prefix and add its module directory under :menuselection:`Edit --> Preferences
 --> Module Directories`. For temporary development runs, the
 ``GTLAB_MODULE_DIRS`` environment variable can contain additional module
 directories. Use the platform path-list separator (``:`` on Linux and macOS,
 ``;`` on Windows).
+
+For advanced build and installation options, see
+:doc:`CMake configuration <../reference/cmake_variables>`.
 
 Restart GTlab after installing a rebuilt module. Confirm that it appears in
 the module overview and that its version and description are correct. A quick
