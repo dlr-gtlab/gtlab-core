@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+# SPDX-License-Identifier: MPL-2.0+
+
 """Smoke-test bump2version release transitions against the real version files."""
 
 import shutil
@@ -32,13 +35,17 @@ class BumpVersionTest(unittest.TestCase):
         self.original_changelog = (self.workdir / "CHANGELOG.md").read_bytes()
 
     def bump(self, *args):
-        subprocess.run(
+        result = subprocess.run(
             ["bump2version", "--no-commit", "--no-tag", *args],
             cwd=self.workdir,
             capture_output=True,
             text=True,
-            check=True,
         )
+        if result.returncode:
+            self.fail(
+                f"bump2version {args} failed with exit code {result.returncode}:\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
 
     def check_version(self, version, cmake_version):
         config = (self.workdir / ".bumpversion.cfg").read_text()
