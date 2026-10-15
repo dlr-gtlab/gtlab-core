@@ -62,6 +62,9 @@ In case you own GTlab's development tools, you can simplify CMake's configure st
     
    cmake -S . -B build -DGTLAB_DEVTOOLS_DIR=<path/to/devtools> -DQt5_DIR=<path/to/cmake/Qt5> -DCMAKE_INSTALL_PREFIX=<path/to/install>
 
+For additional build and installation options, see
+:doc:`CMake configuration <../reference/cmake_variables>`.
+
 
 Build with Conan
 ----------------
