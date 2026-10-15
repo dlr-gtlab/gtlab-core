@@ -14,6 +14,9 @@
 
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
+#include "gt_object.h"
+
+#include <QThread>
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
@@ -24,7 +27,11 @@ public:
     bool m_monitoring{false};
 
     /// Object that registered this property, used for recording
-    const GtObject* owner{nullptr};
+    QPointer<const GtObject> owner;
+
+    /// Whether changes mark the owner as changed (registered directly or as
+    /// sub-property at registration time)
+    bool notifyOwner{false};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -204,7 +211,7 @@ GtAbstractProperty::setActive(bool val)
     if (m_optional && m_active != val)
     {
         m_active = val;
-        emit changed();
+        notifyChanged();
     }
 }
 
@@ -440,19 +447,42 @@ GtAbstractProperty::setOwnerObject(const GtObject& owner)
 {
     if (m_pimpl->owner == &owner) return;
 
-    if (!m_pimpl->owner)
-    {
-        // one permanent connection per property; direct, so that the
-        // recording hook runs in the thread that changed the property
-        connect(this, &GtAbstractProperty::changed, this, [this]() {
-            gt::detail::recordPropertyWritten(*this);
-        }, Qt::DirectConnection);
-    }
-
     m_pimpl->owner = &owner;
 
     for (GtAbstractProperty* sub : qAsConst(m_subProperties))
     {
         sub->setOwnerObject(owner);
     }
+}
+
+void
+GtAbstractProperty::enableOwnerNotification()
+{
+    m_pimpl->notifyOwner = true;
+}
+
+void
+GtAbstractProperty::notifyChanged()
+{
+    // the owner is notified without a connection per property to save memory
+    if (const GtObject* constOwner = m_pimpl->owner.data())
+    {
+        // runs in the thread that changed the property
+        gt::detail::recordPropertyWritten(*this);
+
+        if (m_pimpl->notifyOwner)
+        {
+            auto* owner = const_cast<GtObject*>(constOwner);
+            auto notify = [owner, p = this]() {
+                owner->setFlag(GtObject::HasOwnChanges, true);
+                emit owner->dataChanged(owner, p);
+            };
+
+            // same behaviour as the former auto connection
+            if (owner->thread() == QThread::currentThread()) notify();
+            else QMetaObject::invokeMethod(owner, notify, Qt::QueuedConnection);
+        }
+    }
+
+    emit changed();
 }

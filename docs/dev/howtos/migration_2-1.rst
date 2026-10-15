@@ -5,7 +5,8 @@ The main changes in GTlab 2.1 are:
 
 - GTlab 2.1 uses **Qt6**,
 - module CMake projects should follow the updated GTlab integration pattern,
-- selected deprecated APIs are removed.
+- selected deprecated APIs are removed,
+- property classes report changes through ``notifyChanged()``.
 
 This section is organized as follows:
 
@@ -43,6 +44,29 @@ Start with API migration. For every deprecated API listed below:
 1. Identify all usages in your codebase.
 2. Replace usages with the recommended alternatives.
 3. Rebuild your project and verify warnings are gone.
+
+Property Change Notification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In 2.1, a property notifies its object and the recording hook directly
+instead of through a Qt connection per property (see
+:doc:`/architecture/decisions/0003-opt-in-recording`). Property
+classes must report changes with ``notifyChanged()``:
+
+.. code-block:: cpp
+
+    // before
+    emit changed();
+
+    // 2.1
+    notifyChanged();
+
+A property that emits ``changed()`` directly still notifies its own receivers,
+but its object is neither marked as changed nor emits ``dataChanged()``, and
+the change is not recorded.
+
+Properties derived from ``GtProperty<T>`` that change their value through
+``setVal()`` need no changes.
 
 Deprecated APIs Removed in 2.1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -518,4 +542,5 @@ Upgrade Checklist
 Before upgrading to GTlab 2.1:
 
 - Remove all calls to deprecated functions.
+- Replace ``emit changed()`` with ``notifyChanged()`` in property classes.
 - Replace all deprecated types with modern counterparts.
