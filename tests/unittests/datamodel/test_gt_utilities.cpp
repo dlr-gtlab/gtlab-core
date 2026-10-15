@@ -169,9 +169,9 @@ TEST_F(TestGtUtilities, finally_nothrow_member_function)
     m.lock();
 
     auto finally = gt::finally(&m, &QMutex::unlock);
-    static_assert(std::is_nothrow_invocable<
-                      decltype(&QMutex::unlock), QMutex*>::value,
-                  "Must use noexcept member function");
+    static_assert(
+        std::is_nothrow_invocable<decltype(&QMutex::unlock), QMutex*>::value,
+        "Must use noexcept member function");
     static_assert(std::is_nothrow_invocable<
                       typename decltype(finally)::function_type>::value,
                   "Expected wrapping lambda to be noexcept too");
@@ -182,9 +182,9 @@ TEST_F(TestGtUtilities, finally_throwable_member_function)
     QString s;
 
     auto finally = gt::finally(&s, &QString::clear);
-    static_assert(!std::is_nothrow_invocable<
-                      decltype(&QString::clear), QString*>::value,
-                  "Must use nnoexcept(false) member function");
+    static_assert(
+        !std::is_nothrow_invocable<decltype(&QString::clear), QString*>::value,
+        "Must use nnoexcept(false) member function");
     static_assert(!std::is_nothrow_invocable<
                       typename decltype(finally)::function_type>::value,
                   "Expected wrapping lambda to be noexcept(false) too");
@@ -229,47 +229,50 @@ TEST_F(TestGtUtilities, finally_throwable_std_function)
 // gt::Finally must not throw on invocation -> should swallow all exceptions
 TEST_F(TestGtUtilities, finally_invoke_with_exception)
 {
-    EXPECT_NO_THROW(
-        {
-            auto finally = gt::finally([](){
-                throw std::logic_error("this is a test exception");
-            });
-        }
-        );
-    EXPECT_NO_THROW(
-        {
-            auto finally = gt::finally([](){
-                throw 42;
-            });
-        }
-        );
+    EXPECT_NO_THROW({
+        auto finally = gt::finally(
+            []() { throw std::logic_error("this is a test exception"); });
+    });
+    EXPECT_NO_THROW({ auto finally = gt::finally([]() { throw 42; }); });
 }
 
 // only copy ctor is noexcept(true)
 class CopyConstructible
 {
 public:
-    CopyConstructible() noexcept(true) {}
-    CopyConstructible(CopyConstructible const&) noexcept(true) {}
+    CopyConstructible() noexcept(true)
+    {
+    }
+    CopyConstructible(CopyConstructible const&) noexcept(true)
+    {
+    }
     CopyConstructible(CopyConstructible&&) noexcept(false)
     {
         throw std::logic_error{"should not have been called!"};
     }
     CopyConstructible& operator=(CopyConstructible const&) = delete;
     CopyConstructible& operator=(CopyConstructible&&) = delete;
-    ~CopyConstructible() noexcept {}
+    ~CopyConstructible() noexcept
+    {
+    }
 
-    void operator()() noexcept {}
+    void operator()() noexcept
+    {
+    }
 
     // custom swap function is needed
-    friend void swap(CopyConstructible& a, CopyConstructible& b) noexcept { }
+    friend void swap(CopyConstructible& a, CopyConstructible& b) noexcept
+    {
+    }
 };
 
 // only move ctor is noexcept(true)
 class MoveConstructible
 {
 public:
-    MoveConstructible() noexcept(true) {}
+    MoveConstructible() noexcept(true)
+    {
+    }
     MoveConstructible(MoveConstructible const&) noexcept(false)
     {
         throw std::logic_error{"should not have been called!"};
@@ -277,12 +280,18 @@ public:
     MoveConstructible(MoveConstructible&&) noexcept(true) {};
     MoveConstructible& operator=(MoveConstructible const&) = delete;
     MoveConstructible& operator=(MoveConstructible&&) = delete;
-    ~MoveConstructible() noexcept {}
+    ~MoveConstructible() noexcept
+    {
+    }
 
-    void operator()() noexcept {}
+    void operator()() noexcept
+    {
+    }
 
     // custom swap function is needed
-    friend void swap(MoveConstructible& a, MoveConstructible& b) noexcept { }
+    friend void swap(MoveConstructible& a, MoveConstructible& b) noexcept
+    {
+    }
 };
 
 TEST_F(TestGtUtilities, finally_nothrow_copy_constructible)

@@ -16,12 +16,10 @@ void
 gt::detail::logCriticalException(const char* origin, const char* what) noexcept
 {
     gtFatal().nospace()
-        << '\''
-        << origin
+        << '\'' << origin
         << "' caught an unexpected exception!\n"
            "Note:  The application may be in an instable state. Reporting the "
            "issue and restarting the application is adviced!\n"
            "Error: '"
-        << (what ? what : "n/a")
-        << '\'';
+        << (what ? what : "n/a") << '\'';
 }
