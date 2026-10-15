@@ -96,6 +96,36 @@ class BumpVersionTest(unittest.TestCase):
         self.bump("stage")
         self.check_version("2.1.1", "2.1.1")
 
+    def test_release_tag_and_untagged_dev_commit(self):
+        def run(*args):
+            result = subprocess.run(
+                args, cwd=self.workdir, capture_output=True, text=True
+            )
+            if result.returncode:
+                self.fail(f'{args} failed:\n{result.stdout}\n{result.stderr}')
+            return result.stdout.strip()
+
+        run('git', 'init', '-q')
+        run('git', 'config', 'user.name', 'GTlab Release Test')
+        run('git', 'config', 'user.email', 'release-test@example.invalid')
+        run('git', 'add', '.')
+        run('git', 'commit', '-qm', 'fixture')
+
+        run('bump2version', '--new-version', '2.1.0-alpha.1', 'stage')
+        self.assertEqual(run('git', 'tag', '--list'), 'v2.1.0-alpha.1')
+        self.assertIn(
+            '#define GT_VERSION_STRING "2.1.0-alpha.1"',
+            run('git', 'show', 'v2.1.0-alpha.1:src/dataprocessor/gt_version.h'),
+        )
+
+        run('bump2version', '--no-tag', 'development')
+        self.assertEqual(run('git', 'tag', '--list'), 'v2.1.0-alpha.1')
+        self.check_version('2.1.0-alpha.1.dev', '2.1.0')
+        self.assertIn(
+            '#define GT_VERSION_STRING "2.1.0-alpha.1.dev"',
+            run('git', 'show', 'HEAD:src/dataprocessor/gt_version.h'),
+        )
+        self.assertEqual(len(run('git', 'log', '--format=%H').splitlines()), 3)
 
 if __name__ == "__main__":
     unittest.main()
