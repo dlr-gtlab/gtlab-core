@@ -395,6 +395,45 @@ TEST_F(TestGtUtilities, finally_move_lambda)
     EXPECT_TRUE(called);
 }
 
+TEST_F(TestGtUtilities, finally_move_std_function)
+{
+    bool called = false;
+    std::function<void()> myFunction = [&]() { called = true; };
+
+    auto finally1 = gt::finally(myFunction);
+
+    auto finally2 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_FALSE(called);
+
+    finally2.finalize();
+
+    EXPECT_TRUE(called);
+
+    called = false;
+
+    decltype(finally1) finally3;
+    finally3 = gt::finally(myFunction);
+
+    finally3.finalize();
+
+    EXPECT_TRUE(called);
+}
+
+TEST_F(TestGtUtilities, finally_move_self)
+{
+    bool called = false;
+    std::function<void()> myFunction = [&]() { called = true; };
+
+    auto finally1 = gt::finally(myFunction);
+
+    finally1 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_TRUE(called);
+}
+
 struct MyMoveOnlyFunctor
 {
     bool moved = false, called = false;
@@ -449,32 +488,6 @@ TEST_F(TestGtUtilities, finally_move_functor)
     EXPECT_TRUE(finally2.get().called);
     EXPECT_FALSE(finally3.get().moved);
     EXPECT_TRUE(finally3.get().called);
-}
-
-TEST_F(TestGtUtilities, finally_move_std_function)
-{
-    bool called = false;
-    std::function<void()> myFunction = [&]() { called = true; };
-
-    auto finally1 = gt::finally(myFunction);
-
-    auto finally2 = std::move(finally1);
-
-    finally1.finalize();
-    EXPECT_FALSE(called);
-
-    finally2.finalize();
-
-    EXPECT_TRUE(called);
-
-    called = false;
-
-    decltype(finally1) finally3;
-    finally3 = gt::finally(myFunction);
-
-    finally3.finalize();
-
-    EXPECT_TRUE(called);
 }
 
 TEST_F(TestGtUtilities, clamp)
