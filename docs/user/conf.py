@@ -22,7 +22,7 @@ copyright = '2024, German Aerospace Center'
 author = 'Martin Siggel, DLR AT'
 
 # The full version, including alpha/beta/rc tags
-release = "2.1.0-dev"
+release = "2.1.0-alpha.1"
 
 
 # -- General configuration ---------------------------------------------------
