@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
 
 ### Fixed
+ - Fixed object links and property connections becoming invalid after using Save Project As - #31
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 

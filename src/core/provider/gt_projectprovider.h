@@ -18,10 +18,7 @@
 #include <QStringList>
 
 class GtProject;
-class GtAbstractProperty;
-class GtObjectLinkProperty;
 class GtObject;
-class GtPropertyConnection;
 
 class QDir;
 
@@ -217,35 +214,6 @@ private:
      * @return
      */
     bool generateModuleFile(const QString& id);
-
-    /**
-     * @brief objecgtLinkProperties
-     * @param obj
-     * @return
-     */
-    QList<GtObjectLinkProperty*> objectLinkProperties(GtObject* obj);
-
-    /**
-     * @brief fullPropertyList
-     * @param obj
-     * @return
-     */
-    QList<GtAbstractProperty*> fullObjectPropertyList(GtObject* obj);
-
-    /**
-     * @brief fullPropertyPropertyList
-     * @param obj
-     * @return
-     */
-    QList<GtAbstractProperty*> fullPropertyList(GtAbstractProperty* p);
-
-    /**
-     * @brief resetUuid
-     * @param obj
-     * @param mapping
-     */
-    void resetUuid(GtObject* obj, QMap<QString, QString>& mapping);
-
 };
 
 #endif // GTPROJECTPROVIDER_H
