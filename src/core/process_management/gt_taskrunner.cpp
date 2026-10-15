@@ -321,44 +321,44 @@ GtTaskRunner::handleRunnableFinished()
         return;
     }
 
-    auto cleanup = gt::finally([this]() {
-        m_initialData.clear();
-        delete m_runnable.data();
-    });
-
-    m_dataToMerge.clear();
-    bool missingInitialSnapshot = false;
-    for (const GtObjectMemento& result : m_runnable->outputData())
     {
-        const auto initialRoot = std::find_if(
-            m_initialData.cbegin(), m_initialData.cend(),
-            [&result](const GtObjectMemento& memento) {
-                return findMemento(memento, result.uuid()) != nullptr;
-            });
+        auto cleanup = gt::finally([this]() {
+            m_initialData.clear();
+            delete m_runnable.data();
+        });
 
-        const GtObjectMemento* initial = nullptr;
-        if (initialRoot != m_initialData.cend())
+        m_dataToMerge.clear();
+        bool missingInitialSnapshot = false;
+        for (const GtObjectMemento& result : m_runnable->outputData())
         {
-            initial = findMemento(*initialRoot, result.uuid());
+            const auto initialRoot = std::find_if(
+                m_initialData.cbegin(), m_initialData.cend(),
+                [&result](const GtObjectMemento& memento) {
+                    return findMemento(memento, result.uuid()) != nullptr;
+                });
+
+            const GtObjectMemento* initial = nullptr;
+            if (initialRoot != m_initialData.cend())
+            {
+                initial = findMemento(*initialRoot, result.uuid());
+            }
+
+            if (!initial)
+            {
+                missingInitialSnapshot = true;
+                gtError() << tr("Task output has no initial data snapshot:")
+                          << result.uuid();
+                continue;
+            }
+
+            m_dataToMerge.append({*initial, result});
         }
 
-        if (!initial)
+        if (missingInitialSnapshot && m_task)
         {
-            missingInitialSnapshot = true;
-            gtError() << tr("Task output has no initial data snapshot:")
-                      << result.uuid();
-            continue;
+            m_task->setState(GtProcessComponent::FAILED);
         }
-
-        m_dataToMerge.append({*initial, result});
     }
-
-    if (missingInitialSnapshot && m_task)
-    {
-        m_task->setState(GtProcessComponent::FAILED);
-    }
-
-    cleanup.finalize();
 
     emit finished();
 }
