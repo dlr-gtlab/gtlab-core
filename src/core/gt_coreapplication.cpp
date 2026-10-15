@@ -54,11 +54,8 @@ static const auto init_logging_destination_once = [](){
 }();
 
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
-GtVersionNumber GtCoreApplication::m_version = {GT_VERSION_MAJOR,
-                                                GT_VERSION_MINOR,
-                                                GT_VERSION_PATCH,
-                                                GT_VERSION_PRE_RELEASE,
-                                                GT_VERSION_BUILD};
+GtVersionNumber GtCoreApplication::m_version =
+    GtVersionNumber{QStringLiteral(GT_VERSION_STRING)};
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
