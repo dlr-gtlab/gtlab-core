@@ -62,7 +62,7 @@ jobs:
     - name: Build external module consumer (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib -Dhdf5_DIR="$HDF5_DIR"
+        cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib -Dhdf5_DIR="$HDF5_DIR"
         cmake --build build/external-consumer --target install --config Debug
         cmake -E chdir build/external-consumer ctest -C Debug -R ExternalModuleInstallLayout --output-on-failure
 
