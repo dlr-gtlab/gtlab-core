@@ -138,6 +138,9 @@ prefix and add its module directory under :menuselection:`Edit --> Preferences
 directories. Use the platform path-list separator (``:`` on Linux and macOS,
 ``;`` on Windows).
 
+For advanced build and installation options, see
+:doc:`CMake configuration <../reference/cmake_variables>`.
+
 Restart GTlab after installing a rebuilt module. Confirm that it appears in
 the module overview and that its version and description are correct. A quick
 check is :menuselection:`Help --> About GTlab --> Modules` or the
