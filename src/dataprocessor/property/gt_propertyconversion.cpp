@@ -8,21 +8,22 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_propertyconversion.h"
+#include "gt_boolproperty.h"
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
 
-gt::conversion::conversionSuccess
+gt::conversion::ConversionResult<int>
 gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
-                                  GtAbstractProperty& target)
+                                  const GtAbstractProperty& target)
 {
     const auto& from = static_cast<const GtDoubleProperty&>(source);
-    auto& to = static_cast<GtIntProperty&>(target);
+    auto& to = static_cast<const GtIntProperty&>(target);
 
     double baseValue = from.getVal();
 
     if (qIsNaN(baseValue) || qIsInf(baseValue))
     {
-        return gt::conversion::conversionSuccess::Failed;
+        return ConversionResult<int>::failed();
     }
 
     const double rounded = std::round(baseValue);
@@ -30,19 +31,19 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
     if (rounded < std::numeric_limits<int>::lowest() ||
         rounded > std::numeric_limits<int>::max())
     {
-        return gt::conversion::conversionSuccess::Failed;
+        return ConversionResult<int>::failed();
     }
 
     int result = static_cast<int>(rounded);
 
     if (to.lowSideBoundaryActive() && result < to.lowSideBoundary())
     {
-        return gt::conversion::conversionSuccess::Failed;
+        return ConversionResult<int>::failed();
     }
 
     if (to.highSideBoundaryActive() && result > to.highSideBoundary())
     {
-        return gt::conversion::conversionSuccess::Failed;
+        return ConversionResult<int>::failed();
     }
 
     // Difference to original double
@@ -52,18 +53,9 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
     const double tolerance = std::numeric_limits<double>::epsilon() *
                              std::max(1.0, std::abs(baseValue));
 
-    bool success = true;
-
-    to.setVal(result, &success);
-
-    if (!success)
-    {
-        return gt::conversion::conversionSuccess::Failed;
-    }
-
     if (error > tolerance)
     {
-        return gt::conversion::conversionSuccess::Lossy;
+        return ConversionResult<int>::lossy(result);
     }
 
     if (from.unitCategory() != GtUnit::None &&
@@ -74,10 +66,10 @@ gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
                            .arg(from.objectName(), to.objectName(),
                                 from.unitCategoryToString());
 
-        return gt::conversion::conversionSuccess::Lossy;
+        return ConversionResult<int>::lossy(result);
     }
 
-    return gt::conversion::conversionSuccess::Success;
+    return ConversionResult<int>::success(result);
 }
 
 bool
@@ -87,18 +79,16 @@ gt::conversion::fromDouble::canConnectToInt(const GtAbstractProperty& source,
     return true;
 }
 
-gt::conversion::conversionSuccess
+gt::conversion::ConversionResult<double>
 gt::conversion::fromInt::toDouble(const GtAbstractProperty& source,
-                                  GtAbstractProperty& target)
+                                  const GtAbstractProperty& target)
 {
     const auto& from = static_cast<const GtIntProperty&>(source);
-    auto& to = static_cast<GtDoubleProperty&>(target);
+    //auto& to = static_cast<const GtDoubleProperty&>(target);
 
     double res = double(from.getVal());
 
-    to.setVal(res);
-
-    return gt::conversion::conversionSuccess::Success;
+    return gt::conversion::ConversionResult<double>::success(res);
 }
 
 bool
@@ -108,20 +98,26 @@ gt::conversion::fromInt::canConnectToDouble(const GtAbstractProperty& source,
     return true;
 }
 
-gt::conversion::conversionSuccess
-gt::conversion::defaultConverter(const GtAbstractProperty& source,
-                                 GtAbstractProperty& target)
+gt::conversion::ConversionResult<QVariant>
+gt::conversion::defaultConverter(
+    const GtAbstractProperty& source,
+    const GtAbstractProperty& target)
 {
-    QVariant sourceVal = source.valueToVariant();
-    QVariant targetVal = target.valueToVariant();
+    const QVariant sourceVal = source.valueToVariant();
+    const QVariant targetVal = target.valueToVariant();
 
-    if (sourceVal.typeName() == targetVal.typeName())
+    if (!sourceVal.isValid() || !targetVal.isValid())
     {
-        target.setValueFromVariant(sourceVal);
-        return gt::conversion::conversionSuccess::Success;
+        return gt::conversion::ConversionResult<QVariant>::failed();
     }
 
-    return gt::conversion::conversionSuccess::Failed;
+    // Both properties must contain the same metatype.
+    if (sourceVal.userType() != targetVal.userType())
+    {
+        return gt::conversion::ConversionResult<QVariant>::failed();
+    }
+
+    return gt::conversion::ConversionResult<QVariant>::success(sourceVal);
 }
 
 bool
@@ -193,4 +189,51 @@ gt::conversion::fromDouble::canConnectToDouble(const GtAbstractProperty& source,
     }
 
     return true;
+}
+
+bool
+gt::conversion::fromBool::canConnectToInt(const GtAbstractProperty& source,
+                                          const GtAbstractProperty& target)
+{
+    return true;
+}
+
+bool
+gt::conversion::fromInt::canConnectToBool(const GtAbstractProperty& source,
+                                          const GtAbstractProperty& target)
+{
+    return true;
+}
+
+gt::conversion::ConversionResult<bool>
+gt::conversion::fromInt::toBool(const GtAbstractProperty& source,
+                                const GtAbstractProperty& target)
+{
+    const auto& from = static_cast<const GtIntProperty&>(source);
+
+    bool converted = from.getVal() != 0;
+
+    if (from.getVal() != 1 && from.getVal() != 0)
+    {
+        return gt::conversion::ConversionResult<bool>::lossy(converted);
+    }
+
+    return gt::conversion::ConversionResult<bool>::success(converted);
+}
+
+gt::conversion::ConversionResult<int>
+gt::conversion::fromBool::toInt(const GtAbstractProperty& source,
+                                const GtAbstractProperty& target)
+{
+    const auto& from = static_cast<const GtBoolProperty&>(source);
+    auto& to = static_cast<const GtIntProperty&>(target);
+
+    int result = 0;
+
+    if (from.get())
+    {
+        result = 1;
+    }
+
+    return gt::conversion::ConversionResult<int>::success(result);
 }

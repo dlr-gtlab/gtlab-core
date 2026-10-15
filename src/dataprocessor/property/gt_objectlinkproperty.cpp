@@ -39,6 +39,7 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         gtPropConversion().registerConnectionCompatibility(
             GtObjectLinkProperty::staticMetaObject,
             GtObjectLinkProperty::staticMetaObject,
+            gt::conversion::defaultConverter,
             // can connect
             [](GtAbstractProperty const& a, // LCOV_EXCL_LINE
                GtAbstractProperty const& b) -> bool {

@@ -11,14 +11,9 @@
 
 GtPropertyConverter::GtPropertyConverter(
     QMetaObject from, QMetaObject to, gt::conversion::convert conversion,
-    gt::conversion::canConnect canConnect) :
-    m_from(from), m_to(to), m_conversion(conversion), m_canConnect(canConnect)
-{
-}
-
-GtPropertyConverter::GtPropertyConverter(QMetaObject from, QMetaObject to,
-                                         gt::conversion::convert conversion) :
-    GtPropertyConverter(from, to, conversion, {})
+    gt::conversion::isCompatible isCompatible) :
+    m_from(from), m_to(to), m_conversion(conversion),
+    m_isCompatibleFunc(isCompatible)
 {
 }
 
@@ -34,10 +29,10 @@ GtPropertyConverter::toClassName() const
     return m_to.className();
 }
 
-gt::conversion::canConnect
-GtPropertyConverter::canConnectFunc() const
+gt::conversion::isCompatible
+GtPropertyConverter::isCompatibletFunc() const
 {
-    return m_canConnect;
+    return m_isCompatibleFunc;
 }
 
 gt::conversion::convert
@@ -47,9 +42,9 @@ GtPropertyConverter::convertFunc() const
 }
 
 bool
-GtPropertyConverter::canConnectDefined() const
+GtPropertyConverter::isCompatibleDefined() const
 {
-    if (m_canConnect) return true;
+    if (m_isCompatibleFunc) return true;
     return false;
 }
 

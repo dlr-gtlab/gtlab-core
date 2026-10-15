@@ -228,19 +228,31 @@ inline void GtProperty<ParamType>::setValFromConnection()
 
     if (!conversion) return;
 
-    // this is a workaround to keep the current interface of properties
-    // but also enables the setting of the property via a connection
-    auto cleanup =
-        gt::finally([oldCon = m_connection, this]() { m_connection = oldCon; });
-    Q_UNUSED(cleanup);
-    m_connection = {};
+    const auto result = conversion(*source, *this);
 
-    gt::conversion::conversionSuccess ret =
-        conversion(*source, static_cast<GtAbstractProperty&>(*this));
+    if (result.status == gt::conversion::conversionSuccess::Failed ||
+        !result.value)
+    {
+        return;
+    }
 
-    if (ret == gt::conversion::conversionSuccess::Failed) return;
+    const QVariant& variant = *result.value;
 
-    if (ret == gt::conversion::conversionSuccess::Lossy)
+    if (!variant.isValid() || !variant.canConvert<ParamType>()) return;
+
+    bool success = false;
+
+    forceSetVal(variant.value<ParamType>(), &success);
+
+    if (!success)
+    {
+        gtError() << tr("The property %1 could not be set to %2 by "
+                        "connection from %3")
+                         .arg(ident(), variant.toString(), source->ident());
+        return;
+    }
+
+    if (result.status == gt::conversion::conversionSuccess::Lossy)
     {
         gtWarning() << tr("Conversion of %1 to %2 indicated some "
                           "infomation loss.")

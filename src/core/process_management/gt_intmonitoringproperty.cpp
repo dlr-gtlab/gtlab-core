@@ -10,7 +10,6 @@
  */
 
 #include "gt_intmonitoringproperty.h"
-#include "gt_propertyconversionregistry.h"
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
                                                  const QString& name,
@@ -18,17 +17,6 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
     GtIntProperty(ident, name, brief)
 {
     setMonitoring(true);
-    // this additional registration is needed as long
-    // as int monitoring properties are used in GTlab
-    static auto initOnce = []() {
-        gtPropConversion().registerConnectionCompatibility(
-            GtIntMonitoringProperty::staticMetaObject,
-            GtIntProperty::staticMetaObject,
-            [](GtAbstractProperty const&, // LCOV_EXCL_LINE
-               GtAbstractProperty const&) -> bool { return true; });
-
-        return 0;
-    }();
 }
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
