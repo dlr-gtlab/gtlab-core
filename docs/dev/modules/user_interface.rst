@@ -22,12 +22,21 @@ Choose the smallest contribution
      - Register a ``GtMdiItem`` class through ``mdiItems()``.
    * - Module-wide tool that follows project changes
      - Register a ``GtDockWidget`` class through ``dockWidgets()``.
+   * - A module page inside the Process Dock
+     - Register a :cpp:class:`GtProcessDockPage` factory with
+       ``gt::gui::registerProcessDockPage()``.
+   * - An action in the Process Dock's Add or component context menu
+     - Register a ``GtObjectUIAction`` with
+       ``gt::gui::registerProcessAddAction()`` or
+       ``gt::gui::registerProcessContextAction()``.
    * - Custom post-processing template or plot
      - Register it through ``postItems()`` or ``postPlots()``.
 
 The complete registration pattern is documented in
 :ref:`mdiinterface`. GUI modules link ``GTlab::Gui`` and register concrete
 classes as Qt metadata; GTlab creates instances when users invoke the feature.
+For module-provided pages and actions inside the Process Dock, see
+:doc:`user_interface/process_dock`.
 
 Separate responsibilities
 -------------------------
@@ -60,3 +69,4 @@ must also handle their target object being removed outside the widget.
 
    user_interface/icons
    user_interface/stylesheets
+   user_interface/process_dock
