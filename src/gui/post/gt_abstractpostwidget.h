@@ -16,7 +16,7 @@
 
 #include <QList>
 #include <QWidget>
-
+#include <QIcon>
 
 class GtPostTemplateItem;
 class QPrinter;
