@@ -296,7 +296,7 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
                                     gt::conversion::fromInt::toBool,
                                     gt::conversion::fromInt::canConnectToBool);
 
-    // converter from bool to nit
+    // converter from bool to int
     registerConnectionCompatibility(GtBoolProperty::staticMetaObject,
                                     GtIntProperty::staticMetaObject,
                                     gt::conversion::fromBool::toInt,

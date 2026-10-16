@@ -32,7 +32,9 @@ class TestDatamodelInterface : public QObject,
 public:
     /**
      * @brief init
-     * In this test case a property conversion from bool to int is registered
+     * No conversions are registered here, the converters of the
+     * standard property types are registered by the
+     * GtPropertyConversionRegistry itself
      */
     void init() override;
 

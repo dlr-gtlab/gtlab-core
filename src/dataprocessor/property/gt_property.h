@@ -133,7 +133,13 @@ private:
     void forceSetVal(const ParamType& value, bool* success = nullptr);
 
     /**
-     * @brief setValFromConnection
+     * @brief Updates the property value from the connected source
+     * property
+     *
+     * The value is computed with the conversion function registered
+     * for the source/target property type pair. If no conversion is
+     * available or the conversion fails, the current value is kept. A
+     * lossy conversion is indicated by a warning.
      */
     void setValFromConnection() override;
 
