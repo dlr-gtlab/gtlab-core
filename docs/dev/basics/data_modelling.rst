@@ -252,6 +252,227 @@ As a result, besides the actual value of the property, an additional switch (act
 See :cpp:func:`GtAbstractProperty::setOptional()`, :cpp:func:`GtAbstractProperty::isOptional()`,
 :cpp:func:`GtAbstractProperty::setActive()` and  :cpp:func:`GtAbstractProperty::isActive()`.
 
+Property Connections
+^^^^^^^^^^^^^^^^^^^^
+
+A property connection transfers the value of one property (the source) to another property (the target). In a process chain, for example, the monitoring property of a calculator supplies the input property of the next process element. Connections are created in the connection editor of the process environment. Whenever the value of the source property changes, the target property is updated with the value computed by the registered conversion function.
+
+Whether two properties can be connected is decided per property type pair. A *connection compatibility check* (an ``isCompatible`` function) defines which targets are allowed, and a *conversion function* computes the value of the target property, also for pairs with different data types. Both are registered in the property conversion registry, which is accessed via :cpp:func:`gtPropConversion`.
+
+The conversion function only computes the value: both properties are passed as const references. The assignment to the target property is done by the receiving property, which keeps its previous value if the conversion fails.
+
+Making a Property Connectable
+"""""""""""""""""""""""""""""
+
+Only properties that are marked as connectable are offered as ports in the connection editor. The standard value properties (``GtDoubleProperty``, ``GtIntProperty``, ``GtBoolProperty``, ``GtStringProperty`` and ``GtObjectLinkProperty``) are connectable by default. Properties without a transferable value, such as ``GtColorProperty``, ``GtLabelProperty`` or ``GtFileChooserProperty``, are not connectable.
+
+In a custom property class the flag can be set or overridden in the constructor:
+
+.. code-block:: cpp
+
+   GtMyProperty::GtMyProperty(const QString& ident, const QString& name)
+   {
+       ...
+       setConnectable();      // allow connections (default)
+       // or
+       setConnectable(false); // exclude the property from connections
+   }
+
+See :cpp:func:`GtAbstractProperty::setConnectable` and :cpp:func:`GtAbstractProperty::isConnectable`.
+
+Checking Connection Compatibility
+"""""""""""""""""""""""""""""""""
+
+The function :cpp:func:`GtAbstractProperty::canConnect` checks, based on the registered compatibility functions, whether a given property can serve as target of this property:
+
+.. code-block:: cpp
+
+   bool isAllowed = sourceProp.canConnect(targetProp);
+
+The check is directional: a registration for the pair *A to B* does not allow a connection from *B* to *A*. The connection editor uses this function to mark valid connection targets, and the connection setup itself refuses to create a connection if the check fails.
+
+If no converter is registered for a type pair, an implicit default check applies: the connection is accepted if both properties hold a value of the same type, and the value is transferred without conversion.
+
+.. note::
+
+   The registry follows the metaobject inheritance chain of both properties. A registration for a base type pair, e.g. ``GtDoubleProperty`` to ``GtIntProperty``, also applies to derived types such as ``GtDoubleMonitoringProperty``. If several registrations match, the pair with the smallest sum of the inheritance depths of source and target wins; if the sums are equal, the more specific source type is preferred, followed by the more specific target type. An explicitly registered converter is preferred over the implicit default conversion at the same position.
+
+   For a custom property type, a converter is registered in the constructor of the property class. The registration is global, so a static local variable should be used to ensure that it happens only once.
+
+Registering a Conversion
+""""""""""""""""""""""""
+
+The conversion and the compatibility function for a type pair are registered via :cpp:func:`GtPropertyConversionRegistry::registerConnectionCompatibility`. The functions use the following signatures:
+
+.. code-block:: cpp
+
+   // returns true if the source may be connected to the target
+   using isCompatible = std::function<bool(GtAbstractProperty const& from,
+                                           GtAbstractProperty const& to)>;
+
+   // computes the value of the target property
+   using convert = std::function<ConversionResult<QVariant>(
+                                                            GtAbstractProperty const& from, GtAbstractProperty const& to)>;
+
+The conversion function returns a ``gt::conversion::ConversionResult`` struct that combines the computed value with a status of the ``gt::conversion::conversionSuccess`` enum:
+
+- ``Success`` — the value has been converted without loss of information
+- ``Lossy`` — the value has been converted, but part of the information was lost (a warning is logged)
+- ``Failed`` — the value could not be converted, the target property keeps its previous value
+
+As an example, a module registers a conversion from a custom property type to an int property in the ``init()`` function of the module interface:
+
+.. code-block:: cpp
+
+   #include "gt_propertyconversionregistry.h"
+   #include "gt_intproperty.h"
+
+   void
+   MyModule::init()
+   {
+       auto& registry = gtPropConversion();
+
+       registry.registerConnectionCompatibility(
+           GtMyProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+           [](GtAbstractProperty const& source, GtAbstractProperty const& target)
+               -> gt::conversion::ConversionResult<int> {
+               const auto& from = static_cast<const GtMyProperty&>(source);
+               const auto& to = static_cast<const GtIntProperty&>(target);
+
+               const int value = from.getVal();
+
+               if (to.lowSideBoundaryActive() && value < to.lowSideBoundary())
+               {
+                   return gt::conversion::ConversionResult<int>::failed();
+               }
+
+               return gt::conversion::ConversionResult<int>::success(value);
+           },
+           [](GtAbstractProperty const&, GtAbstractProperty const&) {
+               return true;
+           });
+   }
+
+The typed conversion callable is type-erased by the registry, so the conversion function may return a ``ConversionResult`` of any value type that can be stored in a ``QVariant``.
+
+The ``init()`` function of :cpp:class:`GtModuleInterface` is called on application startup and is a suitable place for a module to register its property conversions. The registry is a global singleton, so the registration is performed once per process. Alternatively, a property class can register its own converter in its constructor, as the standard property types do.
+
+.. note::
+
+   A type pair can only be registered once. If a converter for the pair already exists, the new registration is ignored with a warning.
+
+Built-in Conversions
+""""""""""""""""""""
+
+The standard property types are handled by converters that are registered when the registry is created (pairs of different types) and by the property classes themselves (pairs of identical types):
+
+.. list-table::
+   :header-rows: 1
+
+   * - From
+     - To
+     - Compatibility check / conversion
+   * - (no registered converter)
+     - (any property type)
+     - implicit default: connectable if both properties hold a value of the same type; the value is copied without conversion
+   * - ``GtDoubleProperty``
+     - ``GtIntProperty``
+     - always connectable; the value is rounded to the nearest integer. The conversion fails for NaN/Inf values, values outside the range of ``int``, and values outside the active boundaries of the target. Loss of a decimal part or of unit information is reported as *Lossy*.
+   * - ``GtIntProperty``
+     - ``GtDoubleProperty``
+     - always connectable; the value is converted without loss
+   * - ``GtIntProperty``
+     - ``GtBoolProperty``
+     - always connectable; zero is converted to false, any other value to true. Values other than zero and one are reported as *Lossy*.
+   * - ``GtBoolProperty``
+     - ``GtIntProperty``
+     - always connectable; false is converted to zero, true to one. The conversion is lossless.
+   * - ``GtDoubleProperty``
+     - ``GtDoubleProperty``
+     - connectable if the unit categories match (or one of the properties has no unit) and the active value ranges overlap
+   * - ``GtIntProperty``
+     - ``GtIntProperty``
+     - connectable if the active value ranges overlap
+   * - ``GtObjectLinkProperty``
+     - ``GtObjectLinkProperty``
+     - connectable if at least one class allowed on the source is allowed on the target, or vice versa
+
+The converters for pairs of different types are registered when the registry is created, e.g.:
+
+.. code-block:: cpp
+
+   // converter from double to int
+   registerConnectionCompatibility(
+       GtDoubleProperty::staticMetaObject, GtIntProperty::staticMetaObject,
+       gt::conversion::fromDouble::toInt,
+       gt::conversion::fromDouble::canConnectToInt);
+
+The converters for pairs of identical types are registered in the constructor of the property class, e.g. ``GtIntProperty`` registers a converter for ``GtIntProperty`` to ``GtIntProperty``. These converters use the default conversion and a type-specific compatibility check.
+
+The *double to int* conversion function shows a typical implementation. It validates the value, respects the boundaries of the target property, and reports information loss:
+
+.. code-block:: cpp
+
+   gt::conversion::ConversionResult<int>
+   gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
+                                     const GtAbstractProperty& target)
+   {
+       const auto& from = static_cast<const GtDoubleProperty&>(source);
+       const auto& to = static_cast<const GtIntProperty&>(target);
+
+       double baseValue = from.getVal();
+
+       if (qIsNaN(baseValue) || qIsInf(baseValue))
+       {
+           return ConversionResult<int>::failed();
+       }
+
+       const double rounded = std::round(baseValue);
+
+       if (rounded < std::numeric_limits<int>::lowest() ||
+           rounded > std::numeric_limits<int>::max())
+       {
+           return ConversionResult<int>::failed();
+       }
+
+       int result = static_cast<int>(rounded);
+
+       if (to.lowSideBoundaryActive() && result < to.lowSideBoundary())
+       {
+           return ConversionResult<int>::failed();
+       }
+
+       if (to.highSideBoundaryActive() && result > to.highSideBoundary())
+       {
+           return ConversionResult<int>::failed();
+       }
+
+       // Difference to original double
+       const double error = std::abs(baseValue - rounded);
+
+       // Tolerance in relation to magnitude of property value
+       const double tolerance = std::numeric_limits<double>::epsilon() *
+                                std::max(1.0, std::abs(baseValue));
+
+       if (error > tolerance)
+       {
+           return ConversionResult<int>::lossy(result);
+       }
+
+       if (from.unitCategory() != GtUnit::None &&
+           from.unitCategory() != GtUnit::NonDimensional)
+       {
+           gtWarning() << QObject::tr("Conversion from %1 to %2 indicates a loss "
+                                      "of the unit information (%3)")
+                               .arg(from.objectName(), to.objectName(),
+                                    from.unitCategoryToString());
+
+           return ConversionResult<int>::lossy(result);
+       }
+
+       return ConversionResult<int>::success(result);
+   }
+
 Object Flags
 ------------
 

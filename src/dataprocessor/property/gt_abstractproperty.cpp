@@ -15,6 +15,8 @@
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
 
+#include "gt_propertyconversionregistry.h"
+
 GtAbstractProperty::~GtAbstractProperty() = default;
 
 class GtAbstractProperty::Impl
@@ -22,6 +24,8 @@ class GtAbstractProperty::Impl
 public:
     /// Monitoring indicator
     bool m_monitoring{false};
+
+    bool m_propertyConnectionEnabled{false};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -397,6 +401,24 @@ GtAbstractProperty::setValFromConnection()
 }
 
 void
+GtAbstractProperty::setConnectable(bool flag)
+{
+    m_pimpl->m_propertyConnectionEnabled = flag;
+}
+
+bool
+GtAbstractProperty::isConnectable() const
+{
+    return m_pimpl->m_propertyConnectionEnabled;
+}
+
+bool
+GtAbstractProperty::canConnect(GtAbstractProperty const& b)
+{
+    return gtPropConversion().connectionCheckAvailable(*this, b);
+}
+
+void
 GtAbstractProperty::onTriggerValueTransfer()
 {
     setValFromConnection();
@@ -417,7 +439,14 @@ GtAbstractProperty::setOptional(bool val)
     }
 }
 
-QVariant gt::getConnectedValue(const GtPropertyConnection &connection)
+QVariant
+gt::getConnectedValue(const GtPropertyConnection& connection)
 {
     return connection.valueFromSource();
+}
+
+GtAbstractProperty*
+gt::getConnectedProperty(const GtPropertyConnection& connection)
+{
+    return connection.sourcePropObject();
 }

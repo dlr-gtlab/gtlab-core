@@ -96,3 +96,30 @@ TEST(TestGtProperty, categoryString)
     EXPECT_TRUE(boolProp->category() ==
                 GtAbstractProperty::PropertyCategory::Custom);
 }
+
+TEST(TestGtProperty, isConnectable)
+{
+    GtIntProperty intProp("int", "intName");
+    GtDoubleProperty doubleProp("double", "doubleName", "doubleBrief",
+                                GtUnit::Category::None, 4.0);
+    GtStringProperty stringProp("string", "stringName");
+    GtBoolProperty boolProp("bool", "boolName");
+
+    EXPECT_TRUE(intProp.isConnectable());
+    EXPECT_TRUE(doubleProp.isConnectable());
+    EXPECT_TRUE(stringProp.isConnectable());
+    EXPECT_TRUE(boolProp.isConnectable());
+}
+
+TEST(TestGtProperty, setConnectable)
+{
+    GtIntProperty prop("int", "intName");
+
+    ASSERT_TRUE(prop.isConnectable());
+
+    prop.setConnectable(false);
+    EXPECT_FALSE(prop.isConnectable());
+
+    prop.setConnectable();
+    EXPECT_TRUE(prop.isConnectable());
+}
