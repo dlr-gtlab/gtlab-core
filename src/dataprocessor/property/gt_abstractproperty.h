@@ -289,25 +289,25 @@ public:
     bool collapsedByDefault() const;
 
     /**
-     * @brief set the flag if the property should be connectable to other
-     * properties, e.g. in connection editor
-     *
-     * @param flag
+     * @brief Sets whether the property can be connected to other
+     * properties, e.g. in the property connection editor
+     * @param flag true if the property is connectable
      */
     void setConnectable(bool flag = true);
 
     /**
-     * @brief give flag if property is meant to be connected to other property
-     * values as e.g. in the property connection editor
-     * @return
+     * @brief Returns whether the property is meant to be connected to
+     * other property values as e.g. in the property connection editor
+     * @return true if the property is connectable
      */
     bool isConnectable() const;
 
     /**
-     * @brief Checks based on the registered connection options
-     * if the property b might be connected to the given property
-     * @param b
-     * @return true if it is allowed
+     * @brief Checks if this property can be connected to another
+     * property, based on the converters registered in the
+     * GtPropertyConversionRegistry
+     * @param b Target property to check the connection against
+     * @return true if the connection is allowed
      */
     bool canConnect(const GtAbstractProperty& b);
 
@@ -354,7 +354,12 @@ protected:
     QPointer<GtPropertyConnection> m_connection{nullptr};
 
     /**
-     * @brief setValFromConnection
+     * @brief Updates the property value from the connected source
+     * property
+     *
+     * Called when the value of the connected source property is
+     * changed. The default implementation does nothing, derived
+     * classes transfer the converted source value to the property.
      */
     virtual void setValFromConnection();
 
@@ -394,10 +399,10 @@ QVariant getConnectedValue(const GtPropertyConnection& connection);
 
 
 /**
- * @brief getConnectedProperty
- * Returns a reference of a source property of a property connection
- * @param connection
- * @return
+ * @brief Returns the source property of a property connection
+ * @param connection Property connection
+ * @return Pointer to the source property of the connection, or nullptr
+ * if the connection is not established
  */
 GT_DATAMODEL_EXPORT
 GtAbstractProperty* getConnectedProperty(

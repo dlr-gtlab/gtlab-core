@@ -103,6 +103,11 @@ public:
      */
     bool isConnected();
 
+    /**
+     * @brief Returns the source property of the connection.
+     * @return Pointer to the source property, or nullptr if the
+     * connection is not established.
+     */
     QPointer<GtAbstractProperty> sourcePropObject() const;
 
 private:
