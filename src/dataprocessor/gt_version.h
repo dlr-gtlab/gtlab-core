@@ -14,7 +14,7 @@
 #define GT_VERSION_MAJOR 2
 #define GT_VERSION_MINOR 1
 #define GT_VERSION_PATCH 0
-#define GT_VERSION_STRING "2.1.0-alpha.1"
+#define GT_VERSION_STRING "2.1.0-alpha.1.dev"
 
 /*
    can be used like #if (GT_VERSION >= GT_VERSION_CHECK(4, 4, 0))
