@@ -198,9 +198,11 @@ private:
  */
 template <typename Functor,
           typename = std::enable_if_t<std::is_invocable<Functor>::value>>
-inline auto finally(Functor func) noexcept(
-    std::is_nothrow_move_constructible<Functor>::value)
+inline auto finally(Functor func) noexcept
 {
+    static_assert(std::is_nothrow_move_constructible<Functor>::value ||
+                      std::is_nothrow_copy_constructible<Functor>::value,
+                  "Functor must be nothrow move- or copy-constructible!");
     return Finally<Functor>{std::move_if_noexcept(func)};
 }
 
