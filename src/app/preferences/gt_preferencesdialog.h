@@ -44,6 +44,11 @@ public:
      */
     QString currentPageTitle() const;
 
+    /**
+     * @brief Returns whether the user chose to restart after saving settings.
+     */
+    bool restartRequested() const;
+
 public slots:
     /**
      * @brief changePage
@@ -76,6 +81,9 @@ private:
 
     /// non owning vector of page references
     QVector<GtPreferencesPage*> m_pages;
+
+    /// Whether the user chose to restart after saving settings
+    bool m_restartRequested;
 
     /**
      * @brief Loads the internally stored settings into

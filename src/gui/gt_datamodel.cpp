@@ -9,12 +9,15 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <atomic>
+
 #include "gt_object.h"
 #include "gt_algorithms.h"
 #include "gt_application.h"
 #include "gt_loadprojecthelper.h"
 #include "gt_saveprojecthelper.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
@@ -163,13 +166,26 @@ GtDataModel::saveProject(GtProject *project)
         return false;
     }
 
+    GtProjectExecutionGuard projectGuard;
+    if (projectGuard.tryAcquire(project) !=
+        GtProjectExecutionGuard::Result::Acquired)
+    {
+        gtWarning() << tr("Cannot save project while it is being executed.");
+        return false;
+    }
+
     // saving procedure
     GtSaveProjectHelper* helper = new GtSaveProjectHelper(project);
+    std::atomic_bool saveSucceeded{false};
+    connect(
+        helper, &GtSaveProjectHelper::finished, helper,
+        [&saveSucceeded, helper]() { saveSucceeded.store(helper->success()); },
+        Qt::DirectConnection);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataSaved()));
 
     gtApp->loadingProcedure(helper);
 
-    return true;
+    return saveSucceeded.load();
 }
 
 QModelIndexList
