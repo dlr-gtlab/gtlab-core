@@ -17,7 +17,8 @@
 #include "gt_abstractcollectionsettings.h"
 
 /**
- * @brief The GtCollectionSettings class
+ * @brief The GtCollectionSettings class. Default implementation of
+ * `GtAbstractCollectionSettings`
  */
 class GT_GUI_EXPORT GtCollectionSettings : public GtAbstractCollectionSettings
 {
