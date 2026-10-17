@@ -111,6 +111,17 @@ GtApplication::loadModules()
     }
 }
 
+void
+GtApplication::initModules()
+{
+    GtCoreApplication::initModules();
+
+    if (m_guiModuleLoader)
+    {
+        m_guiModuleLoader->initModulesGUI();
+    }
+}
+
 const QStringList&
 GtApplication::perspectiveIds()
 {

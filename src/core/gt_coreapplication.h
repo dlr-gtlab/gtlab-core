@@ -457,7 +457,7 @@ public:
     /**
      * @brief Initializes all loaded modules.
      */
-    void initModules();
+    virtual void initModules();
 
     /**
      * @brief Saves module environemnt variables temporary in the system
