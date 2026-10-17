@@ -121,7 +121,7 @@ public:
      * data, framework crashes.
      * @return current version number of module
      */
-    virtual GtVersionNumber version() = 0;
+    virtual GtVersionNumber version() const = 0;
 
     /**
      * @brief By implementing this function, the module passes a short
