@@ -16,6 +16,16 @@
 #include <stdexcept>
 #include <thread>
 
+namespace
+{
+    std::unique_ptr<GtObject> makeOutcomePayload(QString name)
+    {
+        auto result = std::make_unique<GtObjectGroup>();
+        result->setObjectName(std::move(name));
+        return result;
+    }
+} // namespace
+
 TestOperation::TestOperation(GtObject* parent) :
     GtExecutableOperation(parent),
     m_requiresProject(QStringLiteral("requiresProject"), tr("Requires Project"),
@@ -71,15 +81,16 @@ TestOperation::execute(GtOperationExecutionContext& context)
         return {GtOperationExecutionResult::Status::Failed,
                 QStringLiteral("test_operation_failed"),
                 QStringLiteral("Test operation returned a failure."),
-                {}};
+                makeOutcomePayload(QStringLiteral("Failed Outcome Payload"))};
     }
 
     if (m_returnsCancellation.getVal())
     {
-        return {GtOperationExecutionResult::Status::Cancelled,
-                QStringLiteral("test_operation_cancelled"),
-                QStringLiteral("Test operation was cancelled."),
-                {}};
+        return {
+            GtOperationExecutionResult::Status::Cancelled,
+            QStringLiteral("test_operation_cancelled"),
+            QStringLiteral("Test operation was cancelled."),
+            makeOutcomePayload(QStringLiteral("Cancelled Outcome Payload"))};
     }
 
     // Regression coverage for events published from a worker thread:

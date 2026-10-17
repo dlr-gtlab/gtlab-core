@@ -176,7 +176,10 @@ GtTask::exec()
     // start iteration
     if (!runIteration())
     {
-        setState(GtProcessComponent::FAILED);
+        if (currentState() != GtProcessComponent::TERMINATED)
+        {
+            setState(GtProcessComponent::FAILED);
+        }
         return false;
     }
 

@@ -55,9 +55,8 @@ project at the execution location remains available through
 Operation submission is asynchronous for the caller, while ``execute()`` stays
 synchronous in the calling thread. ``GtOperationExecutor`` owns preparation,
 async lifecycle, backend selection, cancellation requests, and transport of
-operation outcomes. The executor also gates result application based on its
-lifecycle and cancellation policy. The selected backend owns placement and
-provisioning or reconstruction.
+operation outcomes. The selected backend owns placement and provisioning or
+reconstruction.
 
 GtExecutionEnvironment boundary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,14 +90,10 @@ project and installs an explicitly empty context. This makes legacy current-
 project accessors return ``nullptr`` instead of falling back to a GUI/session
 project.
 
-Cancellation remains effective until the originating side starts
-``applyResult()``. If cancellation is requested before then, the executor does
-not call ``applyResult()``; it may still return or expose the detached result
-payload to the client. Once ``applyResult()`` starts, cancellation no longer
-interrupts that commit step. The executor owns this lifecycle/cancellation
-gate, but it does not interpret the outcome. When called, ``applyResult()``
-receives the complete outcome and the operation interprets its statuses and
-result payload.
+Cancellation is cooperative while ``execute()`` runs. Once execution has
+returned an outcome, ``applyResult()`` may also run for cancelled operations.
+The operation decides whether to apply the result to the originating project.
+Cancellation does not interrupt an ongoing ``applyResult()`` call.
 
 Operation outcome and environment errors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,9 +183,14 @@ compatibility. The file writer remains the primary event channel.
 Task and worker integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Existing ``GtTask`` and calculator code remains unchanged. A later
-``ProcessTaskOperation`` adapter (#1531) connects it to the operation model and
-may reuse ``GtCoreProcessExecutor`` internally. Generic operation and
+Existing ``GtTask`` and calculator code remains unchanged. The
+``ProcessTaskOperation`` adapter (#1531) resolves a task on the originating
+side and returns a detached clone of that task as operation data. At the
+execution location it uses that detached task with ``GtCoreProcessExecutor``
+and the execution-local project. Task/process state, progress, and monitoring
+property updates are execution events. Project changes are returned in a
+serializable ``GtObject`` containing the XML of a ``GtObjectMementoDiff``; the
+task itself is not returned as a diff. Generic operation and
 execution-environment code does not depend on task lookup or task-specific
 state.
 

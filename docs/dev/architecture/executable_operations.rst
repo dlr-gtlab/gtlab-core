@@ -68,9 +68,10 @@ and services from ``GtOperationExecutionContext``; it must not access the
 originating project directly.
 
 Execution infrastructure may run this call asynchronously, in another process,
-or on a remote worker. Cancellation requested before ``applyResult()`` prevents
-the result from being applied to the originating project. Once
-``applyResult()`` starts, the apply step is not interrupted.
+or on a remote worker. Once an operation outcome exists, the operation's
+``applyResult()`` decides how its status and payload affect the originating
+project, including for a ``Cancelled`` outcome. Cancellation does not interrupt
+``applyResult()`` once that step starts.
 
 ``requiresProject()`` states whether this invocation needs a GTlab project
 at the execution location. It does not select the execution location. When it
@@ -120,8 +121,10 @@ domain failure is ``Error::None`` with an operation outcome whose status is
 ``Failed``. ``ProjectRequired``, ``WrongThread``, and ``UnhandledException`` are
 boundary failures and have no operation outcome.
 
-Transport adapters encode ``status``, ``code``, and ``message`` directly.
-Only the optional ``GtObject`` result payload uses Memento and
+Transport adapters encode operation ``status``, ``code``, and ``message`` in
+the terminal result record for every operation outcome. They reserve terminal
+failure records for errors at the environment, input, transport, or protocol
+boundary. Only the optional ``GtObject`` result payload uses Memento and
 ``GtObjectFactory`` serialization. ``GtExecutionEnvironment`` performs no
 serialization.
 
@@ -144,6 +147,12 @@ The environment borrows its execution-local project and does not manage the
 project lifecycle. Cancellation is cooperative during ``execute()``. The
 environment preserves the returned status and reports exceptions escaping
 ``execute()`` as execution errors.
+
+``ProcessTaskOperation`` runs a detached copy of an existing ``GtTask``
+using ``GtCoreProcessExecutor`` and the execution-local project. Task and
+calculator state, progress, and monitoring properties are reported as events.
+Project changes are returned as a ``GtObjectMementoDiff`` stored in a
+serializable ``GtObject``. The task itself is not returned as a diff.
 
 The accepted :doc:`architecture decision
 <decisions/0001-executable-operations>` records the operation lifecycle,
