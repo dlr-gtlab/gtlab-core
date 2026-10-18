@@ -1087,7 +1087,17 @@ readProperty(const QDomElement& element, bool& error)
     QString fieldName = element.attribute(gt::xml::S_NAME_TAG);
 
     propData.name = fieldName;
-    propData.setData(propertyToVariant(element.text(), fieldType));
+    if (!element.firstChildElement(gt::xml::S_PROPERTY_TAG).isNull())
+    {
+        if (fieldType.isEmpty() || fieldName.isEmpty()) return propData;
+        propData.toStruct(fieldType);
+        propData.childProperties = readPropertyElements(
+            readProperty, element, gt::xml::S_PROPERTY_TAG);
+    }
+    else
+    {
+        propData.setData(propertyToVariant(element.text(), fieldType));
+    }
 
     QString fieldActive = element.attribute(gt::xml::S_ACTIVE_TAG);
     if (!fieldActive.isEmpty())

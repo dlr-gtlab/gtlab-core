@@ -626,6 +626,7 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) co
 bool
 GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 {
+    bool dynamicRestoreFailed = false;
 
     if (!obj.isDummy() && obj.metaObject()->className() != className())
     {
@@ -755,11 +756,13 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
             obj.makeDummy();
             obj.importMementoIntoDummy(*this);
             obj.setFlag(GtObject::SaveAsOwnFile, true);
-            return false;
+            dynamicRestoreFailed = true;
         }
-
-        ::readProperties(*this, obj);
-        ::mergeAllPropertyContainers(*this, obj);
+        else
+        {
+            ::readProperties(*this, obj);
+            ::mergeAllPropertyContainers(*this, obj);
+        }
     }
     else
     {
@@ -807,5 +810,5 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 
     obj.onObjectDataMerged();
 
-    return true;
+    return !dynamicRestoreFailed;
 }

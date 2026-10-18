@@ -18,6 +18,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_dynamicpropertyfactory.h"
 #include "gt_propertymodel.h"
+#include "gt_structproperty.h"
 #include "gt_xmlexpr.h"
 
 class TestDynamicPropertyOwner : public GtObject
@@ -82,6 +83,52 @@ public:
 private:
     int m_precision;
 };
+
+static gt::PolyVector<GtAbstractProperty>
+makePointMembers()
+{
+    gt::PolyVector<GtAbstractProperty> members;
+    auto x = std::make_unique<GtDoubleProperty>("x", "X");
+    x->setOptional(true);
+    members.push_back(std::move(x));
+    auto y = std::make_unique<GtDoubleProperty>("y", "Y");
+    y->setOptional(true);
+    members.push_back(std::move(y));
+    return members;
+}
+
+class TestStructuredDynamicProperty : public GtDoubleProperty
+{
+public:
+    TestStructuredDynamicProperty(const QString& id, const QString& name) :
+        GtDoubleProperty(id, name),
+        position("position", "Point2d", makePointMembers())
+    {
+        registerSubProperty(position);
+    }
+
+    GtPropertyStructInstance position;
+};
+
+static GtDynamicPropertyFactory::Registration
+registerStructuredDynamicProperty()
+{
+    return GtDynamicPropertyFactory::registerType(
+        QStringLiteral("org.gtlab.tests.structured-double"),
+        [](const GtAbstractProperty& property) {
+            return dynamic_cast<const TestStructuredDynamicProperty*>(
+                       &property) != nullptr;
+        },
+        [](const GtAbstractProperty&) { return QVariantMap{}; },
+        [](const QString& id, const QString& name, const QVariantMap&)
+            -> std::unique_ptr<GtAbstractProperty> {
+            auto property = std::make_unique<TestStructuredDynamicProperty>(
+                id, name);
+            property->setProperty("gt.dynamicTypeId",
+                                  "org.gtlab.tests.structured-double");
+            return property;
+        });
+}
 
 static bool
 modelContainsText(const QAbstractItemModel& model,
@@ -540,6 +587,8 @@ TEST(GtObjectDynamicProperty,
         property->nestedProperty.setVal(13.75);
         property->nestedProperty.setActive(false);
         ASSERT_TRUE(source.addDynamicProperty(std::move(property)));
+        auto child = std::make_unique<GtObject>(&source);
+        child->setObjectName(QStringLiteral("saved-child"));
         saved = GtObjectIO().toMemento(&source);
     }
 
@@ -553,6 +602,82 @@ TEST(GtObjectDynamicProperty,
     ASSERT_EQ(resaved.dynamicProperties.front().nestedProperties.size(), 1);
     EXPECT_DOUBLE_EQ(resaved.dynamicProperties.front()
                          .nestedProperties.front().data().toDouble(), 13.75);
+    ASSERT_EQ(resaved.childObjects.size(), 1);
+    EXPECT_EQ(resaved.childObjects.front().ident(), "saved-child");
+    auto* restoredChild = restored.findDirectChild<GtObject*>("saved-child");
+    ASSERT_NE(restoredChild, nullptr);
+    EXPECT_TRUE(restoredChild->isDummy());
+}
+
+TEST(GtObjectDynamicProperty,
+     ReadsAndAppliesNestedStructStateInDynamicPropertyXml)
+{
+    auto registration = registerStructuredDynamicProperty();
+    ASSERT_TRUE(registration);
+    TestDynamicPropertyOwner object;
+    auto property = std::make_unique<TestStructuredDynamicProperty>(
+        QStringLiteral("structured"), QStringLiteral("Structured"));
+    property->setProperty("gt.dynamicTypeId",
+                          "org.gtlab.tests.structured-double");
+    property->position.findProperty("x")->setValueFromVariant(1.25);
+    property->position.findProperty("x")->setActive(false);
+    property->position.findProperty("y")->setValueFromVariant(2.5);
+    ASSERT_TRUE(object.addDynamicProperty(std::move(property)));
+
+    const GtObjectMemento before = GtObjectIO().toMemento(&object);
+    const GtObjectMemento loaded(before.toByteArray());
+    ASSERT_EQ(loaded.dynamicProperties.size(), 1);
+    const auto& loadedRoot = loaded.dynamicProperties.front();
+    ASSERT_EQ(loadedRoot.nestedProperties.size(), 1);
+    const auto& loadedStruct = loadedRoot.nestedProperties.front();
+    EXPECT_EQ(loadedStruct.type(), GtObjectMemento::PropertyData::STRUCT_T);
+    ASSERT_EQ(loadedStruct.childProperties.size(), 2);
+    EXPECT_DOUBLE_EQ(loadedStruct.childProperties[0].data().toDouble(), 1.25);
+    EXPECT_FALSE(loadedStruct.childProperties[0].isActive);
+    EXPECT_DOUBLE_EQ(loadedStruct.childProperties[1].data().toDouble(), 2.5);
+
+    TestDynamicPropertyOwner restored;
+    ASSERT_TRUE(loaded.mergeTo(restored, *GtObjectFactory::instance()));
+    auto* restoredRoot = dynamic_cast<TestStructuredDynamicProperty*>(
+        restored.findProperty("structured"));
+    ASSERT_NE(restoredRoot, nullptr);
+    EXPECT_DOUBLE_EQ(restoredRoot->position.findProperty("x")->value<double>(),
+                     1.25);
+    EXPECT_FALSE(restoredRoot->position.findProperty("x")->isActive());
+    EXPECT_DOUBLE_EQ(restoredRoot->position.findProperty("y")->value<double>(),
+                     2.5);
+
+    auto* currentRoot = dynamic_cast<TestStructuredDynamicProperty*>(
+        object.findProperty("structured"));
+    ASSERT_NE(currentRoot, nullptr);
+    currentRoot->position.findProperty("x")->setValueFromVariant(8.0);
+    currentRoot->position.findProperty("x")->setActive(true);
+    currentRoot->position.findProperty("y")->setValueFromVariant(9.0);
+    currentRoot->position.findProperty("y")->setActive(false);
+    const GtObjectMemento after = GtObjectIO().toMemento(&object);
+    GtObjectMementoDiff diff(before, after);
+
+    ASSERT_TRUE(before.mergeTo(object, *GtObjectFactory::instance()));
+    ASSERT_TRUE(GtObjectIO::applyDiff(diff, &object));
+    currentRoot = dynamic_cast<TestStructuredDynamicProperty*>(
+        object.findProperty("structured"));
+    ASSERT_NE(currentRoot, nullptr);
+    EXPECT_DOUBLE_EQ(currentRoot->position.findProperty("x")->value<double>(),
+                     8.0);
+    EXPECT_TRUE(currentRoot->position.findProperty("x")->isActive());
+    EXPECT_DOUBLE_EQ(currentRoot->position.findProperty("y")->value<double>(),
+                     9.0);
+    EXPECT_FALSE(currentRoot->position.findProperty("y")->isActive());
+
+    ASSERT_TRUE(GtObjectIO::revertDiff(diff, &object));
+    currentRoot = dynamic_cast<TestStructuredDynamicProperty*>(
+        object.findProperty("structured"));
+    ASSERT_NE(currentRoot, nullptr);
+    EXPECT_DOUBLE_EQ(currentRoot->position.findProperty("x")->value<double>(),
+                     1.25);
+    EXPECT_FALSE(currentRoot->position.findProperty("x")->isActive());
+    EXPECT_DOUBLE_EQ(currentRoot->position.findProperty("y")->value<double>(),
+                     2.5);
 }
 
 TEST_F(TestGtObjectDynamicProperty,
