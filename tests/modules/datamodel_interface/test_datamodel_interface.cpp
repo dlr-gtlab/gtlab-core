@@ -13,12 +13,22 @@
 #include "test_dmi_externalobject.h"
 
 #include "gt_functionalinterface.h"
+#include "gt_doubleproperty.h"
 
 /**
  * generated (v 0.1)
  */
 
 #include "test_datamodel_interface.h"
+
+namespace
+{
+class TestDynamicDoubleProperty : public GtDoubleProperty
+{
+public:
+    using GtDoubleProperty::GtDoubleProperty;
+};
+} // namespace
 
 GtVersionNumber
 TestDatamodelInterface::version()
@@ -56,6 +66,26 @@ bool
 TestDatamodelInterface::standAlone()
 {
     return true;
+}
+
+void
+TestDatamodelInterface::registerDynamicPropertyTypes()
+{
+    m_dynamicPropertyRegistrations.emplace_back(
+        GtDynamicPropertyFactory::registerType(
+            QStringLiteral("test.datamodel.double"),
+            [](const GtAbstractProperty& property) {
+                return dynamic_cast<const TestDynamicDoubleProperty*>(&property)
+                       != nullptr;
+            },
+            [](const GtAbstractProperty&) { return QVariantMap{}; },
+            [](const QString& ident, const QString& name,
+               const QVariantMap& definition)
+                -> std::unique_ptr<GtAbstractProperty> {
+                if (!definition.isEmpty()) return {};
+                return std::make_unique<TestDynamicDoubleProperty>(ident,
+                                                                    name);
+            }));
 }
 
 QList<gt::SharedFunction> TestDatamodelInterface::sharedFunctions() const

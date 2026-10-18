@@ -24,14 +24,18 @@ namespace
 
     QMutex& registryMutex()
     {
-        static QMutex mutex;
-        return mutex;
+        // Modules may be unloaded by Qt during process shutdown, after normal
+        // function-local statics have already been destroyed. Keep the
+        // registry infrastructure alive until the process exits so a module's
+        // Registration handle can safely unregister from its destructor.
+        static QMutex* mutex = new QMutex;
+        return *mutex;
     }
 
     std::map<QString, Entry>& registry()
     {
-        static std::map<QString, Entry> entries;
-        return entries;
+        static auto* entries = new std::map<QString, Entry>;
+        return *entries;
     }
 
     quint64& nextToken()

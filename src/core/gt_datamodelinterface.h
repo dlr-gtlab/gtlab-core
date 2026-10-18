@@ -41,6 +41,15 @@ public:
     }
 
     /**
+     * @brief Registers dynamic property types provided by this module.
+     *
+     * Implementations should keep the returned registration handles alive for
+     * as long as the module remains loaded. The default implementation keeps
+     * existing modules source-compatible.
+     */
+    virtual void registerDynamicPropertyTypes() {}
+
+    /**
      * @brief Returns true if module is a stand alone module with own
      * data model structure. Otherwise module only extends the overall
      * application with additional functionalities like classes, calculators
@@ -60,4 +69,3 @@ GT_OLD_INTERFACES(GtDatamodelInterface,
                   "de.dlr.gtlab.GtDatamodelInterface/0.1")
 
 #endif // GT_DATAMODELINTERFACE_H
-

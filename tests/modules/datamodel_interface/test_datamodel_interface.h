@@ -15,6 +15,10 @@
 #include "gt_datamodelinterface.h"
 #include "gt_versionnumber.h"
 
+#include "gt_dynamicpropertyfactory.h"
+
+#include <vector>
+
 /**
  * @brief The TestDatamodelInterface class
  */
@@ -64,9 +68,14 @@ public:
      */
     bool standAlone() override;
 
+    void registerDynamicPropertyTypes() override;
+
     /* Return a custom shared function */
     QList<gt::SharedFunction> sharedFunctions() const override;
+
+private:
+    std::vector<GtDynamicPropertyFactory::Registration>
+        m_dynamicPropertyRegistrations;
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H
-
