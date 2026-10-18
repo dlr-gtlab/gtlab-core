@@ -261,7 +261,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     if (result.status == gt::conversion::conversionSuccess::Lossy)
     {
         gtWarning() << tr("Conversion of %1 to %2 indicated some "
-                          "infomation loss.")
+                          "information loss.")
                            .arg(source->ident(), ident());
     }
 }

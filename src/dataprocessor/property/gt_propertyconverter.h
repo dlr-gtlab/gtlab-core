@@ -96,7 +96,7 @@ public:
      * @return Function deciding whether two concrete property instances
      * may be connected, or an empty function if none was registered.
      */
-    gt::conversion::isCompatible isCompatibletFunc() const;
+    gt::conversion::isCompatible isCompatibleFunc() const;
 
     /**
      * @brief Returns the conversion function of the converter

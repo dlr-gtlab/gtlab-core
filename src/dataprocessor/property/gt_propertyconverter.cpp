@@ -30,7 +30,7 @@ GtPropertyConverter::toClassName() const
 }
 
 gt::conversion::isCompatible
-GtPropertyConverter::isCompatibletFunc() const
+GtPropertyConverter::isCompatibleFunc() const
 {
     return m_isCompatibleFunc;
 }

@@ -82,7 +82,7 @@ GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
         return gt::conversion::defaultCompatibility();
     }
 
-    return match.converter->isCompatibletFunc();
+    return match.converter->isCompatibleFunc();
 }
 
 gt::conversion::convert
@@ -221,7 +221,7 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
         }
 
         if (purpose == LookupPurpose::Compatibility &&
-            !converter.isCompatibletFunc())
+            !converter.isCompatibleFunc())
         {
             continue;
         }

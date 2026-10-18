@@ -52,11 +52,21 @@ TEST(TestGtPropertyConversionRegistry, builtInConversionRegistration)
 
 TEST(TestGtPropertyConversionRegistry, isCompatibleFunctionUnregistered)
 {
-    // no function is registered for this property type pair
-    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
-        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject));
-    EXPECT_FALSE(gtPropConversion().convertFunction(
-        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject));
+    // no converter is registered for this property type pair, the
+    // lookup of explicitly registered converters finds nothing
+    EXPECT_EQ(gtPropConversion().findConverterWithInheritance(
+                  GtTestRegistryPropB::staticMetaObject,
+                  GtTestRegistryPropC::staticMetaObject),
+              nullptr);
+
+    // pairs of classes sharing a common base property class still
+    // resolve to the implicit default converter
+    EXPECT_TRUE(gtPropConversion().isCompatibleFunction(
+        GtTestRegistryPropB::staticMetaObject,
+        GtTestRegistryPropC::staticMetaObject));
+    EXPECT_TRUE(gtPropConversion().convertFunction(
+        GtTestRegistryPropB::staticMetaObject,
+        GtTestRegistryPropC::staticMetaObject));
 }
 
 TEST(TestGtPropertyConversionRegistry, isCompatibleWithoutRegisteredFunction)
@@ -374,15 +384,15 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
     ASSERT_TRUE(conversion);
 
     // rounding with information loss
-    EXPECT_EQ(conversion(doubleProp, intProp).status,
-              gt::conversion::conversionSuccess::Lossy);
-    EXPECT_EQ(intProp.getVal(), 5);
+    const auto lossyResult = conversion(doubleProp, intProp);
+    EXPECT_EQ(lossyResult.status, gt::conversion::conversionSuccess::Lossy);
+    EXPECT_EQ(lossyResult.value->toInt(), 5);
 
     // exact conversion without loss
     doubleProp.setVal(4.0);
-    EXPECT_EQ(conversion(doubleProp, intProp).status,
-              gt::conversion::conversionSuccess::Success);
-    EXPECT_EQ(intProp.getVal(), 4);
+    const auto exactResult = conversion(doubleProp, intProp);
+    EXPECT_EQ(exactResult.status, gt::conversion::conversionSuccess::Success);
+    EXPECT_EQ(exactResult.value->toInt(), 4);
 
     GtIntProperty intSource("intSource", "intSourceName", QString(), 7);
     GtDoubleProperty doubleTarget("doubleTarget", "doubleTargetName",
@@ -392,13 +402,38 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
     const auto intToDouble = gtPropConversion().convertFunction(
         GtIntProperty::staticMetaObject, GtDoubleProperty::staticMetaObject);
     ASSERT_TRUE(intToDouble);
-    EXPECT_EQ(intToDouble(intSource, doubleTarget).status,
-              gt::conversion::conversionSuccess::Success);
-    EXPECT_DOUBLE_EQ(doubleTarget.getVal(), 7.0);
+    const auto intResult = intToDouble(intSource, doubleTarget);
+    EXPECT_EQ(intResult.status, gt::conversion::conversionSuccess::Success);
+    EXPECT_DOUBLE_EQ(intResult.value->toDouble(), 7.0);
 
-    // no conversion function is registered in this direction
-    EXPECT_FALSE(gtPropConversion().convertFunction(
-        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject));
+    // the conversion only computes the value, the target properties
+    // are not modified by the conversion function
+    EXPECT_EQ(intProp.getVal(), 0);
+    EXPECT_DOUBLE_EQ(doubleTarget.getVal(), 0.0);
+
+    // int to bool is registered in the registry
+    GtBoolProperty boolTarget("boolTarget", "boolTargetName", QString(),
+                              false);
+
+    const auto intToBool = gtPropConversion().convertFunction(
+        GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject);
+    ASSERT_TRUE(intToBool);
+
+    // values other than zero and one are converted with loss
+    const auto lossyBool = intToBool(intSource, boolTarget);
+    EXPECT_EQ(lossyBool.status, gt::conversion::conversionSuccess::Lossy);
+    EXPECT_TRUE(lossyBool.value->toBool());
+
+    // zero and one are converted without loss
+    intSource.setVal(0);
+    const auto zeroResult = intToBool(intSource, boolTarget);
+    EXPECT_EQ(zeroResult.status, gt::conversion::conversionSuccess::Success);
+    EXPECT_FALSE(zeroResult.value->toBool());
+
+    intSource.setVal(1);
+    const auto oneResult = intToBool(intSource, boolTarget);
+    EXPECT_EQ(oneResult.status, gt::conversion::conversionSuccess::Success);
+    EXPECT_TRUE(oneResult.value->toBool());
 }
 
 TEST(TestGtPropertyConversionRegistry, converterAccessors)
@@ -422,7 +457,7 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     EXPECT_EQ(conversionOnly.toClassName(), "GtDoubleProperty");
     EXPECT_TRUE(conversionOnly.conversionDefined());
     EXPECT_FALSE(conversionOnly.isCompatibleDefined());
-    EXPECT_FALSE(conversionOnly.isCompatibletFunc());
+    EXPECT_FALSE(conversionOnly.isCompatibleFunc());
 
     GtPropertyConverter convertInvalid(GtIntProperty::staticMetaObject,
                                        GtDoubleProperty::staticMetaObject, {},
@@ -437,7 +472,7 @@ TEST(TestGtPropertyConversionRegistry, converterAccessors)
     EXPECT_TRUE(conversionAndCanConnect.conversionDefined());
     EXPECT_TRUE(conversionAndCanConnect.isCompatibleDefined());
 
-    const auto function = conversionAndCanConnect.isCompatibletFunc();
+    const auto function = conversionAndCanConnect.isCompatibleFunc();
     ASSERT_TRUE(function);
     EXPECT_TRUE(function(GtIntProperty("int", "intName"),
                          GtDoubleProperty("double", "doubleName", "doubleBrief",
@@ -547,14 +582,14 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
 
     QString expectedWarningText = QObject::tr("Conversion of doubleProp to "
                                               "intProp indicated some "
-                                              "infomation loss.");
+                                              "information loss.");
 
     //  Expect to see no gtWarning
     auto iter = std::find_if(log.begin(), log.end(), [=](QString const& entry) {
         return entry.contains(expectedWarningText);
     });
 
-    // the initial transfer uses the built in int -> double converter
+    // the initial transfer uses the built in double -> int converter
     EXPECT_EQ(target->getInt(), 7);
 
     ASSERT_EQ(iter, log.end());
@@ -575,5 +610,5 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
             return entry.contains(expectedWarningText);
         });
 
-    ASSERT_NE(iter, log.end());
+    ASSERT_NE(iter2, log.end());
 }
