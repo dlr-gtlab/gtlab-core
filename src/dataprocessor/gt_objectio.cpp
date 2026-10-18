@@ -42,6 +42,8 @@
 
 #include "gt_objectio.h"
 
+#include <limits>
+
 const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<int>")
                                             << QStringLiteral("QList<bool>")
@@ -82,6 +84,9 @@ namespace
 
     GtObjectMemento::PropertyData
     readProperty(const QDomElement& element, bool& error);
+
+    QVector<GtObjectMemento::PropertyData>
+    readNestedPropertyElements(const QDomElement& element);
 
 
     bool
@@ -164,11 +169,12 @@ inline QString GtObjectIO::listToString<QVector<double> >(
     // this code is optimized to avoid creating temporaries / reallocating strings,
     // please don't change unless you still make it faster...
     QString str;
-    str.reserve(t.size() * (DBL_DIG + 2));
+    str.reserve(t.size() * (std::numeric_limits<double>::max_digits10 + 2));
 
     foreach (double m, t)
     {
-        str.append(QString::number(m, 'g', DBL_DIG)).append(';');
+        str.append(QString::number(
+            m, 'g', std::numeric_limits<double>::max_digits10)).append(';');
     }
     str.truncate(str.size() - 1);
 
@@ -216,12 +222,14 @@ inline QString GtObjectIO::listToString<QList<QPointF> >(
         const QList<QPointF>& t)
 {
     QString str;
-    str.reserve(2 * t.size() * (DBL_DIG + 2));
+    str.reserve(2 * t.size() * (std::numeric_limits<double>::max_digits10 + 2));
 
     for (QPointF const& m : t)
     {
-        str.append(QString::number(m.x(), 'g', DBL_DIG)).append("_").append(
-                    QString::number(m.y(), 'g', DBL_DIG)).append(';');
+        str.append(QString::number(
+            m.x(), 'g', std::numeric_limits<double>::max_digits10)).append("_").append(
+                    QString::number(
+                        m.y(), 'g', std::numeric_limits<double>::max_digits10)).append(';');
     }
     str.truncate(str.size()-1);
 
@@ -980,40 +988,7 @@ GtObjectIO::writeProperties(QDomDocument& doc,
 QVector<GtObjectMemento::PropertyData>
 GtObjectIO::readProperties(const QDomElement& element) const
 {
-    QVector<GtObjectMemento::PropertyData> properties;
-
-    QDomElement propElement = element.firstChildElement();
-
-    while (!propElement.isNull())
-    {
-        if (propElement.tagName() == gt::xml::S_PROPERTY_TAG)
-        {
-            bool error = false;
-            GtObjectMemento::PropertyData propData = readProperty(propElement,
-                                                                  error);
-
-            if (!error) properties.push_back(propData);
-        }
-        else if (propElement.tagName() == gt::xml::S_PROPERTYLIST_TAG)
-        {
-            QString fieldType = propElement.attribute(gt::xml::S_TYPE_TAG);
-            QString fieldName = propElement.attribute(gt::xml::S_NAME_TAG);
-
-            if (!fieldType.isEmpty() && !fieldName.isEmpty())
-            {
-                GtObjectMemento::PropertyData propData;
-                propData.name = fieldName;
-                propData.setData(propertyListToVariant(propElement.text(),
-                                                       fieldType));
-
-                properties.push_back(propData);
-            }
-        }
-
-        propElement = propElement.nextSiblingElement();
-    }
-
-    return properties;
+    return readNestedPropertyElements(element);
 
 }
 
@@ -1129,12 +1104,12 @@ readProperty(const QDomElement& element, bool& error)
     QString fieldName = element.attribute(gt::xml::S_NAME_TAG);
 
     propData.name = fieldName;
-    if (!element.firstChildElement(gt::xml::S_PROPERTY_TAG).isNull())
+    if (!element.firstChildElement(gt::xml::S_PROPERTY_TAG).isNull() ||
+        !element.firstChildElement(gt::xml::S_PROPERTYLIST_TAG).isNull())
     {
         if (fieldType.isEmpty() || fieldName.isEmpty()) return propData;
         propData.toStruct(fieldType);
-        propData.childProperties = readPropertyElements(
-            readProperty, element, gt::xml::S_PROPERTY_TAG);
+        propData.childProperties = readNestedPropertyElements(element);
     }
     else
     {
@@ -1149,6 +1124,35 @@ readProperty(const QDomElement& element, bool& error)
 
     error = false;
     return propData;
+}
+
+QVector<GtObjectMemento::PropertyData>
+readNestedPropertyElements(const QDomElement& element)
+{
+    QVector<GtObjectMemento::PropertyData> properties;
+    for (QDomElement child = element.firstChildElement(); !child.isNull();
+         child = child.nextSiblingElement())
+    {
+        if (child.tagName() == gt::xml::S_PROPERTY_TAG)
+        {
+            bool error = false;
+            auto data = readProperty(child, error);
+            if (!error) properties.push_back(std::move(data));
+        }
+        else if (child.tagName() == gt::xml::S_PROPERTYLIST_TAG)
+        {
+            const QString type = child.attribute(gt::xml::S_TYPE_TAG);
+            const QString name = child.attribute(gt::xml::S_NAME_TAG);
+            if (type.isEmpty() || name.isEmpty()) continue;
+            GtObjectMemento::PropertyData data;
+            data.name = name;
+            data.setData(propertyListToVariant(child.text(), type));
+            const QString active = child.attribute(gt::xml::S_ACTIVE_TAG);
+            if (!active.isEmpty()) data.isActive = QVariant(active).toBool();
+            properties.push_back(std::move(data));
+        }
+    }
+    return properties;
 }
 
 } // namespace

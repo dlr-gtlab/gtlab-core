@@ -746,17 +746,18 @@ TEST(GtObjectDynamicProperty, ReadsAndAppliesListValuedDynamicPropertyXml)
     TestDynamicPropertyOwner object;
     auto property = std::make_unique<TestDynamicListProperty>(
         QStringLiteral("samples"), QStringLiteral("Samples"));
-    property->setVal(QVector<double>{1.25, 2.5});
+    property->setVal(QVector<double>{1.2345678901234567});
     ASSERT_TRUE(object.addDynamicProperty(std::move(property)));
 
     const GtObjectMemento before = GtObjectIO().toMemento(&object);
     const QByteArray xml = before.toByteArray();
     EXPECT_TRUE(xml.contains("<propertylist")) << xml.constData();
-    EXPECT_TRUE(xml.contains("1.25;2.5"));
+    EXPECT_TRUE(xml.contains("1.2345678901234567"));
     const GtObjectMemento loaded(xml);
     ASSERT_EQ(loaded.dynamicProperties.size(), 1);
     EXPECT_EQ(loaded.dynamicProperties.front().value
-                  .value<QVector<double>>(), QVector<double>({1.25, 2.5}));
+                  .value<QVector<double>>(),
+              QVector<double>({1.2345678901234567}));
 
     TestDynamicPropertyOwner restored;
     ASSERT_TRUE(loaded.mergeTo(restored, *GtObjectFactory::instance()));
@@ -764,12 +765,12 @@ TEST(GtObjectDynamicProperty, ReadsAndAppliesListValuedDynamicPropertyXml)
         restored.findProperty("samples"));
     ASSERT_NE(restoredList, nullptr);
     EXPECT_EQ(restoredList->value<QVector<double>>(),
-              QVector<double>({1.25, 2.5}));
+              QVector<double>({1.2345678901234567}));
 
     auto* currentList = dynamic_cast<TestDynamicListProperty*>(
         object.findProperty("samples"));
     ASSERT_NE(currentList, nullptr);
-    currentList->setVal(QVector<double>{3.75, 5.0});
+    currentList->setVal(QVector<double>{2.3456789012345678});
     const GtObjectMemento after = GtObjectIO().toMemento(&object);
     GtObjectMementoDiff diff(before, after);
     ASSERT_TRUE(before.mergeTo(object, *GtObjectFactory::instance()));
@@ -779,13 +780,37 @@ TEST(GtObjectDynamicProperty, ReadsAndAppliesListValuedDynamicPropertyXml)
         object.findProperty("samples"));
     ASSERT_NE(currentList, nullptr);
     EXPECT_EQ(currentList->value<QVector<double>>(),
-              QVector<double>({3.75, 5.0}));
+              QVector<double>({2.3456789012345678}));
     ASSERT_TRUE(GtObjectIO::revertDiff(diff, &object));
     currentList = dynamic_cast<TestDynamicListProperty*>(
         object.findProperty("samples"));
     ASSERT_NE(currentList, nullptr);
     EXPECT_EQ(currentList->value<QVector<double>>(),
+              QVector<double>({1.2345678901234567}));
+}
+
+TEST(GtObjectDynamicProperty, ReadsNestedListValuesAndActivationFromXml)
+{
+    const QByteArray xml = R"(<object class="Owner" uuid="id" name="Owner">
+<dynamicProperties formatVersion="1"><property typeId="test" ident="root" name="Root">
+<definition>{}</definition><property name="root" type="double">1</property>
+<nestedProperties><property name="samples" type="Samples">
+<propertylist name="values" type="double" active="false">1.25;2.5</propertylist>
+</property></nestedProperties></property></dynamicProperties></object>)";
+
+    const GtObjectMemento loaded(xml);
+    ASSERT_TRUE(loaded.dynamicPropertiesValid);
+    ASSERT_EQ(loaded.dynamicProperties.size(), 1);
+    const auto& root = loaded.dynamicProperties.front();
+    ASSERT_EQ(root.nestedProperties.size(), 1);
+    const auto& samples = root.nestedProperties.front();
+    ASSERT_EQ(samples.type(), GtObjectMemento::PropertyData::STRUCT_T);
+    ASSERT_EQ(samples.childProperties.size(), 1);
+    const auto& values = samples.childProperties.front();
+    ASSERT_EQ(values.data().userType(), qMetaTypeId<QVector<double>>());
+    EXPECT_EQ(values.data().value<QVector<double>>(),
               QVector<double>({1.25, 2.5}));
+    EXPECT_FALSE(values.isActive);
 }
 
 TEST(GtObjectDynamicProperty, RestoresDynamicStructRootAndDiffsMembers)
