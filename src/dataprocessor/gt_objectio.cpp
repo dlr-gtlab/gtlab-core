@@ -54,6 +54,21 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
 namespace
 {
 
+    bool variantsEqual(const QVariant& lhs, const QVariant& rhs)
+    {
+        if (lhs.userType() != rhs.userType()) return false;
+        if (lhs == rhs) return true;
+
+        QByteArray lhsData;
+        QByteArray rhsData;
+        QDataStream lhsStream(&lhsData, QIODevice::WriteOnly);
+        QDataStream rhsStream(&rhsData, QIODevice::WriteOnly);
+        lhsStream << lhs;
+        rhsStream << rhs;
+        return lhsStream.status() == QDataStream::Ok &&
+               rhsStream.status() == QDataStream::Ok && lhsData == rhsData;
+    }
+
     enum class DiffMode
     {
         Apply,
@@ -396,8 +411,22 @@ GtObjectIO::toMemento(const QDomElement& e)
                         .text()
                         .toUtf8());
                 bool error = false;
-                const auto value = readProperty(
-                    entry.firstChildElement(QStringLiteral("property")), error);
+                const QDomElement listValue = entry.firstChildElement(
+                    gt::xml::S_PROPERTYLIST_TAG);
+                if (!listValue.isNull())
+                {
+                    data.value = propertyListToVariant(
+                        listValue.text(),
+                        listValue.attribute(gt::xml::S_TYPE_TAG));
+                    error = !data.value.isValid();
+                }
+                else
+                {
+                    const auto property = readProperty(
+                        entry.firstChildElement(gt::xml::S_PROPERTY_TAG),
+                        error);
+                    data.value = property.data();
+                }
                 if (!def.isObject() || error || data.typeId.isEmpty() ||
                     data.ident.isEmpty())
                 {
@@ -407,7 +436,6 @@ GtObjectIO::toMemento(const QDomElement& e)
                     continue;
                 }
                 data.definition = def.object().toVariantMap();
-                data.value = value.data();
                 const QDomElement nested = entry.firstChildElement(
                     QStringLiteral("nestedProperties"));
                 if (!nested.isNull())
@@ -636,7 +664,7 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
             -> bool {
             if (a.name != b.name || a.isActive != b.isActive ||
                 a.type() != b.type() || a.dataType() != b.dataType() ||
-                a.data() != b.data() ||
+                !variantsEqual(a.data(), b.data()) ||
                 a.childProperties.size() != b.childProperties.size())
                 return false;
             for (int i = 0; i < a.childProperties.size(); ++i)
@@ -651,7 +679,8 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
                                rhs.nestedProperties[i])) return false;
         return lhs.typeId == rhs.typeId && lhs.ident == rhs.ident &&
                lhs.name == rhs.name && lhs.definition == rhs.definition &&
-               lhs.value == rhs.value && lhs.isActive == rhs.isActive;
+               variantsEqual(lhs.value, rhs.value) &&
+               lhs.isActive == rhs.isActive;
     };
     auto currentData = [](const GtAbstractProperty& property,
                           Data& result) {
@@ -704,7 +733,10 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
         {
             Data actual;
             if (!existing || !currentData(*existing, actual) ||
-                !equal(actual, *expected)) return false;
+                !equal(actual, *expected))
+            {
+                return false;
+            }
             removedIds.push_back(op.id);
         }
         else if (existing)
@@ -728,7 +760,8 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
                 property->ident() != desired->ident ||
                 property->objectName() != desired->name ||
                 !property->isValid() ||
-                !property->setValueFromVariant(desired->value, QString()))
+                (!qobject_cast<GtPropertyStructInstance*>(property.get()) &&
+                 !property->setValueFromVariant(desired->value, QString())))
                 return false;
             property->setActive(desired->isActive);
             QHash<QString, GtAbstractProperty*> nestedById;
@@ -918,9 +951,18 @@ GtObjectIO::writeProperties(QDomDocument& doc,
                 QJsonDocument::fromVariant(property.definition)
                     .toJson(QJsonDocument::Compact))));
             entry.appendChild(definition);
-            entry.appendChild(
-                propertyToDomElement(property.ident, property.value,
-                                     property.value.typeName(), doc));
+            if (S_LISTTYPES.contains(QString::fromLatin1(
+                    property.value.typeName())))
+            {
+                entry.appendChild(propertyListToDomElement(
+                    property.ident, property.value, doc));
+            }
+            else
+            {
+                entry.appendChild(
+                    propertyToDomElement(property.ident, property.value,
+                                         property.value.typeName(), doc));
+            }
             if (!property.nestedProperties.isEmpty())
             {
                 QDomElement nested =

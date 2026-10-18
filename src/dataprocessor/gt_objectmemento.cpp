@@ -227,16 +227,24 @@ GtObjectMemento::calculateHashes() const
                  const DynamicPropertyData* rhs) {
                   return lhs->ident < rhs->ident;
               });
+    const auto addDelimitedField = [&hash](const QByteArray& field) {
+        hash.addData(QByteArray::number(field.size()));
+        hash.addData(":", 1);
+        hash.addData(field);
+    };
     for (const DynamicPropertyData* property : sortedDynamicProperties)
     {
         const auto& p = *property;
-        hash.addData(p.typeId.toUtf8());
-        hash.addData(p.ident.toUtf8());
-        hash.addData(p.name.toUtf8());
-        hash.addData(QJsonDocument::fromVariant(p.definition)
-                         .toJson(QJsonDocument::Compact));
+        hash.addData("dynamic-property-v1", 19);
+        addDelimitedField(p.typeId.toUtf8());
+        addDelimitedField(p.ident.toUtf8());
+        addDelimitedField(p.name.toUtf8());
+        addDelimitedField(QJsonDocument::fromVariant(p.definition)
+                              .toJson(QJsonDocument::Compact));
         variantHasher.addToHash(hash, p.value);
         hash.addData(p.isActive ? "1" : "0");
+        hash.addData(QByteArray::number(p.nestedProperties.size()));
+        hash.addData(":", 1);
         for (const PropertyData& nested : p.nestedProperties)
         {
             propertyHashHelper(nested, hash, variantHasher);
@@ -681,7 +689,8 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
                 property->thread() != obj.thread() || !property->isValid() ||
                 property->ident() != data.ident ||
                 property->objectName() != data.name ||
-                !property->setValueFromVariant(data.value) ||
+                (!qobject_cast<GtPropertyStructInstance*>(property.get()) &&
+                 !property->setValueFromVariant(data.value)) ||
                 ids.contains(property->ident()))
             {
                 validDynamic = false;

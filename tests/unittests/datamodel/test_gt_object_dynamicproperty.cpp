@@ -12,6 +12,7 @@
 #include <QThread>
 
 #include "gt_doubleproperty.h"
+#include "gt_doublelistproperty.h"
 #include "gt_object.h"
 #include "gt_objectfactory.h"
 #include "gt_objectio.h"
@@ -109,6 +110,64 @@ public:
 
     GtPropertyStructInstance position;
 };
+
+class TestDynamicListProperty : public GtDoubleListProperty
+{
+public:
+    using GtDoubleListProperty::GtDoubleListProperty;
+};
+
+static gt::PolyVector<GtAbstractProperty>
+makeDynamicStructMembers()
+{
+    gt::PolyVector<GtAbstractProperty> members;
+    members.push_back(std::make_unique<GtDoubleProperty>("member", "Member"));
+    return members;
+}
+
+static GtDynamicPropertyFactory::Registration
+registerDynamicListProperty()
+{
+    return GtDynamicPropertyFactory::registerType(
+        QStringLiteral("org.gtlab.tests.double-list"),
+        [](const GtAbstractProperty& property) {
+            return dynamic_cast<const TestDynamicListProperty*>(&property)
+                   != nullptr;
+        },
+        [](const GtAbstractProperty&) { return QVariantMap{}; },
+        [](const QString& id, const QString& name, const QVariantMap& config)
+            -> std::unique_ptr<GtAbstractProperty> {
+            if (!config.isEmpty()) return {};
+            return std::make_unique<TestDynamicListProperty>(id, name);
+        });
+}
+
+static GtDynamicPropertyFactory::Registration
+registerDynamicStructProperty()
+{
+    return GtDynamicPropertyFactory::registerType(
+        QStringLiteral("org.gtlab.tests.struct-root"),
+        [](const GtAbstractProperty& property) {
+            return qobject_cast<const GtPropertyStructInstance*>(&property)
+                   != nullptr;
+        },
+        [](const GtAbstractProperty&) { return QVariantMap{}; },
+        [](const QString& id, const QString& name, const QVariantMap& config)
+            -> std::unique_ptr<GtAbstractProperty> {
+            if (!config.isEmpty()) return {};
+            return std::make_unique<GtPropertyStructInstance>(
+                id, name, makeDynamicStructMembers());
+        });
+}
+
+static std::unique_ptr<GtPropertyStructInstance>
+makeDynamicStructProperty(const QString& id, const QString& name, double value)
+{
+    auto property = std::make_unique<GtPropertyStructInstance>(
+        id, name, makeDynamicStructMembers());
+    property->findProperty("member")->setValueFromVariant(value);
+    return property;
+}
 
 static GtDynamicPropertyFactory::Registration
 registerStructuredDynamicProperty()
@@ -678,6 +737,120 @@ TEST(GtObjectDynamicProperty,
     EXPECT_FALSE(currentRoot->position.findProperty("x")->isActive());
     EXPECT_DOUBLE_EQ(currentRoot->position.findProperty("y")->value<double>(),
                      2.5);
+}
+
+TEST(GtObjectDynamicProperty, ReadsAndAppliesListValuedDynamicPropertyXml)
+{
+    auto registration = registerDynamicListProperty();
+    ASSERT_TRUE(registration);
+    TestDynamicPropertyOwner object;
+    auto property = std::make_unique<TestDynamicListProperty>(
+        QStringLiteral("samples"), QStringLiteral("Samples"));
+    property->setVal(QVector<double>{1.25, 2.5});
+    ASSERT_TRUE(object.addDynamicProperty(std::move(property)));
+
+    const GtObjectMemento before = GtObjectIO().toMemento(&object);
+    const QByteArray xml = before.toByteArray();
+    EXPECT_TRUE(xml.contains("<propertylist")) << xml.constData();
+    EXPECT_TRUE(xml.contains("1.25;2.5"));
+    const GtObjectMemento loaded(xml);
+    ASSERT_EQ(loaded.dynamicProperties.size(), 1);
+    EXPECT_EQ(loaded.dynamicProperties.front().value
+                  .value<QVector<double>>(), QVector<double>({1.25, 2.5}));
+
+    TestDynamicPropertyOwner restored;
+    ASSERT_TRUE(loaded.mergeTo(restored, *GtObjectFactory::instance()));
+    auto* restoredList = dynamic_cast<TestDynamicListProperty*>(
+        restored.findProperty("samples"));
+    ASSERT_NE(restoredList, nullptr);
+    EXPECT_EQ(restoredList->value<QVector<double>>(),
+              QVector<double>({1.25, 2.5}));
+
+    auto* currentList = dynamic_cast<TestDynamicListProperty*>(
+        object.findProperty("samples"));
+    ASSERT_NE(currentList, nullptr);
+    currentList->setVal(QVector<double>{3.75, 5.0});
+    const GtObjectMemento after = GtObjectIO().toMemento(&object);
+    GtObjectMementoDiff diff(before, after);
+    ASSERT_TRUE(before.mergeTo(object, *GtObjectFactory::instance()));
+    ASSERT_TRUE(GtObjectIO::applyDiff(diff, &object))
+        << diff.toByteArray(2).constData();
+    currentList = dynamic_cast<TestDynamicListProperty*>(
+        object.findProperty("samples"));
+    ASSERT_NE(currentList, nullptr);
+    EXPECT_EQ(currentList->value<QVector<double>>(),
+              QVector<double>({3.75, 5.0}));
+    ASSERT_TRUE(GtObjectIO::revertDiff(diff, &object));
+    currentList = dynamic_cast<TestDynamicListProperty*>(
+        object.findProperty("samples"));
+    ASSERT_NE(currentList, nullptr);
+    EXPECT_EQ(currentList->value<QVector<double>>(),
+              QVector<double>({1.25, 2.5}));
+}
+
+TEST(GtObjectDynamicProperty, RestoresDynamicStructRootAndDiffsMembers)
+{
+    auto registration = registerDynamicStructProperty();
+    ASSERT_TRUE(registration);
+    TestDynamicPropertyOwner object;
+    ASSERT_TRUE(object.addDynamicProperty(
+        makeDynamicStructProperty("structRoot", "Struct Root", 1.5)));
+    const GtObjectMemento before = GtObjectIO().toMemento(&object);
+
+    const GtObjectMemento loaded(before.toByteArray());
+    TestDynamicPropertyOwner restored;
+    ASSERT_TRUE(loaded.mergeTo(restored, *GtObjectFactory::instance()));
+    auto* restoredStruct = qobject_cast<GtPropertyStructInstance*>(
+        restored.findProperty("structRoot"));
+    ASSERT_NE(restoredStruct, nullptr);
+    EXPECT_DOUBLE_EQ(restoredStruct->findProperty("member")->value<double>(),
+                     1.5);
+
+    auto* currentStruct = qobject_cast<GtPropertyStructInstance*>(
+        object.findProperty("structRoot"));
+    ASSERT_NE(currentStruct, nullptr);
+    currentStruct->findProperty("member")->setValueFromVariant(9.25);
+    const GtObjectMemento after = GtObjectIO().toMemento(&object);
+    GtObjectMementoDiff diff(before, after);
+    ASSERT_TRUE(before.mergeTo(object, *GtObjectFactory::instance()));
+    ASSERT_TRUE(GtObjectIO::applyDiff(diff, &object));
+    currentStruct = qobject_cast<GtPropertyStructInstance*>(
+        object.findProperty("structRoot"));
+    ASSERT_NE(currentStruct, nullptr);
+    EXPECT_DOUBLE_EQ(currentStruct->findProperty("member")->value<double>(),
+                     9.25);
+    ASSERT_TRUE(GtObjectIO::revertDiff(diff, &object));
+    currentStruct = qobject_cast<GtPropertyStructInstance*>(
+        object.findProperty("structRoot"));
+    ASSERT_NE(currentStruct, nullptr);
+    EXPECT_DOUBLE_EQ(currentStruct->findProperty("member")->value<double>(),
+                     1.5);
+}
+
+TEST(GtObjectDynamicProperty, HashesVariableLengthDefinitionFieldsUnambiguously)
+{
+    GtObjectMemento first;
+    first.setClassName(QStringLiteral("GtObject"))
+        .setIdent(QStringLiteral("object"))
+        .setUuid(QStringLiteral("uuid"));
+    GtObjectMemento::DynamicPropertyData firstProperty;
+    firstProperty.typeId = QStringLiteral("registered-type");
+    firstProperty.ident = QStringLiteral("a");
+    firstProperty.name = QStringLiteral("bc");
+    first.dynamicProperties.append(firstProperty);
+
+    GtObjectMemento second;
+    second.setClassName(QStringLiteral("GtObject"))
+        .setIdent(QStringLiteral("object"))
+        .setUuid(QStringLiteral("uuid"));
+    GtObjectMemento::DynamicPropertyData secondProperty = firstProperty;
+    secondProperty.ident = QStringLiteral("ab");
+    secondProperty.name = QStringLiteral("c");
+    second.dynamicProperties.append(secondProperty);
+
+    first.calculateHashes();
+    second.calculateHashes();
+    EXPECT_NE(first.propertyHash(), second.propertyHash());
 }
 
 TEST_F(TestGtObjectDynamicProperty,

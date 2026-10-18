@@ -19,12 +19,31 @@
 #include "gt_objectfactory.h"
 
 #include <QCryptographicHash>
+#include <QDataStream>
 #include <QHash>
 
 #include <algorithm>
 #include <optional>
 
 using PD = GtObjectMemento::PropertyData;
+
+namespace
+{
+bool variantsEqual(const QVariant& lhs, const QVariant& rhs)
+{
+    if (lhs.userType() != rhs.userType()) return false;
+    if (lhs == rhs) return true;
+
+    QByteArray lhsData;
+    QByteArray rhsData;
+    QDataStream lhsStream(&lhsData, QIODevice::WriteOnly);
+    QDataStream rhsStream(&rhsData, QIODevice::WriteOnly);
+    lhsStream << lhs;
+    rhsStream << rhs;
+    return lhsStream.status() == QDataStream::Ok &&
+           rhsStream.status() == QDataStream::Ok && lhsData == rhsData;
+}
+} // namespace
 
 GtObjectMementoDiff::GtObjectMementoDiff(const GtObjectMemento& left,
         const GtObjectMemento& right)
@@ -535,7 +554,7 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
             -> bool {
             if (a.name != b.name || a.isActive != b.isActive ||
                 a.type() != b.type() || a.dataType() != b.dataType() ||
-                a.data() != b.data() ||
+                !variantsEqual(a.data(), b.data()) ||
                 a.childProperties.size() != b.childProperties.size())
                 return false;
             for (int i = 0; i < a.childProperties.size(); ++i)
@@ -550,7 +569,8 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
                                right.nestedProperties[i])) return false;
         return left.typeId == right.typeId && left.ident == right.ident &&
                left.name == right.name && left.definition == right.definition &&
-               left.value == right.value && left.isActive == right.isActive;
+               variantsEqual(left.value, right.value) &&
+               left.isActive == right.isActive;
     };
     auto appendPayload = [this](QDomElement& operation, const char* tag,
                                 const Data& data) {
