@@ -13,9 +13,11 @@
 
 #include "gt_doubleproperty.h"
 #include "gt_object.h"
+#include "gt_objectfactory.h"
 #include "gt_objectio.h"
 #include "gt_objectmementodiff.h"
 #include "gt_dynamicpropertyfactory.h"
+#include "gt_propertymodel.h"
 #include "gt_xmlexpr.h"
 
 class TestDynamicPropertyOwner : public GtObject
@@ -60,18 +62,40 @@ class TestConfiguredDynamicProperty : public GtDoubleProperty
 public:
     TestConfiguredDynamicProperty(const QString& id, const QString& name,
                                   int precision) :
-        GtDoubleProperty(id, name), m_precision(precision)
+        GtDoubleProperty(id, name),
+        nestedProperty(id + QStringLiteral("_nested"),
+                       QStringLiteral("Nested")),
+        m_precision(precision)
     {
         setOptional(true);
+        nestedProperty.setOptional(true);
+        registerSubProperty(nestedProperty);
     }
     int precision() const
     {
         return m_precision;
     }
 
+public:
+    GtDoubleProperty nestedProperty;
+
 private:
     int m_precision;
 };
+
+static bool
+modelContainsText(const QAbstractItemModel& model,
+                  const QModelIndex& parent,
+                  const QString& text)
+{
+    for (int row = 0; row < model.rowCount(parent); ++row)
+    {
+        const QModelIndex index = model.index(row, 0, parent);
+        if (model.data(index, Qt::DisplayRole).toString() == text ||
+            modelContainsText(model, index, text)) return true;
+    }
+    return false;
+}
 
 static GtDynamicPropertyFactory::Registration
 registerConfiguredDynamicProperty()
@@ -303,6 +327,8 @@ TEST_F(TestGtObjectDynamicProperty, SerializesDefinitionSeparatelyFromValue)
                           "org.gtlab.tests.configured-double");
     property->setVal(12.75);
     property->setActive(false);
+    property->nestedProperty.setVal(54.5);
+    property->nestedProperty.setActive(false);
     ASSERT_TRUE(object.addDynamicProperty(std::move(property)));
 
     const GtObjectMemento saved = GtObjectIO().toMemento(&object);
@@ -315,6 +341,20 @@ TEST_F(TestGtObjectDynamicProperty, SerializesDefinitionSeparatelyFromValue)
     EXPECT_EQ(data.definition.value(QStringLiteral("precision")).toInt(), 7);
     EXPECT_DOUBLE_EQ(data.value.toDouble(), 12.75);
     EXPECT_FALSE(data.isActive);
+    ASSERT_EQ(data.nestedProperties.size(), 1);
+    EXPECT_EQ(data.nestedProperties.front().name, "configured_nested");
+    EXPECT_DOUBLE_EQ(data.nestedProperties.front().data().toDouble(), 54.5);
+    EXPECT_FALSE(data.nestedProperties.front().isActive);
+
+    TestDynamicPropertyOwner restored;
+    ASSERT_TRUE(loaded.mergeTo(restored, *GtObjectFactory::instance()));
+    auto* restoredProperty = dynamic_cast<TestConfiguredDynamicProperty*>(
+        restored.findProperty("configured"));
+    ASSERT_NE(restoredProperty, nullptr);
+    EXPECT_DOUBLE_EQ(restoredProperty->getVal(), 12.75);
+    EXPECT_FALSE(restoredProperty->isActive());
+    EXPECT_DOUBLE_EQ(restoredProperty->nestedProperty.getVal(), 54.5);
+    EXPECT_FALSE(restoredProperty->nestedProperty.isActive());
 
     auto recreated = GtDynamicPropertyFactory::create(
         data.typeId, data.ident, data.name, data.definition);
@@ -340,6 +380,11 @@ TEST_F(TestGtObjectDynamicProperty,
         configuredProperty("alpha", "Alpha", 2, 1.5)));
     ASSERT_TRUE(object.addDynamicProperty(
         configuredProperty("removed", "Removed", 5, 8.0)));
+    auto* initialAlpha = dynamic_cast<TestConfiguredDynamicProperty*>(
+        object.findProperty("alpha"));
+    ASSERT_NE(initialAlpha, nullptr);
+    initialAlpha->nestedProperty.setVal(2.25);
+    initialAlpha->nestedProperty.setActive(false);
     const GtObjectMemento before = GtObjectIO().toMemento(&object);
 
     auto oldAlpha = object.takeDynamicProperty("alpha");
@@ -350,6 +395,16 @@ TEST_F(TestGtObjectDynamicProperty,
         configuredProperty("alpha", "Renamed alpha", 4, 19.25, false)));
     ASSERT_TRUE(object.addDynamicProperty(
         configuredProperty("added", "Added", 1, 3.0)));
+    auto* changedAlpha = dynamic_cast<TestConfiguredDynamicProperty*>(
+        object.findProperty("alpha"));
+    ASSERT_NE(changedAlpha, nullptr);
+    changedAlpha->nestedProperty.setVal(19.75);
+    changedAlpha->nestedProperty.setActive(true);
+    auto* addedProperty = dynamic_cast<TestConfiguredDynamicProperty*>(
+        object.findProperty("added"));
+    ASSERT_NE(addedProperty, nullptr);
+    addedProperty->nestedProperty.setVal(3.25);
+    addedProperty->nestedProperty.setActive(false);
     const GtObjectMemento after = GtObjectIO().toMemento(&object);
     GtObjectMementoDiff diff(before, after);
 
@@ -360,8 +415,19 @@ TEST_F(TestGtObjectDynamicProperty,
     ASSERT_NE(newAdded, nullptr);
     ASSERT_TRUE(object.addDynamicProperty(
         configuredProperty("alpha", "Alpha", 2, 1.5)));
+    auto* restoredAlpha = dynamic_cast<TestConfiguredDynamicProperty*>(
+        object.findProperty("alpha"));
+    ASSERT_NE(restoredAlpha, nullptr);
+    restoredAlpha->nestedProperty.setVal(2.25);
+    restoredAlpha->nestedProperty.setActive(false);
     ASSERT_TRUE(object.addDynamicProperty(
         configuredProperty("removed", "Removed", 5, 8.0)));
+
+    GtPropertyModel model(&object);
+    model.setObject(&object);
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(), QStringLiteral("Alpha")));
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(),
+                                 QStringLiteral("Removed")));
 
     ASSERT_TRUE(GtObjectIO::applyDiff(diff, &object));
     ASSERT_EQ(object.dynamicProperties().size(), 2);
@@ -372,11 +438,21 @@ TEST_F(TestGtObjectDynamicProperty,
     EXPECT_EQ(changed->precision(), 4);
     EXPECT_DOUBLE_EQ(changed->getVal(), 19.25);
     EXPECT_FALSE(changed->isActive());
+    EXPECT_DOUBLE_EQ(changed->nestedProperty.getVal(), 19.75);
+    EXPECT_TRUE(changed->nestedProperty.isActive());
     auto* added = dynamic_cast<TestConfiguredDynamicProperty*>(
         object.findProperty("added"));
     ASSERT_NE(added, nullptr);
     EXPECT_DOUBLE_EQ(added->getVal(), 3.0);
+    EXPECT_DOUBLE_EQ(added->nestedProperty.getVal(), 3.25);
+    EXPECT_FALSE(added->nestedProperty.isActive());
     EXPECT_EQ(object.findProperty("removed"), nullptr);
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(),
+                                 QStringLiteral("Renamed alpha")));
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(), QStringLiteral("Added")));
+    EXPECT_FALSE(modelContainsText(model, QModelIndex(), QStringLiteral("Alpha")));
+    EXPECT_FALSE(modelContainsText(model, QModelIndex(),
+                                  QStringLiteral("Removed")));
 
     ASSERT_TRUE(GtObjectIO::revertDiff(diff, &object));
     ASSERT_EQ(object.dynamicProperties().size(), 2);
@@ -387,8 +463,16 @@ TEST_F(TestGtObjectDynamicProperty,
     EXPECT_EQ(reverted->precision(), 2);
     EXPECT_DOUBLE_EQ(reverted->getVal(), 1.5);
     EXPECT_TRUE(reverted->isActive());
+    EXPECT_DOUBLE_EQ(reverted->nestedProperty.getVal(), 2.25);
+    EXPECT_FALSE(reverted->nestedProperty.isActive());
     EXPECT_NE(object.findProperty("removed"), nullptr);
     EXPECT_EQ(object.findProperty("added"), nullptr);
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(), QStringLiteral("Alpha")));
+    EXPECT_TRUE(modelContainsText(model, QModelIndex(),
+                                 QStringLiteral("Removed")));
+    EXPECT_FALSE(modelContainsText(model, QModelIndex(),
+                                  QStringLiteral("Renamed alpha")));
+    EXPECT_FALSE(modelContainsText(model, QModelIndex(), QStringLiteral("Added")));
 }
 
 TEST_F(TestGtObjectDynamicProperty,
@@ -441,6 +525,61 @@ TEST_F(TestGtObjectDynamicProperty,
     EXPECT_DOUBLE_EQ(unchanged->getVal(), 1.5);
     EXPECT_TRUE(unchanged->isActive());
     EXPECT_EQ(object.findProperty("added"), nullptr);
+}
+
+TEST(GtObjectDynamicProperty,
+     RetainsDynamicRecordsWhenTheirTypeCannotBeReconstructed)
+{
+    GtObjectMemento saved;
+    {
+        auto registration = registerConfiguredDynamicProperty();
+        ASSERT_TRUE(registration);
+        TestDynamicPropertyOwner source;
+        auto property = configuredProperty("unavailable", "Unavailable",
+                                            6, 42.5, false);
+        property->nestedProperty.setVal(13.75);
+        property->nestedProperty.setActive(false);
+        ASSERT_TRUE(source.addDynamicProperty(std::move(property)));
+        saved = GtObjectIO().toMemento(&source);
+    }
+
+    TestDynamicPropertyOwner restored;
+    EXPECT_FALSE(saved.mergeTo(restored, *GtObjectFactory::instance()));
+    EXPECT_TRUE(restored.isDummy());
+    const GtObjectMemento resaved = GtObjectIO().toMemento(&restored);
+    ASSERT_EQ(resaved.dynamicProperties.size(), 1);
+    EXPECT_EQ(resaved.dynamicProperties.front().ident, "unavailable");
+    EXPECT_DOUBLE_EQ(resaved.dynamicProperties.front().value.toDouble(), 42.5);
+    ASSERT_EQ(resaved.dynamicProperties.front().nestedProperties.size(), 1);
+    EXPECT_DOUBLE_EQ(resaved.dynamicProperties.front()
+                         .nestedProperties.front().data().toDouble(), 13.75);
+}
+
+TEST_F(TestGtObjectDynamicProperty,
+       HonorsDynamicPropertyMementoStorageOptOut)
+{
+    auto transient = std::make_unique<GtDoubleProperty>("transient",
+                                                        "Transient");
+    transient->setStoreToMemento(false);
+    ASSERT_TRUE(object.addDynamicProperty(std::move(transient)));
+    GtObjectMemento transientMemento = GtObjectIO().toMemento(&object);
+    EXPECT_TRUE(transientMemento.dynamicPropertiesValid);
+    EXPECT_TRUE(transientMemento.dynamicProperties.isEmpty());
+
+    auto registration = registerConfiguredDynamicProperty();
+    ASSERT_TRUE(registration);
+    auto configured = configuredProperty("configured", "Configured", 3,
+                                         7.5);
+    configured->nestedProperty.setVal(123.0);
+    configured->nestedProperty.setStoreToMemento(false);
+    ASSERT_TRUE(object.addDynamicProperty(std::move(configured)));
+    const GtObjectMemento configuredMemento =
+        GtObjectIO().toMemento(&object);
+    ASSERT_EQ(configuredMemento.dynamicProperties.size(), 1);
+    EXPECT_EQ(configuredMemento.dynamicProperties.front().ident,
+              "configured");
+    EXPECT_TRUE(configuredMemento.dynamicProperties.front()
+                    .nestedProperties.isEmpty());
 }
 
 TEST(GtObjectDynamicProperty, ReadsLegacyXmlWithoutDynamicProperties)

@@ -234,6 +234,7 @@ public:
         QVariantMap definition;
         QVariant value;
         bool isActive{true};
+        QVector<PropertyData> nestedProperties;
     };
 
     /**

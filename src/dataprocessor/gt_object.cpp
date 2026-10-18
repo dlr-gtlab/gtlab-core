@@ -34,6 +34,8 @@ struct DummyData
 {
     QVector<GtObjectMemento::PropertyData> properties;
     QVector<GtObjectMemento::PropertyData> propertyContainers;
+    QVector<GtObjectMemento::DynamicPropertyData> dynamicProperties;
+    bool dynamicPropertiesValid{true};
     QString className;
 };
 
@@ -58,6 +60,8 @@ struct GtObject::Impl
         assert(isDummy());
         dummyData.properties = memento.properties;
         dummyData.propertyContainers = memento.propertyContainers;
+        dummyData.dynamicProperties = memento.dynamicProperties;
+        dummyData.dynamicPropertiesValid = memento.dynamicPropertiesValid;
         dummyData.className = memento.className();
     }
 
@@ -67,6 +71,8 @@ struct GtObject::Impl
         memento.setClassName(dummyData.className);
         memento.properties = dummyData.properties;
         memento.propertyContainers = dummyData.propertyContainers;
+        memento.dynamicProperties = dummyData.dynamicProperties;
+        memento.dynamicPropertiesValid = dummyData.dynamicPropertiesValid;
     }
 
     /// Object specific uuid
@@ -601,6 +607,7 @@ GtObject::addDynamicProperty(std::unique_ptr<GtAbstractProperty>&& property)
 
     setFlag(GtObject::HasOwnChanges);
     emit dataChanged(this, rawProperty);
+    emit dataChanged(this);
     return true;
 }
 
@@ -643,6 +650,7 @@ GtObject::takeDynamicProperty(const QString& id)
 
     setFlag(GtObject::HasOwnChanges);
     emit dataChanged(this, property);
+    emit dataChanged(this);
     return std::unique_ptr<GtAbstractProperty>(property);
 }
 
@@ -756,6 +764,7 @@ GtObject::replaceDynamicProperties(
         {
             emit dataChanged(this, property);
         }
+        emit dataChanged(this);
     }
     return true;
 }

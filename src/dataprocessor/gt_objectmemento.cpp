@@ -237,6 +237,10 @@ GtObjectMemento::calculateHashes() const
                          .toJson(QJsonDocument::Compact));
         variantHasher.addToHash(hash, p.value);
         hash.addData(p.isActive ? "1" : "0");
+        for (const PropertyData& nested : p.nestedProperties)
+        {
+            propertyHashHelper(nested, hash, variantHasher);
+        }
     }
 
     // store property hash
@@ -684,6 +688,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
             }
             property->setActive(data.isActive);
             property->setProperty("gt.dynamicTypeId", data.typeId);
+            QHash<QString, GtAbstractProperty*> nestedById;
             std::vector<const GtAbstractProperty*> pending;
             for (const GtAbstractProperty* child : property->fullProperties())
                 pending.push_back(child);
@@ -691,15 +696,39 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
             {
                 const GtAbstractProperty* nested = pending.back();
                 pending.pop_back();
-                if (!nested->isValid() || ids.contains(nested->ident()))
+                if (!nested->isValid() || nested->ident().isEmpty() ||
+                    ids.contains(nested->ident()) ||
+                    nestedById.contains(nested->ident()))
                 {
                     validDynamic = false;
                     break;
                 }
                 ids.insert(nested->ident());
+                nestedById.insert(nested->ident(),
+                                  const_cast<GtAbstractProperty*>(nested));
                 for (const GtAbstractProperty* child : nested->fullProperties())
                     pending.push_back(child);
             }
+            auto restoreNested = [&](const auto& self,
+                                     const PropertyData& nestedData) -> bool {
+                GtAbstractProperty* nested = nestedById.value(
+                    nestedData.name, nullptr);
+                if (!nested) return false;
+                nested->setActive(nestedData.isActive);
+                if (nestedData.type() != PropertyData::STRUCT_T &&
+                    !nested->setValueFromVariant(nestedData.data()))
+                    return false;
+                for (const PropertyData& child : nestedData.childProperties)
+                    if (!self(self, child)) return false;
+                return true;
+            };
+            if (validDynamic)
+                for (const PropertyData& nested : data.nestedProperties)
+                    if (!restoreNested(restoreNested, nested))
+                    {
+                        validDynamic = false;
+                        break;
+                    }
             if (!validDynamic) break;
             ids.insert(property->ident());
             staged.push_back(std::move(property));
@@ -717,8 +746,17 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
                 }
         }
         if (!validDynamic)
+        {
             gtError() << "Dynamic properties were not restored for object"
                       << ident();
+            const auto oldRoots = obj.dynamicProperties();
+            for (const GtAbstractProperty* property : oldRoots)
+                obj.takeDynamicProperty(property->ident());
+            obj.makeDummy();
+            obj.importMementoIntoDummy(*this);
+            obj.setFlag(GtObject::SaveAsOwnFile, true);
+            return false;
+        }
 
         ::readProperties(*this, obj);
         ::mergeAllPropertyContainers(*this, obj);

@@ -529,6 +529,25 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
     }
 
     auto equal = [](const Data& left, const Data& right) {
+        auto equalProperty = [&](const auto& self,
+                                 const GtObjectMemento::PropertyData& a,
+                                 const GtObjectMemento::PropertyData& b)
+            -> bool {
+            if (a.name != b.name || a.isActive != b.isActive ||
+                a.type() != b.type() || a.dataType() != b.dataType() ||
+                a.data() != b.data() ||
+                a.childProperties.size() != b.childProperties.size())
+                return false;
+            for (int i = 0; i < a.childProperties.size(); ++i)
+                if (!self(self, a.childProperties[i], b.childProperties[i]))
+                    return false;
+            return true;
+        };
+        if (left.nestedProperties.size() != right.nestedProperties.size())
+            return false;
+        for (int i = 0; i < left.nestedProperties.size(); ++i)
+            if (!equalProperty(equalProperty, left.nestedProperties[i],
+                               right.nestedProperties[i])) return false;
         return left.typeId == right.typeId && left.ident == right.ident &&
                left.name == right.name && left.definition == right.definition &&
                left.value == right.value && left.isActive == right.isActive;

@@ -367,8 +367,7 @@ GtPropertyModel::setObject(GtObject* obj)
 {
     if (m_obj)
     {
-        disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
-                   SLOT(resetObject()));
+        disconnect(m_obj.data(), nullptr, this, nullptr);
     }
 
     beginResetModel();
@@ -382,6 +381,22 @@ GtPropertyModel::setObject(GtObject* obj)
     if (m_obj)
     {
         connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+        connect(m_obj.data(),
+                static_cast<void (GtObject::*)(GtObject*)>(
+                    &GtObject::dataChanged),
+                this, [this](GtObject* changed) {
+                    if (changed != m_obj) return;
+                    if (m_containerId.isEmpty())
+                    {
+                        setObject(changed);
+                        return;
+                    }
+                    if (auto* container =
+                            changed->findPropertyContainer(m_containerId))
+                        setObject(changed, *container);
+                    else
+                        setObject(changed);
+                });
 
         foreach (GtAbstractProperty* prop, m_obj->properties())
         {
@@ -405,8 +420,7 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
 {
     if (m_obj)
     {
-        disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
-                   SLOT(resetObject()));
+        disconnect(m_obj.data(), nullptr, this, nullptr);
 
         // disconnect container slots if last
         // scope was container entry of object
@@ -442,6 +456,22 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     }
 
     connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+    connect(m_obj.data(),
+            static_cast<void (GtObject::*)(GtObject*)>(
+                &GtObject::dataChanged),
+            this, [this](GtObject* changed) {
+                if (changed != m_obj) return;
+                if (m_containerId.isEmpty())
+                {
+                    setObject(changed);
+                    return;
+                }
+                if (auto* current =
+                        changed->findPropertyContainer(m_containerId))
+                    setObject(changed, *current);
+                else
+                    setObject(changed);
+            });
     connect(&container, SIGNAL(entryRemoved(int)), this,
                SLOT(onContainerEntryRemoved(int)));
     connect(&container, SIGNAL(entryAdded(int)), this,

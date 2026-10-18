@@ -408,6 +408,10 @@ GtObjectIO::toMemento(const QDomElement& e)
                 }
                 data.definition = def.object().toVariantMap();
                 data.value = value.data();
+                const QDomElement nested = entry.firstChildElement(
+                    QStringLiteral("nestedProperties"));
+                if (!nested.isNull())
+                    data.nestedProperties = readProperties(nested);
                 memento.dynamicProperties.append(std::move(data));
             }
         }
@@ -626,6 +630,25 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
     if (operations.isEmpty()) return false;
 
     auto equal = [](const Data& lhs, const Data& rhs) {
+        auto equalProperty = [&](const auto& self,
+                                 const GtObjectMemento::PropertyData& a,
+                                 const GtObjectMemento::PropertyData& b)
+            -> bool {
+            if (a.name != b.name || a.isActive != b.isActive ||
+                a.type() != b.type() || a.dataType() != b.dataType() ||
+                a.data() != b.data() ||
+                a.childProperties.size() != b.childProperties.size())
+                return false;
+            for (int i = 0; i < a.childProperties.size(); ++i)
+                if (!self(self, a.childProperties[i], b.childProperties[i]))
+                    return false;
+            return true;
+        };
+        if (lhs.nestedProperties.size() != rhs.nestedProperties.size())
+            return false;
+        for (int i = 0; i < lhs.nestedProperties.size(); ++i)
+            if (!equalProperty(equalProperty, lhs.nestedProperties[i],
+                               rhs.nestedProperties[i])) return false;
         return lhs.typeId == rhs.typeId && lhs.ident == rhs.ident &&
                lhs.name == rhs.name && lhs.definition == rhs.definition &&
                lhs.value == rhs.value && lhs.isActive == rhs.isActive;
@@ -636,6 +659,10 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
         result.name = property.objectName();
         result.value = property.valueToVariant();
         result.isActive = property.isActive();
+        GtObjectIO io;
+        QSet<QString> stored{property.ident()};
+        for (const GtAbstractProperty* child : property.fullProperties())
+            io.writePropertyHelper(result.nestedProperties, stored, child);
         const QVariant typeId = property.property("gt.dynamicTypeId");
         if (typeId.isValid() && !typeId.toString().isEmpty())
         {
@@ -704,6 +731,36 @@ GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
                 !property->setValueFromVariant(desired->value, QString()))
                 return false;
             property->setActive(desired->isActive);
+            QHash<QString, GtAbstractProperty*> nestedById;
+            std::vector<GtAbstractProperty*> pending;
+            for (GtAbstractProperty* child : property->fullProperties())
+                pending.push_back(child);
+            while (!pending.empty())
+            {
+                GtAbstractProperty* nested = pending.back();
+                pending.pop_back();
+                if (nested->ident().isEmpty() ||
+                    nestedById.contains(nested->ident())) return false;
+                nestedById.insert(nested->ident(), nested);
+                for (GtAbstractProperty* child : nested->fullProperties())
+                    pending.push_back(child);
+            }
+            auto applyNested = [&](const auto& self,
+                                   const GtObjectMemento::PropertyData& data)
+                -> bool {
+                GtAbstractProperty* nested = nestedById.value(data.name,
+                                                                nullptr);
+                if (!nested) return false;
+                nested->setActive(data.isActive);
+                if (data.type() != GtObjectMemento::PropertyData::STRUCT_T &&
+                    !nested->setValueFromVariant(data.data(), QString()))
+                    return false;
+                for (const auto& child : data.childProperties)
+                    if (!self(self, child)) return false;
+                return true;
+            };
+            for (const auto& nested : desired->nestedProperties)
+                if (!applyNested(applyNested, nested)) return false;
             Data created;
             if (!currentData(*property, created) || !equal(created, *desired))
                 return false;
@@ -772,6 +829,7 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
         data.name = property->objectName();
         data.isActive = property->isActive();
         data.value = property->valueToVariant();
+        if (!property->storeToMemento()) continue;
         if (!GtDynamicPropertyFactory::definition(*property, data.typeId,
                                                    data.definition))
         {
@@ -780,6 +838,9 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
                       << property->metaObject()->className();
             continue;
         }
+        QSet<QString> stored{property->ident()};
+        for (const GtAbstractProperty* child : property->fullProperties())
+            writePropertyHelper(data.nestedProperties, stored, child);
         memento.dynamicProperties.append(std::move(data));
     }
 
@@ -860,6 +921,14 @@ GtObjectIO::writeProperties(QDomDocument& doc,
             entry.appendChild(
                 propertyToDomElement(property.ident, property.value,
                                      property.value.typeName(), doc));
+            if (!property.nestedProperties.isEmpty())
+            {
+                QDomElement nested =
+                    doc.createElement(QStringLiteral("nestedProperties"));
+                for (const auto& nestedProperty : property.nestedProperties)
+                    nested.appendChild(toDomElement(nestedProperty, doc));
+                entry.appendChild(nested);
+            }
             dynamic.appendChild(entry);
         }
         root.appendChild(dynamic);
