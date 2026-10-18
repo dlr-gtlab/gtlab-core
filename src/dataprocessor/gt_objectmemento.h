@@ -16,6 +16,8 @@
 #include <QDomDocument>
 #include <QByteArray>
 #include <QVariant>
+#include <QVariantMap>
+#include <QVariantMap>
 
 #include "gt_object.h"
 #include "gt_logging.h"
@@ -111,16 +113,15 @@ public:
             }
             else
             {
-                gtWarning() << QObject::tr("object not properly restored!")
-                            << QStringLiteral("(") << ident()
-                            << QStringLiteral(")");
+                gtWarning()
+                    << QObject::tr("object not properly restored!")
+                    << QStringLiteral("(") << ident() << QStringLiteral(")");
             }
         }
         else
         {
-            gtFatal() << QObject::tr("no factory set!")
-                      << QStringLiteral("(") << className()
-                      << QStringLiteral(")");
+            gtFatal() << QObject::tr("no factory set!") << QStringLiteral("(")
+                      << className() << QStringLiteral(")");
         }
 
         return retval;
@@ -219,24 +220,46 @@ public:
 
     };
 
+    /** Definition and value payload for a reconstructible runtime property.
+     *  The containing XML element is versioned independently from static
+     *  PropertyData and property-container records.
+     */
+    struct DynamicPropertyData
+    {
+        static constexpr int CurrentFormatVersion = 1;
+
+        QString typeId;
+        QString ident;
+        QString name;
+        QVariantMap definition;
+        QVariant value;
+        bool isActive{true};
+    };
+
     /**
      * @brief Searches a property by its name
      * @param list The list to search for
      * @param name The property name
      * @return Pointer to the property or nullptr
      */
-    static PropertyData const *
-    findPropertyByName(const QVector<PropertyData>& list, const QString& name);
+    static PropertyData const* findPropertyByName(
+        const QVector<PropertyData>& list, const QString& name);
 
     /**
      * @brief get hash of this object's properties
      */
-    const QByteArray& propertyHash() const {return m_propertyHash;}
+    const QByteArray& propertyHash() const
+    {
+        return m_propertyHash;
+    }
 
     /**
      * @brief get hash of this object (including all child objects)
      */
-    const QByteArray& fullHash() const {return m_fullHash;}
+    const QByteArray& fullHash() const
+    {
+        return m_fullHash;
+    }
 
     /**
      * @brief update fullHash and propertyHash, needs to be called before accessing these
@@ -249,10 +272,14 @@ public:
         QByteArray hash{};
         const QMetaObject* metaObject{};
 
-        bool isValid() const { return metaObject != nullptr; }
+        bool isValid() const
+        {
+            return metaObject != nullptr;
+        }
     };
 
-    ExternalizationInfo externalizationInfo(const GtAbstractObjectFactory& factory) const;
+    ExternalizationInfo externalizationInfo(
+        const GtAbstractObjectFactory& factory) const;
 
     enum Flag
     {
@@ -273,6 +300,8 @@ public:
 
     QVector<PropertyData> properties;
     QVector<PropertyData> propertyContainers;
+    QVector<DynamicPropertyData> dynamicProperties;
+    bool dynamicPropertiesValid{true};
     QVector<GtObjectMemento> childObjects;
 
 private:
@@ -283,7 +312,8 @@ private:
      * @param parent Pointer to the parent object
      * @return A pointer to an object or nullptr, if it could not be created.
      */
-    GtObject* toObject(GtAbstractObjectFactory& factory, GtObject* parent) const;
+    GtObject* toObject(GtAbstractObjectFactory& factory,
+                       GtObject* parent) const;
 
     QString m_className, m_uuid, m_ident;
 

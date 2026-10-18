@@ -24,9 +24,11 @@
 #include "gt_objectuuidmap.h"
 
 #include <QUuid>
+#include <QSet>
 #include <QThread>
 
 #include <algorithm>
+#include <vector>
 
 struct DummyData
 {
@@ -46,6 +48,8 @@ struct GtObject::Impl
     {
         m_isDummy = true;
         properties.clear();
+        dynamicProperties.clear();
+        allProperties.clear();
         propertyContainer.clear();
     }
 
@@ -76,6 +80,12 @@ struct GtObject::Impl
 
     /// object properties
     QList<GtAbstractProperty*> properties;
+
+    /// properties created and owned at runtime
+    QList<GtAbstractProperty*> dynamicProperties;
+
+    /// declared and runtime root properties exposed through GtObject
+    QList<GtAbstractProperty*> allProperties;
 
     /// dynamic size properties
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
@@ -540,13 +550,214 @@ GtObject::debugObjectTree(int indent)
 const QList<GtAbstractProperty*>&
 GtObject::properties()
 {
-    return pimpl->properties;
+    return pimpl->allProperties;
 }
 
 QList<GtAbstractProperty const*> const&
 GtObject::properties() const
 {
-    return gt::container_const_cast(pimpl->properties);
+    return gt::container_const_cast(pimpl->allProperties);
+}
+
+bool
+GtObject::addDynamicProperty(std::unique_ptr<GtAbstractProperty>&& property)
+{
+    if (!property || property->parent() || property->thread() != thread())
+    {
+        return false;
+    }
+
+    QList<QString> usedIds;
+    for (const GtAbstractProperty* existing : fullPropertyList())
+    {
+        usedIds.append(existing->ident());
+    }
+
+    std::vector<const GtAbstractProperty*> pending{property.get()};
+    while (!pending.empty())
+    {
+        const GtAbstractProperty* current = pending.back();
+        pending.pop_back();
+
+        if (!current->isValid() || usedIds.contains(current->ident()))
+        {
+            return false;
+        }
+        usedIds.append(current->ident());
+
+        for (const GtAbstractProperty* child : current->fullProperties())
+        {
+            pending.push_back(child);
+        }
+    }
+
+    GtAbstractProperty* rawProperty = property.get();
+    rawProperty->setParent(this);
+    property.release();
+
+    pimpl->dynamicProperties.append(rawProperty);
+    pimpl->allProperties.append(rawProperty);
+    connectProperty(*rawProperty);
+
+    setFlag(GtObject::HasOwnChanges);
+    emit dataChanged(this, rawProperty);
+    return true;
+}
+
+const QList<GtAbstractProperty*>&
+GtObject::dynamicProperties() const
+{
+    return pimpl->dynamicProperties;
+}
+
+std::unique_ptr<GtAbstractProperty>
+GtObject::takeDynamicProperty(const QString& id)
+{
+    auto iter = std::find_if(std::begin(pimpl->dynamicProperties),
+                             std::end(pimpl->dynamicProperties),
+                             [&id](const GtAbstractProperty* property) {
+                                 return property->ident() == id;
+                             });
+
+    if (iter == std::end(pimpl->dynamicProperties))
+    {
+        return {};
+    }
+
+    GtAbstractProperty* property = *iter;
+    pimpl->dynamicProperties.erase(iter);
+    pimpl->allProperties.removeOne(property);
+
+    std::vector<GtAbstractProperty*> pending{property};
+    while (!pending.empty())
+    {
+        GtAbstractProperty* current = pending.back();
+        pending.pop_back();
+        QObject::disconnect(current, nullptr, this, nullptr);
+        for (GtAbstractProperty* child : current->fullProperties())
+        {
+            pending.push_back(child);
+        }
+    }
+    property->setParent(nullptr);
+
+    setFlag(GtObject::HasOwnChanges);
+    emit dataChanged(this, property);
+    return std::unique_ptr<GtAbstractProperty>(property);
+}
+
+bool
+GtObject::replaceDynamicProperties(
+    const std::vector<QString>& removedIds,
+    std::vector<std::unique_ptr<GtAbstractProperty>>&& additions)
+{
+    QSet<QString> idsToRemove;
+    for (const QString& id : removedIds)
+    {
+        if (id.isEmpty() || idsToRemove.contains(id)) return false;
+
+        int matches = 0;
+        for (const GtAbstractProperty* property : pimpl->dynamicProperties)
+        {
+            if (property->ident() == id) ++matches;
+        }
+        if (matches != 1) return false;
+        idsToRemove.insert(id);
+    }
+
+    QSet<const GtAbstractProperty*> removedTree;
+    for (const GtAbstractProperty* root : pimpl->dynamicProperties)
+    {
+        if (!idsToRemove.contains(root->ident())) continue;
+        std::vector<const GtAbstractProperty*> pending{root};
+        while (!pending.empty())
+        {
+            const GtAbstractProperty* current = pending.back();
+            pending.pop_back();
+            if (removedTree.contains(current)) continue;
+            removedTree.insert(current);
+            for (const GtAbstractProperty* child : current->fullProperties())
+            {
+                pending.push_back(child);
+            }
+        }
+    }
+
+    QSet<QString> usedIds;
+    for (const GtAbstractProperty* property : fullPropertyList())
+    {
+        if (!removedTree.contains(property)) usedIds.insert(property->ident());
+    }
+
+    for (const auto& property : additions)
+    {
+        if (!property || property->parent() || property->thread() != thread())
+        {
+            return false;
+        }
+
+        std::vector<const GtAbstractProperty*> pending{property.get()};
+        while (!pending.empty())
+        {
+            const GtAbstractProperty* current = pending.back();
+            pending.pop_back();
+            if (!current->isValid() || usedIds.contains(current->ident()))
+            {
+                return false;
+            }
+            usedIds.insert(current->ident());
+            for (const GtAbstractProperty* child : current->fullProperties())
+            {
+                pending.push_back(child);
+            }
+        }
+    }
+
+    std::vector<std::unique_ptr<GtAbstractProperty>> removed;
+    QList<GtAbstractProperty*> changedProperties;
+    for (int i = pimpl->dynamicProperties.size() - 1; i >= 0; --i)
+    {
+        GtAbstractProperty* property = pimpl->dynamicProperties[i];
+        if (!idsToRemove.contains(property->ident())) continue;
+
+        pimpl->dynamicProperties.removeAt(i);
+        pimpl->allProperties.removeOne(property);
+        std::vector<GtAbstractProperty*> pending{property};
+        while (!pending.empty())
+        {
+            GtAbstractProperty* current = pending.back();
+            pending.pop_back();
+            QObject::disconnect(current, nullptr, this, nullptr);
+            for (GtAbstractProperty* child : current->fullProperties())
+            {
+                pending.push_back(child);
+            }
+        }
+        property->setParent(nullptr);
+        changedProperties.append(property);
+        removed.emplace_back(property);
+    }
+
+    for (auto& property : additions)
+    {
+        GtAbstractProperty* rawProperty = property.get();
+        rawProperty->setParent(this);
+        property.release();
+        pimpl->dynamicProperties.append(rawProperty);
+        pimpl->allProperties.append(rawProperty);
+        connectProperty(*rawProperty);
+        changedProperties.append(rawProperty);
+    }
+
+    if (!changedProperties.isEmpty())
+    {
+        setFlag(GtObject::HasOwnChanges);
+        for (GtAbstractProperty* property : changedProperties)
+        {
+            emit dataChanged(this, property);
+        }
+    }
+    return true;
 }
 
 QList<GtAbstractProperty*>
@@ -573,7 +784,7 @@ GtObject::fullPropertyList() const
 GtAbstractProperty*
 GtObject::findProperty(const QString& id)
 {
-    for (GtAbstractProperty* property : qAsConst(pimpl->properties))
+    for (GtAbstractProperty* property : qAsConst(pimpl->allProperties))
     {
         if (property->ident() == id)
         {
@@ -598,7 +809,7 @@ GtObject::findProperty(const QString& id) const
 GtAbstractProperty*
 GtObject::findPropertyByName(const QString& name)
 {
-    for (GtAbstractProperty* property : qAsConst(pimpl->properties))
+    for (GtAbstractProperty* property : qAsConst(pimpl->allProperties))
     {
         if (property->objectName() == name)
         {
@@ -872,7 +1083,7 @@ GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
-    if (pimpl->properties.contains(&property))
+    if (pimpl->allProperties.contains(&property))
     {
         gtWarning() << tr("multiple property registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -885,6 +1096,7 @@ GtObject::registerProperty(GtAbstractProperty& property)
     connectProperty(property);
 
     pimpl->properties.append(&property);
+    pimpl->allProperties.append(&property);
 
     return true;
 }
@@ -954,7 +1166,7 @@ GtObject::registerProperty(GtAbstractProperty& property,
 bool
 GtObject::registerSilentProperty(GtAbstractProperty& property)
 {
-    if (pimpl->properties.contains(&property))
+    if (pimpl->allProperties.contains(&property))
     {
         gtWarning() << tr("multiple property registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -965,6 +1177,7 @@ GtObject::registerSilentProperty(GtAbstractProperty& property)
     }
 
     pimpl->properties.append(&property);
+    pimpl->allProperties.append(&property);
     return true;
 }
 
@@ -1068,10 +1281,39 @@ gt::moveToThread(GtObject& object, QThread* thread)
     for (auto* obj : qAsConst(objs))
     {
         const auto allChildProps = obj->fullPropertyList();
-        // move all properties of current object to new thread
+        // Runtime roots are QObject children of their owning object, so they
+        // follow the object move. Their nested properties may be independent
+        // QObjects and need the same explicit handling as static properties.
+        QSet<GtAbstractProperty*> dynamicPropertyTree;
+        std::vector<GtAbstractProperty*> pending;
+        for (GtAbstractProperty* root : obj->dynamicProperties())
+        {
+            pending.push_back(root);
+        }
+        while (!pending.empty())
+        {
+            GtAbstractProperty* property = pending.back();
+            pending.pop_back();
+            if (!property || dynamicPropertyTree.contains(property)) continue;
+            dynamicPropertyTree.insert(property);
+            for (GtAbstractProperty* child : property->fullProperties())
+            {
+                pending.push_back(child);
+            }
+        }
+
+        // Preserve the existing static property and property-container path.
         for (auto* childProp : allChildProps)
         {
+            if (dynamicPropertyTree.contains(childProp)) continue;
             ::moveToThread(childProp, thread);
+        }
+
+        // Visit each runtime property exactly once. Parentless nested
+        // properties move here; parented roots follow the object below.
+        for (GtAbstractProperty* property : qAsConst(dynamicPropertyTree))
+        {
+            ::moveToThread(property, thread);
         }
 
         // iterate over struct container and move to new thread

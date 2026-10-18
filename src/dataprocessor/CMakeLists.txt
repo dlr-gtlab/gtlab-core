@@ -67,6 +67,7 @@ set(HEADERS
     property/gt_objectlinkproperty.h
     gt_objectmementodiff.h
     property/gt_abstractproperty.h
+    property/gt_dynamicpropertyfactory.h
     property/gt_boolproperty.h
     property/gt_doubleproperty.h
     property/gt_intproperty.h
@@ -129,6 +130,7 @@ set(SOURCES
     property/gt_objectlinkproperty.cpp
     gt_objectmementodiff.cpp
     property/gt_abstractproperty.cpp
+    property/gt_dynamicpropertyfactory.cpp
     property/gt_boolproperty.cpp
     property/gt_doubleproperty.cpp
     property/gt_intproperty.cpp

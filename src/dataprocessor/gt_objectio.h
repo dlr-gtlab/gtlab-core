@@ -94,6 +94,11 @@ public:
      */
     static bool revertDiff(GtObjectMementoDiff& diff, GtObject* obj);
 
+    /** Applies a complete, preflighted dynamic-property operation set. */
+    static bool applyDynamicPropertyChanges(GtObject& object,
+                                            const QDomElement& changes,
+                                            bool revert);
+
     /**
      *  Converts given QVariant to QString.
      *  @param var QVariant

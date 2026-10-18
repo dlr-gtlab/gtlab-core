@@ -137,6 +137,11 @@ private:
         const QVector<GtObjectMemento::PropertyData>& rightContainers,
         QDomElement& diffRoot);
 
+    bool detectDynamicPropertyChanges(
+        const QVector<GtObjectMemento::DynamicPropertyData>& leftProperties,
+        const QVector<GtObjectMemento::DynamicPropertyData>& rightProperties,
+        QDomElement& diffRoot);
+
     /**
      * @brief handlePropertyChange
      */

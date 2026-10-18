@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/testdata">
         <file>line-endings.xml</file>
+        <file>legacy-static-object.xml</file>
     </qresource>
 </RCC>

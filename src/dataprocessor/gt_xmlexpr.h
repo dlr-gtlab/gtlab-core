@@ -50,6 +50,11 @@ constexpr const char * S_DIFF_PROPCONT_ENTRY_REMOVE_TAG =
         "diff-property-container-entry-remove";
 constexpr const char * S_DIFF_PROPCONT_ENTRY_CHANGE_TAG =
         "diff-property-container-entry-change";
+constexpr const char * S_DIFF_DYNAMIC_PROPERTIES_TAG =
+        "diff-dynamic-properties";
+constexpr const char * S_DIFF_DYNAMIC_PROPERTY_TAG =
+        "diff-dynamic-property";
+constexpr const char * S_DIFF_OPERATION_TAG = "operation";
 constexpr const char * S_DIFF_ATTR_CHANGE_TAG = "diff-attribute-change";
 constexpr const char * S_DIFF_ATTR_REMOVE_TAG = "diff-attribute-remove";
 constexpr const char * S_DIFF_NEWVAL_TAG = "newVal";

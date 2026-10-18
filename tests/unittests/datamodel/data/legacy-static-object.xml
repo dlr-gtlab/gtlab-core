@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object class="LegacyOwner" uuid="legacy-static-object" name="Legacy">
+    <property type="double" name="doubleProp">106.2</property>
+    <property type="QString" name="stringProp">saved before runtime properties</property>
+</object>

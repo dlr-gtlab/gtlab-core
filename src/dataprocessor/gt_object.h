@@ -20,6 +20,8 @@
 
 #include <algorithm>
 #include <memory>
+#include <type_traits>
+#include <vector>
 
 class GtObjectMemento;
 class GtAbstractObjectFactory;
@@ -69,7 +71,7 @@ T findRoot(Object& object, T last = nullptr);
  */
 void GT_DATAMODEL_EXPORT moveToThread(GtObject& object, QThread* thread);
 
-}
+} // namespace gt
 
 /**
  * @brief The GtObject class
@@ -398,6 +400,43 @@ public:
     const QList<GtAbstractProperty const*>& properties() const;
 
     /**
+     * @brief Adds an owned runtime property to this object.
+     *
+     * The property must be detached, share this object's thread affinity,
+     * have a non-empty identifier, and have an identifier that is unique
+     * across this object's property tree. On success ownership transfers to
+     * this object; on failure the unique pointer remains unchanged.
+     */
+    bool addDynamicProperty(std::unique_ptr<GtAbstractProperty>&& property);
+    const QList<GtAbstractProperty*>& dynamicProperties() const;
+
+    /// Preserves the derived unique-pointer type when an addition is rejected.
+    template <typename T,
+              std::enable_if_t<std::is_base_of<GtAbstractProperty, T>::value &&
+                                   !std::is_same<GtAbstractProperty, T>::value,
+                               int> = 0>
+    bool addDynamicProperty(std::unique_ptr<T>&& property)
+    {
+        std::unique_ptr<GtAbstractProperty> baseProperty(std::move(property));
+        if (addDynamicProperty(std::move(baseProperty)))
+        {
+            return true;
+        }
+
+        property.reset(static_cast<T*>(baseProperty.release()));
+        return false;
+    }
+
+    /**
+     * @brief Removes an owned runtime root property and returns its ownership.
+     *
+     * @param id Identifier of a dynamic root property.
+     * @return The detached property, or an empty pointer if no matching
+     *         dynamic root property exists.
+     */
+    std::unique_ptr<GtAbstractProperty> takeDynamicProperty(const QString& id);
+
+    /**
      * @brief Returns list of all property and sub property items. List
      * does not contain duplicates.
      * @return List of all properties.
@@ -429,8 +468,8 @@ public:
      * @return A pointer to the property or nullptr, if it cannot be found
      */
     GtPropertyStructContainer* findPropertyContainer(const QString& id);
-    GtPropertyStructContainer const*
-    findPropertyContainer(const QString& id) const;
+    GtPropertyStructContainer const* findPropertyContainer(
+        const QString& id) const;
 
     std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
     propertyContainers();
@@ -522,7 +561,8 @@ public:
               gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T_const_ptr> findDirectChildren(const QString& name = {}) const
     {
-        return QObject::findChildren<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
+        return QObject::findChildren<T_const_ptr>(name,
+                                                  Qt::FindDirectChildrenOnly);
     }
 
     /**
@@ -541,7 +581,8 @@ public:
               gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T_const_ptr> findChildren(const QString& name = {}) const
     {
-        return QObject::findChildren<T_const_ptr>(name, Qt::FindChildrenRecursively);
+        return QObject::findChildren<T_const_ptr>(name,
+                                                  Qt::FindChildrenRecursively);
     }
 
     /**
@@ -560,7 +601,8 @@ public:
               gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findDirectChild(const QString& name = {}) const
     {
-        return QObject::findChild<T_const_ptr>(name, Qt::FindDirectChildrenOnly);
+        return QObject::findChild<T_const_ptr>(name,
+                                               Qt::FindDirectChildrenOnly);
     }
 
     /**
@@ -579,7 +621,8 @@ public:
               gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T_const_ptr findChild(const QString& name = {}) const
     {
-        return QObject::findChild<T_const_ptr>(name, Qt::FindChildrenRecursively);
+        return QObject::findChild<T_const_ptr>(name,
+                                               Qt::FindChildrenRecursively);
     }
 
     /**
@@ -784,7 +827,6 @@ protected slots:
     void changed();
 
 private:
-
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
@@ -819,6 +861,10 @@ private:
      * @brief Helper function for copying and cloning an object
      */
     GtObject* copyClone(bool clone, GtObjectUUIDMap* uuidMap) const;
+
+    bool replaceDynamicProperties(
+        const std::vector<QString>& removedIds,
+        std::vector<std::unique_ptr<GtAbstractProperty>>&& additions);
 
     /**
      * @brief Converts the object into a dummy object
@@ -873,7 +919,6 @@ signals:
      * @param parent
      */
     void childAppended(GtObject* child, GtObject* parent);
-
 };
 
 typedef QList<GtObject*> GtObjectList;

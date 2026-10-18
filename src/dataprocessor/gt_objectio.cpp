@@ -15,12 +15,15 @@
 #include <QUuid>
 #include <QPointF>
 #include <QDataStream>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtGlobal>
 #include <QDebug>
 #include <QMetaType>
 #include <QStringRef>
 
 #include <cfloat>
+#include <optional>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -29,6 +32,7 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 #include "gt_abstractproperty.h"
+#include "gt_dynamicpropertyfactory.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
@@ -113,6 +117,11 @@ namespace
                             handlePropContEntryAddRemove),
              std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG,
                             handlePropContEntryAddRemove),
+             std::make_pair(gt::xml::S_DIFF_DYNAMIC_PROPERTIES_TAG,
+                [](GtObject& obj, const QDomElement& tag, DiffMode mode) {
+                    return GtObjectIO::applyDynamicPropertyChanges(
+                        obj, tag, mode == DiffMode::Revert);
+                }),
 
              std::make_pair(gt::xml::S_DIFF_PROP_CHANGE_TAG,
                 [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
@@ -357,6 +366,53 @@ GtObjectIO::toMemento(const QDomElement& e)
     memento.properties = readProperties(e);
     memento.propertyContainers = readPropertyContainers(e);
 
+    const QDomElement dynamic =
+        e.firstChildElement(QStringLiteral("dynamicProperties"));
+    if (!dynamic.isNull())
+    {
+        if (dynamic.attribute(QStringLiteral("formatVersion")) !=
+            QString::number(
+                GtObjectMemento::DynamicPropertyData::CurrentFormatVersion))
+        {
+            memento.dynamicPropertiesValid = false;
+            gtError() << "Unsupported dynamic property format version"
+                      << dynamic.attribute(QStringLiteral("formatVersion"));
+        }
+        else
+        {
+            for (QDomElement entry =
+                     dynamic.firstChildElement(QStringLiteral("property"));
+                 !entry.isNull();
+                 entry = entry.nextSiblingElement(QStringLiteral("property")))
+            {
+                GtObjectMemento::DynamicPropertyData data;
+                data.typeId = entry.attribute(QStringLiteral("typeId"));
+                data.ident = entry.attribute(QStringLiteral("ident"));
+                data.name = entry.attribute(QStringLiteral("name"));
+                const QString active = entry.attribute(QStringLiteral("active"));
+                data.isActive = active.isEmpty() || QVariant(active).toBool();
+                const auto def = QJsonDocument::fromJson(
+                    entry.firstChildElement(QStringLiteral("definition"))
+                        .text()
+                        .toUtf8());
+                bool error = false;
+                const auto value = readProperty(
+                    entry.firstChildElement(QStringLiteral("property")), error);
+                if (!def.isObject() || error || data.typeId.isEmpty() ||
+                    data.ident.isEmpty())
+                {
+                    memento.dynamicPropertiesValid = false;
+                    gtError()
+                        << "Invalid dynamic property record" << data.ident;
+                    continue;
+                }
+                data.definition = def.object().toVariantMap();
+                data.value = value.data();
+                memento.dynamicProperties.append(std::move(data));
+            }
+        }
+    }
+
     // child objects
     QDomElement children = e.firstChildElement(gt::xml::S_OBJECTLIST_TAG);
 
@@ -509,6 +565,184 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
     return true;
 }
 
+bool
+GtObjectIO::applyDynamicPropertyChanges(GtObject& object,
+                                        const QDomElement& changes,
+                                        bool revert)
+{
+    using Data = GtObjectMemento::DynamicPropertyData;
+    struct Operation
+    {
+        QString id;
+        QString kind;
+        std::optional<Data> oldData;
+        std::optional<Data> newData;
+    };
+
+    auto readPayload = [](const QDomElement& operation, const char* tag,
+                          std::optional<Data>& result, bool required) {
+        QDomElement wrapper = operation.firstChildElement(tag);
+        if (wrapper.isNull()) return !required;
+        if (!wrapper.nextSiblingElement(tag).isNull()) return false;
+        QDomElement element = wrapper.firstChildElement(gt::xml::S_OBJECT_TAG);
+        if (element.isNull() || !element.nextSiblingElement().isNull())
+            return false;
+        GtObjectMemento memento = GtObjectIO().toMemento(element);
+        if (!memento.dynamicPropertiesValid ||
+            memento.dynamicProperties.size() != 1 ||
+            !memento.childObjects.isEmpty()) return false;
+        result = memento.dynamicProperties.front();
+        return true;
+    };
+
+    QVector<Operation> operations;
+    QSet<QString> operationIds;
+    for (QDomElement entry = changes.firstChildElement(); !entry.isNull();
+         entry = entry.nextSiblingElement())
+    {
+        if (entry.tagName() != gt::xml::S_DIFF_DYNAMIC_PROPERTY_TAG)
+            return false;
+        Operation op;
+        op.id = entry.attribute(QStringLiteral("id"));
+        op.kind = entry.attribute(gt::xml::S_DIFF_OPERATION_TAG);
+        if (op.id.isEmpty() || operationIds.contains(op.id)) return false;
+        operationIds.insert(op.id);
+        const bool wantsOld = op.kind == QLatin1String("remove") ||
+                              op.kind == QLatin1String("change");
+        const bool wantsNew = op.kind == QLatin1String("add") ||
+                              op.kind == QLatin1String("change");
+        if ((!wantsOld && op.kind != QLatin1String("add")) ||
+            (!wantsNew && op.kind != QLatin1String("remove")) ||
+            !readPayload(entry, gt::xml::S_DIFF_OLDVAL_TAG,
+                         op.oldData, wantsOld) ||
+            !readPayload(entry, gt::xml::S_DIFF_NEWVAL_TAG,
+                         op.newData, wantsNew)) return false;
+        if ((op.oldData && (op.oldData->ident != op.id ||
+                            op.oldData->typeId.isEmpty())) ||
+            (op.newData && (op.newData->ident != op.id ||
+                            op.newData->typeId.isEmpty()))) return false;
+        operations.append(std::move(op));
+    }
+    if (operations.isEmpty()) return false;
+
+    auto equal = [](const Data& lhs, const Data& rhs) {
+        return lhs.typeId == rhs.typeId && lhs.ident == rhs.ident &&
+               lhs.name == rhs.name && lhs.definition == rhs.definition &&
+               lhs.value == rhs.value && lhs.isActive == rhs.isActive;
+    };
+    auto currentData = [](const GtAbstractProperty& property,
+                          Data& result) {
+        result.ident = property.ident();
+        result.name = property.objectName();
+        result.value = property.valueToVariant();
+        result.isActive = property.isActive();
+        const QVariant typeId = property.property("gt.dynamicTypeId");
+        if (typeId.isValid() && !typeId.toString().isEmpty())
+        {
+            result.typeId = typeId.toString();
+            return GtDynamicPropertyFactory::definition(
+                result.typeId, property, result.definition);
+        }
+        return GtDynamicPropertyFactory::definition(
+            property, result.typeId, result.definition);
+    };
+
+    QHash<QString, GtAbstractProperty*> current;
+    for (GtAbstractProperty* property : object.dynamicProperties())
+    {
+        if (property->ident().isEmpty() || current.contains(property->ident()))
+            return false;
+        current.insert(property->ident(), property);
+    }
+
+    std::vector<QString> removedIds;
+    std::vector<std::unique_ptr<GtAbstractProperty>> additions;
+    for (const Operation& op : operations)
+    {
+        const Data* expected = nullptr;
+        const Data* desired = nullptr;
+        if (!revert)
+        {
+            expected = op.oldData ? &*op.oldData : nullptr;
+            desired = op.newData ? &*op.newData : nullptr;
+        }
+        else
+        {
+            expected = op.newData ? &*op.newData : nullptr;
+            desired = op.oldData ? &*op.oldData : nullptr;
+        }
+
+        GtAbstractProperty* existing = current.value(op.id, nullptr);
+        if (expected)
+        {
+            Data actual;
+            if (!existing || !currentData(*existing, actual) ||
+                !equal(actual, *expected)) return false;
+            removedIds.push_back(op.id);
+        }
+        else if (existing)
+        {
+            return false;
+        }
+    }
+
+    for (const Operation& op : operations)
+    {
+        const Data* desired = !revert
+            ? (op.newData ? &*op.newData : nullptr)
+            : (op.oldData ? &*op.oldData : nullptr);
+        if (desired)
+        {
+            auto property = GtDynamicPropertyFactory::create(
+                desired->typeId, desired->ident, desired->name,
+                desired->definition);
+            if (!property || property->parent() ||
+                property->thread() != object.thread() ||
+                property->ident() != desired->ident ||
+                property->objectName() != desired->name ||
+                !property->isValid() ||
+                !property->setValueFromVariant(desired->value, QString()))
+                return false;
+            property->setActive(desired->isActive);
+            Data created;
+            if (!currentData(*property, created) || !equal(created, *desired))
+                return false;
+            additions.push_back(std::move(property));
+        }
+    }
+
+    // Callbacks used by the factory may re-enter the object. Confirm the
+    // expected state still matches immediately before committing the batch.
+    QHash<QString, GtAbstractProperty*> latestDynamic;
+    for (GtAbstractProperty* property : object.dynamicProperties())
+    {
+        if (property->ident().isEmpty() ||
+            latestDynamic.contains(property->ident())) return false;
+        latestDynamic.insert(property->ident(), property);
+    }
+    for (const Operation& op : operations)
+    {
+        const Data* expected = !revert
+            ? (op.oldData ? &*op.oldData : nullptr)
+            : (op.newData ? &*op.newData : nullptr);
+        GtAbstractProperty* existing = object.findProperty(op.id);
+        GtAbstractProperty* dynamic = latestDynamic.value(op.id, nullptr);
+        if (expected)
+        {
+            Data actual;
+            if (!dynamic || object.findProperty(op.id) != dynamic ||
+                !currentData(*dynamic, actual) || !equal(actual, *expected))
+                return false;
+        }
+        else if (dynamic || existing)
+        {
+            return false;
+        }
+    }
+
+    return object.replaceDynamicProperties(removedIds, std::move(additions));
+}
+
 void
 GtObjectIO::writeProperties(GtObjectMemento& memento,
                             const GtObject* obj)
@@ -522,10 +756,33 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
     // GTlab properties
     for (GtAbstractProperty const* property : props)
     {
+        if (obj->dynamicProperties().contains(
+                const_cast<GtAbstractProperty*>(property)))
+        {
+            continue;
+        }
         writePropertyHelper(memento.properties, storedProps, property);
     }
 
     // dynamic properties
+    for (const GtAbstractProperty* property : obj->dynamicProperties())
+    {
+        GtObjectMemento::DynamicPropertyData data;
+        data.ident = property->ident();
+        data.name = property->objectName();
+        data.isActive = property->isActive();
+        data.value = property->valueToVariant();
+        if (!GtDynamicPropertyFactory::definition(*property, data.typeId,
+                                                   data.definition))
+        {
+            memento.dynamicPropertiesValid = false;
+            gtError() << "No dynamic property serializer registered for"
+                      << property->metaObject()->className();
+            continue;
+        }
+        memento.dynamicProperties.append(std::move(data));
+    }
+
     for (const GtPropertyStructContainer& c: obj->propertyContainers())
     {
         auto propertyContainerData = toPropertyContainerData(c);
@@ -577,6 +834,35 @@ GtObjectIO::writeProperties(QDomDocument& doc,
              memento.propertyContainers)
     {
         root.appendChild(propertyContainerDataToDomElement(property, doc));
+    }
+
+    if (!memento.dynamicProperties.isEmpty() || !memento.dynamicPropertiesValid)
+    {
+        QDomElement dynamic =
+            doc.createElement(QStringLiteral("dynamicProperties"));
+        dynamic.setAttribute(QStringLiteral("formatVersion"),
+                             memento.dynamicPropertiesValid
+                                 ? GtObjectMemento::DynamicPropertyData::CurrentFormatVersion
+                                 : 0);
+        for (const auto& property : memento.dynamicProperties)
+        {
+            QDomElement entry = doc.createElement(QStringLiteral("property"));
+            entry.setAttribute(QStringLiteral("typeId"), property.typeId);
+            entry.setAttribute(QStringLiteral("ident"), property.ident);
+            entry.setAttribute(QStringLiteral("name"), property.name);
+            entry.setAttribute(QStringLiteral("active"), property.isActive);
+            QDomElement definition =
+                doc.createElement(QStringLiteral("definition"));
+            definition.appendChild(doc.createTextNode(QString::fromUtf8(
+                QJsonDocument::fromVariant(property.definition)
+                    .toJson(QJsonDocument::Compact))));
+            entry.appendChild(definition);
+            entry.appendChild(
+                propertyToDomElement(property.ident, property.value,
+                                     property.value.typeName(), doc));
+            dynamic.appendChild(entry);
+        }
+        root.appendChild(dynamic);
     }
 }
 

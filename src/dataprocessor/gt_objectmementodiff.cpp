@@ -260,6 +260,11 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
                               const GtObjectMemento& rightOrig,
                               QDomElement& diffRoot)
 {
+    if (!leftOrig.dynamicPropertiesValid ||
+        !rightOrig.dynamicPropertiesValid)
+    {
+        return false;
+    }
     // update hashes if needed
     leftOrig.calculateHashes();
     rightOrig.calculateHashes();
@@ -329,6 +334,11 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         detectDynamicPropertyChanges(left.propertyContainers,
                                      right.propertyContainers,
                                      diffObj);
+        if (!detectDynamicPropertyChanges(left.dynamicProperties,
+                                          right.dynamicProperties, diffObj))
+        {
+            return false;
+        }
     }
 
     // create map of child object uuids
@@ -493,6 +503,82 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     }
 /*    qDebug() << "Result of diff:";
     qDebug() << toByteArray()*/;
+    return true;
+}
+
+bool
+GtObjectMementoDiff::detectDynamicPropertyChanges(
+    const QVector<GtObjectMemento::DynamicPropertyData>& leftProperties,
+    const QVector<GtObjectMemento::DynamicPropertyData>& rightProperties,
+    QDomElement& diffRoot)
+{
+    using Data = GtObjectMemento::DynamicPropertyData;
+    QHash<QString, const Data*> leftById;
+    QHash<QString, const Data*> rightById;
+    for (const Data& data : leftProperties)
+    {
+        if (data.ident.isEmpty() || data.typeId.isEmpty() ||
+            leftById.contains(data.ident)) return false;
+        leftById.insert(data.ident, &data);
+    }
+    for (const Data& data : rightProperties)
+    {
+        if (data.ident.isEmpty() || data.typeId.isEmpty() ||
+            rightById.contains(data.ident)) return false;
+        rightById.insert(data.ident, &data);
+    }
+
+    auto equal = [](const Data& left, const Data& right) {
+        return left.typeId == right.typeId && left.ident == right.ident &&
+               left.name == right.name && left.definition == right.definition &&
+               left.value == right.value && left.isActive == right.isActive;
+    };
+    auto appendPayload = [this](QDomElement& operation, const char* tag,
+                                const Data& data) {
+        GtObjectMemento payload;
+        payload.setClassName(QStringLiteral("DynamicProperty"))
+            .setUuid(data.ident)
+            .setIdent(data.ident);
+        payload.dynamicProperties.append(data);
+        QDomElement wrapper = createElement(tag);
+        wrapper.appendChild(GtObjectIO().toDomElement(payload, *this, true));
+        operation.appendChild(wrapper);
+    };
+
+    QDomElement batch = createElement(gt::xml::S_DIFF_DYNAMIC_PROPERTIES_TAG);
+    auto appendOperation = [&](const QString& operationName,
+                               const QString& id,
+                               const Data* oldData,
+                               const Data* newData) {
+        QDomElement operation = createElement(
+            gt::xml::S_DIFF_DYNAMIC_PROPERTY_TAG);
+        operation.setAttribute(gt::xml::S_DIFF_OPERATION_TAG, operationName);
+        operation.setAttribute(QStringLiteral("id"), id);
+        if (oldData) appendPayload(operation, gt::xml::S_DIFF_OLDVAL_TAG,
+                                   *oldData);
+        if (newData) appendPayload(operation, gt::xml::S_DIFF_NEWVAL_TAG,
+                                   *newData);
+        batch.appendChild(operation);
+    };
+
+    for (const Data& before : leftProperties)
+    {
+        const Data* after = rightById.value(before.ident, nullptr);
+        if (!after)
+            appendOperation(QStringLiteral("remove"), before.ident,
+                            &before, nullptr);
+        else if (!equal(before, *after))
+            appendOperation(QStringLiteral("change"), before.ident,
+                            &before, after);
+    }
+    for (const Data& after : rightProperties)
+    {
+        if (!leftById.contains(after.ident))
+            appendOperation(QStringLiteral("add"), after.ident,
+                            nullptr, &after);
+    }
+
+    if (!batch.firstChildElement().isNull()) diffRoot.appendChild(batch);
     return true;
 }
 
