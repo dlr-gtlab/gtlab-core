@@ -46,13 +46,14 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
     };
 
-    GtProcessInterface* proi = checkInterface<GtProcessInterface>(
-        plugin->ident(), plugin);
+    GtProcessInterface* processInterface =
+        checkInterface<GtProcessInterface>(plugin->ident(), plugin);
 
-    if (proi)
+    if (processInterface)
     {
-        QList<GtCalculatorData> const calcDataList = proi->calculators();
-        QList<GtTaskData> const taskDataList = proi->tasks();
+        QList<GtCalculatorData> const calcDataList =
+            processInterface->calculators();
+        QList<GtTaskData> const taskDataList = processInterface->tasks();
         QList<QMetaObject> metaList;
 
         for (GtCalculatorData const& calcData : calcDataList)
@@ -127,29 +128,30 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
-    const GtCalculatorExecInterface* cexecp =
+    const GtCalculatorExecInterface* calculatorExecutorInterface =
         checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked calculator execution classes
-    if (cexecp)
+    if (calculatorExecutorInterface)
     {
         // check for GtAbstractCalculatorExecutor class
     }
 
-    GtNetworkInterface* neti = checkInterface<GtNetworkInterface>(
-        plugin->ident(), plugin);
+    GtNetworkInterface* networkInterface =
+        checkInterface<GtNetworkInterface>(plugin->ident(), plugin);
 
-    if (neti)
+    if (networkInterface)
     {
-        if (gtAccessManager->groupExists(neti->accessId()))
+        if (gtAccessManager->groupExists(networkInterface->accessId()))
         {
             gtWarning() << errorString()
                         << QObject::tr("The network access Id '%1' is already "
-                                       "defined!").arg(neti->accessId());
+                                       "defined!")
+                               .arg(networkInterface->accessId());
             return false;
         }
 
-        QMetaObject meta = neti->accessConnection();
+        QMetaObject meta = networkInterface->accessConnection();
 
         std::unique_ptr<QObject> obj(meta.newInstance());
 
@@ -167,22 +169,27 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 bool
 GtProcessModuleLoader::insertAdditional(GtModuleInterface* plugin)
 {
-    GtCalculatorExecInterface* cexecp =
+    // Reject executor conflicts before registering any process interfaces.
+    GtCalculatorExecInterface* calculatorExecutorInterface =
         checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
-    if (cexecp && gtCalcExecList->executorExists(cexecp->executorId()))
+    if (calculatorExecutorInterface &&
+        gtCalcExecList->executorExists(
+            calculatorExecutorInterface->executorId()))
     {
-        gtError() << QObject::tr("Calculator executor '%1' already exsits!")
-                         .arg(cexecp->executorId());
+        gtError() << QObject::tr("Calculator executor '%1' already exists!")
+                         .arg(calculatorExecutorInterface->executorId());
         return false;
     }
 
-    GtProcessInterface* proi = checkInterface<GtProcessInterface>(plugin->ident(),
-                                                                  plugin);
+    // Register calculators and tasks.
+    GtProcessInterface* processInterface =
+        checkInterface<GtProcessInterface>(plugin->ident(), plugin);
 
-    if (proi)
+    if (processInterface)
     {
-        QList<GtCalculatorData> const calcDataList = proi->calculators();
-        QList<GtTaskData> const taskDataList = proi->tasks();
+        QList<GtCalculatorData> const calcDataList =
+            processInterface->calculators();
+        QList<GtTaskData> const taskDataList = processInterface->tasks();
 
         for (GtCalculatorData const& calcData : calcDataList)
         {
@@ -201,6 +208,7 @@ GtProcessModuleLoader::insertAdditional(GtModuleInterface* plugin)
         }
     }
 
+    // Register executable operations.
     const GtOperationInterface* operationInterface =
         checkInterface<GtOperationInterface>(plugin->ident(), plugin);
 
@@ -210,19 +218,20 @@ GtProcessModuleLoader::insertAdditional(GtModuleInterface* plugin)
                                          plugin->ident());
     }
 
-    // contains dynamic linked calculator execution classes
-    if (cexecp)
+    // Register the calculator executor.
+    if (calculatorExecutorInterface)
     {
-        gtCalcExecList->addExecutor(cexecp);
+        gtCalcExecList->addExecutor(calculatorExecutorInterface);
     }
 
-    GtNetworkInterface* neti = checkInterface<GtNetworkInterface>(plugin->ident(),
-                                                                  plugin);
+    // Register the network access group.
+    GtNetworkInterface* networkInterface =
+        checkInterface<GtNetworkInterface>(plugin->ident(), plugin);
 
-    if (neti)
+    if (networkInterface)
     {
-        gtAccessManager->addAccessGroup(neti->accessId(),
-                                        neti->accessConnection());
+        gtAccessManager->addAccessGroup(networkInterface->accessId(),
+                                        networkInterface->accessConnection());
     }
     return true;
 }

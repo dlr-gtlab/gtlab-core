@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <algorithm>
+#include <limits>
 #include <QCoreApplication>
 #include <QEvent>
 #include <QPointer>
@@ -214,6 +215,7 @@ TEST_F(TestGtObject, dynamicPropertyUsesCoreRegistryWithoutObjectFactory)
 TEST_F(TestGtObject, dynamicPropertyFallsBackIfObjectFactoryLacksType)
 {
     GtFactoryGroup localFactory;
+    ASSERT_TRUE(localFactory.addFactory(gtObjectFactory));
     GtObjectGroup object;
     object.setFactory(&localFactory);
 
@@ -239,6 +241,7 @@ TEST_F(TestGtObject, dynamicPropertyFallsBackIfObjectFactoryLacksType)
 TEST_F(TestGtObject, dynamicPropertyPrefersLocallyRegisteredType)
 {
     GtFactoryGroup localFactory;
+    ASSERT_TRUE(localFactory.addFactory(gtObjectFactory));
     PropertyFactoryRegistration registration(
         localFactory, QStringLiteral("test.local_configurable"),
         ConfigurableStringProperty::staticMetaObject,
@@ -253,6 +256,14 @@ TEST_F(TestGtObject, dynamicPropertyPrefersLocallyRegisteredType)
     ASSERT_TRUE(object.addDynamicProperty(std::move(property)));
 
     const auto memento = object.toMemento();
+    // Validation uses a temporary GtObject, which this local registry does not
+    // know. Custom property types must still use the explicitly supplied registry.
+    auto restoredObject = memento.toObject(localFactory);
+    ASSERT_TRUE(restoredObject);
+    EXPECT_NE(
+        dynamic_cast<ConfigurableStringProperty*>(
+            restoredObject->findProperty(QStringLiteral("runtimeCustom"))),
+        nullptr);
     ASSERT_EQ(memento.dynamicProperties.size(), 1);
     EXPECT_EQ(memento.dynamicProperties.front().typeId,
               QStringLiteral("test.local_configurable"));
@@ -264,6 +275,63 @@ TEST_F(TestGtObject, dynamicPropertyPrefersLocallyRegisteredType)
         restored.findProperty(QStringLiteral("runtimeCustom")));
     ASSERT_NE(value, nullptr);
     EXPECT_EQ(value->getVal(), QStringLiteral("local value"));
+}
+
+TEST_F(TestGtObject, setFactoryRequiresKnownObjectClass)
+{
+    GtFactoryGroup localFactory;
+    GtObjectGroup object;
+    object.setFactory(&localFactory);
+    EXPECT_EQ(object.factory(), nullptr);
+
+    auto* originalFactory = obj.factory();
+    obj.setFactory(&localFactory);
+    EXPECT_EQ(obj.factory(), originalFactory);
+
+    ASSERT_TRUE(localFactory.addFactory(gtObjectFactory));
+    obj.setFactory(&localFactory);
+    EXPECT_EQ(obj.factory(), &localFactory);
+    obj.setFactory(nullptr);
+    EXPECT_EQ(obj.factory(), &localFactory);
+}
+
+TEST_F(TestGtObject, propertyFactoryRegistrationTransfersOwnership)
+{
+    GtFactoryGroup factory;
+    const QString stringId = QStringLiteral("test.lifecycle.string");
+    const QString boolId = QStringLiteral("test.lifecycle.bool");
+    {
+        PropertyFactoryRegistration owner(
+            factory, boolId, GtBoolProperty::staticMetaObject,
+            [](const QString& id) { return new GtBoolProperty(id, id); });
+        ASSERT_TRUE(owner.isValid());
+        {
+            auto original = std::make_unique<PropertyFactoryRegistration>(
+                factory, stringId, GtStringProperty::staticMetaObject,
+                [](const QString& id) { return new GtStringProperty(id, id); });
+            ASSERT_TRUE(original->isValid());
+
+            PropertyFactoryRegistration moved(std::move(*original));
+            EXPECT_TRUE(moved.isValid());
+            EXPECT_FALSE(original->isValid());
+            original.reset();
+            EXPECT_TRUE(factory.hasPropertyFactory(stringId));
+
+            owner = std::move(moved);
+            EXPECT_TRUE(owner.isValid());
+            EXPECT_FALSE(moved.isValid());
+            EXPECT_FALSE(factory.hasPropertyFactory(boolId));
+            EXPECT_TRUE(factory.hasPropertyFactory(stringId));
+        }
+        // Destruction of moved-from tokens must not unregister the new owner.
+        EXPECT_TRUE(factory.hasPropertyFactory(stringId));
+        PropertyFactoryRegistration failed(
+            factory, stringId, GtBoolProperty::staticMetaObject,
+            [](const QString& id) { return new GtBoolProperty(id, id); });
+        EXPECT_FALSE(failed.isValid());
+    }
+    EXPECT_FALSE(factory.hasPropertyFactory(stringId));
+    EXPECT_FALSE(factory.hasPropertyFactory(boolId));
 }
 
 TEST_F(TestGtObject, dynamicPropertiesShareThePropertyApiAndOwnership)
@@ -341,12 +409,18 @@ TEST_F(TestGtObject, dynamicPropertyRegistrationRejectsTypeAndClassConflicts)
         ConfigurableStringProperty::staticMetaObject,
         [](const QString& id) { return new ConfigurableStringProperty(id); });
     ASSERT_TRUE(registration.isValid());
-    EXPECT_TRUE(gtObjectFactory->canRegisterPropertyFactory(
+    // The preflight must reject the same concrete-type conflicts as registration.
+    EXPECT_FALSE(gtObjectFactory->canRegisterPropertyFactory(
         QStringLiteral("test.other_id"),
-        ConfigurableStringProperty::staticMetaObject));
+        ConfigurableStringProperty::staticMetaObject,
+        [](const QString& id) { return new ConfigurableStringProperty(id); }));
+    EXPECT_FALSE(gtObjectFactory->canRegisterPropertyFactory(
+        QStringLiteral("test.no_constructor"), GtIntProperty::staticMetaObject,
+        {}));
     EXPECT_FALSE(gtObjectFactory->canRegisterPropertyFactory(
         QStringLiteral("test.dynamic_configurable"),
-        GtIntProperty::staticMetaObject));
+        GtIntProperty::staticMetaObject,
+        [](const QString& id) { return new GtIntProperty(id, id); }));
     EXPECT_FALSE(gtObjectFactory->canRegisterPropertyFactory(
         QStringLiteral("test.second_configurable"),
         ConfigurableStringProperty::staticMetaObject,
@@ -692,6 +766,12 @@ TEST_F(TestGtObject, dynamicPropertiesPersistDefinitionAndValue)
     gt::PropertyConfiguration configuration;
     configuration.insert(QStringLiteral("enabled"), true);
     configuration.insert(QStringLiteral("count"), 4);
+    configuration.insert(QStringLiteral("uint"),
+                         std::numeric_limits<uint>::max());
+    configuration.insert(QStringLiteral("int64"),
+                         std::numeric_limits<qlonglong>::min());
+    configuration.insert(QStringLiteral("uint64"),
+                         std::numeric_limits<qulonglong>::max());
     configuration.insert(QStringLiteral("threshold"), 1.2345678901234567);
     configuration.insert(QStringLiteral("label"), QStringLiteral("sample"));
     configuration.insert(
@@ -739,6 +819,18 @@ TEST_F(TestGtObject, dynamicPropertiesPersistDefinitionAndValue)
     EXPECT_EQ(definitions.front().category,
               QStringLiteral("Runtime custom category"));
     EXPECT_EQ(restoredProperty->configuration(), configuration);
+    const auto restoredConfiguration = restoredProperty->configuration();
+    EXPECT_EQ(restoredConfiguration.value("uint").userType(), QMetaType::UInt);
+    EXPECT_EQ(restoredConfiguration.value("uint").toUInt(),
+              std::numeric_limits<uint>::max());
+    EXPECT_EQ(restoredConfiguration.value("int64").userType(),
+              QMetaType::LongLong);
+    EXPECT_EQ(restoredConfiguration.value("int64").toLongLong(),
+              std::numeric_limits<qlonglong>::min());
+    EXPECT_EQ(restoredConfiguration.value("uint64").userType(),
+              QMetaType::ULongLong);
+    EXPECT_EQ(restoredConfiguration.value("uint64").toULongLong(),
+              std::numeric_limits<qulonglong>::max());
     gt::PropertyConfiguration invalidConfiguration{
         {QStringLiteral("unsupported"),
          QVariant::fromValue(QDate{2026, 1, 1})}};
@@ -1640,7 +1732,6 @@ TEST_F(TestGtObject, fromMemento)
     ASSERT_FALSE(mp1.isNull());
 }
 
-
 TEST_F(TestGtObject, copy)
 {
     bool signalCalled = false;
@@ -1668,7 +1759,7 @@ TEST_F(TestGtObject, copy)
 
     ASSERT_TRUE(copiedWithDefaultFactory != nullptr);
 
-    delete copiedWithDefaultFactory;
+    delete copiedWithDefaultFactory ;
 
     ASSERT_TRUE(origWithoutFactory.factory() == nullptr);
 }
@@ -1682,8 +1773,8 @@ TEST_F(TestGtObject, objectPath)
     child2->setObjectName("Child2");
 
     QString path = child2->objectPath();
-    QString pathCompare = obj.objectName() + ";" + child1->objectName() + ";" +
-                          child2->objectName();
+    QString pathCompare = obj.objectName() + ";" + child1->objectName()
+                          + ";" + child2->objectName();
 
     // check that uuid are not equal
     ASSERT_STREQ(path.toStdString().c_str(), pathCompare.toStdString().c_str());
@@ -1700,8 +1791,8 @@ TEST_F(TestGtObject, getObjectByPath)
     GtObjectGroup* child3 = new GtObjectGroup(child1);
     child3->setObjectName("Child3");
 
-    QString path = obj.objectName() + ";" + child1->objectName() + ";" +
-                   child3->objectName();
+    QString path = obj.objectName() + ";" + child1->objectName()
+                   + ";" + child3->objectName();
 
     qDebug() << path;
 
@@ -1785,8 +1876,6 @@ TEST_F(TestGtObject, appendChild)
     ASSERT_TRUE(obj.appendChild(child));
     ASSERT_FALSE(parent.appendChild(child));
 }
-
-#include "test_gt_object.moc"
 
 TEST_F(TestGtObject, flags)
 {
@@ -1937,71 +2026,55 @@ TEST_F(TestGtObject, constness)
     GtObject* obj{};
     GtObject const* constObj{};
 
-    static_assert(std::is_same<GtObject*, decltype(obj->findChild())>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtObject const*, decltype(constObj->findChild())>(),
-        "Should be const");
+    static_assert(std::is_same<GtObject*,
+                  decltype(obj->findChild())>(), "Should be non-const");
+    static_assert(std::is_same<GtObject const*,
+                  decltype(constObj->findChild())>(), "Should be const");
 
-    static_assert(std::is_same<GtObject*, decltype(obj->findDirectChild())>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtObject const*, decltype(constObj->findDirectChild())>(),
-        "Should be const");
+    static_assert(std::is_same<GtObject*,
+                  decltype(obj->findDirectChild())>(), "Should be non-const");
+    static_assert(std::is_same<GtObject const*,
+                  decltype(constObj->findDirectChild())>(), "Should be const");
 
-    static_assert(std::is_same<QObject*, decltype(obj->parent())>(),
-                  "Should be non-const");
-    static_assert(std::is_same<QObject const*, decltype(constObj->parent())>(),
-                  "Should be const");
+    static_assert(std::is_same<QObject*,
+                  decltype(obj->parent())>(), "Should be non-const");
+    static_assert(std::is_same<QObject const*,
+                  decltype(constObj->parent())>(), "Should be const");
 
-    static_assert(std::is_same<GtObject*, decltype(obj->findParent())>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtObject const*, decltype(constObj->findParent())>(),
-        "Should be const");
+    static_assert(std::is_same<GtObject*,
+                  decltype(obj->findParent())>(), "Should be non-const");
+    static_assert(std::is_same<GtObject const*,
+                  decltype(constObj->findParent())>(), "Should be const");
 
-    static_assert(std::is_same<GtObject*, decltype(obj->findRoot())>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtObject const*, decltype(constObj->findRoot())>(),
-        "Should be const");
-
-    static_assert(
-        std::is_same<GtAbstractProperty*, decltype(obj->findProperty("id"))>(),
-        "Should be non-const");
-    static_assert(std::is_same<GtAbstractProperty const*,
-                               decltype(constObj->findProperty("id"))>(),
-                  "Should be const");
+    static_assert(std::is_same<GtObject*,
+                  decltype(obj->findRoot())>(), "Should be non-const");
+    static_assert(std::is_same<GtObject const*,
+                  decltype(constObj->findRoot())>(), "Should be const");
 
     static_assert(std::is_same<GtAbstractProperty*,
-                               decltype(obj->findPropertyByName("name"))>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtAbstractProperty const*,
-                     decltype(constObj->findPropertyByName("name"))>(),
-        "Should be const");
+                  decltype(obj->findProperty("id"))>(), "Should be non-const");
+    static_assert(std::is_same<GtAbstractProperty const*,
+                  decltype(constObj->findProperty("id"))>(), "Should be const");
+
+    static_assert(std::is_same<GtAbstractProperty*,
+                  decltype(obj->findPropertyByName("name"))>(), "Should be non-const");
+    static_assert(std::is_same<GtAbstractProperty const*,
+                  decltype(constObj->findPropertyByName("name"))>(), "Should be const");
 
     static_assert(std::is_same<GtPropertyStructContainer*,
-                               decltype(obj->findPropertyContainer("id"))>(),
-                  "Should be non-const");
-    static_assert(
-        std::is_same<GtPropertyStructContainer const*,
-                     decltype(constObj->findPropertyContainer("id"))>(),
-        "Should be const");
+                  decltype(obj->findPropertyContainer("id"))>(), "Should be non-const");
+    static_assert(std::is_same<GtPropertyStructContainer const*,
+                  decltype(constObj->findPropertyContainer("id"))>(), "Should be const");
 
-    static_assert(
-        std::is_same<QList<GtObject*>, decltype(obj->findChildren())>(),
-        "Should be non-const");
+    static_assert(std::is_same<QList<GtObject*>,
+                  decltype(obj->findChildren())>(), "Should be non-const");
     static_assert(std::is_same<QList<GtObject const*>,
-                               decltype(constObj->findChildren())>(),
-                  "Should be non-const");
+                  decltype(constObj->findChildren())>(), "Should be non-const");
 
-    static_assert(
-        std::is_same<QList<GtObject*>, decltype(obj->findDirectChildren())>(),
-        "Should be non-const");
+    static_assert(std::is_same<QList<GtObject*>,
+                  decltype(obj->findDirectChildren())>(), "Should be non-const");
     static_assert(std::is_same<QList<GtObject const*>,
-                               decltype(constObj->findDirectChildren())>(),
-                  "Should be non-const");
+                  decltype(constObj->findDirectChildren())>(), "Should be non-const");
 }
 
 TEST(GtObjectBugs, issue276)
@@ -2015,7 +2088,7 @@ TEST(GtObjectBugs, issue276)
     // uncommenting this line returns the correct no. of children but deletes
     // all children in the process
     // -> now deactivatd using SFINAE
-    //    EXPECT_EQ(2, testobj.childCount<GtObject>());
+//    EXPECT_EQ(2, testobj.childCount<GtObject>());
 
     EXPECT_EQ(2, testobj.childCount<GtObject*>());
 
@@ -2032,7 +2105,9 @@ TEST(GtObjectBugs, issue325)
 
     SlotAdaptor a;
     a.on(&obj, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
-         [&propertyChanged]() { propertyChanged = true; });
+           [&propertyChanged]() {
+        propertyChanged = true;
+    });
 
     ASSERT_FALSE(obj.hasChanges());
 
@@ -2052,7 +2127,7 @@ TEST(GtObjectBugs, issue325)
 TEST(GtObjectBugs, subPropsSignalsFromThread)
 {
     std::unique_ptr<TestSpecialGtObject> obj;
-    QtConcurrent::run([&obj, mainThread = QThread::currentThread()]() {
+    QtConcurrent::run([&obj, mainThread = QThread::currentThread()](){
         obj.reset(new TestSpecialGtObject);
 
         // note, we may not use QObject->moveToThread here!!!
@@ -2060,8 +2135,13 @@ TEST(GtObjectBugs, subPropsSignalsFromThread)
     }).waitForFinished();
 
     bool changed = false;
-    QObject::connect(&(obj->m_modeProp), &GtAbstractProperty::subPropChanged,
-                     [&changed](GtAbstractProperty*) { changed = true; });
+    QObject::connect(
+        &(obj->m_modeProp),
+        &GtAbstractProperty::subPropChanged,
+        [&changed](GtAbstractProperty*)
+    {
+        changed = true;
+    });
 
     ASSERT_TRUE(obj != nullptr);
     EXPECT_FALSE(changed);
@@ -2102,3 +2182,5 @@ TEST_F(TestGtObject, bug539)
     EXPECT_EQ(parent.findDirectChildren<TestObject*>().size(), 1);
     EXPECT_EQ(parent.findDirectChildren<TestSpecialGtObject*>().size(), 1);
 }
+
+#include "test_gt_object.moc"

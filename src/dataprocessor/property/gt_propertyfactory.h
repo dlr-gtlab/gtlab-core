@@ -28,7 +28,8 @@ struct GT_DATAMODEL_EXPORT PropertyFactoryData
 
 /**
  * Registers a runtime-property constructor for a stable, namespaced type ID.
- * The registration is removed when this token is destroyed.
+ * The registration is removed when this token is destroyed or overwritten by
+ * move assignment. The object factory must outlive every token registered on it.
  */
 class GT_DATAMODEL_EXPORT PropertyFactoryRegistration
 {

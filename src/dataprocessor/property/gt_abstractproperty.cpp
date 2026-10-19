@@ -20,6 +20,9 @@ GtAbstractProperty::~GtAbstractProperty() = default;
 class GtAbstractProperty::Impl
 {
 public:
+    /// Stable type ID for an owned runtime property; empty for static ones.
+    QString propertyFactoryTypeId;
+
     /// Monitoring indicator
     bool m_monitoring{false};
 };
@@ -69,13 +72,13 @@ GtAbstractProperty::applyConfiguration(const gt::PropertyConfiguration& config)
 const QString&
 GtAbstractProperty::propertyFactoryTypeId() const
 {
-    return m_propertyFactoryTypeId;
+    return m_pimpl->propertyFactoryTypeId;
 }
 
 void
 GtAbstractProperty::setPropertyFactoryTypeId(const QString& typeId)
 {
-    m_propertyFactoryTypeId = typeId;
+    m_pimpl->propertyFactoryTypeId = typeId;
 }
 
 QString

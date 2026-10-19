@@ -1001,26 +1001,26 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
         return false;
     }
 
-    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(
-        plugin->ident(), plugin);
+    GtDatamodelInterface* datamodel =
+        checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked datamodel classes
-    if (dmp)
+    if (datamodel)
     {
-        if (!gtObjectFactory->invokable(dmp->package()))
+        if (!gtObjectFactory->invokable(datamodel->package()))
         {
             gtWarning() << errorString()
                         << QObject::tr("Package is not invokable!");
             return false;
         }
-        if (gtObjectFactory->containsDuplicates(dmp->data()))
+        if (gtObjectFactory->containsDuplicates(datamodel->data()))
         {
             gtWarning() << errorString()
                         << QObject::tr("A data class is already defined!");
             return false;
         }
 
-        if (!gtObjectFactory->allInvokable(dmp->data()))
+        if (!gtObjectFactory->allInvokable(datamodel->data()))
         {
             gtWarning() << errorString()
                         << QObject::tr("Not all data classes are invokable!");
@@ -1028,7 +1028,7 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
         }
 
         if (!gtObjectFactory->canRegisterPropertyFactories(
-                dmp->propertyFactories()))
+                datamodel->propertyFactories()))
         {
             gtWarning()
                 << errorString()
@@ -1045,48 +1045,59 @@ bool
 GtModuleLoader::insert(GtModuleInterface* plugin)
 {
     if (!plugin) return false;
-    GtDatamodelInterface* dmp =
-        checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
+
+    const auto moduleId = plugin->ident();
+    GtDatamodelInterface* datamodel =
+        checkInterface<GtDatamodelInterface>(moduleId, plugin);
     QList<QMetaObject> registeredClasses;
-    QStringList registeredPropertyTypes;
+    QStringList registeredPropertyTypeIds;
+    // Rollback covers only Core data-class and property-factory registrations.
+    // Additional registrations and the publication below have no rollback.
     const auto rollbackRegistrations = [&]() {
-        for (const auto& typeId : qAsConst(registeredPropertyTypes))
-            gtObjectFactory->unregisterPropertyFactory(typeId, plugin->ident());
+        for (const auto& typeId : qAsConst(registeredPropertyTypeIds))
+            gtObjectFactory->unregisterPropertyFactory(typeId, moduleId);
         for (const auto& metaObject : qAsConst(registeredClasses))
             gtObjectFactory->unregisterClass(metaObject);
     };
 
-    if (dmp)
+    if (datamodel)
     {
-        if (!registerDataModelClasses(*dmp, plugin->ident(), registeredClasses))
+        // Register data classes first, keeping track of partial success.
+        if (!registerDataModelClasses(*datamodel, moduleId, registeredClasses))
         {
             rollbackRegistrations();
             return false;
         }
-        if (!gtObjectFactory->registerPropertyFactories(
-                dmp->propertyFactories(), plugin->ident()))
+
+        // Fetch once: registration and rollback must use the same type IDs.
+        const auto propertyFactories = datamodel->propertyFactories();
+        if (!gtObjectFactory->registerPropertyFactories(propertyFactories,
+                                                        moduleId))
         {
             rollbackRegistrations();
             return false;
         }
-        const auto propertyFactories = dmp->propertyFactories();
-        std::transform(
-            propertyFactories.cbegin(), propertyFactories.cend(),
-            std::back_inserter(registeredPropertyTypes),
-            [](const PropertyFactoryData& factory) { return factory.typeId; });
+        for (const auto& factory : propertyFactories)
+        {
+            // cppcheck-suppress useStlAlgorithm
+            registeredPropertyTypeIds.push_back(factory.typeId);
+        }
     }
+
+    // Derived loaders register process-specific interfaces before publication.
     if (!insertAdditional(plugin))
     {
         rollbackRegistrations();
         return false;
     }
-    m_pimpl->m_plugins.insert(plugin->ident(), plugin);
+
+    // Publish the module, converters and shared/command-line functions.
+    m_pimpl->m_plugins.insert(moduleId, plugin);
     foreach (const auto& routine, plugin->upgradeRoutines())
         gt::detail::GtModuleUpgrader::instance().registerModuleConverter(
-            plugin->ident(), routine.target, routine.f);
+            moduleId, routine.target, routine.f);
     foreach (const auto& sharedFunction, plugin->sharedFunctions())
-        gt::interface::detail::registerFunction(plugin->ident(),
-                                                sharedFunction);
+        gt::interface::detail::registerFunction(moduleId, sharedFunction);
     foreach (const auto& commandLineFunction, plugin->commandLineFunctions())
         gt::commandline::registerFunction(commandLineFunction);
     return true;

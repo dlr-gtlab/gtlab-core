@@ -208,7 +208,11 @@ protected:
     /** Inserts a checked module and reports whether registration succeeded. */
     virtual bool insert(GtModuleInterface* plugin);
 
-    /** Registers loader-specific state as part of the insertion transaction. */
+    /**
+     * Registers loader-specific interfaces before module publication.
+     * Return false before changing loader-specific state if validation fails.
+     * The caller rolls back only Core data-class/property-factory registrations.
+     */
     virtual bool insertAdditional(GtModuleInterface* plugin);
 
 private:

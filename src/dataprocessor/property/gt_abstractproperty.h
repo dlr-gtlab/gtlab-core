@@ -319,7 +319,6 @@ protected:
 
     /// Brief description of parameter
     QString m_brief;
-    QString m_propertyFactoryTypeId;
 
     /// Custom category string
     QString m_customCategoryString;
@@ -344,7 +343,6 @@ protected:
 
     /// Whether property is stored in memento information or not
     bool m_storeMemento{true};
-
 
     /// Property category
     GtAbstractProperty::PropertyCategory m_category{GtAbstractProperty::Main};

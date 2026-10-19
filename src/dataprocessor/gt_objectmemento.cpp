@@ -33,6 +33,103 @@ using PD = GtObjectMemento::PropertyData;
 
 namespace
 {
+    using DynamicPropertyData = GtObjectMemento::DynamicPropertyData;
+
+    enum class MissingChildPolicy
+    {
+        Ignore,
+        Reject
+    };
+
+    /** Restore values/activation recursively. Static schemas tolerate obsolete
+     * child IDs; dynamic definitions require every serialized child to exist.
+     * STRUCT_T nodes carry children only and have no scalar value to restore.
+     */
+    bool restorePropertyData(GtAbstractProperty& property, const PD& data,
+                             MissingChildPolicy missingChildren)
+    {
+        property.setActive(data.isActive);
+        if (data.type() != PD::STRUCT_T &&
+            !property.setValueFromVariant(data.data()))
+        {
+            return false;
+        }
+        for (const auto& childData : data.childProperties)
+        {
+            auto* child = property.findProperty(childData.name);
+            if (!child)
+            {
+                if (missingChildren == MissingChildPolicy::Reject) return false;
+                continue;
+            }
+            if (!restorePropertyData(*child, childData, missingChildren))
+                return false;
+        }
+        return true;
+    }
+
+    /// Compare complete serialized trees without relying on cached hashes.
+    bool hasSamePropertyData(const PD& left, const PD& right)
+    {
+        if (left.name != right.name || left.isActive != right.isActive ||
+            left.type() != right.type() ||
+            left.dataType() != right.dataType() ||
+            left.data() != right.data() ||
+            left.childProperties.size() != right.childProperties.size())
+            return false;
+        for (qsizetype i = 0; i < left.childProperties.size(); ++i)
+        {
+            if (!hasSamePropertyData(left.childProperties.at(i),
+                                     right.childProperties.at(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /// Retain a live instance only when its type and construction metadata match.
+    bool hasSameDynamicDefinition(const DynamicPropertyData& definition,
+                                  const GtAbstractProperty& property,
+                                  const GtAbstractProperty& candidate)
+    {
+        if (const auto* dummy = qobject_cast<const GtDummyProperty*>(&property))
+            return qobject_cast<const GtDummyProperty*>(&candidate) &&
+                   definition == dummy->originalDefinition();
+        if (qobject_cast<const GtDummyProperty*>(&candidate) ||
+            typeid(property) != typeid(candidate))
+            return false;
+        const quint32 flags =
+            (property.isReadOnlyConfigured() ? DynamicPropertyData::ReadOnly
+                                             : 0) |
+            (property.isOptional() ? DynamicPropertyData::Optional : 0) |
+            (property.isHidden() ? DynamicPropertyData::Hidden : 0) |
+            (property.isMonitoring() ? DynamicPropertyData::Monitoring : 0);
+        const QString category =
+            property.category() == GtAbstractProperty::Custom
+                ? property.categoryString()
+                : QString{};
+        return property.propertyFactoryTypeId() == definition.typeId &&
+               property.ident() == definition.ident &&
+               property.objectName() == definition.name &&
+               property.brief() == definition.brief &&
+               property.configuration() == definition.configuration &&
+               flags == definition.flags && category == definition.category;
+    }
+
+    /** Prevalidate the full memento tree on temporary objects. No live UUID,
+     * name, property value or child is touched if a dynamic definition fails.
+     */
+    bool validateDynamicPropertyTree(const GtObjectMemento& memento,
+                                     GtAbstractObjectFactory* factory)
+    {
+        GtObject staged;
+        if (!memento.mergeDynamicPropertiesTo(staged, factory)) return false;
+        for (const auto& child : memento.childObjects)
+        {
+            // cppcheck-suppress useStlAlgorithm
+            if (!validateDynamicPropertyTree(child, factory)) return false;
+        }
+        return true;
+    }
 } // namespace
 
 GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
@@ -192,27 +289,11 @@ bool
 GtObjectMemento::DynamicPropertyData::operator==(
     const DynamicPropertyData& other) const
 {
-    const auto sameData = [](const auto& self, const PD& left,
-                             const PD& right) -> bool {
-        if (left.name != right.name || left.isActive != right.isActive ||
-            left.type() != right.type() ||
-            left.dataType() != right.dataType() ||
-            left.data() != right.data() ||
-            left.childProperties.size() != right.childProperties.size())
-            return false;
-        for (qsizetype i = 0; i < left.childProperties.size(); ++i)
-        {
-            if (!self(self, left.childProperties.at(i),
-                      right.childProperties.at(i)))
-                return false;
-        }
-        return true;
-    };
     return typeId == other.typeId && ident == other.ident &&
            name == other.name && brief == other.brief &&
            configuration == other.configuration && flags == other.flags &&
            category == other.category &&
-           sameData(sameData, propertyData, other.propertyData);
+           hasSamePropertyData(propertyData, other.propertyData);
 }
 
 void
@@ -443,28 +524,8 @@ readProperty(const PD& p, GtObject& obj)
 
     if (prop)
     {
-        const auto restoreProperty = [](const auto& self,
-                                        GtAbstractProperty& target,
-                                        const PD& source) -> bool {
-            target.setActive(source.isActive);
-            if (source.type() == PD::STRUCT_T)
-            {
-                // Unknown structured property state is retained on its dummy.
-            }
-            else
-            {
-                if (!target.setValueFromVariant(source.data())) return false;
-            }
-            for (const auto& child : source.childProperties)
-            {
-                if (auto* subProperty = target.findProperty(child.name))
-                {
-                    if (!self(self, *subProperty, child)) return false;
-                }
-            }
-            return true;
-        };
-        if (!restoreProperty(restoreProperty, *prop, p)) return false;
+        if (!restorePropertyData(*prop, p, MissingChildPolicy::Ignore))
+            return false;
         // TODO: should this be set by the reader ???
         //prop->setOptional(p.isOptional);
     }
@@ -697,20 +758,7 @@ bool
 GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
 {
 
-    // Validate dynamic definitions and their embedded values for this object
-    // and every child before changing any live object in the tree.
-    const auto validateDynamicTree =
-        [factory](const auto& self, const GtObjectMemento& memento) -> bool {
-        GtObject staged;
-        if (factory) staged.setFactory(factory);
-        if (!memento.mergeDynamicPropertiesTo(staged, factory)) return false;
-        return std::all_of(memento.childObjects.cbegin(),
-                           memento.childObjects.cend(),
-                           [&self](const GtObjectMemento& child) {
-                               return self(self, child);
-                           });
-    };
-    if (!validateDynamicTree(validateDynamicTree, *this)) return false;
+    if (!validateDynamicPropertyTree(*this, factory)) return false;
 
     if (!obj.isDummy() && obj.metaObject()->className() != className())
     {
@@ -803,46 +851,7 @@ GtObjectMemento::mergeDynamicPropertiesTo(
     GtObject& obj, const GtAbstractObjectFactory* factory) const
 {
     if (!factory) factory = obj.factory();
-    const auto applyData = [](const auto& self, GtAbstractProperty& property,
-                              const PD& data) -> bool {
-        property.setActive(data.isActive);
-        if (data.type() != PD::STRUCT_T &&
-            !property.setValueFromVariant(data.data()))
-            return false;
-        for (const auto& childData : data.childProperties)
-        {
-            auto* child = property.findProperty(childData.name);
-            if (!child || !self(self, *child, childData)) return false;
-        }
-        return true;
-    };
-    const auto sameDefinition = [](const DynamicPropertyData& definition,
-                                   const GtAbstractProperty& property,
-                                   const GtAbstractProperty& candidate) {
-        if (const auto* dummy = qobject_cast<const GtDummyProperty*>(&property))
-            return qobject_cast<const GtDummyProperty*>(&candidate) &&
-                   definition == dummy->originalDefinition();
-        if (qobject_cast<const GtDummyProperty*>(&candidate) ||
-            typeid(property) != typeid(candidate))
-            return false;
-        const quint32 flags =
-            (property.isReadOnlyConfigured() ? DynamicPropertyData::ReadOnly
-                                             : 0) |
-            (property.isOptional() ? DynamicPropertyData::Optional : 0) |
-            (property.isHidden() ? DynamicPropertyData::Hidden : 0) |
-            (property.isMonitoring() ? DynamicPropertyData::Monitoring : 0);
-        const QString category =
-            property.category() == GtAbstractProperty::Custom
-                ? property.categoryString()
-                : QString{};
-        return property.propertyFactoryTypeId() == definition.typeId &&
-               property.ident() == definition.ident &&
-               property.objectName() == definition.name &&
-               property.brief() == definition.brief &&
-               property.configuration() == definition.configuration &&
-               flags == definition.flags && category == definition.category;
-    };
-
+    // Construct and validate candidates before changing ownership or views.
     QList<GtAbstractProperty*> retained;
     std::vector<std::unique_ptr<GtAbstractProperty>> replacements;
     QStringList order;
@@ -855,7 +864,6 @@ GtObjectMemento::mergeDynamicPropertiesTo(
             return false;
         ids.insert(definition.ident);
         auto* current = obj.findProperty(definition.ident);
-        GtAbstractProperty* candidate = nullptr;
         std::unique_ptr<GtAbstractProperty> property;
         // The Core registry also holds the built-in and module property types.
         const auto* registry = factory;
@@ -887,13 +895,16 @@ GtObjectMemento::mergeDynamicPropertiesTo(
             property = std::make_unique<GtDummyProperty>(definition);
         }
         property->setPropertyFactoryTypeId(definition.typeId);
-        candidate = property.get();
+        auto* candidate = property.get();
         if (!qobject_cast<GtDummyProperty*>(candidate) &&
             !definition.propertyData.name.isEmpty() &&
-            !applyData(applyData, *candidate, definition.propertyData))
+            !restorePropertyData(*candidate, definition.propertyData,
+                                 MissingChildPolicy::Reject))
             return false;
 
-        if (current && sameDefinition(definition, *current, *candidate))
+        // Retain compatible instances so clients keep their pointers/connections.
+        if (current &&
+            hasSameDynamicDefinition(definition, *current, *candidate))
         {
             retained.push_back(current);
             retainedData.emplace_back(current, &definition.propertyData);
@@ -905,17 +916,20 @@ GtObjectMemento::mergeDynamicPropertiesTo(
         order.push_back(definition.ident);
     }
 
-    // Stage construction and value data before changing ownership or views.
-    // Retained instances receive only the prevalidated PropertyData below.
-    if (!obj.replaceDynamicProperties(retained, std::move(replacements), order))
+    // Commit the staged order and ownership only after every candidate passed.
+    if (!obj.replaceDynamicProperties(retained, std::move(replacements), order,
+                                      factory))
         return false;
 
+    // Restore prevalidated values on retained instances after the commit.
     for (const auto& entry : retainedData)
     {
         if (entry.second->name.isEmpty() ||
             qobject_cast<GtDummyProperty*>(entry.first))
             continue;
-        if (!applyData(applyData, *entry.first, *entry.second)) return false;
+        if (!restorePropertyData(*entry.first, *entry.second,
+                                 MissingChildPolicy::Reject))
+            return false;
     }
     return true;
 }

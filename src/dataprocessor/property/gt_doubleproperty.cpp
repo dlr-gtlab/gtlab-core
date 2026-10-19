@@ -330,7 +330,7 @@ GtDoubleProperty::validateValue(const double& value)
     return true;
 }
 
-const double&
+double
 GtDoubleProperty::initialValue() const
 {
     return m_initValue;

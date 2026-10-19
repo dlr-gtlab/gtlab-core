@@ -15,11 +15,11 @@ namespace gt
     inline constexpr int PropertyConfigurationMaxDepth = 64;
 
     /**
- * JSON-like construction settings for a property.
- *
- * This is an alias so modules can use the named API type without registering
- * a custom Qt metatype.
- */
+     * JSON-like construction settings for a property.
+     *
+     * This is an alias so modules can use the named API type without registering
+     * a custom Qt metatype.
+     */
     using PropertyConfiguration = QVariantMap;
 
 } // namespace gt

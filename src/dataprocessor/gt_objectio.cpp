@@ -22,7 +22,6 @@
 
 #include <cfloat>
 #include <algorithm>
-#include <iterator>
 #include <limits>
 #include <typeinfo>
 
@@ -54,6 +53,49 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
 
 namespace
 {
+    /// Collect every dynamic descendant, including roots excluded from storage.
+    void collectDynamicPropertyIds(const GtAbstractProperty& property,
+                                   QSet<QString>& ids)
+    {
+        if (ids.contains(property.ident())) return;
+        ids.insert(property.ident());
+        for (const auto* child : property.fullProperties())
+        {
+            if (child) collectDynamicPropertyIds(*child, ids);
+        }
+    }
+
+    /** Move a dynamic tree out of the flat property list. Nodes without their
+     * own stored value pass their stored descendants up to the enclosing node.
+     * Returns whether this node had its own entry in the flat list.
+     */
+    bool extractDynamicPropertyData(
+        const GtAbstractProperty& property,
+        QVector<GtObjectMemento::PropertyData>& flatProperties,
+        GtObjectMemento::PropertyData& data)
+    {
+        auto stored = std::find_if(flatProperties.begin(), flatProperties.end(),
+                                   [&property](const auto& entry) {
+                                       return entry.name == property.ident();
+                                   });
+        const bool hasStoredData = stored != flatProperties.end();
+        if (hasStoredData)
+        {
+            data = std::move(*stored);
+            flatProperties.erase(stored);
+        }
+        for (const auto* child : property.fullProperties())
+        {
+            GtObjectMemento::PropertyData childData;
+            if (extractDynamicPropertyData(*child, flatProperties, childData))
+                data.childProperties.push_back(std::move(childData));
+            else
+                data.childProperties += childData.childProperties;
+        }
+        return hasStoredData;
+    }
+
+    /// Configuration XML carries explicit scalar types to preserve QVariant types.
     QDomElement dynamicConfigValueToDom(const QVariant& value,
                                         QDomDocument& doc, const QString& tag,
                                         const QString& key = {})
@@ -116,16 +158,12 @@ namespace
                 return {};
             }
             element.setAttribute(QStringLiteral("type"), type);
-            if (type != QStringLiteral("null"))
-            {
-                const QString text =
-                    value.userType() == QMetaType::Double
-                        ? QString::number(
-                              value.toDouble(), 'g',
-                              std::numeric_limits<double>::max_digits10)
-                        : value.toString();
-                element.appendChild(doc.createTextNode(text));
-            }
+            const QString text =
+                value.userType() == QMetaType::Double
+                    ? QString::number(value.toDouble(), 'g',
+                                      std::numeric_limits<double>::max_digits10)
+                    : value.toString();
+            element.appendChild(doc.createTextNode(text));
         }
         return element;
     }
@@ -314,9 +352,9 @@ namespace
 
 /** specialization for QVector<double>
  */
-template <>
-inline QString
-GtObjectIO::listToString<QVector<double>>(const QVector<double>& t)
+template<>
+inline QString GtObjectIO::listToString<QVector<double> >(
+        const QVector<double>& t)
 {
     // this code is optimized to avoid creating temporaries / reallocating strings,
     // please don't change unless you still make it faster...
@@ -334,9 +372,8 @@ GtObjectIO::listToString<QVector<double>>(const QVector<double>& t)
 
 /** specialization for QList<bool>
  */
-template <>
-inline QString
-GtObjectIO::listToString<QList<int>>(const QList<int>& t)
+template<>
+inline QString GtObjectIO::listToString<QList<int> >(const QList<int>& t)
 {
     QString str;
     str.reserve(t.size() * 5);
@@ -352,9 +389,8 @@ GtObjectIO::listToString<QList<int>>(const QList<int>& t)
 
 /** specialization for QList<bool>
  */
-template <>
-inline QString
-GtObjectIO::listToString<QList<bool>>(const QList<bool>& t)
+template<>
+inline QString GtObjectIO::listToString<QList<bool> >(const QList<bool>& t)
 {
     QString str;
     str.reserve(t.size()*6);
@@ -370,9 +406,9 @@ GtObjectIO::listToString<QList<bool>>(const QList<bool>& t)
 
 /** specialization for QList<QPointF>
  */
-template <>
-inline QString
-GtObjectIO::listToString<QList<QPointF>>(const QList<QPointF>& t)
+template<>
+inline QString GtObjectIO::listToString<QList<QPointF> >(
+        const QList<QPointF>& t)
 {
     QString str;
     str.reserve(2 * t.size() * (DBL_DIG + 2));
@@ -430,7 +466,7 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
     else
     {
         memento.setClassName(o->metaObject()->className());
-        // store property information
+        // First collect all values, then move dynamic trees into their definitions.
         writeProperties(memento, o);
         QSet<QString> dynamicPropertyIds;
         for (auto* property : o->properties())
@@ -438,17 +474,7 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
             if (!property || property->propertyFactoryTypeId().isEmpty())
                 continue;
 
-            const auto collectIds =
-                [&dynamicPropertyIds](
-                    const auto& self,
-                    const GtAbstractProperty* current) -> void {
-                if (!current || dynamicPropertyIds.contains(current->ident()))
-                    return;
-                dynamicPropertyIds.insert(current->ident());
-                for (auto* child : current->fullProperties())
-                    self(self, child);
-            };
-            collectIds(collectIds, property);
+            collectDynamicPropertyIds(*property, dynamicPropertyIds);
 
             if (!property->storeToMemento()) continue;
 
@@ -483,39 +509,13 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
                 definition.propertyData.name = property->ident();
                 definition.propertyData.toStruct(
                     QString::fromLatin1(property->metaObject()->className()));
-                const auto collectData =
-                    [&memento](const auto& self,
-                               const GtAbstractProperty& current,
-                               GtObjectMemento::PropertyData& data) -> bool {
-                    auto stored = std::find_if(
-                        memento.properties.begin(), memento.properties.end(),
-                        [&current](
-                            const GtObjectMemento::PropertyData& candidate) {
-                            return candidate.name == current.ident();
-                        });
-                    const bool hasStoredData =
-                        stored != memento.properties.end();
-                    if (hasStoredData)
-                    {
-                        data = std::move(*stored);
-                        memento.properties.erase(stored);
-                    }
-                    for (auto* child : current.fullProperties())
-                    {
-                        GtObjectMemento::PropertyData childData;
-                        const bool childHasData = self(self, *child, childData);
-                        if (childHasData)
-                            data.childProperties.push_back(
-                                std::move(childData));
-                        else
-                            data.childProperties += childData.childProperties;
-                    }
-                    return hasStoredData;
-                };
-                collectData(collectData, *property, definition.propertyData);
+                extractDynamicPropertyData(*property, memento.properties,
+                                           definition.propertyData);
             }
             memento.dynamicProperties.push_back(std::move(definition));
         }
+        // Remove remaining dynamic descendants even when their root opted out
+        // of storage. They must never leak into the static property list.
         memento.properties.erase(
             std::remove_if(memento.properties.begin(), memento.properties.end(),
                            [&dynamicPropertyIds](
@@ -1335,22 +1335,22 @@ GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
 
     if (varType == type_QDoubleVector)
     {
-        valStr = listToString(var.value<QVector<double>>());
+        valStr = listToString(var.value<QVector<double> >());
         typeStr = QStringLiteral("double");
     }
     else if (varType == type_QIntList)
     {
-        valStr = listToString(var.value<QList<int>>());
+        valStr = listToString(var.value<QList<int> >());
         typeStr = QStringLiteral("int");
     }
     else if (varType == type_QBoolList)
     {
-        valStr = listToString(var.value<QList<bool>>());
+        valStr = listToString(var.value<QList<bool> >());
         typeStr = QStringLiteral("bool");
     }
     else if (varType == type_QPointFList)
     {
-        valStr = listToString(var.value<QList<QPointF>>());
+        valStr = listToString(var.value<QList<QPointF> >());
         typeStr = QStringLiteral("QPointF");
     }
     else if (varType == type_QStringList)
@@ -1867,52 +1867,54 @@ bool handleDynamicPropertyDefinitionsChange(GtObject& target,
     const auto definitionsById = [](const auto& definitions) {
         QHash<QString, GtObjectMemento::DynamicPropertyData> result;
         result.reserve(definitions.size());
-        std::for_each(definitions.cbegin(), definitions.cend(),
-                      [&result](const auto& definition) {
-                          result.insert(definition.ident, definition);
-                      });
+        for (const auto& definition : definitions)
+        {
+            // cppcheck-suppress useStlAlgorithm
+            result.insert(definition.ident, definition);
+        }
         return result;
     };
     const auto oldById = definitionsById(oldMemento.dynamicProperties);
     const auto newById = definitionsById(newMemento.dynamicProperties);
     QSet<QString> changedIds;
-    const auto oldIds = oldById.keys();
-    const auto newIds = newById.keys();
-    QList<QString> changedIdList;
-    std::copy_if(oldIds.cbegin(), oldIds.cend(),
-                 std::back_inserter(changedIdList), [&](const auto& id) {
-                     return !newById.contains(id) ||
-                            newById.value(id) != oldById.value(id);
-                 });
-    changedIds = QSet<QString>(changedIdList.cbegin(), changedIdList.cend());
-    QList<QString> addedIds;
-    std::copy_if(newIds.cbegin(), newIds.cend(), std::back_inserter(addedIds),
-                 [&](const auto& id) { return !oldById.contains(id); });
-    changedIds.unite(QSet<QString>(addedIds.cbegin(), addedIds.cend()));
+    // cppcheck-suppress useStlAlgorithm
+    for (auto iter = oldById.cbegin(); iter != oldById.cend(); ++iter)
+    {
+        if (!newById.contains(iter.key()) ||
+            newById.value(iter.key()) != iter.value())
+            changedIds.insert(iter.key());
+    }
+    // cppcheck-suppress useStlAlgorithm
+    for (auto iter = newById.cbegin(); iter != newById.cend(); ++iter)
+    {
+        if (!oldById.contains(iter.key())) changedIds.insert(iter.key());
+    }
     if (changedIds.isEmpty()) return true;
 
     GtObjectMemento result = GtObjectIO(target.factory()).toMemento(&target);
     auto resultById = definitionsById(result.dynamicProperties);
-    const auto* desiredById = mode == DiffMode::Revert ? &oldById : &newById;
+    const auto& desiredById = mode == DiffMode::Revert ? oldById : newById;
     for (const auto& id : qAsConst(changedIds))
     {
         resultById.remove(id);
-        if (desiredById->contains(id))
-            resultById.insert(id, desiredById->value(id));
+        if (desiredById.contains(id))
+            resultById.insert(id, desiredById.value(id));
     }
+    // Keep the target's existing order and unrelated edits. Append new IDs in
+    // snapshot order so applying a diff does not reshuffle the property editor.
+    const auto currentDefinitions = std::move(result.dynamicProperties);
     result.dynamicProperties.clear();
     QSet<QString> written;
-    const auto currentMemento = GtObjectIO(target.factory()).toMemento(&target);
-    for (const auto& current : currentMemento.dynamicProperties)
+    for (const auto& current : currentDefinitions)
     {
         if (!resultById.contains(current.ident)) continue;
         result.dynamicProperties.push_back(resultById.value(current.ident));
         written.insert(current.ident);
     }
-    const auto* desiredDefinitions = mode == DiffMode::Revert
-                                         ? &oldMemento.dynamicProperties
-                                         : &newMemento.dynamicProperties;
-    for (const auto& definition : *desiredDefinitions)
+    const auto& desiredDefinitions = mode == DiffMode::Revert
+                                         ? oldMemento.dynamicProperties
+                                         : newMemento.dynamicProperties;
+    for (const auto& definition : desiredDefinitions)
         if (resultById.contains(definition.ident) &&
             !written.contains(definition.ident))
             result.dynamicProperties.push_back(

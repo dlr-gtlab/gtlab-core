@@ -18,6 +18,7 @@
 #include <QVariant>
 
 #include "gt_object.h"
+#include "property/gt_propertyconfiguration.h"
 #include "gt_logging.h"
 #include "gt_logging/qt_bindings.h"
 
@@ -149,10 +150,6 @@ public:
     bool mergeDynamicPropertiesTo(
         GtObject& obj, const GtAbstractObjectFactory* factory = nullptr) const;
 
-private:
-    bool mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const;
-
-public:
     /**
      * @brief className
      * @return
@@ -190,7 +187,7 @@ public:
         {
             DATA_T,
             STRUCT_T,
-            ENUM_T
+            ENUM_T // only used by meta properties
         };
 
         QString name;
@@ -213,12 +210,12 @@ public:
         PropertyData& fromQMetaProperty(const QMetaProperty& prop,
                                         const QVariant& val);
 
-        QVector<PropertyData> childProperties;
+        QVector<PropertyData> childProperties; /// sub properties
         mutable QByteArray hash;
 
     private:
-        QVariant _data;
-        QString _dataType;
+        QVariant _data;    /// The data as a variant
+        QString _dataType; /// The type of the data
         PropertyType _type{DATA_T};
     };
 
@@ -310,6 +307,8 @@ public:
     QVector<GtObjectMemento> childObjects;
 
 private:
+    bool mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const;
+
     /**
      * @brief Creates a new object and adds it to the given parent
      *

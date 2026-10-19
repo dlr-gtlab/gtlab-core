@@ -163,10 +163,14 @@ public:
                                  const QString& moduleIdent = {},
                                  std::type_index cppType = typeid(void));
 
-    /** @brief Checks whether one property type can be registered. */
+    /**
+     * @brief Validates a constructor and checks for ID and C++ type conflicts.
+     * The callback is required, just as for registerPropertyFactory(). A later
+     * registration rechecks conflicts in case the registry has changed.
+     */
     bool canRegisterPropertyFactory(
         const QString& typeId, const QMetaObject& propertyType,
-        gt::PropertyFactoryFunction factory = {},
+        gt::PropertyFactoryFunction factory,
         std::type_index cppType = typeid(void)) const;
 
     /** @brief Checks whether all property types in a batch can be registered. */
@@ -237,6 +241,10 @@ private:
         gt::PropertyFactoryFunction factory;
         QString moduleId;
     };
+
+    /// Checks a prepared batch; the caller must hold m_dynamicPropertyMutex.
+    bool hasPropertyFactoryConflicts(
+        const QList<PropertyFactoryData>& prepared) const;
 
     mutable QMutex m_dynamicPropertyMutex;
     QHash<QString, PropertyFactoryInfo> m_propertyFactories;

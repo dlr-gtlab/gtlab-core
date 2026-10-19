@@ -252,19 +252,74 @@ GtAbstractObjectFactory::metaObject(const QString& clzName) const
     return nullptr;
 }
 
+namespace
+{
+    /** Validate constructors outside the registry lock and resolve C++ types.
+     * The resulting batch contains no duplicate IDs or concrete C++ types.
+     */
+    bool preparePropertyFactories(const QList<PropertyFactoryData>& factories,
+                                  QList<PropertyFactoryData>& prepared)
+    {
+        QSet<QString> typeIds;
+        std::vector<std::type_index> cppTypes;
+        for (const auto& entry : factories)
+        {
+            if (entry.typeId.isEmpty() ||
+                !entry.typeId.contains(QLatin1Char('.')) ||
+                !entry.propertyType || !entry.factory ||
+                !entry.propertyType->inherits(
+                    &GtAbstractProperty::staticMetaObject) ||
+                typeIds.contains(entry.typeId))
+            {
+                return false;
+            }
+
+            std::unique_ptr<GtAbstractProperty> probe(
+                entry.factory(QStringLiteral("__gtlab_property_type_probe__")));
+            if (!probe || probe->metaObject() != entry.propertyType)
+                return false;
+
+            const std::type_index cppType(typeid(*probe));
+            if ((entry.cppType != std::type_index(typeid(void)) &&
+                 entry.cppType != cppType) ||
+                std::find(cppTypes.cbegin(), cppTypes.cend(), cppType) !=
+                    cppTypes.cend())
+            {
+                return false;
+            }
+
+            typeIds.insert(entry.typeId);
+            cppTypes.push_back(cppType);
+            prepared.push_back(entry);
+            prepared.back().cppType = cppType;
+        }
+        return true;
+    }
+} // namespace
+
+bool
+GtAbstractObjectFactory::hasPropertyFactoryConflicts(
+    const QList<PropertyFactoryData>& prepared) const
+{
+    // The caller holds m_dynamicPropertyMutex through conflict check/insertion.
+    for (const auto& entry : prepared)
+    {
+        if (m_propertyFactories.contains(entry.typeId)) return true;
+
+        // cppcheck-suppress useStlAlgorithm
+        for (const auto& registered : m_propertyFactories)
+        {
+            if (registered.cppType == entry.cppType) return true;
+        }
+    }
+    return false;
+}
+
 bool
 GtAbstractObjectFactory::canRegisterPropertyFactory(
     const QString& typeId, const QMetaObject& propertyType,
     gt::PropertyFactoryFunction factory, std::type_index cppType) const
 {
-    if (!factory)
-    {
-        if (typeId.isEmpty() || !typeId.contains(QLatin1Char('.')) ||
-            !propertyType.inherits(&GtAbstractProperty::staticMetaObject))
-            return false;
-        QMutexLocker lock(&m_dynamicPropertyMutex);
-        return !m_propertyFactories.contains(typeId);
-    }
     return canRegisterPropertyFactories({PropertyFactoryData{
         typeId, &propertyType, std::move(factory), cppType}});
 }
@@ -273,41 +328,11 @@ bool
 GtAbstractObjectFactory::canRegisterPropertyFactories(
     const QList<PropertyFactoryData>& factories) const
 {
-    QSet<QString> typeIds;
-    std::vector<std::type_index> cppTypes;
-    QList<std::pair<PropertyFactoryData, std::type_index>> probes;
-    for (const auto& entry : factories)
-    {
-        if (entry.typeId.isEmpty() ||
-            !entry.typeId.contains(QLatin1Char('.')) || !entry.propertyType ||
-            !entry.factory ||
-            !entry.propertyType->inherits(
-                &GtAbstractProperty::staticMetaObject) ||
-            typeIds.contains(entry.typeId))
-            return false;
-        auto probe = std::unique_ptr<GtAbstractProperty>(
-            entry.factory(QStringLiteral("__gtlab_property_type_probe__")));
-        if (!probe || probe->metaObject() != entry.propertyType) return false;
-        const auto cppType = std::type_index(typeid(*probe));
-        if ((entry.cppType != std::type_index(typeid(void)) &&
-             entry.cppType != cppType) ||
-            std::find(cppTypes.cbegin(), cppTypes.cend(), cppType) !=
-                cppTypes.cend())
-            return false;
-        typeIds.insert(entry.typeId);
-        cppTypes.push_back(cppType);
-        probes.push_back({entry, cppType});
-    }
+    QList<PropertyFactoryData> prepared;
+    if (!preparePropertyFactories(factories, prepared)) return false;
+
     QMutexLocker lock(&m_dynamicPropertyMutex);
-    return std::none_of(
-        probes.cbegin(), probes.cend(), [this](const auto& probe) {
-            return m_propertyFactories.contains(probe.first.typeId) ||
-                   std::any_of(m_propertyFactories.cbegin(),
-                               m_propertyFactories.cend(),
-                               [&probe](const auto& registered) {
-                                   return registered.cppType == probe.second;
-                               });
-        });
+    return !hasPropertyFactoryConflicts(prepared);
 }
 
 bool
@@ -326,55 +351,20 @@ bool
 GtAbstractObjectFactory::registerPropertyFactories(
     const QList<PropertyFactoryData>& factories, const QString& moduleIdent)
 {
-    // Validate each factory and collect its concrete C++ type before locking.
-    QSet<QString> typeIds;
-    std::vector<std::type_index> cppTypes;
-    QList<std::pair<PropertyFactoryData, std::type_index>> registrations;
+    QList<PropertyFactoryData> prepared;
+    if (!preparePropertyFactories(factories, prepared)) return false;
 
-    for (const auto& entry : factories)
-    {
-        if (entry.typeId.isEmpty() ||
-            !entry.typeId.contains(QLatin1Char('.')) || !entry.propertyType ||
-            !entry.factory ||
-            !entry.propertyType->inherits(
-                &GtAbstractProperty::staticMetaObject) ||
-            typeIds.contains(entry.typeId))
-            return false;
-        auto probe = std::unique_ptr<GtAbstractProperty>(
-            entry.factory(QStringLiteral("__gtlab_property_type_probe__")));
-        if (!probe || probe->metaObject() != entry.propertyType) return false;
-        const auto cppType = std::type_index(typeid(*probe));
-        if ((entry.cppType != std::type_index(typeid(void)) &&
-             entry.cppType != cppType) ||
-            std::find(cppTypes.cbegin(), cppTypes.cend(), cppType) !=
-                cppTypes.cend())
-            return false;
-        typeIds.insert(entry.typeId);
-        cppTypes.push_back(cppType);
-        registrations.push_back({entry, cppType});
-    }
-
-    // Check for conflicts and publish the complete batch under one lock.
+    // Check conflicts and publish the complete batch under one lock. No
+    // registration can fail after validation, so the batch is all-or-nothing.
     QMutexLocker lock(&m_dynamicPropertyMutex);
-    for (const auto& registration : registrations)
-    {
-        if (m_propertyFactories.contains(registration.first.typeId))
-            return false;
+    if (hasPropertyFactoryConflicts(prepared)) return false;
 
-        for (const auto& registered : m_propertyFactories)
-        {
-            if (registered.cppType == registration.second) return false;
-        }
-    }
-
-    // No registration can fail after validation, so the batch is all-or-nothing.
-    for (const auto& registration : registrations)
+    for (const auto& entry : prepared)
     {
-        const auto& entry = registration.first;
+        // cppcheck-suppress useStlAlgorithm
         m_propertyFactories.insert(
-            entry.typeId,
-            PropertyFactoryInfo{entry.propertyType, registration.second,
-                                entry.factory, moduleIdent});
+            entry.typeId, PropertyFactoryInfo{entry.propertyType, entry.cppType,
+                                              entry.factory, moduleIdent});
     }
     return true;
 }

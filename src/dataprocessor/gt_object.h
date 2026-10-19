@@ -12,13 +12,11 @@
 #define GTOBJECT_H
 
 #include "gt_datamodel_exports.h"
-#include "property/gt_propertyconfiguration.h"
 #include "gt_typetraits.h"
 
 #include <gt_version.h>
 
 #include <QObject>
-#include <QVariant>
 
 #include <algorithm>
 #include <memory>
@@ -402,7 +400,9 @@ public:
     /**
      * @brief Adds a runtime property to the common property view.
      * Ownership is transferred to the object. Property identifiers must be
-     * unique among static and runtime root properties.
+     * nonempty and unique across static and runtime property trees.
+     * The concrete property type must have a registered factory.
+     * @return Whether the property was accepted; on failure it is destroyed.
      */
     bool addDynamicProperty(std::unique_ptr<GtAbstractProperty> property);
 
@@ -839,11 +839,17 @@ private:
     void importMementoIntoDummy(const GtObjectMemento&);
     void exportDummyIntoMemento(GtObjectMemento&) const;
 
-    /** Installs a staged dynamic-property set during Memento restoration. */
+    /**
+     * Installs a staged set after validating ownership, types, IDs and order.
+     * Retained pointers must belong to this object. On failure the live set is
+     * unchanged; replacements are destroyed. Structural notifications bracket
+     * the commit so editor models never observe dangling property pointers.
+     */
     bool replaceDynamicProperties(
         const QList<GtAbstractProperty*>& retained,
         std::vector<std::unique_ptr<GtAbstractProperty>> replacements,
-        const QStringList& order);
+        const QStringList& order,
+        const GtAbstractObjectFactory* propertyFactory);
 
     // ObjectPtr may be const
     template <typename R, typename ObjectPtr>
@@ -885,7 +891,9 @@ signals:
      */
     void dataChanged(GtObject*, GtAbstractProperty*);
 
+    /// Emitted before any add/remove/replace/reorder in the property view.
     void dynamicPropertyStructureAboutToChange();
+    /// Completes the paired notification, including a failed add attempt.
     void dynamicPropertyStructureChanged();
 
     /**

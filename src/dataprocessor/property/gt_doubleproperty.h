@@ -164,7 +164,7 @@ public:
      * @brief initialValue of double property (0.0 if not specified)
      * @return
      */
-    const double& initialValue() const;
+    double initialValue() const;
 
     /**
      * @brief lowBoundActive
