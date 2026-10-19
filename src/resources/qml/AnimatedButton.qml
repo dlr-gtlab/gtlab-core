@@ -30,10 +30,6 @@ Button {
     checkable: false
     flat: true
 
-    signal clicked
-    signal pressed
-    signal released
-
     property color custom_hoverColor: "#ddeeff"
     property color custom_backgroundColor: "transparent"
     property color custom_secondaryColor: "#4582be"
@@ -202,31 +198,18 @@ Button {
         }
     }
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            control.clicked()
-            if (control.checkable) {
-                control.checked = !control.checked
-            }
-        }
+    ToolTip {
+        id: toolTip
+        delay: 1000
+        timeout: 5000
+        text: tooltipPrefix + tooltipText
+        visible: false
+        x: parent.width * 2 / 3
+        y: parent.height / 2 + 10
 
-        onPressed: control.pressed()
-        onReleased: control.released()
-
-        ToolTip {
-            id: toolTip
-            delay: 1000
-            timeout: 5000
-            text: tooltipPrefix + tooltipText
-            visible: false
-            x: parent.width * 2 / 3
-            y: parent.height / 2 + 10
-
-            onTextChanged: {
-                if (visible) {
-                    visible = (tooltipText !== "")
-                }
+        onTextChanged: {
+            if (visible) {
+                visible = (tooltipText !== "")
             }
         }
     }
@@ -237,4 +220,3 @@ Designer {
     D{i:0;formeditorZoom:3}
 }
 ##^##*/
-
