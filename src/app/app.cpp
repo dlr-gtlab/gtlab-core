@@ -22,6 +22,7 @@
 #include "gt_mainwin.h"
 #include "gt_projectopenservice.h"
 #include "gt_application.h"
+#include "gt_versionnumber.h"
 #include "gt_logging.h"
 #include "gt_environmentdialog.h"
 #include "gt_environment.h"
