@@ -621,6 +621,57 @@ GtMainWin::importProject()
 }
 
 void
+GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
+{
+    const QFileInfo fileInfo(projectFilePath);
+    const QString suffix = fileInfo.suffix().toLower();
+    if (!fileInfo.exists() || !fileInfo.isFile() ||
+        (suffix != QStringLiteral("gtproj") &&
+         suffix != QStringLiteral("gtlab")))
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("The specified file '%1' is not a valid GTlab project file.")
+                .arg(QDir::toNativeSeparators(projectFilePath)));
+        return;
+    }
+
+    GtProjectProvider provider(fileInfo.absoluteFilePath());
+    std::unique_ptr<GtProject> project(provider.project());
+    if (!project)
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("Could not load the GTlab project from '%1'.")
+                .arg(QDir::toNativeSeparators(projectFilePath)));
+        return;
+    }
+
+    const QString requestedPath = canonicalProjectPath(project->path());
+    const auto sessionProjects = gtDataModel->projects();
+    const auto existingProject = std::find_if(
+        sessionProjects.cbegin(), sessionProjects.cend(),
+        [&requestedPath](const GtProject* sessionProject) {
+            return canonicalProjectPath(sessionProject->path()) ==
+                   requestedPath;
+        });
+
+    if (existingProject != sessionProjects.cend())
+    {
+        GtProjectUI::openProject(*existingProject);
+        return;
+    }
+
+    if (!addProjectAndRequestOpen(std::move(project), true))
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("Could not open the GTlab project from '%1'.")
+                .arg(QDir::toNativeSeparators(projectFilePath)));
+    }
+}
+
+void
 GtMainWin::showPreferences()
 {
     GtPreferencesDialog dialog;

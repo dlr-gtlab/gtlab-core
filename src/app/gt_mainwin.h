@@ -22,6 +22,7 @@ namespace Ui
 class GtMainWin;
 }
 
+class QString;
 class GtProject;
 class GtCornerWidget;
 class GtAbstractLoadingHelper;
@@ -53,6 +54,12 @@ public:
     ~GtMainWin() override;
 
 public slots:
+    /**
+     * @brief Opens a project file passed to the application on startup.
+     * @param projectFilePath Path to the project file.
+     */
+    void openProjectFromCommandLine(const QString& projectFilePath);
+
     /**
      * @brief opens the process queue widget
      */

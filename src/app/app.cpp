@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
+#include <QTimer>
 #include <QtGlobal>
 #include <QDebug>
 #include <QQuickStyle>
@@ -235,6 +236,15 @@ main(int argc, char* argv[])
                      &app, SLOT(onGuiInitializationFinished()));
 
     w.show();
+
+    const QStringList arguments = a.arguments();
+    if (arguments.size() > 1)
+    {
+        const QString projectFilePath = arguments.at(1);
+        QTimer::singleShot(0, &w, [&w, projectFilePath]() {
+            w.openProjectFromCommandLine(projectFilePath);
+        });
+    }
 
     splash.finish(&w);
 
