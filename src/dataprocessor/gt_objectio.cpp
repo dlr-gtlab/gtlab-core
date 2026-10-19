@@ -21,6 +21,9 @@
 #include <QStringRef>
 
 #include <cfloat>
+#include <algorithm>
+#include <iterator>
+#include <limits>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -29,8 +32,10 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 #include "gt_abstractproperty.h"
+#include "property/gt_dummyproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
+#include "property/gt_propertyconfiguration.h"
 #include "gt_exceptions.h"
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
@@ -49,6 +54,176 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
 
 namespace
 {
+    QDomElement dynamicConfigValueToDom(const QVariant& value,
+                                        QDomDocument& doc, const QString& tag,
+                                        const QString& key = {})
+    {
+        QDomElement element = doc.createElement(tag);
+        if (!key.isNull()) element.setAttribute(QStringLiteral("key"), key);
+        if (!value.isValid() || value.isNull())
+        {
+            element.setAttribute(QStringLiteral("type"),
+                                 QStringLiteral("null"));
+        }
+        else if (value.userType() == QMetaType::QVariantMap)
+        {
+            element.setAttribute(QStringLiteral("type"),
+                                 QStringLiteral("object"));
+            const auto map = value.toMap();
+            for (auto iter = map.cbegin(); iter != map.cend(); ++iter)
+            {
+                element.appendChild(dynamicConfigValueToDom(
+                    iter.value(), doc, QStringLiteral("entry"), iter.key()));
+            }
+        }
+        else if (value.userType() == QMetaType::QVariantList)
+        {
+            element.setAttribute(QStringLiteral("type"),
+                                 QStringLiteral("array"));
+            for (const auto& item : value.toList())
+            {
+                element.appendChild(
+                    dynamicConfigValueToDom(item, doc, QStringLiteral("item")));
+            }
+        }
+        else
+        {
+            QString type;
+            switch (value.userType())
+            {
+            case QMetaType::Bool:
+                type = QStringLiteral("bool");
+                break;
+            case QMetaType::Int:
+                type = QStringLiteral("int");
+                break;
+            case QMetaType::UInt:
+                type = QStringLiteral("uint");
+                break;
+            case QMetaType::LongLong:
+                type = QStringLiteral("int64");
+                break;
+            case QMetaType::ULongLong:
+                type = QStringLiteral("uint64");
+                break;
+            case QMetaType::Double:
+                type = QStringLiteral("double");
+                break;
+            case QMetaType::QString:
+                type = QStringLiteral("string");
+                break;
+            default:
+                return {};
+            }
+            element.setAttribute(QStringLiteral("type"), type);
+            if (type != QStringLiteral("null"))
+            {
+                const QString text =
+                    value.userType() == QMetaType::Double
+                        ? QString::number(
+                              value.toDouble(), 'g',
+                              std::numeric_limits<double>::max_digits10)
+                        : value.toString();
+                element.appendChild(doc.createTextNode(text));
+            }
+        }
+        return element;
+    }
+
+    bool dynamicConfigValueFromDom(const QDomElement& element, QVariant& value,
+                                   int depth = 0)
+    {
+        if (depth > gt::PropertyConfigurationMaxDepth) return false;
+        const auto type = element.attribute(QStringLiteral("type"));
+        if (type == QStringLiteral("null"))
+        {
+            value = QVariant{};
+            return true;
+        }
+        if (type == QStringLiteral("object"))
+        {
+            gt::PropertyConfiguration map;
+            auto child = element.firstChildElement();
+            while (!child.isNull())
+            {
+                QVariant item;
+                if (child.tagName() != QStringLiteral("entry") ||
+                    !child.hasAttribute(QStringLiteral("key")) ||
+                    !dynamicConfigValueFromDom(child, item, depth + 1))
+                {
+                    return false;
+                }
+                const auto key = child.attribute(QStringLiteral("key"));
+                if (map.contains(key)) return false;
+                map.insert(key, item);
+                child = child.nextSiblingElement();
+            }
+            value = map;
+            return true;
+        }
+        if (type == QStringLiteral("array"))
+        {
+            QVariantList list;
+            auto child = element.firstChildElement();
+            while (!child.isNull())
+            {
+                QVariant item;
+                if (child.tagName() != QStringLiteral("item") ||
+                    !dynamicConfigValueFromDom(child, item, depth + 1))
+                {
+                    return false;
+                }
+                list.push_back(item);
+                child = child.nextSiblingElement();
+            }
+            value = list;
+            return true;
+        }
+
+        const auto text = element.text();
+        bool okay = true;
+        if (type == QStringLiteral("bool"))
+        {
+            if (text != QStringLiteral("true") &&
+                text != QStringLiteral("false"))
+                return false;
+            value = text == QStringLiteral("true");
+        }
+        else if (type == QStringLiteral("int"))
+        {
+            const int parsed = text.toInt(&okay);
+            if (okay) value = parsed;
+        }
+        else if (type == QStringLiteral("uint"))
+        {
+            const uint parsed = text.toUInt(&okay);
+            if (okay) value = parsed;
+        }
+        else if (type == QStringLiteral("int64"))
+        {
+            const qlonglong parsed = text.toLongLong(&okay);
+            if (okay) value = parsed;
+        }
+        else if (type == QStringLiteral("uint64"))
+        {
+            const qulonglong parsed = text.toULongLong(&okay);
+            if (okay) value = parsed;
+        }
+        else if (type == QStringLiteral("double"))
+        {
+            const double parsed = text.toDouble(&okay);
+            if (okay) value = parsed;
+        }
+        else if (type == QStringLiteral("string"))
+        {
+            value = text;
+        }
+        else
+        {
+            return false;
+        }
+        return okay;
+    }
 
     enum class DiffMode
     {
@@ -94,48 +269,54 @@ namespace
                                  const QDomElement& diffTag,
                                  DiffMode mode);
 
+    bool handleDynamicPropertyDefinitionsChange(GtObject& target,
+                                                const QDomElement& change,
+                                                DiffMode mode);
+
     using diffFunc = std::function<bool(GtObject&, const QDomElement&, DiffMode)>;
     std::map<QString, diffFunc> const & getDiffFuncs()
     {
-        static std::map<QString, diffFunc> funcMap =
-            {
-             std::make_pair(gt::xml::S_DIFF_OBJ_REMOVE_TAG,
-                            handleObjectAddRemove),
-             std::make_pair(gt::xml::S_DIFF_OBJ_ADD_TAG,
-                            handleObjectAddRemove),
-             std::make_pair(gt::xml::S_DIFF_INDEX_CHANGED_TAG,
-                            handleIndexChange),
-             std::make_pair(gt::xml::S_DIFF_ATTR_CHANGE_TAG,
-                            handleAttributeNodeChange),
-             std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG,
-                            handlePropContEntryChanged),
-             std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_ADDED_TAG,
-                            handlePropContEntryAddRemove),
-             std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG,
-                            handlePropContEntryAddRemove),
+        static std::map<QString, diffFunc> funcMap = {
+            std::make_pair(gt::xml::S_DIFF_OBJ_REMOVE_TAG,
+                           handleObjectAddRemove),
+            std::make_pair(gt::xml::S_DIFF_OBJ_ADD_TAG, handleObjectAddRemove),
+            std::make_pair(gt::xml::S_DIFF_INDEX_CHANGED_TAG,
+                           handleIndexChange),
+            std::make_pair(gt::xml::S_DIFF_ATTR_CHANGE_TAG,
+                           handleAttributeNodeChange),
+            std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG,
+                           handlePropContEntryChanged),
+            std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_ADDED_TAG,
+                           handlePropContEntryAddRemove),
+            std::make_pair(gt::xml::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG,
+                           handlePropContEntryAddRemove),
+            std::make_pair(QStringLiteral("dynamicPropertiesChange"),
+                           handleDynamicPropertyDefinitionsChange),
 
-             std::make_pair(gt::xml::S_DIFF_PROP_CHANGE_TAG,
-                [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
+            std::make_pair(
+                gt::xml::S_DIFF_PROP_CHANGE_TAG,
+                [](GtObject& obj, const QDomElement& tag, DiffMode mode) {
                     return  handlePropertyNodeChange(obj, tag, false,
                                                     mode);
                 }),
 
-             std::make_pair(gt::xml::S_DIFF_PROPLIST_CHANGE_TAG,
-                [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
+            std::make_pair(
+                gt::xml::S_DIFF_PROPLIST_CHANGE_TAG,
+                [](GtObject& obj, const QDomElement& tag, DiffMode mode) {
                     return  handlePropertyNodeChange(obj, tag, true,
                                                     mode);
                 }),
-             };
+        };
 
         return funcMap;
     }
-}
+} // namespace
 
 /** specialization for QVector<double>
  */
-template<>
-inline QString GtObjectIO::listToString<QVector<double> >(
-        const QVector<double>& t)
+template <>
+inline QString
+GtObjectIO::listToString<QVector<double>>(const QVector<double>& t)
 {
     // this code is optimized to avoid creating temporaries / reallocating strings,
     // please don't change unless you still make it faster...
@@ -153,8 +334,9 @@ inline QString GtObjectIO::listToString<QVector<double> >(
 
 /** specialization for QList<bool>
  */
-template<>
-inline QString GtObjectIO::listToString<QList<int> >(const QList<int>& t)
+template <>
+inline QString
+GtObjectIO::listToString<QList<int>>(const QList<int>& t)
 {
     QString str;
     str.reserve(t.size() * 5);
@@ -170,8 +352,9 @@ inline QString GtObjectIO::listToString<QList<int> >(const QList<int>& t)
 
 /** specialization for QList<bool>
  */
-template<>
-inline QString GtObjectIO::listToString<QList<bool> >(const QList<bool>& t)
+template <>
+inline QString
+GtObjectIO::listToString<QList<bool>>(const QList<bool>& t)
 {
     QString str;
     str.reserve(t.size()*6);
@@ -187,9 +370,9 @@ inline QString GtObjectIO::listToString<QList<bool> >(const QList<bool>& t)
 
 /** specialization for QList<QPointF>
  */
-template<>
-inline QString GtObjectIO::listToString<QList<QPointF> >(
-        const QList<QPointF>& t)
+template <>
+inline QString
+GtObjectIO::listToString<QList<QPointF>>(const QList<QPointF>& t)
 {
     QString str;
     str.reserve(2 * t.size() * (DBL_DIG + 2));
@@ -249,6 +432,97 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
         memento.setClassName(o->metaObject()->className());
         // store property information
         writeProperties(memento, o);
+        QSet<QString> dynamicPropertyIds;
+        for (auto* property : o->properties())
+        {
+            if (!property || property->propertyFactoryTypeId().isEmpty())
+                continue;
+
+            const auto collectIds =
+                [&dynamicPropertyIds](
+                    const auto& self,
+                    const GtAbstractProperty* current) -> void {
+                if (!current || dynamicPropertyIds.contains(current->ident()))
+                    return;
+                dynamicPropertyIds.insert(current->ident());
+                for (auto* child : current->fullProperties())
+                    self(self, child);
+            };
+            collectIds(collectIds, property);
+
+            if (!property->storeToMemento()) continue;
+
+            GtObjectMemento::DynamicPropertyData definition;
+            const auto* dummy = qobject_cast<const GtDummyProperty*>(property);
+            if (dummy)
+                definition = dummy->originalDefinition();
+            else
+            {
+                definition.typeId = property->propertyFactoryTypeId();
+                definition.ident = property->ident();
+                definition.name = property->objectName();
+                definition.brief = property->brief();
+                definition.configuration = property->configuration();
+                if (property->isReadOnlyConfigured())
+                    definition.flags |=
+                        GtObjectMemento::DynamicPropertyData::ReadOnly;
+                if (property->isOptional())
+                    definition.flags |=
+                        GtObjectMemento::DynamicPropertyData::Optional;
+                if (property->isHidden())
+                    definition.flags |=
+                        GtObjectMemento::DynamicPropertyData::Hidden;
+                if (property->isMonitoring())
+                    definition.flags |=
+                        GtObjectMemento::DynamicPropertyData::Monitoring;
+                if (property->category() == GtAbstractProperty::Custom)
+                    definition.category = property->categoryString();
+            }
+            if (!dummy)
+            {
+                definition.propertyData.name = property->ident();
+                definition.propertyData.toStruct(
+                    QString::fromLatin1(property->metaObject()->className()));
+                const auto collectData =
+                    [&memento](const auto& self,
+                               const GtAbstractProperty& current,
+                               GtObjectMemento::PropertyData& data) -> bool {
+                    auto stored = std::find_if(
+                        memento.properties.begin(), memento.properties.end(),
+                        [&current](
+                            const GtObjectMemento::PropertyData& candidate) {
+                            return candidate.name == current.ident();
+                        });
+                    const bool hasStoredData =
+                        stored != memento.properties.end();
+                    if (hasStoredData)
+                    {
+                        data = std::move(*stored);
+                        memento.properties.erase(stored);
+                    }
+                    for (auto* child : current.fullProperties())
+                    {
+                        GtObjectMemento::PropertyData childData;
+                        const bool childHasData = self(self, *child, childData);
+                        if (childHasData)
+                            data.childProperties.push_back(
+                                std::move(childData));
+                        else
+                            data.childProperties += childData.childProperties;
+                    }
+                    return hasStoredData;
+                };
+                collectData(collectData, *property, definition.propertyData);
+            }
+            memento.dynamicProperties.push_back(std::move(definition));
+        }
+        memento.properties.erase(
+            std::remove_if(memento.properties.begin(), memento.properties.end(),
+                           [&dynamicPropertyIds](
+                               const GtObjectMemento::PropertyData& data) {
+                               return dynamicPropertyIds.contains(data.name);
+                           }),
+            memento.properties.end());
     }
 
     // uuid
@@ -318,6 +592,36 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
     // store property information
     writeProperties(doc, element, memento);
 
+    if (!memento.dynamicProperties.isEmpty())
+    {
+        QDomElement definitions =
+            doc.createElement(QStringLiteral("dynamicProperties"));
+        for (const auto& property : memento.dynamicProperties)
+        {
+            QDomElement entry = doc.createElement(QStringLiteral("property"));
+            entry.setAttribute(QStringLiteral("typeId"), property.typeId);
+            entry.setAttribute(QStringLiteral("ident"), property.ident);
+            entry.setAttribute(QStringLiteral("name"), property.name);
+            entry.setAttribute(QStringLiteral("brief"), property.brief);
+            entry.setAttribute(QStringLiteral("flags"),
+                               QString::number(property.flags));
+            entry.setAttribute(QStringLiteral("category"), property.category);
+            QDomElement config = dynamicConfigValueToDom(
+                property.configuration, doc, QStringLiteral("config"));
+            entry.appendChild(config);
+            QDomElement propertyData =
+                doc.createElement(QStringLiteral("propertyData"));
+            if (!property.propertyData.name.isEmpty())
+            {
+                propertyData.appendChild(
+                    toDomElement(property.propertyData, doc));
+            }
+            entry.appendChild(propertyData);
+            definitions.appendChild(entry);
+        }
+        element.appendChild(definitions);
+    }
+
     // children
     if (!skipChildren && ! memento.childObjects.isEmpty())
     {
@@ -356,6 +660,102 @@ GtObjectIO::toMemento(const QDomElement& e)
     // store property information
     memento.properties = readProperties(e);
     memento.propertyContainers = readPropertyContainers(e);
+
+    const auto definitions =
+        e.firstChildElement(QStringLiteral("dynamicProperties"));
+    if (!definitions.isNull())
+    {
+        auto entry = definitions.firstChildElement(QStringLiteral("property"));
+        while (!entry.isNull())
+        {
+            GtObjectMemento::DynamicPropertyData property;
+            property.typeId = entry.attribute(QStringLiteral("typeId"));
+            property.ident = entry.attribute(QStringLiteral("ident"));
+            property.name = entry.attribute(QStringLiteral("name"));
+            property.brief = entry.attribute(QStringLiteral("brief"));
+            if (entry.hasAttribute(QStringLiteral("flags")))
+            {
+                bool okay = false;
+                property.flags =
+                    entry.attribute(QStringLiteral("flags")).toUInt(&okay);
+                constexpr quint32 knownFlags =
+                    GtObjectMemento::DynamicPropertyData::ReadOnly |
+                    GtObjectMemento::DynamicPropertyData::Optional |
+                    GtObjectMemento::DynamicPropertyData::Hidden |
+                    GtObjectMemento::DynamicPropertyData::Monitoring;
+                if (!okay || (property.flags & ~knownFlags) != 0)
+                    return GtObjectMemento{};
+            }
+            else
+            {
+                const auto readLegacyFlag =
+                    [&entry](const QString& key, quint32 flag, quint32& flags) {
+                        if (!entry.hasAttribute(key)) return true;
+                        const auto value = entry.attribute(key);
+                        if (value != QStringLiteral("true") &&
+                            value != QStringLiteral("false"))
+                            return false;
+                        if (value == QStringLiteral("true")) flags |= flag;
+                        return true;
+                    };
+                if (!readLegacyFlag(
+                        QStringLiteral("readOnly"),
+                        GtObjectMemento::DynamicPropertyData::ReadOnly,
+                        property.flags) ||
+                    !readLegacyFlag(
+                        QStringLiteral("optional"),
+                        GtObjectMemento::DynamicPropertyData::Optional,
+                        property.flags) ||
+                    !readLegacyFlag(
+                        QStringLiteral("hidden"),
+                        GtObjectMemento::DynamicPropertyData::Hidden,
+                        property.flags) ||
+                    !readLegacyFlag(
+                        QStringLiteral("monitoring"),
+                        GtObjectMemento::DynamicPropertyData::Monitoring,
+                        property.flags))
+                    return GtObjectMemento{};
+            }
+            const auto category = entry.attribute(QStringLiteral("category"));
+            if (category == QStringLiteral("custom"))
+                property.category =
+                    entry.attribute(QStringLiteral("customCategory"));
+            else if (category != QStringLiteral("main") && !category.isEmpty())
+                property.category = category;
+            QVariant serializedConfiguration;
+            if (!dynamicConfigValueFromDom(
+                    entry.firstChildElement(QStringLiteral("config")),
+                    serializedConfiguration) ||
+                serializedConfiguration.userType() != QMetaType::QVariantMap)
+            {
+                return GtObjectMemento{};
+            }
+            property.configuration = serializedConfiguration.toMap();
+            if (!gt::isJsonLikePropertyConfiguration(property.configuration))
+            {
+                return GtObjectMemento{};
+            }
+            const auto propertyDataElement =
+                entry.firstChildElement(QStringLiteral("propertyData"));
+            if (!propertyDataElement.isNull())
+            {
+                GtObjectIO reader;
+                const auto storedProperties =
+                    reader.readProperties(propertyDataElement);
+                if (storedProperties.size() > 1) return GtObjectMemento{};
+                if (!storedProperties.isEmpty())
+                {
+                    property.propertyData = storedProperties.front();
+                    if (property.propertyData.name != property.ident)
+                    {
+                        return GtObjectMemento{};
+                    }
+                }
+            }
+            memento.dynamicProperties.push_back(std::move(property));
+            entry = entry.nextSiblingElement(QStringLiteral("property"));
+        }
+    }
 
     // child objects
     QDomElement children = e.firstChildElement(gt::xml::S_OBJECTLIST_TAG);
@@ -731,8 +1131,26 @@ readProperty(const QDomElement& element, bool& error)
     QString fieldType = element.attribute(gt::xml::S_TYPE_TAG);
     QString fieldName = element.attribute(gt::xml::S_NAME_TAG);
 
+    if (!element.firstChildElement(gt::xml::S_PROPERTY_TAG).isNull() &&
+        QMetaType::type(fieldType.toLatin1().constData()) ==
+            QMetaType::UnknownType)
+    {
+        return readStructPropertyEntry(element, error);
+    }
+
     propData.name = fieldName;
-    propData.setData(propertyToVariant(element.text(), fieldType));
+    QString valueText;
+    for (auto child = element.firstChild(); !child.isNull();
+         child = child.nextSibling())
+    {
+        if (child.isText() || child.isCDATASection())
+        {
+            valueText += child.nodeValue();
+        }
+    }
+    propData.setData(propertyToVariant(valueText, fieldType));
+    propData.childProperties =
+        readPropertyElements(readProperty, element, gt::xml::S_PROPERTY_TAG);
 
     QString fieldActive = element.attribute(gt::xml::S_ACTIVE_TAG);
     if (!fieldActive.isEmpty())
@@ -842,7 +1260,7 @@ GtObjectIO::toDomElement(
             child.appendChild(toDomElement(subchild, doc));
         }
         break;
-    case PD::PropertyData::DATA_T:
+    case PD::DATA_T:
         if (usePropertyList(property.data()))
         {
             child = propertyListToDomElement(property.name, property.data(),
@@ -852,6 +1270,10 @@ GtObjectIO::toDomElement(
         {
             child = propertyToDomElement(property.name, property.data(),
                                          property.dataType(), doc);
+        }
+        for (const auto& subchild : property.childProperties)
+        {
+            child.appendChild(toDomElement(subchild, doc));
         }
         break;
     }
@@ -913,22 +1335,22 @@ GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
 
     if (varType == type_QDoubleVector)
     {
-        valStr = listToString(var.value<QVector<double> >());
+        valStr = listToString(var.value<QVector<double>>());
         typeStr = QStringLiteral("double");
     }
     else if (varType == type_QIntList)
     {
-        valStr = listToString(var.value<QList<int> >());
+        valStr = listToString(var.value<QList<int>>());
         typeStr = QStringLiteral("int");
     }
     else if (varType == type_QBoolList)
     {
-        valStr = listToString(var.value<QList<bool> >());
+        valStr = listToString(var.value<QList<bool>>());
         typeStr = QStringLiteral("bool");
     }
     else if (varType == type_QPointFList)
     {
-        valStr = listToString(var.value<QList<QPointF> >());
+        valStr = listToString(var.value<QList<QPointF>>());
         typeStr = QStringLiteral("QPointF");
     }
     else if (varType == type_QStringList)
@@ -1429,6 +1851,73 @@ handlePropertyNodeChange(GtObject& target,
     {
         return applyDiffQProperty(target, change, list, mode);
     }
+}
+
+bool handleDynamicPropertyDefinitionsChange(GtObject& target,
+                                            const QDomElement& change,
+                                            DiffMode mode)
+{
+    const auto oldSnapshot = change.firstChildElement(QStringLiteral("old"))
+                                 .firstChildElement(gt::xml::S_OBJECT_TAG);
+    const auto newSnapshot = change.firstChildElement(QStringLiteral("new"))
+                                 .firstChildElement(gt::xml::S_OBJECT_TAG);
+    if (oldSnapshot.isNull() || newSnapshot.isNull()) return false;
+    const GtObjectMemento oldMemento(oldSnapshot);
+    const GtObjectMemento newMemento(newSnapshot);
+    const auto definitionsById = [](const auto& definitions) {
+        QHash<QString, GtObjectMemento::DynamicPropertyData> result;
+        result.reserve(definitions.size());
+        std::for_each(definitions.cbegin(), definitions.cend(),
+                      [&result](const auto& definition) {
+                          result.insert(definition.ident, definition);
+                      });
+        return result;
+    };
+    const auto oldById = definitionsById(oldMemento.dynamicProperties);
+    const auto newById = definitionsById(newMemento.dynamicProperties);
+    QSet<QString> changedIds;
+    const auto oldIds = oldById.keys();
+    const auto newIds = newById.keys();
+    QList<QString> changedIdList;
+    std::copy_if(oldIds.cbegin(), oldIds.cend(),
+                 std::back_inserter(changedIdList), [&](const auto& id) {
+                     return !newById.contains(id) ||
+                            newById.value(id) != oldById.value(id);
+                 });
+    changedIds = QSet<QString>(changedIdList.cbegin(), changedIdList.cend());
+    QList<QString> addedIds;
+    std::copy_if(newIds.cbegin(), newIds.cend(), std::back_inserter(addedIds),
+                 [&](const auto& id) { return !oldById.contains(id); });
+    changedIds.unite(QSet<QString>(addedIds.cbegin(), addedIds.cend()));
+    if (changedIds.isEmpty()) return true;
+
+    GtObjectMemento result = GtObjectIO(target.factory()).toMemento(&target);
+    auto resultById = definitionsById(result.dynamicProperties);
+    const auto* desiredById = mode == DiffMode::Revert ? &oldById : &newById;
+    for (const auto& id : qAsConst(changedIds))
+    {
+        resultById.remove(id);
+        if (desiredById->contains(id))
+            resultById.insert(id, desiredById->value(id));
+    }
+    result.dynamicProperties.clear();
+    QSet<QString> written;
+    const auto currentMemento = GtObjectIO(target.factory()).toMemento(&target);
+    for (const auto& current : currentMemento.dynamicProperties)
+    {
+        if (!resultById.contains(current.ident)) continue;
+        result.dynamicProperties.push_back(resultById.value(current.ident));
+        written.insert(current.ident);
+    }
+    const auto* desiredDefinitions = mode == DiffMode::Revert
+                                         ? &oldMemento.dynamicProperties
+                                         : &newMemento.dynamicProperties;
+    for (const auto& definition : *desiredDefinitions)
+        if (resultById.contains(definition.ident) &&
+            !written.contains(definition.ident))
+            result.dynamicProperties.push_back(
+                resultById.value(definition.ident));
+    return result.mergeDynamicPropertiesTo(target, target.factory());
 }
 
 bool

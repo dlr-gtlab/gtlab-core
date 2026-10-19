@@ -70,7 +70,7 @@ protected:
      * @brief insert
      * @param plugin
      */
-    void insert(GtModuleInterface* plugin) override;
+    bool insert(GtModuleInterface* plugin) override;
 
 private:
     // object specific user interfaces

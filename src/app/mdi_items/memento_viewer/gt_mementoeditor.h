@@ -14,6 +14,8 @@
 
 #include "gt_codeeditor.h"
 
+#include <QByteArray>
+
 /**
  * @brief The GtMementoEditor class
  */
@@ -35,6 +37,8 @@ protected:
      */
     void dropEvent(QDropEvent* event) override;
 
+private:
+    QByteArray m_referenceMemento;
 };
 
 #endif // GTMEMENTOEDITOR_H

@@ -48,6 +48,36 @@ GtAbstractProperty::brief() const
     return m_brief;
 }
 
+void
+GtAbstractProperty::setBrief(const QString& briefText)
+{
+    m_brief = briefText;
+}
+
+gt::PropertyConfiguration
+GtAbstractProperty::configuration() const
+{
+    return {};
+}
+
+bool
+GtAbstractProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    return config.isEmpty();
+}
+
+const QString&
+GtAbstractProperty::propertyFactoryTypeId() const
+{
+    return m_propertyFactoryTypeId;
+}
+
+void
+GtAbstractProperty::setPropertyFactoryTypeId(const QString& typeId)
+{
+    m_propertyFactoryTypeId = typeId;
+}
+
 QString
 GtAbstractProperty::siUnit() const
 {
@@ -183,6 +213,12 @@ void
 GtAbstractProperty::setReadOnly(bool val)
 {
     m_readOnly = val;
+}
+
+bool
+GtAbstractProperty::isReadOnlyConfigured() const
+{
+    return m_readOnly;
 }
 
 bool

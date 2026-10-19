@@ -46,6 +46,23 @@
 namespace
 {
 
+    bool registerDataModelClasses(GtDatamodelInterface& datamodel,
+                                  const QString& moduleId,
+                                  QList<QMetaObject>& registeredClasses)
+    {
+        for (const auto& metaObject : datamodel.data())
+        {
+            if (!gtObjectFactory->registerClass(metaObject, moduleId))
+                return false;
+            registeredClasses.push_back(metaObject);
+        }
+
+        const auto package = datamodel.package();
+        if (!gtObjectFactory->registerClass(package, moduleId)) return false;
+        registeredClasses.push_back(package);
+        return true;
+    }
+
 QStringList moduleDirsFromEnv()
 {
     const QByteArray raw = qgetenv("GTLAB_MODULE_DIRS");
@@ -1009,44 +1026,76 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
                         << QObject::tr("Not all data classes are invokable!");
             return false;
         }
+
+        if (!gtObjectFactory->canRegisterPropertyFactories(
+                dmp->propertyFactories()))
+        {
+            gtWarning()
+                << errorString()
+                << QObject::tr(
+                       "A property factory is invalid or already registered!");
+            return false;
+        }
     }
 
     return true;
 }
 
-void
+bool
 GtModuleLoader::insert(GtModuleInterface* plugin)
 {
-    m_pimpl->m_plugins.insert(plugin->ident(), plugin);
+    if (!plugin) return false;
+    GtDatamodelInterface* dmp =
+        checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
+    QList<QMetaObject> registeredClasses;
+    QStringList registeredPropertyTypes;
+    const auto rollbackRegistrations = [&]() {
+        for (const auto& typeId : qAsConst(registeredPropertyTypes))
+            gtObjectFactory->unregisterPropertyFactory(typeId, plugin->ident());
+        for (const auto& metaObject : qAsConst(registeredClasses))
+            gtObjectFactory->unregisterClass(metaObject);
+    };
 
-    // register converter funcs
-    foreach (const auto& r, plugin->upgradeRoutines())
-    {
-      gt::detail::GtModuleUpgrader::instance()
-            .registerModuleConverter(plugin->ident(), r.target, r.f);
-    }
-
-    // register all interface functions of the module
-    foreach(const auto& sharedFunction, plugin->sharedFunctions())
-    {
-        gt::interface::detail::registerFunction(plugin->ident(),
-                                                sharedFunction);
-    }
-
-    // register all commandline functions of the module
-    foreach(const auto& commandLineFunction, plugin->commandLineFunctions())
-    {
-        gt::commandline::registerFunction(commandLineFunction);
-    }
-
-    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
-
-    // contains dynamic linked datamodel classes
     if (dmp)
     {
-        gtObjectFactory->registerClasses(dmp->data(), plugin->ident());
-        gtObjectFactory->registerClass(dmp->package(), plugin->ident());
+        if (!registerDataModelClasses(*dmp, plugin->ident(), registeredClasses))
+        {
+            rollbackRegistrations();
+            return false;
+        }
+        if (!gtObjectFactory->registerPropertyFactories(
+                dmp->propertyFactories(), plugin->ident()))
+        {
+            rollbackRegistrations();
+            return false;
+        }
+        const auto propertyFactories = dmp->propertyFactories();
+        std::transform(
+            propertyFactories.cbegin(), propertyFactories.cend(),
+            std::back_inserter(registeredPropertyTypes),
+            [](const PropertyFactoryData& factory) { return factory.typeId; });
     }
+    if (!insertAdditional(plugin))
+    {
+        rollbackRegistrations();
+        return false;
+    }
+    m_pimpl->m_plugins.insert(plugin->ident(), plugin);
+    foreach (const auto& routine, plugin->upgradeRoutines())
+        gt::detail::GtModuleUpgrader::instance().registerModuleConverter(
+            plugin->ident(), routine.target, routine.f);
+    foreach (const auto& sharedFunction, plugin->sharedFunctions())
+        gt::interface::detail::registerFunction(plugin->ident(),
+                                                sharedFunction);
+    foreach (const auto& commandLineFunction, plugin->commandLineFunctions())
+        gt::commandline::registerFunction(commandLineFunction);
+    return true;
+}
+
+bool
+GtModuleLoader::insertAdditional(GtModuleInterface*)
+{
+    return true;
 }
 
 void
@@ -1224,7 +1273,12 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         if (module && moduleLoader.check(module.get()))
         {
-            moduleLoader.insert(module.get());
+            if (!moduleLoader.insert(module.get()))
+            {
+                gtError() << QObject::tr("Failed to register module '%1'.")
+                                 .arg(currentModuleId);
+                continue;
+            }
             module.release()->onLoad();
             successfullyLoaded.push_back(currentModuleId);
         }

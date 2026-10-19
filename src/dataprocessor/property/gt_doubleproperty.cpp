@@ -11,6 +11,76 @@
 
 #include "gt_doubleproperty.h"
 
+#include <algorithm>
+#include <cmath>
+
+gt::PropertyConfiguration
+GtDoubleProperty::configuration() const
+{
+    return {{QStringLiteral("unitCategory"), static_cast<int>(unitCategory())},
+            {QStringLiteral("initialValue"), initialValue()},
+            {QStringLiteral("lowBoundaryActive"), lowSideBoundaryActive()},
+            {QStringLiteral("lowBoundary"), lowSideBoundary()},
+            {QStringLiteral("highBoundaryActive"), highSideBoundaryActive()},
+            {QStringLiteral("highBoundary"), highSideBoundary()}};
+}
+
+bool
+GtDoubleProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    static const QStringList keys{
+        QStringLiteral("unitCategory"),       QStringLiteral("initialValue"),
+        QStringLiteral("lowBoundaryActive"),  QStringLiteral("lowBoundary"),
+        QStringLiteral("highBoundaryActive"), QStringLiteral("highBoundary")};
+    if (config.size() != keys.size()) return false;
+    if (!std::all_of(keys.cbegin(), keys.cend(), [&config](const QString& key) {
+            return config.contains(key);
+        }))
+        return false;
+
+    bool categoryOk = false;
+    bool initialOk = false;
+    bool lowOk = false;
+    bool highOk = false;
+    const int category =
+        config.value(QStringLiteral("unitCategory")).toInt(&categoryOk);
+    const double initial =
+        config.value(QStringLiteral("initialValue")).toDouble(&initialOk);
+    const double low =
+        config.value(QStringLiteral("lowBoundary")).toDouble(&lowOk);
+    const double high =
+        config.value(QStringLiteral("highBoundary")).toDouble(&highOk);
+    const auto lowActive = config.value(QStringLiteral("lowBoundaryActive"));
+    const auto highActive = config.value(QStringLiteral("highBoundaryActive"));
+    if (!categoryOk || !initialOk || !lowOk || !highOk ||
+        lowActive.userType() != QMetaType::Bool ||
+        highActive.userType() != QMetaType::Bool || !std::isfinite(initial) ||
+        !std::isfinite(low) || !std::isfinite(high) ||
+        (lowActive.toBool() && initial < low) ||
+        (highActive.toBool() && initial > high) ||
+        (lowActive.toBool() && highActive.toBool() && low > high))
+    {
+        return false;
+    }
+
+    // Category values are sparse; reject gaps and the deprecated Custom value.
+    const bool knownCategory =
+        (category >= GtUnit::Default && category <= GtUnit::Current) ||
+        (category >= GtUnit::NonDimensionalPercentage &&
+         category <= GtUnit::DataSize) ||
+        category == GtUnit::None;
+    if (!knownCategory) return false;
+
+    m_unitCategory = static_cast<GtUnit::Category>(category);
+    m_boundsCheckFlagLow = lowActive.toBool();
+    m_boundsCheckFlagHi = highActive.toBool();
+    m_boundLo = low;
+    m_boundHi = high;
+    m_value = initial;
+    m_initValue = initial;
+    return true;
+}
+
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief)
@@ -260,7 +330,7 @@ GtDoubleProperty::validateValue(const double& value)
     return true;
 }
 
-double
+const double&
 GtDoubleProperty::initialValue() const
 {
     return m_initValue;
@@ -305,4 +375,3 @@ gt::makeDoubleProperty(const QString& name, const QString& brief,
                                     std::move(boundaries), value);
     };
 }
-

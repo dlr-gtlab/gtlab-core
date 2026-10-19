@@ -30,9 +30,3 @@ GtCoreModuleLoader::check(GtModuleInterface* plugin) const
 {
     return GtProcessModuleLoader::check(plugin);
 }
-
-void
-GtCoreModuleLoader::insert(GtModuleInterface* plugin)
-{
-    GtProcessModuleLoader::insert(plugin);
-}

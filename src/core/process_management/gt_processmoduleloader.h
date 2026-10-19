@@ -36,12 +36,7 @@ protected:
      */
     bool check(GtModuleInterface* plugin) const override;
 
-    /**
-     * @brief insert
-     * @param plugin
-     */
-    void insert(GtModuleInterface* plugin) override;
-
+    bool insertAdditional(GtModuleInterface* plugin) override;
 };
 
 #endif // GTPROCESSMODULELOADER_H

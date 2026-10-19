@@ -185,6 +185,9 @@ public:
      */
     bool highSideBoundaryActive() const;
 
+    gt::PropertyConfiguration configuration() const override;
+    bool applyConfiguration(const gt::PropertyConfiguration& config) override;
+
 protected:
     /// Perform low boundary check flag (true=perform check)
     bool m_boundsCheckFlagLow;

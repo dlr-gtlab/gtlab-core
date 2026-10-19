@@ -143,6 +143,9 @@ public:
     bool setValueFromVariant(const QVariant& val,
                              const QString& unit) override;
 
+    gt::PropertyConfiguration configuration() const override;
+    bool applyConfiguration(const gt::PropertyConfiguration& config) override;
+
     /**
      * @brief Returns value of low side boundary. 0.0 if no lower boundary is
      * set.
@@ -161,7 +164,7 @@ public:
      * @brief initialValue of double property (0.0 if not specified)
      * @return
      */
-    double initialValue() const;
+    const double& initialValue() const;
 
     /**
      * @brief lowBoundActive

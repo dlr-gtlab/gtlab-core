@@ -304,7 +304,8 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     bool diffObjectEmpty = true;
 
     // check properties & attributes
-    if (left.propertyHash() != right.propertyHash())
+    if (left.propertyHash() != right.propertyHash() ||
+        left.dynamicProperties != right.dynamicProperties)
     {
         diffObjectEmpty = false;
 
@@ -326,6 +327,32 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
 
 
         detectPropertyChanges(left.properties, right.properties, diffObj);
+        if (left.dynamicProperties != right.dynamicProperties)
+        {
+            diffObjectEmpty = false;
+            QDomElement definitionsChange =
+                this->createElement(QStringLiteral("dynamicPropertiesChange"));
+            QDomElement oldSnapshot =
+                this->createElement(QStringLiteral("old"));
+            QDomElement newSnapshot =
+                this->createElement(QStringLiteral("new"));
+            GtObjectIO oio;
+            auto dynamicOnlySnapshot = [](const GtObjectMemento& source) {
+                GtObjectMemento snapshot;
+                snapshot.setClassName(source.className());
+                snapshot.setUuid(source.uuid());
+                snapshot.setIdent(source.ident());
+                snapshot.dynamicProperties = source.dynamicProperties;
+                return snapshot;
+            };
+            oldSnapshot.appendChild(
+                oio.toDomElement(dynamicOnlySnapshot(left), *this, true));
+            newSnapshot.appendChild(
+                oio.toDomElement(dynamicOnlySnapshot(right), *this, true));
+            definitionsChange.appendChild(oldSnapshot);
+            definitionsChange.appendChild(newSnapshot);
+            diffObj.appendChild(definitionsChange);
+        }
         detectDynamicPropertyChanges(left.propertyContainers,
                                      right.propertyContainers,
                                      diffObj);

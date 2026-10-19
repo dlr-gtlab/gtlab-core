@@ -8,6 +8,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <algorithm>
+
 #include <QCryptographicHash>
 #include <QBuffer>
 #include <QIODevice>
@@ -18,7 +20,9 @@
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_abstractobjectfactory.h"
+#include "gt_objectfactory.h"
 #include "gt_abstractproperty.h"
+#include "property/gt_dummyproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
@@ -26,6 +30,10 @@
 #include "internal/gt_externalizedobjectprivate.h"
 
 using PD = GtObjectMemento::PropertyData;
+
+namespace
+{
+} // namespace
 
 GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
 {
@@ -102,9 +110,9 @@ GtObjectMemento::className() const
 }
 
 GtObjectMemento&
-GtObjectMemento::setClassName(const QString &className)
+GtObjectMemento::setClassName(const QString& classNameValue)
 {
-    m_className = className;
+    m_className = classNameValue;
     return *this;
 }
 
@@ -180,6 +188,33 @@ propertyHashHelper(const PD& property, QCryptographicHash& hash,
     hash.addData(property.hash);
 }
 
+bool
+GtObjectMemento::DynamicPropertyData::operator==(
+    const DynamicPropertyData& other) const
+{
+    const auto sameData = [](const auto& self, const PD& left,
+                             const PD& right) -> bool {
+        if (left.name != right.name || left.isActive != right.isActive ||
+            left.type() != right.type() ||
+            left.dataType() != right.dataType() ||
+            left.data() != right.data() ||
+            left.childProperties.size() != right.childProperties.size())
+            return false;
+        for (qsizetype i = 0; i < left.childProperties.size(); ++i)
+        {
+            if (!self(self, left.childProperties.at(i),
+                      right.childProperties.at(i)))
+                return false;
+        }
+        return true;
+    };
+    return typeId == other.typeId && ident == other.ident &&
+           name == other.name && brief == other.brief &&
+           configuration == other.configuration && flags == other.flags &&
+           category == other.category &&
+           sameData(sameData, propertyData, other.propertyData);
+}
+
 void
 GtObjectMemento::calculateHashes() const
 {
@@ -206,13 +241,37 @@ GtObjectMemento::calculateHashes() const
     {
         propertyHashHelper(p, hash, variantHasher);
     }
+    foreach (const auto& property, dynamicProperties)
+    {
+        if (!property.propertyData.name.isEmpty())
+        {
+            propertyHashHelper(property.propertyData, hash, variantHasher);
+        }
+    }
 
-    // store property hash
     m_propertyHash = hash.result();
+    hash.reset();
+
+    // Definitions participate in full structural identity, but the historic
+    // property hash continues to describe only serialized PropertyData.
+    for (const auto& property : dynamicProperties)
+    {
+        QByteArray record;
+        QDataStream stream(&record, QIODevice::WriteOnly);
+        stream << property.typeId << property.ident << property.name
+               << property.brief << property.configuration << property.flags
+               << property.category;
+        hash.addData(QByteArray::number(record.size()));
+        hash.addData(":", 1);
+        hash.addData(record);
+    }
+
+    m_dynamicDefinitionHash = hash.result();
     hash.reset();
 
     // hash over property hash and child elements
     hash.addData(m_propertyHash);
+    hash.addData(m_dynamicDefinitionHash);
     for (int i = 0; i < childObjects.size(); i++)
     {
         childObjects[i].calculateHashes();
@@ -243,7 +302,7 @@ GtObjectMemento::setFlagEnabled(GtObjectMemento::Flag flag, bool enable)
 bool
 GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
 {
-    if (isNull())
+    if (isNull() || !factory)
     {
         gtWarning() << QObject::tr("memento is NULL!");
         return false;
@@ -256,6 +315,18 @@ GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
         return false;
     }
 
+    // Dynamic types are resolved at restore time. An unavailable type is
+    // recoverable through GtDummyProperty and must not make the entire
+    // containing object unrestorable.
+    if (!std::all_of(dynamicProperties.cbegin(), dynamicProperties.cend(),
+                     [](const DynamicPropertyData& property) {
+                         return gt::isJsonLikePropertyConfiguration(
+                                    property.configuration) &&
+                                !property.ident.isEmpty() &&
+                                !property.typeId.isEmpty();
+                     }))
+        return false;
+
 
     return std::all_of(childObjects.begin(), childObjects.end(),
                        [&factory](const GtObjectMemento& child) {
@@ -263,16 +334,16 @@ GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
     });
 }
 
-PD &
-PD::setData(const QVariant &val)
+PD&
+GtObjectMemento::PropertyData::setData(const QVariant& val)
 {
     _data = val;
     _dataType = val.typeName();
     return *this;
 }
 
-PD &
-PD::toStruct(const QString &structTypeName)
+PD&
+GtObjectMemento::PropertyData::toStruct(const QString& structTypeName)
 {
     _type = STRUCT_T;
     _dataType = structTypeName;
@@ -281,8 +352,9 @@ PD::toStruct(const QString &structTypeName)
 }
 
 
-PD &
-PD::fromQMetaProperty(const QMetaProperty &prop, const QVariant& val)
+PD&
+GtObjectMemento::PropertyData::fromQMetaProperty(const QMetaProperty& prop,
+                                                 const QVariant& val)
 {
     name = prop.name();
     setData(val);
@@ -371,9 +443,28 @@ readProperty(const PD& p, GtObject& obj)
 
     if (prop)
     {
-        // it is an abstract property
-        prop->setActive(p.isActive);
-        prop->setValueFromVariant(p.data());
+        const auto restoreProperty = [](const auto& self,
+                                        GtAbstractProperty& target,
+                                        const PD& source) -> bool {
+            target.setActive(source.isActive);
+            if (source.type() == PD::STRUCT_T)
+            {
+                // Unknown structured property state is retained on its dummy.
+            }
+            else
+            {
+                if (!target.setValueFromVariant(source.data())) return false;
+            }
+            for (const auto& child : source.childProperties)
+            {
+                if (auto* subProperty = target.findProperty(child.name))
+                {
+                    if (!self(self, *subProperty, child)) return false;
+                }
+            }
+            return true;
+        };
+        if (!restoreProperty(restoreProperty, *prop, p)) return false;
         // TODO: should this be set by the reader ???
         //prop->setOptional(p.isOptional);
     }
@@ -582,7 +673,10 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) co
         obj->setFlag(GtObject::SaveAsOwnFile, true);
     }
 
-    mergeTo(*obj, factory);
+    if (!mergeTo(*obj, factory))
+    {
+        return nullptr;
+    }
 
     return obj.release();
 }
@@ -590,17 +684,43 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) co
 bool
 GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 {
+    return mergeTo(obj, &factory);
+}
+
+bool
+GtObjectMemento::mergeTo(GtObject& obj) const
+{
+    return mergeTo(obj, static_cast<GtAbstractObjectFactory*>(nullptr));
+}
+
+bool
+GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
+{
+
+    // Validate dynamic definitions and their embedded values for this object
+    // and every child before changing any live object in the tree.
+    const auto validateDynamicTree =
+        [factory](const auto& self, const GtObjectMemento& memento) -> bool {
+        GtObject staged;
+        if (factory) staged.setFactory(factory);
+        if (!memento.mergeDynamicPropertiesTo(staged, factory)) return false;
+        return std::all_of(memento.childObjects.cbegin(),
+                           memento.childObjects.cend(),
+                           [&self](const GtObjectMemento& child) {
+                               return self(self, child);
+                           });
+    };
+    if (!validateDynamicTree(validateDynamicTree, *this)) return false;
 
     if (!obj.isDummy() && obj.metaObject()->className() != className())
     {
         return false;
     }
 
-    obj.setUuid(uuid());
-    obj.setObjectName(ident());
-
     if (isFlagEnabled(IsUnresolved))
     {
+        obj.setUuid(uuid());
+        obj.setObjectName(ident());
         // we need to make it a dummy, to avoid changing the original object
         // and to highlight a problem
         gtWarning() << QObject::tr("Creating dummy object for unresolved object reference '%1'").arg(ident());
@@ -614,11 +734,16 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     }
     else if (!obj.isDummy())
     {
+        if (!mergeDynamicPropertiesTo(obj, factory)) return false;
+        obj.setUuid(uuid());
+        obj.setObjectName(ident());
         ::readProperties(*this, obj);
         ::mergeAllPropertyContainers(*this, obj);
     }
     else
     {
+        obj.setUuid(uuid());
+        obj.setObjectName(ident());
         obj.importMementoIntoDummy(*this);
     }
 
@@ -640,17 +765,24 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
             child->metaObject()->className() == mementoChild.m_className &&
             (child->uuid() == mementoChild.uuid() || child->isDefault()))
         {
-            mementoChild.mergeTo(*child, factory);
+            if (factory)
+            {
+                if (!mementoChild.mergeTo(*child, *factory)) return false;
+            }
+            else if (!mementoChild.mergeTo(*child))
+            {
+                return false;
+            }
 
             // since memento has been merged to child, child needs to be kept
             oldChildObjs.removeOne(child);
         }
         else
         {
+            if (!factory) return false;
             // we need to create a new object
-            auto newobj = mementoChild.toObject(factory, &obj);
-            assert(newobj);
-            Q_UNUSED(newobj);
+            const GtObject* newobj = mementoChild.toObject(*factory, &obj);
+            if (!newobj) return false;
         }
     }
 
@@ -663,5 +795,127 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 
     obj.onObjectDataMerged();
 
+    return true;
+}
+
+bool
+GtObjectMemento::mergeDynamicPropertiesTo(
+    GtObject& obj, const GtAbstractObjectFactory* factory) const
+{
+    if (!factory) factory = obj.factory();
+    const auto applyData = [](const auto& self, GtAbstractProperty& property,
+                              const PD& data) -> bool {
+        property.setActive(data.isActive);
+        if (data.type() != PD::STRUCT_T &&
+            !property.setValueFromVariant(data.data()))
+            return false;
+        for (const auto& childData : data.childProperties)
+        {
+            auto* child = property.findProperty(childData.name);
+            if (!child || !self(self, *child, childData)) return false;
+        }
+        return true;
+    };
+    const auto sameDefinition = [](const DynamicPropertyData& definition,
+                                   const GtAbstractProperty& property,
+                                   const GtAbstractProperty& candidate) {
+        if (const auto* dummy = qobject_cast<const GtDummyProperty*>(&property))
+            return qobject_cast<const GtDummyProperty*>(&candidate) &&
+                   definition == dummy->originalDefinition();
+        if (qobject_cast<const GtDummyProperty*>(&candidate) ||
+            typeid(property) != typeid(candidate))
+            return false;
+        const quint32 flags =
+            (property.isReadOnlyConfigured() ? DynamicPropertyData::ReadOnly
+                                             : 0) |
+            (property.isOptional() ? DynamicPropertyData::Optional : 0) |
+            (property.isHidden() ? DynamicPropertyData::Hidden : 0) |
+            (property.isMonitoring() ? DynamicPropertyData::Monitoring : 0);
+        const QString category =
+            property.category() == GtAbstractProperty::Custom
+                ? property.categoryString()
+                : QString{};
+        return property.propertyFactoryTypeId() == definition.typeId &&
+               property.ident() == definition.ident &&
+               property.objectName() == definition.name &&
+               property.brief() == definition.brief &&
+               property.configuration() == definition.configuration &&
+               flags == definition.flags && category == definition.category;
+    };
+
+    QList<GtAbstractProperty*> retained;
+    std::vector<std::unique_ptr<GtAbstractProperty>> replacements;
+    QStringList order;
+    std::vector<std::pair<GtAbstractProperty*, const PD*>> retainedData;
+    QSet<QString> ids;
+    for (const auto& definition : dynamicProperties)
+    {
+        if (definition.ident.isEmpty() || ids.contains(definition.ident) ||
+            !gt::isJsonLikePropertyConfiguration(definition.configuration))
+            return false;
+        ids.insert(definition.ident);
+        auto* current = obj.findProperty(definition.ident);
+        GtAbstractProperty* candidate = nullptr;
+        std::unique_ptr<GtAbstractProperty> property;
+        // The Core registry also holds the built-in and module property types.
+        const auto* registry = factory;
+        if (!registry || !registry->hasPropertyFactory(definition.typeId))
+            registry = gtObjectFactory;
+        if (registry->hasPropertyFactory(definition.typeId))
+        {
+            property = gt::createProperty(*registry, definition.typeId,
+                                          definition.ident);
+        }
+        if (property)
+        {
+            property->setObjectName(definition.name);
+            property->setBrief(definition.brief);
+            property->setReadOnly(
+                definition.hasFlag(DynamicPropertyData::ReadOnly));
+            property->setOptional(
+                definition.hasFlag(DynamicPropertyData::Optional));
+            property->hide(definition.hasFlag(DynamicPropertyData::Hidden));
+            property->setMonitoring(
+                definition.hasFlag(DynamicPropertyData::Monitoring));
+            if (!definition.category.isEmpty())
+                property->setCategory(definition.category);
+            if (!property->applyConfiguration(definition.configuration))
+                property.reset();
+        }
+        if (!property)
+        {
+            property = std::make_unique<GtDummyProperty>(definition);
+        }
+        property->setPropertyFactoryTypeId(definition.typeId);
+        candidate = property.get();
+        if (!qobject_cast<GtDummyProperty*>(candidate) &&
+            !definition.propertyData.name.isEmpty() &&
+            !applyData(applyData, *candidate, definition.propertyData))
+            return false;
+
+        if (current && sameDefinition(definition, *current, *candidate))
+        {
+            retained.push_back(current);
+            retainedData.emplace_back(current, &definition.propertyData);
+        }
+        else
+        {
+            replacements.push_back(std::move(property));
+        }
+        order.push_back(definition.ident);
+    }
+
+    // Stage construction and value data before changing ownership or views.
+    // Retained instances receive only the prevalidated PropertyData below.
+    if (!obj.replaceDynamicProperties(retained, std::move(replacements), order))
+        return false;
+
+    for (const auto& entry : retainedData)
+    {
+        if (entry.second->name.isEmpty() ||
+            qobject_cast<GtDummyProperty*>(entry.first))
+            continue;
+        if (!applyData(applyData, *entry.first, *entry.second)) return false;
+    }
     return true;
 }

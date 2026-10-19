@@ -9,6 +9,12 @@
  */
 
 #include <QDebug>
+#include <QMutexLocker>
+
+#include <algorithm>
+#include <QSet>
+#include <vector>
+#include <typeindex>
 
 #include "gt_abstractobjectfactory.h"
 #include "gt_object.h"
@@ -117,7 +123,7 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
 
 bool
 GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
-                                       const QString& moduleId)
+                                       const QString& moduleIdent)
 {
     QString classname = metaObj.className();
 
@@ -132,9 +138,9 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
     }
 
     m_knownClasses.insert(classname, metaObj);
-    if (!moduleId.isEmpty())
+    if (!moduleIdent.isEmpty())
     {
-        m_classModuleIds.insert(classname, moduleId);
+        m_classModuleIds.insert(classname, moduleIdent);
     }
     return true;
 }
@@ -162,7 +168,7 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 
 bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
-                                         const QString& moduleId)
+                                         const QString& moduleIdent)
 {
     if (containsDuplicates(metaData))
     {
@@ -171,7 +177,7 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
 
     foreach (const QMetaObject& metaObj, metaData)
     {
-        registerClass(metaObj, moduleId);
+        registerClass(metaObj, moduleIdent);
     }
 
     return true;
@@ -244,6 +250,226 @@ GtAbstractObjectFactory::metaObject(const QString& clzName) const
     if (found != m_knownClasses.end()) return &found.value();
 
     return nullptr;
+}
+
+bool
+GtAbstractObjectFactory::canRegisterPropertyFactory(
+    const QString& typeId, const QMetaObject& propertyType,
+    gt::PropertyFactoryFunction factory, std::type_index cppType) const
+{
+    if (!factory)
+    {
+        if (typeId.isEmpty() || !typeId.contains(QLatin1Char('.')) ||
+            !propertyType.inherits(&GtAbstractProperty::staticMetaObject))
+            return false;
+        QMutexLocker lock(&m_dynamicPropertyMutex);
+        return !m_propertyFactories.contains(typeId);
+    }
+    return canRegisterPropertyFactories({PropertyFactoryData{
+        typeId, &propertyType, std::move(factory), cppType}});
+}
+
+bool
+GtAbstractObjectFactory::canRegisterPropertyFactories(
+    const QList<PropertyFactoryData>& factories) const
+{
+    QSet<QString> typeIds;
+    std::vector<std::type_index> cppTypes;
+    QList<std::pair<PropertyFactoryData, std::type_index>> probes;
+    for (const auto& entry : factories)
+    {
+        if (entry.typeId.isEmpty() ||
+            !entry.typeId.contains(QLatin1Char('.')) || !entry.propertyType ||
+            !entry.factory ||
+            !entry.propertyType->inherits(
+                &GtAbstractProperty::staticMetaObject) ||
+            typeIds.contains(entry.typeId))
+            return false;
+        auto probe = std::unique_ptr<GtAbstractProperty>(
+            entry.factory(QStringLiteral("__gtlab_property_type_probe__")));
+        if (!probe || probe->metaObject() != entry.propertyType) return false;
+        const auto cppType = std::type_index(typeid(*probe));
+        if ((entry.cppType != std::type_index(typeid(void)) &&
+             entry.cppType != cppType) ||
+            std::find(cppTypes.cbegin(), cppTypes.cend(), cppType) !=
+                cppTypes.cend())
+            return false;
+        typeIds.insert(entry.typeId);
+        cppTypes.push_back(cppType);
+        probes.push_back({entry, cppType});
+    }
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    return std::none_of(
+        probes.cbegin(), probes.cend(), [this](const auto& probe) {
+            return m_propertyFactories.contains(probe.first.typeId) ||
+                   std::any_of(m_propertyFactories.cbegin(),
+                               m_propertyFactories.cend(),
+                               [&probe](const auto& registered) {
+                                   return registered.cppType == probe.second;
+                               });
+        });
+}
+
+bool
+GtAbstractObjectFactory::registerPropertyFactory(
+    const QString& typeId, const QMetaObject& propertyType,
+    gt::PropertyFactoryFunction factory, const QString& moduleIdent,
+    std::type_index cppType)
+{
+    return registerPropertyFactories(
+        {PropertyFactoryData{typeId, &propertyType, std::move(factory),
+                             cppType}},
+        moduleIdent);
+}
+
+bool
+GtAbstractObjectFactory::registerPropertyFactories(
+    const QList<PropertyFactoryData>& factories, const QString& moduleIdent)
+{
+    // Validate each factory and collect its concrete C++ type before locking.
+    QSet<QString> typeIds;
+    std::vector<std::type_index> cppTypes;
+    QList<std::pair<PropertyFactoryData, std::type_index>> registrations;
+
+    for (const auto& entry : factories)
+    {
+        if (entry.typeId.isEmpty() ||
+            !entry.typeId.contains(QLatin1Char('.')) || !entry.propertyType ||
+            !entry.factory ||
+            !entry.propertyType->inherits(
+                &GtAbstractProperty::staticMetaObject) ||
+            typeIds.contains(entry.typeId))
+            return false;
+        auto probe = std::unique_ptr<GtAbstractProperty>(
+            entry.factory(QStringLiteral("__gtlab_property_type_probe__")));
+        if (!probe || probe->metaObject() != entry.propertyType) return false;
+        const auto cppType = std::type_index(typeid(*probe));
+        if ((entry.cppType != std::type_index(typeid(void)) &&
+             entry.cppType != cppType) ||
+            std::find(cppTypes.cbegin(), cppTypes.cend(), cppType) !=
+                cppTypes.cend())
+            return false;
+        typeIds.insert(entry.typeId);
+        cppTypes.push_back(cppType);
+        registrations.push_back({entry, cppType});
+    }
+
+    // Check for conflicts and publish the complete batch under one lock.
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    for (const auto& registration : registrations)
+    {
+        if (m_propertyFactories.contains(registration.first.typeId))
+            return false;
+
+        for (const auto& registered : m_propertyFactories)
+        {
+            if (registered.cppType == registration.second) return false;
+        }
+    }
+
+    // No registration can fail after validation, so the batch is all-or-nothing.
+    for (const auto& registration : registrations)
+    {
+        const auto& entry = registration.first;
+        m_propertyFactories.insert(
+            entry.typeId,
+            PropertyFactoryInfo{entry.propertyType, registration.second,
+                                entry.factory, moduleIdent});
+    }
+    return true;
+}
+
+bool
+GtAbstractObjectFactory::unregisterPropertyFactory(const QString& typeId,
+                                                   const QString& moduleIdent)
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    auto iter = m_propertyFactories.find(typeId);
+    if (iter == m_propertyFactories.end() ||
+        (!moduleIdent.isEmpty() && iter->moduleId != moduleIdent))
+    {
+        return false;
+    }
+    m_propertyFactories.erase(iter);
+    return true;
+}
+
+bool
+GtAbstractObjectFactory::hasPropertyFactory(const QString& typeId) const
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    return m_propertyFactories.contains(typeId);
+}
+
+QString
+GtAbstractObjectFactory::propertyTypeId(const QMetaObject& propertyType) const
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    QString result;
+    for (auto iter = m_propertyFactories.cbegin();
+         iter != m_propertyFactories.cend(); ++iter)
+    {
+        if (iter->propertyType != &propertyType) continue;
+        if (!result.isEmpty()) return {};
+        result = iter.key();
+    }
+    return result;
+}
+
+QString
+GtAbstractObjectFactory::propertyTypeId(
+    const GtAbstractProperty& property) const
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    const std::type_index cppType(typeid(property));
+    const auto iter = std::find_if(
+        m_propertyFactories.cbegin(), m_propertyFactories.cend(),
+        [&cppType](const auto& entry) { return entry.cppType == cppType; });
+    return iter == m_propertyFactories.cend() ? QString{} : iter.key();
+}
+
+bool
+GtAbstractObjectFactory::propertyTypeMatches(
+    const QString& typeId, const GtAbstractProperty& property) const
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    const auto iter = m_propertyFactories.constFind(typeId);
+    return iter != m_propertyFactories.cend() &&
+           iter->cppType == std::type_index(typeid(property));
+}
+
+const QMetaObject*
+GtAbstractObjectFactory::propertyMetaObject(const QString& typeId) const
+{
+    QMutexLocker lock(&m_dynamicPropertyMutex);
+    auto iter = m_propertyFactories.constFind(typeId);
+    return iter == m_propertyFactories.cend() ? nullptr : iter->propertyType;
+}
+
+std::unique_ptr<GtAbstractProperty>
+GtAbstractObjectFactory::createProperty(const QString& typeId,
+                                        const QString& ident) const
+{
+    gt::PropertyFactoryFunction factory;
+    const QMetaObject* propertyType = nullptr;
+    std::type_index cppType(typeid(void));
+    {
+        QMutexLocker lock(&m_dynamicPropertyMutex);
+        auto iter = m_propertyFactories.constFind(typeId);
+        if (iter == m_propertyFactories.cend()) return {};
+        factory = iter->factory;
+        propertyType = iter->propertyType;
+        cppType = iter->cppType;
+    }
+
+    std::unique_ptr<GtAbstractProperty> property(factory(ident));
+    if (!property || property->ident() != ident || !propertyType ||
+        property->metaObject() != propertyType ||
+        std::type_index(typeid(*property)) != cppType)
+    {
+        return {};
+    }
+    return property;
 }
 
 bool

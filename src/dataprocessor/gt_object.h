@@ -12,11 +12,13 @@
 #define GTOBJECT_H
 
 #include "gt_datamodel_exports.h"
+#include "property/gt_propertyconfiguration.h"
 #include "gt_typetraits.h"
 
 #include <gt_version.h>
 
 #include <QObject>
+#include <QVariant>
 
 #include <algorithm>
 #include <memory>
@@ -396,6 +398,16 @@ public:
      */
     const QList<GtAbstractProperty*>& properties();
     const QList<GtAbstractProperty const*>& properties() const;
+
+    /**
+     * @brief Adds a runtime property to the common property view.
+     * Ownership is transferred to the object. Property identifiers must be
+     * unique among static and runtime root properties.
+     */
+    bool addDynamicProperty(std::unique_ptr<GtAbstractProperty> property);
+
+    /** Removes and destroys a runtime property by identifier. */
+    bool removeDynamicProperty(const QString& id);
 
     /**
      * @brief Returns list of all property and sub property items. List
@@ -827,6 +839,12 @@ private:
     void importMementoIntoDummy(const GtObjectMemento&);
     void exportDummyIntoMemento(GtObjectMemento&) const;
 
+    /** Installs a staged dynamic-property set during Memento restoration. */
+    bool replaceDynamicProperties(
+        const QList<GtAbstractProperty*>& retained,
+        std::vector<std::unique_ptr<GtAbstractProperty>> replacements,
+        const QStringList& order);
+
     // ObjectPtr may be const
     template <typename R, typename ObjectPtr>
     static R propertiesByTypeHelper(ObjectPtr obj)
@@ -866,6 +884,9 @@ signals:
      * @brief dataChanged
      */
     void dataChanged(GtObject*, GtAbstractProperty*);
+
+    void dynamicPropertyStructureAboutToChange();
+    void dynamicPropertyStructureChanged();
 
     /**
      * @brief childAppended

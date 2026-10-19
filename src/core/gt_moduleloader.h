@@ -205,11 +205,11 @@ protected:
      */
     virtual bool check(GtModuleInterface* plugin) const;
 
-    /**
-     * @brief insert
-     * @param plugin
-     */
-    virtual void insert(GtModuleInterface* plugin);
+    /** Inserts a checked module and reports whether registration succeeded. */
+    virtual bool insert(GtModuleInterface* plugin);
+
+    /** Registers loader-specific state as part of the insertion transaction. */
+    virtual bool insertAdditional(GtModuleInterface* plugin);
 
 private:
     /// Private implementation

@@ -89,7 +89,7 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
-    GtOperationInterface* operationInterface =
+    const GtOperationInterface* operationInterface =
         checkInterface<GtOperationInterface>(plugin->ident(), plugin);
 
     if (operationInterface)
@@ -127,8 +127,8 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
-    GtCalculatorExecInterface* cexecp = checkInterface<GtCalculatorExecInterface>(
-        plugin->ident(), plugin);
+    const GtCalculatorExecInterface* cexecp =
+        checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked calculator execution classes
     if (cexecp)
@@ -164,10 +164,17 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
     return true;
 }
 
-void
-GtProcessModuleLoader::insert(GtModuleInterface* plugin)
+bool
+GtProcessModuleLoader::insertAdditional(GtModuleInterface* plugin)
 {
-    GtModuleLoader::insert(plugin);
+    GtCalculatorExecInterface* cexecp =
+        checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
+    if (cexecp && gtCalcExecList->executorExists(cexecp->executorId()))
+    {
+        gtError() << QObject::tr("Calculator executor '%1' already exsits!")
+                         .arg(cexecp->executorId());
+        return false;
+    }
 
     GtProcessInterface* proi = checkInterface<GtProcessInterface>(plugin->ident(),
                                                                   plugin);
@@ -194,7 +201,7 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
         }
     }
 
-    GtOperationInterface* operationInterface =
+    const GtOperationInterface* operationInterface =
         checkInterface<GtOperationInterface>(plugin->ident(), plugin);
 
     if (operationInterface)
@@ -203,21 +210,9 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
                                          plugin->ident());
     }
 
-    GtCalculatorExecInterface* cexecp =
-            checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
-
     // contains dynamic linked calculator execution classes
     if (cexecp)
     {
-        QString execId = cexecp->executorId();
-
-        if (gtCalcExecList->executorExists(execId))
-        {
-            gtError() << QObject::tr("Calculator executor '%1' already exsits!")
-                         .arg(execId);
-            return;
-        }
-
         gtCalcExecList->addExecutor(cexecp);
     }
 
@@ -229,4 +224,5 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
         gtAccessManager->addAccessGroup(neti->accessId(),
                                         neti->accessConnection());
     }
+    return true;
 }

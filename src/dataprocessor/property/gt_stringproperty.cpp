@@ -72,6 +72,42 @@ GtStringProperty::validator()
     return m_validatorPattern;
 }
 
+gt::PropertyConfiguration
+GtStringProperty::configuration() const
+{
+    return {{QStringLiteral("pattern"), m_validatorPattern.pattern()},
+            {QStringLiteral("patternOptions"),
+             static_cast<int>(m_validatorPattern.patternOptions())},
+            {QStringLiteral("initialValue"), m_initValue}};
+}
+
+bool
+GtStringProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    if ((config.size() != 2 && config.size() != 3) ||
+        !config.contains(QStringLiteral("pattern")) ||
+        !config.contains(QStringLiteral("patternOptions")) ||
+        (config.size() == 3 &&
+         !config.contains(QStringLiteral("initialValue"))))
+        return false;
+    const auto pattern = config.value(QStringLiteral("pattern"));
+    const auto options = config.value(QStringLiteral("patternOptions"));
+    const auto initialValue =
+        config.value(QStringLiteral("initialValue"), QString());
+    if (pattern.userType() != QMetaType::QString ||
+        options.userType() != QMetaType::Int ||
+        (initialValue.isValid() && !initialValue.isNull() &&
+         initialValue.userType() != QMetaType::QString))
+        return false;
+    QRegularExpression expression(
+        pattern.toString(),
+        static_cast<QRegularExpression::PatternOptions>(options.toInt()));
+    if (!expression.isValid()) return false;
+    m_validatorPattern = std::move(expression);
+    m_initValue = initialValue.toString();
+    return true;
+}
+
 GtStringProperty::~GtStringProperty() = default;
 
 gt::PropertyFactoryFunction

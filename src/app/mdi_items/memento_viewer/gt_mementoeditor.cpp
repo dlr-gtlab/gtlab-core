@@ -19,37 +19,39 @@
 
 GtMementoEditor::GtMementoEditor(QWidget* parent) : GtCodeEditor(parent)
 {
-
 }
 
 void
 GtMementoEditor::dropEvent(QDropEvent* event)
 {
-    const QString content = document()->toPlainText();
+    const QString content = m_referenceMemento.isEmpty()
+                                ? document()->toPlainText()
+                                : QString::fromUtf8(m_referenceMemento);
 
     if (!event->mimeData()->formats().contains("GtObject"))
     {
+        m_referenceMemento.clear();
         QPlainTextEdit::dropEvent(event);
         return;
     }
 
     const QString droppedContent = event->mimeData()->data("GtObject");
+    GtObjectMemento droppedM(droppedContent.toUtf8());
 
     if (!content.isEmpty())
     {
         GtObjectMemento contentM(content.toUtf8());
-        GtObjectMemento droppedM(droppedContent.toUtf8());
 
         if (!contentM.isNull() && !droppedM.isNull())
         {
             if (contentM.className() == droppedM.className() &&
-                    contentM.uuid() == droppedM.uuid())
+                contentM.uuid() == droppedM.uuid())
             {
                 QMenu menu;
                 menu.addAction("Show");
-                QAction* diffAction = menu.addAction("Diff");
+                const QAction* diffAction = menu.addAction("Diff");
 
-                QAction* a = menu.exec(QCursor::pos());
+                const QAction* a = menu.exec(QCursor::pos());
 
                 if (a == diffAction)
                 {
@@ -63,4 +65,6 @@ GtMementoEditor::dropEvent(QDropEvent* event)
     }
 
     GtCodeEditor::dropEvent(event);
+    m_referenceMemento =
+        droppedM.isNull() ? QByteArray{} : droppedContent.toUtf8();
 }
