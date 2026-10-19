@@ -638,8 +638,7 @@ GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
     const QFileInfo fileInfo(projectFilePath);
     const QString suffix = fileInfo.suffix().toLower();
     if (!fileInfo.exists() || !fileInfo.isFile() ||
-        (suffix != QStringLiteral("gtproj") &&
-         suffix != QStringLiteral("gtlab")))
+        suffix != QStringLiteral("gtlab"))
     {
         QMessageBox::critical(
             this, tr("Open Project"),
@@ -650,7 +649,7 @@ GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
 
     GtProjectProvider provider(fileInfo.absoluteFilePath());
     std::unique_ptr<GtProject> project(provider.project());
-    if (!project)
+    if (!project || !project->isValid())
     {
         QMessageBox::critical(
             this, tr("Open Project"),
@@ -676,10 +675,8 @@ GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
 
     if (!addProjectAndRequestOpen(std::move(project), true))
     {
-        QMessageBox::critical(
-            this, tr("Open Project"),
-            tr("Could not open the GTlab project from '%1'.")
-                .arg(QDir::toNativeSeparators(projectFilePath)));
+        gtWarning() << tr("Could not open the GTlab project from '%1'.")
+                           .arg(QDir::toNativeSeparators(projectFilePath));
     }
 }
 

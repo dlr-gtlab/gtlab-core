@@ -20,6 +20,7 @@
 #include <QQuickStyle>
 
 #include "gt_mainwin.h"
+#include "gt_projectopenservice.h"
 #include "gt_application.h"
 #include "gt_logging.h"
 #include "gt_environmentdialog.h"
@@ -102,6 +103,27 @@ runApplication(int argc, char* argv[], RestartRequest& restartRequest)
 #endif
 
     QApplication a(argc, argv);
+
+    const QStringList arguments = a.arguments();
+    QString projectFilePath;
+    if (arguments.size() > 1)
+    {
+        projectFilePath = QDir::cleanPath(
+            QDir(QDir::currentPath()).absoluteFilePath(arguments.at(1)));
+    }
+
+    GtProjectOpenService projectOpenService;
+    if (!projectFilePath.isEmpty() &&
+        projectOpenService.forwardProjectOpen(projectFilePath))
+    {
+        return 0;
+    }
+
+    projectOpenService.startServer();
+    if (!projectFilePath.isEmpty())
+    {
+        projectOpenService.enqueueProjectOpen(projectFilePath);
+    }
 
     GtSplashScreen splash(true, true);
     splash.show();
@@ -258,21 +280,22 @@ runApplication(int argc, char* argv[], RestartRequest& restartRequest)
 
     GtMainWin w;
 
+    projectOpenService.setProjectOpenHandler(
+        [&w](const QString& path) { w.openProjectFromCommandLine(path); });
+    QObject::connect(&w, &GtMainWin::guiInitialized, &projectOpenService,
+                     [&projectOpenService]() {
+        QTimer::singleShot(0, &projectOpenService,
+                           [&projectOpenService]() {
+            projectOpenService.setReady();
+        });
+    });
+
     splash.processEvents();
 
     QObject::connect(&w, SIGNAL(guiInitialized()), &app,
                      SLOT(onGuiInitializationFinished()));
 
     w.show();
-
-    const QStringList arguments = a.arguments();
-    if (arguments.size() > 1)
-    {
-        const QString projectFilePath = arguments.at(1);
-        QTimer::singleShot(0, &w, [&w, projectFilePath]() {
-            w.openProjectFromCommandLine(projectFilePath);
-        });
-    }
 
     splash.finish(&w);
 
