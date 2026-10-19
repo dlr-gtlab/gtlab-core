@@ -128,6 +128,8 @@ The interface provides two optional startup hooks:
   Called immediately after GTlab has accepted and registered the plugin. Use
   it only for work that must happen during module loading.
 
+.. _moduleinterface-init-hook:
+
 ``init()``
   Called later while the application starts. Use it for module initialization
   that depends on GTlab services, such as registering module settings.
