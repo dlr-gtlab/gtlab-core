@@ -682,7 +682,7 @@ GtPropertyModel::updatePropertyData(GtAbstractPropertyItem* obj)
         updateModeItem(topLeft);
     }
 
-    QModelIndex bottomRight = createIndex(topLeft.row(), 1,
+    QModelIndex bottomRight = createIndex(topLeft.row(), columnCount() - 1,
                                           topLeft.internalPointer());
 
     emit dataChanged(topLeft, bottomRight, QVector<int>() << Qt::DisplayRole);
