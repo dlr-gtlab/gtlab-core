@@ -696,6 +696,49 @@ TEST_F(TestGtObject, unreconstructibleDynamicPropertyPreservesRecordAndRecovers)
     }
 }
 
+TEST_F(TestGtObject, dummyPropertyRejectsEditsAndRetainsOriginalConfiguration)
+{
+    DynamicPropertyData definition;
+    definition.ident = QStringLiteral("unavailable");
+    definition.typeId = QStringLiteral("missing.property");
+    definition.configuration = {{QStringLiteral("size"), 3}};
+    definition.propertyData.setData(QStringLiteral("original value"));
+    GtDummyProperty property(definition);
+    bool success = false;
+    EXPECT_EQ(property.valueToVariant(QString(), &success),
+              QStringLiteral("Unavailable"));
+    EXPECT_TRUE(success);
+    EXPECT_FALSE(
+        property.setValueFromVariant(QStringLiteral("edited"), QString()));
+    EXPECT_TRUE(property.applyConfiguration(definition.configuration));
+    EXPECT_FALSE(property.applyConfiguration({{QStringLiteral("size"), 4}}));
+    EXPECT_EQ(property.originalDefinition(), definition);
+    EXPECT_EQ(property.storedValue(), QStringLiteral("original value"));
+}
+
+TEST_F(TestGtObject, propertyRegistryLookupAndModuleRestrictedUnregister)
+{
+    GtFactoryGroup factory;
+    const auto typeId = QStringLiteral("test.module_restricted.string");
+    EXPECT_EQ(factory.propertyMetaObject(typeId), nullptr);
+    EXPECT_FALSE(factory.registerPropertyFactory(
+        typeId, GtStringProperty::staticMetaObject,
+        [](const QString& id) { return new GtIntProperty(id, id); }));
+    EXPECT_EQ(factory.propertyMetaObject(typeId), nullptr);
+    ASSERT_TRUE(factory.registerPropertyFactory(
+        typeId, GtStringProperty::staticMetaObject,
+        [](const QString& id) { return new GtStringProperty(id, id); },
+        QStringLiteral("OwnerModule")));
+    EXPECT_EQ(factory.propertyMetaObject(typeId),
+              &GtStringProperty::staticMetaObject);
+    EXPECT_FALSE(factory.unregisterPropertyFactory(
+        typeId, QStringLiteral("OtherModule")));
+    EXPECT_TRUE(factory.hasPropertyFactory(typeId));
+    EXPECT_TRUE(factory.unregisterPropertyFactory(
+        typeId, QStringLiteral("OwnerModule")));
+    EXPECT_EQ(factory.propertyMetaObject(typeId), nullptr);
+}
+
 TEST_F(TestGtObject, missingRequiredDynamicConfigurationBecomesDummy)
 {
     ASSERT_TRUE(obj.addDynamicProperty(std::make_unique<GtStringProperty>(
