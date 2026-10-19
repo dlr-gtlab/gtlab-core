@@ -32,11 +32,10 @@ Choose the smallest contribution
    * - Custom post-processing template or plot
      - Register it through ``postItems()`` or ``postPlots()``.
 
-The complete registration pattern is documented in
-:ref:`mdiinterface`. GUI modules link ``GTlab::Gui`` and register concrete
-classes as Qt metadata; GTlab creates instances when users invoke the feature.
-For module-provided pages and actions inside the Process Dock, see
-:doc:`user_interface/process_dock`.
+For MDI-style contributions, see :ref:`mdiinterface`. GUI modules link
+``GTlab::Gui`` and register concrete classes as Qt metadata; GTlab creates
+instances when users invoke the feature. For Process Dock pages and actions,
+see :doc:`user_interface/process_dock`.
 
 Separate responsibilities
 -------------------------

@@ -34,6 +34,8 @@ FILE (GLOB_RECURSE TP_SRCS thirdparty/*.cpp thirdparty/*.h)
 FILE (GLOB_RECURSE EXP_SRCS exporter/*.cpp exporter/*.h)
 FILE (GLOB_RECURSE MDI_SRCS mdi/*.cpp mdi/*.h)
 FILE (GLOB_RECURSE GUI_SRCS gui/*.cpp gui/*.h)
+list(FILTER GUI_SRCS EXCLUDE REGEX
+    ".*/gui/(test_gt_processdockextensions|gt_processdockextensions_main)\\.cpp$")
 FILE (GLOB_RECURSE NET_SRCS network/*.cpp network/*.h)
 
 set(SOURCES
@@ -77,3 +79,17 @@ target_link_libraries(GTlabUnitTest PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core." DISCOVERY_MODE PRE_TEST)
+
+add_executable(GTlabProcessDockUnitTest
+    gui/gt_processdockextensions_main.cpp
+    gui/test_gt_processdockextensions.cpp
+)
+set_target_properties(GTlabProcessDockUnitTest PROPERTIES AUTOMOC ON)
+target_compile_definitions(GTlabProcessDockUnitTest PRIVATE
+    GT_MODULE_ID="Unittests" "GT_LOG_USE_QT_BINDINGS")
+target_link_libraries(GTlabProcessDockUnitTest PRIVATE
+    GTlab::Core GTlab::Gui gtest)
+add_test(NAME ProcessDockExtensions COMMAND GTlabProcessDockUnitTest)
+set_tests_properties(ProcessDockExtensions PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+

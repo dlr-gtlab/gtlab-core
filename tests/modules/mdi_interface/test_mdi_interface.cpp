@@ -17,7 +17,7 @@
 
 #include "test_mdi_interface.h"
 
-#include "gt_processdockpage.h"
+#include "gt_processdockextensions.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -69,7 +69,8 @@ TestMdiInterface::description() const
 void
 TestMdiInterface::init()
 {
-    gt::gui::registerProcessDockPage([] { return new TestProcessDockPage; });
+    gt::gui::registerProcessDockPage(this,
+                                     [] { return new TestProcessDockPage; });
 }
 
 ///gtdatamodelinterface
