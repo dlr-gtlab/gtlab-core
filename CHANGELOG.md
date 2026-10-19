@@ -10,7 +10,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased 2.1]
+## [Unreleased - 2.1]
+
+### Highlights
+### Fixed
+### Added
+### Changed
+
+## [2.1.0-alpha.1] - 2026-10-17
 
 ### Highlights
  - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
