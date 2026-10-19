@@ -1515,6 +1515,16 @@ TEST_F(TestGtObject, dynamicAddDiffCannotOverwriteStaticProperty)
     EXPECT_FALSE(target.applyDiff(addDiff));
     EXPECT_EQ(staticProperty.getVal(), QStringLiteral("static value"));
     EXPECT_EQ(dynamicPropertyDefinitions(target).size(), 0);
+
+    auto conflictingMemento = after;
+    conflictingMemento.setUuid(QStringLiteral("replacement uuid"));
+    conflictingMemento.setIdent(QStringLiteral("replacement name"));
+    const auto originalUuid = target.uuid();
+    const auto originalName = target.objectName();
+    EXPECT_FALSE(conflictingMemento.mergeTo(target, *gtObjectFactory));
+    EXPECT_EQ(target.uuid(), originalUuid);
+    EXPECT_EQ(target.objectName(), originalName);
+    EXPECT_EQ(staticProperty.getVal(), QStringLiteral("static value"));
 }
 
 TEST_F(TestGtObject, invalidDynamicDiffValueLeavesLivePropertyUnchanged)

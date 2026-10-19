@@ -468,61 +468,7 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
         memento.setClassName(o->metaObject()->className());
         // First collect all values, then move dynamic trees into their definitions.
         writeProperties(memento, o);
-        QSet<QString> dynamicPropertyIds;
-        for (auto* property : o->properties())
-        {
-            if (!property || property->propertyFactoryTypeId().isEmpty())
-                continue;
-
-            collectDynamicPropertyIds(*property, dynamicPropertyIds);
-
-            if (!property->storeToMemento()) continue;
-
-            GtObjectMemento::DynamicPropertyData definition;
-            const auto* dummy = qobject_cast<const GtDummyProperty*>(property);
-            if (dummy)
-                definition = dummy->originalDefinition();
-            else
-            {
-                definition.typeId = property->propertyFactoryTypeId();
-                definition.ident = property->ident();
-                definition.name = property->objectName();
-                definition.brief = property->brief();
-                definition.configuration = property->configuration();
-                if (property->isReadOnlyConfigured())
-                    definition.flags |=
-                        GtObjectMemento::DynamicPropertyData::ReadOnly;
-                if (property->isOptional())
-                    definition.flags |=
-                        GtObjectMemento::DynamicPropertyData::Optional;
-                if (property->isHidden())
-                    definition.flags |=
-                        GtObjectMemento::DynamicPropertyData::Hidden;
-                if (property->isMonitoring())
-                    definition.flags |=
-                        GtObjectMemento::DynamicPropertyData::Monitoring;
-                if (property->category() == GtAbstractProperty::Custom)
-                    definition.category = property->categoryString();
-            }
-            if (!dummy)
-            {
-                definition.propertyData.name = property->ident();
-                definition.propertyData.toStruct(
-                    QString::fromLatin1(property->metaObject()->className()));
-                extractDynamicPropertyData(*property, memento.properties,
-                                           definition.propertyData);
-            }
-            memento.dynamicProperties.push_back(std::move(definition));
-        }
-        // Remove remaining dynamic descendants even when their root opted out
-        // of storage. They must never leak into the static property list.
-        memento.properties.erase(
-            std::remove_if(memento.properties.begin(), memento.properties.end(),
-                           [&dynamicPropertyIds](
-                               const GtObjectMemento::PropertyData& data) {
-                               return dynamicPropertyIds.contains(data.name);
-                           }),
-            memento.properties.end());
+        writeDynamicProperties(memento, o);
     }
 
     // uuid
@@ -556,6 +502,65 @@ GtObjectIO::toMementoImpl(const GtObject* o, bool clone, GtObjectUUIDMap* uuidMa
     }
 
     return memento;
+}
+
+void
+GtObjectIO::writeDynamicProperties(GtObjectMemento& memento, const GtObject* o)
+{
+    QSet<QString> dynamicPropertyIds;
+    for (auto* property : o->properties())
+    {
+        if (!property || property->propertyFactoryTypeId().isEmpty()) continue;
+
+        collectDynamicPropertyIds(*property, dynamicPropertyIds);
+
+        if (!property->storeToMemento()) continue;
+
+        GtObjectMemento::DynamicPropertyData definition;
+        const auto* dummy = qobject_cast<const GtDummyProperty*>(property);
+        if (dummy)
+            definition = dummy->originalDefinition();
+        else
+        {
+            definition.typeId = property->propertyFactoryTypeId();
+            definition.ident = property->ident();
+            definition.name = property->objectName();
+            definition.brief = property->brief();
+            definition.configuration = property->configuration();
+            if (property->isReadOnlyConfigured())
+                definition.flags |=
+                    GtObjectMemento::DynamicPropertyData::ReadOnly;
+            if (property->isOptional())
+                definition.flags |=
+                    GtObjectMemento::DynamicPropertyData::Optional;
+            if (property->isHidden())
+                definition.flags |=
+                    GtObjectMemento::DynamicPropertyData::Hidden;
+            if (property->isMonitoring())
+                definition.flags |=
+                    GtObjectMemento::DynamicPropertyData::Monitoring;
+            if (property->category() == GtAbstractProperty::Custom)
+                definition.category = property->categoryString();
+        }
+        if (!dummy)
+        {
+            definition.propertyData.name = property->ident();
+            definition.propertyData.toStruct(
+                QString::fromLatin1(property->metaObject()->className()));
+            extractDynamicPropertyData(*property, memento.properties,
+                                       definition.propertyData);
+        }
+        memento.dynamicProperties.push_back(std::move(definition));
+    }
+    // Remove remaining dynamic descendants even when their root opted out
+    // of storage. They must never leak into the static property list.
+    memento.properties.erase(
+        std::remove_if(
+            memento.properties.begin(), memento.properties.end(),
+            [&dynamicPropertyIds](const GtObjectMemento::PropertyData& data) {
+                return dynamicPropertyIds.contains(data.name);
+            }),
+        memento.properties.end());
 }
 
 QDomElement
@@ -592,6 +597,28 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
     // store property information
     writeProperties(doc, element, memento);
 
+    writeDynamicProperties(doc, element, memento);
+
+    // children
+    if (!skipChildren && !memento.childObjects.isEmpty())
+    {
+        QDomElement childElement = doc.createElement(gt::xml::S_OBJECTLIST_TAG);
+
+        foreach (const GtObjectMemento& child, memento.childObjects)
+        {
+            childElement.appendChild(toDomElement(child, doc));
+        }
+
+        element.appendChild(childElement);
+    }
+
+    return element;
+}
+
+void
+GtObjectIO::writeDynamicProperties(QDomDocument& doc, QDomElement& element,
+                                   const GtObjectMemento& memento)
+{
     if (!memento.dynamicProperties.isEmpty())
     {
         QDomElement definitions =
@@ -621,22 +648,6 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
         }
         element.appendChild(definitions);
     }
-
-    // children
-    if (!skipChildren && ! memento.childObjects.isEmpty())
-    {
-        QDomElement childElement =
-            doc.createElement(gt::xml::S_OBJECTLIST_TAG);
-
-        foreach(const GtObjectMemento& child, memento.childObjects)
-        {
-            childElement.appendChild(toDomElement(child, doc));
-        }
-
-        element.appendChild(childElement);
-    }
-
-    return element;
 }
 
 GtObjectMemento
@@ -661,6 +672,39 @@ GtObjectIO::toMemento(const QDomElement& e)
     memento.properties = readProperties(e);
     memento.propertyContainers = readPropertyContainers(e);
 
+    if (!readDynamicProperties(e, memento)) return GtObjectMemento{};
+
+    // child objects
+    QDomElement children = e.firstChildElement(gt::xml::S_OBJECTLIST_TAG);
+
+    if (!children.isNull())
+    {
+        QDomElement compElement = children.firstChildElement();
+
+        while (!compElement.isNull())
+        {
+            if (compElement.tagName() != gt::xml::S_OBJECT_TAG &&
+                compElement.tagName() != gt::xml::S_OBJECTREF_TAG)
+            {
+                compElement = compElement.nextSiblingElement();
+                continue;
+            }
+
+            // recursion through GtObjectMemento constructor
+            memento.childObjects.push_back(GtObjectMemento(compElement));
+
+            compElement = compElement.nextSiblingElement();
+        }
+    }
+
+    return memento;
+}
+
+
+bool
+GtObjectIO::readDynamicProperties(const QDomElement& e,
+                                  GtObjectMemento& memento) const
+{
     const auto definitions =
         e.firstChildElement(QStringLiteral("dynamicProperties"));
     if (!definitions.isNull())
@@ -683,8 +727,7 @@ GtObjectIO::toMemento(const QDomElement& e)
                     GtObjectMemento::DynamicPropertyData::Optional |
                     GtObjectMemento::DynamicPropertyData::Hidden |
                     GtObjectMemento::DynamicPropertyData::Monitoring;
-                if (!okay || (property.flags & ~knownFlags) != 0)
-                    return GtObjectMemento{};
+                if (!okay || (property.flags & ~knownFlags) != 0) return false;
             }
             else
             {
@@ -714,7 +757,7 @@ GtObjectIO::toMemento(const QDomElement& e)
                         QStringLiteral("monitoring"),
                         GtObjectMemento::DynamicPropertyData::Monitoring,
                         property.flags))
-                    return GtObjectMemento{};
+                    return false;
             }
             const auto category = entry.attribute(QStringLiteral("category"));
             if (category == QStringLiteral("custom"))
@@ -728,27 +771,26 @@ GtObjectIO::toMemento(const QDomElement& e)
                     serializedConfiguration) ||
                 serializedConfiguration.userType() != QMetaType::QVariantMap)
             {
-                return GtObjectMemento{};
+                return false;
             }
             property.configuration = serializedConfiguration.toMap();
             if (!gt::isJsonLikePropertyConfiguration(property.configuration))
             {
-                return GtObjectMemento{};
+                return false;
             }
             const auto propertyDataElement =
                 entry.firstChildElement(QStringLiteral("propertyData"));
             if (!propertyDataElement.isNull())
             {
-                GtObjectIO reader;
                 const auto storedProperties =
-                    reader.readProperties(propertyDataElement);
-                if (storedProperties.size() > 1) return GtObjectMemento{};
+                    readProperties(propertyDataElement);
+                if (storedProperties.size() > 1) return false;
                 if (!storedProperties.isEmpty())
                 {
                     property.propertyData = storedProperties.front();
                     if (property.propertyData.name != property.ident)
                     {
-                        return GtObjectMemento{};
+                        return false;
                     }
                 }
             }
@@ -757,30 +799,7 @@ GtObjectIO::toMemento(const QDomElement& e)
         }
     }
 
-    // child objects
-    QDomElement children = e.firstChildElement(gt::xml::S_OBJECTLIST_TAG);
-
-    if (!children.isNull())
-    {
-        QDomElement compElement =
-            children.firstChildElement();
-
-        while (!compElement.isNull())
-        {
-            if (compElement.tagName() != gt::xml::S_OBJECT_TAG && compElement.tagName() != gt::xml::S_OBJECTREF_TAG)
-            {
-                compElement = compElement.nextSiblingElement();
-                continue;
-            }
-
-            // recursion through GtObjectMemento constructor
-            memento.childObjects.push_back(GtObjectMemento(compElement));
-
-            compElement = compElement.nextSiblingElement();
-        }
-    }
-
-    return memento;
+    return true;
 }
 
 

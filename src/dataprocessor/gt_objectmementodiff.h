@@ -125,14 +125,17 @@ private:
     void detectPropertyChanges(const QVector<GtObjectMemento::PropertyData>& leftProperties,
                                const QVector<GtObjectMemento::PropertyData>& rightProperties,
                                QDomElement& diffRoot);
-    void
-    detectDynamicPropertyChanges(
+    /** Store old/new dynamic snapshots for definition and value changes. */
+    void detectDynamicPropertyChanges(const GtObjectMemento& left,
+                                      const GtObjectMemento& right,
+                                      QDomElement& diffRoot);
+
+    void detectPropertyContainerChanges(
         const GtObjectMemento::PropertyData& leftContainer,
         const GtObjectMemento::PropertyData& rightContainer,
         QDomElement& diffRoot);
 
-    void
-    detectDynamicPropertyChanges(
+    void detectPropertyContainerChanges(
         const QVector<GtObjectMemento::PropertyData>& leftContainers,
         const QVector<GtObjectMemento::PropertyData>& rightContainers,
         QDomElement& diffRoot);

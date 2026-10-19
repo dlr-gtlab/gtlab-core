@@ -191,24 +191,30 @@ public:
         };
 
         QString name;
-        bool isActive{true};
+        bool isActive = true;
 
         const QVariant& data() const
         {
             return _data;
         }
+
         PropertyData& setData(const QVariant& val);
+
         const QString& dataType() const
         {
             return _dataType;
         }
+
         const PropertyType& type() const
         {
             return _type;
         }
+
         PropertyData& toStruct(const QString& structTypeName);
+
         PropertyData& fromQMetaProperty(const QMetaProperty& prop,
                                         const QVariant& val);
+
 
         QVector<PropertyData> childProperties; /// sub properties
         mutable QByteArray hash;

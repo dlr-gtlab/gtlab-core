@@ -327,35 +327,9 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
 
 
         detectPropertyChanges(left.properties, right.properties, diffObj);
-        if (left.dynamicProperties != right.dynamicProperties)
-        {
-            diffObjectEmpty = false;
-            QDomElement definitionsChange =
-                this->createElement(QStringLiteral("dynamicPropertiesChange"));
-            QDomElement oldSnapshot =
-                this->createElement(QStringLiteral("old"));
-            QDomElement newSnapshot =
-                this->createElement(QStringLiteral("new"));
-            GtObjectIO oio;
-            auto dynamicOnlySnapshot = [](const GtObjectMemento& source) {
-                GtObjectMemento snapshot;
-                snapshot.setClassName(source.className());
-                snapshot.setUuid(source.uuid());
-                snapshot.setIdent(source.ident());
-                snapshot.dynamicProperties = source.dynamicProperties;
-                return snapshot;
-            };
-            oldSnapshot.appendChild(
-                oio.toDomElement(dynamicOnlySnapshot(left), *this, true));
-            newSnapshot.appendChild(
-                oio.toDomElement(dynamicOnlySnapshot(right), *this, true));
-            definitionsChange.appendChild(oldSnapshot);
-            definitionsChange.appendChild(newSnapshot);
-            diffObj.appendChild(definitionsChange);
-        }
-        detectDynamicPropertyChanges(left.propertyContainers,
-                                     right.propertyContainers,
-                                     diffObj);
+        detectDynamicPropertyChanges(left, right, diffObj);
+        detectPropertyContainerChanges(left.propertyContainers,
+                                       right.propertyContainers, diffObj);
     }
 
     // create map of child object uuids
@@ -591,7 +565,36 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
 }
 
 void
-GtObjectMementoDiff::detectDynamicPropertyChanges(
+GtObjectMementoDiff::detectDynamicPropertyChanges(const GtObjectMemento& left,
+                                                  const GtObjectMemento& right,
+                                                  QDomElement& diffRoot)
+{
+    if (left.dynamicProperties == right.dynamicProperties) return;
+
+    QDomElement definitionsChange =
+        this->createElement(QStringLiteral("dynamicPropertiesChange"));
+    QDomElement oldSnapshot = this->createElement(QStringLiteral("old"));
+    QDomElement newSnapshot = this->createElement(QStringLiteral("new"));
+    GtObjectIO oio;
+    auto dynamicOnlySnapshot = [](const GtObjectMemento& source) {
+        GtObjectMemento snapshot;
+        snapshot.setClassName(source.className());
+        snapshot.setUuid(source.uuid());
+        snapshot.setIdent(source.ident());
+        snapshot.dynamicProperties = source.dynamicProperties;
+        return snapshot;
+    };
+    oldSnapshot.appendChild(
+        oio.toDomElement(dynamicOnlySnapshot(left), *this, true));
+    newSnapshot.appendChild(
+        oio.toDomElement(dynamicOnlySnapshot(right), *this, true));
+    definitionsChange.appendChild(oldSnapshot);
+    definitionsChange.appendChild(newSnapshot);
+    diffRoot.appendChild(definitionsChange);
+}
+
+void
+GtObjectMementoDiff::detectPropertyContainerChanges(
     const QVector<GtObjectMemento::PropertyData>& leftContainers,
     const QVector<GtObjectMemento::PropertyData>& rightContainers,
     QDomElement& diffRoot)
@@ -606,17 +609,16 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
 
         if (left.hash != right.hash)
         {
-            detectDynamicPropertyChanges(left, right, diffRoot);
+            detectPropertyContainerChanges(left, right, diffRoot);
         }
     }
 }
 
 
 void
-GtObjectMementoDiff::detectDynamicPropertyChanges(
+GtObjectMementoDiff::detectPropertyContainerChanges(
     const GtObjectMemento::PropertyData& leftContainer,
-    const GtObjectMemento::PropertyData& rightContainer,
-    QDomElement& diffRoot)
+    const GtObjectMemento::PropertyData& rightContainer, QDomElement& diffRoot)
 
 {
     assert(leftContainer.name == rightContainer.name);

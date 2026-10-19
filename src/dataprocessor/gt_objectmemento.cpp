@@ -35,6 +35,20 @@ namespace
 {
     using DynamicPropertyData = GtObjectMemento::DynamicPropertyData;
 
+    /// Hash construction metadata separately from serialized property values.
+    void dynamicPropertyHashHelper(const DynamicPropertyData& property,
+                                   QCryptographicHash& hash)
+    {
+        QByteArray record;
+        QDataStream stream(&record, QIODevice::WriteOnly);
+        stream << property.typeId << property.ident << property.name
+               << property.brief << property.configuration << property.flags
+               << property.category;
+        hash.addData(QByteArray::number(record.size()));
+        hash.addData(":", 1);
+        hash.addData(record);
+    }
+
     enum class MissingChildPolicy
     {
         Ignore,
@@ -337,14 +351,7 @@ GtObjectMemento::calculateHashes() const
     // property hash continues to describe only serialized PropertyData.
     for (const auto& property : dynamicProperties)
     {
-        QByteArray record;
-        QDataStream stream(&record, QIODevice::WriteOnly);
-        stream << property.typeId << property.ident << property.name
-               << property.brief << property.configuration << property.flags
-               << property.category;
-        hash.addData(QByteArray::number(record.size()));
-        hash.addData(":", 1);
-        hash.addData(record);
+        dynamicPropertyHashHelper(property, hash);
     }
 
     m_dynamicDefinitionHash = hash.result();
@@ -765,10 +772,16 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
         return false;
     }
 
+    // Keep failed dynamic merges from changing the live object's identity.
+    if (!obj.isDummy() && !isFlagEnabled(IsUnresolved) &&
+        !mergeDynamicPropertiesTo(obj, factory))
+        return false;
+
+    obj.setUuid(uuid());
+    obj.setObjectName(ident());
+
     if (isFlagEnabled(IsUnresolved))
     {
-        obj.setUuid(uuid());
-        obj.setObjectName(ident());
         // we need to make it a dummy, to avoid changing the original object
         // and to highlight a problem
         gtWarning() << QObject::tr("Creating dummy object for unresolved object reference '%1'").arg(ident());
@@ -782,16 +795,11 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
     }
     else if (!obj.isDummy())
     {
-        if (!mergeDynamicPropertiesTo(obj, factory)) return false;
-        obj.setUuid(uuid());
-        obj.setObjectName(ident());
         ::readProperties(*this, obj);
         ::mergeAllPropertyContainers(*this, obj);
     }
     else
     {
-        obj.setUuid(uuid());
-        obj.setObjectName(ident());
         obj.importMementoIntoDummy(*this);
     }
 
@@ -813,14 +821,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
             child->metaObject()->className() == mementoChild.m_className &&
             (child->uuid() == mementoChild.uuid() || child->isDefault()))
         {
-            if (factory)
-            {
-                if (!mementoChild.mergeTo(*child, *factory)) return false;
-            }
-            else if (!mementoChild.mergeTo(*child))
-            {
-                return false;
-            }
+            if (!mementoChild.mergeTo(*child, factory)) return false;
 
             // since memento has been merged to child, child needs to be kept
             oldChildObjs.removeOne(child);

@@ -161,6 +161,18 @@ private:
                          const GtObject* obj);
 
 
+    /** Move dynamic trees out of the flat values collected by writeProperties(). */
+    void writeDynamicProperties(GtObjectMemento& memento,
+                                const GtObject* object);
+
+    /** Serialize dynamic definitions, configuration and values into XML. */
+    void writeDynamicProperties(QDomDocument& doc, QDomElement& element,
+                                const GtObjectMemento& memento);
+
+    /** Read dynamic definitions; return false for malformed serialized data. */
+    bool readDynamicProperties(const QDomElement& element,
+                               GtObjectMemento& memento) const;
+
     GtObjectMemento::PropertyData
     toPropertyContainerData(const GtPropertyStructContainer& vec) const;
 
