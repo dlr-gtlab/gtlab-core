@@ -19,11 +19,24 @@
 #include "gt_modetypeproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_enumproperty.h"
+#include "gt_stringproperty.h"
+#include "test_datamodel_interface_exports.h"
+
+class TEST_DATAMODEL_INTERFACE_EXPORT TestDmiDynamicStringProperty
+    : public GtStringProperty
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE explicit TestDmiDynamicStringProperty(const QString& id) :
+        GtStringProperty(id, id)
+    {
+    }
+};
 
 /**
  * @brief The TestDmiClass class
  */
-class TestDmiData : public GtObject
+class TEST_DATAMODEL_INTERFACE_EXPORT TestDmiData : public GtObject
 {
     Q_OBJECT
 
@@ -32,6 +45,9 @@ public:
      * @brief Constructor.
      */
     Q_INVOKABLE TestDmiData();
+
+    bool addDynamicExampleProperties();
+    bool removeDynamicExampleProperties();
 
     enum class Fruit
     {

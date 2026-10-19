@@ -49,6 +49,8 @@ public:
      */
     QList<QMetaObject> data() override;
 
+    QList<PropertyFactoryData> propertyFactories() const override;
+
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
@@ -69,4 +71,3 @@ public:
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H
-
