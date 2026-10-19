@@ -20,8 +20,13 @@
 #include "gt_application.h"
 #include "test_preferencepage.h"
 #include "gt_settings.h"
+#include "gt_processdockpage.h"
 
 #include <iostream>
+
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 bool
 testConvert(QDomElement& xml, const QString& scope)
@@ -152,6 +157,36 @@ TestModuleInterface::metaInformation() const
     return m;
 }
 
+namespace
+{
+
+class TestProcessDockPage : public GtProcessDockPage
+{
+public:
+    TestProcessDockPage()
+    {
+        auto* layout = new QVBoxLayout(this);
+        layout->addWidget(new QLabel(tr("Test Process-Dock extension"), this));
+
+        auto* activateButton = new QPushButton(tr("Activate page"), this);
+        layout->addWidget(activateButton);
+        connect(activateButton, &QPushButton::clicked,
+                this, &GtProcessDockPage::activationRequested);
+    }
+
+    QString pageId() const override
+    {
+        return QStringLiteral("test-module-page");
+    }
+
+    QString title() const override
+    {
+        return QStringLiteral("Test Module");
+    }
+};
+
+} // namespace
+
 void
 TestModuleInterface::init()
 {
@@ -161,4 +196,8 @@ TestModuleInterface::init()
         return new TestPreferencePage;
     };
     GtApplication::addCustomPreferencePage(pageFactory);
+
+    gt::gui::registerProcessDockPage([] {
+        return new TestProcessDockPage;
+    });
 }
