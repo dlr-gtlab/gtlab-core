@@ -44,8 +44,8 @@ namespace
         const QByteArray digest =
             QCryptographicHash::hash(identity, QCryptographicHash::Sha256)
                 .toHex();
-        return QStringLiteral("gtlab-project-open-%1")
-            .arg(QString::fromLatin1(digest));
+        return QStringLiteral("gtp-%1").arg(
+            QString::fromLatin1(digest.left(32)));
     }
 
     QByteArray encodeFrame(const QJsonObject& object)
