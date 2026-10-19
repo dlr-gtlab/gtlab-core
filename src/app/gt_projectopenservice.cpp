@@ -25,8 +25,8 @@ namespace
 
     constexpr quint32 maxMessageSize = 1024 * 1024;
     constexpr int maxConnectionAttempts = 4;
-    constexpr int connectionTimeoutMs = 200;
-    constexpr int acknowledgementTimeoutMs = 600;
+    constexpr int connectionTimeoutMs = 500;
+    constexpr int acknowledgementTimeoutMs = 5000;
     constexpr int retryDelayMs = 100;
 
     QString serviceName()
@@ -154,27 +154,35 @@ GtProjectOpenService::forwardProjectOpen(const QString& projectFilePath) const
     {
         QLocalSocket socket;
         socket.connectToServer(m_serverName);
-        if (socket.waitForConnected(connectionTimeoutMs) &&
-            writeFrame(socket,
-                       {{QStringLiteral("type"), QStringLiteral("OpenProject")},
-                        {QStringLiteral("path"), projectFilePath}}))
+        if (!socket.waitForConnected(connectionTimeoutMs))
         {
-            QByteArray payload;
-            if (readFrame(socket, payload))
+            if (attempt + 1 < maxConnectionAttempts)
             {
-                const QJsonObject acknowledgement =
-                    QJsonDocument::fromJson(payload).object();
-                if (acknowledgement.value(QStringLiteral("accepted")).toBool())
-                {
-                    return true;
-                }
+                QThread::msleep(retryDelayMs);
             }
+
+            continue;
         }
 
-        if (attempt + 1 < maxConnectionAttempts)
+        const bool requestWritten = writeFrame(
+            socket, {{QStringLiteral("type"), QStringLiteral("OpenProject")},
+                     {QStringLiteral("path"), projectFilePath}});
+        if (!requestWritten)
         {
-            QThread::msleep(retryDelayMs);
+            return false;
         }
+
+        QByteArray payload;
+        if (!readFrame(socket, payload))
+        {
+            // The request may already have been queued. Retrying it could
+            // enqueue the same project-open request more than once.
+            return false;
+        }
+
+        const QJsonObject acknowledgement =
+            QJsonDocument::fromJson(payload).object();
+        return acknowledgement.value(QStringLiteral("accepted")).toBool();
     }
 
     return false;

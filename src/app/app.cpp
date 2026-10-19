@@ -256,11 +256,11 @@ main(int argc, char* argv[])
         [&w](const QString& path) { w.openProjectFromCommandLine(path); });
     QObject::connect(&w, &GtMainWin::guiInitialized, &projectOpenService,
                      [&projectOpenService]() {
-        QTimer::singleShot(0, &projectOpenService,
-                           [&projectOpenService]() {
-            projectOpenService.setReady();
-        });
-    });
+                         QTimer::singleShot(0, &projectOpenService,
+                                            [&projectOpenService]() {
+                                                projectOpenService.setReady();
+                                            });
+                     });
 
     splash.processEvents();
 

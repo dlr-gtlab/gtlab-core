@@ -122,7 +122,7 @@ private:
      * @return Whether the project was added or an existing session project was found.
      */
     bool addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
-                                  bool reuseExisting);
+                                  bool reuseExisting, QString* error = nullptr);
 
 
     /**
