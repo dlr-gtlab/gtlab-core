@@ -94,12 +94,69 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
-    const QStringList arguments = a.arguments();
-    QString projectFilePath;
-    if (arguments.size() > 1)
+    a.setApplicationVersion(GtCoreApplication::version().toString());
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(
+        QObject::tr("GTlab project and application startup options"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("dev"), QObject::tr("Activate developer mode")));
+    parser.addOption(QCommandLineOption(QStringLiteral("trace"),
+                                        QObject::tr("Enable trace logging")));
+    parser.addOption(QCommandLineOption(QStringLiteral("debug"),
+                                        QObject::tr("Enable debug logging")));
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("medium"), QObject::tr("Enable medium verbosity")));
+    parser.addOption(QCommandLineOption(QStringLiteral("verbose"),
+                                        QObject::tr("Enable verbose output")));
+    parser.addOption(QCommandLineOption(QStringLiteral("silent"),
+                                        QObject::tr("Disable logging output")));
+    parser.addPositionalArgument(QStringLiteral("project"),
+                                 QObject::tr("Project file to open."),
+                                 QStringLiteral("[project.gtlab]"));
+
+    parser.process(a);
+
+    const QStringList projectArguments = parser.positionalArguments();
+    if (projectArguments.size() > 1)
     {
-        projectFilePath = QDir::cleanPath(
-            QDir(QDir::currentPath()).absoluteFilePath(arguments.at(1)));
+        qCritical().noquote()
+            << QObject::tr("Only one project file can be specified.");
+        return 1;
+    }
+
+    gt::LoggingOptions loggingOptions;
+    if (parser.isSet(QStringLiteral("medium")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.isSet(QStringLiteral("verbose")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+    else if (parser.isSet(QStringLiteral("silent")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Silent;
+    }
+
+    if (parser.isSet(QStringLiteral("trace")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.isSet(QStringLiteral("debug")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.isSet(QStringLiteral("dev"));
+
+    QString projectFilePath;
+    if (!projectArguments.isEmpty())
+    {
+        projectFilePath =
+            QDir::cleanPath(QDir(QDir::currentPath())
+                                .absoluteFilePath(projectArguments.first()));
     }
 
     GtProjectOpenService projectOpenService;
@@ -120,9 +177,8 @@ main(int argc, char* argv[])
 
     GtApplication app(qApp);
 
-    splash.process(QObject::tr("initializing..."), [&app](){
-        app.init();
-    });
+    splash.process(QObject::tr("initializing..."),
+                   [&app, &loggingOptions]() { app.init(loggingOptions); });
 
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment

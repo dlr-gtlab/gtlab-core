@@ -965,7 +965,27 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    app.init();
+    gt::LoggingOptions loggingOptions;
+    if (parser.option("medium"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.option("verbose"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+
+    if (parser.option("trace"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.option("debug"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.option("dev");
+
+    app.init(loggingOptions);
 
 
     // save to system environment (temporary)
