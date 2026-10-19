@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Highlights
 ### Fixed
 ### Added
+ - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
 ### Changed
 
 ## [2.1.0-alpha.1] - 2026-10-17
