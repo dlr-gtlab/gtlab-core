@@ -1,0 +1,119 @@
+# Publish compiler warning diagnostics as a dedicated PR check.
+#
+# This workflow runs only after the untrusted PR build has completed. It checks
+# out this workflow's default-branch version and treats the build artifact only
+# as data before giving Reviewdog a token that can write Checks.
+
+name: Compiler warning review
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  actions: read
+  checks: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  compiler-warning-review:
+    name: Report compiler warnings
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0].number != null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out trusted workflow code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Confirm the PR still points to this build
+        id: head
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v7.0.8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const pullRequest = run.pull_requests[0];
+            const { data: current } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequest.number,
+            });
+            const matches = current.state === "open" && current.head.sha === run.head_sha;
+            core.setOutput("matches", String(matches));
+            if (!matches) {
+              core.notice("Skipping a stale compiler warning report for an older PR revision.");
+            }
+
+      - name: Download compiler warning report
+        id: report
+        if: steps.head.outputs.matches == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: compiler-warnings-ubuntu
+          path: ${{ runner.temp }}/compiler-warnings
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Note missing build report
+        if: steps.head.outputs.matches == 'true' && steps.report.outcome != 'success'
+        run: echo 'The completed CI run did not publish a compiler warning report; see the CI build check.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate and compare warning report
+        id: comparison
+        if: steps.report.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          PR_TARGET: ${{ github.event.workflow_run.pull_requests[0].base.ref }}
+          RUN_HEAD: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python3 - "$RUNNER_TEMP/compiler-warnings/compiler-warnings.json" "$RUN_HEAD" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if report.get("revision") != sys.argv[2]:
+              raise SystemExit("Warning report revision does not match the completed CI run")
+          PY
+
+          status=0
+          python3 .github/scripts/compiler_warnings.py compare \
+            --current "$RUNNER_TEMP/compiler-warnings/compiler-warnings.json" \
+            --repository "$GITHUB_REPOSITORY" \
+            --target-branch "$PR_TARGET" --head-revision "$RUN_HEAD" \
+            --summary "$RUNNER_TEMP/compiler-warning-summary.md" \
+            --checkstyle "$RUNNER_TEMP/compiler-warning-checkstyle.xml" || status=$?
+          cat "$RUNNER_TEMP/compiler-warning-summary.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Reviewdog
+        if: steps.report.outcome == 'success' && steps.comparison.outputs.status != '2'
+        uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1
+        with:
+          reviewdog_version: v0.21.2
+
+      - name: Report warnings on the pull request
+        if: steps.report.outcome == 'success' && steps.comparison.outputs.status != '2'
+        env:
+          CI_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          CI_PULL_REQUEST: ${{ github.event.workflow_run.pull_requests[0].number }}
+          CI_REPO_NAME: ${{ github.event.repository.name }}
+          CI_REPO_OWNER: ${{ github.repository_owner }}
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+        run: |
+          reviewdog -f=checkstyle -name="Compiler warnings" \
+            -reporter=github-pr-check -filter-mode=nofilter -level=error \
+            < "$RUNNER_TEMP/compiler-warning-checkstyle.xml"
+
+      - name: Enforce verified warning comparison
+        if: steps.comparison.outputs.status == '2'
+        run: |
+          echo 'Compiler warning comparison failed; see the summary and CI build check.'
+          exit 1
