@@ -14,6 +14,13 @@
 #include <QObject>
 #include <QQueue>
 
+/**
+ * @brief Routes command-line project-open requests to the active GUI instance.
+ *
+ * One application instance owns the local server; other instances forward
+ * project paths to it. Requests are queued until the GUI registers its handler
+ * and signals that startup is complete.
+ */
 class GtProjectOpenService : public QObject
 {
 public:
