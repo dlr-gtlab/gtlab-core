@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
- 
+ - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
 ### Deprecated
  - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
 

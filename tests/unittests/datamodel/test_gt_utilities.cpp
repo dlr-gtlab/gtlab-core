@@ -160,10 +160,155 @@ TEST_F(TestGtUtilities, container_const_cast)
     EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 
-TEST_F(TestGtUtilities, finally_member)
+TEST_F(TestGtUtilities, finally_typetraits_member_function)
+{
+    // non-throwing member function
+    QMutex m;
+    m.lock();
+
+    auto notthrowing = gt::finally(&m, &QMutex::unlock);
+    static_assert(
+        std::is_nothrow_invocable<decltype(&QMutex::unlock), QMutex*>::value,
+        "Must use noexcept member function");
+    static_assert(std::is_nothrow_invocable<
+                      typename decltype(notthrowing)::function_type>::value,
+                  "Expected wrapping lambda to be noexcept too");
+
+    // throwing member function
+    QString s;
+    auto throwable = gt::finally(&s, &QString::clear);
+    static_assert(
+        !std::is_nothrow_invocable<decltype(&QString::clear), QString*>::value,
+        "Must use noexcept(false) member function");
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(throwable)::function_type>::value,
+                  "Expected wrapping lambda to be noexcept(false) too");
+}
+
+TEST_F(TestGtUtilities, finally_typetraits_lambda)
+{
+    // by default lambda are noexcept(false)
+    auto notthrowing = gt::finally([]() noexcept { });
+    static_assert(std::is_nothrow_invocable<
+                      typename decltype(notthrowing)::function_type>::value,
+                  "Expected lambda to be noexcept");
+
+    // by default lambda are noexcept(false)
+    auto throwable = gt::finally([]() { });
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(throwable)::function_type>::value,
+                  "Expected lambda to be noexcept(false)");
+}
+
+TEST_F(TestGtUtilities, finally_typetraits_std_function)
+{
+    // std::functions are always noexcept(false) and may throw
+    auto notthrowing = gt::finally(std::function<void()>([]() noexcept { }));
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(notthrowing)::function_type>::value,
+                  "Expected std::function to be noexcept(false)");
+
+    // std::functions are always noexcept(false) and may throw
+    auto throwable = gt::finally(std::function<void()>([]() { }));
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(throwable)::function_type>::value,
+                  "Expected std::function to be noexcept(false)");
+}
+
+// gt::Finally must not throw on invocation -> should swallow all exceptions
+TEST_F(TestGtUtilities, finally_invoke_with_exception)
+{
+    EXPECT_NO_THROW({
+        auto finally = gt::finally(
+            []() { throw std::logic_error("this is a test exception"); });
+    });
+    EXPECT_NO_THROW({ auto finally = gt::finally([]() { throw 42; }); });
+}
+
+// only copy ctor is noexcept(true)
+class CopyConstructible
+{
+public:
+    CopyConstructible() noexcept(true)
+    { }
+    CopyConstructible(const CopyConstructible&) noexcept(true)
+    { }
+    CopyConstructible(CopyConstructible&&) noexcept(false)
+    {
+        throw std::logic_error{"should not have been called!"};
+    }
+    CopyConstructible& operator=(const CopyConstructible&) = delete;
+    CopyConstructible& operator=(CopyConstructible&&) = delete;
+    ~CopyConstructible() noexcept
+    { }
+
+    void operator()() noexcept
+    { }
+
+    // custom swap function is needed
+    friend void swap(CopyConstructible& a, CopyConstructible& b) noexcept
+    { }
+};
+
+// only move ctor is noexcept(true)
+class MoveConstructible
+{
+public:
+    MoveConstructible() noexcept(true)
+    { }
+    MoveConstructible(const MoveConstructible&) noexcept(false)
+    {
+        throw std::logic_error{"should not have been called!"};
+    }
+    MoveConstructible(MoveConstructible&&) noexcept(true) { };
+    MoveConstructible& operator=(const MoveConstructible&) = delete;
+    MoveConstructible& operator=(MoveConstructible&&) = delete;
+    ~MoveConstructible() noexcept
+    { }
+
+    void operator()() noexcept
+    { }
+
+    // custom swap function is needed
+    friend void swap(MoveConstructible& a, MoveConstructible& b) noexcept
+    { }
+};
+
+TEST_F(TestGtUtilities, finally_nothrow_copy_constructible)
+{
+    // must not use `gt::finally wrapper` function,
+    // as it would call the move constructor
+    auto finally = gt::Finally<CopyConstructible>{CopyConstructible{}};
+    Q_UNUSED(finally);
+
+    // test move assignment
+    decltype(finally) target{};
+    EXPECT_TRUE(target.isNull());
+    EXPECT_FALSE(finally.isNull());
+
+    target = std::move(finally);
+    EXPECT_FALSE(target.isNull());
+    EXPECT_TRUE(finally.isNull());
+}
+
+TEST_F(TestGtUtilities, finally_nothrow_move_constructible)
+{
+    auto finally = gt::finally(MoveConstructible{});
+    Q_UNUSED(finally);
+
+    // test move assignment
+    decltype(finally) target{};
+    EXPECT_TRUE(target.isNull());
+    EXPECT_FALSE(finally.isNull());
+
+    target = std::move(finally);
+    EXPECT_FALSE(target.isNull());
+    EXPECT_TRUE(finally.isNull());
+}
+
+TEST_F(TestGtUtilities, finally_member_function)
 {
     QMutex m;
-
     m.lock();
 
     {
@@ -217,6 +362,146 @@ TEST_F(TestGtUtilities, finally_lambda)
     }
 
     EXPECT_EQ(i, 0);
+}
+
+/// constructing and moving a move-only lambda is supported
+TEST_F(TestGtUtilities, finally_move_lambda)
+{
+    bool called = false;
+    std::unique_ptr<GtObject> movable;
+
+    auto finally1 =
+        gt::finally([&called, moved = std::move(movable)]() { called = true; });
+
+    auto finally2 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_FALSE(called);
+
+    finally2.finalize();
+
+    EXPECT_TRUE(called);
+}
+
+TEST_F(TestGtUtilities, finally_move_std_function)
+{
+    bool called = false;
+    std::function<void()> myFunction = [&]() { called = true; };
+
+    auto finally1 = gt::finally(myFunction);
+
+    auto finally2 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_FALSE(called);
+
+    finally2.finalize();
+
+    EXPECT_TRUE(called);
+
+    called = false;
+
+    decltype(finally1) finally3;
+    finally3 = gt::finally(myFunction);
+
+    finally3.finalize();
+
+    EXPECT_TRUE(called);
+}
+
+TEST_F(TestGtUtilities, finally_move_self)
+{
+    bool called = false;
+    std::function<void()> myFunction = [&]() { called = true; };
+
+    auto finally1 = gt::finally(myFunction);
+
+    finally1 = std::move(finally1);
+
+    finally1.finalize();
+    EXPECT_TRUE(called);
+}
+
+struct MyMoveOnlyFunctor
+{
+    bool moved = false, called = false;
+
+    MyMoveOnlyFunctor() noexcept = default;
+
+    MyMoveOnlyFunctor(const MyMoveOnlyFunctor&) = delete;
+    MyMoveOnlyFunctor& operator=(const MyMoveOnlyFunctor&) = delete;
+
+    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) noexcept :
+        called{o.called}
+    {
+        o.moved = true;
+    }
+
+    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor&& o) noexcept
+    {
+        called = o.called;
+        moved = false;
+        o.moved = true;
+        return *this;
+    }
+
+    void operator()() noexcept
+    {
+        called = true;
+    }
+};
+
+/// constructing, assigning and moving a move-only functor is supported
+TEST_F(TestGtUtilities, finally_move_functor)
+{
+    gt::Finally<MyMoveOnlyFunctor> finally1{MyMoveOnlyFunctor{}};
+    EXPECT_FALSE(finally1.get().moved);
+    EXPECT_FALSE(finally1.get().called);
+
+    finally1.finalize();
+    EXPECT_FALSE(finally1.get().moved);
+    EXPECT_TRUE(finally1.get().called);
+
+    gt::Finally<MyMoveOnlyFunctor> finally2{std::move(finally1)};
+    EXPECT_TRUE(finally1.get().moved);
+    EXPECT_TRUE(finally1.get().called);
+    EXPECT_FALSE(finally2.get().moved);
+    EXPECT_TRUE(finally2.get().called);
+
+    gt::Finally<MyMoveOnlyFunctor> finally3{};
+    EXPECT_FALSE(finally3.get().moved);
+    EXPECT_FALSE(finally3.get().called);
+    finally3 = std::move(finally2);
+
+    EXPECT_TRUE(finally2.get().moved);
+    EXPECT_TRUE(finally2.get().called);
+    EXPECT_FALSE(finally3.get().moved);
+    EXPECT_TRUE(finally3.get().called);
+}
+
+/// constructing, assigning and moving a move-only functor is supported
+TEST_F(TestGtUtilities, finally_move_assignment_cleanup)
+{
+    bool aInitialized = false;
+    bool bInitialized = false;
+
+    {
+        auto a = gt::finally<std::function<void()>>(
+            [&aInitialized]() { aInitialized = true; });
+        auto b = gt::finally<std::function<void()>>(
+            [&bInitialized]() { bInitialized = true; });
+
+        EXPECT_FALSE(aInitialized);
+        EXPECT_FALSE(bInitialized);
+
+        b = std::move(a);
+
+        EXPECT_FALSE(aInitialized);
+        EXPECT_TRUE(bInitialized);
+    }
+
+    EXPECT_TRUE(aInitialized);
+    EXPECT_TRUE(bInitialized);
 }
 
 TEST_F(TestGtUtilities, clamp)
