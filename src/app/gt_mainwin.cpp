@@ -707,7 +707,6 @@ GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
     }
 }
 
-// cppcheck-suppress functionStatic
 void
 GtMainWin::showPreferences()
 {
