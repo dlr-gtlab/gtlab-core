@@ -89,8 +89,8 @@ gt::conversion::convert
 GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
                                               const QMetaObject& to) const
 {
-    const auto match = findBestConverterWithInheritance(
-        from, to, LookupPurpose::Conversion);
+    const auto match =
+        findBestConverterWithInheritance(from, to, LookupPurpose::Conversion);
 
     if (!match.found) return {};
 
@@ -107,10 +107,7 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
     const QMetaObject& from, const QMetaObject& to) const
 {
     const auto match = findBestConverterWithInheritance(
-        from,
-        to,
-        LookupPurpose::AnyRegistered,
-        false);
+        from, to, LookupPurpose::AnyRegistered, false);
 
     return match.converter;
 }
@@ -154,41 +151,28 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
     const auto fromChain = inheritanceChain(from);
     const auto toChain = inheritanceChain(to);
 
-    const auto findTypeIndex =
-        [](const auto& chain, const QString& className)
-    {
-        const auto it = std::find_if(
-            chain.cbegin(),
-            chain.cend(),
-            [&className](const QMetaObject* type)
-            {
-                return className == type->className();
-            });
+    const auto findTypeIndex = [](const auto& chain, const QString& className) {
+        const auto it = std::find_if(chain.cbegin(), chain.cend(),
+                                     [&className](const QMetaObject* type) {
+                                         return className == type->className();
+                                     });
 
-        return static_cast<std::size_t>(
-            std::distance(chain.cbegin(), it));
+        return static_cast<std::size_t>(std::distance(chain.cbegin(), it));
     };
 
     ConverterMatch best;
 
-    const auto considerCandidate =
-        [&best](
-            const GtPropertyConverter* candidate,
-            std::size_t fromIndex,
-            std::size_t toIndex)
-    {
+    const auto considerCandidate = [&best](const GtPropertyConverter* candidate,
+                                           std::size_t fromIndex,
+                                           std::size_t toIndex) {
         const auto score = fromIndex + toIndex;
         const auto bestScore = best.fromIndex + best.toIndex;
 
         const bool isBetter =
-            !best.found ||
-            score < bestScore ||
-            (score == bestScore &&
-             fromIndex < best.fromIndex) ||
-            (score == bestScore &&
-             fromIndex == best.fromIndex &&
-             toIndex == best.toIndex &&
-             candidate != nullptr &&
+            !best.found || score < bestScore ||
+            (score == bestScore && fromIndex < best.fromIndex) ||
+            (score == bestScore && fromIndex == best.fromIndex &&
+             toIndex == best.toIndex && candidate != nullptr &&
              best.converter == nullptr);
 
         if (isBetter)
@@ -208,14 +192,12 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
 
         if (fromIndex == fromChain.size()) continue;
 
-        const auto toIndex =
-            findTypeIndex(toChain, converter.toClassName());
+        const auto toIndex = findTypeIndex(toChain, converter.toClassName());
 
         if (toIndex == toChain.size()) continue;
 
         // Only consider converters that provide the requested function.
-        if (purpose == LookupPurpose::Conversion &&
-            !converter.convertFunc())
+        if (purpose == LookupPurpose::Conversion && !converter.convertFunc())
         {
             continue;
         }
@@ -253,8 +235,7 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
             // Only more specific property classes may provide an
             // implicit conversion candidate.
             if (commonType == &GtAbstractProperty::staticMetaObject ||
-                !commonType->inherits(
-                    &GtAbstractProperty::staticMetaObject))
+                !commonType->inherits(&GtAbstractProperty::staticMetaObject))
             {
                 continue;
             }

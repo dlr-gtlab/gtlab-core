@@ -236,9 +236,7 @@ private:
      * inheritance chains
      */
     ConverterMatch findBestConverterWithInheritance(
-        const QMetaObject& from,
-        const QMetaObject& to,
-        LookupPurpose purpose,
+        const QMetaObject& from, const QMetaObject& to, LookupPurpose purpose,
         bool includeImplicit = true) const;
 
     /// Creates the registry instance and registers the converters of

@@ -408,8 +408,7 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
     EXPECT_DOUBLE_EQ(doubleTarget.getVal(), 0.0);
 
     // int to bool is registered in the registry
-    GtBoolProperty boolTarget("boolTarget", "boolTargetName", QString(),
-                              false);
+    GtBoolProperty boolTarget("boolTarget", "boolTargetName", QString(), false);
 
     const auto intToBool = gtPropConversion().convertFunction(
         GtIntProperty::staticMetaObject, GtBoolProperty::staticMetaObject);

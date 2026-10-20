@@ -240,15 +240,12 @@ gt::conversion::fromBool::toInt(const GtAbstractProperty& source,
 gt::conversion::isCompatible
 gt::conversion::defaultCompatibility()
 {
-    return [](
-               const GtAbstractProperty& source,
-               const GtAbstractProperty& target)
-    {
-        const QVariant sourceValue = source.valueToVariant();
-        const QVariant targetValue = target.valueToVariant();
+    return
+        [](const GtAbstractProperty& source, const GtAbstractProperty& target) {
+            const QVariant sourceValue = source.valueToVariant();
+            const QVariant targetValue = target.valueToVariant();
 
-        return sourceValue.isValid() &&
-               targetValue.isValid() &&
-               sourceValue.userType() == targetValue.userType();
-    };
+            return sourceValue.isValid() && targetValue.isValid() &&
+                   sourceValue.userType() == targetValue.userType();
+        };
 }
