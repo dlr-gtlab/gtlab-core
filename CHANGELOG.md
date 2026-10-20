@@ -16,7 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Added
  - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
+ - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
+
 ### Changed
+ - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
+ 
+### Deprecated
+ - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
 
 ## [2.1.0-alpha.1] - 2026-10-17
 
