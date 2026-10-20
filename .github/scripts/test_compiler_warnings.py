@@ -37,7 +37,7 @@ class CompilerWarningTests(unittest.TestCase):
     def report(warnings=(), **changes):
         return {'schema_version': cw.SCHEMA_VERSION, 'revision': 'base',
                 'compiler': 'c++ (Ubuntu 13.3.0-6ubuntu2) 13.3.0',
-                'platform': cw.PLATFORM, 'build_succeeded': True,
+                'platform': 'ubuntu-24.04', 'build_succeeded': True,
                 'warnings': list(warnings), **changes}
 
     def write_report(self, name, report):
@@ -106,7 +106,7 @@ class CompilerWarningTests(unittest.TestCase):
         completed = subprocess.run(
             [sys.executable, str(SCRIPT), 'analyze', '--log', str(log),
              '--root', str(self.root), '--output', str(output), '--revision', 'head',
-             '--compiler', 'gcc', '--build-succeeded', 'true'], capture_output=True, text=True)
+             '--compiler', 'gcc', '--platform', 'ubuntu-24.04', '--build-succeeded', 'true'], capture_output=True, text=True)
         self.assertEqual(completed.returncode, 2)
         self.assertFalse(output.exists())
 
@@ -169,6 +169,18 @@ class CompilerWarningTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertIn('compiler identity/version differs', summary)
 
+    def test_runner_ubuntu_upgrade_makes_baseline_unverified(self):
+        result, summary = self.compare(self.report([self.warning()], platform='ubuntu-26.04'), self.report())
+        self.assertEqual(result, 0)
+        self.assertIn('baseline Ubuntu version differs', summary)
+
+    def test_report_records_actual_runner_version(self):
+        log = self.root / 'empty-build.log'
+        log.write_text('build complete\n')
+        report = cw.make_report(log, self.root, 'head', 'gcc', 'ubuntu-26.04', True)
+        loaded = cw.load_report(self.write_report('actual-runner.json', report))
+        self.assertEqual(loaded['platform'], 'ubuntu-26.04')
+
     def test_failed_or_incomplete_build_is_never_compared(self):
         result, summary = self.compare(self.report([self.warning()]), self.report(build_succeeded=False))
         self.assertEqual(result, 0)
@@ -192,7 +204,7 @@ class CompilerWarningTests(unittest.TestCase):
         self.assertEqual(result, 2)
 
     def test_incompatible_baseline_schema_or_platform_is_unverified(self):
-        for metadata in ({'schema_version': 1}, {'platform': 'ubuntu-22.04'}, {'build_succeeded': 'true'}):
+        for metadata in ({'schema_version': 1}, {'platform': 'unsupported'}, {'build_succeeded': 'true'}):
             with self.subTest(metadata=metadata):
                 result, summary = self.compare(self.report(), self.report(**metadata))
                 self.assertEqual(result, 0)
@@ -220,7 +232,7 @@ class CompilerWarningTests(unittest.TestCase):
                 page = int(url.rsplit('page=', 1)[1])
                 return {'artifacts': artifacts[(page - 1) * 100:page * 100]}
             if '/jobs?' in url:
-                return {'jobs': [{'name': 'Build / Build and test (ubuntu-24.04)',
+                return {'jobs': [{'name': 'Build / Build and test (ubuntu-latest)',
                                   'status': 'completed', 'conclusion': job_conclusion}]}
             identifier = int(url.rsplit('/', 1)[1])
             return {'id': identifier, 'head_branch': 'master', 'head_sha': 'base',

@@ -17,12 +17,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022] # pin Linux for comparable compiler warning baselines
+        os: [ubuntu-latest, windows-2022] # GitHub-provided Windows and Linux images
     runs-on: ${{ matrix.os }} # use value from the matrix
 
     steps:
     - name: Install dependencies (linux)
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt install -y ninja-build
 
@@ -65,7 +65,7 @@ jobs:
 
     - name: Build (Ubuntu)
       id: build
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       env:
         LC_ALL: C.UTF-8
       run: |
@@ -79,14 +79,16 @@ jobs:
     # Reporting errors are enforced at the end, so they do not suppress tests.
     - name: Capture compiler warnings
       id: warnings
-      if: always() && matrix.os == 'ubuntu-24.04' && steps.build.outcome != 'skipped' && steps.build.outcome != ''
+      if: always() && matrix.os == 'ubuntu-latest' && steps.build.outcome != 'skipped' && steps.build.outcome != ''
       continue-on-error: true
       env:
         LC_ALL: C.UTF-8
       run: |
+        source /etc/os-release
         python3 .github/scripts/compiler_warnings.py analyze \
           --log "$RUNNER_TEMP/ubuntu-build.log" --root "$GITHUB_WORKSPACE" \
           --revision "$GITHUB_SHA" --compiler "$(c++ --version | sed -n '1p')" \
+          --platform "${ID}-${VERSION_ID}" \
           --build-succeeded "${{ steps.build.outcome == 'success' }}" \
           --output "$RUNNER_TEMP/compiler-warnings.json"
         if [[ "$GITHUB_EVENT_NAME" != 'pull_request' ]]; then
@@ -97,7 +99,7 @@ jobs:
 
     - name: Upload compiler warning report
       id: warning_artifact
-      if: always() && matrix.os == 'ubuntu-24.04' && steps.warnings.outcome == 'success'
+      if: always() && matrix.os == 'ubuntu-latest' && steps.warnings.outcome == 'success'
       continue-on-error: true
       uses: actions/upload-artifact@v4
       with:
@@ -107,7 +109,7 @@ jobs:
         retention-days: 60
 
     - name: Build external module consumer (Linux)
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib -Dhdf5_DIR="$HDF5_DIR"
         cmake --build build/external-consumer --target install --config Debug
@@ -129,13 +131,13 @@ jobs:
         .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
 
     - name: Unit Tests - Linux
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         cd build
         ./GTlabUnitTest --gtest_output=xml:unittests.xml
 
     - name: System Tests - Linux
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         ctest --test-dir build -C Debug -L SystemTest --output-on-failure
 
@@ -167,7 +169,7 @@ jobs:
 
     - name: Compare compiler warnings with master
       id: warning_comparison
-      if: always() && !cancelled() && matrix.os == 'ubuntu-24.04' && steps.warnings.outcome == 'success' && github.event_name == 'pull_request'
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warnings.outcome == 'success' && github.event_name == 'pull_request'
       continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ github.token }} # Read-only, also for same-repository PRs.
@@ -188,7 +190,7 @@ jobs:
         exit "$status"
 
     - name: Set up reviewdog
-      if: always() && !cancelled() && matrix.os == 'ubuntu-24.04' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
       uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1
       continue-on-error: true
       with:
@@ -196,7 +198,7 @@ jobs:
 
     # Local Actions annotations work on forks and do not require write access.
     - name: Annotate new compiler warnings
-      if: always() && !cancelled() && matrix.os == 'ubuntu-24.04' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
       continue-on-error: true
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }} # Used only to read the diff.
@@ -205,7 +207,7 @@ jobs:
           < "$RUNNER_TEMP/new-warnings.xml"
 
     - name: Enforce compiler warning check
-      if: always() && matrix.os == 'ubuntu-24.04' && (steps.warnings.outcome == 'failure' || steps.warning_artifact.outcome == 'failure' || steps.warning_comparison.outcome == 'failure')
+      if: always() && matrix.os == 'ubuntu-latest' && (steps.warnings.outcome == 'failure' || steps.warning_artifact.outcome == 'failure' || steps.warning_comparison.outcome == 'failure')
       run: |
         echo '::error::Compiler warning analysis, report upload or comparison failed. See the step logs and summary.'
         exit 1

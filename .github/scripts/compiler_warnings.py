@@ -29,7 +29,6 @@ ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 WARNING_MARKER = re.compile(r"^(?=\S).*?\bwarning:")
 REPORT_NAME = "compiler-warnings-ubuntu"
 API = "https://api.github.com"
-PLATFORM = "ubuntu-24.04"
 SCHEMA_VERSION = 2
 BASELINE_ERRORS = (OSError, ValueError, KeyError, zipfile.BadZipFile)
 
@@ -72,12 +71,12 @@ def parse_log(log_path: Path, root: Path) -> list[dict]:
     return warnings
 
 
-def make_report(log_path: Path, root: Path, revision: str, compiler: str, build_succeeded: bool) -> dict:
+def make_report(log_path: Path, root: Path, revision: str, compiler: str, platform: str, build_succeeded: bool) -> dict:
     return {
         "schema_version": SCHEMA_VERSION,
         "revision": revision,
         "compiler": compiler,
-        "platform": PLATFORM,
+        "platform": platform,
         "build_succeeded": build_succeeded,
         "warnings": parse_log(log_path, root),
     }
@@ -106,7 +105,8 @@ def load_report(path: Path) -> dict:
         or not isinstance(report.get("compiler"), str)
         or not report["compiler"].strip()
         or report["compiler"] == "unknown"
-        or report.get("platform") != PLATFORM
+        or not isinstance(report.get("platform"), str)
+        or re.fullmatch(r"ubuntu-\d{2}\.\d{2}", report["platform"]) is None
         or type(report.get("build_succeeded")) is not bool
         or not isinstance(report.get("warnings"), list)
         or not all(valid_warning(item) for item in report["warnings"])
@@ -188,6 +188,8 @@ def baseline_problem(baseline: dict, current: dict, base_revision: str) -> str |
         return "baseline was produced by an incomplete or failed build"
     if not base_revision or baseline["revision"] != base_revision:
         return "baseline does not represent the PR base revision"
+    if baseline["platform"] != current["platform"]:
+        return "baseline Ubuntu version differs from the PR runner"
     if baseline["compiler"] != current["compiler"]:
         return "baseline compiler identity/version differs from the PR compiler"
     return None
@@ -214,7 +216,7 @@ def find_baseline(repository: str, token: str, destination: Path, current: dict,
         jobs = api_items(f"{API}/repos/{repository}/actions/runs/{run['id']}/jobs?filter=latest", "jobs", token)
         if not any(
             job.get("conclusion") == "success" and job.get("status") == "completed"
-            and job.get("name", "").rsplit(" / ", 1)[-1] == "Build and test (ubuntu-24.04)"
+            and job.get("name", "").rsplit(" / ", 1)[-1] == "Build and test (ubuntu-latest)"
             for job in jobs
         ):
             continue
@@ -252,6 +254,7 @@ def report_summary(current: dict) -> list[str]:
         "### Compiler warnings", "",
         f"Ubuntu build: **{len(current['warnings'])} warning(s)**. "
         "Download `compiler-warnings-ubuntu` for the complete report.",
+        f"Ubuntu version: <code>{html.escape(current['platform'])}</code>.",
         f"Compilation successful: **{current['build_succeeded']}**.", "",
     ]
 
@@ -335,6 +338,7 @@ def main() -> int:
     analyze.add_argument("--output", type=Path, required=True)
     analyze.add_argument("--revision", required=True)
     analyze.add_argument("--compiler", required=True)
+    analyze.add_argument("--platform", required=True)
     analyze.add_argument("--build-succeeded", choices=("true", "false"), required=True)
     summary = commands.add_parser("summary")
     summary.add_argument("--current", type=Path, required=True)
@@ -351,7 +355,7 @@ def main() -> int:
     compare.add_argument("--head-revision", default="")
     args = parser.parse_args()
     if args.command == "analyze":
-        report = make_report(args.log, args.root, args.revision, args.compiler, args.build_succeeded == "true")
+        report = make_report(args.log, args.root, args.revision, args.compiler, args.platform, args.build_succeeded == "true")
         args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(f"Captured {len(report['warnings'])} compiler warning(s).")
         return 0

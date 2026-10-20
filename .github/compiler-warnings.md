@@ -8,7 +8,8 @@ SPDX-License-Identifier: MPL-2.0+
 The Ubuntu leg of **Build and test** records the normal compilation output
 without another build. Dependency installation and CMake configuration remain
 shared with Windows; only Ubuntu compilation uses `tee` and `pipefail`, preserving
-the compiler's exit status. The runner is pinned to `ubuntu-24.04`.
+the compiler's exit status. The runner remains `ubuntu-latest`; the report records
+the actual Ubuntu version from `/etc/os-release`.
 
 After compilation, `compiler-warnings.json` is uploaded as the
 `compiler-warnings-ubuntu` artifact for 60 days, subject to repository retention
@@ -22,7 +23,9 @@ newest first, and chooses the latest valid, compatible report from a completed
 `master` push run of `ci.yml` with a successful Ubuntu job. Discovery paginates
 artifacts to exhaustion, avoiding the 1,000-result workflow-search limit. A
 compatible report must represent the **exact PR base revision** and use the same
-compiler identity/version and report schema. An older report can otherwise flag
+Ubuntu version, compiler identity/version and report schema. If `ubuntu-latest`
+moves to a different Ubuntu version, comparisons remain not verified until a
+compatible master report is available. An older report can otherwise flag
 warnings already present on the PR base as new.
 
 The comparison matches normalized source paths, warning options and messages,
