@@ -22,6 +22,8 @@ jobs:
 
   release-versioning:
     name: "Release versioning"
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,9 +39,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-      pull-requests: write
     uses: ./.github/workflows/ci-build-test.yml
-    secrets: inherit
 
   quality:
     name: "Quality"
