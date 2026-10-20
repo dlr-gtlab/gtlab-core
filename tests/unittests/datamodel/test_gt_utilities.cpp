@@ -167,9 +167,9 @@ TEST_F(TestGtUtilities, finally_typetraits_member_function)
     m.lock();
 
     auto notthrowing = gt::finally(&m, &QMutex::unlock);
-    static_assert(std::is_nothrow_invocable<
-                      decltype(&QMutex::unlock), QMutex*>::value,
-                  "Must use noexcept member function");
+    static_assert(
+        std::is_nothrow_invocable<decltype(&QMutex::unlock), QMutex*>::value,
+        "Must use noexcept member function");
     static_assert(std::is_nothrow_invocable<
                       typename decltype(notthrowing)::function_type>::value,
                   "Expected wrapping lambda to be noexcept too");
@@ -177,9 +177,9 @@ TEST_F(TestGtUtilities, finally_typetraits_member_function)
     // throwing member function
     QString s;
     auto throwable = gt::finally(&s, &QString::clear);
-    static_assert(!std::is_nothrow_invocable<
-                      decltype(&QString::clear), QString*>::value,
-                  "Must use noexcept(false) member function");
+    static_assert(
+        !std::is_nothrow_invocable<decltype(&QString::clear), QString*>::value,
+        "Must use noexcept(false) member function");
     static_assert(!std::is_nothrow_invocable<
                       typename decltype(throwable)::function_type>::value,
                   "Expected wrapping lambda to be noexcept(false) too");
@@ -494,12 +494,10 @@ TEST_F(TestGtUtilities, finally_move_assignment_cleanup)
     bool bInitialized = false;
 
     {
-        auto a = gt::finally<std::function<void()>>([&aInitialized](){
-            aInitialized = true;
-        });
-        auto b = gt::finally<std::function<void()>>([&bInitialized](){
-            bInitialized = true;
-        });
+        auto a = gt::finally<std::function<void()>>(
+            [&aInitialized]() { aInitialized = true; });
+        auto b = gt::finally<std::function<void()>>(
+            [&bInitialized]() { bInitialized = true; });
 
         EXPECT_FALSE(aInitialized);
         EXPECT_FALSE(bInitialized);
