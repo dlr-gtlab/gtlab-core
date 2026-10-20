@@ -110,7 +110,7 @@ GT_GUI_EXPORT void addToMenu(std::initializer_list<GtObjectUIAction> actions,
  *
  *  auto action = gt::gui::makeAction("My Action Text", myActionMethod)
  *      .setIcon(...)
- *      .setVisibility(...);
+ *      .setVisibilityMethod(...);
  *
  *  gt::gui::addToMenu(action, menu, nullptr);
  *

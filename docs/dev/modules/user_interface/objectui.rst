@@ -60,8 +60,8 @@ Adding Context Menu Actions
 """""""""""""""""""""""""""
 
 Populate actions in the constructor using :cpp:func:`GtObjectUI::addSingleAction`.
-Use static member functions as the action method, as they convert implicitly to the correct Funtor type.
-Lambdas are also supported may be used for simple actions.
+Use static member functions as the action method, as they convert implicitly to the correct Functor type.
+Lambdas may also be used for simple actions.
 
 **Header (myobjectui.h):**
 
@@ -94,9 +94,9 @@ Lambdas are also supported may be used for simple actions.
    void
    MyObjectUI::myAction(GtObject* object)
    {
-       auto* myObject = qobject_cast<MyObject*>(object)
+       auto* myObject = qobject_cast<MyObject*>(object);
        if (!myObject) return;
-       
+
        // perform some action on the object
    }
 
@@ -114,15 +114,15 @@ Lambdas work as well and may be used if desired:
 Customizing Context Menu Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One can further customize the apperance of the actions using a builder pattern and by chaining the following methods:
+One can further customize the appearance of the actions using a builder pattern and by chaining the following methods:
 
 - Use ``setIcon`` to give the action a custom icon.
 - Use ``setVisibilityMethod`` to control whether the action is shown.
 - Use ``setVerificationMethod`` to control whether the action is enabled.
-- Use ``setShortCut`` or ``registerShortCut`` to set a keyboard shortcut. The action is triggered regardless of the verification or visibility method when triggered.
+- Use ``setShortCut`` or ``registerShortCut`` to set a keyboard shortcut. When the shortcut is used, the action is triggered regardless of the verification or visibility method.
 - Use ``setOrderPriority`` to control the position in the menu. See `Ordering of Context Menu Entries` for details on the order priorities.
 
-The functions ``setVisibilityMethod`` and ``setVerificationMethod`` may accept any function/functor whose call operator accepts a ``GtObejct*`` and whose return value is impliclty convertible to a boolean.
+The functions ``setVisibilityMethod`` and ``setVerificationMethod`` may accept any function/functor whose call operator accepts a ``GtObject*`` and whose return value is implicitly convertible to a boolean.
 
 **Header (myobjectui.h):**
 
@@ -146,34 +146,34 @@ The functions ``setVisibilityMethod`` and ``setVerificationMethod`` may accept a
 
 .. code-block:: cpp
 
-   class MyObjectUI::MyObjectUI()
-   
-   MyObjectUI::MyObjectUI()
-   {
-       addSingleAction(tr("Show Details"), showDetails)
-       .setIcon(gt::gui::icon::info())
-       .setVisibilityMethod(toMyObject)
-       .setVerificationMethod([](GtObject* object){
-           MyObject* myObject = toMyObject(object);
-           return myObject && myObject->isMainObject();
-       })
-       .setShortCut(QKeySequence{ Qt::Key_F1 })
-       .setOrderPriority(gt::gui::OrderPriority::Default);
-   }
-   
-   MyObjectUI::toMyObject(GtObject* object)
-   {
-       return qobject_cast<MyOject*>(object); 
-   }
-   
-   MyObjectUI::showDetails(GtObject* object)
-   {
-       MyObject* myObject = toMyObject(object);
-       if (!myObject) return;
-       
-       MyFancyDialog dialog{myObject};
-       dialog.exec();
-   }
+    MyObjectUI::MyObjectUI()
+    {
+        addSingleAction(tr("Show Details"), showDetails)
+        .setIcon(gt::gui::icon::info())
+        .setVisibilityMethod(toMyObject)
+        .setVerificationMethod([](GtObject* object){
+            MyObject* myObject = toMyObject(object);
+            return myObject && myObject->isMainObject();
+        })
+        .setShortCut(QKeySequence{ Qt::Key_F1 })
+        .setOrderPriority(gt::gui::OrderPriority::Default);
+    }
+    
+    MyObject*
+    MyObjectUI::toMyObject(GtObject* object)
+    {
+        return qobject_cast<MyObject*>(object); 
+    }
+    
+    void
+    MyObjectUI::showDetails(GtObject* object)
+    {
+        MyObject* myObject = toMyObject(object);
+        if (!myObject) return;
+        
+        MyFancyDialog dialog{myObject};
+        dialog.exec();
+    }
    
 Adding Context Menu Group Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,8 +239,46 @@ Set the priority on a separator to create visual groupings:
    addSeparator(gt::gui::OrderPriority::BeforeOpenWithSection);
    
    addSingleAction(tr("Quick Open"), [](GtObject*) { ... })
-       .setOrderPriority(gt::gui::OrderPriority::BeforeOpenWithSection);
-       
+        .setOrderPriority(gt::gui::OrderPriority::BeforeOpenWithSection);
+
+Removing Context Menu Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Removing actions after they have been added is currently not supported.
+Instead, you may omit unwanted actions by guarding their registration with a
+flag in the constructor of the base Object UI:
+
+.. code-block:: cpp
+
+   struct BaseUI : public GtObjectUI
+   {
+       enum Option : int { NoOption, NoEditAction };
+       using Options = QFlags<Option>;
+
+       BaseUI(Options options = NoOption)
+       {
+           if (!options.testFlag(NoEditAction))
+           {
+               addSingleAction(tr("Edit Object..."), myEditFunction);
+           }
+       }
+
+       static void myEditFunction(GtObject* object);
+   };
+
+   struct DerivedUI : public BaseUI
+   {
+       Q_OBJECT
+   public:
+
+       Q_INVOKABLE DerivedUI() : BaseUI(NoEditAction)
+       {
+           // ...
+       }
+   };
+
+Multiple options can be combined with the bit-wise operator ``|``. Because the action is never added
+for ``DerivedUI``, it does not appear in its context menu.
 
 Styling via Data Roles
 """"""""""""""""""""""
@@ -255,13 +293,14 @@ styling.
    QVariant
    MyObjectUI::specificData(GtObject* object, int role, int column) const
    {
-       if (column == 0 && role == Qt::ForegroundRole)
-       {
-           if (qobject_cast<MyObject>()) {
-               return gt::gui::color::warning();
-           }
-       }
-       return GtObjectUI::specificData(obj, role, column);
+        if (column == 0 && role == Qt::ForegroundRole)
+        {
+            if (qobject_cast<MyObject*>(object)) 
+            {
+                return gt::gui::color::warningText();
+            }
+        }
+        return GtObjectUI::specificData(object, role, column);
    }
 
 Open-With Menu
@@ -278,14 +317,14 @@ double-clicking the object.
    QStringList
    MyObjectUI::openWith(GtObject* object)
    {
-       if (!qobject_cast<MyObject*>(object) return GtObjectUI::openWith(object);
+        if (!qobject_cast<MyObject*>(object)) return GtObjectUI::openWith(object);
        return { GT_CLASSNAME(MyObjectEditor) };
    }
 
 Double-click Behavior
 """""""""""""""""""""
 
-Override :cpp:func:`GtObjectUI::doubleClicked` to implement custom behavior when double clicking the oject.
+Override :cpp:func:`GtObjectUI::doubleClicked` to implement custom behavior when double clicking the object.
 By default the first open-with entry is opened.
 
 .. code-block:: cpp

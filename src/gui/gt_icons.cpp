@@ -132,6 +132,8 @@ getIconHelper(QString const& iconPath)
 gt::gui::Icon
 gt::gui::getIcon(QString const& iconPath)
 {
+    if (iconPath.isEmpty()) return Icon{};
+
     if (iconPath.endsWith(QStringLiteral(".svg")))
     {
         return getSvgIconHelper(iconPath);
