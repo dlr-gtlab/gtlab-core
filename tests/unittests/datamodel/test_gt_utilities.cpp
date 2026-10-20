@@ -160,67 +160,59 @@ TEST_F(TestGtUtilities, container_const_cast)
     EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 
-TEST_F(TestGtUtilities, finally_nothrow_member_function)
+TEST_F(TestGtUtilities, finally_typetraits_member_function)
 {
+    // non-throwing member function
     QMutex m;
     m.lock();
 
-    auto finally = gt::finally(&m, &QMutex::unlock);
-    static_assert(
-        std::is_nothrow_invocable<decltype(&QMutex::unlock), QMutex*>::value,
-        "Must use noexcept member function");
+    auto notthrowing = gt::finally(&m, &QMutex::unlock);
     static_assert(std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
+                      decltype(&QMutex::unlock), QMutex*>::value,
+                  "Must use noexcept member function");
+    static_assert(std::is_nothrow_invocable<
+                      typename decltype(notthrowing)::function_type>::value,
                   "Expected wrapping lambda to be noexcept too");
-}
 
-TEST_F(TestGtUtilities, finally_throwable_member_function)
-{
+    // throwing member function
     QString s;
-
-    auto finally = gt::finally(&s, &QString::clear);
-    static_assert(
-        !std::is_nothrow_invocable<decltype(&QString::clear), QString*>::value,
-        "Must use nnoexcept(false) member function");
+    auto throwable = gt::finally(&s, &QString::clear);
     static_assert(!std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
+                      decltype(&QString::clear), QString*>::value,
+                  "Must use noexcept(false) member function");
+    static_assert(!std::is_nothrow_invocable<
+                      typename decltype(throwable)::function_type>::value,
                   "Expected wrapping lambda to be noexcept(false) too");
 }
 
-TEST_F(TestGtUtilities, finally_nothrow_lambda)
+TEST_F(TestGtUtilities, finally_typetraits_lambda)
 {
     // by default lambda are noexcept(false)
-    auto finally = gt::finally([]() noexcept {});
+    auto notthrowing = gt::finally([]() noexcept {});
     static_assert(std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
+                      typename decltype(notthrowing)::function_type>::value,
                   "Expected lambda to be noexcept");
-}
 
-TEST_F(TestGtUtilities, finally_throwable_lambda)
-{
     // by default lambda are noexcept(false)
-    auto finally = gt::finally([]() {});
+    auto throwable = gt::finally([]() {});
     static_assert(!std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
+                      typename decltype(throwable)::function_type>::value,
                   "Expected lambda to be noexcept(false)");
 }
 
-TEST_F(TestGtUtilities, finally_nothrow_std_function)
+TEST_F(TestGtUtilities, finally_typetraits_std_function)
 {
     // std::functions are always noexcept(false) and may throw
-    auto finally = gt::finally(std::function<void()>([]() noexcept {}));
+    auto notthrowing = gt::finally(std::function<void()>([]() noexcept {}));
     static_assert(!std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
-                  "Expected lambda to be noexcept(false)");
-}
+                      typename decltype(notthrowing)::function_type>::value,
+                  "Expected std::function to be noexcept(false)");
 
-TEST_F(TestGtUtilities, finally_throwable_std_function)
-{
     // std::functions are always noexcept(false) and may throw
-    auto finally = gt::finally(std::function<void()>([]() {}));
+    auto throwable = gt::finally(std::function<void()>([]() {}));
     static_assert(!std::is_nothrow_invocable<
-                      typename decltype(finally)::function_type>::value,
-                  "Expected lambda to be noexcept(false)");
+                      typename decltype(throwable)::function_type>::value,
+                  "Expected std::function to be noexcept(false)");
 }
 
 // gt::Finally must not throw on invocation -> should swallow all exceptions
@@ -326,7 +318,6 @@ TEST_F(TestGtUtilities, finally_nothrow_move_constructible)
 TEST_F(TestGtUtilities, finally_member_function)
 {
     QMutex m;
-
     m.lock();
 
     {
@@ -494,6 +485,33 @@ TEST_F(TestGtUtilities, finally_move_functor)
     EXPECT_TRUE(finally2.get().called);
     EXPECT_FALSE(finally3.get().moved);
     EXPECT_TRUE(finally3.get().called);
+}
+
+/// constructing, assigning and moving a move-only functor is supported
+TEST_F(TestGtUtilities, finally_move_assignment_cleanup)
+{
+    bool aInitialized = false;
+    bool bInitialized = false;
+
+    {
+        auto a = gt::finally<std::function<void()>>([&aInitialized](){
+            aInitialized = true;
+        });
+        auto b = gt::finally<std::function<void()>>([&bInitialized](){
+            bInitialized = true;
+        });
+
+        EXPECT_FALSE(aInitialized);
+        EXPECT_FALSE(bInitialized);
+
+        b = std::move(a);
+
+        EXPECT_FALSE(aInitialized);
+        EXPECT_TRUE(bInitialized);
+    }
+
+    EXPECT_TRUE(aInitialized);
+    EXPECT_TRUE(bInitialized);
 }
 
 TEST_F(TestGtUtilities, clamp)
