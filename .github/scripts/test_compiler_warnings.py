@@ -50,7 +50,7 @@ class CompilerWarningTests(unittest.TestCase):
         arguments = ['compare', '--current', str(current_path),
                      '--summary', str(self.root / 'summary.md'),
                      '--checkstyle', str(self.root / 'warnings.xml'),
-                     '--base-revision', 'base', *extra]
+                     *extra]
         if baseline is not None:
             arguments += ['--baseline', str(self.write_report('baseline.json', baseline))]
         environment = {**os.environ, 'GITHUB_TOKEN': '', 'GITHUB_REPOSITORY': '',
@@ -148,21 +148,30 @@ class CompilerWarningTests(unittest.TestCase):
         self.assertIn('Comparison **not verified**', summary)
         self.assertEqual((self.root / 'outputs.txt').read_text(), 'new_warnings=0\n')
 
-    def test_stale_master_baseline_is_unverified(self):
-        result, summary = self.compare(self.report([self.warning()]), self.report(revision='older-master'))
-        self.assertEqual(result, 0)
-        self.assertIn('not verified', summary)
-        self.assertIn('does not represent the PR base revision', summary)
+    def test_older_successful_target_baseline_is_compared(self):
+        result, summary = self.compare(self.report([self.warning()], revision='pr-merge'),
+                                       self.report(revision='older-target-build'))
+        self.assertEqual(result, 1)
+        self.assertNotIn('not verified', summary)
+        self.assertIn('older-target-build', summary)
 
-    def test_release_target_is_unsupported_and_never_queries_master_or_advises_rebase(self):
-        with patch.object(cw, 'api_json', side_effect=AssertionError('unexpected master request')):
-            result, summary = self.compare(self.report([self.warning()]), self.report(),
-                                           extra=['--target-branch', '2.0.X', '--head-revision', 'head',
-                                                  '--repository', 'owner/repo', '--token', 'read-only'],
+    def test_release_target_is_compared_with_its_own_baseline(self):
+        result, summary = self.compare(self.report([self.warning()]), self.report(),
+                                       extra=['--target-branch', '2.0.X'])
+        self.assertEqual(result, 1)
+        self.assertIn('Baseline for <code>2.0.X</code>', summary)
+        self.assertNotIn('unsupported target', summary)
+        self.assertNotIn('Please rebase', summary)
+
+    def test_unavailable_target_baseline_is_unverified(self):
+        with patch.object(cw, 'find_baseline', side_effect=urllib.error.URLError('service unavailable')):
+            result, summary = self.compare(self.report([self.warning()]),
+                                           extra=['--target-branch', '2.0.X', '--repository', 'owner/repo', '--token', 'read-only'],
                                            use_subprocess=False)
         self.assertEqual(result, 0)
-        self.assertIn('unsupported target: 2.0.X', summary)
-        self.assertNotIn('Please rebase', summary)
+        self.assertIn('Comparison **not verified**', summary)
+        self.assertIn('**1 warning(s)**', summary)
+        self.assertEqual(list(ET.parse(self.root / 'warnings.xml').getroot()), [])
 
     def test_mismatched_compiler_is_unverified(self):
         result, summary = self.compare(self.report([self.warning()]), self.report(compiler='clang version 18.1.3'))
@@ -210,34 +219,60 @@ class CompilerWarningTests(unittest.TestCase):
                 self.assertEqual(result, 0)
                 self.assertIn('malformed warning report', summary)
 
-    def test_rebase_hint_uses_pr_head_ancestry_instead_of_base_snapshot(self):
-        for behind in (0, 2):
-            with self.subTest(behind=behind), patch.object(cw, 'api_json', return_value={'behind_by': behind}) as api:
-                result, summary = self.compare(self.report([self.warning()]), self.report(),
-                                               extra=['--repository', 'owner/repo', '--token', 'read-only',
-                                                      '--head-revision', 'actual-pr-head'], use_subprocess=False)
-                self.assertEqual(result, 1)
-                self.assertEqual('Please rebase onto the latest master and rerun the checks.' in summary, behind > 0)
-                self.assertIn('/compare/master...actual-pr-head', api.call_args.args[0])
+    def test_lagging_pr_fails_and_only_then_advises_rebasing_onto_its_target(self):
+        for target in ('master', '2.0.X'):
+            for behind in (0, 2):
+                with self.subTest(target=target, behind=behind), patch.object(cw, 'api_json', return_value={'behind_by': behind}) as api:
+                    result, summary = self.compare(self.report([self.warning()], revision='pr-merge'),
+                                                   self.report(revision='older-successful-build'),
+                                                   extra=['--target-branch', target, '--repository', 'owner/repo',
+                                                          '--token', 'read-only', '--head-revision', 'actual-pr-head'],
+                                                   use_subprocess=False)
+                    self.assertEqual(result, 1)
+                    hint = f'Please rebase onto the latest {target} and rerun CI.'
+                    self.assertEqual(hint in summary, behind > 0)
+                    self.assertIn(f'/compare/{target}...actual-pr-head', api.call_args.args[0])
+
+    def test_no_rebase_hint_for_unchanged_warnings(self):
+        with patch.object(cw, 'api_json', side_effect=AssertionError('unnecessary ancestry lookup')):
+            result, summary = self.compare(self.report([self.warning()]), self.report([self.warning()]),
+                                           extra=['--target-branch', '2.0.X', '--repository', 'owner/repo',
+                                                  '--token', 'read-only', '--head-revision', 'head'],
+                                           use_subprocess=False)
+        self.assertEqual(result, 0)
+        self.assertNotIn('Please rebase', summary)
 
     @staticmethod
-    def artifact(identifier=1, **changes):
+    def artifact(identifier=1, branch='master', revision='base', run_id=None, **changes):
         return {'id': identifier, 'created_at': f'2026-10-{identifier:02d}T12:00:00Z',
                 'name': cw.REPORT_NAME, 'expired': False, 'size_in_bytes': 100,
-                'workflow_run': {'id': identifier, 'head_branch': 'master', 'head_sha': 'base'}, **changes}
+                'workflow_run': {'id': identifier if run_id is None else run_id,
+                                 'head_branch': branch, 'head_sha': revision}, **changes}
 
-    def discover(self, artifacts, reports, job_conclusion='success', run_changes=None):
+    @staticmethod
+    def workflow_run(identifier=1, branch='master', revision='base', **changes):
+        return {'id': identifier, 'head_branch': branch, 'head_sha': revision,
+                'event': 'push', 'status': 'completed', 'conclusion': 'success',
+                'path': '.github/workflows/ci.yml', **changes}
+
+    def discover(self, artifacts, reports, job_conclusion='success', run_changes=None, target='master', runs=None):
+        if runs is None:
+            candidates = {artifact['workflow_run']['id']: artifact['workflow_run'] for artifact in artifacts}
+            runs = [self.workflow_run(identifier, candidate['head_branch'], candidate['head_sha'], **(run_changes or {}))
+                    for identifier, candidate in sorted(candidates.items(), reverse=True)]
+
         def api(url, token):
+            page = int(url.rsplit('page=', 1)[1])
+            if '/workflows/ci.yml/runs?' in url:
+                self.assertNotIn('branch=', url)
+                self.assertNotIn('status=', url)
+                return {'workflow_runs': runs[(page - 1) * 100:page * 100]}
             if '/actions/artifacts?' in url:
-                page = int(url.rsplit('page=', 1)[1])
                 return {'artifacts': artifacts[(page - 1) * 100:page * 100]}
             if '/jobs?' in url:
                 return {'jobs': [{'name': 'Build / Build and test (ubuntu-latest)',
                                   'status': 'completed', 'conclusion': job_conclusion}]}
-            identifier = int(url.rsplit('/', 1)[1])
-            return {'id': identifier, 'head_branch': 'master', 'head_sha': 'base',
-                    'event': 'push', 'status': 'completed', 'path': '.github/workflows/ci.yml',
-                    **(run_changes or {})}
+            raise AssertionError(f'Unexpected API request: {url}')
 
         def download(url, token, destination):
             identifier = int(url.split('/')[-2])
@@ -249,14 +284,56 @@ class CompilerWarningTests(unittest.TestCase):
                 archive.writestr('compiler-warnings.json', json.dumps(report))
 
         with patch.object(cw, 'api_json', side_effect=api) as api_mock, patch.object(cw, 'download_artifact', side_effect=download) as download_mock:
-            result = cw.find_baseline('owner/repo', 'read-only', self.root / 'download.zip', self.report(), 'base')
+            result = cw.find_baseline('owner/repo', 'read-only', self.root / 'download.zip', self.report(), target)
             return result, api_mock, download_mock
+
+    def test_run_pagination_continues_beyond_one_thousand_entries(self):
+        runs = [self.workflow_run(event='pull_request') for _ in range(1000)] + [self.workflow_run(2)]
+        result, api, _ = self.discover([self.artifact(2)], {2: self.report()}, runs=runs)
+        self.assertIsNotNone(result)
+        self.assertTrue(any('/workflows/ci.yml/runs?' in call.args[0] and 'page=11' in call.args[0]
+                            for call in api.call_args_list))
 
     def test_artifact_pagination_continues_beyond_one_thousand_entries(self):
         artifacts = [self.artifact(expired=True) for _ in range(1000)] + [self.artifact(2)]
         result, api, _ = self.discover(artifacts, {2: self.report()})
         self.assertIsNotNone(result)
-        self.assertTrue(any('page=11' in call.args[0] for call in api.call_args_list))
+        self.assertTrue(any('/actions/artifacts?' in call.args[0] and 'page=11' in call.args[0]
+                            for call in api.call_args_list))
+
+    def test_latest_successful_run_wins_over_artifact_upload_order(self):
+        artifacts = [self.artifact(1, revision='old', created_at='2026-10-20T12:00:00Z'),
+                     self.artifact(2, revision='new', created_at='2026-10-19T12:00:00Z')]
+        runs = [self.workflow_run(2, revision='new'), self.workflow_run(1, revision='old')]
+        result, _, download = self.discover(artifacts, {1: self.report(revision='old'), 2: self.report(revision='new')}, runs=runs)
+        self.assertEqual(result['revision'], 'new')
+        self.assertEqual(len(download.call_args_list), 1)
+        self.assertIn('/artifacts/2/zip', download.call_args.args[0])
+
+    def test_pending_master_build_uses_previous_successful_report(self):
+        for has_artifact in (False, True):
+            with self.subTest(has_artifact=has_artifact):
+                artifacts = [self.artifact(1, revision='previous-success')]
+                if has_artifact:
+                    artifacts.append(self.artifact(2, revision='latest-pending'))
+                runs = [self.workflow_run(2, revision='latest-pending', status='in_progress', conclusion=None),
+                        self.workflow_run(1, revision='previous-success')]
+                result, _, download = self.discover(artifacts, {1: self.report(revision='previous-success')}, runs=runs)
+                self.assertEqual(result['revision'], 'previous-success')
+                self.assertEqual(len(download.call_args_list), 1)
+                self.assertIn('/artifacts/1/zip', download.call_args.args[0])
+
+    def test_release_target_never_uses_a_master_baseline(self):
+        artifacts = [self.artifact(2, revision='master-tip'),
+                     self.artifact(1, branch='2.0.X', revision='release-tip')]
+        runs = [self.workflow_run(2, revision='master-tip'), self.workflow_run(1, branch='2.0.X', revision='release-tip')]
+        result, api, download = self.discover(artifacts, {1: self.report(revision='release-tip')}, target='2.0.X', runs=runs)
+        self.assertEqual(result['revision'], 'release-tip')
+        self.assertFalse(any('/runs/2/jobs' in call.args[0] for call in api.call_args_list))
+        self.assertEqual(len(download.call_args_list), 1)
+        result, _, download = self.discover([self.artifact()], {1: self.report()}, target='2.0.X')
+        self.assertIsNone(result)
+        download.assert_not_called()
 
     def test_discovery_skips_invalid_newer_reports_and_accepts_prefixed_ubuntu_job_name(self):
         artifacts = [self.artifact(i) for i in (1, 3, 2, 4, 5)]
@@ -268,19 +345,24 @@ class CompilerWarningTests(unittest.TestCase):
         self.assertEqual(len(download.call_args_list), 5)
         self.assertIn('/artifacts/5/zip', download.call_args_list[0].args[0])
 
-    def test_discovery_rejects_expired_stale_and_failed_build_artifacts(self):
+    def test_discovery_rejects_expired_foreign_and_failed_build_artifacts(self):
         for artifacts, conclusion, changes in (
             ([self.artifact(expired=True)], 'success', None),
-            ([self.artifact(workflow_run={'id': 1, 'head_branch': 'master', 'head_sha': 'old'})], 'success', None),
+            ([self.artifact(branch='2.0.X')], 'success', None),
             ([self.artifact()], 'failure', None),
             ([self.artifact()], None, None),
             ([self.artifact()], 'success', {'event': 'pull_request'}),
             ([self.artifact()], 'success', {'status': 'in_progress'}),
+            ([self.artifact()], 'success', {'conclusion': 'failure'}),
         ):
             with self.subTest(artifacts=artifacts, conclusion=conclusion, changes=changes):
                 result, _, download = self.discover(artifacts, {1: self.report()}, conclusion, changes)
                 self.assertIsNone(result)
                 download.assert_not_called()
+
+    def test_report_revision_must_match_its_successful_run(self):
+        result, _, _ = self.discover([self.artifact(revision='target-build')], {1: self.report(revision='different-build')})
+        self.assertIsNone(result)
 
     def test_artifact_storage_redirect_receives_no_repository_token(self):
         redirect = urllib.error.HTTPError('https://api.github.com/download', 302, 'Found',

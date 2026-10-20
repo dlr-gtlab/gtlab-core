@@ -183,11 +183,9 @@ def download_artifact(url: str, token: str, destination: Path) -> None:
         destination.write_bytes(response.read())
 
 
-def baseline_problem(baseline: dict, current: dict, base_revision: str) -> str | None:
+def baseline_problem(baseline: dict, current: dict) -> str | None:
     if not baseline["build_succeeded"]:
         return "baseline was produced by an incomplete or failed build"
-    if not base_revision or baseline["revision"] != base_revision:
-        return "baseline does not represent the PR base revision"
     if baseline["platform"] != current["platform"]:
         return "baseline Ubuntu version differs from the PR runner"
     if baseline["compiler"] != current["compiler"]:
@@ -195,21 +193,32 @@ def baseline_problem(baseline: dict, current: dict, base_revision: str) -> str |
     return None
 
 
-def find_baseline(repository: str, token: str, destination: Path, current: dict, base_revision: str) -> dict | None:
-    # Artifact enumeration has no workflow-search cap. Sort explicitly so a
-    # rerun or API ordering cannot select an older report before a newer one.
-    artifacts = list(api_items(f"{API}/repos/{repository}/actions/artifacts?name={REPORT_NAME}", "artifacts", token))
-    artifacts.sort(key=lambda item: (item["created_at"], item["id"]), reverse=True)
+def find_baseline(repository: str, token: str, destination: Path, current: dict, target_branch: str) -> dict | None:
+    # Index retained artifacts first so repositories without warning reports do
+    # not require scanning workflow history or querying every run's jobs.
+    artifacts_by_run = collections.defaultdict(list)
+    artifacts = api_items(f"{API}/repos/{repository}/actions/artifacts?name={REPORT_NAME}", "artifacts", token)
     for artifact in artifacts:
         if artifact["name"] != REPORT_NAME or artifact["expired"] or artifact["size_in_bytes"] <= 0:
             continue
         candidate = artifact.get("workflow_run", {})
-        if candidate.get("head_branch") != "master" or candidate.get("head_sha") != base_revision:
+        if candidate.get("head_branch") == target_branch and candidate.get("id") is not None:
+            artifacts_by_run[candidate["id"]].append(artifact)
+    if not artifacts_by_run:
+        return None
+    # GitHub lists runs newest first. Filter locally: server-side branch/status
+    # searches stop at 1,000 results even when pagination is requested.
+    runs = api_items(f"{API}/repos/{repository}/actions/workflows/ci.yml/runs", "workflow_runs", token)
+    for run in runs:
+        if not artifacts_by_run:
+            break
+        artifacts = artifacts_by_run.pop(run["id"], [])
+        if not artifacts:
             continue
-        run = api_json(f"{API}/repos/{repository}/actions/runs/{candidate['id']}", token)
         if (
-            run.get("head_branch") != "master" or run.get("head_sha") != base_revision
+            run.get("head_branch") != target_branch
             or run.get("event") != "push" or run.get("status") != "completed"
+            or run.get("conclusion") != "success"
             or run.get("path") != ".github/workflows/ci.yml"
         ):
             continue
@@ -220,20 +229,24 @@ def find_baseline(repository: str, token: str, destination: Path, current: dict,
             for job in jobs
         ):
             continue
-        try:
-            # Construct the API URL instead of authenticating to a URL in data.
-            download_artifact(f"{API}/repos/{repository}/actions/artifacts/{artifact['id']}/zip", token, destination)
-            with zipfile.ZipFile(destination) as archive:
-                reports = [name for name in archive.namelist() if name == "compiler-warnings.json"]
-                if len(reports) != 1:
-                    continue
-                report_bytes = archive.read(reports[0])
-            destination.write_bytes(report_bytes)
-            report = load_report(destination)
-            if baseline_problem(report, current, base_revision) is None:
-                return report
-        except BASELINE_ERRORS:
-            continue
+        artifacts.sort(key=lambda item: (item["created_at"], item["id"]), reverse=True)
+        for artifact in artifacts:
+            if artifact["workflow_run"].get("head_sha") != run["head_sha"]:
+                continue
+            try:
+                # Construct the API URL instead of authenticating to a URL in data.
+                download_artifact(f"{API}/repos/{repository}/actions/artifacts/{artifact['id']}/zip", token, destination)
+                with zipfile.ZipFile(destination) as archive:
+                    reports = [name for name in archive.namelist() if name == "compiler-warnings.json"]
+                    if len(reports) != 1:
+                        continue
+                    report_bytes = archive.read(reports[0])
+                destination.write_bytes(report_bytes)
+                report = load_report(destination)
+                if report["revision"] == run["head_sha"] and baseline_problem(report, current) is None:
+                    return report
+            except BASELINE_ERRORS:
+                continue
     return None
 
 
@@ -274,28 +287,26 @@ def compare_command(args) -> int:
     current = load_report(args.current)  # Invalid current analysis must fail.
     baseline = None
     reason = None
-    if args.target_branch != "master":
-        reason = f"unsupported target: {args.target_branch}; enforcement supports master PRs only"
+    if not args.target_branch:
+        reason = "PR target branch is unavailable"
     elif not current["build_succeeded"]:
         reason = "PR compilation was incomplete or failed"
-    elif not args.base_revision:
-        reason = "PR base revision is unavailable"
     elif args.baseline:
         try:
             baseline = load_report(args.baseline)
-            reason = baseline_problem(baseline, current, args.base_revision)
+            reason = baseline_problem(baseline, current)
         except BASELINE_ERRORS as error:
             reason = str(error)
     elif args.repository and args.token:
-        temporary = args.current.with_name("master-warnings-download.tmp")
+        temporary = args.current.with_name("target-warnings-download.tmp")
         try:
-            baseline = find_baseline(args.repository, args.token, temporary, current, args.base_revision)
+            baseline = find_baseline(args.repository, args.token, temporary, current, args.target_branch)
         except (OSError, urllib.error.URLError) as error:
             reason = f"baseline API lookup unavailable: {error}"
         finally:
             temporary.unlink(missing_ok=True)
     if baseline is None and reason is None:
-        reason = "no valid successful master artifact matches the PR base revision and compiler"
+        reason = f"no valid successful {args.target_branch} build artifact matches the Ubuntu and compiler versions"
 
     lines = report_summary(current)
     new_warnings = []
@@ -306,15 +317,16 @@ def compare_command(args) -> int:
         changes = compare_reports(baseline, current)
         new_warnings = changes["new"]
         lines.extend([
-            f"Baseline <code>{html.escape(baseline['revision'])}</code>; compiler <code>{html.escape(current['compiler'])}</code>.",
+            f"Baseline for <code>{html.escape(args.target_branch)}</code>: <code>{html.escape(baseline['revision'])}</code>; compiler <code>{html.escape(current['compiler'])}</code>.",
             f"New: **{len(new_warnings)}** · Existing: **{len(changes['existing'])}** · Resolved: **{len(changes['resolved'])}**", "",
         ])
         if new_warnings and args.head_revision and args.repository and args.token:
             try:
                 head = urllib.parse.quote(args.head_revision, safe="")
-                comparison = api_json(f"{API}/repos/{args.repository}/compare/master...{head}", args.token)
+                target = urllib.parse.quote(args.target_branch, safe="")
+                comparison = api_json(f"{API}/repos/{args.repository}/compare/{target}...{head}", args.token)
                 if comparison["behind_by"] > 0:
-                    lines.extend(["Please rebase onto the latest master and rerun the checks.", ""])
+                    lines.extend([f"Please rebase onto the latest {html.escape(args.target_branch)} and rerun CI.", ""])
             except (OSError, urllib.error.URLError):
                 pass
         for category, entries in changes.items():
@@ -351,7 +363,6 @@ def main() -> int:
     compare.add_argument("--summary", type=Path, required=True)
     compare.add_argument("--checkstyle", type=Path, required=True)
     compare.add_argument("--target-branch", default="master")
-    compare.add_argument("--base-revision", default="")
     compare.add_argument("--head-revision", default="")
     args = parser.parse_args()
     if args.command == "analyze":

@@ -167,21 +167,20 @@ jobs:
           build/**/*.log
           build/_deps/*-src
 
-    - name: Compare compiler warnings with master
+    - name: Compare compiler warnings with target branch
       id: warning_comparison
       if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warnings.outcome == 'success' && github.event_name == 'pull_request'
       continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ github.token }} # Read-only, also for same-repository PRs.
         PR_TARGET: ${{ github.event.pull_request.base.ref }}
-        PR_BASE: ${{ github.event.pull_request.base.sha }}
         PR_HEAD: ${{ github.event.pull_request.head.sha }}
       run: |
         status=0
         python3 .github/scripts/compiler_warnings.py compare \
           --current "$RUNNER_TEMP/compiler-warnings.json" \
           --repository "$GITHUB_REPOSITORY" \
-          --target-branch "$PR_TARGET" --base-revision "$PR_BASE" --head-revision "$PR_HEAD" \
+          --target-branch "$PR_TARGET" --head-revision "$PR_HEAD" \
           --summary "$RUNNER_TEMP/warning-summary.md" \
           --checkstyle "$RUNNER_TEMP/new-warnings.xml" || status=$?
         if [[ -f "$RUNNER_TEMP/warning-summary.md" ]]; then

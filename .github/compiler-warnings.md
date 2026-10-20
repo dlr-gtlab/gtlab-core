@@ -18,15 +18,23 @@ platform, compilation success, and each diagnostic's file, line, column, message
 and warning option. Failed compilations can produce reports for inspection, but
 these reports are never accepted as baselines.
 
-For PRs targeting `master`, the check enumerates all retained warning artifacts,
-newest first, and chooses the latest valid, compatible report from a completed
-`master` push run of `ci.yml` with a successful Ubuntu job. Discovery paginates
-artifacts to exhaustion, avoiding the 1,000-result workflow-search limit. A
-compatible report must represent the **exact PR base revision** and use the same
-Ubuntu version, compiler identity/version and report schema. If `ubuntu-latest`
-moves to a different Ubuntu version, comparisons remain not verified until a
-compatible master report is available. An older report can otherwise flag
-warnings already present on the PR base as new.
+The check uses the PR target branch from `pull_request.base.ref`, including
+`master` and `2.0.X`. It selects the newest successful push run of `ci.yml` on
+that branch with a successful Ubuntu job and a valid, compatible warning report,
+then compares it with the current PR merge build. If the newest target-branch
+build is pending, failed or has no usable report, discovery falls back to the
+newest available successful build with a usable report on the same branch.
+
+Discovery indexes retained warning artifacts and paginates workflow runs newest
+first, filtering branches and statuses locally to avoid the 1,000-result API
+search limit. Reports from other target branches or failed/incomplete builds
+are rejected. Each report's revision must match its own workflow run's source
+revision; it need not match `pull_request.base.sha`, the current target-branch
+tip or a merge base. No additional or historical builds are performed.
+
+A compatible report must use the same Ubuntu version, compiler identity/version
+and report schema. If `ubuntu-latest` moves to a different Ubuntu version,
+comparisons remain not verified until a compatible target-branch report exists.
 
 The comparison matches normalized source paths, warning options and messages,
 ignoring line numbers. Repeated diagnostics are compared by occurrence; new
@@ -37,10 +45,10 @@ job for new warnings, broken analysis or a failed warning-report upload.
 
 When a compatible report is missing, expired, malformed or unavailable, the
 summary says **comparison not verified** and requests manual review without
-blocking the PR. PRs targeting `2.0.X` still publish their reports, but comparison
-is **not verified / unsupported target**. Enforcement currently supports `master`
-only. A detected regression advises rebasing only when the PR head is actually
-behind its target branch.
+blocking the PR. New warnings fail the gate even when the PR is behind its target
+branch. In that case, the summary also says `Please rebase onto the latest
+<target branch> and rerun CI`. The hint appears only when new warnings were found
+and the PR head is actually behind the current target-branch tip.
 
 The build job has only `contents: read` and `actions: read`; checkout credentials
 are not persisted and no secrets are inherited by the build workflow. Reviewdog
