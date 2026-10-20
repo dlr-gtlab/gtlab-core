@@ -192,6 +192,32 @@ serialized object state. Please note that the values of the properties are alway
 
    <property name="doubleProp" type="double">106.2</property>
 
+Dynamic Properties
+^^^^^^^^^^^^^^^^^^
+
+Use dynamic properties when a ``GtObject`` needs properties that are only known
+at runtime. ``GtObject`` takes ownership of an added property. Its identifier
+and identifiers of its sub-properties must be unique in the object's property
+tree. Only properties added this way can be removed with
+``removeDynamicProperty()``.
+
+.. code-block:: cpp
+
+   #include <memory>
+   #include <utility>
+   #include "gt_stringproperty.h"
+
+   auto property = std::make_unique<GtStringProperty>(
+       "runtimeName", "Runtime name");
+   if (object.addDynamicProperty(std::move(property)))
+   {
+      object.removeDynamicProperty("runtimeName");
+   }
+
+Custom property types must be registered with
+``GtDatamodelInterface::propertyFactories()`` so GTlab can recreate them when
+loading saved objects.
+
 There are some functionalities that are independent of the property type:
 
 Sub-Properties

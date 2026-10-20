@@ -11,6 +11,8 @@
 
 #include "gt_intproperty.h"
 
+#include <algorithm>
+
 GtIntProperty::GtIntProperty(const QString& ident,
                              const QString& name) :
     GtIntProperty(ident, name, name)
@@ -242,6 +244,53 @@ bool
 GtIntProperty::highSideBoundaryActive() const
 {
     return m_boundsCheckFlagHi;
+}
+
+gt::PropertyConfiguration
+GtIntProperty::configuration() const
+{
+    return {{QStringLiteral("initialValue"), m_initValue},
+            {QStringLiteral("lowBoundaryActive"), m_boundsCheckFlagLow},
+            {QStringLiteral("lowBoundary"), m_boundLo},
+            {QStringLiteral("highBoundaryActive"), m_boundsCheckFlagHi},
+            {QStringLiteral("highBoundary"), m_boundHi}};
+}
+
+bool
+GtIntProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    static const QStringList keys{
+        QStringLiteral("initialValue"), QStringLiteral("lowBoundaryActive"),
+        QStringLiteral("lowBoundary"), QStringLiteral("highBoundaryActive"),
+        QStringLiteral("highBoundary")};
+    if (config.size() != keys.size()) return false;
+    if (!std::all_of(keys.cbegin(), keys.cend(), [&config](const QString& key) {
+            return config.contains(key);
+        }))
+        return false;
+    const auto initial = config.value(QStringLiteral("initialValue"));
+    const auto lowActive = config.value(QStringLiteral("lowBoundaryActive"));
+    const auto low = config.value(QStringLiteral("lowBoundary"));
+    const auto highActive = config.value(QStringLiteral("highBoundaryActive"));
+    const auto high = config.value(QStringLiteral("highBoundary"));
+    if (initial.userType() != QMetaType::Int ||
+        lowActive.userType() != QMetaType::Bool ||
+        low.userType() != QMetaType::Int ||
+        highActive.userType() != QMetaType::Bool ||
+        high.userType() != QMetaType::Int ||
+        (lowActive.toBool() && initial.toInt() < low.toInt()) ||
+        (highActive.toBool() && initial.toInt() > high.toInt()) ||
+        (lowActive.toBool() && highActive.toBool() &&
+         low.toInt() > high.toInt()))
+        return false;
+
+    m_boundsCheckFlagLow = lowActive.toBool();
+    m_boundLo = low.toInt();
+    m_boundsCheckFlagHi = highActive.toBool();
+    m_boundHi = high.toInt();
+    m_initValue = initial.toInt();
+    m_value = m_initValue;
+    return true;
 }
 
 gt::PropertyFactoryFunction

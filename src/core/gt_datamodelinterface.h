@@ -14,6 +14,7 @@
 #include "gt_core_exports.h"
 
 #include "gt_globals.h"
+#include "gt_propertyfactory.h"
 
 #include <QtPlugin>
 
@@ -40,6 +41,12 @@ public:
         return {};
     }
 
+    /** Optional runtime-property types provided by this module. */
+    virtual QList<PropertyFactoryData> propertyFactories() const
+    {
+        return {};
+    }
+
     /**
      * @brief Returns true if module is a stand alone module with own
      * data model structure. Otherwise module only extends the overall
@@ -60,4 +67,3 @@ GT_OLD_INTERFACES(GtDatamodelInterface,
                   "de.dlr.gtlab.GtDatamodelInterface/0.1")
 
 #endif // GT_DATAMODELINTERFACE_H
-

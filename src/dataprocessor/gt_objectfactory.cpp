@@ -15,10 +15,26 @@
 #include "gt_label.h"
 #include "gt_labeldata.h"
 #include "gt_propertyconnection.h"
+#include "gt_stringproperty.h"
+#include "gt_boolproperty.h"
+#include "gt_intproperty.h"
+#include "gt_doubleproperty.h"
 
 
 GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 {
+    registerPropertyFactory(
+        QStringLiteral("gtlab.core.string"), GtStringProperty::staticMetaObject,
+        [](const QString& id) { return new GtStringProperty(id, id); });
+    registerPropertyFactory(
+        QStringLiteral("gtlab.core.bool"), GtBoolProperty::staticMetaObject,
+        [](const QString& id) { return new GtBoolProperty(id, id); });
+    registerPropertyFactory(
+        QStringLiteral("gtlab.core.int"), GtIntProperty::staticMetaObject,
+        [](const QString& id) { return new GtIntProperty(id, id); });
+    registerPropertyFactory(
+        QStringLiteral("gtlab.core.double"), GtDoubleProperty::staticMetaObject,
+        [](const QString& id) { return new GtDoubleProperty(id, id); });
     m_knownClasses.insert(GT_CLASSNAME(GtObjectGroup),
                           GT_METADATA(GtObjectGroup));
 

@@ -46,6 +46,23 @@
 namespace
 {
 
+    bool registerDataModelClasses(GtDatamodelInterface& datamodel,
+                                  const QString& moduleId,
+                                  QList<QMetaObject>& registeredClasses)
+    {
+        for (const auto& metaObject : datamodel.data())
+        {
+            if (!gtObjectFactory->registerClass(metaObject, moduleId))
+                return false;
+            registeredClasses.push_back(metaObject);
+        }
+
+        const auto package = datamodel.package();
+        if (!gtObjectFactory->registerClass(package, moduleId)) return false;
+        registeredClasses.push_back(package);
+        return true;
+    }
+
 QStringList moduleDirsFromEnv()
 {
     const QByteArray raw = qgetenv("GTLAB_MODULE_DIRS");
@@ -984,29 +1001,39 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
         return false;
     }
 
-    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(
-        plugin->ident(), plugin);
+    GtDatamodelInterface* datamodel =
+        checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked datamodel classes
-    if (dmp)
+    if (datamodel)
     {
-        if (!gtObjectFactory->invokable(dmp->package()))
+        if (!gtObjectFactory->invokable(datamodel->package()))
         {
             gtWarning() << errorString()
                         << QObject::tr("Package is not invokable!");
             return false;
         }
-        if (gtObjectFactory->containsDuplicates(dmp->data()))
+        if (gtObjectFactory->containsDuplicates(datamodel->data()))
         {
             gtWarning() << errorString()
                         << QObject::tr("A data class is already defined!");
             return false;
         }
 
-        if (!gtObjectFactory->allInvokable(dmp->data()))
+        if (!gtObjectFactory->allInvokable(datamodel->data()))
         {
             gtWarning() << errorString()
                         << QObject::tr("Not all data classes are invokable!");
+            return false;
+        }
+
+        if (!gtObjectFactory->canRegisterPropertyFactories(
+                datamodel->propertyFactories()))
+        {
+            gtWarning()
+                << errorString()
+                << QObject::tr(
+                       "A property factory is invalid or already registered!");
             return false;
         }
     }
@@ -1014,39 +1041,72 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
     return true;
 }
 
-void
+bool
 GtModuleLoader::insert(GtModuleInterface* plugin)
 {
-    m_pimpl->m_plugins.insert(plugin->ident(), plugin);
+    if (!plugin) return false;
 
-    // register converter funcs
-    foreach (const auto& r, plugin->upgradeRoutines())
+    const auto moduleId = plugin->ident();
+    GtDatamodelInterface* datamodel =
+        checkInterface<GtDatamodelInterface>(moduleId, plugin);
+    QList<QMetaObject> registeredClasses;
+    QStringList registeredPropertyTypeIds;
+    // Rollback covers only Core data-class and property-factory registrations.
+    // Additional registrations and the publication below have no rollback.
+    const auto rollbackRegistrations = [&]() {
+        for (const auto& typeId : qAsConst(registeredPropertyTypeIds))
+            gtObjectFactory->unregisterPropertyFactory(typeId, moduleId);
+        for (const auto& metaObject : qAsConst(registeredClasses))
+            gtObjectFactory->unregisterClass(metaObject);
+    };
+
+    if (datamodel)
     {
-      gt::detail::GtModuleUpgrader::instance()
-            .registerModuleConverter(plugin->ident(), r.target, r.f);
+        // Register data classes first, keeping track of partial success.
+        if (!registerDataModelClasses(*datamodel, moduleId, registeredClasses))
+        {
+            rollbackRegistrations();
+            return false;
+        }
+
+        // Fetch once: registration and rollback must use the same type IDs.
+        const auto propertyFactories = datamodel->propertyFactories();
+        if (!gtObjectFactory->registerPropertyFactories(propertyFactories,
+                                                        moduleId))
+        {
+            rollbackRegistrations();
+            return false;
+        }
+        for (const auto& factory : propertyFactories)
+        {
+            // cppcheck-suppress useStlAlgorithm
+            registeredPropertyTypeIds.push_back(factory.typeId);
+        }
     }
 
-    // register all interface functions of the module
-    foreach(const auto& sharedFunction, plugin->sharedFunctions())
+    // Derived loaders register process-specific interfaces before publication.
+    if (!insertAdditional(plugin))
     {
-        gt::interface::detail::registerFunction(plugin->ident(),
-                                                sharedFunction);
+        rollbackRegistrations();
+        return false;
     }
 
-    // register all commandline functions of the module
-    foreach(const auto& commandLineFunction, plugin->commandLineFunctions())
-    {
+    // Publish the module, converters and shared/command-line functions.
+    m_pimpl->m_plugins.insert(moduleId, plugin);
+    foreach (const auto& routine, plugin->upgradeRoutines())
+        gt::detail::GtModuleUpgrader::instance().registerModuleConverter(
+            moduleId, routine.target, routine.f);
+    foreach (const auto& sharedFunction, plugin->sharedFunctions())
+        gt::interface::detail::registerFunction(moduleId, sharedFunction);
+    foreach (const auto& commandLineFunction, plugin->commandLineFunctions())
         gt::commandline::registerFunction(commandLineFunction);
-    }
+    return true;
+}
 
-    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
-
-    // contains dynamic linked datamodel classes
-    if (dmp)
-    {
-        gtObjectFactory->registerClasses(dmp->data(), plugin->ident());
-        gtObjectFactory->registerClass(dmp->package(), plugin->ident());
-    }
+bool
+GtModuleLoader::insertAdditional(GtModuleInterface*)
+{
+    return true;
 }
 
 void
@@ -1224,7 +1284,12 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         if (module && moduleLoader.check(module.get()))
         {
-            moduleLoader.insert(module.get());
+            if (!moduleLoader.insert(module.get()))
+            {
+                gtError() << QObject::tr("Failed to register module '%1'.")
+                                 .arg(currentModuleId);
+                continue;
+            }
             module.release()->onLoad();
             successfullyLoaded.push_back(currentModuleId);
         }

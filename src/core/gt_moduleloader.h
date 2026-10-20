@@ -205,11 +205,15 @@ protected:
      */
     virtual bool check(GtModuleInterface* plugin) const;
 
+    /** Inserts a checked module and reports whether registration succeeded. */
+    virtual bool insert(GtModuleInterface* plugin);
+
     /**
-     * @brief insert
-     * @param plugin
+     * Registers loader-specific interfaces before module publication.
+     * Return false before changing loader-specific state if validation fails.
+     * The caller rolls back only Core data-class/property-factory registrations.
      */
-    virtual void insert(GtModuleInterface* plugin);
+    virtual bool insertAdditional(GtModuleInterface* plugin);
 
 private:
     /// Private implementation

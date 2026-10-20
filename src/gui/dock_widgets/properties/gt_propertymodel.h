@@ -270,6 +270,9 @@ private:
     QList<GtPropertyCategoryItem*> filteredCategories() const;
 
 private slots:
+
+    void onDynamicPropertiesAboutToChange();
+    void onDynamicPropertiesChanged();
     /**
      * @brief resetObject
      */

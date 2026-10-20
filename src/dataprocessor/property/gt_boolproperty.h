@@ -63,6 +63,9 @@ public:
      GT_NO_DISCARD
      bool setValueFromVariant(const QVariant& val,
                               const QString& unit) override;
+
+     gt::PropertyConfiguration configuration() const override;
+     bool applyConfiguration(const gt::PropertyConfiguration& config) override;
 };
 
 namespace gt

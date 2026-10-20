@@ -12,6 +12,8 @@
 #include "test_dmi_data.h"
 #include "gt_structproperty.h"
 #include "gt_stringproperty.h"
+#include <memory>
+#include <utility>
 
 TestDmiData::TestDmiData() :
     m_value("value", "Value", "Value to use in Example",
@@ -115,4 +117,32 @@ TestDmiData::TestDmiData() :
     registerProperty(m_heatTransferCoefficient);
     registerProperty(m_thermalConductivity);
 
+}
+
+bool
+TestDmiData::addDynamicExampleProperties()
+{
+    auto builtIn = std::make_unique<GtStringProperty>(
+        QStringLiteral("runtimeBuiltInString"), tr("Runtime built-in string"));
+    auto custom = std::make_unique<TestDmiDynamicStringProperty>(
+        QStringLiteral("runtimeCustomString"));
+
+    builtIn->setBrief(tr("Created at runtime"));
+    builtIn->setVal(QStringLiteral("Built-in value"));
+    custom->setObjectName(tr("Runtime module string"));
+    custom->setBrief(tr("Created by a module property factory"));
+    custom->setVal(QStringLiteral("Custom module value"));
+
+    return addDynamicProperty(std::move(builtIn)) &&
+           addDynamicProperty(std::move(custom));
+}
+
+bool
+TestDmiData::removeDynamicExampleProperties()
+{
+    const bool builtIn =
+        removeDynamicProperty(QStringLiteral("runtimeBuiltInString"));
+    const bool custom =
+        removeDynamicProperty(QStringLiteral("runtimeCustomString"));
+    return builtIn || custom;
 }

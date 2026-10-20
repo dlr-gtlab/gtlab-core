@@ -19,6 +19,7 @@
  */
 
 #include "test_datamodel_interface.h"
+#include "test_dmi_data.h"
 
 GtVersionNumber
 TestDatamodelInterface::version()
@@ -44,6 +45,16 @@ TestDatamodelInterface::data()
     metaData << GT_METADATA(TestDmiExternalObject);
 
     return metaData;
+}
+
+QList<PropertyFactoryData>
+TestDatamodelInterface::propertyFactories() const
+{
+    return {{QStringLiteral("test_datamodel_interface.custom_string"),
+             &TestDmiDynamicStringProperty::staticMetaObject,
+             [](const QString& id) {
+                 return new TestDmiDynamicStringProperty(id);
+             }}};
 }
 
 QMetaObject

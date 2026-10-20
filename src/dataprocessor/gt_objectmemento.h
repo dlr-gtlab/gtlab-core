@@ -18,6 +18,7 @@
 #include <QVariant>
 
 #include "gt_object.h"
+#include "property/gt_propertyconfiguration.h"
 #include "gt_logging.h"
 #include "gt_logging/qt_bindings.h"
 
@@ -142,12 +143,19 @@ public:
      */
     bool mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const;
 
+    /** Merge a property-only snapshot into an existing object. */
+    bool mergeTo(GtObject& obj) const;
+
+    /** Merge only dynamic definitions and their embedded PropertyData. */
+    bool mergeDynamicPropertiesTo(
+        GtObject& obj, const GtAbstractObjectFactory* factory = nullptr) const;
+
     /**
      * @brief className
      * @return
      */
     const QString& className() const;
-    GtObjectMemento& setClassName(const QString& className);
+    GtObjectMemento& setClassName(const QString& classNameValue);
 
     /**
      * @brief uuid
@@ -173,7 +181,7 @@ public:
     const GtObjectMemento* findChildByUuid(const QString& uuid) const;
 
 
-    struct PropertyData
+    struct GT_DATAMODEL_EXPORT PropertyData
     {
         enum PropertyType
         {
@@ -190,7 +198,6 @@ public:
             return _data;
         }
 
-        GT_DATAMODEL_EXPORT
         PropertyData& setData(const QVariant& val);
 
         const QString& dataType() const
@@ -215,8 +222,37 @@ public:
     private:
         QVariant _data;    /// The data as a variant
         QString _dataType; /// The type of the data
-        PropertyType _type  {DATA_T};
+        PropertyType _type{DATA_T};
+    };
 
+    struct GT_DATAMODEL_EXPORT DynamicPropertyData
+    {
+        enum Flag : quint32
+        {
+            ReadOnly = 1U << 0,
+            Optional = 1U << 1,
+            Hidden = 1U << 2,
+            Monitoring = 1U << 3
+        };
+
+        QString typeId;
+        QString ident;
+        QString name;
+        QString brief;
+        gt::PropertyConfiguration configuration;
+        quint32 flags{0};
+        QString category;
+        PropertyData propertyData;
+
+        bool operator==(const DynamicPropertyData& other) const;
+        bool operator!=(const DynamicPropertyData& other) const
+        {
+            return !(*this == other);
+        }
+        bool hasFlag(Flag flag) const
+        {
+            return (flags & flag) != 0;
+        }
     };
 
     /**
@@ -273,9 +309,12 @@ public:
 
     QVector<PropertyData> properties;
     QVector<PropertyData> propertyContainers;
+    QVector<DynamicPropertyData> dynamicProperties;
     QVector<GtObjectMemento> childObjects;
 
 private:
+    bool mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const;
+
     /**
      * @brief Creates a new object and adds it to the given parent
      *
@@ -290,7 +329,7 @@ private:
     /**
      * @brief cached hashes of a GtObject (properties only) and the full GtObject (including all its children)
      */
-    mutable QByteArray m_propertyHash, m_fullHash;
+    mutable QByteArray m_propertyHash, m_dynamicDefinitionHash, m_fullHash;
 
     /**
      * if true, the memento likes to be serialized into a separate file

@@ -78,6 +78,9 @@ public:
      */
     const QRegularExpression& validator();
 
+    gt::PropertyConfiguration configuration() const override;
+    bool applyConfiguration(const gt::PropertyConfiguration& config) override;
+
     ~GtStringProperty() override;
 
 protected:

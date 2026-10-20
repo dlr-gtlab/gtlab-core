@@ -14,8 +14,14 @@
 #include <QHash>
 #include <QStringList>
 #include <QMetaObject>
+#include <QMutex>
+
+#include <memory>
+#include <typeindex>
 
 #include "gt_datamodel_exports.h"
+#include "property/gt_abstractproperty.h"
+#include "property/gt_propertyfactory.h"
 
 class GtObject;
 
@@ -79,7 +85,7 @@ public:
      * @param moduleId Identification of the providing module.
      * @return Whether the class was registered successfully.
      */
-    virtual bool registerClass(QMetaObject metaObj, const QString& moduleId);
+    virtual bool registerClass(QMetaObject metaObj, const QString& moduleIdent);
 
     /**
      * @brief Removes a class from the factory
@@ -102,7 +108,7 @@ public:
      * @return Whether all classes were registered successfully.
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
-                                 const QString& moduleId);
+                                 const QString& moduleIdent);
 
     /**
      * @brief Returns the module providing a registered class.
@@ -142,6 +148,66 @@ public:
      */
     const QMetaObject* metaObject(const QString& clzName) const;
 
+    /**
+     * @brief Registers one persistent dynamic-property type.
+     * @param typeId Stable identifier used to persist this property type.
+     * @param propertyType Qt meta object of the concrete property class.
+     * @param factory Creates properties of the registered type.
+     * @param moduleIdent Identifier of the registering module, if any.
+     * @param cppType Concrete C++ type used to validate factory instances.
+     * @return Whether the registration succeeded.
+     */
+    bool registerPropertyFactory(const QString& typeId,
+                                 const QMetaObject& propertyType,
+                                 gt::PropertyFactoryFunction factory,
+                                 const QString& moduleIdent = {},
+                                 std::type_index cppType = typeid(void));
+
+    /**
+     * @brief Validates a constructor and checks for ID and C++ type conflicts.
+     * The callback is required, just as for registerPropertyFactory(). A later
+     * registration rechecks conflicts in case the registry has changed.
+     */
+    bool canRegisterPropertyFactory(
+        const QString& typeId, const QMetaObject& propertyType,
+        gt::PropertyFactoryFunction factory,
+        std::type_index cppType = typeid(void)) const;
+
+    /** @brief Checks whether all property types in a batch can be registered. */
+    bool canRegisterPropertyFactories(
+        const QList<PropertyFactoryData>& factories) const;
+
+    /**
+     * @brief Registers a batch of persistent dynamic-property types.
+     * @return Whether the complete batch was registered.
+     */
+    bool registerPropertyFactories(const QList<PropertyFactoryData>& factories,
+                                   const QString& moduleIdent = {});
+
+    /** @brief Removes a registered type, optionally restricted to its module. */
+    bool unregisterPropertyFactory(const QString& typeId,
+                                   const QString& moduleIdent = {});
+
+    /** @brief Checks whether a persistent property type is registered. */
+    bool hasPropertyFactory(const QString& typeId) const;
+
+    /** @brief Checks whether a property instance matches its registered type. */
+    bool propertyTypeMatches(const QString& typeId,
+                             const GtAbstractProperty& property) const;
+
+    /** @brief Returns the registered type identifier for a Qt meta object. */
+    QString propertyTypeId(const QMetaObject& propertyType) const;
+
+    /** @brief Returns the registered type identifier for a property instance. */
+    QString propertyTypeId(const GtAbstractProperty& property) const;
+
+    /** @brief Returns the registered Qt meta object for a type identifier. */
+    const QMetaObject* propertyMetaObject(const QString& typeId) const;
+
+    /** @brief Creates a property instance from its registered type identifier. */
+    std::unique_ptr<GtAbstractProperty> createProperty(
+        const QString& typeId, const QString& ident) const;
+
 protected:
 
     /// registered meta objects
@@ -168,6 +234,21 @@ protected:
                         GtObject* parent = nullptr) const;
 
 private:
+    struct PropertyFactoryInfo
+    {
+        const QMetaObject* propertyType{nullptr};
+        std::type_index cppType{typeid(void)};
+        gt::PropertyFactoryFunction factory;
+        QString moduleId;
+    };
+
+    /// Checks a prepared batch; the caller must hold m_dynamicPropertyMutex.
+    bool hasPropertyFactoryConflicts(
+        const QList<PropertyFactoryData>& prepared) const;
+
+    mutable QMutex m_dynamicPropertyMutex;
+    QHash<QString, PropertyFactoryInfo> m_propertyFactories;
+
     QStringList classHierarchy(const QMetaObject* metaObj);
 
 };

@@ -11,6 +11,7 @@
 #include "gt_objectmemento.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
+#include "gt_propertyfactory.h"
 #include "gt_logging.h"
 #include "gt_label.h"
 #include "gt_objectmementodiff.h"
@@ -18,20 +19,69 @@
 #include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_objectfactory.h"
+#include "property/gt_dummyproperty.h"
+
+#include "gt_propertyconnection.h"
+#include "gt_propertyreference.h"
 
 #include "gt_object.h"
 #include "gt_qtutilities.h"
 #include "gt_objectuuidmap.h"
 
+#include <algorithm>
+
 #include <QUuid>
 #include <QThread>
 
-#include <algorithm>
+#include <QSet>
+
+namespace
+{
+    /// Connections can refer across sibling objects, so search the whole tree.
+    QList<GtPropertyConnection*> propertyConnectionsInTree(GtObject& object)
+    {
+        auto* root = &object;
+        while (root->parentObject())
+            root = root->parentObject();
+        return root->findChildren<GtPropertyConnection*>();
+    }
+
+    /**
+     * @brief Validates the identifiers in a property tree.
+     *
+     * Rejects empty, reserved, or repeated identifiers. If accepted is given,
+     * the validated identifiers are added to it.
+     */
+    bool validatePropertyIdentifierTree(GtAbstractProperty* root,
+                                        const QSet<QString>& reserved,
+                                        QSet<QString>* accepted = nullptr)
+    {
+        if (!root) return false;
+        QSet<GtAbstractProperty*> visited;
+        QSet<QString> identifiers;
+        QList<GtAbstractProperty*> pending{root};
+        while (!pending.isEmpty())
+        {
+            auto* property = pending.takeLast();
+            if (!property || visited.contains(property)) continue;
+            visited.insert(property);
+            const auto id = property->ident();
+            if (id.isEmpty() || reserved.contains(id) ||
+                identifiers.contains(id))
+                return false;
+            identifiers.insert(id);
+            pending.append(property->fullProperties());
+        }
+        if (accepted) *accepted += identifiers;
+        return true;
+    }
+} // namespace
 
 struct DummyData
 {
     QVector<GtObjectMemento::PropertyData> properties;
     QVector<GtObjectMemento::PropertyData> propertyContainers;
+    QVector<GtObjectMemento::DynamicPropertyData> dynamicProperties;
     QString className;
 };
 
@@ -46,6 +96,7 @@ struct GtObject::Impl
     {
         m_isDummy = true;
         properties.clear();
+        dynamicProperties.clear();
         propertyContainer.clear();
     }
 
@@ -54,6 +105,7 @@ struct GtObject::Impl
         assert(isDummy());
         dummyData.properties = memento.properties;
         dummyData.propertyContainers = memento.propertyContainers;
+        dummyData.dynamicProperties = memento.dynamicProperties;
         dummyData.className = memento.className();
     }
 
@@ -63,6 +115,7 @@ struct GtObject::Impl
         memento.setClassName(dummyData.className);
         memento.properties = dummyData.properties;
         memento.propertyContainers = dummyData.propertyContainers;
+        memento.dynamicProperties = dummyData.dynamicProperties;
     }
 
     /// Object specific uuid
@@ -76,6 +129,9 @@ struct GtObject::Impl
 
     /// object properties
     QList<GtAbstractProperty*> properties;
+
+    /// Runtime properties are owned independently of static member properties.
+    std::vector<std::unique_ptr<GtAbstractProperty>> dynamicProperties;
 
     /// dynamic size properties
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
@@ -595,22 +651,241 @@ GtObject::findProperty(const QString& id) const
     return const_cast<GtObject*>(this)->findProperty(id);
 }
 
-GtAbstractProperty*
-GtObject::findPropertyByName(const QString& name)
+bool
+GtObject::addDynamicProperty(std::unique_ptr<GtAbstractProperty> property)
 {
-    for (GtAbstractProperty* property : qAsConst(pimpl->properties))
-    {
-        if (property->objectName() == name)
-        {
-            return property;
-        }
+    if (!property) return false;
 
-        if (GtAbstractProperty* tmp = property->findPropertyByName(name))
+    // Prefer the object's own registry, otherwise use the Core registry.
+    const auto* registry = pimpl->factory;
+    if (!registry || registry->propertyTypeId(*property).isEmpty())
+        registry = gtObjectFactory;
+
+    const auto typeId = registry->propertyTypeId(*property);
+    if (typeId.isEmpty() || !registry->propertyTypeMatches(typeId, *property) ||
+        !gt::isJsonLikePropertyConfiguration(property->configuration()))
+    {
+        return false;
+    }
+
+    QSet<QString> identifiers;
+    const auto existingProperties = fullPropertyList();
+    for (const auto* existing : existingProperties)
+    {
+        // cppcheck-suppress useStlAlgorithm
+        identifiers.insert(existing->ident());
+    }
+    if (!validatePropertyIdentifierTree(property.get(), identifiers))
+        return false;
+
+    property->setPropertyFactoryTypeId(typeId);
+    property->setParent(nullptr);
+    auto* rawProperty = property.get();
+    emit dynamicPropertyStructureAboutToChange();
+    if (!registerProperty(*rawProperty))
+    {
+        emit dynamicPropertyStructureChanged();
+        return false;
+    }
+    pimpl->dynamicProperties.push_back(std::move(property));
+    for (auto* connection : propertyConnectionsInTree(*this))
+    {
+        if (!connection->isConnected() && (connection->sourceUuid() == uuid() ||
+                                           connection->targetUuid() == uuid()))
+            connection->makeConnection();
+    }
+    setFlag(GtObject::HasOwnChanges, true);
+    emit dataChanged(this, rawProperty);
+    emit dynamicPropertyStructureChanged();
+    return true;
+}
+
+bool
+GtObject::removeDynamicProperty(const QString& id)
+{
+    auto property = std::find_if(
+        pimpl->dynamicProperties.begin(), pimpl->dynamicProperties.end(),
+        [&id](const auto& candidate) {
+            return candidate && candidate->ident() == id;
+        });
+    if (property == pimpl->dynamicProperties.end()) return false;
+
+    auto* rawProperty = property->get();
+    emit dynamicPropertyStructureAboutToChange();
+    pimpl->properties.removeAll(rawProperty);
+    disconnect(rawProperty, nullptr, this, nullptr);
+    // Detach bindings before destruction so deleteLater() cannot remove a
+    // connection that should be reusable when this endpoint is added again.
+    for (auto* connection : propertyConnectionsInTree(*this))
+        connection->makeConnection();
+    pimpl->dynamicProperties.erase(property);
+    setFlag(GtObject::HasOwnChanges, true);
+    emit dataChanged(this);
+    emit dynamicPropertyStructureChanged();
+    return true;
+}
+
+bool
+GtObject::replaceDynamicProperties(
+    const QList<GtAbstractProperty*>& retained,
+    std::vector<std::unique_ptr<GtAbstractProperty>> replacements,
+    const QStringList& order, const GtAbstractObjectFactory* propertyFactory)
+{
+    // Validate retained instances and replacement types before touching live data.
+    QSet<GtAbstractProperty*> retainedSet;
+    for (auto* property : retained)
+    {
+        if (!property || retainedSet.contains(property)) return false;
+        const auto owned = std::find_if(pimpl->dynamicProperties.cbegin(),
+                                        pimpl->dynamicProperties.cend(),
+                                        [property](const auto& candidate) {
+                                            return candidate.get() == property;
+                                        });
+        if (owned == pimpl->dynamicProperties.cend()) return false;
+        retainedSet.insert(property);
+    }
+
+    QHash<QString, GtAbstractProperty*> replacementsById;
+    for (const auto& replacement : replacements)
+    {
+        if (!replacement) return false;
+        const auto* dummy =
+            qobject_cast<const GtDummyProperty*>(replacement.get());
+        const auto* registry = propertyFactory;
+        if (!dummy &&
+            (!registry || registry->propertyTypeId(*replacement).isEmpty()))
+            registry = gtObjectFactory;
+        const auto typeId = dummy ? replacement->propertyFactoryTypeId()
+                                  : registry->propertyTypeId(*replacement);
+        if (typeId.isEmpty() ||
+            (!dummy && !registry->propertyTypeMatches(typeId, *replacement)) ||
+            !gt::isJsonLikePropertyConfiguration(
+                replacement->configuration()) ||
+            replacementsById.contains(replacement->ident()))
+            return false;
+        replacement->setPropertyFactoryTypeId(typeId);
+        replacementsById.insert(replacement->ident(), replacement.get());
+    }
+
+    // Reserve all static IDs, including unnamed mode nodes. Static trees do
+    // not need to satisfy the stricter rules for newly added dynamic trees.
+    QSet<GtAbstractProperty*> oldRoots;
+    for (const auto& property : pimpl->dynamicProperties)
+    {
+        // cppcheck-suppress useStlAlgorithm
+        oldRoots.insert(property.get());
+    }
+    QSet<QString> staticIdentifiers;
+    if (!order.isEmpty())
+    {
+        for (auto* root : pimpl->properties)
         {
-            return tmp;
+            if (oldRoots.contains(root)) continue;
+            QList<GtAbstractProperty*> staticProperties;
+            fullPropertyListHelper(root, staticProperties);
+            for (const auto* property : staticProperties)
+            {
+                // cppcheck-suppress useStlAlgorithm
+                staticIdentifiers.insert(property->ident());
+            }
         }
     }
 
+    // Build the requested order and reject collisions across entire trees.
+    QSet<QString> identifiers = staticIdentifiers;
+    QList<GtAbstractProperty*> stagedOrder;
+    stagedOrder.reserve(order.size());
+    QSet<QString> seen;
+    for (const auto& id : order)
+    {
+        if (id.isEmpty() || seen.contains(id) || staticIdentifiers.contains(id))
+            return false;
+        seen.insert(id);
+        GtAbstractProperty* property = replacementsById.value(id, nullptr);
+        if (!property)
+        {
+            auto existing =
+                std::find_if(retained.cbegin(), retained.cend(),
+                             [id](const auto* candidate) {
+                                 return candidate && candidate->ident() == id;
+                             });
+            if (existing == retained.cend()) return false;
+            property = *existing;
+        }
+        if (property->ident() != id || !validatePropertyIdentifierTree(
+                                           property, identifiers, &identifiers))
+            return false;
+        stagedOrder.push_back(property);
+    }
+    if (seen.size() != replacementsById.size() + retained.size()) return false;
+
+    const bool structureChanged =
+        pimpl->dynamicProperties.size() != stagedOrder.size() ||
+        !std::equal(stagedOrder.cbegin(), stagedOrder.cend(),
+                    pimpl->dynamicProperties.cbegin(),
+                    pimpl->dynamicProperties.cend(),
+                    [](const auto* nextProperty, const auto& current) {
+                        return nextProperty == current.get();
+                    });
+
+    // Size and ordered pointer equality detect every structural change.
+    // Notify views before removing, replacing or reordering live properties.
+    if (structureChanged) emit dynamicPropertyStructureAboutToChange();
+
+    for (const auto& old : pimpl->dynamicProperties)
+    {
+        pimpl->properties.removeAll(old.get());
+        if (!retainedSet.contains(old.get()))
+            disconnect(old.get(), nullptr, this, nullptr);
+    }
+
+    // Transfer ownership, preserving retained instances and their connections.
+    std::vector<std::unique_ptr<GtAbstractProperty>> next;
+    next.reserve(stagedOrder.size());
+    for (auto* property : stagedOrder)
+    {
+        auto existing = std::find_if(pimpl->dynamicProperties.begin(),
+                                     pimpl->dynamicProperties.end(),
+                                     [property](const auto& candidate) {
+                                         return candidate.get() == property;
+                                     });
+        if (existing != pimpl->dynamicProperties.end())
+            next.push_back(std::move(*existing));
+        else
+        {
+            auto replacement =
+                std::find_if(replacements.begin(), replacements.end(),
+                             [property](const auto& candidate) {
+                                 return candidate.get() == property;
+                             });
+            property->setParent(nullptr);
+            connectProperty(*property);
+            next.push_back(std::move(*replacement));
+        }
+        pimpl->properties.push_back(property);
+    }
+    if (structureChanged)
+    {
+        for (auto* connection : propertyConnectionsInTree(*this))
+            connection->makeConnection();
+    }
+    pimpl->dynamicProperties = std::move(next);
+
+    if (structureChanged)
+    {
+        emit dynamicPropertyStructureChanged();
+    }
+    return true;
+}
+
+GtAbstractProperty*
+GtObject::findPropertyByName(const QString& name)
+{
+    for (auto* property : qAsConst(pimpl->properties))
+    {
+        if (property->objectName() == name) return property;
+        if (auto* child = property->findPropertyByName(name)) return child;
+    }
     return nullptr;
 }
 
@@ -653,7 +928,7 @@ GtObject::propertyContainers()
     return pimpl->propertyContainer;
 }
 
-std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
+std::vector<std::reference_wrapper<const GtPropertyStructContainer>>
 GtObject::propertyContainers() const
 {
     return gt::container_const_cast(pimpl->propertyContainer);
@@ -836,6 +1111,8 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
     }
 }
 
+// UUID renewal needs the non-const findChildren() overload to mutate children.
+// cppcheck-suppress-begin constParameterPointer
 void
 GtObject::newChildUUIDs(GtObject* parent) const
 {
@@ -844,6 +1121,7 @@ GtObject::newChildUUIDs(GtObject* parent) const
         child->newUuid();
     }
 }
+// cppcheck-suppress-end constParameterPointer
 
 void
 GtObject::makeDummy()
@@ -872,7 +1150,9 @@ GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
-    if (pimpl->properties.contains(&property))
+    const GtAbstractProperty* existing = findProperty(property.ident());
+    if (pimpl->properties.contains(&property) ||
+        (existing && existing != &property))
     {
         gtWarning() << tr("multiple property registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -954,7 +1234,9 @@ GtObject::registerProperty(GtAbstractProperty& property,
 bool
 GtObject::registerSilentProperty(GtAbstractProperty& property)
 {
-    if (pimpl->properties.contains(&property))
+    const GtAbstractProperty* existing = findProperty(property.ident());
+    if (pimpl->properties.contains(&property) ||
+        (existing && existing != &property))
     {
         gtWarning() << tr("multiple property registration!")
                     << QStringLiteral(" Object Name (") << objectName()
