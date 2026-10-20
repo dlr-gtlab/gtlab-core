@@ -11,10 +11,13 @@ jobs:
 
   build_and_test:
     name: "Build and test"
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022] # we build on GitHub-provided Windows and Linux images
+        os: [ubuntu-latest, windows-2022] # GitHub-provided Windows and Linux images
     runs-on: ${{ matrix.os }} # use value from the matrix
 
     steps:
@@ -40,6 +43,8 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1 # This action essentially calls vcvarsall.bat for the latest VS in the runner for x64
     - uses: actions/checkout@v3    # Actually check out the sources. GH Actions can run for events that may not require
                                    # sources (e.g. when someone comments on an issue)
+      with:
+        persist-credentials: false
     - name: Install dependencies (windows)
       if: startsWith(matrix.os, 'windows')
       shell: powershell
@@ -53,11 +58,55 @@ jobs:
 
 
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
-    - name: Build
+    - name: Configure
       run: |
         python3 -m pip install -r tests/systemtests/requirements.txt
         cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=install
-        cmake --build build --target install --config=Debug
+
+    - name: Build (Ubuntu)
+      id: build
+      if: matrix.os == 'ubuntu-latest'
+      env:
+        LC_ALL: C.UTF-8
+      run: |
+        set -o pipefail
+        cmake --build build --target install --config=Debug 2>&1 | tee "$RUNNER_TEMP/ubuntu-build.log"
+
+    - name: Build (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: cmake --build build --target install --config=Debug
+
+    # Reporting errors are enforced at the end, so they do not suppress tests.
+    - name: Capture compiler warnings
+      id: warnings
+      if: always() && matrix.os == 'ubuntu-latest' && steps.build.outcome != 'skipped' && steps.build.outcome != ''
+      continue-on-error: true
+      env:
+        LC_ALL: C.UTF-8
+      run: |
+        source /etc/os-release
+        python3 .github/scripts/compiler_warnings.py analyze \
+          --log "$RUNNER_TEMP/ubuntu-build.log" --root "$GITHUB_WORKSPACE" \
+          --revision "$GITHUB_SHA" --compiler "$(c++ --version | sed -n '1p')" \
+          --platform "${ID}-${VERSION_ID}" \
+          --build-succeeded "${{ steps.build.outcome == 'success' }}" \
+          --output "$RUNNER_TEMP/compiler-warnings.json"
+        if [[ "$GITHUB_EVENT_NAME" != 'pull_request' ]]; then
+          python3 .github/scripts/compiler_warnings.py summary \
+            --current "$RUNNER_TEMP/compiler-warnings.json" --summary "$RUNNER_TEMP/warning-summary.md"
+          cat "$RUNNER_TEMP/warning-summary.md" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Upload compiler warning report
+      id: warning_artifact
+      if: always() && matrix.os == 'ubuntu-latest' && steps.warnings.outcome == 'success'
+      continue-on-error: true
+      uses: actions/upload-artifact@v4
+      with:
+        name: compiler-warnings-ubuntu
+        path: ${{ runner.temp }}/compiler-warnings.json
+        if-no-files-found: error
+        retention-days: 60
 
     - name: Build external module consumer (Linux)
       if: matrix.os == 'ubuntu-latest'
@@ -117,6 +166,50 @@ jobs:
           build/**/*.ninja
           build/**/*.log
           build/_deps/*-src
+
+    - name: Compare compiler warnings with target branch
+      id: warning_comparison
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warnings.outcome == 'success' && github.event_name == 'pull_request'
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ github.token }} # Read-only, also for same-repository PRs.
+        PR_TARGET: ${{ github.event.pull_request.base.ref }}
+        PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      run: |
+        status=0
+        python3 .github/scripts/compiler_warnings.py compare \
+          --current "$RUNNER_TEMP/compiler-warnings.json" \
+          --repository "$GITHUB_REPOSITORY" \
+          --target-branch "$PR_TARGET" --head-revision "$PR_HEAD" \
+          --summary "$RUNNER_TEMP/warning-summary.md" \
+          --checkstyle "$RUNNER_TEMP/new-warnings.xml" || status=$?
+        if [[ -f "$RUNNER_TEMP/warning-summary.md" ]]; then
+          cat "$RUNNER_TEMP/warning-summary.md" >> "$GITHUB_STEP_SUMMARY"
+        fi
+        exit "$status"
+
+    - name: Set up reviewdog
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
+      uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1
+      continue-on-error: true
+      with:
+        reviewdog_version: v0.21.2
+
+    # Local Actions annotations work on forks and do not require write access.
+    - name: Annotate new compiler warnings
+      if: always() && !cancelled() && matrix.os == 'ubuntu-latest' && steps.warning_comparison.outputs.new_warnings != '' && steps.warning_comparison.outputs.new_warnings != '0'
+      continue-on-error: true
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }} # Used only to read the diff.
+      run: |
+        reviewdog -f=checkstyle -name=compiler-warnings -reporter=github-annotations -filter-mode=nofilter -level=warning \
+          < "$RUNNER_TEMP/new-warnings.xml"
+
+    - name: Enforce compiler warning check
+      if: always() && matrix.os == 'ubuntu-latest' && (steps.warnings.outcome == 'failure' || steps.warning_artifact.outcome == 'failure' || steps.warning_comparison.outcome == 'failure')
+      run: |
+        echo '::error::Compiler warning analysis, report upload or comparison failed. See the step logs and summary.'
+        exit 1
 
   build_win_qt6:
     name: "Build with qt6 on windows"
