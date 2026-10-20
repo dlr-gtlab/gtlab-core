@@ -22,15 +22,15 @@
 namespace gt
 {
 
-    namespace detail
-    {
-        /// logs that an exception occurred at `origin` and a description
-        /// (`what`) if available
-        GT_DATAMODEL_EXPORT
-        void logCriticalException(const char* origin,
-                                  const char* what = nullptr) noexcept;
+namespace detail
+{
+/// logs that an exception occurred at `origin` and a description
+/// (`what`) if available
+GT_DATAMODEL_EXPORT
+void logCriticalException(const char* origin,
+                          const char* what = nullptr) noexcept;
 
-    } // namespace detail
+} // namespace detail
 
 /**
  * @brief The Finally class.
@@ -44,7 +44,8 @@ public:
     using function_type = Functor;
 
     /// default constructor
-    Finally() noexcept : m_invoked{true}
+    Finally() noexcept :
+        m_invoked{true}
     {
         static_assert(std::is_nothrow_default_constructible<Functor>::value,
                       "Functor must be nothrow default-constructible!");
@@ -52,7 +53,8 @@ public:
 
     /// constructor by moving functor
     explicit Finally(Functor func) noexcept :
-        m_func{std::move_if_noexcept(func)}, m_invoked{false}
+        m_func{std::move_if_noexcept(func)},
+        m_invoked{false}
     {
         static_assert(std::is_nothrow_move_constructible<Functor>::value ||
                           std::is_nothrow_copy_constructible<Functor>::value,
@@ -65,7 +67,8 @@ public:
 
     // move allowed
     Finally(Finally&& other) noexcept :
-        m_func{std::move_if_noexcept(other.m_func)}, m_invoked{other.m_invoked}
+        m_func{std::move_if_noexcept(other.m_func)},
+        m_invoked{other.m_invoked}
     {
         other.clear();
     };
@@ -112,7 +115,7 @@ public:
      * @brief Getter to access the functor used
      * @return Returns the functor used
      */
-    Functor const& get() const
+    const Functor& get() const
     {
         return m_func;
     }
@@ -167,7 +170,7 @@ private:
                 static_cast<void>(m_func());
                 return;
             }
-            catch (std::exception const& e)
+            catch (const std::exception& e)
             {
                 detail::logCriticalException(__FUNCTION__, e.what());
             }
@@ -198,7 +201,8 @@ private:
  */
 template <typename Functor,
           typename = std::enable_if_t<std::is_invocable<Functor>::value>>
-inline auto finally(Functor func) noexcept
+inline auto
+finally(Functor func) noexcept
 {
     static_assert(std::is_nothrow_move_constructible<Functor>::value ||
                       std::is_nothrow_copy_constructible<Functor>::value,
@@ -228,7 +232,8 @@ template <
     typename T, typename F,
     typename = std::enable_if_t<std::is_member_function_pointer<F>::value &&
                                 std::is_invocable<F, T*>::value>>
-inline auto finally(T* t, F f) noexcept
+inline auto
+finally(T* t, F f) noexcept
 {
     // construct helper lambda
     return finally([t, f]() noexcept(std::is_nothrow_invocable<F, T*>::value) {

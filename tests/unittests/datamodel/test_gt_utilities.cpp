@@ -188,13 +188,13 @@ TEST_F(TestGtUtilities, finally_typetraits_member_function)
 TEST_F(TestGtUtilities, finally_typetraits_lambda)
 {
     // by default lambda are noexcept(false)
-    auto notthrowing = gt::finally([]() noexcept {});
+    auto notthrowing = gt::finally([]() noexcept { });
     static_assert(std::is_nothrow_invocable<
                       typename decltype(notthrowing)::function_type>::value,
                   "Expected lambda to be noexcept");
 
     // by default lambda are noexcept(false)
-    auto throwable = gt::finally([]() {});
+    auto throwable = gt::finally([]() { });
     static_assert(!std::is_nothrow_invocable<
                       typename decltype(throwable)::function_type>::value,
                   "Expected lambda to be noexcept(false)");
@@ -203,13 +203,13 @@ TEST_F(TestGtUtilities, finally_typetraits_lambda)
 TEST_F(TestGtUtilities, finally_typetraits_std_function)
 {
     // std::functions are always noexcept(false) and may throw
-    auto notthrowing = gt::finally(std::function<void()>([]() noexcept {}));
+    auto notthrowing = gt::finally(std::function<void()>([]() noexcept { }));
     static_assert(!std::is_nothrow_invocable<
                       typename decltype(notthrowing)::function_type>::value,
                   "Expected std::function to be noexcept(false)");
 
     // std::functions are always noexcept(false) and may throw
-    auto throwable = gt::finally(std::function<void()>([]() {}));
+    auto throwable = gt::finally(std::function<void()>([]() { }));
     static_assert(!std::is_nothrow_invocable<
                       typename decltype(throwable)::function_type>::value,
                   "Expected std::function to be noexcept(false)");
@@ -230,29 +230,24 @@ class CopyConstructible
 {
 public:
     CopyConstructible() noexcept(true)
-    {
-    }
-    CopyConstructible(CopyConstructible const&) noexcept(true)
-    {
-    }
+    { }
+    CopyConstructible(const CopyConstructible&) noexcept(true)
+    { }
     CopyConstructible(CopyConstructible&&) noexcept(false)
     {
         throw std::logic_error{"should not have been called!"};
     }
-    CopyConstructible& operator=(CopyConstructible const&) = delete;
+    CopyConstructible& operator=(const CopyConstructible&) = delete;
     CopyConstructible& operator=(CopyConstructible&&) = delete;
     ~CopyConstructible() noexcept
-    {
-    }
+    { }
 
     void operator()() noexcept
-    {
-    }
+    { }
 
     // custom swap function is needed
     friend void swap(CopyConstructible& a, CopyConstructible& b) noexcept
-    {
-    }
+    { }
 };
 
 // only move ctor is noexcept(true)
@@ -260,27 +255,23 @@ class MoveConstructible
 {
 public:
     MoveConstructible() noexcept(true)
-    {
-    }
-    MoveConstructible(MoveConstructible const&) noexcept(false)
+    { }
+    MoveConstructible(const MoveConstructible&) noexcept(false)
     {
         throw std::logic_error{"should not have been called!"};
     }
-    MoveConstructible(MoveConstructible&&) noexcept(true) {};
-    MoveConstructible& operator=(MoveConstructible const&) = delete;
+    MoveConstructible(MoveConstructible&&) noexcept(true) { };
+    MoveConstructible& operator=(const MoveConstructible&) = delete;
     MoveConstructible& operator=(MoveConstructible&&) = delete;
     ~MoveConstructible() noexcept
-    {
-    }
+    { }
 
     void operator()() noexcept
-    {
-    }
+    { }
 
     // custom swap function is needed
     friend void swap(MoveConstructible& a, MoveConstructible& b) noexcept
-    {
-    }
+    { }
 };
 
 TEST_F(TestGtUtilities, finally_nothrow_copy_constructible)
@@ -437,10 +428,11 @@ struct MyMoveOnlyFunctor
 
     MyMoveOnlyFunctor() noexcept = default;
 
-    MyMoveOnlyFunctor(MyMoveOnlyFunctor const&) = delete;
-    MyMoveOnlyFunctor& operator=(MyMoveOnlyFunctor const&) = delete;
+    MyMoveOnlyFunctor(const MyMoveOnlyFunctor&) = delete;
+    MyMoveOnlyFunctor& operator=(const MyMoveOnlyFunctor&) = delete;
 
-    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) noexcept : called{o.called}
+    MyMoveOnlyFunctor(MyMoveOnlyFunctor&& o) noexcept :
+        called{o.called}
     {
         o.moved = true;
     }
