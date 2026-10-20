@@ -174,7 +174,7 @@ private slots:
     /**
      * @brief showPreferences
      */
-    static void showPreferences();
+    void showPreferences();
 
     /**
      * @brief Opens the preferences dialog on the page with the given title.
