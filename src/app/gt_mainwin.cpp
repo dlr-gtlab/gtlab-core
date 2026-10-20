@@ -696,7 +696,7 @@ GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
 }
 
 void
-GtMainWin::showPreferences()
+GtMainWin::showPreferences() // cppcheck-suppress functionStatic
 {
     GtPreferencesDialog dialog;
 

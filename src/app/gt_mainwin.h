@@ -168,7 +168,7 @@ private slots:
     /**
      * @brief showPreferences
      */
-    void showPreferences(); // cppcheck-suppress functionStatic
+    void showPreferences();
 
     /**
      * @brief Opens the preferences dialog on the page with the given title.
