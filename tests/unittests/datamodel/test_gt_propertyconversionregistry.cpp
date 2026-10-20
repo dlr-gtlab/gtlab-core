@@ -59,12 +59,12 @@ TEST(TestGtPropertyConversionRegistry, isCompatibleFunctionUnregistered)
                   GtTestRegistryPropC::staticMetaObject),
               nullptr);
 
-    // pairs of classes sharing a common base property class still
-    // resolve to the implicit default converter
-    EXPECT_TRUE(gtPropConversion().isCompatibleFunction(
+    // pairs of classes sharing no common base property above GtAbstractProperty
+    // do not use a implicit converter
+    EXPECT_FALSE(gtPropConversion().isCompatibleFunction(
         GtTestRegistryPropB::staticMetaObject,
         GtTestRegistryPropC::staticMetaObject));
-    EXPECT_TRUE(gtPropConversion().convertFunction(
+    EXPECT_FALSE(gtPropConversion().convertFunction(
         GtTestRegistryPropB::staticMetaObject,
         GtTestRegistryPropC::staticMetaObject));
 }
@@ -217,10 +217,6 @@ TEST(TestGtPropertyConversionRegistry, emptyFunctionRegistrationIgnored)
     EXPECT_FALSE(gtPropConversion()
                      .converterAvailable("GtTestRegistryPropI")
                      .contains("GtTestRegistryPropH"));
-
-    // without a registration the fallback to identical types applies
-    EXPECT_TRUE(propI1.canConnect(propI2));
-    EXPECT_FALSE(propI1.canConnect(propH));
 }
 
 TEST(TestGtPropertyConversionRegistry, inheritanceLookup)

@@ -249,12 +249,12 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
 
             // Ignore common ancestors outside the property hierarchy,
             // such as QObject.
-            const bool isPropertyType =
-                commonType == &GtAbstractProperty::staticMetaObject ||
-                commonType->inherits(
-                    &GtAbstractProperty::staticMetaObject);
-
-            if (!isPropertyType)
+            // Ignore GtAbstractProperty itself as a common base.
+            // Only more specific property classes may provide an
+            // implicit conversion candidate.
+            if (commonType == &GtAbstractProperty::staticMetaObject ||
+                !commonType->inherits(
+                    &GtAbstractProperty::staticMetaObject))
             {
                 continue;
             }
