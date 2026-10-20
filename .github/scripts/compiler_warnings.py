@@ -312,7 +312,6 @@ def compare_command(args) -> int:
     new_warnings = []
     if reason:
         lines.extend([f"Comparison **not verified**: {html.escape(reason)}. Please review the report manually.", ""])
-        lines.extend(warning_details(current["warnings"]))
     else:
         changes = compare_reports(baseline, current)
         new_warnings = changes["new"]
@@ -329,7 +328,8 @@ def compare_command(args) -> int:
                     lines.extend([f"Please rebase onto the latest {html.escape(args.target_branch)} and rerun CI.", ""])
             except (OSError, urllib.error.URLError):
                 pass
-        for category, entries in changes.items():
+        for category in ("new", "resolved"):
+            entries = changes[category]
             if entries:
                 lines.extend([f"#### {category.title()} warnings", "", *warning_details(entries), ""])
     args.summary.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -372,7 +372,7 @@ def main() -> int:
         return 0
     if args.command == "summary":
         report = load_report(args.current)
-        args.summary.write_text("\n".join(report_summary(report) + warning_details(report["warnings"])) + "\n", encoding="utf-8")
+        args.summary.write_text("\n".join(report_summary(report)) + "\n", encoding="utf-8")
         return 0
     return compare_command(args)
 
