@@ -168,6 +168,7 @@ private slots:
     /**
      * @brief showPreferences
      */
+    // cppcheck-suppress functionStatic
     void showPreferences();
 
     /**
