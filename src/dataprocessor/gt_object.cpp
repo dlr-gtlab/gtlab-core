@@ -8,6 +8,13 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#if defined(__GNUC__) && !defined(_MSC_VER)
+  #warning "Intentional warning for compiler-warning regression test"
+// Trigger a fresh CI run after the Reviewdog check was merged.
+// Retest the merged Reviewdog workflow after fixing its download action pin.
+// Verify the merged Reviewdog workflow annotates this compiler warning on the PR.
+#endif
+
 #include "gt_objectmemento.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
