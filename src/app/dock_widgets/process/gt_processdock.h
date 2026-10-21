@@ -34,6 +34,7 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 class GtState;
+class QStackedWidget;
 
 /**
  * @brief The GtProcessDock class
@@ -51,6 +52,8 @@ public:
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
     Qt::DockWidgetArea getDockWidgetArea() override;
+
+    void initAfterStartup() override;
 
     /**
      * @brief mapToSource
@@ -142,6 +145,11 @@ protected:
 private:
     /// Combobox for task group selection
     QComboBox* m_taskGroupSelection;
+
+    /// Selector and content for the built-in and contributed pages
+    QComboBox* m_pageSelection;
+    QStackedWidget* m_pageStack;
+    bool m_pagesInitialized;
 
     /// Button to run selected process
     QPushButton* m_runButton;
@@ -256,8 +264,7 @@ private:
      * @param copy
      * @return
      */
-    bool mapPropertyConnections(GtTask* orig,
-                                GtTask* copy);
+    bool mapPropertyConnections(GtTask* orig, GtTask* copy);
 
     /**
      * @brief Updates list of last used process elements.
@@ -290,7 +297,7 @@ private:
      * menus
      * @param menu Menu to fill
      */
-    void makeAddMenu(QMenu& menu);
+    void makeAddMenu(QMenu& menu, GtObject* selectedComponent = nullptr);
 
     /**
      * @brief Creates the context menu based on the current selection and
@@ -309,7 +316,8 @@ private:
      * @brief processContextMenu
      * @param obj
      */
-    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index, bool isTask);
+    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index,
+                            bool isTask);
 
     /**
      * @brief multiSelectionContextMenu

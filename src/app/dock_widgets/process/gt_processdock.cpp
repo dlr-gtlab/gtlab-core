@@ -17,6 +17,8 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QInputDialog>
+#include <QStackedWidget>
+#include <QSet>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
@@ -57,6 +59,9 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_logging.h"
+#include "gt_processdockextensions.h"
+#include "internal/gt_processdockextensions_p.h"
 
 #include "gt_processdock.h"
 
@@ -75,19 +80,20 @@ inline bool useExtendedProcessExecutor()
 } // namespace
 
 GtProcessDock::GtProcessDock() :
-    m_model(nullptr),
-    m_filterModel(nullptr),
-    m_taskGroup(nullptr),
-    m_currentProcess(nullptr),
-    m_project(nullptr),
-    m_expandedItemUuidsState(nullptr),
-    m_lastTaskGroupScopeState(nullptr),
-    m_lastTaskGroupIdState(nullptr)
+    m_taskGroupSelection(nullptr), m_pageSelection(nullptr),
+    m_pageStack(nullptr), m_pagesInitialized(false), m_runButton(nullptr),
+    m_addElementButton(nullptr), m_processQueueButton(nullptr), m_view(nullptr),
+    m_model(nullptr), m_taskGroupModel(nullptr), m_filterModel(nullptr),
+    m_search(nullptr), m_taskGroup(nullptr), m_currentProcess(nullptr),
+    m_project(nullptr), m_expandedItemUuidsState(nullptr),
+    m_lastTaskGroupScopeState(nullptr), m_lastTaskGroupIdState(nullptr)
 {
     setObjectName(tr("Processes/Calculators"));
 
     auto widget = new QWidget(this);
     setWidget(widget);
+
+    auto processPage = new QWidget;
 
     auto frame = new QFrame;
     auto frameLayout = new QVBoxLayout;
@@ -194,7 +200,22 @@ GtProcessDock::GtProcessDock() :
 
     layout->addWidget(frame);
 
-    widget->setLayout(layout);
+    processPage->setLayout(layout);
+
+    m_pageSelection = new QComboBox(widget);
+    m_pageSelection->setObjectName(QStringLiteral("processDockPageSelection"));
+    m_pageSelection->addItem(tr("Processes"), QStringLiteral("processes"));
+    m_pageSelection->hide();
+
+    m_pageStack = new QStackedWidget(widget);
+    m_pageStack->setObjectName(QStringLiteral("processDockPages"));
+    m_pageStack->addWidget(processPage);
+
+    auto* dockLayout = new QVBoxLayout(widget);
+    dockLayout->setContentsMargins(0, 0, 0, 0);
+    dockLayout->setSpacing(0);
+    dockLayout->addWidget(m_pageSelection);
+    dockLayout->addWidget(m_pageStack);
 
     m_model = new GtProcessComponentModel(this);
     m_filterModel = new GtProcessFilterModel(m_model);
@@ -298,6 +319,20 @@ Qt::DockWidgetArea
 GtProcessDock::getDockWidgetArea()
 {
     return Qt::RightDockWidgetArea;
+}
+
+void
+GtProcessDock::initAfterStartup()
+{
+    GtDockWidget::initAfterStartup();
+
+    if (m_pagesInitialized)
+    {
+        return;
+    }
+    m_pagesInitialized = true;
+
+    gt::gui::detail::initializeProcessDockPages(m_pageStack, m_pageSelection);
 }
 
 void
@@ -1076,7 +1111,7 @@ GtProcessDock::addElement()
 }
 
 void
-GtProcessDock::makeAddMenu(QMenu& menu)
+GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
 {
     QModelIndex srcIdx = mapToSource(m_view->currentIndex());
 
@@ -1084,21 +1119,25 @@ GtProcessDock::makeAddMenu(QMenu& menu)
                         gtDataModel->objectFromIndex(srcIdx) : nullptr;
 
     // add empty task action
-    auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
-    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"), addEmptyTask)
-                            .setIcon(gt::gui::icon::processAdd());
+    auto addEmptyTaskAction =
+        std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
+    auto addemptytask =
+        gt::gui::makeAction(tr("Empty Root Task"), addEmptyTaskAction)
+            .setIcon(gt::gui::icon::processAdd());
 
-    auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
-    auto addcalc = gt::gui::makeAction(tr("New Calculator..."), addCalculator)
-                       .setIcon(gt::gui::icon::calculator());
+    auto addCalculatorAction = std::bind(&GtProcessDock::addCalculator, this);
+    auto addcalc =
+        gt::gui::makeAction(tr("New Calculator..."), addCalculatorAction)
+            .setIcon(gt::gui::icon::calculator());
 
-    auto addTask = std::bind(&GtProcessDock::addTask, this);
-    auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
+    auto addTaskAction = std::bind(&GtProcessDock::addTask, this);
+    auto addtask = gt::gui::makeAction(tr("New Task..."), addTaskAction)
                        .setIcon(gt::gui::icon::processAdd());
 
-    auto addRootTask = std::bind(&GtProcessDock::addRootTask, this);
-    auto addroottask = gt::gui::makeAction(tr("New Root Task..."), addRootTask)
-                       .setIcon(gt::gui::icon::processAdd());
+    auto addRootTaskAction = std::bind(&GtProcessDock::addRootTask, this);
+    auto addroottask =
+        gt::gui::makeAction(tr("New Root Task..."), addRootTaskAction)
+            .setIcon(gt::gui::icon::processAdd());
 
     gt::gui::addToMenu(addemptytask, menu, obj);
 
@@ -1120,6 +1159,17 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     {
         menu.addSeparator();
         generateLastUsedElementMenu(&menu, !srcIdx.isValid());
+    }
+
+    GtObject* insertionTarget =
+        gt::gui::detail::processAddTarget(selectedComponent, obj, m_taskGroup);
+    const auto processActions = gt::gui::detail::processDockAddActions();
+    if (gt::gui::detail::hasVisibleProcessDockActions(processActions,
+                                                      insertionTarget))
+    {
+        menu.addSeparator();
+        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
+                                                     insertionTarget);
     }
 }
 
@@ -1298,7 +1348,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
         addMenu->setEnabled(isReady);
 
-        makeAddMenu(*addMenu);
+        makeAddMenu(*addMenu, &obj);
 
         menu.addSeparator();
     }
@@ -1384,6 +1434,14 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         .setEnabled(isReady);
 
     gt::gui::addToMenu(delete_, menu, &obj);
+
+    const auto processActions = gt::gui::detail::processDockContextActions();
+    if (gt::gui::detail::hasVisibleProcessDockActions(processActions, &obj))
+    {
+        menu.addSeparator();
+        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
+                                                     &obj);
+    }
 
     menu.exec(QCursor::pos());
 }
@@ -2990,4 +3048,3 @@ GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 
     resetTaskGroupModel();
 }
-

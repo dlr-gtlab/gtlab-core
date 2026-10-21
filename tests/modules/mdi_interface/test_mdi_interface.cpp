@@ -17,6 +17,43 @@
 
 #include "test_mdi_interface.h"
 
+#include "gt_processdockextensions.h"
+
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+namespace
+{
+
+    class TestProcessDockPage : public GtProcessDockPage
+    {
+    public:
+        TestProcessDockPage()
+        {
+            auto* layout = new QVBoxLayout(this);
+            layout->addWidget(
+                new QLabel(tr("Test Process-Dock extension"), this));
+
+            auto* activateButton = new QPushButton(tr("Activate page"), this);
+            layout->addWidget(activateButton);
+            connect(activateButton, &QPushButton::clicked, this,
+                    &GtProcessDockPage::activationRequested);
+        }
+
+        QString pageId() const override
+        {
+            return QStringLiteral("test-mdi-interface-page");
+        }
+
+        QString title() const override
+        {
+            return QStringLiteral("Test MDI Interface");
+        }
+    };
+
+} // namespace
+
 GtVersionNumber
 TestMdiInterface::version()
 {
@@ -27,6 +64,13 @@ QString
 TestMdiInterface::description() const
 {
     return "Test Mdi Interface";
+}
+
+void
+TestMdiInterface::init()
+{
+    gt::gui::registerProcessDockPage(this,
+                                     [] { return new TestProcessDockPage; });
 }
 
 ///gtdatamodelinterface
