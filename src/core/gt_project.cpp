@@ -484,6 +484,11 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return S::ErrorCopyFailed;
     }
 
+    // reload project state since the restored backup may contain
+    // different (e.g. outdated) project data
+    pimpl->valid = loadMetaData();
+    pimpl->upgradesAvailable = checkForUpgrades();
+
     return S::Success;
 }
 
