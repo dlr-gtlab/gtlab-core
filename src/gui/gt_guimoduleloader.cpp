@@ -49,7 +49,23 @@
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
 
-GtGuiModuleLoader::GtGuiModuleLoader()
+struct GuiPluginData
+{
+    GtMdiInterface* guiInterface{};
+};
+
+struct GtGuiModuleLoader::Impl
+{
+    // object specific user interfaces
+    QHash<QString, GtObjectUIList> uiObjs;
+
+    QVector<GuiPluginData> plugins;
+
+    bool guiInitialized = false;
+};
+
+GtGuiModuleLoader::GtGuiModuleLoader() :
+    pimpl{std::make_unique<GtGuiModuleLoader::Impl>()}
 {
     registerObjectUI(GT_CLASSNAME(GtProject),
                      GT_METADATA(GtProjectUI));
@@ -73,9 +89,8 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    gt::for_each_key(m_uiObjs, [this](const QString& key)
-    {
-        qDeleteAll(m_uiObjs.value(key));
+    gt::for_each_key(pimpl->uiObjs, [this](const QString& key) {
+        qDeleteAll(pimpl->uiObjs.value(key));
     });
 }
 
@@ -90,12 +105,12 @@ GtGuiModuleLoader::objectUI(GtObject* obj) const
 GtObjectUIList
 GtGuiModuleLoader::objectUI(const QString& classname) const
 {
-    if (!m_uiObjs.contains(classname))
+    if (!pimpl->uiObjs.contains(classname))
     {
         return GtObjectUIList();
     }
 
-    return m_uiObjs.value(classname);
+    return pimpl->uiObjs.value(classname);
 }
 
 QStringList
@@ -103,12 +118,27 @@ GtGuiModuleLoader::knownUIObjects() const
 {
     QStringList retval;
 
-    gt::for_each_key(m_uiObjs, [&retval](const QString& key)
-    {
-        retval << key;
-    });
+    gt::for_each_key(pimpl->uiObjs,
+                     [&retval](const QString& key) { retval << key; });
 
     return retval;
+}
+
+void
+GtGuiModuleLoader::initModulesGUI()
+{
+    if (pimpl->guiInitialized)
+    {
+        gtWarning() << QObject::tr("Modules already initialized!");
+        return;
+    }
+
+    pimpl->guiInitialized = true;
+
+    for (auto const& value : qAsConst(pimpl->plugins))
+    {
+        value.guiInterface->initGUI();
+    }
 }
 
 bool
@@ -178,6 +208,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
+        pimpl->plugins.push_back(GuiPluginData{mdip});
     }
 
     // importer interface
@@ -349,6 +380,6 @@ GtGuiModuleLoader::registerObjectUI(const char* classId,
         return;
     }
 
-    m_uiObjs[classId].append(uio);
+    pimpl->uiObjs[classId].append(uio);
 }
 
