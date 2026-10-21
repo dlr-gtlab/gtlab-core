@@ -54,8 +54,7 @@ GtRunnable::run()
         calc->setStateRecursively(GtProcessComponent::QUEUED);
     }
 
-    qDebug() << "";
-    qDebug() << "--- calculator execution ---";
+    gtTrace() << "--- calculator execution ---";
 
     for (GtProcessComponent* pc : qAsConst(m_queue))
     {
@@ -87,15 +86,13 @@ GtRunnable::run()
 
     if (success)
     {
-        qDebug() << "--- calculator execution finished ---";
-        qDebug() << "";
+        gtTrace() << "--- calculator execution finished ---";
 
         writeObjects();
     }
     else
     {
-        qDebug() << "--- calculator execution failed ---";
-        qDebug() << "";
+        gtTrace() << "--- calculator execution failed ---";
     }
 
     m_successfulRun = success;

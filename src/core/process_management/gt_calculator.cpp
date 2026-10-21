@@ -21,6 +21,7 @@
 #include "gt_objectpathproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_calculatorfactory.h"
+#include "gt_logging.h"
 
 #include "gt_calculator.h"
 
@@ -65,7 +66,7 @@ GtCalculator::exec()
         return true;
     }
 
-    qDebug() << objectName() << "::exec()";
+    gtTrace() << objectName() << "::exec()";
     // initialize pointer to runnable
     setRunnable(nullptr);
 
@@ -102,7 +103,7 @@ GtCalculator::exec()
             }
             else
             {
-                qDebug() << "Linked object not found in runnable";
+                gtDebug() << "Linked object not found in runnable";
             }
         }
         else if (GtObjectPathProperty* objPath =
@@ -119,7 +120,7 @@ GtCalculator::exec()
             }
             else
             {
-                qDebug() << "Linked object not found in runnable";
+                gtDebug() << "Linked object not found in runnable";
             }
         }
     }
