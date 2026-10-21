@@ -43,7 +43,6 @@ public:
 private:
 
     QPointer<ads::CDockManager> m_manager;
-    QPointer<ads::CDockAreaWidget> m_area;
     QHash<QWidget*, QPointer<GtMdiItem>> m_openItems;
 };
 

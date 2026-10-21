@@ -11,13 +11,15 @@
 #ifndef GTMDIWIDGET_H
 #define GTMDIWIDGET_H
 
+#include <gt_gui_exports.h>
+
 #include <QFrame>
 
 /**
  * @brief The GtMdiWidget class.
  * Used to customize handling of undocked MDI Items.
  */
-class GtMdiWidget : public QFrame
+class GT_GUI_EXPORT GtMdiWidget : public QFrame
 {
     Q_OBJECT
 

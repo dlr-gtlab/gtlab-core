@@ -12,11 +12,11 @@
 #include <gt_object.h>
 #include <gt_mdiwidget.h>
 #include <gt_mdiitem.h>
+#include <gt_palette.h>
 #include <gt_application.h>
 
 GtGuiAdsLayoutAdapter::GtGuiAdsLayoutAdapter(ads::CDockAreaWidget& centralWidget) :
-    m_manager(centralWidget.dockManager()),
-    m_area(&centralWidget)
+    m_manager(centralWidget.dockManager())
 {
     assert(m_manager);
 }
@@ -43,13 +43,18 @@ GtGuiAdsLayoutAdapter::focus(const QString& itemId)
     auto dockWidget = gt::findParent<ads::CDockWidget*>(*entry->first);
     if (!dockWidget) return;
 
-    m_manager->setDockWidgetFocused(dockWidget);
+    dockWidget->toggleView();
+    dockWidget->raise();
+    dockWidget->focusWidget();
 }
 
 bool
 GtGuiAdsLayoutAdapter::addItem(GtMdiItem& item)
 {
     if (isNull()) return false;
+
+    assert(m_manager->centralWidget() &&
+           m_manager->centralWidget()->dockAreaWidget());
 
     auto widget = item.widget();
     if (!widget) return false;
@@ -60,9 +65,26 @@ GtGuiAdsLayoutAdapter::addItem(GtMdiItem& item)
     auto* dock = new ads::CDockWidget(m_manager, item.objectName());
     dock->setIcon(item.icon());
     dock->setWidget(widget);
+    dock->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
 
-    m_manager->addDockWidgetTabToArea(dock, m_area);
+    auto* area = m_manager->addDockWidgetTabToArea(dock, m_manager->centralWidget()->dockAreaWidget());
     m_openItems.insert(widget, &item);
+
+    assert(area);
+
+    // style buttons more appropriately
+    for (auto* child : area->findChildren<QPushButton*>(QStringLiteral("tabCloseButton")))
+    {
+        child->setFlat(true);
+        child->resize(child->height(), child->height());
+    }
+
+    // remove frames
+    dock->setFrameShape(QFrame::NoFrame);
+    for (auto* child : dock->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
+    {
+        child->setFrameShape(QFrame::NoFrame);
+    }
 
     connect(widget, &QObject::destroyed,
             this, [this, widget, d = QPointer<ads::CDockWidget>(dock)](){
@@ -111,8 +133,12 @@ GtGuiAdsLayoutAdapter::item(const QString& itemId)
 GtMdiItem*
 GtGuiAdsLayoutAdapter::itemFromWidget(QWidget& widget)
 {
-    assert(!"not implemented");
-    return nullptr;
+    auto entry = std::find_if(m_openItems.keyValueBegin(),
+                              m_openItems.keyValueEnd(),
+                              [&widget](auto entry){
+                                  return entry.first == &widget;
+                              });
+    return (entry != m_openItems.keyValueEnd()) ? entry->second : nullptr;
 }
 
 GtMdiItem*

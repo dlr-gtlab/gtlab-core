@@ -9,8 +9,4 @@
 
 #include "gt_guilayoutadapter.h"
 
-GtGuiLayoutAdapter::GtGuiLayoutAdapter()
-{
-
-}
-
+GtGuiLayoutAdapter::GtGuiLayoutAdapter() = default;

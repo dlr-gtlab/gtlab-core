@@ -10,10 +10,11 @@
 #ifndef GT_GUILAYOUTADAPTER_H
 #define GT_GUILAYOUTADAPTER_H
 
+#include <gt_gui_exports.h>
 #include <QObject>
 
 class GtMdiItem;
-class GtGuiLayoutAdapter : public QObject
+class GT_GUI_EXPORT GtGuiLayoutAdapter : public QObject
 {
     Q_OBJECT
 

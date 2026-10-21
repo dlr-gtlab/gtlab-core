@@ -87,11 +87,12 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
 #if USE_ALTERNATIVE_DOCKING_SYSTEM
     ui->setupUi(this);
-
     ui->centralwidget->setParent(nullptr);
+
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
+
     auto* manager = new ads::CDockManager(this);
     manager->setObjectName(QStringLiteral("DockManager"));
-    manager->setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
 
     // Set central widget
     ads::CDockWidget* centralDockWidget = manager->createDockWidget("CentralWidget");
@@ -102,13 +103,13 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
         centralDockWidget->setWidget(label);
     }
     centralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
+    centralDockWidget->setFrameShape(QFrame::NoFrame);
+    for (auto* child : centralDockWidget->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
+    {
+        child->setFrameShape(QFrame::NoFrame);
+    }
     auto* centralDockArea = manager->setCentralWidget(centralDockWidget);
     assert(centralDockArea);
-
-    auto* area = new ads::CDockWidget(manager, QStringLiteral("Home"));
-    area->setWidget(ui->centralwidget);
-    manager->setCentralWidget(area);
-    manager->addDockWidgetTabToArea(area, centralDockArea);
 
     setupDockWidgets();
 #else
@@ -180,6 +181,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     auto adapter = std::make_unique<GtGuiTabLayoutAdapter>(*ui->mdiArea);
 #endif
     gtMdiLauncher->setAdapter(std::move(adapter));
+
     ui->mdiArea->tabBar()->setExpanding(true);
     ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
 
