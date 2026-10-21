@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+# SPDX-License-Identifier: MPL-2.0+
 set -euo pipefail
 
 workspace="${PROPR_WORKSPACE:-$(pwd)}"
@@ -39,3 +41,9 @@ cmake -S "${workspace}" -B "${build_dir}" -G Ninja \
     -DHDF5_DIR="${hdf5_dir}"
 
 cmake --build "${build_dir}" --parallel "${GTLAB_BUILD_JOBS:-2}"
+unit_test_runner="${build_dir}/GTlabUnitTest"
+if [[ ! -x "${unit_test_runner}" ]]; then
+    echo "GTlab unit-test runner was not built: ${unit_test_runner}" >&2
+    exit 1
+fi
+"${unit_test_runner}"
