@@ -129,7 +129,8 @@ void setupRedockAction(int idx,
 GtGuiTabLayoutAdapter::GtGuiTabLayoutAdapter(GtTabWidget& tabWidget) :
     m_tab(&tabWidget)
 {
-
+    connect(m_tab, &QTabWidget::tabCloseRequested,
+            this, &GtGuiTabLayoutAdapter::onTabCloseRequested);
 }
 
 bool
@@ -191,11 +192,12 @@ GtGuiTabLayoutAdapter::addItem(GtMdiItem& item)
                 auto iter = m_openItems.find(widget);
                 if (iter != m_openItems.end())
                 {
+                    delete *iter;
                     m_openItems.erase(iter);
                 }
         }, Qt::DirectConnection);
     connect(&item, &QObject::objectNameChanged,
-            this, std::bind(&GtGuiTabLayoutAdapter::onObjectNameChanged, this, &item));
+            this, [this, &item]() { onObjectNameChanged(&item); });
     connect(&item, &QObject::destroyed,
             widget, &QObject::deleteLater);
     connect(gtApp, &GtApplication::themeChanged,

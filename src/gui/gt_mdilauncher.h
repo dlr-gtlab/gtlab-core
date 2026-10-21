@@ -109,6 +109,8 @@ public:
      */
     void print(QWidget* widget);
 
+    bool isCurrentWindowPrintable() const;
+
     /**
      * @brief Returns true in mdi item for given subwindow is printable.
      * @param subWindow
@@ -189,19 +191,12 @@ private:
     std::unique_ptr<Impl> pimpl;
 
     /**
-     * @brief generateMdiItemId
-     * @param data
-     * @return
-     */
-    QString generateMdiItemId(GtMdiItem* mdiItem);
-
-    /**
-     * @brief mdiItemAllowed
+     * @brief isItemAllowed
      * @param mdiItem
      * @param data
      * @return
      */
-    bool mdiItemAllowed(GtMdiItem* mdiItem);
+    bool isItemAllowed(GtMdiItem* mdiItem);
 
     /**
      * @brief setFocus

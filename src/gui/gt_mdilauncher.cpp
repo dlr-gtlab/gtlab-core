@@ -42,17 +42,8 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
 
 GtMdiLauncher::~GtMdiLauncher() = default;
 
-QString
-GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
-{
-    if (!mdiItem) return {};
-
-    mdiItem->regenerateId();
-    return mdiItem->currentId();
-}
-
 bool
-GtMdiLauncher::mdiItemAllowed(GtMdiItem* mdiItem)
+GtMdiLauncher::isItemAllowed(GtMdiItem* mdiItem)
 {
     if (!mdiItem) return false;
 
@@ -190,6 +181,15 @@ GtMdiLauncher::print(QWidget* widget)
 }
 
 bool
+GtMdiLauncher::isCurrentWindowPrintable() const
+{
+    assert(pimpl->adapter);
+
+    auto item = pimpl->adapter->currentItem();
+    return item && item->isPrintable();
+}
+
+bool
 GtMdiLauncher::isPrintable(QWidget* widget) const
 {
     if (!widget) return false;
@@ -303,7 +303,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     item->setCurrentObject(data, customId);
 
-    if (!mdiItemAllowed(item.get()))
+    if (!isItemAllowed(item.get()))
     {
         auto activeItem = pimpl->adapter->item(item->currentId());
         if (!activeItem) return nullptr;

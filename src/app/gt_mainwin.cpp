@@ -45,7 +45,6 @@
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
 #include "gt_perspective.h"
-#include "gt_guitablayoutadapter.h"
 
 #include <QDir>
 #include <QKeyEvent>
@@ -68,9 +67,12 @@
 #define USE_ALTERNATIVE_DOCKING_SYSTEM 1
 
 #if USE_ALTERNATIVE_DOCKING_SYSTEM
-#include <qtadvanceddocking-qt5/DockManager.h>
-#include <qtadvanceddocking-qt5/DockWidget.h>
-#include <qtadvanceddocking-qt5/DockAreaWidget.h>
+  #include <qtadvanceddocking-qt5/DockManager.h>
+  #include <qtadvanceddocking-qt5/DockWidget.h>
+  #include <qtadvanceddocking-qt5/DockAreaWidget.h>
+  #include "gt_guiadslayoutadapter.h"
+#else
+  #include "gt_guitablayoutadapter.h"
 #endif
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
@@ -172,9 +174,12 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     updateCollectionEntries();
 
     // mdi launcher initialization
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto adapter = std::make_unique<GtGuiAdsLayoutAdapter>(*centralDockArea);
+#else
     auto adapter = std::make_unique<GtGuiTabLayoutAdapter>(*ui->mdiArea);
+#endif
     gtMdiLauncher->setAdapter(std::move(adapter));
-
     ui->mdiArea->tabBar()->setExpanding(true);
     ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
 
@@ -474,7 +479,6 @@ GtMainWin::setupDockWidgets()
             auto* dock = new ads::CDockWidget(manager, legacyDock->objectName());
             dock->setIcon(legacyDock->getIcon());
             dock->setWidget(legacyDock);
-            dock->setObjectName(legacyDock->objectName());
             auto* area = manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
             legacyDock->setTitleBarWidget(new QWidget());
             legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);

@@ -11,12 +11,12 @@
 #define GT_GUITABLAYOUTADAPTER_H
 
 #include <gt_guilayoutadapter.h>
-
 #include <gt_tabwidget.h>
 #include <gt_mdiitem.h>
 
-class GtTabWidget;
-class GT_GUI_EXPORT GtGuiTabLayoutAdapter : public GtGuiLayoutAdapter
+#include <QPointer>
+
+class GT_GUI_EXPORT GtGuiTabLayoutAdapter final : public GtGuiLayoutAdapter
 {
     Q_OBJECT
 

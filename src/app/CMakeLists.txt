@@ -8,6 +8,7 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #         ____/ /_/ /_/\__,_/_.___/
 
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
@@ -20,6 +21,7 @@ set(headers
     dock_widgets/process/gt_taskgroupmodel.h
     dock_widgets/properties/gt_propertycontainerwidget.h
     gt_mainwin.h
+    gt_guiadslayoutadapter.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
     preferences/pages/gt_preferenceslanguage.h
@@ -102,6 +104,7 @@ set(sources
     dock_widgets/process/gt_taskgroupmodel.cpp
     dock_widgets/properties/gt_propertycontainerwidget.cpp
     gt_mainwin.cpp
+    gt_guiadslayoutadapter.cpp
     preferences/gt_preferencesdialog.cpp
     preferences/pages/gt_preferencesapp.cpp
     preferences/pages/gt_preferenceslanguage.cpp
