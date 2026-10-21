@@ -54,7 +54,11 @@ public:
      * @brief A child was detached from an observed parent.
      *
      * Also sent when the child is deleted. In that case its derived class is
-     * already destroyed; only its identity and UUID are valid.
+     * already destroyed; only its identity and UUID are valid. Descendants of
+     * a deleted child are not reported separately.
+     *
+     * Suspended parent sessions receive the event too if they observe the
+     * parent, so an observer never keeps a pointer to a deleted object.
      */
     virtual void objectDetached(const GtObject& parent, const GtObject& child);
 
@@ -64,6 +68,16 @@ public:
      */
     virtual void recordingFinished(const GtRecordingSession& session,
                                    bool success);
+
+    /**
+     * @brief An observed object without a parent was deleted.
+     *
+     * Counterpart of objectDetached() for deleted observed roots, which have
+     * no parent to report. Its derived class is already destroyed; only its
+     * identity and UUID are valid. Descendants of the object are not reported
+     * separately.
+     */
+    virtual void objectDestroyed(const GtObject& object);
 };
 
 #endif // GTRECORDINGOBSERVER_H

@@ -76,8 +76,9 @@ public:
         PropertyWritten = 0x2,
         ObjectAttached  = 0x4,
         ObjectDetached  = 0x8,
+        ObjectDestroyed = 0x10,
         AllEvents       = PropertyRead | PropertyWritten |
-                          ObjectAttached | ObjectDetached
+                          ObjectAttached | ObjectDetached | ObjectDestroyed
     };
     Q_DECLARE_FLAGS(Events, Event)
 

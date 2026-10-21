@@ -103,6 +103,11 @@ public:
         log({QStringLiteral("detached"), &parent, nullptr, &child});
     }
 
+    void objectDestroyed(const GtObject& object) override
+    {
+        log({QStringLiteral("destroyed"), &object});
+    }
+
     void recordingFinished(const GtRecordingSession&, bool success) override
     {
         Entry e{QStringLiteral("finished")};

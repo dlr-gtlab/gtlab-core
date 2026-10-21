@@ -213,3 +213,59 @@ TEST(GtRecordingTree, suspendedParentSessionTracksTreeChanges)
     ASSERT_EQ(eventKinds(parentObserver), (QStringList{"read"}));
     EXPECT_EQ(parentObserver.entries()[1].object, created);
 }
+
+TEST(GtRecordingTree, deletionInNestedSessionReachesSuspendedParent)
+{
+    RecordingTestObject parentRoot;
+    auto* child = new RecordingTestObject(&parentRoot);
+    RecordingTestObject childRoot;
+    RecordingTestObserver parentObserver;
+    RecordingTestObserver childObserver;
+    GtObject component;
+    GtRecordingSession parent{component, parentObserver, roots(&parentRoot)};
+    GtRecordingSession nested{component, childObserver, roots(&childRoot)};
+    const GtObject* deleted = child;
+
+    parent.run([&]() {
+        (void)child->value.getVal();
+        nested.run([&]() {
+            delete child;
+            return true;
+        });
+        EXPECT_FALSE(parent.isObserved(*deleted));
+        return true;
+    });
+
+    // the nested session does not observe the object
+    EXPECT_EQ(eventKinds(childObserver), QStringList{});
+    ASSERT_EQ(eventKinds(parentObserver), (QStringList{"read", "detached"}));
+    EXPECT_EQ(parentObserver.entries()[2].child, deleted);
+}
+
+TEST(GtRecordingTree, deletedObservedRootIsReported)
+{
+    auto* root = new RecordingTestObject;
+    RecordingTestObserver observer;
+    const GtObject* deleted = root;
+
+    record(observer, roots(root), [&](GtRecordingSession& s) {
+        (void)root->value.getVal();
+        delete root;
+        EXPECT_FALSE(s.isObserved(*deleted));
+    });
+
+    auto const entries = observer.entries();
+    ASSERT_EQ(eventKinds(observer), (QStringList{"read", "destroyed"}));
+    EXPECT_EQ(entries[2].object, deleted);
+}
+
+TEST(GtRecordingTree, descendantsOfDeletedRootAreNotReportedSeparately)
+{
+    auto* root = new RecordingTestObject;
+    new RecordingTestObject(root);
+    RecordingTestObserver observer;
+
+    record(observer, roots(root), [&](GtRecordingSession&) { delete root; });
+
+    ASSERT_EQ(eventKinds(observer), (QStringList{"destroyed"}));
+}

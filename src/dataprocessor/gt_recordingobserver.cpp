@@ -44,3 +44,9 @@ GtRecordingObserver::recordingFinished(const GtRecordingSession&, bool)
 {
     // nothing to do here
 }
+
+void
+GtRecordingObserver::objectDestroyed(const GtObject&)
+{
+    // nothing to do here
+}
