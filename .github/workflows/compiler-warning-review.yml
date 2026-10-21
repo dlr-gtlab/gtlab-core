@@ -99,8 +99,30 @@ jobs:
         with:
           reviewdog_version: v0.21.2
 
-      - name: Report warnings on the pull request
+      - name: Confirm the PR still points to this build before reporting
+        id: report-head
         if: steps.report.outcome == 'success' && steps.comparison.outputs.status != '2'
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v7.0.8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const pullRequest = run.pull_requests[0];
+            const { data: current } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequest.number,
+            });
+            const matches = current.state === "open" && current.head.sha === run.head_sha;
+            core.setOutput("matches", String(matches));
+            if (!matches) {
+              core.notice("Skipping a stale compiler warning report for an older PR revision.");
+            }
+
+      - name: Report warnings on the pull request
+        if: >-
+          steps.report.outcome == 'success' &&
+          steps.comparison.outputs.status != '2' &&
+          steps.report-head.outputs.matches == 'true'
         env:
           CI_COMMIT: ${{ github.event.workflow_run.head_sha }}
           CI_PULL_REQUEST: ${{ github.event.workflow_run.pull_requests[0].number }}
@@ -108,9 +130,22 @@ jobs:
           CI_REPO_OWNER: ${{ github.repository_owner }}
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
         run: |
-          reviewdog -f=checkstyle -name="Compiler warnings" \
-            -reporter=github-pr-check -filter-mode=nofilter -level=error -fail-level=any \
-            < "$RUNNER_TEMP/compiler-warning-checkstyle.xml"
+          jq -n \
+            --arg owner "$CI_REPO_OWNER" \
+            --arg name "$CI_REPO_NAME" \
+            --argjson number "$CI_PULL_REQUEST" \
+            --arg sha "$CI_COMMIT" \
+            '{
+              repository: {owner: {login: $owner}, name: $name},
+              pull_request: {number: $number, head: {sha: $sha}}
+            }' > "$RUNNER_TEMP/reviewdog-event.json"
+
+          # Reviewdog needs PR metadata from a pull_request-shaped event to target
+          # the verified PR head. This trusted workflow still runs on workflow_run.
+          GITHUB_EVENT_PATH="$RUNNER_TEMP/reviewdog-event.json" \
+            reviewdog -f=checkstyle -name="Compiler warnings" \
+              -reporter=github-pr-check -filter-mode=nofilter -level=error -fail-level=any \
+              < "$RUNNER_TEMP/compiler-warning-checkstyle.xml"
 
       - name: Enforce verified warning comparison
         if: steps.comparison.outputs.status == '2'
