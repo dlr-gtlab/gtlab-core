@@ -32,7 +32,7 @@ TestProcessInterface::init()
 }
 
 GtVersionNumber
-TestProcessInterface::version()
+TestProcessInterface::version() const
 {
     return GtVersionNumber(0, 2, 0);
 }
