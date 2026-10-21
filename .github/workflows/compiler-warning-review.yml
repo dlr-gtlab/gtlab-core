@@ -99,16 +99,35 @@ jobs:
         with:
           reviewdog_version: v0.21.2
 
-      - name: Report warnings on the pull request
+      - name: Confirm the PR still points to this build before reporting
+        id: report-head
         if: steps.report.outcome == 'success' && steps.comparison.outputs.status != '2'
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v7.0.8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const pullRequest = run.pull_requests[0];
+            const { data: current } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequest.number,
+            });
+            const matches = current.state === "open" && current.head.sha === run.head_sha;
+            core.setOutput("matches", String(matches));
+            if (!matches) {
+              core.notice("Skipping a stale compiler warning report for an older PR revision.");
+            }
+
+      - name: Report warnings on the pull request
+        if: >-
+          steps.report.outcome == 'success' &&
+          steps.comparison.outputs.status != '2' &&
+          steps.report-head.outputs.matches == 'true'
         env:
           CI_COMMIT: ${{ github.event.workflow_run.head_sha }}
           CI_PULL_REQUEST: ${{ github.event.workflow_run.pull_requests[0].number }}
           CI_REPO_NAME: ${{ github.event.repository.name }}
           CI_REPO_OWNER: ${{ github.repository_owner }}
-          PR_HEAD_REF: ${{ github.event.workflow_run.pull_requests[0].head.ref }}
-          PR_HEAD_OWNER_ID: ${{ github.event.workflow_run.pull_requests[0].head.repo.owner.id }}
-          PR_BASE_OWNER_ID: ${{ github.event.workflow_run.pull_requests[0].base.repo.owner.id }}
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
         run: |
           jq -n \
@@ -116,24 +135,14 @@ jobs:
             --arg name "$CI_REPO_NAME" \
             --argjson number "$CI_PULL_REQUEST" \
             --arg sha "$CI_COMMIT" \
-            --arg ref "$PR_HEAD_REF" \
-            --argjson head_owner_id "$PR_HEAD_OWNER_ID" \
-            --argjson base_owner_id "$PR_BASE_OWNER_ID" \
             '{
               repository: {owner: {login: $owner}, name: $name},
-              pull_request: {
-                number: $number,
-                head: {sha: $sha, ref: $ref, repo: {owner: {id: $head_owner_id}}},
-                base: {repo: {owner: {id: $base_owner_id}}}
-              }
+              pull_request: {number: $number, head: {sha: $sha}}
             }' > "$RUNNER_TEMP/reviewdog-event.json"
 
-          # Reviewdog reads the PR SHA from pull_request events. This trusted
-          # workflow runs after CI, so provide the verified PR context explicitly.
-          # pull_request_target identifies the write-enabled base-repository token
-          # to Reviewdog; no PR code is checked out or executed here.
+          # Reviewdog needs PR metadata from a pull_request-shaped event to target
+          # the verified PR head. This trusted workflow still runs on workflow_run.
           GITHUB_EVENT_PATH="$RUNNER_TEMP/reviewdog-event.json" \
-            GITHUB_EVENT_NAME=pull_request_target \
             reviewdog -f=checkstyle -name="Compiler warnings" \
               -reporter=github-pr-check -filter-mode=nofilter -level=error -fail-level=any \
               < "$RUNNER_TEMP/compiler-warning-checkstyle.xml"
