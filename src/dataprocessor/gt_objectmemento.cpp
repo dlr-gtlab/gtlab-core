@@ -603,7 +603,10 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     {
         // we need to make it a dummy, to avoid changing the original object
         // and to highlight a problem
-        gtLogOnce(Warning) << QObject::tr("Creating dummy object for unresolved object reference '%1'").arg(ident());
+        gtLogOnce(Warning)
+            << QObject::tr(
+                   "Creating dummy object for unresolved object reference '%1'")
+                   .arg(ident());
         obj.makeDummy();
         obj.importMementoIntoDummy(*this);
         obj.setFlag(GtObject::SaveAsOwnFile, true);
