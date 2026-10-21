@@ -104,6 +104,8 @@ TEST_F(TestPropertyConnection, propertyContainer)
     connection->makeConnection();
     c1->setString("ThisIsAString");
 
+    EXPECT_TRUE(c3->environmentVars.at(0).findProperty("value")->isConnected());
+
     EXPECT_EQ("ThisIsAString", c1->getString().toStdString());
     EXPECT_EQ(
         "ThisIsAString",

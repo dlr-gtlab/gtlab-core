@@ -10,12 +10,14 @@
  */
 
 #include "gt_doubleproperty.h"
+#include "gt_propertyconversionregistry.h"
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief)
 {
     setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -26,6 +28,16 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     m_boundsCheckFlagLow = false;
     m_boundHi = 0.0;
     m_boundLo = 0.0;
+
+    static auto initOnce = []() {
+        gtPropConversion().registerConnectionCompatibility(
+            GtDoubleProperty::staticMetaObject,
+            GtDoubleProperty::staticMetaObject,
+            gt::conversion::defaultConverter,
+            gt::conversion::fromDouble::canConnectToDouble);
+
+        return 0;
+    }();
 }
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,

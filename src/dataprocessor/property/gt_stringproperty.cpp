@@ -12,17 +12,6 @@
 #include "gt_stringproperty.h"
 #include "gt_regularexpression.h"
 
-GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
-{
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = QString();
-    m_unitCategory = GtUnit::Category::None;
-    m_value = QString();
-    m_initValue = QString();
-    m_validatorPattern = gt::rex::forExpressions();
-}
 
 GtStringProperty::GtStringProperty(const QString& ident,
                                    const QString& name,
@@ -31,6 +20,7 @@ GtStringProperty::GtStringProperty(const QString& ident,
                                    const QRegularExpression& validationPattern)
 {
     setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -39,6 +29,12 @@ GtStringProperty::GtStringProperty(const QString& ident,
     m_initValue = value;
 
     m_validatorPattern = validationPattern;
+}
+
+GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
+    GtStringProperty(ident, name, QString(), QString(),
+                     gt::rex::forExpressions())
+{
 }
 
 void
