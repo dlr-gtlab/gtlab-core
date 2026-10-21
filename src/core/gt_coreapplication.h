@@ -145,6 +145,8 @@ public:
      * This uses the same resolution policy as GtCoreDatamodel::currentProject:
      * an active context on the current thread takes precedence over the
      * currently selected session project. NULL is returned if neither exists.
+     * Legacy project access from a running process component is reported as
+     * a developer mode warning, without changing the returned project.
      * @return Pointer to current project
      */
     GtProject* currentProject();

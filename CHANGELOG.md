@@ -43,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Search functionality for the Memento-Viewer - #380
  - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
  - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
+ - Developer mode warning for legacy `currentProject()` access from a running process
+   component. The warning names the affected component, points to the project-context
+   migration guide, and is emitted once per component class. It does not change project
+   resolution and does not deprecate `currentProject()` for GUI code. Activation is
+   controlled by Developer Mode and `GTLAB_LEGACY_PROJECT_ACCESS_WARNING` - #1519
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
