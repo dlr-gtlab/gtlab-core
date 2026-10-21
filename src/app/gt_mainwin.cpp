@@ -45,6 +45,7 @@
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
 #include "gt_perspective.h"
+#include "gt_guitablayoutadapter.h"
 
 #include <QDir>
 #include <QKeyEvent>
@@ -171,7 +172,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     updateCollectionEntries();
 
     // mdi launcher initialization
-    gtMdiLauncher->setMdiArea(ui->mdiArea);
+    auto adapter = std::make_unique<GtGuiTabLayoutAdapter>(*ui->mdiArea);
+    gtMdiLauncher->setAdapter(std::move(adapter));
 
     ui->mdiArea->tabBar()->setExpanding(true);
     ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
@@ -202,8 +204,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->menubar->setCornerWidget(m_cornerWidget);
 
     // connections
-
-
     connect(ui->actionNewProject, SIGNAL(triggered(bool)),
             SLOT(showProjectWizard()));
     connect(ui->actionSave_Project, SIGNAL(triggered(bool)),
@@ -307,7 +307,6 @@ GtMainWin::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
 
-    gtDebug() << "ABOUT TO SHOW...";
     QTimer::singleShot(0, this, SLOT(initAfterStartup()));
 }
 
@@ -1221,7 +1220,6 @@ GtMainWin::initAfterStartup()
     }
 
     emit guiInitialized();
-    gtDebug() << "NOW SHOWING";
 }
 
 void

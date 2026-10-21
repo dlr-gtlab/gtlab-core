@@ -35,7 +35,7 @@ public:
      * @return Self
      */
     GT_NO_DISCARD
-    static GtGuiFactory* instance() noexcept;
+    static GtGuiFactory& instance() noexcept;
 
     /**
      * @brief Attempts to instantiate a new dock widget of the corresponding

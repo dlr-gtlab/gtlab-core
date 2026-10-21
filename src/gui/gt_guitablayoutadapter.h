@@ -16,7 +16,7 @@
 #include <gt_mdiitem.h>
 
 class GtTabWidget;
-class GtGuiTabLayoutAdapter : public GtGuiLayoutAdapter
+class GT_GUI_EXPORT GtGuiTabLayoutAdapter : public GtGuiLayoutAdapter
 {
     Q_OBJECT
 
@@ -24,18 +24,28 @@ public:
 
     GtGuiTabLayoutAdapter(GtTabWidget& tabWidget);
 
+    bool isNull() const noexcept;
+
     void focus(QString const& itemId) override;
 
-    void addItem(GtMdiItem* item) override;
+    bool addItem(GtMdiItem& item) override;
 
-    bool hasItem(QString const& itemId) const override;
+    GtMdiItem* item(QString const& itemId) override;
+
+    GtMdiItem* itemFromWidget(QWidget& widget) override;
 
     GtMdiItem* currentItem() override;
+
+    void closeAll() override;
 
 private:
     
     QPointer<GtTabWidget> m_tab;
     QHash<QWidget*, QPointer<GtMdiItem>> m_openItems;
+
+    void onTabCloseRequested(int idx);
+
+    void onObjectNameChanged(GtMdiItem* item);
 };
 
 #endif // GT_GUITABLAYOUTADAPTER_H

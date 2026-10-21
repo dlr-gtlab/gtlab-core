@@ -13,6 +13,8 @@
 #include "gt_finally.h"
 #include "gt_dockwidget.h"
 #include "gt_mdiitem.h"
+#include "gt_coreapplication.h"
+#include "gt_logging.h"
 
 #include <QObject>
 #include <QHash>
@@ -98,11 +100,11 @@ GtGuiFactory::GtGuiFactory() :
 
 GtGuiFactory::~GtGuiFactory() noexcept = default;
 
-GtGuiFactory*
+GtGuiFactory&
 GtGuiFactory::instance() noexcept
 {
     static GtGuiFactory self;
-    return &self;
+    return self;
 }
 
 GtGuiFactory::Impl*
@@ -190,6 +192,15 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
     }
 
     iter->displayName = tmp->objectName();
+
+    if (iter->displayName.isEmpty() && gtApp && gtApp->devMode())
+    {
+        gtWarning() << QObject::tr("The GUI Item '%1' should define an "
+                                   "object name in its constructor as a "
+                                   "general display name!")
+                           .arg(className);
+    }
+
     unregister.clear();
 
     return true;

@@ -108,6 +108,37 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
 }
 
 /**
+ * @brief Returns whether the meta object has a default invokable constructor
+ *
+ * Example of a default invocable constructor:
+ *
+ *   class MyObject : public QObject {
+ *       Q_OBJECT // <- required
+ *   public
+ *       Q_INVOKABLE MyObject(); // <- default constructor must be invokable
+ *       // ...
+ *   };
+ *
+ * @param metaObject Meta object to check
+ * @return Whether the meta object has a default invokable constructor
+ */
+GT_DATAMODEL_EXPORT
+bool isDefaultConstructible(QMetaObject const& metaObject);
+
+/**
+ * @brief Returns true if all meta objects in the given list-type are default
+ * constructible
+ * @param list List of meta objects
+ * @tparam List Any type with a begin() and end() function
+ * @return Whether all meta objects are default constructible
+ */
+template <typename List>
+bool areDefaultConstructible(List const& list)
+{
+    return std::all_of(list.begin(), list.end(), gt::isDefaultConstructible);
+}
+
+/**
  * @brief Performs a qobject_cast for unique pointers
  *
  * This transfers the ownership of the source pointer to the target

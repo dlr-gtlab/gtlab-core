@@ -21,10 +21,11 @@ GtGuiLauncher::GtGuiLauncher() :
 
 GtGuiLauncher::~GtGuiLauncher() noexcept = default;
 
-GtGuiLauncher* GtGuiLauncher::instance() noexcept
+GtGuiLauncher&
+GtGuiLauncher::instance() noexcept
 {
     static GtGuiLauncher self;
-    return &self;
+    return self;
 }
 
 GtGuiLauncher::Impl*

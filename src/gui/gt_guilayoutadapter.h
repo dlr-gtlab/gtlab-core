@@ -21,11 +21,17 @@ public:
 
     virtual void focus(QString const& itemId) = 0;
 
-    virtual void addItem(GtMdiItem* item) = 0;
+    virtual bool addItem(GtMdiItem& item) = 0;
 
-    virtual bool hasItem(QString const& itemId) const = 0;
+    bool hasItem(QString const& itemId) { return item(itemId); };
+
+    virtual GtMdiItem* item(QString const& itemId) = 0;
+    
+    virtual GtMdiItem* itemFromWidget(QWidget& widget) = 0;
 
     virtual GtMdiItem* currentItem() = 0;
+
+    virtual void closeAll() = 0;
 
 protected:
 

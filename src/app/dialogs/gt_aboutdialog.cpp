@@ -306,13 +306,13 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
     entry(itemNames, tr("Tasks"));
 
     // mdi items
-    entry(GtGuiFactory::instance()->knownGuiItems(), tr("MDI Items"));
+    entry(GtGuiFactory::instance().knownGuiItems(), tr("MDI Items"));
 
     // ui objects
     entry(gtApp->knownUIObjects(), tr("UI Objects"));
 
     // dock widgets
-    entry(GtGuiFactory::instance()->knownDockWidgets(), tr("Dock Widgets"));
+    entry(GtGuiFactory::instance().knownDockWidgets(), tr("Dock Widgets"));
 }
 
 QString

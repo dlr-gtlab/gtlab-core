@@ -29,7 +29,7 @@ public:
      * @return Self
      */
     GT_NO_DISCARD
-    static GtGuiLauncher* instance() noexcept;
+    static GtGuiLauncher& instance() noexcept;
 
 private:
     GtGuiLauncher();

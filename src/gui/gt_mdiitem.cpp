@@ -19,35 +19,44 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 #include "gt_qmlaction.h"
+#include "gt_icons.h"
 
 
 struct GtMdiItem::Impl
 {
-    Impl() :
-        m_subWin(nullptr),
-        m_queueEvents(false)
-    {}
-
     ~Impl()
     {
-        qDeleteAll(m_eventQueue);
+        qDeleteAll(eventQueue);
     }
 
-    QWidget* m_subWin;
-    QList<GtQueuedMdiEvent*> m_eventQueue;
-    bool m_queueEvents;
+    ///
+    QPointer<QFrame> frame{new GtMdiWidget};
+
+    /// Mdi item data
+    QPointer<GtObject> dataObject;
+
+
+    /// Mdi item custom identification string
+    QString cid;
+
+    QList<GtQueuedMdiEvent*> eventQueue;
 
     /// The list of registered toolbar actions, non-owning
-    std::vector<GtQmlAction*> m_toolbarActions;
+    std::vector<GtQmlAction*> toolbarActions;
+
+    Flags flags{NoFlag};
+
+    bool initialized{false};
+    bool queueEvents{false};
 
     template <class T>
     T* takeEvent()
     {
-        for (GtQueuedMdiEvent* e: qAsConst(m_eventQueue))
+        for (GtQueuedMdiEvent* e: qAsConst(eventQueue))
         {
             if (T* ce = qobject_cast<T*>(e))
             {
-                m_eventQueue.removeOne(e);
+                eventQueue.removeOne(e);
                 return ce;
             }
         }
@@ -57,11 +66,9 @@ struct GtMdiItem::Impl
 };
 
 GtMdiItem::GtMdiItem() :
-    m_frame(new GtMdiWidget),
-    m_d(nullptr),
     pimpl(std::make_unique<Impl>())
 {
-    m_frame->hide();
+    pimpl->frame->hide();
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
@@ -74,13 +81,25 @@ GtMdiItem::GtMdiItem() :
 QWidget*
 GtMdiItem::widget()
 {
-    return m_frame.data();
+    return pimpl->frame.data();
+}
+
+GtObject*
+GtMdiItem::currentObject() noexcept
+{
+    return pimpl->dataObject;
+}
+
+GtObject const*
+GtMdiItem::currentObject() const noexcept
+{
+    return pimpl->dataObject;
 }
 
 QIcon
 GtMdiItem::icon() const
 {
-    return QIcon();
+    return gt::gui::icon::layers();
 }
 
 void
@@ -94,10 +113,78 @@ GtMdiItem::~GtMdiItem()
     // if this object is a child of frame, the QPointer of frame was not set to
     // null before this function is called, resulting in a double deletion of
     // frame.
-    if (m_frame && !m_frame->parent() && parent() != m_frame)
+    if (pimpl->frame && !pimpl->frame->parent() && parent() != pimpl->frame)
     {
-        delete m_frame;
+        delete pimpl->frame;
     }
+}
+
+bool
+GtMdiItem::setCurrentObject(GtObject* object, QString customId)
+{
+    pimpl->dataObject = object;
+    if (!customId.isEmpty())
+    {
+        pimpl->cid = std::move(customId);
+    }
+    else
+    {
+        regenerateId();
+    }
+
+    if (!pimpl->initialized)
+    {
+        pimpl->initialized = true;
+        initialized();
+    }
+    return true;
+}
+
+bool
+GtMdiItem::regenerateId()
+{
+    assert(metaObject());
+    QString newId = metaObject()->className();
+    QString suffix = this->customId(currentObject());
+
+    GtObject const* object = qAsConst(*this).currentObject();
+
+    if (suffix.isEmpty() && object)
+    {
+        suffix = object->uuid();
+    }
+
+    if (!suffix.isEmpty()) newId.append(u'#').append(suffix);
+
+    if (newId == pimpl->cid) return false;
+
+    pimpl->cid = newId;
+    return true;
+}
+
+const QString&
+GtMdiItem::currentId() const noexcept
+{
+    return pimpl->cid;
+}
+
+void
+GtMdiItem::setFlag(Flag flag, bool enable) noexcept
+{
+    pimpl->flags.setFlag(flag, enable);
+}
+
+void
+GtMdiItem::setFlags(Flags flags) noexcept
+{
+    pimpl->flags = flags;
+}
+
+GtMdiItem::Flags
+GtMdiItem::flags() const noexcept
+{
+    return pimpl->flags |
+           (allowsMultipleInstances() ? AllowsMultipleInstances : NoFlag);
 }
 
 GtState*
@@ -119,12 +206,6 @@ GtMdiItem::initializeState(GtProject* project, const QString& id,
                                            forceInitialization);
 }
 
-QWidget*
-GtMdiItem::subWin()
-{
-    return pimpl->m_subWin;
-}
-
 bool
 GtMdiItem::allowsMultipleInstances() const
 {
@@ -140,7 +221,7 @@ GtMdiItem::isPrintable() const
 const std::vector<GtQmlAction *>&
 GtMdiItem::toolbarActions() const
 {
-    return pimpl->m_toolbarActions;
+    return pimpl->toolbarActions;
 }
 
 void
@@ -156,9 +237,9 @@ GtMdiItem::customId(GtObject* /*obj*/)
 }
 
 void
-GtMdiItem::setSubWin(QWidget* subWin)
+GtMdiItem::setSubWin(QWidget*)
 {
-    pimpl->m_subWin = subWin;
+
 }
 
 QKeySequence
@@ -188,7 +269,7 @@ GtQmlAction*
 GtMdiItem::addToolbarAction(const QString& text, const QUrl& url)
 {
     auto action = new GtQmlAction(text, url, this);
-    pimpl->m_toolbarActions.push_back(action);
+    pimpl->toolbarActions.push_back(action);
     return action;
 }
 
@@ -196,7 +277,7 @@ void
 GtMdiItem::addToolbarSeparator()
 {
     auto action = GtQmlAction::makeSeparator(this);
-    pimpl->m_toolbarActions.push_back(action);
+    pimpl->toolbarActions.push_back(action);
 }
 
 QKeySequence
@@ -233,11 +314,11 @@ GtMdiItem::projectSavedEvent(GtProject* project)
 void
 GtMdiItem::onProjectChanged(GtProject* project)
 {
-    if (pimpl->m_queueEvents)
+    if (pimpl->queueEvents)
     {
         delete pimpl->takeEvent<GtProjectChangedEvent>();
 
-        pimpl->m_eventQueue << new GtProjectChangedEvent(this, project);
+        pimpl->eventQueue << new GtProjectChangedEvent(this, project);
     }
     else
     {
@@ -254,11 +335,11 @@ GtMdiItem::onProjectSaved(GtProject* project)
 void
 GtMdiItem::onObjectChanged(GtObject* obj)
 {
-    if (pimpl->m_queueEvents)
+    if (pimpl->queueEvents)
     {
         delete pimpl->takeEvent<GtObjectChangedEvent>();
 
-        pimpl->m_eventQueue << new GtObjectChangedEvent(this, obj);
+        pimpl->eventQueue << new GtObjectChangedEvent(this, obj);
     }
     else
     {
@@ -274,21 +355,21 @@ void GtMdiItem::windowStateChanged(Qt::WindowStates /*oldState*/,
         return;
     }
 
-    pimpl->m_queueEvents = true;
+    pimpl->queueEvents = true;
 }
 
 void
 GtMdiItem::windowAboutToActive()
 {
-    foreach (GtQueuedMdiEvent* e, pimpl->m_eventQueue)
+    foreach (GtQueuedMdiEvent* e, pimpl->eventQueue)
     {
         e->handle();
     }
 
-    qDeleteAll(pimpl->m_eventQueue);
-    pimpl->m_eventQueue.clear();
+    qDeleteAll(pimpl->eventQueue);
+    pimpl->eventQueue.clear();
 
-    pimpl->m_queueEvents = false;
+    pimpl->queueEvents = false;
 }
 
 void
