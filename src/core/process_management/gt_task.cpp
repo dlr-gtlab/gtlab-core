@@ -373,8 +373,7 @@ GtTask::runChildElements()
     // increment current iteration step and continue iteration
     m_currentIter.setVal(m_currentIter.getVal() + 1);
 
-    gtTrace() << "iteration step (" << m_currentIter << "/" << m_maxIter <<
-             ")";
+    gtTrace() << "iteration step (" << m_currentIter << "/" << m_maxIter << ")";
 
     // trigger transfer of monitoring properties before running calculators
     emit transferMonitoringProperties();
