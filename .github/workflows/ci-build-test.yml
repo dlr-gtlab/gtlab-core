@@ -83,11 +83,12 @@ jobs:
       continue-on-error: true
       env:
         LC_ALL: C.UTF-8
+        WARNING_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
       run: |
         source /etc/os-release
         python3 .github/scripts/compiler_warnings.py analyze \
           --log "$RUNNER_TEMP/ubuntu-build.log" --root "$GITHUB_WORKSPACE" \
-          --revision "$GITHUB_SHA" --compiler "$(c++ --version | sed -n '1p')" \
+          --revision "$WARNING_REVISION" --compiler "$(c++ --version | sed -n '1p')" \
           --platform "${ID}-${VERSION_ID}" \
           --build-succeeded "${{ steps.build.outcome == 'success' }}" \
           --output "$RUNNER_TEMP/compiler-warnings.json"
