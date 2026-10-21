@@ -433,7 +433,29 @@ gt::detail::recordObjectDestroyed(const GtObject* parent,
     GtRecordingSession* session = currentSession;
     if (!session) return;
 
-    if (parent) session->notifyObjectDetached(*parent, object);
+    // children of a deleted object see no GtObject parent but still a QObject
+    // parent: only the top of a deleted subtree is reported
+    bool const topLevel = parent || !object.QObject::parent();
+
+    // an observed object is deleted within the chain that observes it: report
+    // to the suspended parent sessions too, they hold the object as well
+    for (GtRecordingSession* s = session; topLevel && s; s = s->pimpl->parent)
+    {
+        if (parent && s->isObserved(*parent))
+        {
+            s->pimpl->dispatch(GtRecordingSession::ObjectDetached, [&]() {
+                s->pimpl->observer.objectDetached(*parent, object);
+            });
+        }
+        else if (!parent && s->isObserved(object))
+        {
+            s->pimpl->dispatch(GtRecordingSession::ObjectDestroyed, [&]() {
+                s->pimpl->observer.objectDestroyed(object);
+            });
+        }
+
+        s->pimpl->updateOnDetach(object);
+    }
 
     // the address may be reused by a new object
     session->forget(object);
