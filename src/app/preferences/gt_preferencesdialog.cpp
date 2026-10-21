@@ -29,7 +29,8 @@
 
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
-    GtDialog(parent), m_restartRequested(false)
+    GtDialog(parent),
+    m_restartRequested(false)
 {
     m_contentsWidget = new QListWidget;
     m_contentsWidget->setViewMode(QListView::IconMode);

@@ -13,11 +13,11 @@
 
 GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal,
                                bool needsRestart) :
-    m_ident(ident), m_initValue(initVal),
+    m_ident(ident),
+    m_initValue(initVal),
     m_runtimeValue(QSettings().value(ident, initVal)),
     changesRequiresRestart(needsRestart)
-{
-}
+{ }
 
 const QString&
 GtSettingsItem::ident() const
