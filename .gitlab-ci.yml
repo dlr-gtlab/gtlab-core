@@ -303,8 +303,6 @@ valgrind:
     - source env/bin/activate
     - pip3 install valgrind-codequality
   script:
-    - export DEVTOOLS=$GTLAB_DEV_TOOLS
-    - export GTLAB_LIBRARY_DIR=`pwd`/build
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
     # Convert to codequality format
     - valgrind-codequality --input-file valgrind-report.xml --output-file valgrind.json
