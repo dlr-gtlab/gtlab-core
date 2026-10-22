@@ -95,7 +95,6 @@ deepCopyTask(GtTask* taskOrig, bool strict)
         }
     }
 
-
     if(!transferRelativeObjectLinkPropertyViaMapping(copiedTask, &uuidMap))
     {
         gtError() << "Could not transfer the relative object link properties";
@@ -203,7 +202,6 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
 {
     bool retval = true;
 
-
     for(auto prop: qAsConst(procCompCopy->properties()))
     {
         auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
@@ -215,6 +213,7 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
             if(!uuidMap->containsOriginalUuid(originalUuid))
             {
                 gtError() << procCompCopy << " with uuid"<< procCompCopy->uuid() <<": Could not transfer " << propRelLink << ", original linked UUID" << originalUuid << "not found in original process component structure";
+
                 return false;
             }
 

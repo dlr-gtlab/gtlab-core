@@ -185,7 +185,6 @@ protected:
 
 };
 
-
 TEST_F(TestGtTaskPropertyConnections, highestParent)
 {
     ASSERT_EQ(gt::utils::process::findRootTask(roottask), roottask);
@@ -559,6 +558,50 @@ protected:
     virtual void TearDown()
     {
         delete roottask;
+    }
+
+    TestTaskWithRelativeObjectLinkProperty* roottask;
+    TestGtCalculator* calc1;
+
+};
+
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty, copyTaskWithRelativeObjectLinkProperty)
+{
+    auto copy = gt::utils::process::deepCopyTask(roottask);
+
+    ASSERT_TRUE(copy);
+
+    auto copyCasted = qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(copy);
+
+    auto copiedRelObjLinkProp = copyCasted->propRelObjLink();
+    auto copiedCalc = copyCasted->findDirectChild<TestGtCalculator*>("c1");
+
+    ASSERT_EQ(copiedRelObjLinkProp->getVal(), copiedCalc->uuid());
+
+
+}
+
+
+class TestGtTaskRelativeObjectLinkProperty : public ::testing::Test
+{
+protected:
+    virtual void SetUp()
+    {
+        roottask = new TestTaskWithRelativeObjectLinkProperty;
+        roottask->setObjectName("rt");
+
+
+        calc1 = new TestGtCalculator;
+        calc1->setObjectName("c1");
+
+        roottask->appendChild(calc1);
+        roottask->propRelObjLink()->setVal(calc1->uuid());
+
+    }
+
+    virtual void TearDown()
+    {
     }
 
     TestTaskWithRelativeObjectLinkProperty* roottask;

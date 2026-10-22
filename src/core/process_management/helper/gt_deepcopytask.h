@@ -80,6 +80,18 @@ GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
 GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
 
 
+/**
+ * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
+ * Relative object links are links within the copied structure, e.g. a link to another calculator.
+ * When the task and is copied and all sub process components receive new UUID, this new UUID needs to replace the
+ * previous UUID.
+ * @param copy
+ * @param uuidMap
+ * @return
+ */
+GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
+
+
 } // namespace process
 } // namespace utils
 } // namespace gt
