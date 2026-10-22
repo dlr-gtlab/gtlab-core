@@ -60,7 +60,14 @@ inherit it. The executor owns the observer and the session for one call:
        MyObserver observer;
        GtRecordingSession session{*task, observer, task->linkedObjects()};
 
-       return session.run([&] { return task->runIteration(); });
+       return session.run([&] {
+           if (!task->setUp())
+           {
+               task->setState(GtProcessComponent::FAILED);
+               return false;
+           }
+           return task->runIteration();
+       });
    }
 
 Register the executor with ``GtCalculatorExecInterface`` in your module
@@ -80,8 +87,10 @@ project merge; failed executions are recorded too.
 
 .. note::
 
-   Link resolution and a task's ``setUp()`` run before the executor is
-   called. ``setUp()`` is therefore not recorded.
+   Link resolution runs before the executor is called and is not recorded.
+   A task's ``setUp()`` is left to the executor: call it inside
+   ``session.run()`` right before ``runIteration()``, as above, so that it is
+   recorded. An executor that does not call ``setUp()`` skips it.
 
 Implement an observer
 ---------------------
@@ -219,7 +228,6 @@ workers before the recorded work returns.
 Limits
 ------
 
-* A task's ``setUp()`` is not recorded.
 * A task recording only sees a ``local`` child's accesses on objects the task
   links.
 * Adding or removing property container entries produces no event.

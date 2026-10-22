@@ -40,9 +40,11 @@ Classes and placement
 Execution boundary
 ~~~~~~~~~~~~~~~~~~
 
-* Calculators record ``run()``; tasks record ``runIteration()``.
-* Link resolution and a task's ``setUp()`` run before the executor is called
-  (ADR 0002), so ``setUp()`` is not recorded.
+* Calculators record ``run()``; tasks record ``setUp()`` and
+  ``runIteration()``.
+* Link resolution runs before the executor is called (ADR 0002) and is not
+  recorded. ``GtTask::exec()`` leaves ``setUp()`` to the executor, which
+  calls it inside the recording right before ``runIteration()``.
 * ``run()`` takes a callable returning ``bool``. On an exception, the
   recording finishes with ``success = false``, the previous session is
   restored and the exception is rethrown.
@@ -139,7 +141,6 @@ Consequences
 V1 limits
 ~~~~~~~~~
 
-* A task's ``setUp()`` is not recorded.
 * A task recording only sees a ``local`` child's accesses on objects the task
   itself links.
 * Adding or removing property container entries produces no event.
@@ -246,6 +247,6 @@ Validation
   session lifecycle and failures, property hooks, object tree changes, worker
   threads and parallel child components.
 * ``SystemTest.Recording`` (``tests/systemtests/recording``) runs a recorded
-  task through ``GTlabConsole`` and checks that ``setUp()`` runs once outside
+  task through ``GTlabConsole`` and checks that ``setUp()`` runs once inside
   the recording, the task iteration and a ``local`` child are recorded in the
   task session, and an inheriting child gets a nested recording.
