@@ -72,8 +72,10 @@ executors are not supported for now. Task execution is an optional extension;
 an executor that does not override ``exec(GtTask*)`` runs the task locally and
 logs a warning.
 
-Link resolution and ``setUp()`` run in ``GtTask::exec()`` before the executor
-is called; the executor wraps the task iteration only.
+Link resolution runs in ``GtTask::exec()`` before the executor is called.
+``setUp()`` is left to the executor: it calls ``setUp()`` and then
+``runIteration()``, so that a recording executor records both (ADR 0003). The
+base implementation does this before falling back to local execution.
 
 Executor lifetime
 ~~~~~~~~~~~~~~~~~
