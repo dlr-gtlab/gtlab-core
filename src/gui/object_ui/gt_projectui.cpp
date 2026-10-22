@@ -1786,7 +1786,13 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (initialOpenProject)
         {
-            gtDataModel->closeProject(gtApp->currentProject());
+            if (!gtDataModel->closeProject(project))
+            {
+                QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                    tr("The project could not be closed before "
+                       "restoring the backup."));
+                return;
+            }
         }
 
         bool success = project->restoreBackupFiles(selectedFolder) ==
