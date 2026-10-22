@@ -26,7 +26,7 @@ TestRecordingTask::setUp()
         QStringLiteral("setUp recording=%1")
             .arg(GtRecordingSession::current() ? 1 : 0));
 
-    // a read that would be recorded if setUp() ran inside the recording
+    // a read that is recorded because setUp() runs inside the recording
     if (auto* target = data<TestDmiPackage*>(m_target))
     {
         (void)target->mementoTestValue();

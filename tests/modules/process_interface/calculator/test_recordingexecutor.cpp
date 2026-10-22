@@ -103,5 +103,13 @@ TestRecordingExecutor::exec(GtTask* task)
     LoggingObserver observer;
     GtRecordingSession session{*task, observer, task->linkedObjects()};
 
-    return session.run([&]() { return task->runIteration(); });
+    // GtTask::exec() leaves setUp() to the executor
+    return session.run([&]() {
+        if (!task->setUp())
+        {
+            task->setState(GtProcessComponent::FAILED);
+            return false;
+        }
+        return task->runIteration();
+    });
 }
