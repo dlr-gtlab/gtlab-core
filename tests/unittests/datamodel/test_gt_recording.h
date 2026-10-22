@@ -38,6 +38,13 @@ public:
         registerProperty(value);
     }
 
+    /// Own accessor that reports an object value read
+    double scaledValue() const
+    {
+        gt::ObjectValueReadScope readScope(*this);
+        return 2.0 * value.getVal();
+    }
+
     GtDoubleProperty value;
 };
 
@@ -91,6 +98,11 @@ public:
                          const GtAbstractProperty& property) override
     {
         log({QStringLiteral("written"), &owner, &property});
+    }
+
+    void objectValueRead(const GtObject& object) override
+    {
+        log({QStringLiteral("valueRead"), &object});
     }
 
     void objectAttached(const GtObject& parent, const GtObject& child) override

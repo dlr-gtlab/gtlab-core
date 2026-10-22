@@ -254,6 +254,16 @@ GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
 }
 
 void
+GtRecordingSession::notifyObjectValueRead(const GtObject& object)
+{
+    if (!isObserved(object)) return;
+
+    pimpl->dispatch(ObjectValueRead, [&]() {
+        pimpl->observer.objectValueRead(object);
+    });
+}
+
+void
 GtRecordingSession::notifyObjectAttached(const GtObject& parent,
                                          const GtObject& child)
 {
@@ -370,6 +380,18 @@ void
 gt::detail::leavePropertyRead() noexcept
 {
     --propertyReadDepth;
+}
+
+void
+gt::detail::enterObjectValueRead(const GtObject& object) noexcept
+{
+    // only the outermost read is reported, property reads included
+    if (propertyReadDepth++ > 0) return;
+
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->notifyObjectValueRead(object);
+    }
 }
 
 void

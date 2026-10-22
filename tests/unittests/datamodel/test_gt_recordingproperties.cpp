@@ -71,6 +71,7 @@ TEST(GtRecordingProperties, noSessionProducesNoEvents)
     obj.value.setVal(1.0);
     (void)obj.value.getVal();
     (void)static_cast<GtAbstractProperty&>(obj.value).valueToVariant();
+    (void)obj.scaledValue();
 
     EXPECT_TRUE(observer.entries().isEmpty());
 }
@@ -222,4 +223,48 @@ TEST(GtRecordingProperties, counterIsResetAfterRecording)
     });
 
     EXPECT_EQ(gt::detail::runningRecordings.load(), 0);
+}
+
+TEST(GtRecordingProperties, objectValueReadsReachObserverWithObject)
+{
+    RecordingTestObject root;
+    auto* child = new RecordingTestObject(&root);
+    RecordingTestObject unrelated;
+    RecordingTestObserver observer;
+
+    record(observer, roots(&root), [&]() {
+        (void)root.scaledValue();
+        (void)child->scaledValue();
+        (void)unrelated.scaledValue();
+        // the read depth is restored after the scope
+        (void)root.value.getVal();
+    });
+
+    // the property read inside scaledValue() produces no own event
+    auto const entries = observer.entries();
+    ASSERT_EQ(eventKinds(observer),
+              (QStringList{"valueRead", "valueRead", "read"}));
+    EXPECT_EQ(entries[1].object, &root);
+    EXPECT_EQ(entries[1].property, nullptr);
+    EXPECT_EQ(entries[2].object, child);
+    EXPECT_EQ(entries[3].object, &root);
+    EXPECT_EQ(entries[3].property, &root.value);
+}
+
+TEST(GtRecordingProperties, objectValueReadsFollowEventMask)
+{
+    RecordingTestObject obj;
+    RecordingTestObserver observer;
+    GtObject component;
+
+    GtRecordingSession session{component, observer, roots(&obj),
+                               GtRecordingSession::AllEvents &
+                                   ~GtRecordingSession::Events(
+                                       GtRecordingSession::ObjectValueRead)};
+    session.run([&]() {
+        (void)obj.scaledValue();
+        return true;
+    });
+
+    EXPECT_TRUE(eventKinds(observer).isEmpty());
 }

@@ -77,8 +77,10 @@ public:
         ObjectAttached  = 0x4,
         ObjectDetached  = 0x8,
         ObjectDestroyed = 0x10,
+        ObjectValueRead = 0x20,
         AllEvents       = PropertyRead | PropertyWritten |
-                          ObjectAttached | ObjectDetached | ObjectDestroyed
+                          ObjectAttached | ObjectDetached | ObjectDestroyed |
+                          ObjectValueRead
     };
     Q_DECLARE_FLAGS(Events, Event)
 
@@ -169,6 +171,7 @@ public:
                             const GtAbstractProperty& property);
     void notifyPropertyWritten(const GtObject& owner,
                                const GtAbstractProperty& property);
+    void notifyObjectValueRead(const GtObject& object);
 
     /**
      * @brief Updates the observed tree of this session and of its suspended
