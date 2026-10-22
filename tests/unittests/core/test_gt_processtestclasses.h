@@ -17,6 +17,7 @@
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
+#include "gt_relativeobjectlinkproperty.h"
 
 
 class TestGtCalculator : public GtCalculator
@@ -130,6 +131,38 @@ private:
     GtDoubleProperty* m_doubleProp1;
     GtDoubleProperty* m_doubleProp2;
     GtDoubleProperty* m_doubleProp3;
+};
+
+class TestTaskWithRelativeObjectLinkProperty : public GtTask
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TestTaskWithRelativeObjectLinkProperty()
+    {
+        m_relObjLink = new GtRelativeObjectLinkProperty("relObjLink", "RelativeObjectLink", "", "");
+
+        registerProperty(*m_relObjLink);
+    }
+
+    ~TestTaskWithRelativeObjectLinkProperty()
+    {
+        delete m_relObjLink;
+    }
+
+    bool run()
+    {
+        return true;
+    }
+
+    GtRelativeObjectLinkProperty* propRelObjLink()
+    {
+        return m_relObjLink;
+    }
+
+
+private:
+    GtRelativeObjectLinkProperty* m_relObjLink;
 };
 
 class TestGtLoop : public GtLoop
