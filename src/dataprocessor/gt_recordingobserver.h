@@ -37,6 +37,13 @@ public:
     virtual void propertyRead(const GtObject& owner,
                               const GtAbstractProperty& property);
 
+    /**
+     * @brief A value of an observed object was read through an accessor
+     * of the object itself (see gt::ObjectValueReadScope), not through a
+     * registered property.
+     */
+    virtual void objectValueRead(const GtObject& object);
+
     /// A property of an observed object reported a change.
     virtual void propertyWritten(const GtObject& owner,
                                  const GtAbstractProperty& property);
