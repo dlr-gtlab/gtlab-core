@@ -7,6 +7,7 @@
 
 #include "gt_deepcopytask.h"
 #include "gt_objectuuidmap.h"
+#include "gt_relativeobjectlinkproperty.h"
 #include "gt_taskgroup.h"
 #include "gt_taskanalysis.h"
 
@@ -81,6 +82,23 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     if(!transferPropertyConnectionsViaMapping(copiedTask, &uuidMap))
     {
         gtError() << "Could not transfer the property connections";
+
+        if(strict)
+        {
+            delete copiedTask;
+            return nullptr;
+        }
+        else
+        {
+            return copiedTask;
+        }
+    }
+
+
+
+    if(!transferRelativeObjectLinkPropertyViaMapping(copiedTask, &uuidMap))
+    {
+        gtError() << "Could not transfer the relative object link properties";
 
         if(strict)
         {
@@ -178,6 +196,46 @@ cleanupPropertyConnections(GtTask *task)
     qDeleteAll(toRemove);
 
     return true;
+}
+
+bool
+transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, const GtObjectUUIDMap *uuidMap)
+{
+    bool retval = true;
+
+    for(auto prop: qAsConst(procCompCopy->properties()))
+    {
+        auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
+
+        if(propRelLink)
+        {
+            auto originalUuid = propRelLink->getVal();
+
+            if(!uuidMap->containsOriginalUuid(originalUuid))
+            {
+                gtError() << procCompCopy << " with uuid"<< procCompCopy->uuid() <<": Could not transfer " << propRelLink << ", linked UUID not found in original process component structure";
+                return false;
+            }
+
+            auto copiedUuid = uuidMap->copiedUuid(originalUuid);
+
+            propRelLink->setVal(copiedUuid);
+        }
+    }
+
+
+    for(auto child: procCompCopy->findDirectChildren<GtProcessComponent*>())
+    {
+
+        if(!transferRelativeObjectLinkPropertyViaMapping(child, uuidMap))
+        {
+            retval = false;
+        }
+
+    }
+
+
+    return retval;
 }
 
 
