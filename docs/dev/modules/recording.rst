@@ -98,6 +98,7 @@ Override only the callbacks you need:
                          const GtAbstractProperty& property) override;
        void propertyWritten(const GtObject& owner,
                             const GtAbstractProperty& property) override;
+       void objectValueRead(const GtObject& object) override;
        void objectAttached(const GtObject& parent,
                            const GtObject& child) override;
        void objectDetached(const GtObject& parent,
@@ -148,6 +149,9 @@ attached, detached, moved or deleted. Roots always stay observed.
    * - ``propertyWritten``
      - A property of an observed object emits ``changed()``, even if the
        value did not change.
+   * - ``objectValueRead``
+     - An accessor of an observed object marked with
+       ``gt::ObjectValueReadScope`` runs (see below).
    * - ``objectAttached``
      - A child is attached to an observed parent (``appendChild()``, including
        ``GtObject(parent)``).
@@ -159,6 +163,27 @@ Properties are attributed to the object that registered them, including
 sub-properties and property container entries. Properties registered with
 ``registerSilentProperty()`` are not recorded. Restrict the events with the
 event mask of the session.
+
+Record own accessors
+^^^^^^^^^^^^^^^^^^^^
+
+A ``GtObject`` subclass whose accessors return data that is not held in
+registered properties marks them with ``gt::ObjectValueReadScope``
+(``gt_recordinghooks.h``):
+
+.. code-block:: cpp
+
+   double
+   MyObject::value() const
+   {
+       gt::ObjectValueReadScope readScope(*this);
+       return m_value;
+   }
+
+If the object is observed, the observer receives ``objectValueRead(object)``.
+The scope shares the nesting with property reads: only the outermost read is
+reported, so property reads inside the accessor produce no extra event.
+Without a running recording, the scope only checks a counter.
 
 Nested recordings
 -----------------
@@ -201,6 +226,7 @@ Limits
 * No recording in out-of-process runs (process runner) or for children on a
   remote executor.
 * Code that reads property member values directly bypasses the read hooks.
+  Own accessors are recorded only if they use ``gt::ObjectValueReadScope``.
 * No ``objectAccessed()`` event; mutations through mutable references are
   reported as reads.
 
