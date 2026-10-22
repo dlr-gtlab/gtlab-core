@@ -24,8 +24,8 @@ GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(QWidget* parent) :
 }
 
 
-GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(
-    const QString& projectName, QWidget* parent) :
+GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(const QString& projectName,
+                                                     QWidget* parent) :
     GtSwitchProjectMessageBox(parent)
 {
     setText(tr("Switch to project '%1'?").arg(projectName));
