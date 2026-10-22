@@ -1585,9 +1585,6 @@ GtObject* processComponentCloneCopyHelper(GtProcessComponent* pComp, bool *ok)
     {
         auto newTask = gt::utils::process::deepCopyTask(origTask, false);
 
-        // TODO: check this one
-        detail::updateRelativeObjectLinks(origTask, newTask);
-
         copy = qobject_cast<GtObject*>(newTask);
     }
     else
