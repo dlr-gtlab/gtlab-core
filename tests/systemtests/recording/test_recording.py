@@ -81,10 +81,10 @@ def _started(log: list, component: str) -> re.Match:
     return matches[0]
 
 
-def test_setup_runs_once_outside_the_recording(recording_log: list) -> None:
+def test_setup_runs_once_inside_the_recording(recording_log: list) -> None:
     setups = [line for line in recording_log if line.startswith("setUp")]
-    assert setups == ["setUp recording=0"]
-    assert recording_log.index("setUp recording=0") < recording_log.index(
+    assert setups == ["setUp recording=1"]
+    assert recording_log.index("setUp recording=1") > recording_log.index(
         _started(recording_log, "Recording Task").group(0))
 
 
@@ -96,9 +96,10 @@ def test_task_iteration_is_recorded(recording_log: list) -> None:
     # the local child runs in the task's recording
     assert ("written Test DMI Package.mementoTestValue in Recording Task"
             in recording_log)
-    # setUp()'s read is not recorded
-    assert not any(line.startswith("read Test DMI Package")
-                   for line in recording_log)
+    # setUp()'s read is recorded in the task's recording
+    reads = [line for line in recording_log
+             if line.startswith("read Test DMI Package")]
+    assert reads == ["read Test DMI Package.mementoTestValue in Recording Task"]
 
 
 def test_inheriting_child_gets_nested_recording(recording_log: list) -> None:
