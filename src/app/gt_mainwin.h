@@ -55,10 +55,10 @@ public:
 
 public slots:
     /**
-     * @brief Opens a project file passed to the application on startup.
+     * @brief Opens a project from the given file path.
      * @param projectFilePath Path to the project file.
      */
-    void openProjectFromCommandLine(const QString& projectFilePath);
+    void openProjectFromPath(const QString& projectFilePath);
 
     /**
      * @brief opens the process queue widget

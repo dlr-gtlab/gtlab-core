@@ -310,7 +310,7 @@ main(int argc, char* argv[])
     GtMainWin w;
 
     projectOpenService.setProjectOpenHandler(
-        [&w](const QString& path) { w.openProjectFromCommandLine(path); });
+        [&w](const QString& path) { w.openProjectFromPath(path); });
     QObject::connect(&w, &GtMainWin::guiInitialized, &projectOpenService,
                      [&projectOpenService]() {
                          QTimer::singleShot(0, &projectOpenService,

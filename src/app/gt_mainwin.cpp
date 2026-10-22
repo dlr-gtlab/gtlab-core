@@ -659,7 +659,7 @@ GtMainWin::importProject()
 }
 
 void
-GtMainWin::openProjectFromCommandLine(const QString& projectFilePath)
+GtMainWin::openProjectFromPath(const QString& projectFilePath)
 {
     const QFileInfo fileInfo(projectFilePath);
     const QString suffix = fileInfo.suffix().toLower();
