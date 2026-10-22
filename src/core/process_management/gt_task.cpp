@@ -154,13 +154,6 @@ GtTask::exec()
     // reset evaluator variables
     m_currentIter.setVal(0);
 
-    // Initialize individual evaluator setting
-    if (!setUp())
-    {
-        setState(GtProcessComponent::FAILED);
-        return false;
-    }
-
     // check max. iteration steps
     if (m_maxIter <= 0)
     {
@@ -211,6 +204,13 @@ GtTask::exec()
     }
     else
     {
+        // Initialize individual evaluator setting
+        if (!setUp())
+        {
+            setState(GtProcessComponent::FAILED);
+            return false;
+        }
+
         // start iteration
         if (!runIteration())
         {
