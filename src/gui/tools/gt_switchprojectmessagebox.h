@@ -29,6 +29,13 @@ public:
      * @param parent - use the specific widget as parent
      */
     GtSwitchProjectMessageBox(QWidget* parent = nullptr);
+
+    /**
+     * @brief GtSwitchProjectMessageBox - Constructor for a specific project
+     * @param projectName - name of the project to switch to
+     * @param parent - use the specific widget as parent
+     */
+    GtSwitchProjectMessageBox(const QString& projectName, QWidget* parent);
 };
 
 #endif // GTSWITCHPROJECTMESSAGEBOX_H
