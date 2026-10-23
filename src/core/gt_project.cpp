@@ -1130,14 +1130,14 @@ GtProject::createProjectFootprint() const
     // used classes. As long as the module data file exists on disk, treat
     // the module as required and unresolved, so that its footprint entry
     // is preserved instead of being silently dropped.
-    for (const QString& mid : m_moduleIds)
+    for (const QString& mid : moduleIds())
     {
         if (requiredModules.contains(mid))
         {
             continue;
         }
 
-        const QString moduleFile = m_path + QDir::separator() + mid.toLower() +
+        const QString moduleFile = path() + QDir::separator() + mid.toLower() +
                                    QStringLiteral(".") + moduleExtension();
 
         if (QFile::exists(moduleFile) && !findPackage(mid))
