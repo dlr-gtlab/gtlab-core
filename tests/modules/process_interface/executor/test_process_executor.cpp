@@ -12,25 +12,29 @@
 #include "gt_task.h"
 #include <gt_logging.h>
 
-GtTestExecutor::GtTestExecutor()=default;
+GtTestExecutor::GtTestExecutor() = default;
 
-bool GtTestExecutor::exec(GtCalculator *calculator)
+bool
+GtTestExecutor::exec(GtCalculator* calculator)
 {
     //Runs before calculator execution
-    gtInfo()<<"Process Executor is running for: "<< calculator->objectName();
+    gtInfo() << "Process Executor is running for: " << calculator->objectName();
     bool success = GtAbstractProcessExecutor::exec(calculator);
     //Runs after calculator execution
-    gtInfo()<<"Process Executor executed calculator:"<<calculator->objectName()<<" which returned status: "<< success;
+    gtInfo() << "Process Executor executed calculator:"
+             << calculator->objectName()
+             << " which returned status: " << success;
     return success;
 }
 
-bool GtTestExecutor::exec(GtTask *task)
+bool
+GtTestExecutor::exec(GtTask* task)
 {
     //Runs before task execution
-    gtInfo()<<"Process Executor is running for: "<< task->objectName();
+    gtInfo() << "Process Executor is running for: " << task->objectName();
     bool success = GtAbstractProcessExecutor::exec(task);
     //Runs after task execution
-    gtInfo()<<"Process Executor executed task:"<<task->objectName()<<" which returned status: "<< success;
+    gtInfo() << "Process Executor executed task:" << task->objectName()
+             << " which returned status: " << success;
     return success;
 }
-

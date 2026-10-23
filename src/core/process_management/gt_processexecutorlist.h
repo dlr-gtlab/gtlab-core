@@ -102,7 +102,6 @@ private:
 
     /// Mutex
     QMutex m_mutex;
-
 };
 
 #endif // GT_PROCESSEXECUTORLIST_H

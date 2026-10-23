@@ -30,7 +30,8 @@ public:
     /**
      * @brief Virtual destructor to keep compilers happy.
      */
-    virtual ~GtProcessExecInterface() {}
+    virtual ~GtProcessExecInterface()
+    { }
 
     /**
      * @brief Returns executor identification string .
@@ -54,10 +55,10 @@ public:
      * @brief Returns list of executor settings.
      * @return Executor settings.
      */
-    virtual QList<GtAbstractProperty*> executorSettings() {
+    virtual QList<GtAbstractProperty*> executorSettings()
+    {
         return {};
     };
-
 };
 
 QT_BEGIN_NAMESPACE

@@ -22,7 +22,6 @@ public:
     bool exec(GtCalculator* calculator) Q_DECL_OVERRIDE;
 
     bool exec(GtTask* task) Q_DECL_OVERRIDE;
-
 };
 
 #endif // TEST_PROCESS_EXECUTOR_H

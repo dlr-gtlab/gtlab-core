@@ -19,8 +19,7 @@ GT_REMOVAL_GUARD(2, 2, "Use GtAbstractProcessExecutor instead");
 /**
  * @deprecated Use GtAbstractProcessExecutor instead.
  */
-using GtAbstractCalculatorExecutor
-    GT_DEPRECATED_ATTR(2, 2, "Use GtAbstractProcessExecutor instead")
-    = GtAbstractProcessExecutor;
+using GtAbstractCalculatorExecutor GT_DEPRECATED_ATTR(
+    2, 2, "Use GtAbstractProcessExecutor instead") = GtAbstractProcessExecutor;
 
 #endif // GTABSTRACTCALCULATOREXECUTOR_H
