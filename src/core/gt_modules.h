@@ -20,7 +20,7 @@ class GtCoreApplication;
 namespace gt
 {
 
-    /**
+/**
      * @brief Result of a module requirements query (@ref gt::Modules)
      *
      * The result contains the module ids that are required for a set of
@@ -29,23 +29,23 @@ namespace gt
      * environment. Unresolved dependencies must not be treated as unused,
      * because their own dependencies are unknown.
      */
-    struct GT_CORE_EXPORT ModuleRequirements
+struct GT_CORE_EXPORT ModuleRequirements
+{
+    /// Required module ids, including transitive dependencies
+    QStringList moduleIds;
+
+    /// Required dependencies that cannot be resolved with the current
+    /// module meta data
+    QStringList unresolved;
+
+    /// @brief Whether all requirements could be resolved
+    bool isComplete() const
     {
-        /// Required module ids, including transitive dependencies
-        QStringList moduleIds;
+        return unresolved.isEmpty();
+    }
+};
 
-        /// Required dependencies that cannot be resolved with the current
-        /// module meta data
-        QStringList unresolved;
-
-        /// @brief Whether all requirements could be resolved
-        bool isComplete() const
-        {
-            return unresolved.isEmpty();
-        }
-    };
-
-    /**
+/**
      * @brief Provides coherent access to the modules of the GTlab application
      *
      * The class is a lightweight handle to the module subsystem of the
@@ -57,39 +57,39 @@ namespace gt
      * All methods return empty or conservative results if the application
      * does not have a module subsystem.
      */
-    class GT_CORE_EXPORT Modules
-    {
-    public:
-        /// Constructor. Creates a module access without module subsystem.
-        Modules() = default;
+class GT_CORE_EXPORT Modules
+{
+public:
+    /// Constructor. Creates a module access without module subsystem.
+    Modules() = default;
 
-        /**
+    /**
          * @brief Returns the version of a module
          * @param id Module identification string
          * @return Version of the module, null version if the module is not
          * currently loaded
          */
-        GtVersionNumber version(const QString& id) const;
+    GtVersionNumber version(const QString& id) const;
 
-        /**
+    /**
          * @brief Returns the required modules, including transitive dependencies
          * @param moduleIds Module identification strings to resolve
          * @return Required module ids and unresolved dependencies
          */
-        ModuleRequirements requirementsFor(const QStringList& moduleIds) const;
+    ModuleRequirements requirementsFor(const QStringList& moduleIds) const;
 
-    private:
-        friend class ::GtCoreApplication;
+private:
+    friend class ::GtCoreApplication;
 
-        /**
+    /**
          * @brief Wraps the application's module subsystem.
          * @param loader Module subsystem, may be null
          */
-        explicit Modules(const GtModuleLoader* loader);
+    explicit Modules(const GtModuleLoader* loader);
 
-        /// Module subsystem of the application, may be null
-        const GtModuleLoader* m_loader{nullptr};
-    };
+    /// Module subsystem of the application, may be null
+    const GtModuleLoader* m_loader{nullptr};
+};
 
 } // namespace gt
 

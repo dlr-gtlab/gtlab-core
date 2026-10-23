@@ -41,76 +41,77 @@
 namespace
 {
 
-    class TestProject : public GtProject
+class TestProject : public GtProject
+{
+public:
+    explicit TestProject(const QString& path) :
+        GtProject(path)
+    { }
+};
+
+class TestProjectObjectFactory : public GtAbstractObjectFactory
+{
+};
+
+bool
+writeFile(const QString& path, const QByteArray& data)
+{
+    if (!QFileInfo(path).absoluteDir().mkpath(QFileInfo(path).absolutePath()))
     {
-    public:
-        explicit TestProject(const QString& path) : GtProject(path)
-        {
-        }
-    };
-
-    class TestProjectObjectFactory : public GtAbstractObjectFactory
-    {
-    };
-
-    bool writeFile(const QString& path, const QByteArray& data)
-    {
-        if (!QFileInfo(path).absoluteDir().mkpath(
-                QFileInfo(path).absolutePath()))
-        {
-            return false;
-        }
-
-        QFile file(path);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate |
-                       QIODevice::Text))
-        {
-            return false;
-        }
-
-        return file.write(data) == data.size();
+        return false;
     }
 
-    /*
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate |
+                   QIODevice::Text))
+    {
+        return false;
+    }
+
+    return file.write(data) == data.size();
+}
+
+/*
  * @brief Replaces the stored environment footprint of a project file
  * @param projectPath Project directory
  * @param footprintXml Replacement footprint XML ("<env-footprint>" element)
  */
-    bool replaceStoredFootprint(const QString& projectPath,
-                                const QString& footprintXml)
+bool
+replaceStoredFootprint(const QString& projectPath, const QString& footprintXml)
+{
+    const QString filename =
+        projectPath + QDir::separator() + GtProject::mainFilename();
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        const QString filename =
-            projectPath + QDir::separator() + GtProject::mainFilename();
+        return false;
+    }
+    const QString content = QString::fromUtf8(file.readAll());
+    file.close();
 
-        QFile file(filename);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            return false;
-        }
-        const QString content = QString::fromUtf8(file.readAll());
-        file.close();
+    const QRegularExpression rx(
+        QStringLiteral("<env-footprint>.*</env-footprint>"),
+        QRegularExpression::DotMatchesEverythingOption);
 
-        const QRegularExpression rx(
-            QStringLiteral("<env-footprint>.*</env-footprint>"),
-            QRegularExpression::DotMatchesEverythingOption);
-
-        const auto match = rx.match(content);
-        if (!match.hasMatch())
-        {
-            return false;
-        }
-
-        QString updated = content;
-        updated.replace(match.capturedStart(0), match.capturedLength(0),
-                        footprintXml);
-
-        return writeFile(filename, updated.toUtf8());
+    const auto match = rx.match(content);
+    if (!match.hasMatch())
+    {
+        return false;
     }
 
-    QStringList footprintModuleIds(GtProject* project)
-    {
-        return GtFootprint{project->readFootprint()}.modules().keys();
-    }
+    QString updated = content;
+    updated.replace(match.capturedStart(0), match.capturedLength(0),
+                    footprintXml);
+
+    return writeFile(filename, updated.toUtf8());
+}
+
+QStringList
+footprintModuleIds(GtProject* project)
+{
+    return GtFootprint{project->readFootprint()}.modules().keys();
+}
 
 } // namespace
 

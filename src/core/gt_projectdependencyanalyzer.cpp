@@ -52,7 +52,8 @@ public:
 };
 
 GtProjectDependencyAnalyzer::GtProjectDependencyAnalyzer(
-    const GtProject* project) : m_pimpl{std::make_unique<Impl>()}
+    const GtProject* project) :
+    m_pimpl{std::make_unique<Impl>()}
 {
     m_pimpl->analyze(project);
 }

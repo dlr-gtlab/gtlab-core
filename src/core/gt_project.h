@@ -128,7 +128,7 @@ public:
      * @return Package
      */
     GtPackage* findPackage(const QString& mid);
-    GtPackage const* findPackage(const QString& mid) const;
+    const GtPackage* findPackage(const QString& mid) const;
 
     /**
      * @brief moduleIds

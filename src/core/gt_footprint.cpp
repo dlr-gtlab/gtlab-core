@@ -72,8 +72,7 @@ GtFootprint::GtFootprint(const QString& data) :
 
 GtFootprint::GtFootprint(std::unique_ptr<GtFootprintImpl> pimpl) :
     m_pimpl{std::move(pimpl)}
-{
-}
+{ }
 
 GtFootprint::~GtFootprint() = default;
 

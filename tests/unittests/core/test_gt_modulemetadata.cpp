@@ -28,92 +28,93 @@ static_assert(!std::is_constructible<gt::Modules, const GtModuleLoader*>::value,
 namespace
 {
 
-    using gt::detail::ModuleMetaData;
-    using gt::detail::ModuleMetaMap;
+using gt::detail::ModuleMetaData;
+using gt::detail::ModuleMetaMap;
 
-    struct TestDependency
-    {
-        QString name;
-        bool isOptional{false};
-    };
+struct TestDependency
+{
+    QString name;
+    bool isOptional{false};
+};
 
-    /*
+/*
  * @brief Builds module meta data from synthetic plugin meta data
  * @param id Module identification string
  * @param deps Direct dependencies of the module
  * @return Module meta data
  */
-    ModuleMetaData makeMeta(const QString& id,
-                            std::initializer_list<TestDependency> deps = {})
+ModuleMetaData
+makeMeta(const QString& id, std::initializer_list<TestDependency> deps = {})
+{
+    QJsonArray depArray;
+    for (const auto& dep : deps)
     {
-        QJsonArray depArray;
-        for (const auto& dep : deps)
-        {
-            QJsonObject depObj;
-            depObj.insert(QStringLiteral("name"), dep.name);
-            depObj.insert(QStringLiteral("version"), QString());
-            depObj.insert(QStringLiteral("optional"), dep.isOptional);
-            depArray.append(depObj);
-        }
-
-        QJsonObject metaData;
-        metaData.insert(QStringLiteral("dependencies"), depArray);
-
-        QJsonObject json;
-        json.insert(QStringLiteral("IID"), id);
-        json.insert(QStringLiteral("MetaData"), metaData);
-
-        ModuleMetaData meta;
-        meta.readFromJson(json);
-        return meta;
+        QJsonObject depObj;
+        depObj.insert(QStringLiteral("name"), dep.name);
+        depObj.insert(QStringLiteral("version"), QString());
+        depObj.insert(QStringLiteral("optional"), dep.isOptional);
+        depArray.append(depObj);
     }
 
-    /*
+    QJsonObject metaData;
+    metaData.insert(QStringLiteral("dependencies"), depArray);
+
+    QJsonObject json;
+    json.insert(QStringLiteral("IID"), id);
+    json.insert(QStringLiteral("MetaData"), metaData);
+
+    ModuleMetaData meta;
+    meta.readFromJson(json);
+    return meta;
+}
+
+/*
  * @brief Builds a module meta data map from a list of meta data entries
  * @param metas Module meta data entries
  * @return Module meta data map
  */
-    ModuleMetaMap makeMap(std::initializer_list<ModuleMetaData> metas)
+ModuleMetaMap
+makeMap(std::initializer_list<ModuleMetaData> metas)
+{
+    ModuleMetaMap map;
+    for (const auto& meta : metas)
     {
-        ModuleMetaMap map;
-        for (const auto& meta : metas)
-        {
-            map.insert({meta.moduleId(), meta});
-        }
-        return map;
+        map.insert({meta.moduleId(), meta});
     }
+    return map;
+}
 
-    QStringList sorted(QStringList list)
-    {
-        list.removeDuplicates();
-        list.sort();
-        return list;
-    }
+QStringList
+sorted(QStringList list)
+{
+    list.removeDuplicates();
+    list.sort();
+    return list;
+}
 
-    /*
+/*
  * @brief Convenience access to the module ids of a dependency closure
  * @param moduleIds Module identification strings to resolve
  * @param map Module meta data map
  * @return Module ids including the transitive dependency closure
  */
-    QStringList closureIds(const QStringList& moduleIds,
-                           const ModuleMetaMap& map)
-    {
-        return gt::detail::dependencyClosure(moduleIds, map).moduleIds;
-    }
+QStringList
+closureIds(const QStringList& moduleIds, const ModuleMetaMap& map)
+{
+    return gt::detail::dependencyClosure(moduleIds, map).moduleIds;
+}
 
-    /*
+/*
  * @brief Convenience access to the unresolved dependencies of a closure
  * @param moduleIds Module identification strings to resolve
  * @param map Module meta data map
  * @return Dependencies that could not be resolved
  */
-    QStringList unresolvedDeps(const QStringList& moduleIds,
-                               const ModuleMetaMap& map)
-    {
-        return gt::detail::dependencyClosure(moduleIds, map)
-            .unresolvedDependencies;
-    }
+QStringList
+unresolvedDeps(const QStringList& moduleIds, const ModuleMetaMap& map)
+{
+    return gt::detail::dependencyClosure(moduleIds, map).unresolvedDependencies;
+}
 
 } // namespace
 
@@ -326,54 +327,52 @@ TEST(GtModuleMetaData, createAdjacencyMatrixBuildsGraphOfLoadedModules)
 namespace
 {
 
-    /*
+/*
  * Fixture: batch application loading real plugin binaries via the public API.
  */
-    class GtModulesTest : public ::testing::Test
+class GtModulesTest : public ::testing::Test
+{
+protected:
+    void SetUp() override
     {
-    protected:
-        void SetUp() override
+        m_previousModuleDirs = qgetenv("GTLAB_MODULE_DIRS");
+        const QString moduleDirs =
+            QFileInfo(QString::fromUtf8(FOOTPRINT_ModuleA_PATH))
+                .absolutePath() +
+            QDir::listSeparator() +
+            QFileInfo(QString::fromUtf8(FOOTPRINT_ModuleB_PATH)).absolutePath();
+        qputenv("GTLAB_MODULE_DIRS", moduleDirs.toUtf8());
+        m_previousConfigHome = qgetenv("XDG_CONFIG_HOME");
+        qputenv("XDG_CONFIG_HOME",
+                gtTestHelper->newTempDir().absolutePath().toUtf8());
+
+        m_app = std::make_unique<GtCoreApplication>(
+            QCoreApplication::instance(), GtCoreApplication::AppMode::Batch);
+        m_app->init();
+    }
+
+    void TearDown() override
+    {
+        m_app.reset();
+        if (m_previousModuleDirs.isNull())
+            qunsetenv("GTLAB_MODULE_DIRS");
+        else
+            qputenv("GTLAB_MODULE_DIRS", m_previousModuleDirs);
+
+        if (m_previousConfigHome.isNull())
         {
-            m_previousModuleDirs = qgetenv("GTLAB_MODULE_DIRS");
-            const QString moduleDirs =
-                QFileInfo(QString::fromUtf8(FOOTPRINT_ModuleA_PATH))
-                    .absolutePath() +
-                QDir::listSeparator() +
-                QFileInfo(QString::fromUtf8(FOOTPRINT_ModuleB_PATH))
-                    .absolutePath();
-            qputenv("GTLAB_MODULE_DIRS", moduleDirs.toUtf8());
-            m_previousConfigHome = qgetenv("XDG_CONFIG_HOME");
-            qputenv("XDG_CONFIG_HOME",
-                    gtTestHelper->newTempDir().absolutePath().toUtf8());
-
-            m_app = std::make_unique<GtCoreApplication>(
-                QCoreApplication::instance(),
-                GtCoreApplication::AppMode::Batch);
-            m_app->init();
+            qunsetenv("XDG_CONFIG_HOME");
         }
-
-        void TearDown() override
+        else
         {
-            m_app.reset();
-            if (m_previousModuleDirs.isNull())
-                qunsetenv("GTLAB_MODULE_DIRS");
-            else
-                qputenv("GTLAB_MODULE_DIRS", m_previousModuleDirs);
-
-            if (m_previousConfigHome.isNull())
-            {
-                qunsetenv("XDG_CONFIG_HOME");
-            }
-            else
-            {
-                qputenv("XDG_CONFIG_HOME", m_previousConfigHome);
-            }
+            qputenv("XDG_CONFIG_HOME", m_previousConfigHome);
         }
+    }
 
-        std::unique_ptr<GtCoreApplication> m_app;
-        QByteArray m_previousConfigHome;
-        QByteArray m_previousModuleDirs;
-    };
+    std::unique_ptr<GtCoreApplication> m_app;
+    QByteArray m_previousConfigHome;
+    QByteArray m_previousModuleDirs;
+};
 
 } // namespace
 
