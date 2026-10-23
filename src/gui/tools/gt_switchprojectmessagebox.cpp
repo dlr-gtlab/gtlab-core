@@ -22,3 +22,11 @@ GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(QWidget* parent) :
     setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     setDefaultButton(QMessageBox::Cancel);
 }
+
+
+GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(const QString& projectName,
+                                                     QWidget* parent) :
+    GtSwitchProjectMessageBox(parent)
+{
+    setText(tr("Switch to project '%1'?").arg(projectName));
+}

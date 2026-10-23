@@ -524,10 +524,19 @@ GtMainWin::widgetStructureHelper(QWidget* wid, int indent)
 
 bool
 GtMainWin::addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
-                                    bool reuseExisting)
+                                    bool reuseExisting, QString* error)
 {
+    if (error)
+    {
+        error->clear();
+    }
+
     if (!project)
     {
+        if (error)
+        {
+            *error = tr("Could not load the project.");
+        }
         return false;
     }
 
@@ -536,15 +545,25 @@ GtMainWin::addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
         const QString requestedPath = canonicalProjectPath(project->path());
         const auto sessionProjects = gtDataModel->projects();
 
-        const bool pathAlreadyInSession = std::any_of(
+        const auto existingProject = std::find_if(
             sessionProjects.cbegin(), sessionProjects.cend(),
             [&requestedPath](const GtProject* projectInSession) {
                 return canonicalProjectPath(projectInSession->path()) ==
                        requestedPath;
             });
 
-        if (pathAlreadyInSession)
+        if (existingProject != sessionProjects.cend())
         {
+            if (error && !(*existingProject)->isOpen() &&
+                gt::currentProcessExecutor().taskCurrentlyRunning())
+            {
+                // Reuse the existing UI's refusal message without adding a
+                // project that cannot be opened yet.
+                GtProjectUI::openProject(*existingProject);
+                return false;
+            }
+
+            GtProjectUI::openProject(*existingProject);
             return true;
         }
 
@@ -562,14 +581,33 @@ GtMainWin::addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
                 tr("A project named '%1' is already in the session at a "
                    "different path.")
                     .arg(project->objectName());
-            QMessageBox::warning(this, tr("Import Project"), message);
+            if (error)
+            {
+                *error = message;
+            }
+            else
+            {
+                QMessageBox::warning(this, tr("Import Project"), message);
+            }
             return false;
         }
     }
 
     GtProject* projectToOpen = project.get();
+    if (error && gt::currentProcessExecutor().taskCurrentlyRunning())
+    {
+        // Let the existing project UI show its standard "task is running"
+        // message, but do not add a project that cannot be opened yet.
+        GtProjectUI::openProject(projectToOpen);
+        return false;
+    }
+
     if (!gtDataModel->newProject(projectToOpen, false))
     {
+        if (error)
+        {
+            *error = tr("Could not add the project to the session.");
+        }
         return false;
     }
 
@@ -621,7 +659,44 @@ GtMainWin::importProject()
 }
 
 void
-GtMainWin::showPreferences()
+GtMainWin::openProjectFromPath(const QString& projectFilePath)
+{
+    const QFileInfo fileInfo(projectFilePath);
+    const QString suffix = fileInfo.suffix().toLower();
+    if (!fileInfo.exists() || !fileInfo.isFile() ||
+        suffix != QStringLiteral("gtlab"))
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("The specified file '%1' is not a valid GTlab project file.")
+                .arg(QDir::toNativeSeparators(projectFilePath)));
+        return;
+    }
+
+    GtProjectProvider provider(fileInfo.absoluteFilePath());
+    std::unique_ptr<GtProject> project(provider.project());
+    if (!project || !project->isValid())
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("Could not load the GTlab project from '%1'.")
+                .arg(QDir::toNativeSeparators(projectFilePath)));
+        return;
+    }
+
+    QString error;
+    if (!addProjectAndRequestOpen(std::move(project), true, &error) &&
+        !error.isEmpty())
+    {
+        QMessageBox::critical(
+            this, tr("Open Project"),
+            tr("Could not open the GTlab project from '%1': %2")
+                .arg(QDir::toNativeSeparators(projectFilePath), error));
+    }
+}
+
+void
+GtMainWin::showPreferences() // cppcheck-suppress functionStatic
 {
     GtPreferencesDialog dialog;
 

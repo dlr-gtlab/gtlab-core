@@ -14,12 +14,15 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
+#include <QTimer>
 #include <QtGlobal>
 #include <QDebug>
 #include <QQuickStyle>
 
 #include "gt_mainwin.h"
+#include "gt_projectopenservice.h"
 #include "gt_application.h"
+#include "gt_versionnumber.h"
 #include "gt_logging.h"
 #include "gt_environmentdialog.h"
 #include "gt_environment.h"
@@ -92,14 +95,91 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
+    a.setApplicationVersion(GtCoreApplication::version().toString());
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(
+        QObject::tr("GTlab project and application startup options"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("dev"), QObject::tr("Activate developer mode")));
+    parser.addOption(QCommandLineOption(QStringLiteral("trace"),
+                                        QObject::tr("Enable trace logging")));
+    parser.addOption(QCommandLineOption(QStringLiteral("debug"),
+                                        QObject::tr("Enable debug logging")));
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("medium"), QObject::tr("Enable medium verbosity")));
+    parser.addOption(QCommandLineOption(QStringLiteral("verbose"),
+                                        QObject::tr("Enable verbose output")));
+    parser.addOption(QCommandLineOption(QStringLiteral("silent"),
+                                        QObject::tr("Disable logging output")));
+    parser.addPositionalArgument(QStringLiteral("project"),
+                                 QObject::tr("Project file to open."),
+                                 QStringLiteral("[project.gtlab]"));
+
+    parser.process(a);
+
+    const QStringList projectArguments = parser.positionalArguments();
+    if (projectArguments.size() > 1)
+    {
+        qCritical().noquote()
+            << QObject::tr("Only one project file can be specified.");
+        return 1;
+    }
+
+    gt::LoggingOptions loggingOptions;
+    if (parser.isSet(QStringLiteral("medium")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.isSet(QStringLiteral("verbose")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+    else if (parser.isSet(QStringLiteral("silent")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Silent;
+    }
+
+    if (parser.isSet(QStringLiteral("trace")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.isSet(QStringLiteral("debug")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.isSet(QStringLiteral("dev"));
+
+    QString projectFilePath;
+    if (!projectArguments.isEmpty())
+    {
+        projectFilePath =
+            QDir::cleanPath(QDir(QDir::currentPath())
+                                .absoluteFilePath(projectArguments.first()));
+    }
+
+    GtProjectOpenService projectOpenService;
+    if (!projectFilePath.isEmpty() &&
+        projectOpenService.forwardProjectOpen(projectFilePath))
+    {
+        return 0;
+    }
+
+    projectOpenService.startServer();
+    if (!projectFilePath.isEmpty())
+    {
+        projectOpenService.enqueueProjectOpen(projectFilePath);
+    }
+
     GtSplashScreen splash(true, true);
     splash.show();
 
     GtApplication app(qApp);
 
-    splash.process(QObject::tr("initializing..."), [&app](){
-        app.init();
-    });
+    splash.process(QObject::tr("initializing..."),
+                   [&app, &loggingOptions]() { app.init(loggingOptions); });
 
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
@@ -228,6 +308,16 @@ main(int argc, char* argv[])
 #endif
 
     GtMainWin w;
+
+    projectOpenService.setProjectOpenHandler(
+        [&w](const QString& path) { w.openProjectFromPath(path); });
+    QObject::connect(&w, &GtMainWin::guiInitialized, &projectOpenService,
+                     [&projectOpenService]() {
+                         QTimer::singleShot(0, &projectOpenService,
+                                            [&projectOpenService]() {
+                                                projectOpenService.setReady();
+                                            });
+                     });
 
     splash.processEvents();
 

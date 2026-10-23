@@ -19,6 +19,7 @@
 #include <QMap>
 
 #include <memory>
+#include <optional>
 
 #include "gt_globals.h"
 #include "gt_platform.h"
@@ -48,6 +49,30 @@ class GtCoreApplication;
 
 namespace gt
 {
+
+    enum class LoggingVerbosityOverride
+    {
+        Medium,
+        Verbose,
+        Silent
+    };
+
+    enum class LoggingLevelOverride
+    {
+        Trace,
+        Debug
+    };
+
+    /**
+     * @brief CLI logging settings to apply during application initialization.
+     * Empty overrides preserve the values stored in application settings.
+     */
+    struct LoggingOptions
+    {
+        std::optional<LoggingVerbosityOverride> verbosity;
+        std::optional<LoggingLevelOverride> level;
+        bool developmentMode{false};
+    };
 
     struct SettingsConfig
     {
@@ -122,6 +147,11 @@ public:
      * @brief Initialization
      */
     void init();
+
+    /**
+     * @brief Initialization with typed command-line logging settings.
+     */
+    void init(const gt::LoggingOptions& loggingOptions);
 
     /**
      * @brief session
@@ -549,7 +579,7 @@ protected:
     /**
      * @brief inits the logging system
      */
-    void initLogging();
+    void initLogging(const gt::LoggingOptions& loggingOptions);
 
     /**
      * @brief loadLastSession

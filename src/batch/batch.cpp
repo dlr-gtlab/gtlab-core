@@ -942,6 +942,7 @@ int main(int argc, char* argv[])
     // logging options (will be handled by app-init)
     parser.addOption("medium", {"medium"}, "Enables medium verbose output");
     parser.addOption("verbose", {"verbose"}, "\tEnables very verbose output");
+    parser.addOption("silent", {"silent"}, "Suppresses log output");
     parser.addOption("trace", {"trace"}, "Enables trace output and higher");
     parser.addOption("debug", {"debug"}, "Enables debug output and higher");
 
@@ -965,7 +966,31 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    app.init();
+    gt::LoggingOptions loggingOptions;
+    if (parser.option("medium"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.option("verbose"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+    else if (parser.option("silent"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Silent;
+    }
+
+    if (parser.option("trace"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.option("debug"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.option("dev");
+
+    app.init(loggingOptions);
 
 
     // save to system environment (temporary)
