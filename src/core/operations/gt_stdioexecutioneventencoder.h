@@ -18,6 +18,7 @@
 #include <QObject>
 
 class GtObject;
+struct GtOperationExecutionResult;
 
 /**
  * @brief Writes V1 compatibility records to a standard stream.
@@ -69,6 +70,14 @@ public:
      * @return True if the complete record was written.
      */
     bool encodeResult(GtObject const* result);
+
+    /**
+     * @brief Writes the operation status, message, and optional result data.
+     *
+     * Failed and cancelled operations use a result record, too.
+     * Use encodeFailure() for execution or protocol errors.
+     */
+    bool encodeOutcome(GtOperationExecutionResult const& outcome);
 
     /**
      * @brief Writes the failed terminal record.
