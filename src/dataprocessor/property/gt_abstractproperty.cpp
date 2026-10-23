@@ -317,7 +317,8 @@ GtAbstractProperty::propertyConnect(GtPropertyConnection* connection)
     // check whether property is already connected
     if (m_connection)
     {
-        gtError() << tr("Could not establish property connection!");
+        gtError() << tr("Could not establish property connection!")
+                  << QStringLiteral(" ") << tr("Property already connected!");
         gtError() << QStringLiteral("   |-> ") << connection->sourceUuid() <<
                      QStringLiteral(" -> ") << connection->targetUuid();
         return;

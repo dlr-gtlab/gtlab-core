@@ -17,6 +17,7 @@
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
+#include "gt_relativeobjectlinkproperty.h"
 
 
 class TestGtCalculator : public GtCalculator
@@ -78,6 +79,89 @@ private:
     GtDoubleProperty* m_doubleProp1;
     GtDoubleProperty* m_doubleProp2;
     GtDoubleProperty* m_doubleProp3;
+    GtRelativeObjectLinkProperty* m_relObjLink;
+};
+
+class TestTaskWithProperty : public GtTask
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TestTaskWithProperty()
+    {
+        m_doubleProp1 = new GtDoubleProperty("doubleProp1", "TestDouble");
+
+        m_doubleProp2 = new GtDoubleProperty("doubleProp2", "TestDouble");
+
+        m_doubleProp3 = new GtDoubleProperty("doubleProp3", "TestDouble");
+
+        registerProperty(*m_doubleProp1);
+        registerProperty(*m_doubleProp2);
+        registerProperty(*m_doubleProp3);
+    }
+
+    ~TestTaskWithProperty()
+    {
+        delete m_doubleProp1;
+        delete m_doubleProp2;
+        delete m_doubleProp3;
+    }
+
+    bool run()
+    {
+        return true;
+    }
+
+    GtDoubleProperty* prop1()
+    {
+        return m_doubleProp1;
+    }
+
+    GtDoubleProperty* prop2()
+    {
+        return m_doubleProp2;
+    }
+
+    GtDoubleProperty* prop3()
+    {
+        return m_doubleProp3;
+    }
+
+private:
+    GtDoubleProperty* m_doubleProp1;
+    GtDoubleProperty* m_doubleProp2;
+    GtDoubleProperty* m_doubleProp3;
+};
+
+class TestTaskWithRelativeObjectLinkProperty : public GtTask
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TestTaskWithRelativeObjectLinkProperty()
+    {
+        m_relObjLink = new GtRelativeObjectLinkProperty("relObjLink", "RelativeObjectLink", "", "");
+
+        registerProperty(*m_relObjLink);
+    }
+
+    ~TestTaskWithRelativeObjectLinkProperty()
+    {
+        delete m_relObjLink;
+    }
+
+    bool run()
+    {
+        return true;
+    }
+
+    GtRelativeObjectLinkProperty* propRelObjLink()
+    {
+        return m_relObjLink;
+    }
+
+
+private:
     GtRelativeObjectLinkProperty* m_relObjLink;
 };
 
