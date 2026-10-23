@@ -32,22 +32,26 @@ TestProcessInterface::init()
                                    ident());
 }
 
-QString TestProcessInterface::executorId()
+QString
+TestProcessInterface::executorId()
 {
     return QStringLiteral("test executor");
 }
 
-QString TestProcessInterface::executorDescription()
+QString
+TestProcessInterface::executorDescription()
 {
     return QStringLiteral("Decorates process component execution");
 }
 
-QMetaObject TestProcessInterface::executor()
+QMetaObject
+TestProcessInterface::executor()
 {
     return GT_METADATA(GtTestExecutor);
 }
 
-QList<GtAbstractProperty *> TestProcessInterface::executorSettings()
+QList<GtAbstractProperty*>
+TestProcessInterface::executorSettings()
 {
     return {};
 }

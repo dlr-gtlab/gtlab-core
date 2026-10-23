@@ -31,7 +31,8 @@
 struct GtProcessComponent::Impl
 {
     explicit Impl(GtProcessComponent& pub) :
-        state(GtProcessComponent::NONE), progress(0),
+        state(GtProcessComponent::NONE),
+        progress(0),
         skipped(QStringLiteral("skip"), tr("Skip"), tr("Skip Process Element"),
                 false),
         warning(false),
@@ -74,7 +75,8 @@ struct GtProcessComponent::Impl
     bool warning;
 };
 
-GtProcessComponent::GtProcessComponent() : pimpl(std::make_unique<Impl>(*this))
+GtProcessComponent::GtProcessComponent() :
+    pimpl(std::make_unique<Impl>(*this))
 {
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
 
@@ -111,7 +113,8 @@ GtProcessComponent::registerPluginExecModes()
         pluginMode->setParent(this);
 
         // collect exec mode specific settings
-        foreach (GtAbstractProperty* execSetting, gtProcessExecList->settings(str))
+        foreach (GtAbstractProperty* execSetting,
+                 gtProcessExecList->settings(str))
         {
             execSetting->setParent(this);
             pluginMode->registerSubProperty(*execSetting);

@@ -18,9 +18,7 @@
 
 GtProcessExecutorList::GtProcessExecutorList(QObject* parent) :
     QObject(parent)
-{
-
-}
+{ }
 
 bool
 GtProcessExecutorList::addExecutor(GtProcessExecInterface* executorInterface)
