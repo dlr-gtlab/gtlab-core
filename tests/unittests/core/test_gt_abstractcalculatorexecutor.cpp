@@ -14,64 +14,64 @@
 namespace
 {
 
-    /// Configurable result returned by SpyGtTask::runIteration().
-    ///
-    /// Held in a file-scope flag (rather than a second data member) so that the
-    /// spy keeps a single call-counter member.
-    static bool g_runIterationResult = true;
+/// Configurable result returned by SpyGtTask::runIteration().
+///
+/// Held in a file-scope flag (rather than a second data member) so that the
+/// spy keeps a single call-counter member.
+static bool g_runIterationResult = true;
 
-    /// GtTask spy that counts how many times the execution path invokes
-    /// runIteration().
-    class SpyGtTask : public GtTask
+/// GtTask spy that counts how many times the execution path invokes
+/// runIteration().
+class SpyGtTask : public GtTask
+{
+public:
+    int runIterationCalls = 0;
+
+    bool runIteration() override
     {
-    public:
-        int runIterationCalls = 0;
+        ++runIterationCalls;
+        return g_runIterationResult;
+    }
+};
 
-        bool runIteration() override
-        {
-            ++runIterationCalls;
-            return g_runIterationResult;
-        }
-    };
-
-    /// Executor that does NOT override exec(GtTask*). It only satisfies the pure
-    /// virtual exec(GtCalculator*) so that the inherited default exec(GtTask*)
-    /// is the implementation actually used.
-    class DefaultTaskExecutor : public GtAbstractCalculatorExecutor
+/// Executor that does NOT override exec(GtTask*). It only satisfies the pure
+/// virtual exec(GtCalculator*) so that the inherited default exec(GtTask*)
+/// is the implementation actually used.
+class DefaultTaskExecutor : public GtAbstractCalculatorExecutor
+{
+public:
+    bool exec(GtCalculator* calculator) override
     {
-    public:
-        bool exec(GtCalculator* calculator) override
-        {
-            (void)calculator;
-            return true;
-        }
+        (void)calculator;
+        return true;
+    }
 
-        // Re-introduce the base class' exec(GtTask*); the overload declared above
-        // would hide it otherwise.
-        using GtAbstractCalculatorExecutor::exec;
-    };
+    // Re-introduce the base class' exec(GtTask*); the overload declared above
+    // would hide it otherwise.
+    using GtAbstractCalculatorExecutor::exec;
+};
 
-    /// Executor that provides its own exec(GtTask*) implementation instead of the
-    /// inherited default.
-    class CustomTaskExecutor : public GtAbstractCalculatorExecutor
+/// Executor that provides its own exec(GtTask*) implementation instead of the
+/// inherited default.
+class CustomTaskExecutor : public GtAbstractCalculatorExecutor
+{
+public:
+    int taskExecCalls = 0;
+    bool taskExecResult = true;
+
+    bool exec(GtCalculator* calculator) override
     {
-    public:
-        int taskExecCalls = 0;
-        bool taskExecResult = true;
+        (void)calculator;
+        return true;
+    }
 
-        bool exec(GtCalculator* calculator) override
-        {
-            (void)calculator;
-            return true;
-        }
-
-        bool exec(GtTask* task) override
-        {
-            ++taskExecCalls;
-            (void)task;
-            return taskExecResult;
-        }
-    };
+    bool exec(GtTask* task) override
+    {
+        ++taskExecCalls;
+        (void)task;
+        return taskExecResult;
+    }
+};
 
 } // namespace
 
