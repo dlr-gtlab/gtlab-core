@@ -524,9 +524,23 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1AndPaste)
     // get the copied sub components
     ASSERT_TRUE(subtask1_copied);
 
+    auto propCons = subtask1_copied->findDirectChildren<GtPropertyConnection*>();
+
     // make new taskgroup with task and add subtask
+    auto taskgroup = new GtTaskGroup;
+    auto newtask = new GtTask;
+
+    taskgroup->appendChild(newtask);
+
+    gt::utils::process::pasteProcessComponent(newtask, subtask1_copied);
 
     // check if subtask connections have been transferred into the new roottask
+    auto newtaskChildren = newtask->findDirectChildren();
+
+    for(auto p: propCons)
+    {
+        ASSERT_TRUE( newtaskChildren.contains(p) );
+    }
 
 }
 

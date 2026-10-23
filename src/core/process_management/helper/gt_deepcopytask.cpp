@@ -239,6 +239,32 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
     return retval;
 }
 
+bool
+pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child)
+{
+    targetParent->appendChild(child);
+
+    auto parentTask = qobject_cast<GtTask*>(targetParent);
+
+    if(parentTask)
+    {
+        auto propCons = child->findChildren<GtPropertyConnection*>();
+        auto roottask = findRootTask(parentTask);
+        if(!roottask)
+        {
+            gtError() << "Could not find root task to transfer property connections";
+            return false;
+        }
+
+        for(auto c: qAsConst(propCons))
+        {
+            roottask->appendChild(c);
+        }
+    }
+
+    return true;
+}
+
 
 
 } // namespace process
