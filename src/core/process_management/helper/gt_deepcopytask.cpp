@@ -203,17 +203,18 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
 {
     bool retval = true;
 
+
     for(auto prop: qAsConst(procCompCopy->properties()))
     {
         auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
-        if(propRelLink)
+        if(propRelLink && propRelLink->getVal() != "")
         {
             auto originalUuid = propRelLink->getVal();
 
             if(!uuidMap->containsOriginalUuid(originalUuid))
             {
-                gtError() << procCompCopy << " with uuid"<< procCompCopy->uuid() <<": Could not transfer " << propRelLink << ", linked UUID not found in original process component structure";
+                gtError() << procCompCopy << " with uuid"<< procCompCopy->uuid() <<": Could not transfer " << propRelLink << ", original linked UUID" << originalUuid << "not found in original process component structure";
                 return false;
             }
 
