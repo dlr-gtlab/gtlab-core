@@ -264,10 +264,11 @@ TEST(GtRecordingProperties, objectValueReadsFollowEventMask)
     RecordingTestObserver observer;
     GtObject component;
 
-    GtRecordingSession session{
-        component, observer, roots(&obj),
-        GtRecordingSession::AllEvents &
-            ~GtRecordingSession::Events(GtRecordingSession::ObjectValueRead)};
+    // Events(AllEvents): Qt5 has no operator&(Enum, QFlags)
+    const GtRecordingSession::Events mask =
+        GtRecordingSession::Events(GtRecordingSession::AllEvents) &
+        ~GtRecordingSession::Events(GtRecordingSession::ObjectValueRead);
+    GtRecordingSession session{component, observer, roots(&obj), mask};
     session.run([&]() {
         (void)obj.scaledValue();
         return true;
