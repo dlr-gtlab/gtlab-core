@@ -90,7 +90,7 @@ TEST(GtRecordingProperties, readsAndWritesReachObserverWithOwner)
         unrelated.value.setVal(3.0);
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"read", "written"}));
     EXPECT_EQ(entries[1].object, &root);
     EXPECT_EQ(entries[1].property, &root.value);
@@ -109,15 +109,23 @@ TEST(GtRecordingProperties, eachAccessorReportsExactlyOneRead)
         return eventKinds(observer);
     };
 
-    QStringList const oneRead{"read"};
+    const QStringList oneRead{"read"};
     EXPECT_EQ(readsOf([&]() { (void)obj.value.getVal(); }), oneRead);
     EXPECT_EQ(readsOf([&]() { (void)obj.value.getVal(QString("m")); }),
               oneRead);
     EXPECT_EQ(readsOf([&]() { (void)obj.value.get(); }), oneRead);
     EXPECT_EQ(readsOf([&]() { (void)cobj.value.get(); }), oneRead);
     EXPECT_EQ(readsOf([&]() { (void)obj.value(); }), oneRead);
-    EXPECT_EQ(readsOf([&]() { double d = obj.value; (void)d; }), oneRead);
-    EXPECT_EQ(readsOf([&]() { (void)static_cast<GtAbstractProperty&>(obj.value).valueToVariant(); }), oneRead);
+    EXPECT_EQ(readsOf([&]() {
+                  double d = obj.value;
+                  (void)d;
+              }),
+              oneRead);
+    EXPECT_EQ(
+        readsOf([&]() {
+            (void)static_cast<GtAbstractProperty&>(obj.value).valueToVariant();
+        }),
+        oneRead);
     EXPECT_EQ(readsOf([&]() { (void)obj.value.value<double>(); }), oneRead);
 }
 
@@ -156,7 +164,7 @@ TEST(GtRecordingProperties, subPropertyAddedAfterRegistrationIsRecorded)
         (void)sub.getVal();
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"written", "read"}));
     EXPECT_EQ(entries[1].object, &obj);
     EXPECT_EQ(entries[1].property, &sub);
@@ -177,7 +185,7 @@ TEST(GtRecordingProperties, propertyContainerEntriesAreRecorded)
         added.setMemberVal(QStringLiteral("value"), QStringLiteral("1"));
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"read", "written"}));
     EXPECT_EQ(entries[1].object, &obj);
     EXPECT_EQ(entries[1].property,
@@ -218,9 +226,8 @@ TEST(GtRecordingProperties, counterIsResetAfterRecording)
     RecordingTestObject obj;
     RecordingTestObserver observer;
 
-    record(observer, roots(&obj), [&]() {
-        EXPECT_EQ(gt::detail::runningRecordings.load(), 1);
-    });
+    record(observer, roots(&obj),
+           [&]() { EXPECT_EQ(gt::detail::runningRecordings.load(), 1); });
 
     EXPECT_EQ(gt::detail::runningRecordings.load(), 0);
 }
@@ -241,7 +248,7 @@ TEST(GtRecordingProperties, objectValueReadsReachObserverWithObject)
     });
 
     // the property read inside scaledValue() produces no own event
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer),
               (QStringList{"valueRead", "valueRead", "read"}));
     EXPECT_EQ(entries[1].object, &root);
@@ -257,10 +264,10 @@ TEST(GtRecordingProperties, objectValueReadsFollowEventMask)
     RecordingTestObserver observer;
     GtObject component;
 
-    GtRecordingSession session{component, observer, roots(&obj),
-                               GtRecordingSession::AllEvents &
-                                   ~GtRecordingSession::Events(
-                                       GtRecordingSession::ObjectValueRead)};
+    GtRecordingSession session{
+        component, observer, roots(&obj),
+        GtRecordingSession::AllEvents &
+            ~GtRecordingSession::Events(GtRecordingSession::ObjectValueRead)};
     session.run([&]() {
         (void)obj.scaledValue();
         return true;

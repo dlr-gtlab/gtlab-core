@@ -62,7 +62,7 @@ TEST(GtRecordingTree, constructorTimeAttachIsReportedAndObserved)
         (void)created->value.getVal();
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     // the derived constructor's registration does not emit, the read does
     ASSERT_EQ(eventKinds(observer), (QStringList{"attached", "read"}));
     EXPECT_EQ(entries[1].object, &root);
@@ -87,7 +87,7 @@ TEST(GtRecordingTree, appendingUnrelatedObjectMakesItObserved)
         outsideChild->value.setVal(1.0);
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"attached", "written"}));
     EXPECT_EQ(entries[1].object, &root);
     EXPECT_EQ(entries[1].child, outside);
@@ -107,7 +107,7 @@ TEST(GtRecordingTree, movingOutOfObservedTreeStopsObservation)
         (void)child->value.getVal();
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     // detached from the observed root, attached to an unobserved parent
     ASSERT_EQ(eventKinds(observer), (QStringList{"detached"}));
     EXPECT_EQ(entries[1].object, &root);
@@ -162,7 +162,7 @@ TEST(GtRecordingTree, deletionIsReportedAndForgotten)
         (void)fresh.value.getVal();
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"detached"}));
     EXPECT_EQ(entries[1].object, &root);
     EXPECT_EQ(entries[1].child, deleted);
@@ -254,7 +254,7 @@ TEST(GtRecordingTree, deletedObservedRootIsReported)
         EXPECT_FALSE(s.isObserved(*deleted));
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"read", "destroyed"}));
     EXPECT_EQ(entries[2].object, deleted);
 }

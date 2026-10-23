@@ -66,9 +66,9 @@ TEST(GtRecordingSession, exceptionFinishesRestoresAndRethrows)
     RecordingTestObserver observer;
     GtRecordingSession session{t.component, observer, roots(&t.root)};
 
-    EXPECT_THROW(session.run([]() -> bool {
-        throw std::runtime_error("work failed");
-    }), std::runtime_error);
+    EXPECT_THROW(
+        session.run([]() -> bool { throw std::runtime_error("work failed"); }),
+        std::runtime_error);
 
     EXPECT_EQ(GtRecordingSession::current(), nullptr);
     EXPECT_EQ(observer.kinds(), (QStringList{"started", "finished"}));
@@ -82,14 +82,13 @@ TEST(GtRecordingSession, callbacksRunWithoutActiveSession)
     GtRecordingSession session{t.component, observer, roots(&t.root)};
 
     session.run([&]() {
-        GtRecordingSession::current()->notifyPropertyRead(t.root,
-                                                          t.root.value);
+        GtRecordingSession::current()->notifyPropertyRead(t.root, t.root.value);
         return true;
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(entries.size(), 3);
-    for (auto const& e : entries)
+    for (const auto& e : entries)
     {
         EXPECT_EQ(e.activeSession, nullptr) << e.kind.toStdString();
     }
@@ -116,7 +115,7 @@ TEST(GtRecordingSession, eventsAreFilteredByObservedTreeAndMask)
         return true;
     });
 
-    auto const entries = observer.entries();
+    const auto entries = observer.entries();
     ASSERT_EQ(observer.kinds(),
               (QStringList{"started", "read", "read", "finished"}));
     EXPECT_EQ(entries[1].object, &t.root);
@@ -163,9 +162,7 @@ TEST(GtRecordingSession, nestedStartAndFinishDoNotReachParent)
     GtRecordingSession parent{t.component, parentObserver, roots(&t.root)};
     GtRecordingSession child{t.component, childObserver, roots(&t.root)};
 
-    parent.run([&]() {
-        return child.run([]() { return true; });
-    });
+    parent.run([&]() { return child.run([]() { return true; }); });
 
     EXPECT_EQ(childObserver.entries()[0].activeSession, nullptr);
     EXPECT_EQ(childObserver.entries()[1].activeSession, nullptr);
@@ -212,8 +209,7 @@ TEST(GtRecordingSession, failingEventCallbackStopsForwarding)
         return true;
     }));
 
-    EXPECT_EQ(observer.kinds(),
-              (QStringList{"started", "read", "finished"}));
+    EXPECT_EQ(observer.kinds(), (QStringList{"started", "read", "finished"}));
 }
 
 TEST(GtRecordingSession, failingFinishDoesNotChangeResult)

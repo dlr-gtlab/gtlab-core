@@ -29,8 +29,8 @@ class TestProcessInterface : public QObject,
     Q_OBJECT
     GT_MODULE("test_process_interface.json")
 
-    Q_INTERFACES(GtProcessInterface GtOperationInterface
-                 GtCalculatorExecInterface)
+    Q_INTERFACES(
+        GtProcessInterface GtOperationInterface GtCalculatorExecInterface)
 
 public:
 

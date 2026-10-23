@@ -18,7 +18,7 @@ QList<const GtObject*>
 objectsOf(const RecordingTestObserver& observer, const QString& kind)
 {
     QList<const GtObject*> result;
-    for (auto const& e : observer.entries())
+    for (const auto& e : observer.entries())
     {
         if (e.kind == kind) result << e.object;
     }
@@ -67,7 +67,7 @@ TEST(GtRecordingThreads, wrappedWorkersReportToTheSameSession)
     EXPECT_EQ(activeInA, &session);
     EXPECT_EQ(activeInB, &session);
 
-    auto const reads = objectsOf(observer, QStringLiteral("read"));
+    const auto reads = objectsOf(observer, QStringLiteral("read"));
     ASSERT_EQ(reads.size(), 2);
     EXPECT_TRUE(reads.contains(a));
     EXPECT_TRUE(reads.contains(b));
@@ -103,13 +103,17 @@ TEST(GtRecordingThreads, previousStateIsRestoredAlsoOnException)
     GtRecordingSession session{component, observer, roots(&root)};
 
     session.run([&]() {
-        auto throwing = gt::propagateRecording([]() {
-            throw std::runtime_error("worker failed");
-        });
+        auto throwing = gt::propagateRecording(
+            []() { throw std::runtime_error("worker failed"); });
 
         GtRecordingSession* afterThrow = &session;
         std::thread worker([&]() {
-            try { throwing(); } catch (const std::runtime_error&) {}
+            try
+            {
+                throwing();
+            }
+            catch (const std::runtime_error&)
+            { }
             afterThrow = GtRecordingSession::current();
         });
         worker.join();
@@ -171,9 +175,8 @@ TEST(GtRecordingThreads, parallelComponentsReportToTheRightSessions)
         }));
 
         // unrecorded child: runs in the task session (R1)
-        std::thread unrecorded(gt::propagateRecording([&]() {
-            unrecordedData->value.setVal(1.0);
-        }));
+        std::thread unrecorded(gt::propagateRecording(
+            [&]() { unrecordedData->value.setVal(1.0); }));
 
         recorded.join();
         unrecorded.join();

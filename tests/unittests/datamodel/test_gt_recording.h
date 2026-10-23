@@ -78,7 +78,8 @@ public:
     QStringList kinds() const
     {
         QStringList result;
-        for (const Entry& e : entries()) result << e.kind;
+        for (const Entry& e : entries())
+            result << e.kind;
         return result;
     }
 

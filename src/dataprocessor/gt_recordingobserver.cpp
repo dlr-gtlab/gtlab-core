@@ -27,8 +27,7 @@ GtRecordingObserver::objectValueRead(const GtObject&)
 }
 
 void
-GtRecordingObserver::propertyWritten(const GtObject&,
-                                     const GtAbstractProperty&)
+GtRecordingObserver::propertyWritten(const GtObject&, const GtAbstractProperty&)
 {
     // nothing to do here
 }

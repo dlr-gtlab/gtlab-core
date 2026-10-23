@@ -72,15 +72,14 @@ class GT_DATAMODEL_EXPORT GtRecordingSession
 public:
     enum Event
     {
-        PropertyRead    = 0x1,
+        PropertyRead = 0x1,
         PropertyWritten = 0x2,
-        ObjectAttached  = 0x4,
-        ObjectDetached  = 0x8,
+        ObjectAttached = 0x4,
+        ObjectDetached = 0x8,
         ObjectDestroyed = 0x10,
         ObjectValueRead = 0x20,
-        AllEvents       = PropertyRead | PropertyWritten |
-                          ObjectAttached | ObjectDetached | ObjectDestroyed |
-                          ObjectValueRead
+        AllEvents = PropertyRead | PropertyWritten | ObjectAttached |
+                    ObjectDetached | ObjectDestroyed | ObjectValueRead
     };
     Q_DECLARE_FLAGS(Events, Event)
 
@@ -92,13 +91,11 @@ public:
      *        Null entries are ignored.
      * @param eventMask Events forwarded to the observer.
      */
-    GtRecordingSession(const GtObject& component,
-                       GtRecordingObserver& observer,
+    GtRecordingSession(const GtObject& component, GtRecordingObserver& observer,
                        const QList<const GtObject*>& roots,
                        Events eventMask = AllEvents);
 
-    GtRecordingSession(const GtObject& component,
-                       GtRecordingObserver& observer,
+    GtRecordingSession(const GtObject& component, GtRecordingObserver& observer,
                        const QList<QPointer<GtObject>>& roots,
                        Events eventMask = AllEvents);
 
@@ -139,10 +136,10 @@ public:
     template <typename Work>
     bool run(Work&& work)
     {
-        static_assert(std::is_convertible<std::invoke_result_t<Work&>,
-                                          bool>::value,
-                      "The recorded work must return a value convertible "
-                      "to bool");
+        static_assert(
+            std::is_convertible<std::invoke_result_t<Work&>, bool>::value,
+            "The recorded work must return a value convertible "
+            "to bool");
 
         if (!start()) return static_cast<bool>(std::invoke(work));
 
@@ -241,9 +238,8 @@ propagateRecording(Callable&& callable)
 {
     GtRecordingSession* session = GtRecordingSession::current();
 
-    return [session, fn = std::forward<Callable>(callable)]() mutable
-        -> decltype(auto)
-    {
+    return [session,
+            fn = std::forward<Callable>(callable)]() mutable -> decltype(auto) {
         if (!session) return std::invoke(fn);
 
         detail::GtRecordingScope scope(*session);

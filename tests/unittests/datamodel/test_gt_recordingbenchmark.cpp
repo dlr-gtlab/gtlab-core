@@ -23,11 +23,11 @@
 #include "gt_objectmemento.h"
 
 #if __has_include("gt_recordingsession.h")
-#define GT_HAS_RECORDING 1
-#include "gt_recordingobserver.h"
-#include "gt_recordingsession.h"
-#include <future>
-#include <thread>
+  #define GT_HAS_RECORDING 1
+  #include "gt_recordingobserver.h"
+  #include "gt_recordingsession.h"
+  #include <future>
+  #include <thread>
 #endif
 
 #include <algorithm>
@@ -37,12 +37,12 @@
 #include <vector>
 
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#include <psapi.h>
-#pragma comment(lib, "psapi.lib")
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
+  #include <windows.h>
+  #include <psapi.h>
+  #pragma comment(lib, "psapi.lib")
 #endif
 
 namespace
@@ -56,10 +56,10 @@ privateMemory()
 {
 #ifdef _WIN32
     PROCESS_MEMORY_COUNTERS_EX counters{};
-    if (GetProcessMemoryInfo(GetCurrentProcess(),
-                             reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(
-                                 &counters),
-                             sizeof(counters)))
+    if (GetProcessMemoryInfo(
+            GetCurrentProcess(),
+            reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters),
+            sizeof(counters)))
     {
         return counters.PrivateUsage;
     }
@@ -74,10 +74,10 @@ nsPerIteration(long iterations, const std::function<void(long)>& work)
     double best = 1e300;
     for (int run = 0; run < 5; ++run)
     {
-        auto const start = std::chrono::steady_clock::now();
+        const auto start = std::chrono::steady_clock::now();
         work(iterations);
-        auto const end = std::chrono::steady_clock::now();
-        double const ns =
+        const auto end = std::chrono::steady_clock::now();
+        const double ns =
             std::chrono::duration<double, std::nano>(end - start).count();
         best = std::min(best, ns / iterations);
     }
@@ -99,29 +99,32 @@ measureAccess(const char* scenario, RecordingBenchmarkObject& obj)
     GtDoubleProperty* volatile prop = obj.props[0].get();
 
     report(scenario, "getVal()", nsPerIteration(20000000, [&](long n) {
-        double sum = 0.0;
-        for (long i = 0; i < n; ++i) sum += prop->getVal();
-        g_sink = sum;
-    }));
+               double sum = 0.0;
+               for (long i = 0; i < n; ++i)
+                   sum += prop->getVal();
+               g_sink = sum;
+           }));
 
     report(scenario, "valueToVariant()", nsPerIteration(2000000, [&](long n) {
-        GtAbstractProperty* abstractProp = prop;
-        double sum = 0.0;
-        for (long i = 0; i < n; ++i)
-        {
-            sum += abstractProp->valueToVariant().toDouble();
-        }
-        g_sink = sum;
-    }));
+               GtAbstractProperty* abstractProp = prop;
+               double sum = 0.0;
+               for (long i = 0; i < n; ++i)
+               {
+                   sum += abstractProp->valueToVariant().toDouble();
+               }
+               g_sink = sum;
+           }));
 
     report(scenario, "setVal()", nsPerIteration(2000000, [&](long n) {
-        for (long i = 0; i < n; ++i) prop->setVal(static_cast<double>(i));
-    }));
+               for (long i = 0; i < n; ++i)
+                   prop->setVal(static_cast<double>(i));
+           }));
 }
 
 #ifdef GT_HAS_RECORDING
 class NoOpObserver : public GtRecordingObserver
-{};
+{
+};
 
 template <typename Work>
 void
@@ -164,35 +167,31 @@ TEST(RecordingBenchmark, DISABLED_propertyAccess)
         other.join();
     }
 
-    inSession(unrelated, [&]() {
-        measureAccess("session, object unobserved", obj);
-    });
+    inSession(unrelated,
+              [&]() { measureAccess("session, object unobserved", obj); });
 
-    inSession(obj, [&]() {
-        measureAccess("session, object observed", obj);
-    });
+    inSession(obj, [&]() { measureAccess("session, object observed", obj); });
 #endif
 }
 
 TEST(RecordingBenchmark, DISABLED_objectConstructionAndMemento)
 {
     constexpr int count = 100000;
-    gtObjectFactory->registerClass(
-        RecordingBenchmarkObject::staticMetaObject);
+    gtObjectFactory->registerClass(RecordingBenchmarkObject::staticMetaObject);
 
     std::vector<std::unique_ptr<RecordingBenchmarkObject>> objects;
     objects.reserve(count);
 
-    std::size_t const memBefore = privateMemory();
-    auto const start = std::chrono::steady_clock::now();
+    const std::size_t memBefore = privateMemory();
+    const auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < count; ++i)
     {
         objects.push_back(std::make_unique<RecordingBenchmarkObject>());
     }
-    auto const end = std::chrono::steady_clock::now();
-    std::size_t const memAfter = privateMemory();
+    const auto end = std::chrono::steady_clock::now();
+    const std::size_t memAfter = privateMemory();
 
-    double const constructMs =
+    const double constructMs =
         std::chrono::duration<double, std::milli>(end - start).count();
     std::printf("[benchmark] construct %d objects (10 props): %8.1f ms, "
                 "%7.1f bytes/object\n",
@@ -210,9 +209,9 @@ TEST(RecordingBenchmark, DISABLED_objectConstructionAndMemento)
     double bestMs = 1e300;
     for (int run = 0; run < 3; ++run)
     {
-        auto const s = std::chrono::steady_clock::now();
+        const auto s = std::chrono::steady_clock::now();
         std::unique_ptr<GtObject> restored{memento.restore(gtObjectFactory)};
-        auto const e = std::chrono::steady_clock::now();
+        const auto e = std::chrono::steady_clock::now();
         ASSERT_TRUE(restored);
         bestMs = std::min(
             bestMs, std::chrono::duration<double, std::milli>(e - s).count());
