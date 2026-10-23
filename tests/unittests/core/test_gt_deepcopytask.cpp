@@ -579,7 +579,6 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty, copyTaskWithRelativeObjectLinkPrope
 
     ASSERT_EQ(copiedRelObjLinkProp->getVal(), copiedCalc->uuid());
 
-
 }
 
 
