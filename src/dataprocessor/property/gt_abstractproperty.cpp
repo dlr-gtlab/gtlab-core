@@ -144,11 +144,11 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
         return;
     }
 
-    const bool nameTaken = std::any_of(
-        m_subProperties.begin(), m_subProperties.end(),
-        [&property](const GtAbstractProperty* absProp) {
-            return absProp->objectName() == property.objectName();
-        });
+    const bool nameTaken =
+        std::any_of(m_subProperties.begin(), m_subProperties.end(),
+                    [&property](const GtAbstractProperty* absProp) {
+                        return absProp->objectName() == property.objectName();
+                    });
 
     if (nameTaken)
     {
