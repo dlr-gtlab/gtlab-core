@@ -90,10 +90,10 @@ Property hooks
   the overrides that read the value directly open a ``PropertyReadScope``.
   A per-thread depth counter reports only the outermost read, so accessors
   that call each other produce one event.
-* Writes: setting the owner adds one permanent ``Qt::DirectConnection`` from
-  ``changed()`` to the recording hook, so writes are reported in the thread
-  that caused them. A write means the property reported a change, not
-  necessarily a new value.
+* Writes: properties report changes through
+  ``GtAbstractProperty::notifyChanged()``, which calls the recording hook in
+  the thread that caused the change (see Owner notification). A write means
+  the property reported a change, not necessarily a new value.
 * ``GtGroupProperty`` rebuilds a summary from all sub-property values on every
   change. This bookkeeping runs in a ``SuppressRecordingScope``; otherwise
   every write to a property container entry also reported reads of all its
@@ -129,8 +129,11 @@ Consequences
 ------------
 
 * Provenance can record executions without Core storing any events.
-* Every property gets one additional connection, also when recording is never
-  used (see Performance).
+* Registered properties no longer use Qt connections to notify their object
+  or the recording hook (see Owner notification). This lowers memory and
+  write costs below the state before recording (see Performance).
+* Property classes that emit ``changed()`` directly instead of calling
+  ``notifyChanged()`` neither mark their object as changed nor are recorded.
 * ``GtAbstractProperty``, ``GtPropertyStructContainer`` and ``GtObject``
   change behaviour in their registration, accessor and destruction paths;
   modules must be rebuilt for 2.1. Reads are only tracked in code compiled
@@ -155,90 +158,121 @@ Performance
 Measured with the disabled benchmark
 ``tests/unittests/datamodel/test_gt_recordingbenchmark.cpp`` (Release, MSVC,
 Windows 11, best of five runs per value, two rounds each). The baseline is the
-commit before the recording changes.
+commit before the recording changes. V1 is the first implementation with an
+additional recording connection per property; current is the implementation
+with owner notification.
 
 .. list-table:: Without any recording session
    :header-rows: 1
-   :widths: 46 18 18 18
+   :widths: 40 15 15 15 15
 
    * - Measurement
      - Baseline
-     - Recording
-     - Difference
+     - V1
+     - Current
+     - Current vs. baseline
    * - ``getVal()``
      - 1.15 ns
      - 1.38 ns
-     - +0.2 ns
+     - 1.40 ns
+     - +0.25 ns
    * - ``valueToVariant()``
      - 8.9 ns
      - 9.9 ns
-     - +11 %
+     - 10.1 ns
+     - +13 %
    * - ``setVal()``
      - 32 ns
      - 45 ns
-     - +39 %
+     - 18.5 ns
+     - -42 %
    * - Construct 100,000 objects (10 properties)
      - 849 ms
      - 1030 ms
-     - +21 %
+     - 559 ms
+     - -34 %
    * - Memory per object
      - 10,609 B
      - 12,276 B
-     - +16 %
+     - 7,001 B
+     - -34 %
    * - Restore memento with 20,000 objects
      - 262 ms
      - 304 ms
-     - +16 %
+     - 195 ms
+     - -26 %
 
-.. list-table:: With a recording session (recording build only)
+.. list-table:: With a recording session (recording builds only)
    :header-rows: 1
-   :widths: 46 27 27
+   :widths: 46 18 18 18
 
    * - Scenario
      - ``getVal()``
-     - ``setVal()``
+     - ``setVal()`` V1
+     - ``setVal()`` current
    * - Session running on another thread
-     - 3.5 ns
+     - 4.0 ns
      - 45 ns
+     - 18.5 ns
    * - Session active, object not observed
      - 17 ns
      - 58 ns
+     - 28 ns
    * - Session active, object observed
-     - 22 ns
+     - 23 ns
      - 64 ns
+     - 34 ns
 
 Findings:
 
 * Reads without a session are practically unaffected.
-* The additional ``changed()`` connection per property (about 167 bytes each)
-  causes the write, construction, memory and loading overhead, even when
-  recording is never used.
+* In V1, the additional ``changed()`` connection per property (about 167 bytes
+  each) caused the write, construction, memory and loading overhead, even when
+  recording was never used.
+* With owner notification, a registered property needs no connection for its
+  object or for recording. This saves about 530 bytes per registered
+  property compared to V1 (1,114 B to 584 B per ``GtDoubleProperty``,
+  measured separately with 20,000 objects). Unregistered properties grow by
+  16 bytes for the guarded owner pointer.
 * During recording, the locked membership lookup costs about 15 ns per read.
   This only applies while a session runs and is accepted for V1.
 
-Follow-up: single connection per property
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Owner notification
+~~~~~~~~~~~~~~~~~~
 
-``GtObject::connectProperty()`` already connects every registered property's
-``changed()`` to a lambda that emits ``dataChanged()``. That lambda could call
-the recording hook, removing the second connection for all registered
-properties:
+Before, ``GtObject::connectProperty()`` connected every registered property's
+``changed()`` to a lambda (auto connection) that set ``HasOwnChanges`` and
+emitted ``dataChanged()``. V1 added a second connection for the recording
+hook. Each connection costs memory per property and time per write.
 
-* The existing connection is an auto connection. A write from a worker thread
-  is queued and would run the hook in the object's thread with the wrong
-  session.
-* Proposal: make it a direct connection that calls the recording hook first,
-  then emits ``dataChanged()`` directly on the object's thread, or posts it to
-  the object's thread otherwise. Existing receivers see the same behaviour.
-* The separate connection then remains only for paths ``connectProperty()``
-  does not cover: sub-properties added after registration and property
-  container entries.
-* Expected effect: memory, construction and loading close to the baseline,
-  ``setVal()`` close to 32 ns.
+``GtAbstractProperty::notifyChanged()`` replaces both connections:
 
-This changes the existing ``changed()`` handling, which issue #1600 asked to
-leave untouched, and is therefore not part of V1. Re-measure with the
-benchmark when implementing it.
+#. If the property has an owner, it calls the recording hook in the thread
+   that changed the property.
+#. If the property was registered directly, or was a sub-property at
+   registration time, it sets ``HasOwnChanges`` on the owner and emits
+   ``dataChanged()``. In another thread than the owner's, this is posted to
+   the owner's thread, like the former auto connection.
+#. It emits ``changed()`` for all other receivers.
+
+Details:
+
+* ``GtProperty<T>`` setters, ``setActive()`` and ``GtColorProperty`` call
+  ``notifyChanged()`` instead of emitting ``changed()``.
+* The owner is stored as ``QPointer``: a property that outlives its object no
+  longer accesses it.
+* Behaviour is kept for the paths ``connectProperty()`` did not cover:
+  property container entries notify their object through the container
+  signals, and sub-properties added after registration do not mark the object
+  as changed. Both are recorded.
+* The owner is now notified before other ``changed()`` receivers. Before, the
+  object's connection was usually the first one as well.
+
+Issue #1600 asked to leave the ``changed()`` handling untouched. The change is
+accepted because modules must be rebuilt for 2.1 anyway, and it makes
+recording free of memory overhead while also reducing the costs of normal
+execution. Property classes in modules that emit ``changed()`` directly must
+call ``notifyChanged()`` instead (see :doc:`/howtos/migration_2-1`).
 
 Validation
 ----------
@@ -246,6 +280,10 @@ Validation
 * Unit tests in ``tests/unittests/datamodel/test_gt_recording*.cpp`` cover the
   session lifecycle and failures, property hooks, object tree changes, worker
   threads and parallel child components.
+* ``GtObjectPropertyNotification`` tests in
+  ``tests/unittests/datamodel/test_gt_object.cpp`` cover owner notification,
+  unregistered properties, owners destroyed before their properties and
+  changes from other threads.
 * ``SystemTest.Recording`` (``tests/systemtests/recording``) runs a recorded
   task through ``GTlabConsole`` and checks that ``setUp()`` runs once inside
   the recording, the task iteration and a ``local`` child are recorded in the
