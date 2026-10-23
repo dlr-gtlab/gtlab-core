@@ -17,6 +17,8 @@
 
 #include "gt_propertyconversionregistry.h"
 
+#include <algorithm>
+
 GtAbstractProperty::~GtAbstractProperty() = default;
 
 class GtAbstractProperty::Impl
@@ -178,13 +180,13 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
         return;
     }
 
-    QList<QString> propNames;
-    foreach(GtAbstractProperty* absProp, m_subProperties)
-    {
-        propNames.append(absProp->objectName());
-    }
+    const bool nameTaken = std::any_of(
+        m_subProperties.begin(), m_subProperties.end(),
+        [&property](const GtAbstractProperty* absProp) {
+            return absProp->objectName() == property.objectName();
+        });
 
-    if (propNames.contains(property.objectName()))
+    if (nameTaken)
     {
         gtWarning() << tr("property name already taken!")
                     << " (" << objectName() << ")";
