@@ -272,7 +272,7 @@ public:
      * @brief Returns list of all linked datamodel objects.
      * @return List of linked datamodel objects.
      */
-    QList<GtObject const*> linkedObjects() const;
+    QList<const GtObject*> linkedObjects() const;
     QList<QPointer<GtObject>>& linkedObjects();
 
     /**
