@@ -481,8 +481,10 @@ GtAbstractProperty::notifyChanged()
             };
 
             // same behaviour as the former auto connection
-            if (owner->thread() == QThread::currentThread()) notify();
-            else QMetaObject::invokeMethod(owner, notify, Qt::QueuedConnection);
+            if (owner->thread() == QThread::currentThread())
+                notify();
+            else
+                QMetaObject::invokeMethod(owner, notify, Qt::QueuedConnection);
         }
     }
 

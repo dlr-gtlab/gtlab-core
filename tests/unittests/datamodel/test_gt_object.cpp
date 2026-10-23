@@ -527,7 +527,10 @@ namespace
 class PropertyOwner : public GtObject
 {
 public:
-    void reg(GtAbstractProperty& prop) { registerProperty(prop); }
+    void reg(GtAbstractProperty& prop)
+    {
+        registerProperty(prop);
+    }
 };
 
 } // namespace
@@ -539,12 +542,12 @@ TEST(GtObjectPropertyNotification, changeNotifiesOwner)
 
     GtObject* sender = nullptr;
     GtAbstractProperty* changedProp = nullptr;
-    QObject::connect(&obj, qOverload<GtObject*, GtAbstractProperty*>(
-                         &GtObject::dataChanged),
-                     [&](GtObject* o, GtAbstractProperty* p) {
-        sender = o;
-        changedProp = p;
-    });
+    QObject::connect(
+        &obj, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+        [&](GtObject* o, GtAbstractProperty* p) {
+            sender = o;
+            changedProp = p;
+        });
 
     obj.m_doubleProp.setVal(42.0);
 
@@ -593,16 +596,16 @@ TEST(GtObjectPropertyNotification, changeFromOtherThreadIsQueued)
     obj.acceptChanges();
 
     QThread* emittingThread = nullptr;
-    QObject::connect(&obj, qOverload<GtObject*, GtAbstractProperty*>(
-                         &GtObject::dataChanged),
-                     &obj, [&emittingThread](GtObject*, GtAbstractProperty*) {
-        emittingThread = QThread::currentThread();
-    }, Qt::DirectConnection);
+    QObject::connect(
+        &obj, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+        &obj,
+        [&emittingThread](GtObject*, GtAbstractProperty*) {
+            emittingThread = QThread::currentThread();
+        },
+        Qt::DirectConnection);
 
     // std::thread: QFuture::waitForFinished() may run the task inline
-    std::thread worker([&obj]() {
-        obj.m_doubleProp.setVal(42.0);
-    });
+    std::thread worker([&obj]() { obj.m_doubleProp.setVal(42.0); });
     worker.join();
 
     // delivered in the object's thread, like the former auto connection
