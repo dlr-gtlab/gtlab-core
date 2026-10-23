@@ -45,6 +45,7 @@
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QKeyEvent>
 #include <QUndoView>
@@ -289,8 +290,11 @@ GtMainWin::closeEvent(QCloseEvent* event)
 {
     if (!m_forceQuit)
     {
+        const bool taskRunning =
+            gt::currentProcessExecutor().currentRunningTask();
+
         /// A process is running
-        if (gt::currentProcessExecutor().currentRunningTask())
+        if (taskRunning)
         {
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
@@ -321,7 +325,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
             }
         }
         /// There is unsaved data
-        else if (gtApp->hasProjectChanges())
+        if (gtApp->hasProjectChanges())
         {
             GtSaveProjectMessageBox mb;
             int ret = mb.exec();
@@ -330,7 +334,15 @@ GtMainWin::closeEvent(QCloseEvent* event)
             {
                 case QMessageBox::Yes:
                 {
-                    gtDataModel->saveProject(gtApp->currentProject());
+                    if (!gtDataModel->saveProject(gtApp->currentProject()))
+                    {
+                        QMessageBox::warning(
+                            this, tr("Save failed"),
+                            tr("The project could not be saved. GTlab will "
+                               "remain open."));
+                        event->ignore();
+                        return;
+                    }
                     break;
                 }
 
@@ -349,7 +361,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
                     break;
             }
         }
-        else
+        else if (!taskRunning)
         {
             QMessageBox mb;
             mb.setPalette(qApp->palette());
@@ -631,6 +643,11 @@ GtMainWin::showPreferences()
 
     dialog.exec();
     lastPageOpened = dialog.currentPageTitle();
+
+    if (dialog.restartRequested())
+    {
+        restartApplication();
+    }
 }
 
 void
@@ -640,6 +657,11 @@ GtMainWin::showPreferences(const QString& title)
     dialog.setStartingPage(title);
 
     dialog.exec();
+
+    if (dialog.restartRequested())
+    {
+        restartApplication();
+    }
 }
 
 void
@@ -648,6 +670,11 @@ GtMainWin::showSessionPreferences()
     GtPreferencesDialog dialog(1);
 
     dialog.exec();
+
+    if (dialog.restartRequested())
+    {
+        restartApplication();
+    }
 }
 
 void
@@ -656,6 +683,22 @@ GtMainWin::showPerspectivePreferences()
     GtPreferencesDialog dialog(2);
 
     dialog.exec();
+
+    if (dialog.restartRequested())
+    {
+        restartApplication();
+    }
+}
+
+void
+GtMainWin::restartApplication()
+{
+    gtApp->requestRestart();
+
+    if (!close())
+    {
+        gtApp->cancelRestartRequest();
+    }
 }
 
 void

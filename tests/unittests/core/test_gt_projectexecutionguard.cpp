@@ -6,6 +6,7 @@
 
 #include "gtest/gtest.h"
 
+#include "gt_datamodel.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
 
@@ -14,9 +15,19 @@ namespace
 class TestProject : public GtProject
 {
 public:
-    explicit TestProject(QString path) : GtProject(std::move(path)) {}
+    explicit TestProject(QString path) :
+        GtProject(std::move(path))
+    { }
 };
-}
+
+class TestDataModel : public GtDataModel
+{
+public:
+    TestDataModel() :
+        GtDataModel()
+    { }
+};
+} // namespace
 
 TEST(GtProjectExecutionGuard, UsesCanonicalProjectIdentity)
 {
@@ -107,4 +118,16 @@ TEST(GtProjectExecutionGuard, DoesNotSerializeDifferentProjects)
               GtProjectExecutionGuard::Result::Acquired);
     EXPECT_EQ(secondGuard.tryAcquire(&second),
               GtProjectExecutionGuard::Result::Acquired);
+}
+
+TEST(GtProjectExecutionGuard, GuiDataModelRefusesSavingLockedProject)
+{
+    TestProject project(QStringLiteral("/tmp/gtlab-locked-project.gtlab"));
+    GtProjectExecutionGuard executionGuard;
+    TestDataModel dataModel;
+
+    ASSERT_EQ(executionGuard.tryAcquire(&project),
+              GtProjectExecutionGuard::Result::Acquired);
+    EXPECT_FALSE(dataModel.saveProject(&project));
+    EXPECT_TRUE(executionGuard.isLocked());
 }
