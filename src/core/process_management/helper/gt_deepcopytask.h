@@ -36,6 +36,13 @@ struct PropertyConnectionsRelationshipReturn;
 GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
 
 
+/**
+ * @brief Add a process component as a child to an object and check if the new parent is a
+ * process component. If so, transfer the propery connections to the root task
+ * @param
+ * @return
+ */
+GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child);
 
 
 /**
