@@ -587,10 +587,15 @@ class TestGtTaskRelativeObjectLinkProperty : public ::testing::Test
 {
 protected:
     virtual void SetUp()
-    {
+    {        
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
+            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestTaskWithRelativeObjectLinkProperty)))
+            gtObjectFactory->registerClass(TestTaskWithRelativeObjectLinkProperty::staticMetaObject);
+
         roottask = new TestTaskWithRelativeObjectLinkProperty;
         roottask->setObjectName("rt");
-
 
         calc1 = new TestGtCalculator;
         calc1->setObjectName("c1");
@@ -602,6 +607,7 @@ protected:
 
     virtual void TearDown()
     {
+        delete roottask;
     }
 
     TestTaskWithRelativeObjectLinkProperty* roottask;
