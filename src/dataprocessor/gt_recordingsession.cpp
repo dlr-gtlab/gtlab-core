@@ -124,7 +124,7 @@ struct GtRecordingSession::Impl
             observed.insert(root);
             for (const GtObject* child :
                  root->QObject::findChildren<GtObject*>())
-            {
+            { // cppcheck-suppress useStlAlgorithm
                 observed.insert(child);
             }
         }
@@ -134,9 +134,10 @@ struct GtRecordingSession::Impl
     /// Requires the write lock.
     void setSubtreeObserved(const GtObject& object, bool parentObserved)
     {
-        const bool isObserved = parentObserved || rootSet.contains(&object);
+        const bool subtreeObserved =
+            parentObserved || rootSet.contains(&object);
 
-        if (isObserved)
+        if (subtreeObserved)
             observed.insert(&object);
         else
             observed.remove(&object);
@@ -145,15 +146,15 @@ struct GtRecordingSession::Impl
         {
             if (auto* c = qobject_cast<const GtObject*>(child))
             {
-                setSubtreeObserved(*c, isObserved);
+                setSubtreeObserved(*c, subtreeObserved);
             }
         }
     }
 
-    void updateOnAttach(const GtObject& parent, const GtObject& child)
+    void updateOnAttach(const GtObject& parentObject, const GtObject& child)
     {
         QWriteLocker locker(&membershipLock);
-        setSubtreeObserved(child, observed.contains(&parent));
+        setSubtreeObserved(child, observed.contains(&parentObject));
     }
 
     void updateOnDetach(const GtObject& child)
