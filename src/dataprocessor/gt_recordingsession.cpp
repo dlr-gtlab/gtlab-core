@@ -31,12 +31,16 @@ thread_local int propertyReadDepth = 0;
 class SuppressionScope
 {
 public:
-    SuppressionScope() : m_previous(currentSession)
+    SuppressionScope() :
+        m_previous(currentSession)
     {
         currentSession = nullptr;
     }
 
-    ~SuppressionScope() { currentSession = m_previous; }
+    ~SuppressionScope()
+    {
+        currentSession = m_previous;
+    }
 
     SuppressionScope(const SuppressionScope&) = delete;
     SuppressionScope& operator=(const SuppressionScope&) = delete;
@@ -75,16 +79,14 @@ callObserver(const char* callbackName, Callback&& callback) noexcept
 
 struct GtRecordingSession::Impl
 {
-    Impl(const GtObject& component,
-         GtRecordingObserver& observer,
-         QList<const GtObject*> roots,
-         GtRecordingSession::Events eventMask) :
+    Impl(const GtObject& component, GtRecordingObserver& observer,
+         QList<const GtObject*> roots, GtRecordingSession::Events eventMask) :
         id(QUuid::createUuid()),
         component(component),
         observer(observer),
         roots(std::move(roots)),
         eventMask(eventMask)
-    {}
+    { }
 
     QUuid id;
     QUuid parentId;
@@ -132,10 +134,12 @@ struct GtRecordingSession::Impl
     /// Requires the write lock.
     void setSubtreeObserved(const GtObject& object, bool parentObserved)
     {
-        bool const isObserved = parentObserved || rootSet.contains(&object);
+        const bool isObserved = parentObserved || rootSet.contains(&object);
 
-        if (isObserved) observed.insert(&object);
-        else observed.remove(&object);
+        if (isObserved)
+            observed.insert(&object);
+        else
+            observed.remove(&object);
 
         for (const QObject* child : object.children())
         {
@@ -174,9 +178,10 @@ struct GtRecordingSession::Impl
         {
             if (!faulted.exchange(true))
             {
-                gtWarning() << QStringLiteral(
-                    "Recording %1: no further events are forwarded")
-                                   .arg(id.toString());
+                gtWarning()
+                    << QStringLiteral(
+                           "Recording %1: no further events are forwarded")
+                           .arg(id.toString());
             }
         }
     }
@@ -187,7 +192,7 @@ GtRecordingSession::GtRecordingSession(const GtObject& component,
                                        const QList<const GtObject*>& roots,
                                        Events eventMask) :
     pimpl(std::make_unique<Impl>(component, observer, roots, eventMask))
-{}
+{ }
 
 GtRecordingSession::GtRecordingSession(const GtObject& component,
                                        GtRecordingObserver& observer,
@@ -196,7 +201,7 @@ GtRecordingSession::GtRecordingSession(const GtObject& component,
     GtRecordingSession(component, observer,
                        QList<const GtObject*>{roots.begin(), roots.end()},
                        eventMask)
-{}
+{ }
 
 GtRecordingSession::~GtRecordingSession() = default;
 
@@ -237,9 +242,8 @@ GtRecordingSession::notifyPropertyRead(const GtObject& owner,
 {
     if (!isObserved(owner)) return;
 
-    pimpl->dispatch(PropertyRead, [&]() {
-        pimpl->observer.propertyRead(owner, property);
-    });
+    pimpl->dispatch(PropertyRead,
+                    [&]() { pimpl->observer.propertyRead(owner, property); });
 }
 
 void
@@ -258,9 +262,8 @@ GtRecordingSession::notifyObjectValueRead(const GtObject& object)
 {
     if (!isObserved(object)) return;
 
-    pimpl->dispatch(ObjectValueRead, [&]() {
-        pimpl->observer.objectValueRead(object);
-    });
+    pimpl->dispatch(ObjectValueRead,
+                    [&]() { pimpl->observer.objectValueRead(object); });
 }
 
 void
@@ -275,9 +278,8 @@ GtRecordingSession::notifyObjectAttached(const GtObject& parent,
 
     if (!isObserved(parent)) return;
 
-    pimpl->dispatch(ObjectAttached, [&]() {
-        pimpl->observer.objectAttached(parent, child);
-    });
+    pimpl->dispatch(ObjectAttached,
+                    [&]() { pimpl->observer.objectAttached(parent, child); });
 }
 
 void
@@ -330,9 +332,8 @@ GtRecordingSession::start()
 
     pimpl->buildMembership();
 
-    if (!callObserver("recordingStarted", [this]() {
-            pimpl->observer.recordingStarted(*this);
-        }))
+    if (!callObserver("recordingStarted",
+                      [this]() { pimpl->observer.recordingStarted(*this); }))
     {
         // keep the session active so that the work's events do not leak
         // into the parent session, but forward nothing
@@ -457,7 +458,7 @@ gt::detail::recordObjectDestroyed(const GtObject* parent,
 
     // children of a deleted object see no GtObject parent but still a QObject
     // parent: only the top of a deleted subtree is reported
-    bool const topLevel = parent || !object.QObject::parent();
+    const bool topLevel = parent || !object.QObject::parent();
 
     // an observed object is deleted within the chain that observes it: report
     // to the suspended parent sessions too, they hold the object as well

@@ -22,9 +22,8 @@ TestRecordingTask::TestRecordingTask() :
 bool
 TestRecordingTask::setUp()
 {
-    test::recordingLog(
-        QStringLiteral("setUp recording=%1")
-            .arg(GtRecordingSession::current() ? 1 : 0));
+    test::recordingLog(QStringLiteral("setUp recording=%1")
+                           .arg(GtRecordingSession::current() ? 1 : 0));
 
     // a read that is recorded because setUp() runs inside the recording
     if (auto* target = data<TestDmiPackage*>(m_target))

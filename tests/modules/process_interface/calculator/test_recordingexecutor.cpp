@@ -73,9 +73,9 @@ private:
     void logAccess(const QString& kind, const GtObject& owner,
                    const GtAbstractProperty& property)
     {
-        test::recordingLog(QStringLiteral("%1 %2.%3 in %4")
-                               .arg(kind, owner.objectName(),
-                                    property.ident(), m_component));
+        test::recordingLog(
+            QStringLiteral("%1 %2.%3 in %4")
+                .arg(kind, owner.objectName(), property.ident(), m_component));
     }
 };
 

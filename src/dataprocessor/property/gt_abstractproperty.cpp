@@ -444,9 +444,10 @@ GtAbstractProperty::setOwnerObject(const GtObject& owner)
     {
         // one permanent connection per property; direct, so that the
         // recording hook runs in the thread that changed the property
-        connect(this, &GtAbstractProperty::changed, this, [this]() {
-            gt::detail::recordPropertyWritten(*this);
-        }, Qt::DirectConnection);
+        connect(
+            this, &GtAbstractProperty::changed, this,
+            [this]() { gt::detail::recordPropertyWritten(*this); },
+            Qt::DirectConnection);
     }
 
     m_pimpl->owner = &owner;
