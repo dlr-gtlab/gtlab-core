@@ -1786,25 +1786,46 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (initialOpenProject)
         {
-            gtDataModel->closeProject(gtApp->currentProject());
+            if (!gtDataModel->closeProject(project))
+            {
+                QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                    tr("The project could not be closed before "
+                       "restoring the backup."));
+                return;
+            }
         }
 
         bool success = project->restoreBackupFiles(selectedFolder) ==
                        GtProject::RestoreStatus::Success;
 
-        if (success && initialOpenProject)
+        if (success && initialOpenProject && !project->upgradesAvailable())
         {
-            // update module metadata since the project might contain
-            // different packages in the backup
-            project->loadMetaData();
+            // reopen the project since it was open before the restore
             success = gtDataModel->openProject(project);
+        }
+
+        // update the project entry since the restored backup may
+        // contain different (e.g. outdated) project data
+        if (success)
+        {
+            gtDataModel->updateObject(project);
         }
 
         // notify the user on the success
         if (success)
         {
-            QMessageBox::information(nullptr, tr("Backup restored"),
-                tr("The project has been successfully restored from backup."));
+            if (project->upgradesAvailable())
+            {
+                QMessageBox::information(nullptr, tr("Backup restored"),
+                    tr("The project has been successfully restored from backup. "
+                       "The project data is outdated and requires an upgrade "
+                       "before it can be opened."));
+            }
+            else
+            {
+                QMessageBox::information(nullptr, tr("Backup restored"),
+                    tr("The project has been successfully restored from backup."));
+            }
         }
         else
         {
