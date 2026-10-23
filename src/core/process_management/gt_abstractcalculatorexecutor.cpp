@@ -18,6 +18,13 @@ GtAbstractCalculatorExecutor::exec(GtTask* Task)
 {
     if (!Task) return false;
 
+    // Initialize individual evaluator setting
+    if (!Task->setUp())
+    {
+        Task->setState(GtProcessComponent::FAILED);
+        return false;
+    }
+
     // executor does not provide a task specific implementation,
     // defaulting to local execution of the task
     gtWarning() << tr("The executor does not have a task specific "
