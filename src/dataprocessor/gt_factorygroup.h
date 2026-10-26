@@ -11,9 +11,10 @@
 #ifndef GTFACTORYGROUP_H
 #define GTFACTORYGROUP_H
 
-#include "gt_datamodel_exports.h"
+#include <gt_version.h>
+#include <gt_datamodel_exports.h>
 
-#include "gt_abstractobjectfactory.h"
+#include <gt_abstractobjectfactory.h>
 
 /**
  * @brief The GtFactoryGroup class
@@ -32,6 +33,7 @@ public:
      * @param parent object for the new object
      * @return new object
      */
+    GT_NO_DISCARD
     GtObject* newObject(const QString& className,
                         GtObject* parent = nullptr) override;
 
@@ -41,6 +43,7 @@ public:
      * @param className
      * @return whether classname is known or not
      */
+    GT_NO_DISCARD
     bool knownClass(const QString& className) const override;
 
     /**
@@ -48,21 +51,70 @@ public:
      * @param className
      * @return name of superclass
      */
+    GT_NO_DISCARD
     QString superClassName(const QString& className) const override;
 
     /**
      * @brief knownClasses - returns a list of all stored meta class names
      * @return class name list
      */
+    GT_NO_DISCARD
     QStringList knownClasses() const override;
 
+    /**
+     * @brief Returns the id of the module that registers this class
+     * @param className
+     * @return Module id (may be empty)
+     */
+    GT_NO_DISCARD
+    QString moduleId(const QString& className) const override;
+
+    /**
+     * @brief containsDuplicates
+     * @param plugin
+     * @return
+     */
+    GT_NO_DISCARD
+    bool containsDuplicates(const QList<QMetaObject>& metaData) const override;
+
+    /**
+     * @brief invokable
+     * @param metaObj
+     * @return
+     */
+    GT_NO_DISCARD
+    bool invokable(const QMetaObject& metaObj) const override;
+
+    /**
+     * @brief classHierarchy
+     * @param className
+     * @return
+     */
+    GT_NO_DISCARD
+    QStringList classHierarchy(const QString& className) override;
+
+    /**
+     * @brief metaObject
+     * @param clzName
+     * @return
+     */
+    GT_NO_DISCARD
+    const QMetaObject* metaObject(const QString& className) const override;
+
+    /**
+     * @brief addFactory
+     * @param factory
+     * @return
+     */
+    bool addFactory(GtAbstractObjectFactory* factory);
+
+protected:
     /**
      * @brief Registers a class and its providing module. Group factories
      * do not own classes, so registration is rejected.
      * @return Always false.
      */
-    bool registerClass(QMetaObject metaObj,
-                       const QString& moduleId) override;
+    bool registerClass(QMetaObject metaObj, const QString& moduleId) override;
 
     /**
      * @brief Registers classes and their providing module. Group factories
@@ -72,39 +124,15 @@ public:
     bool registerClasses(const QList<QMetaObject>& metaData,
                          const QString& moduleId) override;
 
-    QString moduleId(const QString& className) const override;
-
     /**
-     * @brief containsDuplicates
-     * @param plugin
-     * @return
-     */
-    bool containsDuplicates(const QList<QMetaObject>& metaData) const override;
-
-    /**
-     * @brief invokable
+     * @brief unregisterClass
      * @param metaObj
      * @return
      */
-    bool invokable(const QMetaObject& metaObj) const override;
-
-    /**
-     * @brief classHierarchy
-     * @param className
-     * @return
-     */
-    QStringList classHierarchy(const QString& className) override;
-
-    /**
-     * @brief addFactory
-     * @param factory
-     * @return
-     */
-    bool addFactory(GtAbstractObjectFactory* factory);
+    bool unregisterClass(const QMetaObject& metaObj) override;
 
 private:
     QList<GtAbstractObjectFactory*> m_factories;
-
 };
 
 #endif // GTFACTORYGROUP_H

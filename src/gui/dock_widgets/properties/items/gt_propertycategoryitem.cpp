@@ -47,10 +47,9 @@ QString GtPropertyCategoryItem::displayName() const
 void
 GtPropertyCategoryItem::addPropertyItem(GtAbstractProperty* property)
 {
-    if (property)
-    {
-        gtPropertyItemFactory->newItem(property, m_scope, m_model, this);
-    }
+    if (!property) return;
+
+    gtPropertyItemFactory->appendItem(*property, m_scope, m_model, *this);
 }
 
 void

@@ -12,6 +12,8 @@
 #ifndef GTPROPERTYITEMFACTORY_H
 #define GTPROPERTYITEMFACTORY_H
 
+#include <gt_version.h>
+
 #include <QObject>
 
 #include "gt_abstractobjectfactory.h"
@@ -44,10 +46,37 @@ public:
      * @param Parent object.
      * @return New created property item.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `makeItem` instead")
     GtAbstractPropertyItem* newItem(GtAbstractProperty* property,
                                     GtObject* scope,
                                     GtPropertyModel* model,
                                     GtObject* parent);
+
+    /**
+     * @brief Creates new property item based on given property. Lifetime
+     * is managed by parent child relation
+     * @param Property.
+     * @param Property scope.
+     * @param Property model.
+     * @param Parent object.
+     * @return New created property item.
+     */
+    GtAbstractPropertyItem* appendItem(GtAbstractProperty& property,
+                                       GtObject* scope, GtPropertyModel* model,
+                                       GtObject& parent);
+
+    /**
+     * @brief Creates new property item based on given property. Lifetime
+     * is managed by the smart pointer
+     * @param Property.
+     * @param Property scope.
+     * @param Property model.
+     * @param Parent object.
+     * @return New created property item.
+     */
+    GT_NO_DISCARD
+    std::unique_ptr<GtAbstractPropertyItem> makeItem(
+        GtAbstractProperty& property, GtObject* scope, GtPropertyModel* model);
 
     /**
      * @brief Register property item meta data
@@ -93,6 +122,9 @@ private:
      */
     explicit GtPropertyItemFactory(QObject* parent = nullptr);
 
+    std::unique_ptr<GtAbstractPropertyItem> makeItemImpl(
+        GtAbstractProperty& property, GtObject* scope, GtPropertyModel* model,
+        GtObject* parent);
 };
 
 #endif // GTPROPERTYITEMFACTORY_H

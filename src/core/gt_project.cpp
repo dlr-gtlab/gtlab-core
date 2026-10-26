@@ -778,18 +778,7 @@ GtProject::readModuleData()
         gt::insertMissingInto(pimpl->classModuleIds,
                               gt::xml::takeClassModuleMap(root));
 
-        GtObject* obj = gtObjectFactory->newObject(packageId);
-
-        if (!obj)
-        {
-            gtWarning() << objectName() << ": "
-                        << tr("Failed to create module package!")
-                        << " (" << mid << ")";
-            continue;
-        }
-
-        GtPackage* package = qobject_cast<GtPackage*>(obj);
-
+        auto package = gtObjectFactory->makeObject<GtPackage>(packageId);
         if (!package)
         {
             gtWarning() << objectName() << ": "
@@ -812,7 +801,7 @@ GtProject::readModuleData()
         // externalized object must be initialized
         gtExternalizationManager->initExternalizedObjects(*package);
 
-        retval.append(obj);
+        retval.append(package.release());
     }
 
     return retval;
