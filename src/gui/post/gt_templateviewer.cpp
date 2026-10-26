@@ -415,12 +415,12 @@ GtTemplateViewer::onRefreshRequest()
 void
 GtTemplateViewer::createSpecialPlot(const QString& plotName)
 {
-    GtObject* obj = gtPostTemplateFactory->newObject(plotName,
-                    m_postTemplateDM);
+    auto item = gtPostTemplateFactory->makeObject<GtPostTemplateItem>(plotName);
+    if (!item) return;
 
-    GtPostTemplateItem* abstractDM = qobject_cast<GtPostTemplateItem*>(obj);
+    if (!m_postTemplateDM->appendChild(item.get())) return;
 
-    createPlot(abstractDM);
+    createPlot(item.release());
 }
 
 bool

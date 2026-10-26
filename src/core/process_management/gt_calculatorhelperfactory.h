@@ -13,6 +13,7 @@
 #define GT_CALCULATORHELPERFACTORY_H
 
 #include "gt_core_exports.h"
+#include "gt_version.h"
 
 #include <QObject>
 
@@ -37,6 +38,7 @@ public:
      * on singleton pattern.
      * @return Instance of calculator helper factory
      */
+    GT_NO_DISCARD
     static GtCalculatorHelperFactory* instance();
 
     /**
@@ -49,9 +51,25 @@ public:
      * @return Returns pointer to generated helper object or NULL if generation
      *  fails.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `makeCalculatorHelper` instead")
     Q_INVOKABLE GtObject* newCalculatorHelper(const QString& helperClassName,
-                                  const QString& objName,
-                                  GtObject* parent);
+                                              const QString& objName,
+                                              GtObject* parent);
+
+    /**
+     * @brief Generates a calculator helper object based on given helper class
+     * name and appends it to the given parent. That only happens if the helper
+     * class name is connected as helper of the given parent.
+     * @param helperClassName Class name of the helper class.
+     * @param objName Object name of helper object.
+     * @param parent The parent of the new generated helper object.
+     * @return Returns pointer to generated helper object or NULL if generation
+     *  fails.
+     */
+    GT_NO_DISCARD
+    Q_INVOKABLE GtObject* makeCalculatorHelper(const QString& helperClassName,
+                                               const QString& objName,
+                                               GtObject& parent);
 
     /**
      * @brief Connects calculator helper to parent class and
@@ -71,7 +89,9 @@ public:
      * helpers are to be found.
      * @return List of helper class names.
      */
+    GT_NO_DISCARD
     Q_INVOKABLE QStringList connectedHelper(const QString& parentClassName);
+
 private:
     /// Calculator data
     QHash<QString, QList<QString>> m_calcHelperConnection;

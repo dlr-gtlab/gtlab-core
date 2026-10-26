@@ -13,6 +13,7 @@
 #define GTEXPORTHANDLER_H
 
 #include "gt_abstractobjectfactory.h"
+#include "gt_version.h"
 
 #include "gt_exportermetadata.h"
 #include "gt_gui_exports.h"
@@ -37,6 +38,7 @@ public:/**
      * @brief Returns singleton instance.
      * @return Singleton instance.
      */
+    GT_NO_DISCARD
     static GtExportHandler* instance();
 
     /**
@@ -51,14 +53,20 @@ public:/**
      * @param Classname.
      * @return List of importer identification strings.
      */
-    QList<GtExporterMetaData> exporterMetaData(const QString& classname);
+    GT_NO_DISCARD
+    QList<GtExporterMetaData> exporterMetaData(const QString& className);
 
     /**
-     * @brief Returns new instance of importer corresponding to given classname.
-     * @param Classname.
-     * @return New Importer.
+     * @brief Returns new instance of importer corresponding to given class
+     * name.
+     * @param className Class name to instantiate.
+     * @return New Exporter.
      */
-    GtAbstractExporter* newExporter(const QString& classname);
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `makeExporter` or `makeObject<T>` instead")
+    GtAbstractExporter* newExporter(const QString& className);
+
+    std::unique_ptr<GtAbstractExporter> makeExporter(const QString& className);
 
 private:
     /// Importer meta data map

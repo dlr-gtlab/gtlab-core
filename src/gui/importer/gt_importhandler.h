@@ -13,6 +13,7 @@
 #define GTIMPORTHANDLER_H
 
 #include "gt_abstractobjectfactory.h"
+#include "gt_version.h"
 
 #include "gt_importermetadata.h"
 #include "gt_gui_exports.h"
@@ -39,6 +40,7 @@ public:
      * @brief Returns singleton instance.
      * @return Singleton instance.
      */
+    GT_NO_DISCARD
     static GtImportHandler* instance();
 
     /**
@@ -53,14 +55,21 @@ public:
      * @param Classname.
      * @return List of importer identification strings.
      */
+    GT_NO_DISCARD
     QList<GtImporterMetaData> importerMetaData(const QString& classname);
 
     /**
-     * @brief Returns new instance of importer corresponding to given classname.
-     * @param Classname.
+     * @brief Returns new instance of importer corresponding to given class
+     * name.
+     * @param className Class name to instantiate.
      * @return New Importer.
      */
-    GtAbstractImporter* newImporter(const QString& classname);
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `makeImporter` or `makeObject<T>` instead")
+    GtAbstractImporter* newImporter(const QString& className);
+
+    GT_NO_DISCARD
+    std::unique_ptr<GtAbstractImporter> makeImporter(const QString& className);
 
 private:
     /// Importer meta data map

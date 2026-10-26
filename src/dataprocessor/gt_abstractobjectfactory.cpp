@@ -22,33 +22,36 @@ GtAbstractObjectFactory::~GtAbstractObjectFactory() = default;
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {
-    GtObject* retval = nullptr;
-    if (m_knownClasses.contains(className))
+    auto metaObj = metaObject(className);
+    if (!metaObj) return nullptr;
+
+    GtObject* retval = newObject(*metaObj, parent);
+    if (!retval)
     {
-        const QMetaObject& mo = m_knownClasses[className];
-        retval = newObject(mo, parent);
-        if (!retval)
+        if (!isSilent())
         {
-            if (!m_silent)
-            {
-                qCritical() << "GtObjectFactory : Error creating " << className;
-                qDebug() << knownClasses();
-            }
-            return nullptr;
-        }
-    }
-    else
-    {
-        if (!m_silent)
-        {
-            // TODO: uncomment
-//            qWarning() << "WARNING: classname not found! (" << className << ")";
+            qCritical() << "GtObjectFactory : Error creating " << className;
+            qDebug() << knownClasses();
         }
         return nullptr;
     }
 
     retval->setFactory(this);
     return retval;
+}
+
+std::unique_ptr<GtObject>
+GtAbstractObjectFactory::makeObject(const QString& className)
+{
+    return std::unique_ptr<GtObject>{newObject(className, nullptr)};
+}
+
+GtObject*
+GtAbstractObjectFactory::makeObject(const QString& className, GtObject& parent)
+{
+    std::unique_ptr<GtObject> object{newObject(className, &parent)};
+    if (object && !object->parent()) object->setParent(&parent);
+    return object.release();
 }
 
 QString
@@ -123,7 +126,7 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
 
     if (knownClass(classname))
     {
-        if (!m_silent)
+        if (!isSilent())
         {
             qWarning() << "WARNING" << ": " << "class already exists!" << " ("
                        << classname + ")";
@@ -215,7 +218,7 @@ GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) 
         QString classname = mobj.className();
         if (m_knownClasses.contains(classname))
         {
-            if (!m_silent)
+            if (!isSilent())
             {
                 qWarning() << "class name '"
                               + classname
@@ -229,7 +232,7 @@ GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) 
 }
 
 bool
-GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
+GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData) const
 {
     return std::all_of(std::begin(metaData), std::end(metaData), [this](const QMetaObject& mobj) {
         return invokable(mobj);
@@ -247,12 +250,18 @@ GtAbstractObjectFactory::metaObject(const QString& clzName) const
 }
 
 bool
+GtAbstractObjectFactory::isSilent() const noexcept
+{
+    return m_silent;
+}
+
+bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 {
     GtObject* obj = newObject(metaObj);
     if (!obj)
     {
-        if (!m_silent)
+        if (!isSilent())
         {
             qWarning() << "class " << metaObj.className() << " not invokable!";
         }

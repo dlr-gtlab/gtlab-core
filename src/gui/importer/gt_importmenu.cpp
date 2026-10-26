@@ -31,15 +31,13 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
 
     if (!obj) return;
 
-    QList<GtImporterMetaData> importerList =
-            gtImportHandler->importerMetaData(obj->metaObject()->className());
-
+    const QList<GtImporterMetaData> importerList =
+        gtImportHandler->importerMetaData(obj->metaObject()->className());
 
     if (!importerList.isEmpty())
     {
-        foreach (const GtImporterMetaData& imp, importerList)
+        for (const GtImporterMetaData& imp : importerList)
         {
-
             QAction* act = addAction(imp.icon(),
                                      imp.id() + QStringLiteral("..."));
             connect(act, &QAction::triggered, this, [this, act](){
@@ -54,64 +52,36 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
 void
 GtImportMenu::onActionTrigger(QObject* obj)
 {
-    // check object
-    if (!m_obj)
-    {
-        return;
-    }
+    if (!m_obj) return;
 
     GtProject* project = m_obj->findParent<GtProject*>();
-
-    if (!project)
-    {
-        return;
-    }
+    if (!project) return;
 
     // get action
     QAction* act = qobject_cast<QAction*>(obj);
-
-    // check action
-    if (!act)
-    {
-        return;
-    }
+    if (!act) return;
 
     // get classname of importer corresponding to action
     const QString str = m_actions.value(act);
-
-    // check whether classname is empty
-    if (str.isEmpty())
-    {
-        return;
-    }
+    if (str.isEmpty()) return;
 
     // get importer corresponding to classname
-    GtAbstractImporter* importer = gtImportHandler->newImporter(str);
-
-    // check importer
-    if (!importer)
-    {
-        return;
-    }
+    auto importer = gtImportHandler->makeImporter(str);
+    if (!importer) return;
 
     // clone object data
-    GtObject* objCopy = m_obj->clone();
-
-    // check clones object data
-    if (!objCopy)
-    {
-        return;
-    }
+    std::unique_ptr<GtObject> copy{m_obj->clone()};
+    if (!copy) return;
 
     // create wizard
     GtWizard wizard(parentWidget());
     wizard.setWindowTitle(tr("Import Wizard"));
 
     // get wizard pages
-    QList<GtAbstractImporterPage*> pages = importer->pages(objCopy);
+    QList<GtAbstractImporterPage*> pages = importer->pages(copy.get());
 
     // append pages to wizard
-    foreach (GtAbstractImporterPage* page, pages)
+    for (GtAbstractImporterPage* page : pages)
     {
         wizard.addPage(page);
     }
@@ -119,17 +89,14 @@ GtImportMenu::onActionTrigger(QObject* obj)
     if (wizard.exec())
     {
         GtObjectMemento mementoOrig = m_obj->toMemento();
-        GtObjectMemento mementoNew = objCopy->toMemento();
+        GtObjectMemento mementoNew = copy->toMemento();
 
         GtObjectMementoDiff diff(mementoOrig, mementoNew);
-
         if (!diff.isNull())
         {
-            QString msg = tr("Import") +
-                             QStringLiteral(" ") +
-                             importer->objectName() +
-                             QStringLiteral(" ") +
-                             m_obj->objectName();
+            QString msg = tr("Run Import") + QStringLiteral(" ") +
+                          importer->objectName() + QStringLiteral(" on ") +
+                          m_obj->objectName();
 
             auto command = gtApp->makeCommand(m_obj, msg);
             Q_UNUSED(command)
@@ -137,7 +104,4 @@ GtImportMenu::onActionTrigger(QObject* obj)
             m_obj->applyDiff(diff);
         }
     }
-
-    delete objCopy;
-    delete importer;
 }
