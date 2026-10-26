@@ -36,6 +36,14 @@ public:
                const QModelIndex& index) const override;
 
     /**
+     * @brief size hint so that rows grow for wrapped/multi-line messages
+     * @param option
+     * @param index
+     */
+    QSize sizeHint(const QStyleOptionViewItem& option,
+                   const QModelIndex& index) const override;
+
+    /**
      * @brief set the found matches for the delegate
      * @param matches
      */
@@ -51,6 +59,7 @@ private:
                              const QRect& rect,
                              const QStyleOptionViewItem& option,
                              const QString& text,
+                             const QColor& textColor,
                              const GtOutputDock::Matches& matches) const;
 
     //QPersistentModelIndex m_currentMatchIndex;
