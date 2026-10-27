@@ -342,14 +342,6 @@ GtOutputDock::GtOutputDock()
         rowResizeTimer->start();
     });
 
-    // resize rows once new log entries arrive
-    connect(m_model, &QAbstractItemModel::rowsInserted,
-            this, [&,rowResizeTimer](const QModelIndex& /*parent*/,
-                                     int /*first*/, int /*last*/){
-        // (re-) start timer, which triggers the resize
-        rowResizeTimer->start();
-    });
-
     defaultLayout->addWidget(m_logView);
 
     filterLayout->addStretch(1);

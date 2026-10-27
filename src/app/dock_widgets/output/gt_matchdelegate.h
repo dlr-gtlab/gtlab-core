@@ -36,14 +36,6 @@ public:
                const QModelIndex& index) const override;
 
     /**
-     * @brief size hint so that rows grow for wrapped/multi-line messages
-     * @param option
-     * @param index
-     */
-    QSize sizeHint(const QStyleOptionViewItem& option,
-                   const QModelIndex& index) const override;
-
-    /**
      * @brief set the found matches for the delegate
      * @param matches
      */
