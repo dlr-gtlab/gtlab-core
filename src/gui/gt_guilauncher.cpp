@@ -1,8 +1,7 @@
-/*
- * GTlab IntelliGraph
+/* GTlab - Gas Turbine laboratory
  *
- *  SPDX-License-Identifier: BSD-3-Clause
- *  SPDX-FileCopyrightText: 2026 German Aerospace Center
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  *
  *  Author: Marius Bröcker <marius.broecker@dlr.de>
  */

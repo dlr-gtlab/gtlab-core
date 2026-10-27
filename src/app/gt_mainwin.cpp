@@ -71,6 +71,8 @@
   #include <qtadvanceddocking-qt5/DockWidget.h>
   #include <qtadvanceddocking-qt5/DockAreaWidget.h>
   #include "gt_guiadslayoutadapter.h"
+  #include "gt_guiadsutilities.h"
+  #include "gt_adscomponentsfactory.h"
 #else
   #include "gt_guitablayoutadapter.h"
 #endif
@@ -89,7 +91,19 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->setupUi(this);
     ui->centralwidget->setParent(nullptr);
 
+    ads::CDockComponentsFactory::setFactory(new GtAdsComponentsFactory);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::OpaqueSplitterResize, false);
+//    ads::CDockManager::setConfigFlag(ads::CDockManager::AllTabsHaveCloseButton, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::AlwaysShowTabs, true);
     ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHideDisabledButtons, true);
+//    ads::CDockManager::setConfigFlag(ads::CDockManager::FloatingContainerHasWidgetIcon, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::HideSingleCentralWidgetTitleBar, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::MiddleMouseButtonClosesTab, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DisableTabTextEliding, true);
+//    ads::CDockManager::setConfigFlag(ads::CDockManager::UseNativeWindows, true);
+//    ads::CDockManager::setConfigFlag(ads::CDockManager::DisableStylesheet, true);
 
     auto* manager = new ads::CDockManager(this);
     manager->setObjectName(QStringLiteral("DockManager"));
@@ -103,11 +117,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
         centralDockWidget->setWidget(label);
     }
     centralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
-    centralDockWidget->setFrameShape(QFrame::NoFrame);
-    for (auto* child : centralDockWidget->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
-    {
-        child->setFrameShape(QFrame::NoFrame);
-    }
+    gt::gui::applyDefaultStyle(*centralDockWidget);
     auto* centralDockArea = manager->setCentralWidget(centralDockWidget);
     assert(centralDockArea);
 
@@ -481,23 +491,11 @@ GtMainWin::setupDockWidgets()
             auto* dock = new ads::CDockWidget(manager, legacyDock->objectName());
             dock->setIcon(legacyDock->getIcon());
             dock->setWidget(legacyDock);
-            auto* area = manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
+            manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
             legacyDock->setTitleBarWidget(new QWidget());
             legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
-            // style buttons more appropriately
-            for (auto* child : area->findChildren<QPushButton*>(QStringLiteral("tabCloseButton")))
-            {
-                child->setFlat(true);
-                child->resize(child->height(), child->height());
-            }
-
-            // remove frames
-            dock->setFrameShape(QFrame::NoFrame);
-            for (auto* child : dock->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
-            {
-                child->setFrameShape(QFrame::NoFrame);
-            }
+            gt::gui::applyDefaultStyle(*dock);
 
             using DockWidget = ads::CDockWidget;
 #else

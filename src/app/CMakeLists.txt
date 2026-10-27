@@ -8,7 +8,6 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #         ____/ /_/ /_/\__,_/_.___/
 
-set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
@@ -22,6 +21,7 @@ set(headers
     dock_widgets/properties/gt_propertycontainerwidget.h
     gt_mainwin.h
     gt_guiadslayoutadapter.h
+    gt_guiadsutilities.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
     preferences/pages/gt_preferenceslanguage.h
@@ -89,6 +89,7 @@ set(headers
     dock_widgets/properties/gt_propertiesdock.h
     dock_widgets/labels/gt_labelsdock.h
     dock_widgets/labels/gt_labeldelegate.h
+    dock_widgets/gt_adscomponentsfactory.h
 )
 
 set(forms
@@ -105,6 +106,7 @@ set(sources
     dock_widgets/properties/gt_propertycontainerwidget.cpp
     gt_mainwin.cpp
     gt_guiadslayoutadapter.cpp
+    gt_guiadsutilities.cpp
     preferences/gt_preferencesdialog.cpp
     preferences/pages/gt_preferencesapp.cpp
     preferences/pages/gt_preferenceslanguage.cpp
@@ -172,6 +174,7 @@ set(sources
     dock_widgets/properties/gt_propertiesdock.cpp
     dock_widgets/labels/gt_labelsdock.cpp
     dock_widgets/labels/gt_labeldelegate.cpp
+    dock_widgets/gt_adscomponentsfactory.cpp
 )
 
 if (WIN32)
@@ -207,6 +210,7 @@ target_include_directories(GTlab PRIVATE
     mdi_items/label_usages
     mdi_items/process_env
     mdi_items/process_env/entities
+    dock_widgets
     dock_widgets/output
     dock_widgets/explorer
     dock_widgets/process
