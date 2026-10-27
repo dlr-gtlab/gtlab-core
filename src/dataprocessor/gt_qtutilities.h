@@ -110,13 +110,14 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
 
 /**
  * @brief Returns whether the meta object has a default invokable constructor
+ * using the QMetaObject.
  *
  * Example of a default invocable constructor:
  *
  *   class MyObject : public QObject {
  *       Q_OBJECT // <- required
  *   public
- *       Q_INVOKABLE MyObject(); // <- default constructor must be invokable
+ *       Q_INVOKABLE MyObject(); // <- default constructor must be Q_INVOKABLE
  *       // ...
  *   };
  *
@@ -129,7 +130,7 @@ bool isDefaultConstructible(QMetaObject const& metaObject);
 
 /**
  * @brief Returns true if all meta objects in the given list-type are default
- * constructible
+ * constructible using the QMetaObject
  * @param list List of meta objects
  * @tparam List Any type with a begin() and end() function
  * @return Whether all meta objects are default constructible
@@ -143,8 +144,8 @@ bool areDefaultConstructible(List const& list)
 
 /**
  * @brief Returns the class hioerarchy of the corresponding class as a string
- * list where the first entry is the querried class and the last entry the top
- * most base class (ascending)
+ * list where the first entry is the querried class and the last entry is the
+ * top most base class (ascending order)
  * @param metaObject Meta object to query
  * @return Ascending class hierarchy
  */

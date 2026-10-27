@@ -88,6 +88,7 @@ public:
      * @brief collectionIds
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionIds`")
     QStringList collectionIds();
 
     /**
@@ -95,6 +96,7 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionIcon`")
     QIcon collectionIcon(const QString& id);
 
     /**
@@ -102,6 +104,7 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionStructure`")
     QMap<QString, QMetaType::Type> collectionStructure(const QString& id);
 
     /**
@@ -109,6 +112,7 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collection`")
     GtCollectionInterface* collection(const QString& id);
 
     /**
@@ -234,6 +238,7 @@ protected:
      * @param meta
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::registerCollection`")
     bool registerCollection(const QString& str, GtCollectionInterface* coll);
 
 public slots:
