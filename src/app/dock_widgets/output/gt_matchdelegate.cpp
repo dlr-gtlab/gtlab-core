@@ -36,16 +36,13 @@ GtMatchDelegate::paint(QPainter* painter,
 
     const auto matchIt = m_matches.constFind(index);
 
-    // eigene Selection-Logik
     if (matchIt != m_matches.constEnd() && (opt.state & QStyle::State_Selected))
     {
         opt.state &= ~QStyle::State_Selected;
     }
 
-    // alles außer Text zeichnen
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
-    // komplette Zeile markieren
     if (matchIt != m_matches.constEnd())
     {
         QColor color = opt.palette.highlight().color();
@@ -57,16 +54,12 @@ GtMatchDelegate::paint(QPainter* painter,
     QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt,
                                            opt.widget);
 
-    // Textfarbe: immer die Level-Farbe aus dem Model, auch bei Selektion
     QColor textColor = index.data(Qt::ForegroundRole).value<QColor>();
     if (!textColor.isValid())
     {
         textColor = option.palette.color(QPalette::Text);
     }
 
-    // Text auf den Textbereich der Zelle beschränken, damit Überlauf
-    // (z. B. sehr lange unumbrichbare Zeichenketten) benachbarte
-    // Zeilen und Spalten nicht überdeckt
     painter->save();
     painter->setClipRect(textRect);
 
@@ -115,8 +108,6 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter,
 
     layout.setFormats(ranges);
 
-    // Alle Textzeilen anlegen, damit mehrzeilige Nachrichten
-    // vollständig gezeichnet werden.
     layout.beginLayout();
 
     qreal totalHeight = 0.0;
@@ -136,10 +127,8 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter,
 
     layout.endLayout();
 
-    // Textfarbe setzen.
     painter->setPen(textColor);
 
-    // Vertikal zentrieren.
     QPointF pos = rect.topLeft();
     pos.setY(pos.y() + qMax(0.0, (rect.height() - totalHeight) / 2.0));
 
