@@ -79,8 +79,7 @@ GtMatchDelegate::setMatches(const QHash<QPersistentModelIndex,
 }
 
 void
-GtMatchDelegate::drawHighlightedText(QPainter* painter,
-                                     const QRect& rect,
+GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
                                      const QStyleOptionViewItem& option,
                                      const QString& text,
                                      const QColor& textColor,
