@@ -15,7 +15,9 @@
 #include <QStringList>
 #include <QMetaObject>
 
-#include "gt_datamodel_exports.h"
+#include <gt_qtutilities.h>
+#include <gt_platform.h>
+#include <gt_datamodel_exports.h>
 
 class GtObject;
 
@@ -35,14 +37,52 @@ public:
      * @param parent object for the new object
      * @return new object
      */
+    GT_NO_DISCARD
     virtual GtObject* newObject(const QString& className,
                                 GtObject* parent = nullptr);
+
+    /**
+     * @brief Creates a new object of the given class name.Lifetime is tied to
+     * the smart pointer
+     * @param className Name of the class to instance
+     * @return Unique pointer to new instance, managed through the smart
+     * pointer. May be null if the class was not found or the object could not
+     * be instantiated.
+     */
+    GT_NO_DISCARD
+    std::unique_ptr<GtObject> makeObject(const QString& className);
+
+    /**
+     * @brief Overload, casting object to `T`.
+     * @param className Class name to instantiate (must be derived of T)
+     * @tparam T Type to cast to
+     * @return
+     */
+    template <typename T,
+              typename = std::enable_if_t<std::is_base_of<GtObject, T>::value>>
+    GT_NO_DISCARD std::unique_ptr<T> makeObject(const QString& className)
+    {
+        return gt::unique_qobject_cast<T>(makeObject(className));
+    }
+
+    /**
+     * @brief Creates a new object of the given class name. Sets `parent` to own
+     * the new object. Lifetime is managed by the parent child relation
+     * @param className Name of the class to instance
+     * @param parent Parent object, owning the new instance
+     * @return Raw pointer to new instance, managed through the parent child
+     * relation. May be null if the class was not found or the object could not
+     * be instantiated.
+     */
+    GT_NO_DISCARD
+    GtObject* makeObject(const QString& className, GtObject& parent);
 
     /**
      * @brief superClassName - returns superclass name of given class
      * @param className
      * @return name of superclass
      */
+    GT_NO_DISCARD
     virtual QString superClassName(const QString& className) const;
 
     /**
@@ -50,6 +90,7 @@ public:
      * @param className
      * @return
      */
+    GT_NO_DISCARD
     virtual QStringList classHierarchy(const QString& className);
 
     /**
@@ -58,12 +99,14 @@ public:
      * @param className
      * @return whether classname is known or not
      */
+    GT_NO_DISCARD
     virtual bool knownClass(const QString& className) const;
 
     /**
      * @brief knownClasses - returns a list of all stored meta class names
      * @return class name list
      */
+    GT_NO_DISCARD
     virtual QStringList knownClasses() const;
 
     /**
@@ -86,7 +129,7 @@ public:
      * @param metaObj The meta object of the class to remove
      * @return
      */
-    bool unregisterClass(const QMetaObject& metaObj);
+    virtual bool unregisterClass(const QMetaObject& metaObj);
 
     /**
      * @brief registerClasses
@@ -109,6 +152,7 @@ public:
      * @param className Registered class name.
      * @return Module identification or an empty string if none is known.
      */
+    GT_NO_DISCARD
     virtual QString moduleId(const QString& className) const;
 
     /**
@@ -116,6 +160,7 @@ public:
      * @param plugin
      * @return
      */
+    GT_NO_DISCARD
     virtual bool containsDuplicates(const QList<QMetaObject>& metaData) const;
 
     /**
@@ -123,6 +168,7 @@ public:
      * @param metaObj
      * @return
      */
+    GT_NO_DISCARD
     virtual bool invokable(const QMetaObject& metaObj) const;
 
     /**
@@ -130,7 +176,8 @@ public:
      * @param plugin
      * @return
      */
-    bool allInvokable(const QList<QMetaObject>& metaData);
+    GT_NO_DISCARD
+    bool allInvokable(const QList<QMetaObject>& metaData) const;
 
     /**
      * @brief Returns the meta object for a given type
@@ -140,7 +187,8 @@ public:
      * @param clzName Class / type name
      * @return pointer to meta object
      */
-    const QMetaObject* metaObject(const QString& clzName) const;
+    GT_NO_DISCARD
+    virtual const QMetaObject* metaObject(const QString& clzName) const;
 
 protected:
 
@@ -152,6 +200,8 @@ protected:
 
     /// debug output indicator
     bool m_silent;
+
+    bool isSilent() const noexcept;
 
     /**
      * @brief GtAbstractObjectFactory
@@ -169,7 +219,6 @@ protected:
 
 private:
     QStringList classHierarchy(const QMetaObject* metaObj);
-
 };
 
 #endif // GTABSTRACTOBJECTFACTORY_H

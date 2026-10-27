@@ -130,7 +130,9 @@ GtAbstractPropertyItem::updateSubProperties()
     {
         if (!prop->isHidden())
         {
-            gtPropertyItemFactory->newItem(prop, m_scope, m_model, this);
+            auto item =
+                gtPropertyItemFactory->makeItem(*prop, m_scope, m_model, *this);
+            Q_UNUSED(item);
         }
     }
 }

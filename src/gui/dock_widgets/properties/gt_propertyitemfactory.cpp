@@ -86,49 +86,46 @@ GtAbstractPropertyItem*
 GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
                                GtPropertyModel* model, GtObject* parent)
 {
-    GtAbstractPropertyItem* retval = nullptr;
+    if (!property) return nullptr;
+    return makeItemImpl(*property, scope, model, parent);
+}
 
-    if (!knownClass(property->metaObject()->className()))
+GtAbstractPropertyItem*
+GtPropertyItemFactory::makeItem(GtAbstractProperty& property, GtObject* scope,
+                                GtPropertyModel* model, GtObject& parent)
+{
+    return makeItemImpl(property, scope, model, &parent);
+}
+
+GtAbstractPropertyItem*
+GtPropertyItemFactory::makeItemImpl(GtAbstractProperty& property,
+                                    GtObject* scope, GtPropertyModel* model,
+                                    GtObject* parent)
+{
+    std::unique_ptr<GtAbstractPropertyItem> retval;
+
+    if (knownClass(property.metaObject()->className()))
     {
-//        gtDebug() << tr("property class not found!") <<
-//                     QStringLiteral(" - ") <<
-//                     property->metaObject()->className();
-    }
-    else
-    {
-        GtObject* obj = newObject(property->metaObject()->className(), parent);
-
-        if (!obj)
+        retval = makeObject<GtAbstractPropertyItem>(
+            property.metaObject()->className());
+        if (!retval)
         {
-            gtDebug() << tr("could not recreate property item!") <<
-                         QStringLiteral(" - ") <<
-                         property->metaObject()->className();
-        }
-        else
-        {
-            retval = qobject_cast<GtAbstractPropertyItem*>(obj);
-
-            if (!retval)
-            {
-                gtDebug() << tr("object not a property item!") <<
-                             QStringLiteral(" - ") <<
-                             property->metaObject()->className();
-                delete obj;
-            }
+            gtDebug() << tr("could not recreate property item!")
+                      << QStringLiteral(" - ")
+                      << property.metaObject()->className();
         }
     }
-
 
     if (!retval)
     {
         // create default property item
-//        gtDebug() << tr("creating default property item...");
-        retval = new GtPropertyItem;
-        retval->setParent(parent);
+        retval = std::make_unique<GtPropertyItem>();
     }
 
+    if (parent) retval->setParent(parent);
+
     // set property
-    retval->setPropertyData(property);
+    retval->setPropertyData(&property);
 
     // set scope
     retval->setScope(scope);
@@ -139,7 +136,7 @@ GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
     // sub properties
     retval->updateSubProperties();
 
-    return retval;
+    return retval.release();
 }
 
 bool

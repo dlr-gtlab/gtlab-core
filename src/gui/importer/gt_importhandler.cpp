@@ -91,27 +91,13 @@ GtImportHandler::importerMetaData(const QString& classname)
 }
 
 GtAbstractImporter*
-GtImportHandler::newImporter(const QString& classname)
+GtImportHandler::newImporter(const QString& className)
 {
-    if (!knownClass(classname))
-    {
-        return nullptr;
-    }
+    return makeImporter(className).release();
+}
 
-    GtObject* obj = newObject(classname);
-
-    if (!obj)
-    {
-        return nullptr;
-    }
-
-    GtAbstractImporter* retval = qobject_cast<GtAbstractImporter*>(obj);
-
-    if (!retval)
-    {
-        delete obj;
-        return nullptr;
-    }
-
-    return retval;
+std::unique_ptr<GtAbstractImporter>
+GtImportHandler::makeImporter(const QString& className)
+{
+    return makeObject<GtAbstractImporter>(className);
 }
