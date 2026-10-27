@@ -54,10 +54,20 @@ GtMatchDelegate::paint(QPainter* painter,
     QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt,
                                            opt.widget);
 
-    QColor textColor = index.data(Qt::ForegroundRole).value<QColor>();
-    if (!textColor.isValid())
+    QColor textColor;
+
+    if (option.state & QStyle::State_Selected)
     {
-        textColor = option.palette.color(QPalette::Text);
+        textColor = option.palette.color(QPalette::HighlightedText);
+    }
+    else
+    {
+        textColor = index.data(Qt::ForegroundRole).value<QColor>();
+
+        if (!textColor.isValid())
+        {
+            textColor = option.palette.color(QPalette::Text);
+        }
     }
 
     painter->save();
@@ -85,6 +95,11 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
                                      const QColor& textColor,
                                      const GtOutputDock::Matches& matches) const
 {
+    if (rect.isEmpty() || text.isEmpty())
+    {
+        return;
+    }
+
     QTextLayout layout(text, option.font);
 
     QVector<QTextLayout::FormatRange> ranges;
@@ -107,14 +122,20 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
 
     layout.setFormats(ranges);
 
+    // Nur Zeilen erzeugen, die noch in den sichtbaren Bereich reichen.
+    // Bei vollständig sichtbarem Text wird das Layout regulär beendet.
     layout.beginLayout();
 
     qreal totalHeight = 0.0;
-    while (true)
+    bool layoutComplete = false;
+
+    while (totalHeight < rect.height())
     {
         QTextLine line = layout.createLine();
+
         if (!line.isValid())
         {
+            layoutComplete = true;
             break;
         }
 
@@ -126,10 +147,29 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
 
     layout.endLayout();
 
+    // Vertikale Ausrichtung nur anhand der Gesamthöhe bestimmen,
+    // wenn der komplette Text gelayoutet wurde.
+    qreal verticalOffset = 0.0;
+
+    if (layoutComplete && totalHeight < rect.height())
+    {
+        if (option.displayAlignment & Qt::AlignVCenter)
+        {
+            verticalOffset = (rect.height() - totalHeight) / 2.0;
+        }
+        else if (option.displayAlignment & Qt::AlignBottom)
+        {
+            verticalOffset = rect.height() - totalHeight;
+        }
+    }
+
+    painter->save();
+    painter->setClipRect(rect);
     painter->setPen(textColor);
 
-    QPointF pos = rect.topLeft();
-    pos.setY(pos.y() + qMax(0.0, (rect.height() - totalHeight) / 2.0));
+    layout.draw(
+        painter,
+        QPointF(rect.left(), rect.top() + verticalOffset));
 
-    layout.draw(painter, pos);
+    painter->restore();
 }
