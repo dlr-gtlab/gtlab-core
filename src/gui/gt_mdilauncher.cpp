@@ -9,13 +9,8 @@
  */
 
 #include <QCoreApplication>
-#include <QMdiArea>
-#include <QTabBar>
-#include <QTabWidget>
 #include <QMdiSubWindow>
-#include <QPushButton>
 #include <QFrame>
-#include <QHBoxLayout>
 
 #include "gt_mdiwidget.h"
 #include "gt_mdilauncher.h"
@@ -26,112 +21,15 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 #include "gt_tabwidget.h"
-
-static const QString S_WINDOW_PREFIX = QStringLiteral("GTlab - ");
-
-namespace
-{
-
-/// helper function to make tab buttons
-QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
-                        QIcon const& tabIcon,
-                        QPointer<GtMdiWidget> mdiWidget,
-                        QPointer<GtMdiItem> mdiItem)
-{
-    // set custom close button
-    auto* closeBtn = new QPushButton;
-    closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
-    closeBtn->resize(QSize(14, 14));
-    closeBtn->setIcon(gt::gui::icon::close());
-    closeBtn->setFlat(true);
-    // for identification in gui tests
-    closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
-
-    auto* undockBtn = new QPushButton;
-    undockBtn->setIconSize(QSize{14, 14});
-    undockBtn->resize(QSize(14, 14));
-    undockBtn->setIcon(gt::gui::icon::dock());
-    undockBtn->setFlat(true);
-
-    if (!gtApp->devMode())
-    {
-        undockBtn->hide();
-    }
-
-    auto* buttonLay = new QHBoxLayout;
-    buttonLay->setContentsMargins(0, 0, 0, 0);
-    buttonLay->addWidget(undockBtn);
-    buttonLay->addWidget(closeBtn);
-
-    auto* layoutWidget = new QWidget;
-    layoutWidget->setLayout(buttonLay);
-
-    QObject::connect(closeBtn, &QPushButton::clicked,
-                     mdiWidget, &QObject::deleteLater);
-
-    QObject::connect(undockBtn, &QPushButton::clicked,
-                     mdiWidget, [tabWidget, tabIcon, mdiItem, mdiWidget](){
-        assert(mdiItem);
-        assert(mdiWidget);
-        // get widget size
-        QWidget* current = tabWidget->currentWidget();
-        assert(current);
-        QSize size = current->size();
-        // get screen pos
-        QPoint pos = mdiWidget->mapToGlobal(mdiWidget->pos());
-        // detach
-        mdiWidget->setParent(nullptr); // automatically undocks widget
-        assert(!tabWidget->contains(mdiWidget));
-        mdiWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        mdiWidget->setWindowIcon(tabIcon);
-        mdiWidget->setWindowTitle(S_WINDOW_PREFIX + mdiItem->objectName());
-        mdiWidget->move(pos);
-        mdiWidget->resize(size);
-        mdiWidget->show();
-    });
-
-    return layoutWidget;
-};
-
-/// helper function to setup redock action
-void setupRedockAction(QPointer<GtTabWidget> tabWidget,
-                       QIcon const& tabIcon,
-                       QPointer<GtMdiWidget> mdiWidget,
-                       QPointer<GtMdiItem> mdiItem)
-{
-    QObject::connect(mdiWidget, &GtMdiWidget::redockWidget,
-                     tabWidget, [tabWidget, tabIcon, mdiItem, mdiWidget](){
-        // widget may be deleted during queuing of signal
-        if (!mdiWidget) return;
-
-        assert(!mdiWidget->parent());
-        assert(tabWidget && !tabWidget->contains(mdiWidget));
-
-        // add tab
-        auto const& objectName = mdiWidget->windowTitle().mid(S_WINDOW_PREFIX.size());
-        int idx = tabWidget->addTab(mdiWidget, tabIcon, objectName);
-        assert(idx >= 0);
-        tabWidget->tabBar()->setTabButton(idx, QTabBar::RightSide,
-                                          makeTabButtons(tabWidget, tabIcon, mdiWidget, mdiItem));
-        tabWidget->setCurrentWidget(mdiWidget);
-    }, Qt::QueuedConnection); // <- this prohibits crash in drawing procedure
-}
-
-} // namespace
+#include "gt_guifactory.h"
+#include "gt_guilayoutadapter.h"
 
 struct GtMdiLauncher::Impl
 {
-    /// Mdi area widget
-    QPointer<QTabWidget> area{nullptr};
+    QPointer<GtGuiLayoutAdapter> adapter{};
 
     /// Registered dock widget meta objects
     QHash<QString, QMetaObject> dockWidgets;
-
-    /// List of all open mdi items
-    QMap<const QObject*, QPointer<GtMdiItem>> openItems;
-
-    /// MDI Editor name map (class, name)
-    QMap<QString, QString> mdiNames;
 
     /// Collections
     QHash<QString, GtCollectionInterface*> collections;
@@ -143,162 +41,34 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
 }
 
 GtMdiLauncher::~GtMdiLauncher() = default;
-QString
-GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
-{
-    if (!mdiItem)
-    {
-        return {};
-    }
-
-    QString retval = mdiItem->metaObject()->className();
-
-    if (!mdiItem->m_cid.isEmpty())
-    {
-        retval = retval + QStringLiteral("#") + mdiItem->m_cid;
-    }
-    else
-    {
-        QString customMdiId = mdiItem->customId(mdiItem->m_d);
-
-        if (!customMdiId.isEmpty())
-        {
-            retval = retval + QStringLiteral("#") + customMdiId;
-        }
-        else
-        {
-            if (mdiItem->m_d)
-            {
-                retval = retval + QStringLiteral("#") + mdiItem->m_d->uuid();
-            }
-        }
-    }
-
-    return retval;
-}
 
 bool
-GtMdiLauncher::mdiItemAllowed(GtMdiItem* mdiItem)
+GtMdiLauncher::isItemAllowed(GtMdiItem* mdiItem)
 {
-    if (!mdiItem)
-    {
-        return false;
-    }
+    if (!mdiItem) return false;
 
-    if (mdiItem->allowsMultipleInstances())
-    {
-        return true;
-    }
+    if (mdiItem->allowsMultipleInstances()) return true;
 
-    QString mdiId = generateMdiItemId(mdiItem);
+    QString mdiId = mdiItem->currentId();
 
-    if (mdiId.isEmpty())
-    {
-        return false;
-    }
+    if (mdiId.isEmpty()) return false;
 
-    if (openItemIds().contains(mdiId))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-QStringList
-GtMdiLauncher::openItemIds()
-{
-    QStringList retval;
-
-    const auto& openItems = pimpl->openItems.values();
-
-    for (GtMdiItem* openItem : openItems)
-    {
-        retval << generateMdiItemId(openItem);
-    }
-
-    return retval;
+    assert(pimpl->adapter);
+    return !pimpl->adapter->hasItem(mdiId);
 }
 
 void
 GtMdiLauncher::setFocus(const QString& mdiId)
 {
-    if (mdiId.isEmpty())
-    {
-        return;
-    }
-
-    if (!pimpl->area)
-    {
-        return;
-    }
-
-    gt::for_each_key(pimpl->openItems, [&](const QObject* e)
-    {
-        if (generateMdiItemId(pimpl->openItems.value(e)) == mdiId)
-        {
-            // TODO: replace with `GtTabWidget->widgets()`
-
-            QList<QWidget*> list;
-            for (int i = 0; i < pimpl->area->count(); ++i)
-            {
-                if (pimpl->area->widget(i))
-                {
-                    list.append(pimpl->area->widget(i));
-                }
-            }
-
-            for (QWidget* listItem : list)
-            {
-                if (listItem == e)
-                {
-                    pimpl->area->setCurrentWidget(listItem);
-                    listItem->setFocus();
-                }
-            }
-        }
-    });
-
+    assert(pimpl->adapter);
+    pimpl->adapter->focus(mdiId);
 }
 
 void
 GtMdiLauncher::close()
 {
-    // the ownership is quite a mess, deleting the widget
-    for (GtMdiItem* item : pimpl->openItems)
-    {
-        assert(item);
-        // cppcheck-suppress assertWithSideEffect
-        assert(item->widget());
-        item->widget()->deleteLater();
-    }
-    pimpl->openItems.clear();
-}
-
-void
-GtMdiLauncher::onSubWindowClose(QObject* obj)
-{
-    auto iter = pimpl->openItems.find(obj);
-    if (iter != pimpl->openItems.end())
-    {
-        pimpl->openItems.erase(iter);
-    }
-}
-
-void
-GtMdiLauncher::onCloseTabRequest(int i)
-{
-    if (QWidget* w = pimpl->area->widget(i))
-    {
-        pimpl->area->removeTab(i);
-        delete w;
-
-        // focus the new current widget to recieve input etc.
-        if (QWidget* next = pimpl->area->currentWidget())
-        {
-            next->setFocus();
-        }
-    }
+    assert(pimpl->adapter);
+    pimpl->adapter->closeAll();
 }
 
 GtMdiLauncher*
@@ -313,59 +83,17 @@ GtMdiLauncher::instance()
 }
 
 void
-GtMdiLauncher::setMdiArea(QTabWidget* area)
+GtMdiLauncher::setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter)
 {
-    if (pimpl->area)
-    {
-        return;
-    }
-
-    pimpl->area = area;
-
-    connect(pimpl->area, SIGNAL(tabCloseRequested(int)), this,
-            SLOT(onCloseTabRequest(int)));
+    pimpl->adapter = adapter.get();
+    if (adapter) adapter.release()->setParent(this);
 }
 
-bool
-GtMdiLauncher::registerMdiWidgets(const QList<QMetaObject> &mdiItems)
+QString
+GtMdiLauncher::mdiOpenWithName(const QString& className) const
 {
-    bool allInvokable = true;
-
-    for (const auto& metaObj : mdiItems)
-    {
-        std::unique_ptr<GtObject> obj(newObject(metaObj));
-        if (!obj)
-        {
-            if (!m_silent) qWarning() << "class " << metaObj.className() << " not invokable!";
-            allInvokable = false;
-        }
-        else
-        {
-            // Register openWith menu entry name
-            if (!obj->objectName().isEmpty())
-            {
-                pimpl->mdiNames[metaObj.className()] = obj->objectName();
-            }
-            else
-            {
-                gtWarning() << tr("The MDI class '%1' should define an "
-                                  "objectName in its constructor")
-                                   .arg(metaObj.className());
-            }
-        }
-
-    }
-
-    return allInvokable;
-}
-
-QString GtMdiLauncher::mdiOpenWithName(const QString &className) const
-{
-    auto iter = pimpl->mdiNames.find(className);
-    if (iter != pimpl->mdiNames.end() && !iter.value().isEmpty()) return iter.value();
-
-    // Fallback, no name registered.
-    return className;
+    QString displayName = GtGuiFactory::instance().displayName(className);
+    return displayName.isEmpty() ? className : displayName;
 }
 
 QStringList
@@ -436,60 +164,58 @@ GtMdiLauncher::collection(const QString& id)
 void
 GtMdiLauncher::printCurrentWindow()
 {
-    if (!pimpl->area)
-    {
-        return;
-    }
+    assert(pimpl->adapter);
 
-    print(pimpl->area->currentWidget());
+    auto item = pimpl->adapter->currentItem();
+    if (item) item->print();
 }
 
 void
-GtMdiLauncher::print(QWidget* subWindow)
+GtMdiLauncher::print(QWidget* widget)
 {
-    if (!subWindow) return;
+    if (!widget) return;
 
-    if (auto item = pimpl->openItems.value(subWindow, nullptr))
-    {
-        item->print();
-    }
+    assert(pimpl->adapter);
+    auto* item = pimpl->adapter->itemFromWidget(*widget);
+    if (item) item->print();
 }
 
 bool
-GtMdiLauncher::isPrintable(QWidget* subWindow) const
+GtMdiLauncher::isCurrentWindowPrintable() const
 {
-    if (!subWindow)
-    {
-        return false;
-    }
+    assert(pimpl->adapter);
 
-    if (pimpl->openItems.contains(subWindow) && pimpl->openItems.value(subWindow))
-    {
-        return pimpl->openItems.value(subWindow)->isPrintable();
-    }
+    auto item = pimpl->adapter->currentItem();
+    return item && item->isPrintable();
+}
 
-    return false;
+bool
+GtMdiLauncher::isPrintable(QWidget* widget) const
+{
+    if (!widget) return false;
+
+    assert(pimpl->adapter);
+    auto* item = pimpl->adapter->itemFromWidget(*widget);
+    return item && item->isPrintable();
 }
 
 std::vector<GtQmlAction*>
-GtMdiLauncher::toolbarActions(QWidget* subWindow) const
+GtMdiLauncher::toolbarActions(QWidget* widget) const
 {
-    if (!subWindow)
-    {
-        return {};
-    }
+    if (!widget) return {};
 
-    if (pimpl->openItems.contains(subWindow) && pimpl->openItems.value(subWindow))
-    {
-        return pimpl->openItems.value(subWindow)->toolbarActions();
-    }
+    assert(pimpl->adapter);
+    auto* item = pimpl->adapter->itemFromWidget(*widget);
+    if (!item) return {};
 
-    return {};
+    return item->toolbarActions();
 }
 
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
+    GtGuiFactory::instance().registerDockWidget(metaObj, GT_MODULENAME());
+
     if (pimpl->dockWidgets.contains(metaObj.className()))
     {
         gtWarning().medium()
@@ -501,6 +227,13 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
     pimpl->dockWidgets.insert(metaObj.className(), metaObj);
 
     return true;
+}
+
+bool
+GtMdiLauncher::registerClass(QMetaObject metaObj)
+{
+    GtGuiFactory::instance().registerGuiItem(metaObj, GT_MODULENAME());
+    return GtAbstractObjectFactory::registerClass(metaObj);
 }
 
 bool
@@ -530,7 +263,7 @@ GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
 
     for (const QMetaObject& metaObj : metaData)
     {
-        pimpl->dockWidgets.insert(metaObj.className(), metaObj);
+        registerDockWidget(metaObj); // checks if widget exists twice
     }
 
     return true;
@@ -553,144 +286,45 @@ GtMdiLauncher::registerCollection(const QString& str,
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
-    if (!pimpl->area) return nullptr;
+    assert(pimpl->adapter);
 
-    auto* tabWidget = qobject_cast<GtTabWidget*>(pimpl->area.data());
-    assert(tabWidget);
-
-    if (!knownClass(id))
+    auto& factory = GtGuiFactory::instance();
+    if (!factory.isGuiItem(id))
     {
-        gtWarning().medium() << tr("Unknown Mdi item '%1'!").arg(id);
+        gtWarning().medium() << tr("Unknown GUI item '%1'!").arg(id);
         return nullptr;
     }
 
-    GtObject* obj = newObject(id);
-
-    auto* mdiItem = qobject_cast<GtMdiItem*>(obj);
-
-    if (!mdiItem)
-    {
-        delete obj;
-        return nullptr;
-    }
+    auto item = factory.makeGuiItem(id);
+    if (!item) return nullptr;
 
     // add parent to this class for now
-    mdiItem->setParent(this);
+    item->setParent(this);
 
-    if (data)
-    {
-        mdiItem->m_d = data;
-    }
+    item->setCurrentObject(data, customId);
 
-    if (!customId.isEmpty())
+    if (!isItemAllowed(item.get()))
     {
-        mdiItem->m_cid = customId;
-    }
+        auto activeItem = pimpl->adapter->item(item->currentId());
+        if (!activeItem) return nullptr;
 
-    if (!mdiItemAllowed(mdiItem))
-    {
-        if (data && mdiItem->objectName() == "Result Viewer")
+        if (data && activeItem->flags().testFlag(GtMdiItem::AllowsReopening))
         {
-            const auto openItems = pimpl->openItems.values();
-
-            foreach (GtMdiItem* openItem, openItems)
-            {
-                if (openItem->objectName() == mdiItem->objectName())
-                { // cppcheck-suppress useStlAlgorithm
-                    emit openItem->tryReopening(openItem->m_d.data());
-                    break;
-                }
-            }
+            activeItem->setCurrentObject(data);
         }
-
-        setFocus(generateMdiItemId(mdiItem));
-
-        delete obj;
-        return nullptr;
+        pimpl->adapter->focus(activeItem->currentId());
+        return activeItem;
     }
 
-    QPointer<GtMdiWidget> mdiWidget{qobject_cast<GtMdiWidget*>(mdiItem->widget())};
-    assert(mdiWidget);
+    if (!pimpl->adapter->addItem(*item)) return nullptr;
 
-    // move to widget
-    mdiItem->setParent(mdiWidget);
+    item->setData(data);
 
-    QIcon icon = mdiItem->icon();
-
-    if (icon.isNull())
-    {
-        icon = gt::gui::icon::layers();
-    }
-
-    setupRedockAction(tabWidget, icon, mdiWidget, mdiItem);
-
-    mdiItem->initialized();
-    pimpl->openItems.insert(mdiWidget, mdiItem);
-
-    int idx = tabWidget->addTab(mdiWidget, icon, mdiItem->objectName());
-    assert(idx >= 0);
-    tabWidget->tabBar()->setTabButton(idx, QTabBar::RightSide,
-                                      makeTabButtons(tabWidget, icon, mdiWidget, mdiItem));
-
-
-    connect(mdiWidget, &QObject::destroyed,
-            this, &GtMdiLauncher::onSubWindowClose);
-    connect(mdiItem, &QObject::objectNameChanged,
-            this, &GtMdiLauncher::changeTabTitle);
-    connect(mdiItem, &QObject::destroyed,
-            mdiWidget, &QObject::deleteLater);
-    connect(gtApp, &GtApplication::themeChanged,
-            mdiItem, &GtMdiItem::onThemeChanged);
-
-
-    mdiItem->setSubWin(mdiWidget);
-
-    tabWidget->setCurrentWidget(mdiWidget);
-    mdiWidget->show();
-    mdiItem->showEvent();
-
-    if (data)
-    {
-        mdiItem->setData(data);
-    }
-
-    return mdiItem;
+    return item.release();
 }
 
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, const QString& customId)
 {
     return open(id, nullptr, customId);
-}
-
-void
-GtMdiLauncher::changeTabTitle(const QString& newTitle)
-{
-    assert(pimpl->area);
-    int index = -1;
-
-    /// if this function was called by a connection
-    if (sender())
-    {
-        if (GtMdiItem* item = qobject_cast<GtMdiItem*>(sender()))
-        {
-            index = pimpl->area->indexOf(item->widget());
-        }
-    }
-    /// else use the current mdi item
-    else
-    {
-        index = pimpl->area->currentIndex();
-    }
-
-    /// if index can be found:
-    if (index > -1)
-    {
-        if (auto* w = pimpl->area->widget(index))
-        {
-            // undocked
-            if (!w->parent()) w->setWindowTitle(S_WINDOW_PREFIX + newTitle);
-        }
-        pimpl->area->setTabText(index, newTitle);
-    }
 }

@@ -12,6 +12,7 @@
 #define GTDOCKWIDGET_H
 
 #include "gt_gui_exports.h"
+#include "gt_globals.h"
 
 #include "gt_shortcutsettingsdata.h"
 
@@ -77,16 +78,18 @@ protected:
      * @param data - short cut data to register
      * @return the key sequence used for this id
      */
-    [[deprecated("Use registerShortCut(QString const& id,"
-                 " QKeySequence const& k, bool readOnly = false) instead")]]
+    GT_DEPRECATED_REMOVED_IN(
+        2, 2, "Use registerShortCut(QString const& id, "
+              "QKeySequence const& k, bool readOnly = false) instead")
     QKeySequence registerShortCut(GtShortCutSettingsData const& data);
 
     /**
      * @brief registerShortCuts
      * @param list - list of short cuts to register
      */
-    [[deprecated("Use registerShortCut(QString const& id,"
-                 " QKeySequence const& k, bool readOnly = false) instead")]]
+    GT_DEPRECATED_REMOVED_IN(
+        2, 2, "Use registerShortCut(QString const& id, "
+              "QKeySequence const& k, bool readOnly = false) instead")
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**

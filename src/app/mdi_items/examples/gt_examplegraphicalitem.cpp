@@ -100,7 +100,6 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
     nameLabel->setFrameStyle(QFrame::NoFrame);
     nameLabel->setStyleSheet("background-color: rgba(0,0,0,0%);"
                              "border: 0px solid gray");
-    nameLabel->setFrameStyle(QFrame::NoFrame);
     nameLabel->setFont(fnt);
     nameLabel->setMaximumHeight(90);
     nameLabel->setMinimumHeight(80);
