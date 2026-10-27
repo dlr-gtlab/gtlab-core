@@ -20,16 +20,15 @@ class GT_GUI_EXPORT GtGuiTabLayoutAdapter final : public GtGuiLayoutAdapter
     Q_OBJECT
 
 public:
-
     GtGuiTabLayoutAdapter(GtTabWidget& tabWidget);
 
     bool isNull() const noexcept;
 
-    void focus(QString const& itemId) override;
+    void focus(const QString& itemId) override;
 
     bool addItem(GtMdiItem& item) override;
 
-    GtMdiItem* item(QString const& itemId) override;
+    GtMdiItem* item(const QString& itemId) override;
 
     GtMdiItem* itemFromWidget(QWidget& widget) override;
 
@@ -38,7 +37,6 @@ public:
     void closeAll() override;
 
 private:
-    
     QPointer<GtTabWidget> m_tab;
     QHash<QWidget*, QPointer<GtMdiItem>> m_openItems;
 

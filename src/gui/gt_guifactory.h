@@ -29,7 +29,6 @@ class GtMdiItem;
 class GT_GUI_EXPORT GtGuiFactory final
 {
 public:
-
     ~GtGuiFactory() noexcept;
 
     /**
@@ -46,7 +45,8 @@ public:
      * @return New widget. May be null.
      */
     GT_NO_DISCARD
-    std::unique_ptr<GtDockWidget> makeDockWidget(QString const& className) const;
+    std::unique_ptr<GtDockWidget> makeDockWidget(
+        const QString& className) const;
 
     /**
      * @brief Attempts to instantiate a new gui item of the corresponding
@@ -55,7 +55,7 @@ public:
      * @return New widget. May be null.
      */
     GT_NO_DISCARD
-    std::unique_ptr<GtMdiItem> makeGuiItem(QString const& className) const;
+    std::unique_ptr<GtMdiItem> makeGuiItem(const QString& className) const;
 
     /**
      * @brief Registers a dock widget using the meta object provided.
@@ -64,7 +64,7 @@ public:
      * @param moduleId Module Id this dock widget is associated with
      * @return Success
      */
-    bool registerDockWidget(QMetaObject metaObject, QString const& moduleId);
+    bool registerDockWidget(QMetaObject metaObject, const QString& moduleId);
 
     /**
      * @brief Unregisters the dock widget
@@ -72,7 +72,7 @@ public:
      * @return Returns whether the dock widget was found and unregistering was
      * successful
      */
-    bool unregisterDockWidget(QString const& className);
+    bool unregisterDockWidget(const QString& className);
 
     /**
      * @brief Registers a gui item using the meta object provided.
@@ -81,7 +81,7 @@ public:
      * @param moduleId Module Id this gui item is associated with
      * @return Success
      */
-    bool registerGuiItem(QMetaObject metaObject, QString const& moduleId);
+    bool registerGuiItem(QMetaObject metaObject, const QString& moduleId);
 
     /**
      * @brief Unregisters the gui item
@@ -89,7 +89,7 @@ public:
      * @return Returns whether the gui item was found and unregistering was
      * successful
      */
-    bool unregisterGuiItem(QString const& className);
+    bool unregisterGuiItem(const QString& className);
 
     /**
      * @brief Meta object of the associated dock widget class
@@ -97,7 +97,7 @@ public:
      * @return Meta object. May be null if the class is unknown to this factory.
      */
     GT_NO_DISCARD
-    const QMetaObject* dockWidget(QString const& anyClassName) const;
+    const QMetaObject* dockWidget(const QString& anyClassName) const;
 
     /**
      * @brief Meta object of the associated dock widget class
@@ -105,7 +105,7 @@ public:
      * @return Meta object. May be null if the class is unknown to this factory.
      */
     GT_NO_DISCARD
-    const QMetaObject* guiItem(QString const& anyClassName) const;
+    const QMetaObject* guiItem(const QString& anyClassName) const;
 
     /**
      * @brief Module id of the associated class
@@ -114,7 +114,7 @@ public:
      * if the class is unknown to this factory.
      */
     GT_NO_DISCARD
-    QString moduleId(QString const& className) const;
+    QString moduleId(const QString& className) const;
 
     /**
      * @brief Display name of the associated class
@@ -123,7 +123,7 @@ public:
      * if the class is unknown to this factory.
      */
     GT_NO_DISCARD
-    QString displayName(QString const& className) const;
+    QString displayName(const QString& className) const;
 
     /**
      * @brief Returns whether the class name is a known dock widget
@@ -131,7 +131,7 @@ public:
      * @return Whether the class name is a known dock widget
      */
     GT_NO_DISCARD
-    bool isKnownDockWidget(QString const& className) const;
+    bool isKnownDockWidget(const QString& className) const;
 
     /**
      * @brief Returns whether the class name is a known gui item
@@ -139,7 +139,7 @@ public:
      * @return Whether the class name is a known gui item
      */
     GT_NO_DISCARD
-    bool isKnownGuiItem(QString const& className) const;
+    bool isKnownGuiItem(const QString& className) const;
 
     /**
      * @brief Returns whether the class name is known to this factory
@@ -147,7 +147,7 @@ public:
      * @return Whether the class name is known
      */
     GT_NO_DISCARD
-    bool isKnownClass(QString const& className) const;
+    bool isKnownClass(const QString& className) const;
 
     /**
      * @brief Returns a list of class names of all known dock widgets
@@ -169,7 +169,7 @@ public:
      * @return
      */
     GT_NO_DISCARD
-    QString const& lastError() const noexcept;
+    const QString& lastError() const noexcept;
 
 private:
     GtGuiFactory();
@@ -182,7 +182,7 @@ private:
     Impl* pimpl() noexcept;
     /// wrapper for impl for const-correct access
     GT_NO_DISCARD
-    Impl const* pimpl() const noexcept;
+    const Impl* pimpl() const noexcept;
 };
 
 #endif // GT_GUIFACTORY_H

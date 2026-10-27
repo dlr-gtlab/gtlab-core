@@ -18,15 +18,17 @@ class GT_GUI_EXPORT GtGuiLayoutAdapter : public QObject
     Q_OBJECT
 
 public:
-
-    virtual void focus(QString const& itemId) = 0;
+    virtual void focus(const QString& itemId) = 0;
 
     virtual bool addItem(GtMdiItem& item) = 0;
 
-    bool hasItem(QString const& itemId) { return item(itemId); };
+    bool hasItem(const QString& itemId)
+    {
+        return item(itemId);
+    };
 
-    virtual GtMdiItem* item(QString const& itemId) = 0;
-    
+    virtual GtMdiItem* item(const QString& itemId) = 0;
+
     virtual GtMdiItem* itemFromWidget(QWidget& widget) = 0;
 
     virtual GtMdiItem* currentItem() = 0;
@@ -34,7 +36,6 @@ public:
     virtual void closeAll() = 0;
 
 protected:
-
     GtGuiLayoutAdapter();
 };
 

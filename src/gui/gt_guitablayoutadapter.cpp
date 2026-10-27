@@ -24,15 +24,16 @@ namespace
 {
 
 /// returns standardized window title
-inline QString windowTitle(GtMdiItem& item)
+inline QString
+windowTitle(GtMdiItem& item)
 {
     return QStringLiteral("GTlab - ") + item.objectName();
 }
 
 /// helper function to make tab buttons
-QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
-                        QPointer<GtMdiWidget> mdiWidget,
-                        QPointer<GtMdiItem> mdiItem)
+QWidget*
+makeTabButtons(QPointer<GtTabWidget> tabWidget, QPointer<GtMdiWidget> mdiWidget,
+               QPointer<GtMdiItem> mdiItem)
 {
     // set custom close button
     auto* closeBtn = new QPushButton;
@@ -62,11 +63,11 @@ QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
     auto* layoutWidget = new QWidget;
     layoutWidget->setLayout(buttonLay);
 
-    QObject::connect(closeBtn, &QPushButton::clicked,
-                     mdiWidget, &QObject::deleteLater);
+    QObject::connect(closeBtn, &QPushButton::clicked, mdiWidget,
+                     &QObject::deleteLater);
 
-    QObject::connect(undockBtn, &QPushButton::clicked,
-                     mdiWidget, [tabWidget, mdiItem, mdiWidget](){
+    QObject::connect(undockBtn, &QPushButton::clicked, mdiWidget,
+                     [tabWidget, mdiItem, mdiWidget]() {
                          assert(mdiItem);
                          assert(mdiWidget);
                          // get widget size
@@ -90,18 +91,16 @@ QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
 };
 
 /// helper function to setup redock action
-void setupRedockAction(int idx,
-                       QPointer<GtTabWidget> tabWidget,
-                       QPointer<GtMdiWidget> mdiWidget,
-                       QPointer<GtMdiItem> mdiItem)
+void
+setupRedockAction(int idx, QPointer<GtTabWidget> tabWidget,
+                  QPointer<GtMdiWidget> mdiWidget, QPointer<GtMdiItem> mdiItem)
 {
     tabWidget->tabBar()->setTabButton(
-        idx, QTabBar::RightSide, makeTabButtons(tabWidget,
-                                                mdiWidget,
-                                                mdiItem));
+        idx, QTabBar::RightSide, makeTabButtons(tabWidget, mdiWidget, mdiItem));
 
-    QObject::connect(mdiWidget, &GtMdiWidget::redockWidget,
-                     tabWidget, [tabWidget, mdiItem, mdiWidget](){
+    QObject::connect(
+        mdiWidget, &GtMdiWidget::redockWidget, tabWidget,
+        [tabWidget, mdiItem, mdiWidget]() {
             // widget may be deleted during queuing of signal
             if (!mdiWidget) return;
 
@@ -109,15 +108,13 @@ void setupRedockAction(int idx,
             assert(tabWidget && !tabWidget->contains(mdiWidget));
 
             // add tab
-            int idx = tabWidget->addTab(mdiWidget,
-                                        mdiWidget->windowIcon(),
+            int idx = tabWidget->addTab(mdiWidget, mdiWidget->windowIcon(),
                                         mdiItem->objectName());
 
             assert(idx >= 0);
             tabWidget->tabBar()->setTabButton(
-                idx, QTabBar::RightSide, makeTabButtons(tabWidget,
-                                                        mdiWidget,
-                                                        mdiItem));
+                idx, QTabBar::RightSide,
+                makeTabButtons(tabWidget, mdiWidget, mdiItem));
             tabWidget->setCurrentIndex(idx);
         },
         Qt::QueuedConnection); // <- this prohibits crash in drawing procedure
@@ -128,8 +125,8 @@ void setupRedockAction(int idx,
 GtGuiTabLayoutAdapter::GtGuiTabLayoutAdapter(GtTabWidget& tabWidget) :
     m_tab(&tabWidget)
 {
-    connect(m_tab, &QTabWidget::tabCloseRequested,
-            this, &GtGuiTabLayoutAdapter::onTabCloseRequested);
+    connect(m_tab, &QTabWidget::tabCloseRequested, this,
+            &GtGuiTabLayoutAdapter::onTabCloseRequested);
 }
 
 bool
@@ -144,8 +141,7 @@ GtGuiTabLayoutAdapter::focus(const QString& itemId)
     if (isNull() || itemId.isEmpty()) return;
 
     auto entry = std::find_if(m_openItems.keyValueBegin(),
-                              m_openItems.keyValueEnd(),
-                              [&itemId](auto entry){
+                              m_openItems.keyValueEnd(), [&itemId](auto entry) {
                                   return entry.second &&
                                          entry.second->currentId() == itemId;
                               });
@@ -186,21 +182,22 @@ GtGuiTabLayoutAdapter::addItem(GtMdiItem& item)
 
     m_openItems.insert(widget, &item);
 
-    connect(widget, &QObject::destroyed,
-            this, [this, widget](){
-                auto iter = m_openItems.find(widget);
-                if (iter != m_openItems.end())
-                {
-                    delete *iter;
-                    m_openItems.erase(iter);
-                }
-        }, Qt::DirectConnection);
-    connect(&item, &QObject::objectNameChanged,
-            this, [this, &item]() { onObjectNameChanged(&item); });
-    connect(&item, &QObject::destroyed,
-            widget, &QObject::deleteLater);
-    connect(gtApp, &GtApplication::themeChanged,
-            &item, &GtMdiItem::onThemeChanged);
+    connect(
+        widget, &QObject::destroyed, this,
+        [this, widget]() {
+            auto iter = m_openItems.find(widget);
+            if (iter != m_openItems.end())
+            {
+                delete *iter;
+                m_openItems.erase(iter);
+            }
+        },
+        Qt::DirectConnection);
+    connect(&item, &QObject::objectNameChanged, this,
+            [this, &item]() { onObjectNameChanged(&item); });
+    connect(&item, &QObject::destroyed, widget, &QObject::deleteLater);
+    connect(gtApp, &GtApplication::themeChanged, &item,
+            &GtMdiItem::onThemeChanged);
 
     m_tab->setCurrentIndex(idx);
 
@@ -216,8 +213,7 @@ GtGuiTabLayoutAdapter::item(const QString& itemId)
     if (isNull() || itemId.isEmpty()) return nullptr;
 
     auto entry = std::find_if(m_openItems.keyValueBegin(),
-                              m_openItems.keyValueEnd(),
-                              [&itemId](auto entry){
+                              m_openItems.keyValueEnd(), [&itemId](auto entry) {
                                   return entry.second &&
                                          entry.second->currentId() == itemId;
                               });
@@ -229,11 +225,9 @@ GtGuiTabLayoutAdapter::item(const QString& itemId)
 GtMdiItem*
 GtGuiTabLayoutAdapter::itemFromWidget(QWidget& widget)
 {
-    auto entry = std::find_if(m_openItems.keyValueBegin(),
-                              m_openItems.keyValueEnd(),
-                              [&widget](auto entry){
-                                  return entry.first == &widget;
-                              });
+    auto entry =
+        std::find_if(m_openItems.keyValueBegin(), m_openItems.keyValueEnd(),
+                     [&widget](auto entry) { return entry.first == &widget; });
     return (entry != m_openItems.keyValueEnd()) ? entry->second : nullptr;
 }
 
@@ -247,14 +241,13 @@ GtGuiTabLayoutAdapter::currentItem()
 void
 GtGuiTabLayoutAdapter::closeAll()
 {
-    std::for_each(m_openItems.keyValueBegin(),
-                  m_openItems.keyValueEnd(),
-                  [](auto entry){
-        // schedule widget deletion
-        if (entry.first) entry.first->deleteLater();
-        // delete item
-        delete entry.second;
-    });
+    std::for_each(m_openItems.keyValueBegin(), m_openItems.keyValueEnd(),
+                  [](auto entry) {
+                      // schedule widget deletion
+                      if (entry.first) entry.first->deleteLater();
+                      // delete item
+                      delete entry.second;
+                  });
     m_openItems.clear();
 }
 

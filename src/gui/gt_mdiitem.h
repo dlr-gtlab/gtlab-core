@@ -38,7 +38,6 @@ class GT_GUI_EXPORT GtMdiItem : public GtObject
     Q_OBJECT
 
 public:
-
     /**
      * @brief ~GtMdiItem
      */
@@ -48,7 +47,7 @@ public:
 
     bool regenerateId();
 
-    QString const& currentId() const noexcept;
+    const QString& currentId() const noexcept;
 
     enum Flag : int
     {
@@ -69,7 +68,7 @@ public:
     QWidget* widget();
 
     GtObject* currentObject() noexcept;
-    GtObject const* currentObject() const noexcept;
+    const GtObject* currentObject() const noexcept;
 
     /**
      * @brief Virtual function to specify item specific icon.
@@ -218,8 +217,9 @@ protected:
      * @return the key sequence used for this id
      */
     GT_DEPRECATED_REMOVED_IN(
-        2, 2, "Use registerShortCut(QString const& id, "
-              "QKeySequence const& k, bool readOnly = false) instead")
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     QKeySequence registerShortCut(GtShortCutSettingsData const& data);
 
     /**
@@ -227,8 +227,9 @@ protected:
      * @param list - list of short cuts to register
      */
     GT_DEPRECATED_REMOVED_IN(
-        2, 2, "Use registerShortCut(QString const& id, "
-              "QKeySequence const& k, bool readOnly = false) instead")
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**

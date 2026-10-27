@@ -27,7 +27,6 @@ class QIcon;
 class GT_GUI_EXPORT GtCollectionRegistry final
 {
 public:
-
     ~GtCollectionRegistry() noexcept;
 
     /**
@@ -67,7 +66,8 @@ public:
      * @return Collection structure
      */
     GT_NO_DISCARD
-    QMap<QString, QMetaType::Type> collectionStructure(const QString& collectionId) const;
+    QMap<QString, QMetaType::Type> collectionStructure(
+        const QString& collectionId) const;
 
     /**
      * @brief Returns the collection for the given id

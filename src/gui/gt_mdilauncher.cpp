@@ -235,7 +235,7 @@ GtMdiLauncher::dockWidgetIds()
 QMetaObject
 GtMdiLauncher::dockWidget(const QString& id)
 {
-    QMetaObject const* dock = GtGuiFactory::instance().dockWidget(id);
+    const QMetaObject* dock = GtGuiFactory::instance().dockWidget(id);
     return dock ? *dock : QMetaObject{};
 }
 
@@ -248,12 +248,11 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 bool
 GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
 {
-    return std::any_of(metaData.begin(),
-                       metaData.end(),
-                       [](const QMetaObject& mobj){
-        QString className = mobj.className();
-        return GtGuiFactory::instance().isKnownDockWidget(className);
-    });
+    return std::any_of(
+        metaData.begin(), metaData.end(), [](const QMetaObject& mobj) {
+            QString className = mobj.className();
+            return GtGuiFactory::instance().isKnownDockWidget(className);
+        });
 }
 
 bool
@@ -308,7 +307,7 @@ GtMdiLauncher::registerClass(QMetaObject metaObj)
 }
 
 bool
-GtMdiLauncher::registerClass(QMetaObject metaObj, QString const& moduleId)
+GtMdiLauncher::registerClass(QMetaObject metaObj, const QString& moduleId)
 {
     GtGuiFactory::instance().registerGuiItem(metaObj, moduleId);
     return GtAbstractObjectFactory::registerClass(metaObj, moduleId);
@@ -328,11 +327,11 @@ GtMdiLauncher::registerClasses(const QList<QMetaObject>& metaData)
 }
 
 bool
-GtMdiLauncher::registerClasses(const QList<QMetaObject>& metaData, const QString& moduleId)
+GtMdiLauncher::registerClasses(const QList<QMetaObject>& metaData,
+                               const QString& moduleId)
 {
-    return std::all_of(metaData.begin(),
-                       metaData.end(),
-                       [this, &moduleId](QMetaObject const& mobj) {
+    return std::all_of(metaData.begin(), metaData.end(),
+                       [this, &moduleId](const QMetaObject& mobj) {
                            return registerClass(mobj, moduleId);
                        });
 }

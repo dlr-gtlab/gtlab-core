@@ -199,9 +199,8 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
 
     if (mainwin)
     {
-        connect(homeAction, &GtQmlAction::triggered, this, []() {
-            gtMdiLauncher->open(GT_CLASSNAME(GtStartupPage));
-        });
+        connect(homeAction, &GtQmlAction::triggered, this,
+                []() { gtMdiLauncher->open(GT_CLASSNAME(GtStartupPage)); });
 
         connect(newProjectAction, SIGNAL(triggered()), mainwin,
                 SLOT(showProjectWizard()));
