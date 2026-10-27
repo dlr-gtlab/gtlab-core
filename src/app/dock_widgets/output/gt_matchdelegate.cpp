@@ -64,9 +64,9 @@ GtMatchDelegate::paint(QPainter* painter,
     painter->setClipRect(textRect);
 
     drawHighlightedText(painter, textRect, opt, text, textColor,
-        matchIt != m_matches.constEnd()
-            ? matchIt.value()
-            : GtOutputDock::Matches{});
+                        matchIt != m_matches.constEnd()
+                            ? matchIt.value()
+                            : GtOutputDock::Matches{});
 
     painter->restore();
 }
