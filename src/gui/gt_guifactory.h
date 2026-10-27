@@ -9,8 +9,7 @@
 #ifndef GT_GUIFACTORY_H
 #define GT_GUIFACTORY_H
 
-#include "gt_gui_exports.h"
-
+#include <gt_gui_exports.h>
 #include <gt_platform.h>
 #include <gt_globals.h>
 
@@ -23,6 +22,10 @@ class QWidget;
 class GtDockWidget;
 class GtMdiItem;
 
+/**
+ * @brief The GtCollectionRegistry class. Interace to access registered gui
+ * items and dock widgets
+ */
 class GT_GUI_EXPORT GtGuiFactory final
 {
 public:
@@ -63,6 +66,12 @@ public:
      */
     bool registerDockWidget(QMetaObject metaObject, QString const& moduleId);
 
+    /**
+     * @brief Unregisters the dock widget
+     * @param className Class name
+     * @return Returns whether the dock widget was found and unregistering was
+     * successful
+     */
     bool unregisterDockWidget(QString const& className);
 
     /**
@@ -74,6 +83,12 @@ public:
      */
     bool registerGuiItem(QMetaObject metaObject, QString const& moduleId);
 
+    /**
+     * @brief Unregisters the gui item
+     * @param className Class name
+     * @return Returns whether the gui item was found and unregistering was
+     * successful
+     */
     bool unregisterGuiItem(QString const& className);
 
     /**
@@ -116,7 +131,7 @@ public:
      * @return Whether the class name is a known dock widget
      */
     GT_NO_DISCARD
-     bool isKnownDockWidget(QString const& className) const;
+    bool isKnownDockWidget(QString const& className) const;
 
     /**
      * @brief Returns whether the class name is a known gui item

@@ -18,6 +18,7 @@
 #include "gt_algorithms.h"
 #include "gt_logging.h"
 #include "gt_tabwidget.h"
+#include "gt_collectionregistry.h"
 #include "gt_guifactory.h"
 #include "gt_guilayoutadapter.h"
 #include "gt_guitablayoutadapter.h"
@@ -25,9 +26,6 @@
 struct GtMdiLauncher::Impl
 {
     QPointer<GtGuiLayoutAdapter> adapter{};
-
-    /// Collections
-    QHash<QString, GtCollectionInterface*> collections;
 };
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
@@ -60,7 +58,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
 }
 
 void
-GtMdiLauncher::close()
+GtMdiLauncher::closeAll()
 {
     assert(pimpl->adapter);
     pimpl->adapter->closeAll();
@@ -101,69 +99,34 @@ GtMdiLauncher::mdiOpenWithName(const QString& className) const
 }
 
 QStringList
-GtMdiLauncher::dockWidgetIds()
-{
-    return GtGuiFactory::instance().knownDockWidgets();
-}
-
-QMetaObject
-GtMdiLauncher::dockWidget(const QString& id)
-{
-    QMetaObject const* dock = GtGuiFactory::instance().dockWidget(id);
-    return dock ? *dock : QMetaObject{};
-}
-
-QStringList
 GtMdiLauncher::collectionIds()
 {
-    return pimpl->collections.keys();
+    return GtCollectionRegistry::instance().collectionIds();
 }
 
 QIcon
 GtMdiLauncher::collectionIcon(const QString& id)
 {
-    if (!pimpl->collections.contains(id))
-    {
-        return {};
-    }
-
-    GtCollectionInterface* coll = pimpl->collections.value(id);
-
-    if (!coll)
-    {
-        return {};
-    }
-
-    return coll->collectionIcon();
+    return GtCollectionRegistry::instance().collectionIcon(id);
 }
 
 QMap<QString, QMetaType::Type>
 GtMdiLauncher::collectionStructure(const QString& id)
 {
-    if (!pimpl->collections.contains(id))
-    {
-        return {};
-    }
-
-    GtCollectionInterface* coll = pimpl->collections.value(id);
-
-    if (!coll)
-    {
-        return {};
-    }
-
-    return coll->collectionStructure();
+    return GtCollectionRegistry::instance().collectionStructure(id);
 }
 
 GtCollectionInterface*
 GtMdiLauncher::collection(const QString& id)
 {
-    if (!pimpl->collections.contains(id))
-    {
-        return nullptr;
-    }
+    return GtCollectionRegistry::instance().collection(id);
+}
 
-    return pimpl->collections.value(id);
+bool
+GtMdiLauncher::registerCollection(const QString& str,
+                                  GtCollectionInterface* coll)
+{
+    return GtCollectionRegistry::instance().registerCollection(str, coll);
 }
 
 void
@@ -216,10 +179,96 @@ GtMdiLauncher::toolbarActions(QWidget* widget) const
     return item->toolbarActions();
 }
 
+GtMdiItem*
+GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
+{
+    assert(pimpl->adapter);
+
+    auto& factory = GtGuiFactory::instance();
+    if (!factory.isKnownGuiItem(id))
+    {
+        gtWarning().medium() << tr("Unknown GUI item '%1'!").arg(id);
+        return nullptr;
+    }
+
+    auto item = factory.makeGuiItem(id);
+    if (!item) return nullptr;
+
+    // add parent to this class for now
+    item->setParent(this);
+
+    item->setCurrentObject(data, customId);
+
+    if (!isItemAllowed(item.get()))
+    {
+        auto activeItem = pimpl->adapter->item(item->currentId());
+        if (!activeItem) return nullptr;
+
+        if (data && activeItem->flags().testFlag(GtMdiItem::AllowsReopening))
+        {
+            activeItem->setCurrentObject(data);
+        }
+        pimpl->adapter->focus(activeItem->currentId());
+        return activeItem;
+    }
+
+    if (!pimpl->adapter->addItem(*item)) return nullptr;
+
+    item->setData(data);
+
+    return item.release();
+}
+
+GtMdiItem*
+GtMdiLauncher::open(const QString& id, const QString& customId)
+{
+    return open(id, nullptr, customId);
+}
+
+
+QStringList
+GtMdiLauncher::dockWidgetIds()
+{
+    return GtGuiFactory::instance().knownDockWidgets();
+}
+
+QMetaObject
+GtMdiLauncher::dockWidget(const QString& id)
+{
+    QMetaObject const* dock = GtGuiFactory::instance().dockWidget(id);
+    return dock ? *dock : QMetaObject{};
+}
+
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
     return GtGuiFactory::instance().registerDockWidget(metaObj, QString{});
+}
+
+bool
+GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
+{
+    return std::any_of(metaData.begin(),
+                       metaData.end(),
+                       [](const QMetaObject& mobj){
+        QString className = mobj.className();
+        return GtGuiFactory::instance().isKnownDockWidget(className);
+    });
+}
+
+bool
+GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
+{
+    if (dockWidgetsExist(metaData))
+    {
+        return false;
+    }
+
+    for (const QMetaObject& metaObj : metaData)
+    {
+        registerDockWidget(metaObj);
+    }
+    return true;
 }
 
 GtObject*
@@ -309,93 +358,5 @@ GtMdiLauncher::invokable(const QMetaObject& metaObj) const
 bool
 GtMdiLauncher::allInvokable(const QList<QMetaObject>& metaData)
 {
-    return std::all_of(metaData.begin(),
-                       metaData.end(),
-                       [this](QMetaObject const& mobj) {
-                           return invokable(mobj);
-                       });
-}
-
-bool
-GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
-{
-    return std::all_of(metaData.begin(), metaData.end(), [](const QMetaObject& mobj){
-        QString className = mobj.className();
-        return !GtGuiFactory::instance().isKnownDockWidget(className);
-    });
-}
-
-bool
-GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
-{
-    if (dockWidgetsExist(metaData))
-    {
-        return false;
-    }
-
-    for (const QMetaObject& metaObj : metaData)
-    {
-        registerDockWidget(metaObj);
-    }
-    return true;
-}
-
-bool
-GtMdiLauncher::registerCollection(const QString& str,
-                                  GtCollectionInterface* coll)
-{
-    if (pimpl->collections.contains(str))
-    {
-        return false;
-    }
-
-    pimpl->collections.insert(str, coll);
-
-    return true;
-}
-
-GtMdiItem*
-GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
-{
-    assert(pimpl->adapter);
-
-    auto& factory = GtGuiFactory::instance();
-    if (!factory.isKnownGuiItem(id))
-    {
-        gtWarning().medium() << tr("Unknown GUI item '%1'!").arg(id);
-        return nullptr;
-    }
-
-    auto item = factory.makeGuiItem(id);
-    if (!item) return nullptr;
-
-    // add parent to this class for now
-    item->setParent(this);
-
-    item->setCurrentObject(data, customId);
-
-    if (!isItemAllowed(item.get()))
-    {
-        auto activeItem = pimpl->adapter->item(item->currentId());
-        if (!activeItem) return nullptr;
-
-        if (data && activeItem->flags().testFlag(GtMdiItem::AllowsReopening))
-        {
-            activeItem->setCurrentObject(data);
-        }
-        pimpl->adapter->focus(activeItem->currentId());
-        return activeItem;
-    }
-
-    if (!pimpl->adapter->addItem(*item)) return nullptr;
-
-    item->setData(data);
-
-    return item.release();
-}
-
-GtMdiItem*
-GtMdiLauncher::open(const QString& id, const QString& customId)
-{
-    return open(id, nullptr, customId);
+    return GtAbstractObjectFactory::allInvokable(metaData);
 }
