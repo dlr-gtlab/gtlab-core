@@ -85,7 +85,7 @@ struct GtGuiFactory::Impl
     }
 
     template<typename Hash>
-    auto find(Hash const& map, QString const& className) noexcept
+    auto find(Hash const& map, QString const& className) const
     {
         auto iter = map.find(className);
         return (iter == map.end()) ? nullptr : &*iter;
@@ -152,14 +152,21 @@ GtGuiFactory::registerDockWidget(QMetaObject metaObject, const QString& moduleId
     });
 
     auto tmp = makeDockWidget(className);
-    if (!tmp)
-    {
-        return false;
-    }
+    if (!tmp) return false;
 
     iter->displayName = tmp->objectName();
     unregister.clear();
 
+    return true;
+}
+
+bool
+GtGuiFactory::unregisterDockWidget(const QString& className)
+{
+    auto iter = pimpl()->dockWidgets.find(className);
+    if (iter == pimpl()->dockWidgets.end()) return false;
+
+    pimpl()->dockWidgets.erase(iter);
     return true;
 }
 
@@ -185,10 +192,7 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
     });
 
     auto tmp = makeGuiItem(className);
-    if (!tmp)
-    {
-        return false;
-    }
+    if (!tmp) return false;
 
     iter->displayName = tmp->objectName();
 
@@ -201,12 +205,41 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
     }
 
     unregister.clear();
-
     return true;
 }
 
+bool
+GtGuiFactory::unregisterGuiItem(const QString& className)
+{
+    auto iter = pimpl()->guiItems.find(className);
+    if (iter == pimpl()->guiItems.end()) return false;
+
+    pimpl()->guiItems.erase(iter);
+    return true;
+}
+
+QMetaObject const*
+GtGuiFactory::dockWidget(const QString& className) const
+{
+    if (auto* dock = pimpl()->find(pimpl()->dockWidgets, className))
+    {
+        return &dock->metaObject;
+    }
+    return nullptr;
+}
+
+QMetaObject const*
+GtGuiFactory::guiItem(const QString& className) const
+{
+    if (auto* item = pimpl()->find(pimpl()->guiItems, className))
+    {
+        return &item->metaObject;
+    }
+    return nullptr;
+}
+
 QString
-GtGuiFactory::moduleId(const QString& className) noexcept
+GtGuiFactory::moduleId(const QString& className) const
 {
     if (auto* dock = pimpl()->find(pimpl()->dockWidgets, className))
     {
@@ -220,7 +253,7 @@ GtGuiFactory::moduleId(const QString& className) noexcept
 }
 
 QString
-GtGuiFactory::displayName(const QString& className) noexcept
+GtGuiFactory::displayName(const QString& className) const
 {
     if (auto* dock = pimpl()->find(pimpl()->dockWidgets, className))
     {
@@ -234,21 +267,21 @@ GtGuiFactory::displayName(const QString& className) noexcept
 }
 
 bool
-GtGuiFactory::isDockWidget(const QString& className) noexcept
+GtGuiFactory::isKnownDockWidget(const QString& className) const
 {
     return pimpl()->find(pimpl()->dockWidgets, className);
 }
 
 bool
-GtGuiFactory::isGuiItem(const QString& className) noexcept
+GtGuiFactory::isKnownGuiItem(const QString& className) const
 {
     return pimpl()->find(pimpl()->guiItems, className);
 }
 
 bool
-GtGuiFactory::isKnownClass(const QString& className) noexcept
+GtGuiFactory::isKnownClass(const QString& className) const
 {
-    return isGuiItem(className) || isDockWidget(className);
+    return isKnownGuiItem(className) || isKnownDockWidget(className);
 }
 
 QStringList

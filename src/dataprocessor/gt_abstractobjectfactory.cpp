@@ -10,6 +10,8 @@
 
 
 #include "gt_abstractobjectfactory.h"
+#include "gt_object.h"
+#include "gt_qtutilities.h"
 
 #include "gt_object.h"
 #include "gt_logging.h"
@@ -138,17 +140,7 @@ GtAbstractObjectFactory::classHierarchy(const QString& className)
 QStringList
 GtAbstractObjectFactory::classHierarchy(const QMetaObject* metaObj)
 {
-    QStringList retval;
-
-    if (!metaObj)
-    {
-        return retval;
-    }
-
-    retval << metaObj->className();
-    retval.append(classHierarchy(metaObj->superClass()));
-
-    return retval;
+    return metaObj ? QStringList{} : gt::classHierarchy(*metaObj);
 }
 
 bool
