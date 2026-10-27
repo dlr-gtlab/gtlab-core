@@ -5,7 +5,6 @@
  */
 
 #include "gt_matchdelegate.h"
-#include "gt_logmodel.h"
 
 #include <QPainter>
 #include <QApplication>
@@ -116,17 +115,33 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter,
 
     layout.setFormats(ranges);
 
+    // Alle Textzeilen anlegen, damit mehrzeilige Nachrichten
+    // vollständig gezeichnet werden.
     layout.beginLayout();
-    QTextLine line = layout.createLine();
-    line.setLineWidth(rect.width());
+
+    qreal totalHeight = 0.0;
+    while (true)
+    {
+        QTextLine line = layout.createLine();
+        if (!line.isValid())
+        {
+            break;
+        }
+
+        line.setLineWidth(rect.width());
+        line.setPosition(QPointF(0.0, totalHeight));
+
+        totalHeight += line.height();
+    }
+
     layout.endLayout();
 
-    // Textfarbe setzen, da QTextLayout den Text andernfalls mit dem
-    // aktuellen Pen des Painters (Standard: schwarz) zeichnet
+    // Textfarbe setzen.
     painter->setPen(textColor);
 
+    // Vertikal zentrieren.
     QPointF pos = rect.topLeft();
-    pos.setY(pos.y() + (rect.height() - line.height()) / 2.0);
+    pos.setY(pos.y() + qMax(0.0, (rect.height() - totalHeight) / 2.0));
 
     layout.draw(painter, pos);
 }
