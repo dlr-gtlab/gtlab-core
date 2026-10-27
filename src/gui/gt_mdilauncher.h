@@ -12,6 +12,7 @@
 #define GTMDILAUNCHER_H
 
 #include "gt_gui_exports.h"
+#include "gt_globals.h"
 
 #include "gt_abstractobjectfactory.h"
 
@@ -27,6 +28,7 @@ class GtMdiItem;
 class GtCollectionInterface;
 class GtAbstractCollectionSettings;
 class GtQmlAction;
+class GtGuiLayoutAdapter;
 
 /**
  * @brief The GtMdiLauncher class
@@ -46,20 +48,7 @@ public:
      */
     static GtMdiLauncher* instance();
 
-    /**
-     * @brief setMdiArea
-     * @param area
-     */
-    void setMdiArea(QTabWidget* area);
-
-    /**
-     * @brief Checks if all mdiItems are invokable and registers their
-     * initial name
-     *
-     * @param mdiItems
-     * @return true on success
-     */
-    bool registerMdiWidgets(const QList<QMetaObject>& mdiItems);
+    void setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter);
 
     /**
      * @brief Returns the "open with" menu entry name for the launcher
@@ -118,13 +107,15 @@ public:
      * @brief print
      * @param subWindow
      */
-    void print(QWidget *subWindow);
+    void print(QWidget* widget);
+
+    bool isCurrentWindowPrintable() const;
 
     /**
      * @brief Returns true in mdi item for given subwindow is printable.
      * @param subWindow
      */
-    bool isPrintable(QWidget* subWindow) const;
+    bool isPrintable(QWidget* widget) const;
 
     /**
      * @brief Returns the toolbar actions of the currently opened MDI window,
@@ -134,7 +125,7 @@ public:
      *
      * @return The list of actions
      */
-    std::vector<GtQmlAction*> toolbarActions(QWidget* subWindow) const;
+    std::vector<GtQmlAction*> toolbarActions(QWidget* widget) const;
 
     /**
      * @brief registerDockWidget
@@ -142,6 +133,8 @@ public:
      * @return true in case of success, else false
      */
     bool registerDockWidget(QMetaObject metaObj);
+
+    bool registerClass(QMetaObject metaObj) override;
 
 protected:
     /**
@@ -186,15 +179,6 @@ public slots:
      */
     GtMdiItem* open(const QString& id, const QString& customId);
 
-    /**
-     * @brief changeTabTitle
-     * This slot changes the title of the current selected mdi item
-     * or if it is called by a connection it renames the mdi item
-     * which was the sender of the signal
-     * @param newTitle -  new title
-     */
-    void changeTabTitle(QString const& newTitle);
-
 private:
     /**
      * @brief GtMdiLauncher
@@ -207,25 +191,12 @@ private:
     std::unique_ptr<Impl> pimpl;
 
     /**
-     * @brief generateMdiItemId
-     * @param data
-     * @return
-     */
-    QString generateMdiItemId(GtMdiItem* mdiItem);
-
-    /**
-     * @brief mdiItemAllowed
+     * @brief isItemAllowed
      * @param mdiItem
      * @param data
      * @return
      */
-    bool mdiItemAllowed(GtMdiItem* mdiItem);
-
-    /**
-     * @brief openItemIds
-     * @return
-     */
-    QStringList openItemIds();
+    bool isItemAllowed(GtMdiItem* mdiItem);
 
     /**
      * @brief setFocus
@@ -237,15 +208,6 @@ private:
      * @brief Closes all active MDI items.
      */
     void close();
-
-private slots:
-    /**
-     * @brief onSubWindowClose
-     * @param obj
-     */
-    void onSubWindowClose(QObject* obj);
-
-    void onCloseTabRequest(int i);
 };
 
 #endif // GTMDILAUNCHER_H

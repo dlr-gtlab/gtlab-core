@@ -28,6 +28,9 @@ set(headers
     gt_mdiinterface.h
     gt_mdiitem.h
     gt_mdilauncher.h
+    gt_guifactory.h
+    gt_guilayoutadapter.h
+    gt_guitablayoutadapter.h
     style/gt_palette.h
     style/gt_style.h
     style/gt_stylesheets.h
@@ -214,6 +217,9 @@ set(sources
     gt_icons.cpp
     gt_mdiitem.cpp
     gt_mdilauncher.cpp
+    gt_guifactory.cpp
+    gt_guilayoutadapter.cpp
+    gt_guitablayoutadapter.cpp
     style/gt_palette.cpp
     style/gt_style.cpp
     style/gt_stylesheets.cpp
