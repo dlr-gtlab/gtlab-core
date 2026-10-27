@@ -104,7 +104,8 @@ public:
      * @param id
      * @return
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionStructure`")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtCollectionRegistry::collectionStructure`")
     QMap<QString, QMetaType::Type> collectionStructure(const QString& id);
 
     /**
@@ -160,7 +161,7 @@ public:
     /**
      * @brief Closes all active MDI items.
      */
-    void close();
+    void closeAll();
 
     /** DEPRECATED API **/
 
@@ -168,12 +169,14 @@ public:
     GtObject* newObject(const QString& className,
                         GtObject* parent = nullptr) override;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::guiItem()"
-                                   "->superClass()->className()`")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtGuiFactory::guiItem()"
+                             "->superClass()->className()`")
     QString superClassName(const QString& className) const override;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `gt::classHierarchy` "
-                                   "(gt_qtuitilities.h)")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::classHierarchy` "
+                             "(gt_qtuitilities.h)")
     QStringList classHierarchy(const QString& className) override;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::isKnownGuiItem`")
@@ -204,12 +207,14 @@ public:
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::isKnownGuiItem`")
     bool containsDuplicates(const QList<QMetaObject>& metaData) const override;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `gt::isDefaultConstructible` "
-                                   "(gt_qtuitilities.h)")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::isDefaultConstructible` "
+                             "(gt_qtuitilities.h)")
     bool invokable(const QMetaObject& metaObj) const override;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `gt::areDefaultConstructible` "
-                                   "(gt_qtuitilities.h)")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::areDefaultConstructible` "
+                             "(gt_qtuitilities.h)")
     bool allInvokable(const QList<QMetaObject>& metaData);
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::guiItem`")
@@ -238,7 +243,8 @@ protected:
      * @param meta
      * @return
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::registerCollection`")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtCollectionRegistry::registerCollection`")
     bool registerCollection(const QString& str, GtCollectionInterface* coll);
 
 public slots:

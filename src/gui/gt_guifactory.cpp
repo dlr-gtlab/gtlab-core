@@ -43,14 +43,15 @@ struct GtGuiFactory::Impl
 
     mutable QString lastError{};
 
-    template<typename T, typename Hash>
-    std::unique_ptr<T> make(Hash const& map, QString const& className) const
+    template <typename T, typename Hash>
+    std::unique_ptr<T> make(const Hash& map, const QString& className) const
     {
         lastError.clear();
 
-        auto getClassType = [&map, this](){
+        auto getClassType = [&map, this]() {
             if ((void*)&map == &guiItems) return QStringLiteral("GUI-Item");
-            if ((void*)&map == &dockWidgets) return QStringLiteral("DockWidget");
+            if ((void*)&map == &dockWidgets)
+                return QStringLiteral("DockWidget");
             return QStringLiteral("object");
         };
 
@@ -84,8 +85,8 @@ struct GtGuiFactory::Impl
         return t;
     }
 
-    template<typename Hash>
-    auto find(Hash const& map, QString const& className) const
+    template <typename Hash>
+    auto find(const Hash& map, const QString& className) const
     {
         auto iter = map.find(className);
         return (iter == map.end()) ? nullptr : &*iter;
@@ -119,7 +120,7 @@ GtGuiFactory::pimpl() const noexcept
 }
 
 std::unique_ptr<GtDockWidget>
-GtGuiFactory::makeDockWidget(QString const& className) const
+GtGuiFactory::makeDockWidget(const QString& className) const
 {
     return pimpl()->make<GtDockWidget>(pimpl()->dockWidgets, className);
 }
@@ -131,7 +132,8 @@ GtGuiFactory::makeGuiItem(const QString& className) const
 }
 
 bool
-GtGuiFactory::registerDockWidget(QMetaObject metaObject, const QString& moduleId)
+GtGuiFactory::registerDockWidget(QMetaObject metaObject,
+                                 const QString& moduleId)
 {
     pimpl()->lastError.clear();
 
@@ -147,9 +149,8 @@ GtGuiFactory::registerDockWidget(QMetaObject metaObject, const QString& moduleId
     auto iter = pimpl()->dockWidgets.insert(
         className, Impl::DockWidgetEntry{std::move(metaObject), className});
 
-    auto unregister = gt::finally([this, iter](){
-        pimpl()->dockWidgets.erase(iter);
-    });
+    auto unregister =
+        gt::finally([this, iter]() { pimpl()->dockWidgets.erase(iter); });
 
     auto tmp = makeDockWidget(className);
     if (!tmp) return false;
@@ -187,9 +188,8 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
     auto iter = pimpl()->guiItems.insert(
         className, Impl::GuiItemEntry{std::move(metaObject), className});
 
-    auto unregister = gt::finally([this, iter](){
-        pimpl()->guiItems.erase(iter);
-    });
+    auto unregister =
+        gt::finally([this, iter]() { pimpl()->guiItems.erase(iter); });
 
     auto tmp = makeGuiItem(className);
     if (!tmp) return false;
@@ -218,7 +218,7 @@ GtGuiFactory::unregisterGuiItem(const QString& className)
     return true;
 }
 
-QMetaObject const*
+const QMetaObject*
 GtGuiFactory::dockWidget(const QString& className) const
 {
     if (auto* dock = pimpl()->find(pimpl()->dockWidgets, className))
@@ -228,7 +228,7 @@ GtGuiFactory::dockWidget(const QString& className) const
     return nullptr;
 }
 
-QMetaObject const*
+const QMetaObject*
 GtGuiFactory::guiItem(const QString& className) const
 {
     if (auto* item = pimpl()->find(pimpl()->guiItems, className))
@@ -289,8 +289,7 @@ GtGuiFactory::knownDockWidgets() const
 {
     QStringList classNames;
     classNames.reserve(pimpl()->dockWidgets.size());
-    std::copy(pimpl()->dockWidgets.keyBegin(),
-              pimpl()->dockWidgets.keyEnd(),
+    std::copy(pimpl()->dockWidgets.keyBegin(), pimpl()->dockWidgets.keyEnd(),
               std::back_inserter(classNames));
     return classNames;
 }
@@ -300,8 +299,7 @@ GtGuiFactory::knownGuiItems() const
 {
     QStringList classNames;
     classNames.reserve(pimpl()->guiItems.size());
-    std::copy(pimpl()->guiItems.keyBegin(),
-              pimpl()->guiItems.keyEnd(),
+    std::copy(pimpl()->guiItems.keyBegin(), pimpl()->guiItems.keyEnd(),
               std::back_inserter(classNames));
     return classNames;
 }

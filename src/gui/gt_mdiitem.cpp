@@ -52,7 +52,7 @@ struct GtMdiItem::Impl
     template <class T>
     T* takeEvent()
     {
-        for (GtQueuedMdiEvent* e: qAsConst(eventQueue))
+        for (GtQueuedMdiEvent* e : qAsConst(eventQueue))
         {
             if (T* ce = qobject_cast<T*>(e))
             {
@@ -90,7 +90,7 @@ GtMdiItem::currentObject() noexcept
     return pimpl->dataObject;
 }
 
-GtObject const*
+const GtObject*
 GtMdiItem::currentObject() const noexcept
 {
     return pimpl->dataObject;
@@ -147,7 +147,7 @@ GtMdiItem::regenerateId()
     QString newId = metaObject()->className();
     QString suffix = this->customId(currentObject());
 
-    GtObject const* object = qAsConst(*this).currentObject();
+    const GtObject* object = qAsConst(*this).currentObject();
 
     if (suffix.isEmpty() && object)
     {
@@ -238,9 +238,7 @@ GtMdiItem::customId(GtObject* /*obj*/)
 
 void
 GtMdiItem::setSubWin(QWidget*)
-{
-
-}
+{ }
 
 QKeySequence
 GtMdiItem::registerShortCut(const QString& id,

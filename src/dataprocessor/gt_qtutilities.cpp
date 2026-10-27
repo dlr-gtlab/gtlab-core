@@ -61,11 +61,10 @@ bool
 gt::isDefaultConstructible(const QMetaObject& metaObject)
 {
     auto range = gt::range(0, metaObject.constructorCount());
-    auto found = std::find_if(range.begin(),
-                              range.end(),
-                              [&metaObject](int idx){
-        return metaObject.constructor(idx).parameterCount() == 0;
-    });
+    auto found =
+        std::find_if(range.begin(), range.end(), [&metaObject](int idx) {
+            return metaObject.constructor(idx).parameterCount() == 0;
+        });
     return found != range.end();
 }
 
@@ -73,7 +72,7 @@ QStringList
 gt::classHierarchy(const QMetaObject& metaObject)
 {
     QStringList retval;
-    QMetaObject const* parent = &metaObject;
+    const QMetaObject* parent = &metaObject;
     while (parent)
     {
         retval.push_back(parent->className());

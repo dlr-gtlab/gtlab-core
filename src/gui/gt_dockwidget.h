@@ -79,8 +79,9 @@ protected:
      * @return the key sequence used for this id
      */
     GT_DEPRECATED_REMOVED_IN(
-        2, 2, "Use registerShortCut(QString const& id, "
-              "QKeySequence const& k, bool readOnly = false) instead")
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     QKeySequence registerShortCut(GtShortCutSettingsData const& data);
 
     /**
@@ -88,8 +89,9 @@ protected:
      * @param list - list of short cuts to register
      */
     GT_DEPRECATED_REMOVED_IN(
-        2, 2, "Use registerShortCut(QString const& id, "
-              "QKeySequence const& k, bool readOnly = false) instead")
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**

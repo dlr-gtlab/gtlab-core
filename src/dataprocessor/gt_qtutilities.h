@@ -126,7 +126,7 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
  */
 GT_NO_DISCARD
 GT_DATAMODEL_EXPORT
-bool isDefaultConstructible(QMetaObject const& metaObject);
+bool isDefaultConstructible(const QMetaObject& metaObject);
 
 /**
  * @brief Returns true if all meta objects in the given list-type are default
@@ -136,8 +136,8 @@ bool isDefaultConstructible(QMetaObject const& metaObject);
  * @return Whether all meta objects are default constructible
  */
 template <typename List>
-GT_NO_DISCARD
-bool areDefaultConstructible(List const& list)
+GT_NO_DISCARD bool
+areDefaultConstructible(const List& list)
 {
     return std::all_of(list.begin(), list.end(), gt::isDefaultConstructible);
 }
@@ -150,7 +150,7 @@ bool areDefaultConstructible(List const& list)
  * @return Ascending class hierarchy
  */
 GT_DATAMODEL_EXPORT
-QStringList classHierarchy(QMetaObject const& metaObject);
+QStringList classHierarchy(const QMetaObject& metaObject);
 
 /**
  * @brief Performs a qobject_cast for unique pointers
