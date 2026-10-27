@@ -54,7 +54,7 @@ GtImportMenu::onActionTrigger(QObject* obj)
 {
     if (!m_obj) return;
 
-    GtProject* project = m_obj->findParent<GtProject*>();
+    const GtProject* project = m_obj->findParent<GtProject*>();
     if (!project) return;
 
     // get action

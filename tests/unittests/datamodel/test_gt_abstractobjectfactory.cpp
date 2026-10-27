@@ -104,8 +104,8 @@ TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
 TEST(GtAbstractObjectFactory, LegacyBulkRegistrationRejectsDuplicates)
 {
     TestObjectFactory factory;
-    ASSERT_TRUE(factory.registerClasses({GT_METADATA(GtObject),
-                                         GT_METADATA(GtObjectGroup)}));
+    ASSERT_TRUE(factory.registerClasses(
+        {GT_METADATA(GtObject), GT_METADATA(GtObjectGroup)}));
 
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObjectGroup)}));
     EXPECT_EQ(factory.knownClasses().size(), 2);
@@ -118,18 +118,18 @@ TEST(GtAbstractObjectFactory, InvokableDetection)
     EXPECT_TRUE(factory.invokable(GT_METADATA(FactoryTestObject)));
     EXPECT_FALSE(factory.invokable(GT_METADATA(GtObject)));
 
-    EXPECT_TRUE(factory.allInvokable({GT_METADATA(FactoryTestObject),
-                                      GT_METADATA(FactoryTestOtherObject)}));
-    EXPECT_FALSE(factory.allInvokable({GT_METADATA(FactoryTestObject),
-                                       GT_METADATA(GtObject)}));
+    EXPECT_TRUE(factory.allInvokable(
+        {GT_METADATA(FactoryTestObject), GT_METADATA(FactoryTestOtherObject)}));
+    EXPECT_FALSE(factory.allInvokable(
+        {GT_METADATA(FactoryTestObject), GT_METADATA(GtObject)}));
 }
 
 TEST(GtAbstractObjectFactory, SuperClassName)
 {
     TestObjectFactory factory;
 
-    EXPECT_TRUE(factory.superClassName(GT_CLASSNAME(FactoryTestObject))
-                    .isEmpty());
+    EXPECT_TRUE(
+        factory.superClassName(GT_CLASSNAME(FactoryTestObject)).isEmpty());
 
     ASSERT_TRUE(factory.registerClass(GT_METADATA(FactoryTestObject)));
     EXPECT_EQ(factory.superClassName(GT_CLASSNAME(FactoryTestObject)),

@@ -10,6 +10,8 @@
 
 #include <QDebug>
 
+#include <algorithm>
+
 #include "gt_abstractobjectfactory.h"
 #include "gt_object.h"
 
@@ -213,22 +215,21 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 bool
 GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
-    foreach (const QMetaObject& mobj, metaData)
-    {
-        QString classname = mobj.className();
-        if (m_knownClasses.contains(classname))
-        {
-            if (!isSilent())
-            {
-                qWarning() << "class name '"
-                              + classname
-                              + "' already exists!";
+    return std::any_of(std::begin(metaData), std::end(metaData),
+                       [this](const QMetaObject& mobj) {
+                           const QString classname = mobj.className();
+                           if (!m_knownClasses.contains(classname))
+                           {
+                               return false;
+                           }
 
-            }
-            return true;
-        }
-    }
-    return false;
+                           if (!isSilent())
+                           {
+                               qWarning() << "class name '" + classname +
+                                                 "' already exists!";
+                           }
+                           return true;
+                       });
 }
 
 bool
