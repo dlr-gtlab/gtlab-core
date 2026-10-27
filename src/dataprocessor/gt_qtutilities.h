@@ -12,6 +12,7 @@
 #define GT_QTUTILITIES_H
 
 #include "gt_typetraits.h"
+#include "gt_platform.h"
 
 #include <gt_datamodel_exports.h>
 
@@ -106,6 +107,49 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
 
     return {};
 }
+
+/**
+ * @brief Returns whether the meta object has a default invokable constructor
+ *
+ * Example of a default invocable constructor:
+ *
+ *   class MyObject : public QObject {
+ *       Q_OBJECT // <- required
+ *   public
+ *       Q_INVOKABLE MyObject(); // <- default constructor must be invokable
+ *       // ...
+ *   };
+ *
+ * @param metaObject Meta object to check
+ * @return Whether the meta object has a default invokable constructor
+ */
+GT_NO_DISCARD
+GT_DATAMODEL_EXPORT
+bool isDefaultConstructible(QMetaObject const& metaObject);
+
+/**
+ * @brief Returns true if all meta objects in the given list-type are default
+ * constructible
+ * @param list List of meta objects
+ * @tparam List Any type with a begin() and end() function
+ * @return Whether all meta objects are default constructible
+ */
+template <typename List>
+GT_NO_DISCARD
+bool areDefaultConstructible(List const& list)
+{
+    return std::all_of(list.begin(), list.end(), gt::isDefaultConstructible);
+}
+
+/**
+ * @brief Returns the class hioerarchy of the corresponding class as a string
+ * list where the first entry is the querried class and the last entry the top
+ * most base class (ascending)
+ * @param metaObject Meta object to query
+ * @return Ascending class hierarchy
+ */
+GT_DATAMODEL_EXPORT
+QStringList classHierarchy(QMetaObject const& metaObject);
 
 /**
  * @brief Performs a qobject_cast for unique pointers
