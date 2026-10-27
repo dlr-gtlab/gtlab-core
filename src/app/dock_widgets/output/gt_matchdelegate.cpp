@@ -167,9 +167,7 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
     painter->setClipRect(rect);
     painter->setPen(textColor);
 
-    layout.draw(
-        painter,
-        QPointF(rect.left(), rect.top() + verticalOffset));
+    layout.draw(painter, QPointF(rect.left(), rect.top() + verticalOffset));
 
     painter->restore();
 }
