@@ -35,19 +35,14 @@ GtMatchDelegate::paint(QPainter* painter,
     const QStyle* style = opt.widget ? opt.widget->style() : QApplication::style();
 
     const auto matchIt = m_matches.constFind(index);
-
-    if (matchIt != m_matches.constEnd() && (opt.state & QStyle::State_Selected))
-    {
-        opt.state &= ~QStyle::State_Selected;
-    }
+    const bool selected = opt.state & QStyle::State_Selected;
 
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
-    if (matchIt != m_matches.constEnd())
+    if (matchIt != m_matches.constEnd() && !selected)
     {
         QColor color = opt.palette.highlight().color();
         color.setAlpha(100);
-
         painter->fillRect(opt.rect, color);
     }
 
