@@ -122,8 +122,6 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
 
     layout.setFormats(ranges);
 
-    // Nur Zeilen erzeugen, die noch in den sichtbaren Bereich reichen.
-    // Bei vollständig sichtbarem Text wird das Layout regulär beendet.
     layout.beginLayout();
 
     qreal totalHeight = 0.0;
@@ -147,8 +145,6 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
 
     layout.endLayout();
 
-    // Vertikale Ausrichtung nur anhand der Gesamthöhe bestimmen,
-    // wenn der komplette Text gelayoutet wurde.
     qreal verticalOffset = 0.0;
 
     if (layoutComplete && totalHeight < rect.height())
