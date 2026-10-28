@@ -643,7 +643,9 @@ GtOutputDock::onRowsInserted(int start, int last)
     scrollToBottom();
     m_model->updateCategoryFilter();
 
-    updateSearchResults();
+    // Update search matches without changing the current selection.
+    m_selectFirstMatchAfterSearchUpdate = false;
+    m_delayFiltertimer.start(0);
 }
 
 void
@@ -681,6 +683,7 @@ GtOutputDock::onRowsRemoved()
 void
 GtOutputDock::updateSearchResults()
 {
+    m_selectFirstMatchAfterSearchUpdate = true;
     m_delayFiltertimer.start(0);
 }
 
@@ -873,17 +876,21 @@ GtOutputDock::onSearchTextChanged()
         matchDelegate->setMatches(m_matchesForDelegates);
     }
 
-    if (text.isEmpty() || m_matches.isEmpty())
+    if (m_selectFirstMatchAfterSearchUpdate)
     {
-        // Clear selection
-        m_logView->clearSelection();
-    }
-    else
-    {
-        m_currentMatch = 0;
-        // Select the first match
-        m_logView->selectRow(m_matches.first().row());
-        m_logView->scrollTo(m_matches.first());
+        if (text.isEmpty() || m_matches.isEmpty())
+        {
+            // Clear selection when the search itself changes.
+            m_logView->clearSelection();
+        }
+        else
+        {
+            m_currentMatch = 0;
+
+            // Select the first match when starting a new search.
+            m_logView->selectRow(m_matches.first().row());
+            m_logView->scrollTo(m_matches.first());
+        }
     }
 
     m_logView->viewport()->update();

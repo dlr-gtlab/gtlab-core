@@ -47,10 +47,9 @@ private:
     //QList<QModelIndex> m_matches;
     QHash<QPersistentModelIndex, GtOutputDock::Matches> m_matches;
 
-    void drawHighlightedText(QPainter* painter,
-                             const QRect& rect,
+    void drawHighlightedText(QPainter* painter, const QRect& rect,
                              const QStyleOptionViewItem& option,
-                             const QString& text,
+                             const QString& text, const QColor& textColor,
                              const GtOutputDock::Matches& matches) const;
 
     //QPersistentModelIndex m_currentMatchIndex;

@@ -8,9 +8,12 @@
 
 #include <QPainter>
 #include <QApplication>
+#include <QFontMetrics>
 #include <QStyleOption>
+#include <QTableView>
 #include <QTextFormat>
 #include <QTextLayout>
+#include <QVector>
 
 GtMatchDelegate::GtMatchDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
@@ -32,32 +35,45 @@ GtMatchDelegate::paint(QPainter* painter,
     const QStyle* style = opt.widget ? opt.widget->style() : QApplication::style();
 
     const auto matchIt = m_matches.constFind(index);
+    const bool selected = opt.state & QStyle::State_Selected;
 
-    // eigene Selection-Logik
-    if (matchIt != m_matches.constEnd() && (opt.state & QStyle::State_Selected))
-    {
-        opt.state &= ~QStyle::State_Selected;
-    }
-
-    // alles außer Text zeichnen
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
-    // komplette Zeile markieren
-    if (matchIt != m_matches.constEnd())
+    if (matchIt != m_matches.constEnd() && !selected)
     {
         QColor color = opt.palette.highlight().color();
         color.setAlpha(100);
-
         painter->fillRect(opt.rect, color);
     }
 
     QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt,
                                            opt.widget);
 
-    drawHighlightedText(painter, textRect, option, text,
-        matchIt != m_matches.constEnd()
-            ? matchIt.value()
-            : GtOutputDock::Matches{});
+    QColor textColor;
+
+    if (option.state & QStyle::State_Selected)
+    {
+        textColor = option.palette.color(QPalette::HighlightedText);
+    }
+    else
+    {
+        textColor = index.data(Qt::ForegroundRole).value<QColor>();
+
+        if (!textColor.isValid())
+        {
+            textColor = option.palette.color(QPalette::Text);
+        }
+    }
+
+    painter->save();
+    painter->setClipRect(textRect);
+
+    drawHighlightedText(painter, textRect, opt, text, textColor,
+                        matchIt != m_matches.constEnd()
+                            ? matchIt.value()
+                            : GtOutputDock::Matches{});
+
+    painter->restore();
 }
 
 void
@@ -68,12 +84,17 @@ GtMatchDelegate::setMatches(const QHash<QPersistentModelIndex,
 }
 
 void
-GtMatchDelegate::drawHighlightedText(QPainter* painter,
-                                    const QRect& rect,
-                                    const QStyleOptionViewItem& option,
-                                    const QString& text,
-                                    const GtOutputDock::Matches& matches) const
+GtMatchDelegate::drawHighlightedText(QPainter* painter, const QRect& rect,
+                                     const QStyleOptionViewItem& option,
+                                     const QString& text,
+                                     const QColor& textColor,
+                                     const GtOutputDock::Matches& matches) const
 {
+    if (rect.isEmpty() || text.isEmpty())
+    {
+        return;
+    }
+
     QTextLayout layout(text, option.font);
 
     QVector<QTextLayout::FormatRange> ranges;
@@ -98,13 +119,46 @@ GtMatchDelegate::drawHighlightedText(QPainter* painter,
 
     layout.beginLayout();
 
-    QTextLine line = layout.createLine();
-    line.setLineWidth(rect.width());
+    qreal totalHeight = 0.0;
+    bool layoutComplete = false;
+
+    while (totalHeight < rect.height())
+    {
+        QTextLine line = layout.createLine();
+
+        if (!line.isValid())
+        {
+            layoutComplete = true;
+            break;
+        }
+
+        line.setLineWidth(rect.width());
+        line.setPosition(QPointF(0.0, totalHeight));
+
+        totalHeight += line.height();
+    }
 
     layout.endLayout();
 
-    QPointF pos = rect.topLeft();
-    pos.setY(pos.y() + (rect.height() - line.height()) / 2.0);
+    qreal verticalOffset = 0.0;
 
-    layout.draw(painter, pos);
+    if (layoutComplete && totalHeight < rect.height())
+    {
+        if (option.displayAlignment & Qt::AlignVCenter)
+        {
+            verticalOffset = (rect.height() - totalHeight) / 2.0;
+        }
+        else if (option.displayAlignment & Qt::AlignBottom)
+        {
+            verticalOffset = rect.height() - totalHeight;
+        }
+    }
+
+    painter->save();
+    painter->setClipRect(rect);
+    painter->setPen(textColor);
+
+    layout.draw(painter, QPointF(rect.left(), rect.top() + verticalOffset));
+
+    painter->restore();
 }
