@@ -22,7 +22,7 @@
 
 TestMementoRestoreImporter::TestMementoRestoreImporter()
 {
-    setObjectName(tr("Memento Restore Importer"));
+    setObjectName(tr("Restore Memento"));
 }
 
 QStringList

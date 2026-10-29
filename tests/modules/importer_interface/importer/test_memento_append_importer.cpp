@@ -7,12 +7,14 @@
  */
 
 #include "test_memento_append_importer.h"
+#include "test_memento_append_importer_page.h"
 
 #include "test_dmi_package.h"
 
 #include "gt_objectmemento.h"
 #include "gt_objectfactory.h"
 #include "gt_icons.h"
+#include "gt_selectfiletoimportpage.h"
 #include "gt_logging.h"
 
 #include <QIcon>
@@ -20,7 +22,7 @@
 
 TestMementoAppendImporter::TestMementoAppendImporter()
 {
-    setObjectName(tr("Memento Append Importer"));
+    setObjectName(tr("Append Memento"));
 }
 
 QStringList
@@ -74,6 +76,11 @@ TestMementoAppendImporter::import(GtObject* data, QFile& file)
         return false;
     }
 
+    if (!m_suffix.isEmpty())
+    {
+        obj->setObjectName(obj->objectName() + m_suffix);
+    }
+
     if (!data->appendChild(obj))
     {
         gtError() << tr("Could not add object to") << data->objectName();
@@ -90,4 +97,25 @@ QStringList
 TestMementoAppendImporter::extensions() const
 {
     return {QStringLiteral("XML (*.xml)")};
+}
+
+QList<GtAbstractImporterPage*>
+TestMementoAppendImporter::pages(GtObject* data)
+{
+    auto selectPage = new GtSelectFileToImportPage(data, this);
+    selectPage->setFileExtensions(extensions());
+
+    return {new TestMementoAppendImporterPage(data, this), selectPage};
+}
+
+void
+TestMementoAppendImporter::setSuffix(const QString& suffix)
+{
+    m_suffix = suffix;
+}
+
+QString
+TestMementoAppendImporter::suffix() const
+{
+    return m_suffix;
 }

@@ -22,7 +22,7 @@ TestMementoRestoreImporterPage::TestMementoRestoreImporterPage(
         setParent(parent);
     }
 
-    setTitle(tr("Memento Import Options"));
+    setTitle(tr("Restore Memento Options"));
 
     m_keepName = new QCheckBox(tr("Keep object name"), this);
     m_keepName->setChecked(importer && importer->keepObjectName());

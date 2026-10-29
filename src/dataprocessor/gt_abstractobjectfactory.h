@@ -69,15 +69,9 @@ public:
     /**
      * @brief registerClass
      * @param metaObject
-     * @return
-     *
-     * Derived factories may override this function in order to apply
-     * additional registration logic. Overriding it is sufficient, as the
-     * overloads with module id and the bulk registration functions
-     * dispatch through this function.
-     *
-     * @note When override this function consider overriding the module id
-     * overload too.
+     * @return Whether the class was registered successfully.
+     * @note When overriding this function consider overriding the module id
+     * overload too, though it is not necessary.
      */
     virtual bool registerClass(QMetaObject metaObj);
 
@@ -86,27 +80,25 @@ public:
      * @param metaObj Meta object to register.
      * @param moduleId Identification of the providing module.
      * @return Whether the class was registered successfully.
-     *
-     * The class registration is delegated to registerClass(QMetaObject) for
-     * backwards compatiblity.
+     * @note The class registration is delegated to `registerClass(QMetaObject)`
+     * for backwards compatiblity.
      */
     virtual bool registerClass(QMetaObject metaObj, const QString& moduleId);
 
     /**
      * @brief Removes a class from the factory
      * @param metaObj The meta object of the class to remove
-     * @return
+     * @return Returns false if the class was not registered before
      */
     bool unregisterClass(const QMetaObject& metaObj);
 
     /**
      * @brief registerClasses
      * @param metaObject
-     * @return
-     *
-     * Delegates to registerClasses(QList<QMetaObject>, const QString&)
+     * @return Returns false if any registration fails. Does not revert
+     * successful registrations on a failure.
+     * @note Delegates to `registerClasses(QList<QMetaObject>, const QString&)`
      * with an empty module id.
-     *
      * @note When override this function consider overriding the module id
      * overload too.
      *
@@ -119,13 +111,10 @@ public:
      * @brief Registers classes and their providing module.
      * @param metaData Meta objects to register.
      * @param moduleId Identification of the providing module.
-     * @return Whether all classes were registered successfully.
-     *
-     * Delegates the registration of each meta object to
-     * registerClass(QMetaObject, const QString&).
-     *
-     * @note Returns false if any registration fails. Does not revert
+     * @return Returns false if any registration fails. Does not revert
      * successful registrations on a failure.
+     * @note Delegates the registration of each meta object to
+     * `registerClass(QMetaObject, const QString&)`
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
                                  const QString& moduleId);
