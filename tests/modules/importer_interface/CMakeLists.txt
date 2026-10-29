@@ -5,12 +5,14 @@
 add_gtlab_module(TestImporterInterface MODULE_ID "Test Importer Interface"
   SOURCES
     importer/test_memento_append_importer.h
+    importer/test_memento_append_importer_page.h
     importer/test_memento_restore_importer.h
     importer/test_memento_restore_importer_page.h
     importer_interface_exports.h
     importer_interface.h
 
     importer/test_memento_append_importer.cpp
+    importer/test_memento_append_importer_page.cpp
     importer/test_memento_restore_importer.cpp
     importer/test_memento_restore_importer_page.cpp
     importer_interface.cpp

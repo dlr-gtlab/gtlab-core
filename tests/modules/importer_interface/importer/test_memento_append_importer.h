@@ -15,11 +15,11 @@
 
 /**
  * @brief Importer that restores an object from an exported memento (XML)
- * and adds it as child to the targeted object. Uses the default wizard
- * pages of the importer interface.
+ * and adds it as child to the targeted object. The name of the appended
+ * object can be modified by a suffix using the importer wizard page.
  */
-class TEST_IMPORTER_INTERFACE_EXPORT TestMementoAppendImporter
-    : public GtAbstractImporter
+class TEST_IMPORTER_INTERFACE_EXPORT TestMementoAppendImporter :
+        public GtAbstractImporter
 {
     Q_OBJECT
 
@@ -55,6 +55,31 @@ public:
      * @return List of allowed file extensions.
      */
     QStringList extensions() const override;
+
+    /**
+     * @brief Returns wizard pages of importer based on given object data.
+     * @param Object data.
+     * @return List of wizard pages.
+     */
+    QList<GtAbstractImporterPage*> pages(GtObject* data) override;
+
+    /**
+     * @brief Sets the suffix which is appended to the name of the
+     * imported object.
+     * @param suffix Name suffix
+     */
+    void setSuffix(const QString& suffix);
+
+    /**
+     * @brief Returns the suffix which is appended to the name of the
+     * imported object.
+     * @return Name suffix
+     */
+    QString suffix() const;
+
+private:
+    /// Importer option, set by the importer wizard page
+    QString m_suffix = QStringLiteral("_imported");
 };
 
 #endif // TEST_MEMENTO_APPEND_IMPORTER_H
