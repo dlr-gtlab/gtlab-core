@@ -70,6 +70,14 @@ public:
      * @brief registerClass
      * @param metaObject
      * @return
+     *
+     * Derived factories may override this function in order to apply
+     * additional registration logic. Overriding it is sufficient, as the
+     * overloads with module id and the bulk registration functions
+     * dispatch through this function.
+     *
+     * @note When override this function consider overriding the module id
+     * overload too.
      */
     virtual bool registerClass(QMetaObject metaObj);
 
@@ -78,6 +86,9 @@ public:
      * @param metaObj Meta object to register.
      * @param moduleId Identification of the providing module.
      * @return Whether the class was registered successfully.
+     *
+     * The class registration is delegated to registerClass(QMetaObject) for
+     * backwards compatiblity.
      */
     virtual bool registerClass(QMetaObject metaObj, const QString& moduleId);
 
@@ -92,6 +103,15 @@ public:
      * @brief registerClasses
      * @param metaObject
      * @return
+     *
+     * Delegates to registerClasses(QList<QMetaObject>, const QString&)
+     * with an empty module id.
+     *
+     * @note When override this function consider overriding the module id
+     * overload too.
+     *
+     * @note Returns false if any registration fails. Does not revert
+     * successful registrations on a failure.
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData);
 
@@ -100,6 +120,12 @@ public:
      * @param metaData Meta objects to register.
      * @param moduleId Identification of the providing module.
      * @return Whether all classes were registered successfully.
+     *
+     * Delegates the registration of each meta object to
+     * registerClass(QMetaObject, const QString&).
+     *
+     * @note Returns false if any registration fails. Does not revert
+     * successful registrations on a failure.
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
                                  const QString& moduleId);
