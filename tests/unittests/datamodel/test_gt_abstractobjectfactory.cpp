@@ -18,6 +18,26 @@ namespace
     {
     };
 
+    /// Factory that only overrides the module id independent overload,
+    /// as e.g. the GtExportHandler and GtImportHandler do
+    class LegacyOverrideFactory : public GtAbstractObjectFactory
+    {
+    public:
+        bool registerClass(QMetaObject metaObj) override
+        {
+            m_registered << metaObj.className();
+            return GtAbstractObjectFactory::registerClass(metaObj);
+        }
+
+        QStringList registered() const
+        {
+            return m_registered;
+        }
+
+    private:
+        QStringList m_registered;
+    };
+
 } // namespace
 
 TEST(GtAbstractObjectFactory, ExistingRegistrationApiHasNoModuleId)
@@ -83,6 +103,36 @@ TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
                                          QStringLiteral("TestModule")));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
+TEST(GtAbstractObjectFactory, ModuleIdOverloadUsesLegacyOverride)
+{
+    LegacyOverrideFactory factory;
+    GtAbstractObjectFactory& base = factory;
+
+    ASSERT_TRUE(base.registerClass(GT_METADATA(GtObject),
+                                   QStringLiteral("TestModule")));
+
+    const QStringList expected{GT_CLASSNAME(GtObject)};
+    EXPECT_EQ(factory.registered(), expected);
+    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObject)),
+              QStringLiteral("TestModule"));
+}
+
+TEST(GtAbstractObjectFactory, BulkRegistrationUsesLegacyOverride)
+{
+    LegacyOverrideFactory factory;
+    GtAbstractObjectFactory& base = factory;
+    const QList<QMetaObject> classes{GT_METADATA(GtObject),
+                                     GT_METADATA(GtObjectGroup)};
+
+    ASSERT_TRUE(base.registerClasses(classes, QStringLiteral("TestModule")));
+
+    const QStringList expected{GT_CLASSNAME(GtObject),
+                               GT_CLASSNAME(GtObjectGroup)};
+    EXPECT_EQ(factory.registered(), expected);
+    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObjectGroup)),
+              QStringLiteral("TestModule"));
 }
 
 TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)

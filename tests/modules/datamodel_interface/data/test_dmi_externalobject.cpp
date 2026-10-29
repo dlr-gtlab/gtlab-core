@@ -11,7 +11,6 @@
 #include "test_dmi_externalobject.h"
 
 #include "gt_h5externalizehelper.h"
-#include "genh5.h"
 
 TestDmiExternalObjectData::TestDmiExternalObjectData(TestDmiExternalObject* base) :
     GtExternalizedObjectData(base)

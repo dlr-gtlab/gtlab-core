@@ -67,6 +67,15 @@ Persistent project guide for work in `gtlab-core` so a new session can start imm
 - Keep public API changes explicit and documented.
 - Add or update focused tests where practical.
 
+### Include order
+In source files, group includes in this order (blank line between groups):
+1. This module's own headers (matching header first).
+2. Headers of other GTlab modules.
+3. GTlab core includes.
+4. GTlab logging includes (`gt_logging.h`).
+5. Qt includes (angle brackets).
+6. C++ standard library includes.
+
 ### Documentation changes
 - Prefer concise, actionable wording.
 - Keep a logical reading flow: overview -> required changes -> details -> examples/checklists.

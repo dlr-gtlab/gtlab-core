@@ -112,13 +112,6 @@ GtAbstractObjectFactory::knownClasses() const
 bool
 GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
 {
-    return registerClass(metaObj, {});
-}
-
-bool
-GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
-                                       const QString& moduleId)
-{
     QString classname = metaObj.className();
 
     if (knownClass(classname))
@@ -132,9 +125,22 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
     }
 
     m_knownClasses.insert(classname, metaObj);
+    return true;
+}
+
+bool
+GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
+                                       const QString& moduleId)
+{
+    // dispatch through non-module id overload, so that overrides of derived
+    // factories are always used for the actual registration for backwards
+    // compatibility
+    if (!registerClass(metaObj)) return false;
+
     if (!moduleId.isEmpty())
     {
-        m_classModuleIds.insert(classname, moduleId);
+        m_classModuleIds.insert(QString::fromLatin1(metaObj.className()),
+                                moduleId);
     }
     return true;
 }
@@ -164,17 +170,14 @@ bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
                                          const QString& moduleId)
 {
-    if (containsDuplicates(metaData))
-    {
-        return false;
-    }
+    if (containsDuplicates(metaData)) return false;
 
+    bool success = true;
     foreach (const QMetaObject& metaObj, metaData)
     {
-        registerClass(metaObj, moduleId);
+        success &= registerClass(metaObj, moduleId);
     }
-
-    return true;
+    return success;
 }
 
 QString
