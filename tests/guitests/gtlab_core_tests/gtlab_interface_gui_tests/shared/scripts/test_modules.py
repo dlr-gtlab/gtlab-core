@@ -7,7 +7,9 @@ modules = [
     "Test Datamodel Interface",
     "Test Mdi Interface",
     "Test Mdi Interface Ext",
-    "Test Process Interface"
+    "Test Process Interface",
+    "Test Exporter Interface",
+    "Test Importer Interface"
 ]
 ''' 
 List of all test modules. This list must be kept up to date and is used to 

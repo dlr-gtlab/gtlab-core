@@ -60,7 +60,8 @@ TEST_F(TestGtDoubleListProperty, setterGetter)
 
 TEST_F(TestGtDoubleListProperty, memento)
 {
-    gtObjectFactory->registerClass(TestDoubleListObject::staticMetaObject);
+    gtObjectFactory->registerClass(TestDoubleListObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     QVector<double> temp;
     temp << 0.1 << 0.2 << 0.3;
@@ -87,7 +88,8 @@ TEST_F(TestGtDoubleListProperty, memento)
 
 TEST_F(TestGtDoubleListProperty, diff)
 {
-    gtObjectFactory->registerClass(TestDoubleListObject::staticMetaObject);
+    gtObjectFactory->registerClass(TestDoubleListObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     GtObjectMemento mem1 = m_obj.toMemento();
     ASSERT_FALSE(mem1.isNull());

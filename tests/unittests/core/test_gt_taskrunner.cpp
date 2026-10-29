@@ -77,7 +77,8 @@ class TestGtTaskRunner : public ::testing::Test
 protected:
     void SetUp() override
     {
-        gtObjectFactory->registerClass(GtTask::staticMetaObject);
+        gtObjectFactory->registerClass(GtTask::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
 
         task.setFactory(gtObjectFactory);
         childTask.setFactory(gtObjectFactory);

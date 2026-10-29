@@ -57,22 +57,18 @@ public:
     QStringList knownClasses() const override;
 
     /**
-     * @brief registerClass
-     * @param metaObject
-     * @return
+     * @brief Registers a class and its providing module. Group factories
+     * do not own classes, so registration is rejected.
+     * @return Always false.
      */
-    bool registerClass(QMetaObject metaObj) override;
-
     bool registerClass(QMetaObject metaObj,
                        const QString& moduleId) override;
 
     /**
-     * @brief registerClasses
-     * @param metaObject
-     * @return
+     * @brief Registers classes and their providing module. Group factories
+     * do not own classes, so registration is rejected.
+     * @return Always false.
      */
-    bool registerClasses(const QList<QMetaObject>& metaData) override;
-
     bool registerClasses(const QList<QMetaObject>& metaData,
                          const QString& moduleId) override;
 

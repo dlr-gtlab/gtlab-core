@@ -1761,7 +1761,8 @@ TEST_F(TestGtObject, fromMemento)
 {
     qDebug() << "#### TEST_F(TestGtObject, fromMemento)";
 
-    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     // with properties
     TestSpecialGtObject op1;
@@ -2206,8 +2207,10 @@ TEST(GtObjectBugs, subPropsSignalsFromThread)
  */
 TEST_F(TestGtObject, bug539)
 {
-    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
-    gtObjectFactory->registerClass(TestObject::staticMetaObject);
+    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
+    gtObjectFactory->registerClass(TestObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     // with properties
     TestSpecialGtObject parent;

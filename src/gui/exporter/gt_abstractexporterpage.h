@@ -26,7 +26,7 @@ class GT_GUI_EXPORT GtAbstractExporterPage : public QWizardPage
 {
     Q_OBJECT
 
-public:
+protected:
     /**
      * @brief Constructor.
      * @param Object.

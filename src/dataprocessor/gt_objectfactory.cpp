@@ -35,17 +35,11 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
     registerPropertyFactory(
         QStringLiteral("gtlab.core.double"), GtDoubleProperty::staticMetaObject,
         [](const QString& id) { return new GtDoubleProperty(id, id); });
-    m_knownClasses.insert(GT_CLASSNAME(GtObjectGroup),
-                          GT_METADATA(GtObjectGroup));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtLabel),
-                          GT_METADATA(GtLabel));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtLabelData),
-                          GT_METADATA(GtLabelData));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtPropertyConnection),
-                          GT_METADATA(GtPropertyConnection));             
+        
+    registerClass(GT_METADATA(GtObjectGroup), builtinModuleId());
+    registerClass(GT_METADATA(GtLabel), builtinModuleId());
+    registerClass(GT_METADATA(GtLabelData), builtinModuleId());
+    registerClass(GT_METADATA(GtPropertyConnection), builtinModuleId());
 }
 
 GtObjectFactory*

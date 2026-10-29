@@ -43,6 +43,12 @@ GtAbstractObjectFactory::GtAbstractObjectFactory(bool silent) :
 
 GtAbstractObjectFactory::~GtAbstractObjectFactory() = default;
 
+QString
+GtAbstractObjectFactory::builtinModuleId()
+{
+    return QStringLiteral("GTlab");
+}
+
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {
@@ -134,12 +140,6 @@ GtAbstractObjectFactory::knownClasses() const
 }
 
 bool
-GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
-{
-    return registerClass(metaObj, {});
-}
-
-bool
 GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
                                        const QString& moduleIdent)
 {
@@ -160,6 +160,7 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
     {
         m_classModuleIds.insert(classname, moduleIdent);
     }
+
     return true;
 }
 
@@ -179,26 +180,17 @@ GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
 }
 
 bool
-GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
-{
-    return registerClasses(metaData, {});
-}
-
-bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
                                          const QString& moduleIdent)
 {
-    if (containsDuplicates(metaData))
-    {
-        return false;
-    }
+    if (containsDuplicates(metaData)) return false;
 
+    bool success = true;
     foreach (const QMetaObject& metaObj, metaData)
     {
-        registerClass(metaObj, moduleIdent);
+        success &= registerClass(metaObj, moduleId);
     }
-
-    return true;
+    return success;
 }
 
 QString

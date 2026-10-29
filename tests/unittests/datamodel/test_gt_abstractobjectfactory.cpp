@@ -18,16 +18,27 @@ namespace
     {
     };
 
-} // namespace
+    /// Factory that overrides the registration hook for a single class only
+    class SubclassOverrideFactory : public GtAbstractObjectFactory
+    {
+    public:
+        bool registerClass(QMetaObject metaObj,
+                           const QString& moduleId) override
+        {
+            m_registered << metaObj.className();
+            return GtAbstractObjectFactory::registerClass(metaObj, moduleId);
+        }
 
-TEST(GtAbstractObjectFactory, ExistingRegistrationApiHasNoModuleId)
-{
-    TestObjectFactory factory;
+        QStringList registered() const
+        {
+            return m_registered;
+        }
 
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
-    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
-}
+    private:
+        QStringList m_registered;
+    };
+
+    } // namespace
 
 TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 {
@@ -35,10 +46,20 @@ TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 
     ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
                                       QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("TestModule"));
 
     ASSERT_TRUE(factory.unregisterClass(GT_METADATA(GtObject)));
+    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
+TEST(GtAbstractObjectFactory, EmptyModuleIdIsNotRecorded)
+{
+    TestObjectFactory factory;
+
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
@@ -53,14 +74,6 @@ TEST(GtAbstractObjectFactory, BulkRegistrationAssignsModuleId)
               QStringLiteral("TestModule"));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObjectGroup)),
               QStringLiteral("TestModule"));
-}
-
-TEST(GtAbstractObjectFactory, LegacyBulkRegistrationHasNoModuleId)
-{
-    TestObjectFactory factory;
-
-    ASSERT_TRUE(factory.registerClasses({GT_METADATA(GtObject)}));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
 TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
@@ -78,11 +91,41 @@ TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
 TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
 {
     TestObjectFactory factory;
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
 
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
                                          QStringLiteral("TestModule")));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
+TEST(GtAbstractObjectFactory, SubclassOverrideIsUsed)
+{
+    SubclassOverrideFactory factory;
+    GtAbstractObjectFactory& base = factory;
+
+    ASSERT_TRUE(base.registerClass(GT_METADATA(GtObject),
+                                   QStringLiteral("TestModule")));
+
+    const QStringList expected{GT_CLASSNAME(GtObject)};
+    EXPECT_EQ(factory.registered(), expected);
+    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObject)),
+              QStringLiteral("TestModule"));
+}
+
+TEST(GtAbstractObjectFactory, BulkRegistrationUsesSubclassOverride)
+{
+    SubclassOverrideFactory factory;
+    GtAbstractObjectFactory& base = factory;
+    const QList<QMetaObject> classes{GT_METADATA(GtObject),
+                                     GT_METADATA(GtObjectGroup)};
+
+    ASSERT_TRUE(base.registerClasses(classes, QStringLiteral("TestModule")));
+
+    const QStringList expected{GT_CLASSNAME(GtObject),
+                               GT_CLASSNAME(GtObjectGroup)};
+    EXPECT_EQ(factory.registered(), expected);
+    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObjectGroup)),
+              QStringLiteral("TestModule"));
 }
 
 TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)

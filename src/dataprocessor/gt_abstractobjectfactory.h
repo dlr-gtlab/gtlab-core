@@ -35,6 +35,14 @@ public:
     virtual ~GtAbstractObjectFactory();
 
     /**
+     * @brief Module id of the classes that are built into GTlab.
+     * Classes registered with this module id are considered as core
+     * classes and do not create module dependencies.
+     * @return The built-in module id
+     */
+    static QString builtinModuleId();
+
+    /**
      * @brief newObject - generates gtlab objects based on given classname
      * @param className
      * @param parent object for the new object
@@ -72,13 +80,6 @@ public:
     virtual QStringList knownClasses() const;
 
     /**
-     * @brief registerClass
-     * @param metaObject
-     * @return
-     */
-    virtual bool registerClass(QMetaObject metaObj);
-
-    /**
      * @brief Registers a class and its providing module.
      * @param metaObj Meta object to register.
      * @param moduleId Identification of the providing module.
@@ -89,22 +90,18 @@ public:
     /**
      * @brief Removes a class from the factory
      * @param metaObj The meta object of the class to remove
-     * @return
+     * @return Returns false if the class was not registered before
      */
     bool unregisterClass(const QMetaObject& metaObj);
-
-    /**
-     * @brief registerClasses
-     * @param metaObject
-     * @return
-     */
-    virtual bool registerClasses(const QList<QMetaObject>& metaData);
 
     /**
      * @brief Registers classes and their providing module.
      * @param metaData Meta objects to register.
      * @param moduleId Identification of the providing module.
-     * @return Whether all classes were registered successfully.
+     * @return Returns false if any registration fails. Does not revert
+     * successful registrations on a failure.
+     * @note Delegates the registration of each meta object to
+     * `registerClass(QMetaObject, const QString&)`
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
                                  const QString& moduleIdent);

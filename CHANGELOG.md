@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
 ### Deprecated
+### Removed
+ - The module-id-less overloads of `GtAbstractObjectFactory::registerClass`/`registerClasses` and the single-argument `GtTaskFactory::registerTaskData` and `GtCalculatorFactory::registerCalculatorData`. The id of the providing module is now mandatory - #1650
 
 ## [2.1.0-alpha.2] - 2026-11-09
 

@@ -28,8 +28,10 @@ public:
     /**
      * @brief registerPlot
      * @param metaObject
+     * @param moduleId Identification of the providing module
      */
-    void registerPlots(const QList<QMetaObject>& metaObjects);
+    void registerPlots(const QList<QMetaObject>& metaObjects,
+                       const QString& moduleId);
 
     /**
      * @brief knownPlots

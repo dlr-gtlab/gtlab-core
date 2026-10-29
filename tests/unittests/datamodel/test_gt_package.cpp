@@ -30,7 +30,8 @@ protected:
         if (!gtObjectFactory->knownClass("TestSpecialGtObject"))
         {
             gtObjectFactory->registerClass(
-                TestSpecialGtObject::staticMetaObject);
+                TestSpecialGtObject::staticMetaObject,
+                QStringLiteral("UnitTest"));
         }
     }
 

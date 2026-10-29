@@ -101,8 +101,8 @@ protected:
     {
         processComp.setFactory(gtObjectFactory);
 
-        gtObjectFactory->registerClass(
-            TestGtProcessComponent::staticMetaObject);
+        gtObjectFactory->registerClass(TestGtProcessComponent::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
     }
 
     TestGtProcessComponent processComp;

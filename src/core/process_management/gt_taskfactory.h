@@ -35,13 +35,11 @@ public:
 
     /**
      * @brief Registers task data to factory.
-     * @param taskData New task data.
+     * @param data New task data.
+     * @param module Identification of the providing module.
      * @return Returns true if task data was successfully added.
      */
-    virtual bool registerTaskData(GtTaskData taskData);
-
-    virtual bool registerTaskData(GtTaskData taskData,
-                                  const QString& moduleId);
+    virtual bool registerTaskData(GtTaskData data, const QString& module);
 
     /**
      * @brief Returns full list of registered task data.
@@ -63,6 +61,13 @@ public:
      * @return True if task data for given class name exists.
      */
     bool taskDataExists(const QString& className);
+
+    /**
+     * @brief Returns the module providing the task class.
+     * @param className Task class name.
+     * @return Module id or an empty string if none is known.
+     */
+    QString moduleId(const QString& className) const override;
 
 private:
     /// Task data

@@ -613,8 +613,15 @@ GtProject::updateClassModuleIds()
         }
         if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
         if (moduleId.isEmpty())
+        {
             moduleId = pimpl->classModuleIds.value(className);
-        if (!moduleId.isEmpty()) updated.insert(className, moduleId);
+        }
+        // core classes are not stored in the manifest
+        if (!moduleId.isEmpty() &&
+            moduleId != GtAbstractObjectFactory::builtinModuleId())
+        {
+            updated.insert(className, moduleId);
+        }
     }
     pimpl->classModuleIds = std::move(updated);
 }
