@@ -90,27 +90,13 @@ GtExportHandler::exporterMetaData(const QString& classname)
 }
 
 GtAbstractExporter*
-GtExportHandler::newExporter(const QString& classname)
+GtExportHandler::newExporter(const QString& className)
 {
-    if (!knownClass(classname))
-    {
-        return nullptr;
-    }
+    return makeExporter(className).release();
+}
 
-    GtObject* obj = newObject(classname);
-
-    if (!obj)
-    {
-        return nullptr;
-    }
-
-    GtAbstractExporter* retval = qobject_cast<GtAbstractExporter*>(obj);
-
-    if (!retval)
-    {
-        delete obj;
-        return nullptr;
-    }
-
-    return retval;
+std::unique_ptr<GtAbstractExporter>
+GtExportHandler::makeExporter(const QString& className)
+{
+    return makeObject<GtAbstractExporter>(className);
 }

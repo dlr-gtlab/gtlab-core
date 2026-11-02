@@ -39,68 +39,58 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
                                                const QString& objName,
                                                GtObject* parent)
 {
+    return (parent) ? makeCalculatorHelper(helperClassName, objName, *parent)
+                    : nullptr;
+}
+
+GtObject*
+GtCalculatorHelperFactory::makeCalculatorHelper(const QString& helperClassName,
+                                                const QString& objName,
+                                                GtObject& parent)
+{
     if (helperClassName.isEmpty())
     {
         return nullptr;
     }
 
-    if (!parent)
+    QList<GtObject*> found = parent.findDirectChildren<GtObject*>(objName);
+    found.erase(std::remove_if(found.begin(), found.end(),
+                               [&helperClassName](GtObject* o) {
+                                   assert(o);
+                                   return o->metaObject()->className() !=
+                                          helperClassName;
+                               }),
+                found.end());
+
+    if (found.size() == 1)
+    {
+        return found.first();
+    }
+    if (found.size() > 1)
     {
         return nullptr;
     }
 
-    QList<GtObject*> gtObjs = parent->findDirectChildren<GtObject*>(objName);
+    const QList<QString> helperClasses = m_calcHelperConnection.value(
+        QString::fromUtf8(parent.metaObject()->className()));
 
-    QList<GtObject*> founds;
-
-    foreach (GtObject* gtObj, gtObjs)
-    {
-        if (gtObj)
-        {
-            if (QString::fromUtf8(gtObj->metaObject()->className()) ==
-                    helperClassName &&
-                gtObj->objectName() == objName)
-            {
-                founds.append(gtObj);
-            }
-        }
-    }
-
-    if (founds.size() == 1)
-    {
-        return founds.first();
-    }
-    else if (founds.size() > 1)
-    {
-        return nullptr;
-    }
-
-    GtObject* retval = nullptr;
-
-    QList<QString> helperClasses = m_calcHelperConnection.value(
-                                     QString::fromUtf8(parent->metaObject()->
-                                                           className()));
-    foreach (QString helperClass, helperClasses)
+    for (const QString& helperClass : helperClasses)
     {
         if (helperClass == helperClassName)
         {
-            retval = newObject(helperClass);
-
-            if (!retval)
-            {
-                return retval;
-            }
+            auto retval = makeObject(helperClass);
+            if (!retval) return nullptr;
 
             retval->setObjectName(objName);
 
-            if (retval->thread() != parent->thread())
+            if (retval->thread() != parent.thread())
             {
-                gt::moveToThread(*retval, parent->thread());
+                gt::moveToThread(*retval, parent.thread());
             }
 
-            parent->appendChild(retval);
+            if (!parent.appendChild(retval.get())) return nullptr;
 
-            return retval;
+            return retval.release();
         }
     }
 

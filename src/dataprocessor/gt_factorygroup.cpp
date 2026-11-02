@@ -19,7 +19,7 @@ GtFactoryGroup::newObject(const QString& className, GtObject* parent)
 {
     GtObject* retval = 0;
 
-    foreach (GtAbstractObjectFactory* factory, m_factories)
+    for (GtAbstractObjectFactory* factory : std::as_const(m_factories))
     {
         if (factory->knownClass(className))
         {
@@ -28,7 +28,7 @@ GtFactoryGroup::newObject(const QString& className, GtObject* parent)
             {
                 gtError() << QObject::tr("GtFactoryGroup : Error creating ")
                           << className;
-                return NULL;
+                return nullptr;
             }
             break;
         }
@@ -54,7 +54,7 @@ GtFactoryGroup::knownClass(const QString& className) const
 QString
 GtFactoryGroup::superClassName(const QString& className) const
 {
-    foreach (GtAbstractObjectFactory* factory, m_factories)
+    for (GtAbstractObjectFactory* factory : m_factories)
     {
         QString str = factory->superClassName(className);
         if (!str.isEmpty())
@@ -71,7 +71,7 @@ GtFactoryGroup::knownClasses() const
 {
     QStringList retval;
 
-    foreach (GtAbstractObjectFactory* factory, m_factories)
+    for (GtAbstractObjectFactory* factory : m_factories)
     {
         retval.append(factory->knownClasses());
     }
@@ -91,6 +91,13 @@ GtFactoryGroup::registerClass(QMetaObject /*metaObj*/,
                               const QString& /*moduleId*/)
 {
     gtWarning() << QObject::tr("register class failed!");
+    return false;
+}
+
+bool
+GtFactoryGroup::unregisterClass(const QMetaObject& metaObj)
+{
+    gtWarning() << QObject::tr("unregister class failed!");
     return false;
 }
 
@@ -143,7 +150,7 @@ GtFactoryGroup::classHierarchy(const QString& className)
 {
     QStringList retval;
 
-    foreach (GtAbstractObjectFactory* factory, m_factories)
+    for (GtAbstractObjectFactory* factory : m_factories)
     {
         retval = factory->classHierarchy(className);
 
@@ -156,6 +163,17 @@ GtFactoryGroup::classHierarchy(const QString& className)
     return retval << className;
 }
 
+const QMetaObject*
+GtFactoryGroup::metaObject(const QString& className) const
+{
+    const auto it =
+        std::find_if(std::begin(m_factories), std::end(m_factories),
+                     [&className](const GtAbstractObjectFactory* factory) {
+                         return factory->knownClass(className);
+                     });
+    return it == std::end(m_factories) ? nullptr : (*it)->metaObject(className);
+}
+
 bool
 GtFactoryGroup::addFactory(GtAbstractObjectFactory* factory)
 {
@@ -165,6 +183,5 @@ GtFactoryGroup::addFactory(GtAbstractObjectFactory* factory)
     }
 
     m_factories.push_back(factory);
-
     return true;
 }

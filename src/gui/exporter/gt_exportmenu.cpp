@@ -25,15 +25,13 @@ GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     setTitle(tr("Export"));
     setIcon(gt::gui::icon::export_());
 
-    QList<GtExporterMetaData> exporterList =
-            gtExportHandler->exporterMetaData(obj->metaObject()->className());
-
+    const QList<GtExporterMetaData> exporterList =
+        gtExportHandler->exporterMetaData(obj->metaObject()->className());
 
     if (!exporterList.isEmpty())
     {
-        foreach (const GtExporterMetaData& exp, exporterList)
+        for (const GtExporterMetaData& exp : exporterList)
         {
-
             QAction* act = addAction(exp.icon(),
                                      exp.id() + QStringLiteral("..."));
 
@@ -49,70 +47,39 @@ GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
 void
 GtExportMenu::onActionTrigger(QObject* obj)
 {
-    // check object
-    if (!m_obj)
-    {
-        return;
-    }
+    if (!m_obj) return;
 
-    GtProject* project = m_obj->findParent<GtProject*>();
-
-    if (!project)
-    {
-        return;
-    }
+    const GtProject* project = m_obj->findParent<GtProject*>();
+    if (!project) return;
 
     // get action
     QAction* act = qobject_cast<QAction*>(obj);
-
-    // check action
-    if (!act)
-    {
-        return;
-    }
+    if (!act) return;
 
     // get classname of exporter corresponding to action
     const QString str = m_actions.value(act);
-
-    // check whether classname is empty
-    if (str.isEmpty())
-    {
-        return;
-    }
+    if (str.isEmpty()) return;
 
     // get exporter corresponding to classname
-    GtAbstractExporter* exporter = gtExportHandler->newExporter(str);
-
-    // check exporter
-    if (!exporter)
-    {
-        return;
-    }
+    auto exporter = gtExportHandler->makeExporter(str);
+    if (!exporter) return;
 
     // clone object data
-    GtObject* objCopy = m_obj->clone();
-
-    // check clones object data
-    if (!objCopy)
-    {
-        return;
-    }
+    std::unique_ptr<GtObject> copy{m_obj->clone()};
+    if (!copy) return;
 
     // create wizard
     GtWizard wizard(parentWidget());
     wizard.setWindowTitle(tr("Export Wizard"));
 
     // get wizard pages
-    QList<GtAbstractExporterPage*> pages = exporter->pages(objCopy);
+    const QList<GtAbstractExporterPage*> pages = exporter->pages(copy.get());
 
     // append pages to wizard
-    foreach (GtAbstractExporterPage* page, pages)
+    for (GtAbstractExporterPage* page : pages)
     {
         wizard.addPage(page);
     }
 
     wizard.exec();
-
-    delete objCopy;
-    delete exporter;
 }

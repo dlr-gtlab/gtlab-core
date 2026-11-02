@@ -58,28 +58,17 @@ GtAbstractProcessProvider::initComponent(const QString& classname)
         delete m_component;
     }
 
-    GtObject* obj = gtProcessFactory->newObject(classname);
-
+    auto obj = gtProcessFactory->makeObject<GtProcessComponent>(classname);
     if (!obj)
     {
-        gtDebug() << "could not create new object" <<
-                     " (GtAbstractProcessProvider::initComponent)";
+        gtDebug() << "could not create/cast new object"
+                  << " (GtAbstractProcessProvider::initComponent)";
         gtDebug() << "  |-> " << classname;
         return false;
     }
 
-    m_component = qobject_cast<GtProcessComponent*>(obj);
-
-    if (!m_component)
-    {
-        gtDebug() << "could not cast new object" <<
-                     " (GtAbstractProcessProvider::initComponent)";
-        delete obj;
-        return false;
-    }
-
-    m_component->setParent(this);
-
+    m_component = obj.get();
+    obj.release()->setParent(this);
     return true;
 }
 
