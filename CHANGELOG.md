@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
  - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
-
+ - Preferences now prompt the user to restart GTlab when a changed setting requires it.
 ### Changed
  - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
  - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
