@@ -1934,17 +1934,9 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    // TODO: discussion, we receive a deep copy task from copyElement, why new UUIDs here?
-    //was:
-    //GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
-    //                                                gtProcessFactory);
-    //new code: changed to false for newUUID
+    // No new UUID here, we need and receive the mapping from deep copy
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, false,
                     gtProcessFactory);
-
-    //Answer: pasting a task twice puts the same UUIDs twice as a child.
-    //Solution: don't do a new UUID here, but repeat deep copy down below
-
 
     if (!obj)
     {
@@ -1957,6 +1949,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     auto task = qobject_cast<GtTask*>(obj);
     if(task)
     {
+        // Pasting a task twice needs to avoid pasting the same UUID twice. Thus, redo deep copy here.
         auto taskCopy = gt::utils::process::deepCopyTask(task);
         if(!taskCopy) {
             delete obj;
@@ -2018,28 +2011,25 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     auto pasteCmd = gtApp->makeCommand(parent,
                                        tr("Paste process element"));
 
-    auto const propCons = obj->findChildren<GtPropertyConnection*>();
+    /*auto const propCons = obj->findChildren<GtPropertyConnection*>();
 
     for (GtPropertyConnection* propCon : propCons)
     {
         propCon->setParent(nullptr);
+    }*/
+
+    auto procComp = qobject_cast<GtProcessComponent*>(obj);
+    if(!procComp)
+    {
+        gtError() << "Pasted object is not a GtProcessComponent";
+        return;
     }
 
-    QModelIndex srcIndex = gtDataModel->appendChild(obj, parent);
-
-    auto task = qobject_cast<GtTask*>(obj);
-
-    if (task)
+    QModelIndex srcIndex;
+    if(!gt::utils::process::pasteProcessComponent(parent, procComp, true, &srcIndex))
     {
-        GtTask* highestParent = detail::highestParentTask(task);
-
-        if (highestParent)
-        {
-            for (GtPropertyConnection* propCon : propCons)
-            {
-                gtDataModel->appendChild(propCon, highestParent);
-            }
-        }
+        gtError() << "Pasting was not successful";
+        return;
     }
 
     pasteCmd.finalize();
