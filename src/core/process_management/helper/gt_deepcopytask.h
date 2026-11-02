@@ -47,8 +47,6 @@ GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
  */
 GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel=false, QModelIndex* pastedModelIndex=nullptr);
 
-
-
 /**
  * @brief In a copied task, the property connections are st to the new UUIDs of source/target with the mapping received
  * through GtObject::copy(GtObjectUUIDMap&)

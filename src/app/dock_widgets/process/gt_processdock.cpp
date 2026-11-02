@@ -1812,10 +1812,6 @@ GtProcessDock::pasteElement(GtObject* parent)
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, false,
                     gtProcessFactory);
 
-    //Answer: pasting a task twice puts the same UUIDs twice as a child.
-    //Solution: don't do a new UUID here, but repeat deep copy down below
-
-
     if (!obj)
     {
         gtError() << tr("Could not restore object from clipboard!");
