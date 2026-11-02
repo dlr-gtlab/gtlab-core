@@ -39,10 +39,13 @@ GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
 /**
  * @brief Add a process component as a child to an object and check if the new parent is a
  * process component. If so, transfer the propery connections to the root task
- * @param
+ * @param targetParent
+ * @param child The object to be pasted
+ * @param useGtDataModel Set true if the GUI-related append method should be used
+ * @param pastedModelIndex If useGtDataModel is true, the index of the pasted process component is written to this pointer
  * @return
  */
-GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child);
+GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel=false, QModelIndex* pastedModelIndex=nullptr);
 
 
 /**

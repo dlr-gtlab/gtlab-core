@@ -6,6 +6,7 @@
  */
 
 #include "gt_deepcopytask.h"
+#include "gt_coredatamodel.h"
 #include "gt_objectuuidmap.h"
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_taskgroup.h"
@@ -240,9 +241,20 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
 }
 
 bool
-pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child)
+pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel, QModelIndex* pastedModelIndex)
 {
-    targetParent->appendChild(child);
+    if (useGtDataModel)
+    {
+        QModelIndex newIndex = gtDataModel->appendChild(child, targetParent);
+        if(pastedModelIndex)
+        {
+            *pastedModelIndex = newIndex;
+        }
+    }
+    else
+    {
+        targetParent->appendChild(child);
+    }
 
     auto parentTask = qobject_cast<GtTask*>(targetParent);
 
@@ -258,7 +270,14 @@ pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child)
 
         for(auto c: qAsConst(propCons))
         {
-            roottask->appendChild(c);
+            if (useGtDataModel)
+            {
+                gtDataModel->appendChild(c, roottask);
+            }
+            else
+            {
+                roottask->appendChild(c);
+            }
         }
     }
 
