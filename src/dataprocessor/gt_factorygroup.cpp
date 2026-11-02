@@ -21,17 +21,16 @@ GtFactoryGroup::newObject(const QString& className, GtObject* parent)
 
     for (GtAbstractObjectFactory* factory : std::as_const(m_factories))
     {
-        if (factory->knownClass(className))
+        if (!factory->knownClass(className)) continue;
+
+        retval = factory->newObject(className, parent);
+        if (!retval)
         {
-            retval = factory->newObject(className, parent);
-            if (retval == 0)
-            {
-                gtError() << QObject::tr("GtFactoryGroup : Error creating ")
-                          << className;
-                return nullptr;
-            }
-            break;
+            gtError() << QObject::tr("GtFactoryGroup : Error creating ")
+                      << className;
+            return nullptr;
         }
+        break;
     }
 
     if (retval)

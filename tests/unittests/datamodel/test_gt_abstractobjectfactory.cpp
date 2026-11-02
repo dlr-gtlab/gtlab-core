@@ -236,6 +236,23 @@ TEST(GtFactoryGroup, DelegatesSuperClassNameToProvidingFactory)
     EXPECT_TRUE(group.superClassName(QStringLiteral("UnknownClass")).isEmpty());
 }
 
+TEST(GtFactoryGroup, KnownClassesAggregatesProvidingFactories)
+{
+    TestObjectFactory first;
+    TestObjectFactory second;
+    ASSERT_TRUE(first.registerClass(GT_METADATA(FactoryTestObject)));
+    ASSERT_TRUE(second.registerClass(GT_METADATA(FactoryTestOtherObject)));
+
+    GtFactoryGroup group;
+    ASSERT_TRUE(group.addFactory(&first));
+    ASSERT_TRUE(group.addFactory(&second));
+
+    const QStringList known = group.knownClasses();
+    EXPECT_TRUE(known.contains(GT_CLASSNAME(FactoryTestObject)));
+    EXPECT_TRUE(known.contains(GT_CLASSNAME(FactoryTestOtherObject)));
+    EXPECT_FALSE(known.contains(GT_CLASSNAME(GtObject)));
+}
+
 TEST(GtFactoryGroup, DelegatesMetaObjectLookupToProvidingFactory)
 {
     TestObjectFactory factory;
