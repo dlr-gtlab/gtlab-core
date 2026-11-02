@@ -537,7 +537,7 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1AndPaste)
     // check if subtask connections have been transferred into the new roottask
     auto newtaskChildren = newtask->findDirectChildren();
 
-    for(auto p: propCons)
+    for(auto p: qAsConst(propCons))
     {
         ASSERT_TRUE( newtaskChildren.contains(p) );
     }
