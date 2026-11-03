@@ -21,21 +21,21 @@
 #include "gt_taskfactory.h"
 
 
-
-
 class TestGtTaskPropertyConnections : public ::testing::Test
 {
 protected:
     virtual void SetUp()
     {
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(GtPropertyConnection)))
-            gtObjectFactory->registerClass(GtPropertyConnection::staticMetaObject);
+            gtObjectFactory->registerClass(
+                GtPropertyConnection::staticMetaObject);
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
             gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestTaskWithProperty)))
-            gtObjectFactory->registerClass(TestTaskWithProperty::staticMetaObject);
+            gtObjectFactory->registerClass(
+                TestTaskWithProperty::staticMetaObject);
 
         roottask = new TestTaskWithProperty;
         roottask->setObjectName("rt");
@@ -67,16 +67,23 @@ protected:
         taskgroup = new GtTaskGroup;
         taskgroup->appendChild(roottask);
 
-        con1 = gt::utils::process::makePropertyConnection(roottask, "doubleProp1", subtask1, "doubleProp1");
-        con2 = gt::utils::process::makePropertyConnection(roottask, "doubleProp1", subtask2, "doubleProp1");
+        con1 = gt::utils::process::makePropertyConnection(
+            roottask, "doubleProp1", subtask1, "doubleProp1");
+        con2 = gt::utils::process::makePropertyConnection(
+            roottask, "doubleProp1", subtask2, "doubleProp1");
 
-        con3 = gt::utils::process::makePropertyConnection(subtask1, "doubleProp1", calc1, "doubleProp1");
-        con4 = gt::utils::process::makePropertyConnection(calc1,    "doubleProp2", calc2, "doubleProp1");
+        con3 = gt::utils::process::makePropertyConnection(
+            subtask1, "doubleProp1", calc1, "doubleProp1");
+        con4 = gt::utils::process::makePropertyConnection(calc1, "doubleProp2",
+                                                          calc2, "doubleProp1");
 
-        con5 = gt::utils::process::makePropertyConnection(calc2,    "doubleProp2", calc3, "doubleProp1");
-        con6 = gt::utils::process::makePropertyConnection(subtask1, "doubleProp1", subtask2, "doubleProp2");
+        con5 = gt::utils::process::makePropertyConnection(calc2, "doubleProp2",
+                                                          calc3, "doubleProp1");
+        con6 = gt::utils::process::makePropertyConnection(
+            subtask1, "doubleProp1", subtask2, "doubleProp2");
 
-        con7 = gt::utils::process::makePropertyConnection(subtask2, "doubleProp1", calc3, "doubleProp2");
+        con7 = gt::utils::process::makePropertyConnection(
+            subtask2, "doubleProp1", calc3, "doubleProp2");
 
         con_obsolete = new GtPropertyConnection;
         con_obsolete->setSourceUuid("no-real-calc");
@@ -162,7 +169,6 @@ protected:
     // }
 
 
-
     GtTaskGroup* taskgroup;
 
 
@@ -188,9 +194,7 @@ protected:
     GtPropertyConnection* con_obsolete;
     GtPropertyConnection* con_stale1;
     GtPropertyConnection* con_stale2;
-
 };
-
 
 
 TEST_F(TestGtTaskPropertyConnections, highestParent)
@@ -206,7 +210,7 @@ TEST_F(TestGtTaskPropertyConnections, highestParent)
     ASSERT_EQ(gt::utils::process::findRootTask(standaloneCalc), nullptr);
 
     delete standaloneTask;
-    delete standaloneCalc;        
+    delete standaloneCalc;
 }
 
 TEST_F(TestGtTaskPropertyConnections, checkTaskPropertyConnectionsErrorBehavior)
@@ -214,7 +218,8 @@ TEST_F(TestGtTaskPropertyConnections, checkTaskPropertyConnectionsErrorBehavior)
     bool ok;
 
     // nullptr send
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(nullptr, &ok);
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        nullptr, &ok);
     Q_UNUSED(retval)
 
     ASSERT_FALSE(ok);
@@ -222,8 +227,9 @@ TEST_F(TestGtTaskPropertyConnections, checkTaskPropertyConnectionsErrorBehavior)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 {
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(roottask, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        roottask, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 7);
@@ -248,8 +254,9 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 {
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask1, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        subtask1, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 2);
@@ -277,8 +284,9 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask2)
 {
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask2, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        subtask2, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 1);
@@ -318,9 +326,12 @@ TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
     ASSERT_NE(subtask1_copied, nullptr);
     ASSERT_NE(subtask2_copied, nullptr);
 
-    auto calc1_copied = subtask1_copied->findDirectChild<GtCalculator*>("calc1");
-    auto calc2_copied = subtask1_copied->findDirectChild<GtCalculator*>("calc2");
-    auto calc3_copied = subtask2_copied->findDirectChild<GtCalculator*>("calc3");
+    auto calc1_copied =
+        subtask1_copied->findDirectChild<GtCalculator*>("calc1");
+    auto calc2_copied =
+        subtask1_copied->findDirectChild<GtCalculator*>("calc2");
+    auto calc3_copied =
+        subtask2_copied->findDirectChild<GtCalculator*>("calc3");
 
     ASSERT_NE(calc1_copied, nullptr);
     ASSERT_NE(calc2_copied, nullptr);
@@ -335,8 +346,9 @@ TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
     ASSERT_NE(calc3->uuid(), calc3_copied->uuid());
 
     // anaylze the property connections
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(roottask_copied, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        roottask_copied, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 7);
@@ -346,13 +358,20 @@ TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
     ASSERT_EQ(retval.obsolete.size(), 1);
 
     // get the copied connections
-    auto con1_copied = roottask_copied->findChild<GtPropertyConnection*>("con1");
-    auto con2_copied = roottask_copied->findChild<GtPropertyConnection*>("con2");
-    auto con3_copied = roottask_copied->findChild<GtPropertyConnection*>("con3");
-    auto con4_copied = roottask_copied->findChild<GtPropertyConnection*>("con4");
-    auto con5_copied = roottask_copied->findChild<GtPropertyConnection*>("con5");
-    auto con6_copied = roottask_copied->findChild<GtPropertyConnection*>("con6");
-    auto con7_copied = roottask_copied->findChild<GtPropertyConnection*>("con7");
+    auto con1_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con1");
+    auto con2_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con2");
+    auto con3_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con3");
+    auto con4_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con4");
+    auto con5_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con5");
+    auto con6_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con6");
+    auto con7_copied =
+        roottask_copied->findChild<GtPropertyConnection*>("con7");
 
     ASSERT_NE(con1_copied, nullptr);
     ASSERT_NE(con2_copied, nullptr);
@@ -388,8 +407,6 @@ TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
 }
 
 
-
-
 TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
 {
     auto subtask1_copied = gt::utils::process::deepCopyTask(subtask1);
@@ -397,8 +414,10 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
     // get the copied sub components
     ASSERT_NE(subtask1_copied, nullptr);
 
-    auto calc1_copied = subtask1_copied->findDirectChild<GtCalculator*>("calc1");
-    auto calc2_copied = subtask1_copied->findDirectChild<GtCalculator*>("calc2");
+    auto calc1_copied =
+        subtask1_copied->findDirectChild<GtCalculator*>("calc1");
+    auto calc2_copied =
+        subtask1_copied->findDirectChild<GtCalculator*>("calc2");
 
     ASSERT_NE(calc1_copied, nullptr);
     ASSERT_NE(calc2_copied, nullptr);
@@ -409,8 +428,9 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
     ASSERT_NE(calc2->uuid(), calc2_copied->uuid());
 
     // anaylze the property connections
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask1_copied, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        subtask1_copied, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 2);
@@ -420,8 +440,10 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
     ASSERT_EQ(retval.obsolete.size(), 0);
 
     // get the copied connections
-    auto con3_copied = subtask1_copied->findChild<GtPropertyConnection*>("con3");
-    auto con4_copied = subtask1_copied->findChild<GtPropertyConnection*>("con4");
+    auto con3_copied =
+        subtask1_copied->findChild<GtPropertyConnection*>("con3");
+    auto con4_copied =
+        subtask1_copied->findChild<GtPropertyConnection*>("con4");
 
     ASSERT_NE(con3_copied, nullptr);
     ASSERT_NE(con4_copied, nullptr);
@@ -444,7 +466,8 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     // get the copied sub components
     ASSERT_NE(subtask2_copied, nullptr);
 
-    auto calc3_copied = subtask2_copied->findDirectChild<GtCalculator*>("calc3");
+    auto calc3_copied =
+        subtask2_copied->findDirectChild<GtCalculator*>("calc3");
 
     ASSERT_NE(calc3_copied, nullptr);
 
@@ -453,8 +476,9 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     ASSERT_NE(calc3->uuid(), calc3_copied->uuid());
 
     // anaylze the property connections
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(subtask2_copied, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        subtask2_copied, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 1);
@@ -464,7 +488,8 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     ASSERT_EQ(retval.obsolete.size(), 0);
 
     // get the copied connections
-    auto con7_copied = subtask2_copied->findChild<GtPropertyConnection*>("con7");
+    auto con7_copied =
+        subtask2_copied->findChild<GtPropertyConnection*>("con7");
 
     ASSERT_NE(con7_copied, nullptr);
 
@@ -480,8 +505,9 @@ TEST_F(TestGtTaskPropertyConnections, cleanRoottask)
 {
     gt::utils::process::cleanupPropertyConnections(roottask);
 
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(roottask, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        roottask, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 7);
@@ -495,8 +521,9 @@ TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
 {
     ASSERT_FALSE(gt::utils::process::cleanupPropertyConnections(subtask1));
 
-    bool ok=false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(roottask, &ok);
+    bool ok = false;
+    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
+        roottask, &ok);
     ASSERT_TRUE(ok);
 
     ASSERT_EQ(retval.internal.size(), 7);
@@ -506,8 +533,9 @@ TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
     ASSERT_EQ(retval.obsolete.size(), 1);
 
 
-    bool ok2=false;
-    auto retval2 = gt::utils::process::analyzePropertyConnectionsRelationship(subtask1, &ok2);
+    bool ok2 = false;
+    auto retval2 = gt::utils::process::analyzePropertyConnectionsRelationship(
+        subtask1, &ok2);
     ASSERT_TRUE(ok2);
 
     ASSERT_EQ(retval2.internal.size(), 2);
@@ -524,7 +552,8 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1AndPaste)
     // get the copied sub components
     ASSERT_TRUE(subtask1_copied);
 
-    auto propCons = subtask1_copied->findDirectChildren<GtPropertyConnection*>();
+    auto propCons =
+        subtask1_copied->findDirectChildren<GtPropertyConnection*>();
 
     // make new taskgroup with task and add subtask
     auto taskgroup = new GtTaskGroup;
@@ -537,11 +566,10 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1AndPaste)
     // check if subtask connections have been transferred into the new roottask
     auto newtaskChildren = newtask->findDirectChildren();
 
-    for(auto p: qAsConst(propCons))
+    for (auto p : qAsConst(propCons))
     {
-        ASSERT_TRUE( newtaskChildren.contains(p) );
+        ASSERT_TRUE(newtaskChildren.contains(p));
     }
-
 }
 
 
@@ -549,12 +577,14 @@ class TestGtTaskRelativeObjectLinkProperty : public ::testing::Test
 {
 protected:
     virtual void SetUp()
-    {        
+    {
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
             gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
 
-        if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestTaskWithRelativeObjectLinkProperty)))
-            gtObjectFactory->registerClass(TestTaskWithRelativeObjectLinkProperty::staticMetaObject);
+        if (!gtObjectFactory->knownClass(
+                GT_CLASSNAME(TestTaskWithRelativeObjectLinkProperty)))
+            gtObjectFactory->registerClass(
+                TestTaskWithRelativeObjectLinkProperty::staticMetaObject);
 
         roottask = new TestTaskWithRelativeObjectLinkProperty;
         roottask->setObjectName("rt");
@@ -564,7 +594,6 @@ protected:
 
         roottask->appendChild(calc1);
         roottask->propRelObjLink()->setVal(calc1->uuid());
-
     }
 
     virtual void TearDown()
@@ -574,22 +603,21 @@ protected:
 
     TestTaskWithRelativeObjectLinkProperty* roottask;
     TestGtCalculator* calc1;
-
 };
 
 
-TEST_F(TestGtTaskRelativeObjectLinkProperty, copyTaskWithRelativeObjectLinkProperty)
+TEST_F(TestGtTaskRelativeObjectLinkProperty,
+       copyTaskWithRelativeObjectLinkProperty)
 {
     auto copy = gt::utils::process::deepCopyTask(roottask);
 
     ASSERT_TRUE(copy);
 
-    auto copyCasted = qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(copy);
+    auto copyCasted =
+        qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(copy);
 
     auto copiedRelObjLinkProp = copyCasted->propRelObjLink();
     auto copiedCalc = copyCasted->findDirectChild<TestGtCalculator*>("c1");
 
     ASSERT_EQ(copiedRelObjLinkProp->getVal(), copiedCalc->uuid());
-
-
 }

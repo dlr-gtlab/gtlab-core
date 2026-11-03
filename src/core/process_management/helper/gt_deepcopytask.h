@@ -15,9 +15,12 @@ class GtTask;
 class GtProcessComponent;
 class GtObjectUUIDMap;
 
-namespace gt {
-namespace utils {
-namespace process {
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
 
 
 struct PropertyConnectionsRelationshipReturn;
@@ -33,7 +36,7 @@ struct PropertyConnectionsRelationshipReturn;
  * @param strict If true, the operation fails when property connections could not be transferred (does not count for stale or obsolete properties)
  * @return
  */
-GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
+GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict = false);
 
 
 /**
@@ -45,7 +48,9 @@ GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict=false);
  * @param pastedModelIndex If useGtDataModel is true, the index of the pasted process component is written to this pointer
  * @return
  */
-GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel=false, QModelIndex* pastedModelIndex=nullptr);
+GT_CORE_EXPORT bool pasteProcessComponent(
+    GtObject* targetParent, GtProcessComponent* child,
+    bool useGtDataModel = false, QModelIndex* pastedModelIndex = nullptr);
 
 
 /**
@@ -55,7 +60,8 @@ GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessCompo
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* uuidMap);
+GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(
+    GtTask* taskCopy, const GtObjectUUIDMap* uuidMap);
 
 
 /**
@@ -68,7 +74,6 @@ GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskCopy, cons
 GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
 
 
-
 /**
  * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
  * Relative object links are links within the copied structure, e.g. a link to another calculator.
@@ -78,7 +83,8 @@ GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
+GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
+    GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
 
 
 } // namespace process
