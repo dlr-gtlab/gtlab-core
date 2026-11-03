@@ -8,6 +8,9 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <algorithm>
+#include <iterator>
+
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QComboBox>
@@ -1686,10 +1689,8 @@ GtProcessDock::cutElement(const QModelIndex& index)
             QList<GtPropertyConnection*> relatedCons =
                 detail::relatedPropertyConnections(child);
 
-            foreach (GtPropertyConnection* propCon, relatedCons)
-            {
-                toDelete.append(propCon);
-            }
+            std::copy(relatedCons.cbegin(), relatedCons.cend(),
+                      std::back_inserter(toDelete));
 
             detail::setOffLostConnectionWarnings(
                         relatedCons, detail::highestParentTask(child));
