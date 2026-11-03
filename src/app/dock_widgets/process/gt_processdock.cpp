@@ -1615,11 +1615,16 @@ GtProcessDock::copyElement(const QModelIndex& index)
         return;
     }
 
-    gt::utils::process::printWarningForLostPropertyConnections(
-        qobject_cast<GtTask*>(pComp), true);
+    if (auto* task = qobject_cast<GtTask*>(pComp))
+    {
+        gt::utils::process::printWarningForLostPropertyConnections(task, true);
+    }
 
-    gt::utils::process::printWarningForLostPropertyConnections(
-        qobject_cast<GtTask*>(copy), true);
+    if (auto* copiedTask = qobject_cast<GtTask*>(copy))
+    {
+        gt::utils::process::printWarningForLostPropertyConnections(copiedTask,
+                                                                   true);
+    }
 
     QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
