@@ -10,6 +10,7 @@
  */
 
 #include <QMessageBox>
+#include <utility>
 
 #include "gt_application.h"
 #include "gt_settings.h"
@@ -32,8 +33,8 @@ GtProcessExecutor::GtProcessExecutor(QObject* parent) :
 }
 
 void
-GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
-                                            GtTask* task)
+GtProcessExecutor::handleTaskFinishedHelper(
+    QList<GtTaskMementoPair> changedData, GtTask* task)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(gui mode)";
 
@@ -44,8 +45,7 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
         m_task = task;
 
         GtFinishedProcessLoadingHelper* helper =
-                new GtFinishedProcessLoadingHelper(&changedData, m_source,
-                                                   m_task->objectName());
+            new GtFinishedProcessLoadingHelper(std::move(changedData));
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 
@@ -106,6 +106,12 @@ GtProcessExecutor::onHelperFinished()
 
     auto cleanup = gt::finally(helper, &QObject::deleteLater);
     Q_UNUSED(cleanup)
+
+    if (!helper->isValid())
+    {
+        m_task->setState(GtProcessComponent::FAILED);
+        return;
+    }
 
     if (helper->sumDiff()->isNull()) return;
 

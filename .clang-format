@@ -1,26 +1,44 @@
 BasedOnStyle: Microsoft
+
+### General
 IndentWidth: 4
-AlwaysBreakAfterReturnType: TopLevelDefinitions
-AlwaysBreakTemplateDeclarations: Yes
-PPIndentWidth: 0
-NamespaceIndentation: All
-AccessModifierOffset: -4
-
-# comments
-ReflowComments: False
-
 ColumnLimit: 80
 PointerAlignment: Left
+# west const
+QualifierAlignment: Left 
 MaxEmptyLinesToKeep: 2
 
-AllowShortIfStatementsOnASingleLine: WithoutElse
-
-
-# classes
-BreakConstructorInitializers: AfterColon 
-# works only on clang 14
-# PackConstructorInitializers: Never
+### PreProcessor
+# indent before '#'
+IndentPPDirectives: BeforeHash
+# indent nested macros
+PPIndentWidth: 2
 
 # todo: discuss
 SortIncludes: Never 
 IncludeBlocks: Preserve
+
+### Comments
+ReflowComments: false
+
+### Functions
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterFunction: true
+    SplitEmptyFunction: false
+AllowShortFunctionsOnASingleLine: None
+SpaceInEmptyBlock: true
+
+### Classes
+AccessModifierOffset: -4
+BreakConstructorInitializers: AfterColon 
+PackConstructorInitializers: Never
+
+### Namespaces
+NamespaceIndentation: None
+# enforces comments after namespace
+FixNamespaceComments: Yes

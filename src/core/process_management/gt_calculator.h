@@ -95,9 +95,9 @@ public:
 
     /**
      * @brief Sets the execution mode of the calculator.
-     * @param Identification string of the new execution mode.
+     * @param mode Identification string of the new execution mode.
      */
-    void setExecMode(const QString& execMode);
+    void setExecMode(const QString& mode);
 
     /**
      * @brief Sets the execution mode to local exectution (default)

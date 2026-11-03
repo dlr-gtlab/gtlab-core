@@ -181,8 +181,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // importer interface
-    GtImporterInterface* impp = checkInterface<GtImporterInterface>(
-        plugin->ident(), plugin);
+    const GtImporterInterface* impp =
+        checkInterface<GtImporterInterface>(plugin->ident(), plugin);
 
     if (impp)
     {
@@ -202,8 +202,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // exporter interface
-    GtExporterInterface* expp = checkInterface<GtExporterInterface>(
-        plugin->ident(), plugin);
+    const GtExporterInterface* expp =
+        checkInterface<GtExporterInterface>(plugin->ident(), plugin);
 
     if (expp)
     {
@@ -246,8 +246,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // collection interface
-    GtCollectionInterface* coll = checkInterface<GtCollectionInterface>(
-        plugin->ident(), plugin);
+    const GtCollectionInterface* coll =
+        checkInterface<GtCollectionInterface>(plugin->ident(), plugin);
 
     if (coll)
     {
@@ -255,7 +255,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 
         std::unique_ptr<QObject> obj(meta.newInstance());
 
-        if (!gt::unique_qobject_cast<GtCollectionSettings>(std::move(obj)))
+        if (!gt::unique_qobject_cast<GtAbstractCollectionSettings>(
+                std::move(obj)))
         {
             gtWarning() << errorString()
                         << QObject::tr("Invalid collection settings!");
@@ -266,13 +267,13 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     return true;
 }
 
-void
+bool
 GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 {
-    if (!plugin) return;
+    if (!plugin) return false;
 
     QApplication::processEvents();
-    GtCoreModuleLoader::insert(plugin);
+    if (!GtCoreModuleLoader::insert(plugin)) return false;
 
     GtMdiInterface* mdip = checkInterface<GtMdiInterface>(plugin->ident(),
                                                           plugin);
@@ -297,7 +298,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // importer interface
-    GtImporterInterface* impp =
+    GtImporterInterface const* impp =
         checkInterface<GtImporterInterface>(plugin->ident(), plugin);
 
     if (impp)
@@ -306,7 +307,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // exporter interface
-    GtExporterInterface* expp =
+    GtExporterInterface const* expp =
         checkInterface<GtExporterInterface>(plugin->ident(), plugin);
 
     if (expp)
@@ -332,6 +333,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
         gtMdiLauncher->registerCollection(coll->collectionId(),
                                           coll);
     }
+    return true;
 }
 
 void
@@ -350,4 +352,3 @@ GtGuiModuleLoader::registerObjectUI(const char* classId,
 
     m_uiObjs[classId].append(uio);
 }
-

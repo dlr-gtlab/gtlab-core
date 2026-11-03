@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <gt_projectprovider.h>
 
 #include <QApplication>
@@ -22,6 +23,7 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
+#include "gt_consolerunoperationfrommemento.h"
 #include "gt_consoleruntaskfrommemento.h"
 #include "gt_consoleupgradeproject.h"
 
@@ -711,6 +713,69 @@ switch_session(const QStringList& args)
     return 0;
 }
 
+int
+importToSession(const QStringList& args)
+{
+    GtCommandLineParser parser;
+
+    parser.parse(args);
+    auto posArgs = parser.positionalArguments();
+
+    if (posArgs.size() != 1)
+    {
+        std::cout << QObject::tr("import_to_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "import_to_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
+        return -1;
+    }
+
+    QString path = QDir(posArgs[0]).filePath("project.gtlab");
+    std::cout << QObject::tr("projectFile: %1\n").arg(path).toStdString();
+
+    QFile file(path);
+    if (!file.exists())
+    {
+        std::cerr << QObject::tr("ERROR: project file %1 not found!\n")
+                         .arg(path)
+                         .toStdString();
+
+        return -1;
+    }
+
+    GtProjectProvider provider(path);
+    std::unique_ptr<GtProject> project{provider.project()};
+
+    if (!project)
+    {
+        std::cerr << QObject::tr("Cannot load project\n").toStdString();
+        return -1;
+    }
+
+    if (gtDataModel->findProject(project->objectName()))
+    {
+        return 0;
+    }
+
+    if (!gtDataModel->newProject(project.get(), false))
+    {
+        std::cerr << QObject::tr("Project '%1' could not be imported\n")
+                         .arg(project->objectName())
+                         .toStdString();
+        return -1;
+    }
+
+    // The data model parents the project to the session and takes ownership.
+    auto* sessionOwnedProject = project.release();
+    Q_UNUSED(sessionOwnedProject);
+    return 0;
+}
+
 void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
@@ -756,6 +821,12 @@ initSystemOptions()
         "resulting project Memento-Diff.",
         gt::console::runTaskFromMementoOptions(), {}, false);
 
+    initPosArgument(
+        "run_operation_from_memento", gt::console::runOperationFromMemento,
+        "Executes an executable operation from operation, data and optional "
+        "project Mementos.",
+        gt::console::runOperationFromMementoOptions(), {}, false);
+
     initPosArgument("list", displayList,
                     "\tShows list of modules, session, projects and tasks.",
                     {}, {}, false);
@@ -793,6 +864,11 @@ initSystemOptions()
                     "Upgrades All Modules in the current project", {},
                     QList<GtCommandLineArgument>(),
                     false);
+
+    initPosArgument("import_to_session", importToSession,
+                    "loads a project to the current session", {},
+                    {GtCommandLineArgument{"project_directory", "Path to project folder"}},
+                    true);
 }
 
 int
@@ -866,6 +942,7 @@ int main(int argc, char* argv[])
     // logging options (will be handled by app-init)
     parser.addOption("medium", {"medium"}, "Enables medium verbose output");
     parser.addOption("verbose", {"verbose"}, "\tEnables very verbose output");
+    parser.addOption("silent", {"silent"}, "Suppresses log output");
     parser.addOption("trace", {"trace"}, "Enables trace output and higher");
     parser.addOption("debug", {"debug"}, "Enables debug output and higher");
 
@@ -889,7 +966,31 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    app.init();
+    gt::LoggingOptions loggingOptions;
+    if (parser.option("medium"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.option("verbose"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+    else if (parser.option("silent"))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Silent;
+    }
+
+    if (parser.option("trace"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.option("debug"))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.option("dev");
+
+    app.init(loggingOptions);
 
 
     // save to system environment (temporary)

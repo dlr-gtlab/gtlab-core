@@ -22,6 +22,27 @@ GtExplorerModel::~GtExplorerModel()
 
 }
 
+QModelIndex
+GtExplorerModel::mapFromSource(const QModelIndex& sourceIndex) const
+{
+    if (!sourceIndex.isValid() || sourceIndex.model() != sourceModel())
+    {
+        return {};
+    }
+
+    // Qt 5 can map a child even when an ancestor has been filtered out.
+    // Restoring a process-dock selection after a command can then install an
+    // unreachable persistent index in the explorer view. Check ancestors from
+    // the root down before allowing Qt to create the child's mapping.
+    const auto parent = sourceIndex.parent();
+    if (parent.isValid() && !mapFromSource(parent).isValid())
+    {
+        return {};
+    }
+
+    return GtTreeFilterModel::mapFromSource(sourceIndex);
+}
+
 GtObject*
 GtExplorerModel::objectFromIndex(const QModelIndex& index)
 {

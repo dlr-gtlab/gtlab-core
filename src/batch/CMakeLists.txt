@@ -11,9 +11,11 @@
 set(headers
     batchremote.h
     gt_consoleparser.h
+    gt_consolepropertyoverrides.h
     gt_remoteprocessrunner.h
     gt_remoteprocessrunnerstates.h
     gt_consolerunprocess.h
+    gt_consolerunoperationfrommemento.h
     gt_consoleruntaskfrommemento.h
     gt_consoleupgradeproject.h
 )
@@ -22,9 +24,11 @@ set(sources
     batch.cpp
     batchremote.cpp
     gt_consoleparser.cpp
+    gt_consolepropertyoverrides.cpp
     gt_remoteprocessrunner.cpp
     gt_remoteprocessrunnerstates.cpp
     gt_consolerunprocess.cpp
+    gt_consolerunoperationfrommemento.cpp
     gt_consoleruntaskfrommemento.cpp
     gt_consoleupgradeproject.cpp
 )
@@ -49,6 +53,9 @@ target_link_libraries(GTlabConsole
     Qt${QT_VERSION_MAJOR}::Xml
 )
 
-install(TARGETS GTlabConsole DESTINATION ${CMAKE_INSTALL_BINDIR})
+gtlab_set_install_rpath(GTlabConsole
+    RELEASE_DIR "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}"
+    DEBUG_DIR "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}")
+install(TARGETS GTlabConsole DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}")
 
 ######################################################################

@@ -67,7 +67,7 @@ TEST_F(TestGtDummyObject, toMemento)
     ASSERT_FALSE(gtObjectFactory->knownClass(
                      GT_CLASSNAME(TestSpecialGtObject)));
 
-    std::unique_ptr<GtObject> newObj(memento.restore(gtObjectFactory));
+    auto newObj = memento.restore_unique(gtObjectFactory);
 
     ASSERT_FALSE(newObj == nullptr);
 

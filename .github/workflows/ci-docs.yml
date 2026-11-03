@@ -1,0 +1,44 @@
+# Reusable workflow: documentation builds (developer and user docs).
+#
+# Called by ci.yml, see that file for the trigger configuration.
+
+name: CI - Documentation
+
+on:
+  workflow_call:
+
+jobs:
+
+  documentation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt install -y doxygen
+        python -m pip install --upgrade pip
+        pip install -r docs/requirements.txt
+    - name: Create developer documentation
+      run: |
+        cd docs/dev
+        doxygen
+        sphinx-build . html
+    - name: Create user documentation
+      run: |
+        cd docs/user
+        sphinx-build . html
+    - name: Save developer doc artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-devel
+        path: |
+          docs/dev/html
+    - name: Save user doc artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-user
+        path: |
+          docs/user/html

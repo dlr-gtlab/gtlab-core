@@ -35,9 +35,10 @@ match the corresponding network access ID when the collection has a remote
 source. ``collectionIcon()`` provides the icon shown in the GUI.
 
 ``collectionSettings()`` returns metadata for a concrete
-``GtCollectionSettings`` implementation. GTlab creates it through Qt metadata;
+``GtAbstractCollectionSettings`` implementation. GTlab creates it through Qt metadata;
 the class therefore needs an invokable default constructor. It supplies the
-local collection widget, remote browser, and the data displayed by both.
+local collection widget, remote browser, and the data displayed by both. 
+You may use ``GtCollectionSettings`` as a starting point for implementing your collection.
 
 .. code-block:: cpp
 

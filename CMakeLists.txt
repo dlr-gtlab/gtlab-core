@@ -8,7 +8,7 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #          \____/ /_/ /_/\__,_/_.___/
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 
 # make sure conan can be used
 if (EXISTS ${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
@@ -26,6 +26,20 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
 endif()
 
 project(GTlab-Core VERSION 2.1.0)
+
+include("${PROJECT_SOURCE_DIR}/cmake/GTlabInstallLayout.cmake")
+
+set(GTLAB_CORE_VERSION "${PROJECT_VERSION}")
+# Bump this value only when a change breaks the binary compatibility contract
+# for modules. Keep it independent of the GTlab product version.
+set(GTLAB_MODULE_ABI "2.1")
+
+# Master builds may add GTlab Core and its modules as sibling directories.
+# Normal variables set here are not visible to those sibling directories when
+# they include cmake/GTlab.cmake directly, so publish the module metadata at
+# configure scope as well.
+set_property(GLOBAL PROPERTY GTLAB_CORE_VERSION "${GTLAB_CORE_VERSION}")
+set_property(GLOBAL PROPERTY GTLAB_MODULE_ABI "${GTLAB_MODULE_ABI}")
 
 option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
@@ -79,6 +93,11 @@ if (BUILD_WITH_HDF5 AND NOT TARGET GenH5)
     find_package(GenH5 CONFIG REQUIRED)
 endif()
 
+# Dependencies such as GenH5 may include their own GTlab.cmake and redefine
+# add_gtlab_module(). Restore this project's module helper before defining its
+# modules so they use this Core version's ABI naming and metadata settings.
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake")
+
 # build libraries and modules
 add_subdirectory(src/dataprocessor)
 add_subdirectory(src/core)
@@ -91,10 +110,10 @@ add_subdirectory(docs)
 # ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
 # License installation
-install(DIRECTORY LICENSES/ DESTINATION share/gtlab/LICENSES)
+install(DIRECTORY LICENSES/ DESTINATION "${CMAKE_INSTALL_DATADIR}/gtlab/LICENSES")
 
 # write exports
-install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+install(EXPORT GTlabTargets DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 # create package version file
 include(CMakePackageConfigHelpers)
@@ -107,7 +126,7 @@ write_basic_package_version_file(
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlabConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/GTlab"
+    INSTALL_DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab"
     NO_SET_AND_CHECK_MACRO
     NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
@@ -117,7 +136,7 @@ install (FILES
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/GTlabConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
+  DESTINATION "${GTLAB_INSTALL_LIBDIR}/cmake/GTlab")
 
 if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)
@@ -130,6 +149,10 @@ endif(BUILD_TESTMODULES)
 
 if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
 
+    # Bundled dependencies can overwrite the coverage functions with their own
+    # versions. Restore GTlab's module before creating the coverage targets.
+    include("${PROJECT_SOURCE_DIR}/cmake/CodeCoverage.cmake")
+
     if (EXISTS ${GTLAB_DEVTOOLS_DIR})
       set(DEVTOOLS_DIR_EXCLUDE "${GTLAB_DEVTOOLS_DIR}/*")
     endif()
@@ -137,18 +160,18 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
     separate_arguments(GTLAB_COVERAGE_LCOV_ARGS_LIST NATIVE_COMMAND
                        "${GTLAB_COVERAGE_LCOV_ARGS}")
 
-    set(GTLAB_COVERAGE_SYSTEMTEST_OPTIONS)
+    set(GTLAB_COVERAGE_DEPENDENCIES GTlabUnitTest)
+    set(GTLAB_COVERAGE_CTEST_ARGS)
     if (BUILD_TESTMODULES AND GTLAB_SYSTEMTESTS_ENABLED)
-        list(APPEND GTLAB_COVERAGE_SYSTEMTEST_OPTIONS
-             CTEST_ARGS -L SystemTest --output-on-failure
-             DEPENDENCIES systemtests)
+        list(APPEND GTLAB_COVERAGE_DEPENDENCIES systemtests)
+        list(APPEND GTLAB_COVERAGE_CTEST_ARGS -L SystemTest --output-on-failure)
     endif()
 
     setup_target_for_coverage_lcov(
             NAME test-coverage
             EXECUTABLE GTlabUnitTest
-            DEPENDENCIES GTlabUnitTest
-            ${GTLAB_COVERAGE_SYSTEMTEST_OPTIONS}
+            DEPENDENCIES ${GTLAB_COVERAGE_DEPENDENCIES}
+            CTEST_ARGS ${GTLAB_COVERAGE_CTEST_ARGS}
             LCOV_ARGS ${GTLAB_COVERAGE_LCOV_ARGS_LIST}
             EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             BASE_DIRECTORY "${PROJECT_SOURCE_DIR}")

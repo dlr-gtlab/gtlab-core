@@ -4,19 +4,15 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
-#include <QFile>
-#include <QDir>
-
 #include "gt_objectmementodiff.h"
+#include "gt_taskrunner.h"
 #include "gt_finishedprocessloadinghelper.h"
 
+#include <utility>
+
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
-        QList<GtObjectMemento>* data,
-        QPointer<GtObject> source,
-        const QString& /* taskName */) :
-    m_data(data),
-    m_sumDiff(std::make_unique<GtObjectMementoDiff>()),
-    m_source(source)
+    QList<GtTaskMementoPair> data) :
+    m_data(std::move(data)), m_sumDiff(std::make_unique<GtObjectMementoDiff>())
 {
 
 }
@@ -26,22 +22,25 @@ GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper() = default;
 void
 GtFinishedProcessLoadingHelper::run()
 {
-    for (int i = 0; i < m_data->size(); ++i)
+    const auto dataDiff = GtTaskRunner::dataDiffFor(m_data);
+    if (!dataDiff)
     {
-        GtObjectMemento memento = m_data->at(i);
-
-        if (GtObject* target = m_source->getObjectByUuid(memento.uuid()))
-        {
-            GtObjectMemento old = target->toMemento(true);
-            GtObjectMementoDiff diff(old, memento);
-
-            *m_sumDiff << diff;
-        }
+        m_valid = false;
+        return;
     }
+
+    *m_sumDiff = *dataDiff;
+    m_valid = true;
 }
 
 GtObjectMementoDiff*
 GtFinishedProcessLoadingHelper::sumDiff() const
 {
     return m_sumDiff.get();
+}
+
+bool
+GtFinishedProcessLoadingHelper::isValid() const
+{
+    return m_valid;
 }

@@ -78,11 +78,12 @@ GtPropertyConnection::makeConnection()
     // check source property pointer
     if (m_sourcePropObj)
     {
-        // disconnect signals
-        connect(m_sourcePropObj.data(), SIGNAL(changed()),
-                this, SLOT(onSourcePropertyChange()));
-        connect(m_sourcePropObj.data(), SIGNAL(destroyed(QObject*)),
-                this, SLOT(deleteLater()));
+        // Disconnect the old source first; its later destroyed() signal must
+        // not delete this connection after it has been rewired.
+        disconnect(m_sourcePropObj.data(), SIGNAL(changed()), this,
+                   SLOT(onSourcePropertyChange()));
+        disconnect(m_sourcePropObj.data(), SIGNAL(destroyed(QObject*)), this,
+                   SLOT(deleteLater()));
 
         m_sourcePropObj = nullptr;
     }
@@ -156,17 +157,26 @@ GtPropertyConnection::makeConnection()
     }
 
     // find target property
-    GtAbstractProperty* targetPropety = targetRef.resolve(*targetObj);
+    GtAbstractProperty* targetProperty = targetRef.resolve(*targetObj);
 
     // check property
-    if (!targetPropety)
+    if (!targetProperty)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Target property not found!");
         return;
     }
 
-    // TODO: check whether properties can be connected
+    // check whether properties can be connected
+    if (!sourcePropety->canConnect(*targetProperty))
+    {
+        gtError() << tr("Property connection could not be established!")
+                  << QStringLiteral(" ")
+                  << tr("Connection from type %1 to type %2 is not supported!")
+                         .arg(sourcePropety->metaObject()->className(),
+                              targetProperty->metaObject()->className());
+        return;
+    }
 
     // save source property
     m_sourcePropObj = sourcePropety;
@@ -176,8 +186,11 @@ GtPropertyConnection::makeConnection()
             SLOT(onSourcePropertyChange()), Qt::DirectConnection);
     connect(sourcePropety, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 
+    // Keep the target so reconnecting also detaches its old value binding.
+    m_targetPropObj = targetProperty;
+
     // establish connection
-    targetPropety->propertyConnect(this);
+    targetProperty->propertyConnect(this);
 
     gtDebug().verbose() << "#### connection established!";
 }
@@ -200,6 +213,12 @@ GtPropertyConnection::isConnected()
 {
     // check source property pointer
     return (m_sourcePropObj != nullptr);
+}
+
+QPointer<GtAbstractProperty>
+GtPropertyConnection::sourcePropObject() const
+{
+    return m_sourcePropObj;
 }
 
 void

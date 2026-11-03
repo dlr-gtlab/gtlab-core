@@ -23,6 +23,7 @@ GtColorProperty::GtColorProperty(const QString& ident,
     m_brief = brief;
     m_initValue = color;
     m_value = color;
+    setConnectable(false);
 }
 
 GtColorProperty::GtColorProperty(const QString& ident, const QString& name,

@@ -139,37 +139,11 @@ updateAttributes(const GenH5::DataSet& dset, QString const& hash)
     }
     dset.writeAttribute(S_EXT_HASH_ATTR, hashData);
 }
-
-inline QString
-className(QString const& name)
-{
-    // class name contains
-    int idx = name.indexOf(QStringLiteral("$$"));
-    assert (idx >= 0);
-
-    return name.mid(0, idx);
-}
-
-inline QString
-extHash(QString const& name)
-{
-    // class name contains
-    int idx = name.indexOf(QStringLiteral("$$"));
-    assert (idx >= 0);
-
-    return name.mid(idx + 2);
-}
-
 }
 
 GtH5ExternalizeHelper::GtH5ExternalizeHelper(const GtExternalizedObject& obj) :
-    // we need not only the class name but also the externalized hash
-    // as we dont want to cause an ABI incompatibility we engrave the hash
-    // into this property (TODO: this should be fixed, see issue #488)
-    m_metaData(obj.metaObject()->className() +
-               QStringLiteral("$$") +
-               obj.extHash()),
-    m_objUuid(obj.uuid())
+    m_className(QString::fromLatin1(obj.metaObject()->className())),
+    m_extHash(obj.extHash()), m_objUuid(obj.uuid())
 { }
 
 GenH5::File
@@ -212,14 +186,14 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
     {
 
         // try retrieving by path
-        auto group =  file.root().createGroup(className(m_metaData).toUtf8());
+        auto group = file.root().createGroup(m_className.toUtf8());
         dset = group.createDataSet(m_objUuid.toUtf8(), dataType, dataSpace);
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
 
-    updateAttributes(dset, extHash(m_metaData));
+    updateAttributes(dset, m_extHash);
     return dset;
 }
 
@@ -236,14 +210,14 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
     if (!dset.isValid())
     {
         // try retrieving by path
-        QStringList path{className(m_metaData), m_objUuid};
+        QStringList path{m_className, m_objUuid};
         dset = file.root().openDataSet(path.join('/').toUtf8());
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
 
-    checkAttributes(dset, extHash(m_metaData));
+    checkAttributes(dset, m_extHash);
     return dset;
 }
 #endif

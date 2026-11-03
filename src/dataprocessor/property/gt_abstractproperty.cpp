@@ -15,13 +15,20 @@
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
 
+#include "gt_propertyconversionregistry.h"
+
 GtAbstractProperty::~GtAbstractProperty() = default;
 
 class GtAbstractProperty::Impl
 {
 public:
+    /// Stable type ID for an owned runtime property; empty for static ones.
+    QString propertyFactoryTypeId;
+
     /// Monitoring indicator
     bool m_monitoring{false};
+
+    bool m_propertyConnectionEnabled{false};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -46,6 +53,36 @@ QString
 GtAbstractProperty::brief() const
 {
     return m_brief;
+}
+
+void
+GtAbstractProperty::setBrief(const QString& briefText)
+{
+    m_brief = briefText;
+}
+
+gt::PropertyConfiguration
+GtAbstractProperty::configuration() const
+{
+    return {};
+}
+
+bool
+GtAbstractProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    return config.isEmpty();
+}
+
+const QString&
+GtAbstractProperty::propertyFactoryTypeId() const
+{
+    return m_pimpl->propertyFactoryTypeId;
+}
+
+void
+GtAbstractProperty::setPropertyFactoryTypeId(const QString& typeId)
+{
+    m_pimpl->propertyFactoryTypeId = typeId;
 }
 
 QString
@@ -183,6 +220,12 @@ void
 GtAbstractProperty::setReadOnly(bool val)
 {
     m_readOnly = val;
+}
+
+bool
+GtAbstractProperty::isReadOnlyConfigured() const
+{
+    return m_readOnly;
 }
 
 bool
@@ -398,6 +441,24 @@ GtAbstractProperty::setValFromConnection()
 }
 
 void
+GtAbstractProperty::setConnectable(bool flag)
+{
+    m_pimpl->m_propertyConnectionEnabled = flag;
+}
+
+bool
+GtAbstractProperty::isConnectable() const
+{
+    return m_pimpl->m_propertyConnectionEnabled;
+}
+
+bool
+GtAbstractProperty::canConnect(const GtAbstractProperty& b)
+{
+    return gtPropConversion().connectionCheckAvailable(*this, b);
+}
+
+void
 GtAbstractProperty::onTriggerValueTransfer()
 {
     setValFromConnection();
@@ -418,7 +479,14 @@ GtAbstractProperty::setOptional(bool val)
     }
 }
 
-QVariant gt::getConnectedValue(const GtPropertyConnection &connection)
+QVariant
+gt::getConnectedValue(const GtPropertyConnection& connection)
 {
     return connection.valueFromSource();
+}
+
+GtAbstractProperty*
+gt::getConnectedProperty(const GtPropertyConnection& connection)
+{
+    return connection.sourcePropObject();
 }

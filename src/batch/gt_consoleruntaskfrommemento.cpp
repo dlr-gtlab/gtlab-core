@@ -191,7 +191,7 @@ namespace
             return {};
         }
 
-        auto* group = memento.restore<GtObjectGroup*>(gtObjectFactory);
+        auto group = memento.restore_unique<GtObjectGroup>(gtObjectFactory);
         if (!group)
         {
             gtError()
@@ -201,7 +201,7 @@ namespace
             return {};
         }
 
-        return std::unique_ptr<GtObjectGroup>(group);
+        return group;
     }
 
     std::unique_ptr<GtTask> restoreTask(QString const& fileName)
@@ -221,7 +221,7 @@ namespace
             return {};
         }
 
-        auto* task = memento.restore<GtTask*>(gtProcessFactory);
+        auto task = memento.restore_unique<GtTask>(gtProcessFactory);
         if (!task)
         {
             gtError()
@@ -229,7 +229,7 @@ namespace
             return {};
         }
 
-        return std::unique_ptr<GtTask>(task);
+        return task;
     }
 
     bool populateProject(GtObjectGroup& projectData, GtProject& project)

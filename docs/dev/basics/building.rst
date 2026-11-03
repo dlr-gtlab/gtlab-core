@@ -46,8 +46,8 @@ GTlab comes with optional support for HDF5. To enable, set ``BUILD_WITH_HDF5=ON`
 Building
 --------
 
-GTlab requires a recent ``CMake`` (>3.15) to build. The configuration and build process is
-similar to other CMake builds:
+GTlab requires CMake 3.18 or newer to build. The configuration and build
+process is similar to other CMake builds:
 
 .. code-block:: bash
 
@@ -61,6 +61,9 @@ In case you own GTlab's development tools, you can simplify CMake's configure st
 .. code-block:: bash
     
    cmake -S . -B build -DGTLAB_DEVTOOLS_DIR=<path/to/devtools> -DQt5_DIR=<path/to/cmake/Qt5> -DCMAKE_INSTALL_PREFIX=<path/to/install>
+
+For additional build and installation options, see
+:doc:`CMake configuration <../reference/cmake_variables>`.
 
 
 Build with Conan

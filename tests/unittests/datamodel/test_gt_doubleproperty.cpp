@@ -12,6 +12,27 @@
 #include "gtest/gtest.h"
 
 #include "gt_doubleproperty.h"
+#include "gt_unit.h"
+
+TEST(GtUnit, isValidCategory)
+{
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::Default));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::ThermalConductivity));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::NonDimensionalPercentage));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::DataSize));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::None));
+
+    EXPECT_FALSE(GtUnit::isValidCategory(
+        static_cast<int>(GtUnit::ThermalConductivity) + 1));
+    EXPECT_FALSE(GtUnit::isValidCategory(63));
+    EXPECT_FALSE(GtUnit::isValidCategory(67));
+    EXPECT_FALSE(GtUnit::isValidCategory(127));
+    EXPECT_FALSE(GtUnit::isValidCategory(-1));
+
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    EXPECT_FALSE(GtUnit::isValidCategory(GtUnit::Custom));
+    GT_SUPPRESS_DEPRECATED_END
+}
 
 /// This is a test fixture that does a init for each test
 class TestGtDoubleProperty : public ::testing::Test
@@ -497,4 +518,51 @@ TEST_F(TestGtDoubleProperty, boundaries)
     EXPECT_FALSE(success);
     EXPECT_FALSE(lh.getVal() == 40.1);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
+}
+
+TEST_F(TestGtDoubleProperty, canConnect)
+{
+    GtDoubleProperty prop1("prop1", "test", "test", GtUnit::Category::None,
+                           4.0);
+    GtDoubleProperty prop2("prop2", "test", "test",
+                           GtUnit::Category::Temperature, 4.0);
+    GtDoubleProperty prop3("prop3", "test", "test", GtUnit::Category::Pressure,
+                           4.0);
+    GtDoubleProperty prop4("prop4", "test", "test",
+                           GtUnit::Category::Temperature, 4.0);
+
+    // none units should be connectable to everything
+    ASSERT_TRUE(prop1.canConnect(prop2));
+    ASSERT_TRUE(prop1.canConnect(prop3));
+    ASSERT_TRUE(prop1.canConnect(prop4));
+
+    // check for identical units
+    ASSERT_TRUE(prop2.canConnect(prop4));
+
+    // check for different (not none) units
+    ASSERT_FALSE(prop2.canConnect(prop3));
+
+    GtDoubleProperty propA1("propA1", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeNormalized(10.0, 20.0),
+                            15.0);
+
+
+    GtDoubleProperty propA2("propA2", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeNormalized(30.0, 40.0),
+                            35.0);
+
+    GtDoubleProperty propA3("propA3", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeUpper(5.0), 0.0);
+
+    GtDoubleProperty propA4("propA4", "test", "test", GtUnit::Category::None,
+                            gt::Boundaries<double>::makeLower(25), 30.0);
+
+    // two properties with lower and higher bounds but without matching regions
+    ASSERT_FALSE(propA1.canConnect(propA2));
+
+    // a propety with both limits and a second with a small higher limit
+    ASSERT_FALSE(propA1.canConnect(propA3));
+
+    // a propety with both limits and a second with a high lower limit
+    ASSERT_FALSE(propA1.canConnect(propA4));
 }

@@ -11,23 +11,12 @@
 
 #include "gt_boolproperty.h"
 
-GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name)
+
+GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
+                               const QString& brief, bool value)
 {
     setObjectName(name);
-
-    m_id = ident;
-    m_brief = QString();
-    m_unitCategory = GtUnit::Category::None;
-    m_initValue = false;
-    m_value = false;
-}
-
-GtBoolProperty::GtBoolProperty(const QString& ident,
-                               const QString &name,
-                               const QString &brief,
-                               bool value)
-{
-    setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -35,6 +24,10 @@ GtBoolProperty::GtBoolProperty(const QString& ident,
     m_initValue = value;
     m_value = value;
 }
+
+GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name) :
+    GtBoolProperty(ident, name, QString(), false)
+{ }
 
 QVariant
 GtBoolProperty::valueToVariant(const QString& unit,
@@ -53,9 +46,27 @@ GtBoolProperty::setValueFromVariant(const QVariant& val,
 }
 
 
+gt::PropertyConfiguration
+GtBoolProperty::configuration() const
+{
+    return {{QStringLiteral("initialValue"), m_initValue}};
+}
+
+bool
+GtBoolProperty::applyConfiguration(const gt::PropertyConfiguration& config)
+{
+    if (config.size() != 1 || !config.contains(QStringLiteral("initialValue")))
+        return false;
+    const QVariant value = config.value(QStringLiteral("initialValue"));
+    if (value.userType() != QMetaType::Bool) return false;
+    m_initValue = value.toBool();
+    m_value = m_initValue;
+    return true;
+}
+
+
 gt::PropertyFactoryFunction
 gt::makeBoolProperty(bool value)
 {
     return makePropertyFactory<GtBoolProperty>(std::move(value));
 }
-

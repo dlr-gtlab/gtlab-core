@@ -13,6 +13,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased 2.1]
 
 ### Highlights
+### Fixed
+- Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties - #1663
+- **Regression fixes compared to 2.1.0-alpha.2**:
+  - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
+  
+### Added
+### Changed
+### Deprecated
+
+## [2.1.0-alpha.2] - 2026-11-09
+
+### Highlights
+ - Dynamic properties: GtObjects now support dynamically added properties that can be added via `GtObject::addDynamicProperty()` and removed with `GtObject::removeDynamicProperty()` - #1565
+
+### Fixed
+ - Fixed projects requiring a project update from a module, even when the project is not using that module. - #1305
+ - Double and `QPointF` values (including lists) are now serialized losslessly, so object hashes stay stable across save/load and diff merges. - #1644
+ - **Regression fixes compared to 2.1.0-alpha.1**:
+   - Fixed the settings dialog prompted for a restart when saving unchanged preferences. - #1657
+   - Fixed the module's debug postfix was removed from the module file name making it impossible to distinguish between a debug and release build
+   - Fixed `CMAKE_INSTALL_LIBDIR` was not set anymore
+
+### Added
+ - Open GTlab project files from the command line, forwarding requests to a running instance when available while preserving logging options. - #1374
+ - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
+ - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
+ - Support for property connections beyond trivial mappings. The API allows to register converters and thus add useful mapping options, including conversion and compatibility checks. - #1229 
+ - `GtProjectDependencyAnalyzer` analyses which classes are used by an open project and which modules provide these classes.
+ - The new method `gtApp->modules()` resolves which modules are required by a set of modules, including transitive dependencies.
+ - The new `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module versions. - #1312
+ - The new method `GtObjectMemento::restore_unique` that returns the restored object as `std::unique_ptr` - #334
+
+### Changed
+ - Preferences now prompt the user to restart GTlab when a changed setting requires it.
+ - The project's footprint only contains modules that are actually used now instead of
+   all modules that have been loaded when saving the project. - #1312
+ - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
+ - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
+
+### Deprecated
+ - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
+ - Deprecated `GtObjectMemento::restore`. The returned raw pointer needs to be deleted manually,
+   which led to memory leaks. Use `GtObjectMemento::restore_unique`, which returns a
+   `std::unique_ptr`, instead. The deprecated method will be removed in GTlab 2.2 - #334
+
+## [2.1.0-alpha.1] - 2026-10-17
+
+### Highlights
  - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
    Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
  - Property Container:
@@ -27,10 +75,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New implementations for boundaries based on optional values to support property definitions - #1381
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
  - Search functionality for the Memento-Viewer - #380
+ - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
+ - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
+ - GTlab modules now use ABI-tagged filenames and embedded Core/ABI metadata.
+   The loader rejects modules with missing or incompatible ABI metadata before
+   loading native code; existing modules must be rebuilt with the updated
+   `add_gtlab_module()` integration. - #1590
  - Core-managed process execution now resolves `currentProject()` through an
    execution-scoped project context. Existing calculators remain compatible;
    new execution code should pass an explicit project or `GtExecutionContext`.
@@ -39,14 +93,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239
- - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
+ - Renaming elements in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+ - Standardized CMake install and module paths (libraries in `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`, modules in `build/modules`) and added relocatable RPATHs. Deployment scripts may need updating. - #1621
+ - GTlab and external modules now require CMake 3.18 or newer. - #1621
 
 ### Fixed
+ - Fixed object links and property connections becoming invalid after using Save Project As - #31
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
+ - Fixed local task completion reverting concurrent edits to project data - #48
+
+## [2.0.14] - 2026-10-14
+
+### Fixed
+ - Fixed crashes im property dock when working with property container - #1609
 
 ## [2.0.13] - 2026-09-07
 ### Fixed

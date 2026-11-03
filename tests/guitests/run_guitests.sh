@@ -51,8 +51,7 @@ done
 
 # setting paths to libs (gtlab dependencies)
 echo "setting library path variable..."
-LIBRARY_PATH=$GTLAB_DIR/../lib/core
-LIBRARY_PATH=$GTLAB_DIR:$LIBRARY_PATH
+LIBRARY_PATH=$GTLAB_DIR
 LIBRARY_PATH=$DEVTOOLS_DIR/lib/logging:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/lib/numerics:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/lib/physics:$LIBRARY_PATH

@@ -12,61 +12,142 @@
 
 #include "gt_icons.h"
 
-GtObjectUIActionGroup::GtObjectUIActionGroup() = default;
-
-GtObjectUIActionGroup::GtObjectUIActionGroup(
-        const QString& groupName,
-        const QList<GtObjectUIAction>& actions,
-        const QString& icon) :
-   m_name(groupName),
-   m_icon(gt::gui::getIcon(icon))
+struct GtObjectUIActionGroup::Impl
 {
-    for (GtObjectUIAction const& action : actions)
-    {
-        m_actions.append(action);
-    }
+    explicit Impl(QString name_, QIcon icon_ = {}, GtActionList actions = {}) :
+        actions(std::move(actions)),
+        name(std::move(name_)),
+        icon(std::move(icon_))
+    { }
+
+    /// List of actions
+    QList<GtObjectUIAction> actions;
+
+    /// Group action text
+    QString name;
+
+    /// Group action icon
+    QIcon icon;
+
+    /// order priority
+    int priority{gt::gui::OrderPriority::Default};
+};
+
+GtObjectUIActionGroup::GtObjectUIActionGroup() :
+    GtObjectUIActionGroup(QString{})
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName) :
+    GtObjectUIActionGroup(std::move(groupName), GtActionList{})
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName,
+                                             QList<GtObjectUIAction> actions) :
+    pimpl(std::make_unique<Impl>(std::move(groupName), QIcon{},
+                                 std::move(actions)))
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(QString groupName,
+                                             QList<GtObjectUIAction> actions,
+                                             const QString& icon) :
+    pimpl(std::make_unique<Impl>(std::move(groupName), gt::gui::getIcon(icon),
+                                 std::move(actions)))
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(const GtObjectUIActionGroup& o) :
+    pimpl(std::make_unique<Impl>(*o.pimpl))
+{ }
+
+GtObjectUIActionGroup::GtObjectUIActionGroup(GtObjectUIActionGroup&& o) :
+    pimpl(std::make_unique<Impl>(std::move(*o.pimpl)))
+{ }
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::operator=(const GtObjectUIActionGroup& o)
+{
+    GtObjectUIActionGroup tmp{o};
+    swap(tmp);
+    return *this;
 }
 
-const QList<GtObjectUIAction>&
-GtObjectUIActionGroup::actions() const
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::operator=(GtObjectUIActionGroup&& o)
 {
-    return m_actions;
+    GtObjectUIActionGroup tmp{std::move(o)};
+    swap(tmp);
+    return *this;
+}
+
+GtObjectUIActionGroup::~GtObjectUIActionGroup() = default;
+
+const QList<GtObjectUIAction>&
+GtObjectUIActionGroup::actions() const noexcept
+{
+    return pimpl->actions;
 }
 
 const QString&
-GtObjectUIActionGroup::name() const
+GtObjectUIActionGroup::name() const noexcept
 {
-    return m_name;
+    return pimpl->name;
 }
 
 const QIcon&
-GtObjectUIActionGroup::icon() const
+GtObjectUIActionGroup::icon() const noexcept
 {
-    return m_icon;
+    return pimpl->icon;
 }
 
 void
 GtObjectUIActionGroup::reserve(int size)
 {
-    if (size > 0) m_actions.reserve(size);
+    if (size > 0) pimpl->actions.reserve(size);
+}
+
+int
+GtObjectUIActionGroup::orderPriority() const noexcept
+{
+    return pimpl->priority;
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::setIcon(const QIcon& icon)
+GtObjectUIActionGroup::setIcon(const QIcon& newIcon)
 {
-    m_icon = icon;
+    pimpl->icon = newIcon;
     return *this;
 }
 
 GtObjectUIActionGroup&
-GtObjectUIActionGroup::setIcon(const QString& icon)
+GtObjectUIActionGroup::setIcon(const QString& iconPath)
 {
-    return setIcon(gt::gui::getIcon(icon));
+    return setIcon(gt::gui::getIcon(iconPath));
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::setOrderPriority(int priority) noexcept
+{
+    pimpl->priority = priority;
+    return *this;
 }
 
 GtObjectUIActionGroup&
 GtObjectUIActionGroup::operator<<(const GtObjectUIAction& action)
 {
-    m_actions << action;
+    return addAction(action);
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::addAction(const GtObjectUIAction& action)
+{
+    pimpl->actions << action;
     return *this;
+}
+
+void
+GtObjectUIActionGroup::swap(GtObjectUIActionGroup& other) noexcept
+{
+    std::swap(pimpl->name, other.pimpl->name);
+    std::swap(pimpl->icon, other.pimpl->icon);
+    std::swap(pimpl->actions, other.pimpl->actions);
+    std::swap(pimpl->priority, other.pimpl->priority);
 }

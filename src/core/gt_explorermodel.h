@@ -36,6 +36,9 @@ public:
      */
     ~GtExplorerModel() override;
 
+    /// Descendants of a filtered-out ancestor are not visible in the explorer.
+    QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
+
     /**
      * @brief objectFromIndex
      * @param index

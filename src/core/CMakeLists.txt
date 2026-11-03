@@ -82,12 +82,15 @@ set(headers
     states/gt_statecontainer.h
     gt_coreapplication.h
     gt_executioncontext.h
+    gt_executionenvironment.h
+    gt_executionresult.h
     operations/gt_executionevent.h
     operations/gt_executioneventstream.h
     operations/gt_executioneventfilewriter.h
     operations/gt_executableoperation.h
     operations/gt_operationapplystatus.h
     operations/gt_operationexecutioncontext.h
+    operations/gt_operationexecutionresult.h
     operations/gt_operationinterface.h
     operations/gt_stdioexecutioneventencoder.h
     gt_projectexecutionguard.h
@@ -95,6 +98,7 @@ set(headers
     gt_footprint.h
     gt_globals.h
     gt_projectanalyzer.h
+    gt_projectdependencyanalyzer.h
     gt_saveprojecthelper.h
     gt_session.h
     gt_project.h
@@ -117,6 +121,7 @@ set(headers
     gt_abstractloadinghelper.h
     gt_moduleinterface.h
     gt_moduleloader.h
+    gt_modules.h
     gt_datamodelinterface.h
     gt_command.h
     gt_moduleupgradeutilities.h
@@ -124,6 +129,7 @@ set(headers
 
 set(hdr_private
   internal/gt_moduleupgrader.h
+  internal/gt_modulemetadata.h
   internal/gt_commandlinefunctionhandler.h
   internal/gt_coreupgraderoutines.h
   internal/gt_platformspecifics.h
@@ -205,6 +211,8 @@ set(sources
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
     gt_executioncontext.cpp
+    gt_executionenvironment.cpp
+    gt_executionresult.cpp
     operations/gt_executionevent.cpp
     operations/gt_executioneventstream.cpp
     operations/gt_executioneventfilewriter.cpp
@@ -214,6 +222,7 @@ set(sources
     gt_projectexecutionguard.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
+    gt_projectdependencyanalyzer.cpp
     gt_saveprojecthelper.cpp
     gt_session.cpp
     gt_project.cpp
@@ -235,8 +244,10 @@ set(sources
     gt_updatechecker.cpp
     gt_abstractloadinghelper.cpp
     gt_moduleloader.cpp
+    gt_modules.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    internal/gt_modulemetadata.cpp
     gt_moduleupgradeutilities.cpp
 )
 
@@ -249,6 +260,7 @@ add_library(GTlab::Core ALIAS GTlabCore)
 
 target_compile_definitions(GTlabCore
     PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec"
+            GTLAB_MODULE_ABI="${GTLAB_MODULE_ABI}"
 )
 
 if (BUILD_SHARED_LIBS)
@@ -273,14 +285,10 @@ target_include_directories(GTlabCore
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/states>
 
     # includes for consumer after install
-    $<INSTALL_INTERFACE:include/core>
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core>"
 )
 
-set_target_properties(GTlabCore PROPERTIES 
-  AUTORCC ON
-  # set rpath to lib directory, since it is installed to lib/core
-  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/.."
-)
+set_target_properties(GTlabCore PROPERTIES AUTORCC ON)
 
 target_link_libraries(GTlabCore
     PUBLIC
@@ -289,13 +297,15 @@ target_link_libraries(GTlabCore
     GTlab::DataProcessor
 )
 
+gtlab_set_install_rpath(GTlabCore RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
+
 install(TARGETS GTlabCore
     EXPORT GTlabTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    RUNTIME DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}"
+    LIBRARY DESTINATION "${GTLAB_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${GTLAB_INSTALL_LIBDIR}"
 )
 
-install(FILES ${headers} DESTINATION include/core)
-install(FILES ${hdr_private} DESTINATION include/core/internal)
+install(FILES ${headers} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core")
+install(FILES ${hdr_private} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core/internal")
 ######################################################################

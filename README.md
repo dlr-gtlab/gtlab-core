@@ -11,6 +11,7 @@ SPDX-License-Identifier: MPL-2.0+
  <a href="https://zenodo.org/doi/10.5281/zenodo.10666586"><img src="https://zenodo.org/badge/727352741.svg" alt="DOI"></a>
  <a href="https://www.gtlab.de/pages/documentation.html"><img src='https://readthedocs.org/projects/gtlab/badge/?version=latest' alt='Documentation' /></a>
  <a href="https://codecov.io/github/dlr-gtlab/gtlab-core" ><img src="https://codecov.io/github/dlr-gtlab/gtlab-core/graph/badge.svg?token=05UZ6982F6"/></a>
+ <a href="https://dlr-gtlab.github.io/gtlab-core/"><img src="https://dlr-gtlab.github.io/gtlab-core/guitests_badge.svg" alt="GUI Tests"></a>
  <!-- Add badges here-->
 </div>
 
@@ -98,8 +99,8 @@ GTlab comes with optional support for HDF5. To enable, set `BUILD_WITH_HDF5=ON` 
 
 ### Building
 
-GTlab requires a recent `CMake` (>3.15) to build. The configuration and build process is
-similar to other CMake builds:
+GTlab requires CMake 3.18 or newer to build. The configuration and build
+process is similar to other CMake builds:
 
 ```
 cmake -S . -B build -DQt5_DIR=<path/to/cmake/Qt5> -DHDF5_DIR=<path/to/cmake/hdf5> -DCMAKE_INSTALL_PREFIX=<path/to/install>

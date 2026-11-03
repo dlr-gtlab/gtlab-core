@@ -30,6 +30,13 @@ class TestDatamodelInterface : public QObject,
 
 
 public:
+    /**
+     * @brief init
+     * No conversions are registered here, the converters of the
+     * standard property types are registered by the
+     * GtPropertyConversionRegistry itself
+     */
+    void init() override;
 
     /**
      * @brief Returns current version number of module
@@ -48,6 +55,8 @@ public:
      * @return list including meta objects
      */
     QList<QMetaObject> data() override;
+
+    QList<PropertyFactoryData> propertyFactories() const override;
 
     /**
      * @brief Returns static meta objects of datamodel classes.
@@ -69,4 +78,3 @@ public:
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H
-

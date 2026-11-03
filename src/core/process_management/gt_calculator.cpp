@@ -8,7 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
 #include <QDir>
 
 #include "gt_abstractrunnable.h"
@@ -21,6 +20,7 @@
 #include "gt_objectpathproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_calculatorfactory.h"
+#include "gt_logging.h"
 
 #include "gt_calculator.h"
 
@@ -65,7 +65,6 @@ GtCalculator::exec()
         return true;
     }
 
-    qDebug() << objectName() << "::exec()";
     // initialize pointer to runnable
     setRunnable(nullptr);
 
@@ -88,8 +87,8 @@ GtCalculator::exec()
     // search for object link and object path properties
     foreach (GtAbstractProperty* prop, props)
     {
-        if (GtObjectLinkProperty* objLink =
-                    qobject_cast<GtObjectLinkProperty*>(prop))
+        if (const GtObjectLinkProperty* objLink =
+                qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
             GtObject* linkedObj =
@@ -102,10 +101,10 @@ GtCalculator::exec()
             }
             else
             {
-                qDebug() << "Linked object not found in runnable";
+                gtDebug() << QObject::tr("Linked object not found in runnable");
             }
         }
-        else if (GtObjectPathProperty* objPath =
+        else if (const GtObjectPathProperty* objPath =
                      qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
@@ -119,20 +118,20 @@ GtCalculator::exec()
             }
             else
             {
-                qDebug() << "Linked object not found in runnable";
+                gtDebug() << QObject::tr("Linked object not found in runnable");
             }
         }
     }
 
     // current execution mode identification string
-    QString execMode = pimpl->execMode.get();
+    QString currentExecMode = pimpl->execMode.get();
 
-    if (execMode != "local")
+    if (currentExecMode != "local")
     {
         // plugin execution
         // find executor
         GtAbstractCalculatorExecutor* executor =
-            gtCalcExecList->executor(execMode);
+            gtCalcExecList->executor(currentExecMode);
 
         if (!executor)
         {
@@ -198,9 +197,9 @@ GtCalculator::execMode()
 }
 
 void
-GtCalculator::setExecMode(const QString& execMode)
+GtCalculator::setExecMode(const QString& mode)
 {
-    pimpl->execMode.setVal(execMode);
+    pimpl->execMode.setVal(mode);
 }
 
 void
@@ -253,11 +252,7 @@ GtCalculator::GtCalculator():
     setRunnable(nullptr);
     setObjectName(QStringLiteral("Calculator"));
 
-
-
     registerProperty(pimpl->labelProperty, tr("Execution"));
-
-
 
     // local execution mode
     auto* localMode = new GtModeTypeProperty("local", tr("local"));
@@ -284,6 +279,7 @@ GtCalculator::GtCalculator():
 
     registerProperty(pimpl->execMode, tr("Execution"));
     registerProperty(pimpl->failRunOnWarning, tr("Execution"));
+    pimpl->failRunOnWarning.setConnectable(false);
 
     setFlag(GtObject::UserRenamable, true);
 }

@@ -3,27 +3,19 @@
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
- 
 #ifndef GTFINISHEDPROCESSLOADINGHELPER_H
 #define GTFINISHEDPROCESSLOADINGHELPER_H
 
-
-#include <QPointer>
-#include "gt_abstractloadinghelper.h"
+#include <memory>
 
 #include "gt_gui_exports.h"
+#include "gt_abstractloadinghelper.h"
+#include "gt_objectmementodiff.h"
+#include "gt_taskrunner.h"
 
-class GtObject;
-class GtObjectMemento;
-class GtObjectMementoDiff;
 /**
  * @brief The GtFinishedProcessLoadingHelper class
- * Class to handle the memento diff process at the end of a process whcih
- * was started in the gui
- *
- * reads some of the parameters of the ProcessExecutor
- *
- * A widget is displayed while the helper is working
+ * Calculates the completed task diff in the GUI loading procedure.
  */
 class GT_GUI_EXPORT GtFinishedProcessLoadingHelper :
         public GtAbstractLoadingHelper
@@ -33,25 +25,15 @@ class GT_GUI_EXPORT GtFinishedProcessLoadingHelper :
 public:
     /**
      * @brief GtFinishedProcessLoadingHelper
-     * Constructor which reads some necessary data from the processExecutor
-     *
-     * @param data
-     * @param sumDiff
-     * @param source
-     * @param taskName
+     * @param data Initial and result memento pairs to compare
      */
-    GtFinishedProcessLoadingHelper(QList<GtObjectMemento>* data,
-                                   QPointer<GtObject> source,
-                                   const QString& taskName);
+    explicit GtFinishedProcessLoadingHelper(QList<GtTaskMementoPair> data);
 
     ~GtFinishedProcessLoadingHelper();
 
     /**
      * @brief run
-     * main function of the loading helper
-     *
-     * handles the memento analysis and application to the
-     * source object of the task
+     * Loading procedure entry point.
      */
     void run() override;
 
@@ -61,15 +43,17 @@ public:
      */
     GtObjectMementoDiff* sumDiff() const;
 
+    bool isValid() const;
+
 private:
-    /// pointer to data to work on
-    QList<GtObjectMemento>* m_data;
+    /// Task mementos owned for the duration of the loading procedure
+    QList<GtTaskMementoPair> m_data;
 
     /// pointer to summed diff object (result)
     std::unique_ptr<GtObjectMementoDiff> m_sumDiff;
 
-    /// source object to build diff
-    QPointer<GtObject> m_source;
+    /// Whether the task mementos formed valid pairs
+    bool m_valid{false};
 };
 
 #endif // GTFINISHEDPROCESSLOADINGHELPER_H

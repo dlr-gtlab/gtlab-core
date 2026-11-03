@@ -15,22 +15,87 @@
 #include "gt_coreapplication.h"
 #include "gt_externalizationmanager.h"
 #include "gt_object.h"
+#include "gt_objectfactory.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
+#include "gt_label.h"
+#include "gt_labeldata.h"
+#include "gt_processdata.h"
+#include "gt_propertyconnection.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_intproperty.h"
+#include "gt_task.h"
+#include "gt_taskgroup.h"
+#include "gt_processfactory.h"
 #include "gt_testhelper.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QUuid>
+#include <QIdentityProxyModel>
+#include <QPersistentModelIndex>
+#include "gt_explorermodel.h"
+#include "gt_objectgroup.h"
+#include "gt_styledmodel.h"
 
 #include <memory>
+#include <utility>
+
+class ProjectUuidLinkObject : public GtObject
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ProjectUuidLinkObject() :
+        m_link(QStringLiteral("link"), QStringLiteral("Link"),
+               QStringLiteral("Object link"), this, {GT_CLASSNAME(GtObject)}),
+        m_value(QStringLiteral("value"), QStringLiteral("Value"),
+                QStringLiteral("Value for a property connection"), 0)
+    {
+        registerProperty(m_link);
+        registerProperty(m_value);
+    }
+
+    GtObjectLinkProperty* link()
+    {
+        return &m_link;
+    }
+    GtIntProperty* value()
+    {
+        return &m_value;
+    }
+
+private:
+    GtObjectLinkProperty m_link;
+    GtIntProperty m_value;
+};
+
+class ProjectUuidTask : public GtTask
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ProjectUuidTask() :
+        m_link(QStringLiteral("link"), QStringLiteral("Link"),
+               QStringLiteral("Object link"), this, {GT_CLASSNAME(GtObject)})
+    {
+        registerProperty(m_link);
+    }
+
+    GtObjectLinkProperty* link()
+    {
+        return &m_link;
+    }
+
+private:
+    GtObjectLinkProperty m_link;
+};
 
 class TestCoreDataModel : public GtCoreDatamodel
 {
 public:
     TestCoreDataModel() : GtCoreDatamodel()
     {
-
     }
 
     bool appendProjectDataForTest(GtProject* project,
@@ -38,7 +103,6 @@ public:
     {
         return appendProjectData(project, projectData);
     }
-
 };
 
 /// This is a test fixture that does a init for each test
@@ -211,6 +275,56 @@ TEST_F(ProjectLifecycleTest, opensClosesAndSwitchesProjects)
     EXPECT_EQ(gtDataModel->currentProject(), nullptr);
 }
 
+TEST_F(ProjectLifecycleTest, appendChildUniqueTransfersOwnership)
+{
+    GtProject* project = createProject(QStringLiteral("Unique Child"));
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
+
+    auto child = std::make_unique<GtObject>();
+    QPointer<GtObject> observed(child.get());
+
+    const QModelIndex index =
+        gtDataModel->appendChild(std::move(child), project);
+    ASSERT_TRUE(index.isValid());
+    ASSERT_NE(observed.data(), nullptr);
+    EXPECT_EQ(gtDataModel->objectFromIndex(index), observed.data());
+    EXPECT_EQ(observed->parent(), project);
+
+    EXPECT_TRUE(gtDataModel->deleteFromModel(observed.data()));
+    EXPECT_TRUE(observed.isNull());
+}
+
+TEST_F(ProjectLifecycleTest, appendChildUniqueDeletesRejectedChild)
+{
+    class RejectingParent : public GtObject
+    {
+    protected:
+        bool childAccepted(GtObject*) override
+        {
+            return false;
+        }
+    } parent;
+
+    GtProject* project = createProject(QStringLiteral("Reject Child"));
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
+    ASSERT_TRUE(project->appendChild(&parent));
+
+    const QModelIndex parentIndex = gtDataModel->indexFromObject(&parent);
+    ASSERT_TRUE(parentIndex.isValid());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
+
+    auto child = std::make_unique<GtObject>();
+    QPointer<GtObject> observed(child.get());
+
+    const QModelIndex index =
+        gtDataModel->appendChild(std::move(child), &parent);
+    EXPECT_FALSE(index.isValid());
+    EXPECT_TRUE(observed.isNull());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
+}
+
 TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
 {
     GtProject* current = createProject(QStringLiteral("Current Project"));
@@ -225,6 +339,26 @@ TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
     EXPECT_EQ(gtDataModel->findProject(rejected->objectName()), nullptr);
     EXPECT_EQ(rejected->parent(), nullptr);
     delete rejected;
+}
+
+TEST_F(ProjectLifecycleTest, newProjectCanBeAddedWhileAnotherProjectIsOpen)
+{
+    GtProject* current = createProject(QStringLiteral("Current Project"));
+    GtProject* added = createProject(QStringLiteral("Added Project"));
+    ASSERT_NE(current, nullptr);
+    ASSERT_NE(added, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(current, true));
+
+    ASSERT_TRUE(gtDataModel->newProject(added, false));
+    EXPECT_TRUE(current->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), current);
+    EXPECT_FALSE(added->isOpen());
+    EXPECT_EQ(gtDataModel->findProject(added->objectName()), added);
+
+    EXPECT_TRUE(gtDataModel->switchProject(added));
+    EXPECT_FALSE(current->isOpen());
+    EXPECT_TRUE(added->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), added);
 }
 
 TEST_F(ProjectLifecycleTest, openProjectRejectsProjectOutsideSession)
@@ -252,7 +386,208 @@ TEST_F(ProjectLifecycleTest, duplicateIsPersistedAndReturnedClosed)
 
     ASSERT_NE(duplicate, nullptr);
     EXPECT_FALSE(duplicate->isOpen());
+    EXPECT_EQ(duplicate->objectName(), QStringLiteral("Duplicate Project"));
+    EXPECT_EQ(duplicate->path(), duplicatePath);
     EXPECT_EQ(duplicate->childCount<GtObject*>(), 0);
     EXPECT_TRUE(QFileInfo::exists(duplicatePath + QDir::separator() +
                                   GtProject::mainFilename()));
+}
+
+TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
+{
+    GtProject* source = createProject(QStringLiteral("Task Source Project"));
+    ASSERT_NE(source, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(source, true));
+
+    auto* taskFactory = gtProcessFactory->taskFactory();
+    ASSERT_TRUE(taskFactory->registerClass(ProjectUuidTask::staticMetaObject,
+                                           QStringLiteral("Core")));
+    ASSERT_TRUE(gtObjectFactory->registerClass(
+        ProjectUuidTask::staticMetaObject, QStringLiteral("Core")));
+    const bool registeredLinkObject = !gtObjectFactory->knownClass(
+        ProjectUuidLinkObject::staticMetaObject.className());
+    if (registeredLinkObject)
+    {
+        ASSERT_TRUE(gtObjectFactory->registerClass(
+            ProjectUuidLinkObject::staticMetaObject, QStringLiteral("Core")));
+    }
+
+    auto* processData = source->processData();
+    ASSERT_NE(processData, nullptr);
+    auto* projectTarget = new GtLabel(QStringLiteral("Project Target"));
+    ASSERT_TRUE(source->labelData()->addLabel(projectTarget));
+    const QString projectTargetUuid = projectTarget->uuid();
+
+    auto* taskGroup = processData->createNewTaskGroup(
+        QStringLiteral("Uuid Test Group"), GtTaskGroup::USER);
+    ASSERT_NE(taskGroup, nullptr);
+    auto* task = new ProjectUuidTask;
+    task->setFactory(taskFactory);
+    task->setObjectName(QStringLiteral("Uuid Test Task"));
+    task->link()->setVal(projectTargetUuid);
+    auto* target = new ProjectUuidLinkObject;
+    target->setObjectName(QStringLiteral("Task Target"));
+    auto* linkedObject = new ProjectUuidLinkObject;
+    linkedObject->setObjectName(QStringLiteral("Task Linked Object"));
+    linkedObject->link()->setVal(target->uuid());
+    linkedObject->value()->setVal(42);
+    ASSERT_TRUE(task->appendChild(target));
+    ASSERT_TRUE(task->appendChild(linkedObject));
+    auto* connection = new GtPropertyConnection;
+    connection->setSourceUuid(linkedObject->uuid());
+    connection->setTargetUuid(target->uuid());
+    connection->setSourceProp(QStringLiteral("value"));
+    connection->setTargetProp(QStringLiteral("value"));
+    ASSERT_TRUE(task->appendChild(connection));
+    connection->makeConnection();
+    ASSERT_TRUE(connection->isConnected());
+    const QString targetUuid = target->uuid();
+    const QString linkedObjectUuid = linkedObject->uuid();
+    const QString connectionUuid = connection->uuid();
+    ASSERT_TRUE(taskGroup->appendChild(task));
+    const QString taskUuid = task->uuid();
+    ASSERT_EQ(task->link()->linkedObject(), projectTarget);
+
+    ASSERT_TRUE(gtDataModel->saveProject(source));
+
+    GtProjectProvider provider(source);
+    const QString duplicatePath = gtTestHelper->newTempDir().absolutePath();
+    std::unique_ptr<GtProject> duplicate(provider.duplicateProject(
+        QStringLiteral("Task Duplicate Project"), duplicatePath));
+    ASSERT_NE(duplicate, nullptr);
+    EXPECT_EQ(task->uuid(), taskUuid);
+    EXPECT_EQ(taskGroup->findDirectChild<ProjectUuidTask*>(
+                  QStringLiteral("Uuid Test Task")),
+              task);
+    EXPECT_EQ(linkedObject->link()->linkedObject(task), target);
+
+    ASSERT_TRUE(gtDataModel->closeProject(source));
+    GtProject* duplicateProject = duplicate.release();
+    ASSERT_TRUE(gtDataModel->newProject(duplicateProject, false));
+    ASSERT_TRUE(gtDataModel->openProject(duplicateProject));
+    EXPECT_EQ(duplicateProject->objectName(),
+              QStringLiteral("Task Duplicate Project"));
+    EXPECT_EQ(duplicateProject->path(), duplicatePath);
+
+    auto* reopenedGroup =
+        duplicateProject->processData()->findChild<GtTaskGroup*>(
+            QStringLiteral("Uuid Test Group"));
+    ASSERT_NE(reopenedGroup, nullptr);
+    auto* reopenedTask = reopenedGroup->findDirectChild<ProjectUuidTask*>(
+        QStringLiteral("Uuid Test Task"));
+    ASSERT_NE(reopenedTask, nullptr);
+    EXPECT_EQ(reopenedTask->uuid(), taskUuid);
+    auto* reopenedTarget =
+        reopenedTask->findDirectChild<ProjectUuidLinkObject*>(
+            QStringLiteral("Task Target"));
+    auto* reopenedLinkedObject =
+        reopenedTask->findDirectChild<ProjectUuidLinkObject*>(
+            QStringLiteral("Task Linked Object"));
+    ASSERT_NE(reopenedTarget, nullptr);
+    ASSERT_NE(reopenedLinkedObject, nullptr);
+    EXPECT_EQ(reopenedTarget->uuid(), targetUuid);
+    EXPECT_EQ(reopenedLinkedObject->uuid(), linkedObjectUuid);
+    EXPECT_EQ(reopenedLinkedObject->link()->linkedObject(reopenedTask),
+              reopenedTarget);
+    auto* reopenedProjectTarget =
+        duplicateProject->labelData()->findDirectChild<GtLabel*>(
+            QStringLiteral("Project Target"));
+    ASSERT_NE(reopenedProjectTarget, nullptr);
+    EXPECT_EQ(reopenedProjectTarget->uuid(), projectTargetUuid);
+    EXPECT_EQ(reopenedTask->link()->linkedObject(), reopenedProjectTarget);
+    EXPECT_EQ(reopenedProjectTarget->parent(), duplicateProject->labelData());
+
+    auto* reopenedConnection = qobject_cast<GtPropertyConnection*>(
+        reopenedTask->getObjectByUuid(connectionUuid));
+    ASSERT_NE(reopenedConnection, nullptr);
+    EXPECT_EQ(reopenedConnection->sourceUuid(), linkedObjectUuid);
+    EXPECT_EQ(reopenedConnection->targetUuid(), targetUuid);
+    reopenedConnection->makeConnection();
+    EXPECT_TRUE(reopenedConnection->isConnected());
+
+    ASSERT_TRUE(gtDataModel->closeProject(duplicateProject));
+    ASSERT_TRUE(gtDataModel->openProject(source));
+    EXPECT_EQ(source->objectName(), QStringLiteral("Task Source Project"));
+    auto* reopenedSourceTask =
+        source->processData()->findChild<ProjectUuidTask*>(
+            QStringLiteral("Uuid Test Task"));
+    ASSERT_NE(reopenedSourceTask, nullptr);
+    auto* reopenedSourceTarget = source->labelData()->findDirectChild<GtLabel*>(
+        QStringLiteral("Project Target"));
+    ASSERT_NE(reopenedSourceTarget, nullptr);
+    EXPECT_EQ(reopenedSourceTask->link()->linkedObject(), reopenedSourceTarget);
+    auto* reopenedSourceConnection = qobject_cast<GtPropertyConnection*>(
+        reopenedSourceTask->getObjectByUuid(connectionUuid));
+    ASSERT_NE(reopenedSourceConnection, nullptr);
+    reopenedSourceConnection->makeConnection();
+    EXPECT_TRUE(reopenedSourceConnection->isConnected());
+
+    EXPECT_TRUE(
+        gtObjectFactory->unregisterClass(ProjectUuidTask::staticMetaObject));
+    EXPECT_TRUE(
+        taskFactory->unregisterClass(ProjectUuidTask::staticMetaObject));
+    if (registeredLinkObject)
+    {
+        EXPECT_TRUE(gtObjectFactory->unregisterClass(
+            ProjectUuidLinkObject::staticMetaObject));
+    }
+}
+
+#include "test_gt_coredatamodel.moc"
+
+// Keep the real identity proxy's notification handling while avoiding GUI
+// decoration services in this QCoreApplication test runner.
+class LifecycleStyledModel : public GtStyledModel
+{
+public:
+    QVariant data(const QModelIndex& index, int role) const override
+    {
+        return QIdentityProxyModel::data(index, role);
+    }
+};
+
+TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
+{
+    auto* first = createProject(QStringLiteral("Hidden Process Project"));
+    auto* second =
+        createProject(QStringLiteral("Other Hidden Process Project"));
+    ASSERT_TRUE(gtDataModel->newProject(first, false));
+    ASSERT_TRUE(gtDataModel->newProject(second, false));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+    ASSERT_NE(first->processData(), nullptr);
+    ASSERT_TRUE(first->processData()->isUserHidden());
+    auto* taskGroup = first->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    LifecycleStyledModel styled;
+    styled.setSourceModel(gtDataModel);
+    GtExplorerModel explorer;
+    explorer.setSourceModel(&styled);
+    EXPECT_FALSE(explorer.mapFromSource(QModelIndex{}).isValid());
+    const auto projectIndex = gtDataModel->indexFromObject(first);
+    ASSERT_TRUE(projectIndex.isValid());
+    // Only indexes from the immediate source model may be mapped.
+    EXPECT_FALSE(explorer.mapFromSource(projectIndex).isValid());
+    const auto hiddenParent = styled.mapFromSource(
+        gtDataModel->indexFromObject(first->processData()));
+    ASSERT_FALSE(explorer.mapFromSource(hiddenParent).isValid());
+    const auto descendant =
+        styled.mapFromSource(gtDataModel->indexFromObject(taskGroup));
+    // The process dock can select this object before a command resets all
+    // views. Restoring that selection in the explorer must not create an
+    // index with an invisible parent.
+    ASSERT_FALSE(explorer.mapFromSource(descendant).isValid());
+
+    auto* visible = new GtObjectGroup;
+    ASSERT_TRUE(gtDataModel->appendChild(visible, first).isValid());
+    QPersistentModelIndex visibleIndex(explorer.mapFromSource(
+        styled.mapFromSource(gtDataModel->indexFromObject(visible))));
+    ASSERT_TRUE(visibleIndex.isValid());
+    EXPECT_EQ(explorer.objectFromIndex(visibleIndex), visible);
+    for (int i = 0; i < 3; ++i)
+    {
+        ASSERT_TRUE(gtDataModel->switchProject(second));
+        EXPECT_FALSE(visibleIndex.isValid());
+        ASSERT_TRUE(gtDataModel->switchProject(first));
+    }
 }

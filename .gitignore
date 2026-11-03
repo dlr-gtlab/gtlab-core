@@ -32,7 +32,7 @@ Collections/
 modules/
 !tests/build/
 !tests/modules/
-!docs/modules
+!docs/dev/modules
 install/
 src/gui/_resources_qml_qml_qmlcache.qrc
 

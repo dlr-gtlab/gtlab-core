@@ -40,13 +40,6 @@ protected:
      * @return
      */
     bool check(GtModuleInterface* plugin) const override;
-
-    /**
-     * @brief insert
-     * @param plugin
-     */
-    void insert(GtModuleInterface* plugin) override;
-
 };
 
 #endif // GTCOREMODULELOADER_H

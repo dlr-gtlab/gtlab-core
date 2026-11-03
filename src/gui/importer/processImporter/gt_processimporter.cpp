@@ -12,6 +12,8 @@
 #include <QIcon>
 #include <QFile>
 
+#include <utility>
+
 #include "gt_taskfactory.h"
 #include "gt_task.h"
 #include "gt_objectfactory.h"
@@ -72,7 +74,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
 
     QByteArray a = file.readAll();
     GtObjectMemento memento(a);
-    GtObject* obj = memento.restore(gtObjectFactory, true);
+    auto obj = memento.restore_unique(gtObjectFactory, true);
 
     if (!obj)
     {
@@ -81,10 +83,12 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     }
 
     /// validate object to import
-    if (!qobject_cast<GtProcessComponent*>(obj))
+    auto component =
+        gt::unique_qobject_cast<GtProcessComponent>(std::move(obj));
+
+    if (!component)
     {
         gtError() << "resorted obj is not of type GtProcessElement.";
-        delete obj;
         return false;
     }
 
@@ -92,21 +96,18 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     /// allowed to be improted
     if (!qobject_cast<GtTask*>(data))
     {
-        if (!qobject_cast<GtTask*>(obj))
+        if (!qobject_cast<GtTask*>(component.get()))
         {
             gtError() << "Parent item of a calculator has to be a task";
-            delete obj;
             return false;
         }
     }
 
     /// give new uuid to avoid doubled uuid usage
     /// reset uuids of children, too.
-    obj->newUuid(true);
+    component->newUuid(true);
 
-    data->appendChild(obj);
-
-    return true;
+    return data->appendChild(std::move(component));
 }
 
 QStringList

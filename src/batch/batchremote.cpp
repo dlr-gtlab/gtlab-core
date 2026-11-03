@@ -16,6 +16,9 @@
 #include <QFile>
 #include <QDir>
 
+#include <memory>
+#include <utility>
+
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
 #include "gt_objectfactory.h"
@@ -302,8 +305,7 @@ gt::batch::run(const QString& inputName,
     QDomElement dataElement = dataRoot.firstChildElement();
 
     //QString processName;
-    GtObject* obj = nullptr;
-    QList<GtObject*> objectList;
+    auto objectGroup = std::make_unique<GtObjectGroup>();
 
     qDebug() << "Restoring DATA";
 
@@ -311,7 +313,7 @@ gt::batch::run(const QString& inputName,
     {
         qDebug() << "Restoring: " << dataElement.attribute("name");
         GtObjectMemento memento(dataElement);
-        obj = memento.restore(gtObjectFactory);
+        auto obj = memento.restore_unique(gtObjectFactory);
 
         if (!obj)
         {
@@ -320,7 +322,12 @@ gt::batch::run(const QString& inputName,
             return false;
         }
 
-        objectList.append(obj);
+        if (!objectGroup->appendChild(std::move(obj)))
+        {
+            qDebug() << "ERROR: Could not append restored object"
+                     << dataElement.attribute("name");
+            return false;
+        }
         qDebug() << "done!";
         dataElement = dataElement.nextSiblingElement();
     }
@@ -333,9 +340,9 @@ gt::batch::run(const QString& inputName,
 
     qDebug() << "Restoring: " << processElement.attribute("name");
     GtObjectMemento memento(processElement);
-    GtTask* process = memento.restore<GtTask*>(gtProcessFactory);
+    auto restoredProcess = memento.restore_unique<GtTask>(gtProcessFactory);
 
-    if (!process)
+    if (!restoredProcess)
     {
         qDebug() << "ERROR: Object" << processElement.attribute("name")
                  << "not restorable!";
@@ -351,15 +358,10 @@ gt::batch::run(const QString& inputName,
 
     GtCoreProcessExecutor executor;
 
-    GtObjectGroup* objectGroup = new GtObjectGroup;
-    foreach (GtObject* object, objectList)
-    {
-        objectGroup->appendChild(object);
-    }
-    executor.setSource(objectGroup);
-    executor.startTask(process);
+    executor.setSource(objectGroup.get());
+    executor.startTask(restoredProcess.get());
 
-    if (process->currentState() != GtProcessComponent::FINISHED)
+    if (restoredProcess->currentState() != GtProcessComponent::FINISHED)
     {
         gtError() << "Calculator run failed!";
         return false;
@@ -380,7 +382,7 @@ gt::batch::run(const QString& inputName,
 
     QDomElement modulesRootElement = outputDocument.createElement
             (QStringLiteral("MODULES"));
-    foreach (QString moduleId, modulesList)
+    foreach (const QString& moduleId, modulesList)
     {
         QDomElement moduleElement = outputDocument.createElement
                 (QStringLiteral("MODULE"));
@@ -396,7 +398,8 @@ gt::batch::run(const QString& inputName,
     QDomElement dataRootElement = outputDocument.createElement
             (QStringLiteral("DATA"));
 
-    foreach (GtObject* object, objectList)
+    const auto objects = objectGroup->findDirectChildren<GtObject*>();
+    foreach (const GtObject* object, objects)
     {
         GtObjectMemento currMemento = object->toMemento();
         dataRootElement.appendChild(currMemento.documentElement());

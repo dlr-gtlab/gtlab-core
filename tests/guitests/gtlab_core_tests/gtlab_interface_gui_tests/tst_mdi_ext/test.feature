@@ -24,8 +24,8 @@ Feature: Test the mdi interface by extending a module
          Then the entry has a valid icon
          # check number and content of context menu entries
          When the context menu of the entry is opened
-         Then the menu contains 6 entries
-          And the menu contains the actions 'Open, Open With, Test Action Group, Test Action Group 2, Test Action, Test Action 2' in order
+         Then the menu contains 8 entries
+          And the menu contains the actions 'Open, Open With, Test Action Group, Test Action Group 2, Test Action, Test Action 2, Add dynamic properties, Remove dynamic properties' in order
          # check listed actions and check the output dock
          When the action 'Test Action Group 2 > Test Group Action' is activated
          Then the last output line reads 'TEST MDI INTERFACE EXT - TEST GROUP ACTION'

@@ -226,6 +226,29 @@ public:
     bool appendChild(GtObject* c);
 
     /**
+     * @brief Appends the object as child and transfers ownership on success.
+     * If the child is rejected, it is destroyed when this function returns.
+     * @param child Child object
+     * @return Whether object has been appended or not
+     */
+    bool appendChild(std::unique_ptr<GtObject> child);
+
+    /**
+     * @brief Returns whether the given object can be appended as a child.
+     * @param childCandidate The candidate that should be checked for test.
+     * @return Whether the child is non-null, not already a child and accepted
+     */
+    bool canAppendChild(const GtObject* childCandidate);
+
+    /**
+     * @brief Returns whether all given objects can be appended as children.
+     * @param candidates Candidate child objects
+     * @return Whether every child is non-null, not already a child, accepted,
+     * and unique within the list
+     */
+    bool canAppendChildren(const QList<GtObject*>& candidates);
+
+    /**
      * @brief appendChildren - appends multiple objects as children.
      * Relationship to the old parents of the children objects are destroyed
      * @param list of the GtObjects.
@@ -241,18 +264,19 @@ public:
 
     /**
      * @brief Returns uuid of object.
-     * Uuid means universal unique identifier.
+     * UUID means universal unique identifier.
      * Each object has a uuid to identfy it even if the names of objects
-     * are identical.
-     * @return UUID
+     * are identical. The uuid may change. If it does `uuidChanged` is emitted
+     * @return Current UUID
      */
     QString uuid() const;
 
     /**
-     * @brief Sets new uuid for object.
-     * @param val - new uuid to use
+     * @brief Sets new uuid for object. Emits `uuidChanged` if the new uuid
+     * differs
+     * @param newValue - new uuid to use
      */
-    void setUuid(const QString& val);
+    void setUuid(const QString& newValue);
 
     /**
      * @brief Generates new object uuid uses this for the object
@@ -395,6 +419,18 @@ public:
      */
     const QList<GtAbstractProperty*>& properties();
     const QList<GtAbstractProperty const*>& properties() const;
+
+    /**
+     * @brief Adds a runtime property to the common property view.
+     * Ownership is transferred to the object. Property identifiers must be
+     * nonempty and unique across static and runtime property trees.
+     * The concrete property type must have a registered factory.
+     * @return Whether the property was accepted; on failure it is destroyed.
+     */
+    bool addDynamicProperty(std::unique_ptr<GtAbstractProperty> property);
+
+    /** Removes and destroys a runtime property by identifier. */
+    bool removeDynamicProperty(const QString& id);
 
     /**
      * @brief Returns list of all property and sub property items. List
@@ -609,6 +645,11 @@ public:
             return appendChild(obj);
         }
 
+        if (!canAppendChildren({obj}))
+        {
+            return false;
+        }
+
         QList<T> elementsBehindPos;
 
         for (int i = pos; i < list.size(); ++i)
@@ -783,6 +824,7 @@ protected slots:
     void changed();
 
 private:
+    void appendChildUnchecked(GtObject* child);
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
@@ -812,8 +854,6 @@ private:
      * @brief renews child uuids recursively for all child objects
      * @param parent parent object
      */
-    void newChildUUIDs(GtObject* parent) const;
-
     /**
      * @brief Helper function for copying and cloning an object
      */
@@ -825,6 +865,18 @@ private:
     void makeDummy();
     void importMementoIntoDummy(const GtObjectMemento&);
     void exportDummyIntoMemento(GtObjectMemento&) const;
+
+    /**
+     * Installs a staged set after validating ownership, types, IDs and order.
+     * Retained pointers must belong to this object. On failure the live set is
+     * unchanged; replacements are destroyed. Structural notifications bracket
+     * the commit so editor models never observe dangling property pointers.
+     */
+    bool replaceDynamicProperties(
+        const QList<GtAbstractProperty*>& retained,
+        std::vector<std::unique_ptr<GtAbstractProperty>> replacements,
+        const QStringList& order,
+        const GtAbstractObjectFactory* propertyFactory);
 
     // ObjectPtr may be const
     template <typename R, typename ObjectPtr>
@@ -849,6 +901,13 @@ private slots:
     void onChildDataChanged();
 
 signals:
+
+    /**
+     * @brief Emitted once the uuid changes
+     * @param oldUuid Old uuid
+     */
+    void uuidChanged(QString oldUuid);
+
     /**
      * @brief dataChanged
      */
@@ -858,6 +917,11 @@ signals:
      * @brief dataChanged
      */
     void dataChanged(GtObject*, GtAbstractProperty*);
+
+    /// Emitted before any add/remove/replace/reorder in the property view.
+    void dynamicPropertyStructureAboutToChange();
+    /// Completes the paired notification, including a failed add attempt.
+    void dynamicPropertyStructureChanged();
 
     /**
      * @brief childAppended

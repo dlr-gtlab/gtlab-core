@@ -16,12 +16,15 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
+#include "gt_monitoringdatatable.h"
+#include "gt_logging.h"
 
-#include <QDebug>
 #include <QThreadPool>
 
 #include <algorithm>
 
+/// Deprecation is suppressed to supress warning for GtMonitoringDataTable
+GT_SUPPRESS_DEPRECATED_BEGIN
 struct GtTask::Impl
 {
     /// Event loop
@@ -31,6 +34,8 @@ struct GtTask::Impl
     QList<GtObjectMemento> dataToMerge;
 
     /// Monitoring data table
+    /// ATTENTION: THIS IS DEPRECATED
+    /// REMOVE SUPPRESSION FOR DEPRECATION WARNING ASWELL WHEN THIS CODE IS REMOVED!!!!!
     GtMonitoringDataTable monitoringDataTable;
 
     /// Interruption flag
@@ -43,6 +48,7 @@ struct GtTask::Impl
         tr("Process Runner to run task with. Only relevant for the root task")
     };
 };
+GT_SUPPRESS_DEPRECATED_END
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"),
@@ -162,8 +168,10 @@ GtTask::exec()
 
     setState(GtProcessComponent::RUNNING);
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // clear existing monitoring data
     emit triggerClearMonitoringData();
+    GT_SUPPRESS_DEPRECATED_END
 
     // start iteration
     if (!runIteration())
@@ -216,11 +224,7 @@ GtTask::run(GtAbstractRunnable* r)
 
     tp->start(runnable());
 
-    qDebug() << "#### exec event loop...";
-
     pimpl->eventLoop.exec();
-
-    qDebug() << "#### exec finished";
 }
 
 QList<GtCalculator*>
@@ -261,8 +265,6 @@ GtTask::runIteration()
     // get list of all child process components
     //    QList<GtProcessComponent*> childs = processComponents();
 
-    qDebug() << "starting iteration...";
-
     do
     {
         if (!runChildElements())
@@ -300,13 +302,17 @@ GtTask::runIteration()
 int
 GtTask::monitoringDataSize() const
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable.size();
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 const GtMonitoringDataTable&
 GtTask::monitoringDataTable()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable;
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 int
@@ -360,9 +366,6 @@ GtTask::runChildElements()
     // increment current iteration step and continue iteration
     m_currentIter.setVal(m_currentIter.getVal() + 1);
 
-    qDebug() << "iteration step (" << m_currentIter << "/" << m_maxIter <<
-             ")";
-
     // trigger transfer of monitoring properties before running calculators
     emit transferMonitoringProperties();
 
@@ -372,8 +375,6 @@ GtTask::runChildElements()
         comp->setStateRecursively(GtProcessComponent::QUEUED);
     }
 
-    qDebug() << "running calculators...";
-
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
@@ -381,8 +382,6 @@ GtTask::runChildElements()
         {
             // calculator run failed
             setState(GtProcessComponent::FAILED);
-
-            qDebug() << "   |-> run failed!";
 
             return false;
         }
@@ -407,13 +406,13 @@ GtTask::runChildElements()
         }
     }
 
-    qDebug() << "evaluating...";
     // evaluate current iteration step
     m_lastEval = evaluate();
 
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // collect monitoring data for entire task
     GtMonitoringDataSet monData = collectMonitoringData();
 
@@ -423,6 +422,7 @@ GtTask::runChildElements()
         // monitoring data available - emit signal
         emit monitoringDataTransfer(m_currentIter, monData);
     }
+    GT_SUPPRESS_DEPRECATED_END
 
     return true;
 }
@@ -430,9 +430,13 @@ GtTask::runChildElements()
 GtMonitoringDataSet
 GtTask::collectMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     GtMonitoringDataSet retval;
 
     collectMonitoringDataHelper(retval, this);
+
+    GT_SUPPRESS_DEPRECATED_END
 
     return retval;
 }
@@ -470,6 +474,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         return;
     }
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     // get monitoring properties
     auto monProps = component->monitoringProperties();
     auto conMonProps = component->containerMonitoringPropertyRefs();
@@ -477,6 +483,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
     // check whether monitoring properties exists
     if (!monProps.isEmpty() || !conMonProps.isEmpty())
     {
+
         // create new monitoring data container
         GtMonitoringData monData;
 
@@ -490,7 +497,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         // them to container
         for (const auto& propRef : conMonProps)
         {
-            if (auto* resolved = propRef.resolve(*component))
+            if (const auto* resolved = propRef.resolve(*component))
             {
                 monData.addData(propRef.toString(), resolved->valueToVariant());
             }
@@ -507,6 +514,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         // collect data for each child recursively
         collectMonitoringDataHelper(map, child);
     }
+
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
@@ -553,8 +562,6 @@ GtTask::handleRunnableFinished()
 {
     bool success = true;
 
-    qDebug() << __FUNCTION__;
-
     if (!runnable()->successful())
     {
         success = false;
@@ -592,17 +599,20 @@ void
 GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
+    GT_SUPPRESS_DEPRECATED_BEGIN
     if (!pimpl->monitoringDataTable.append(iteration, set))
     {
         gtWarning().medium() << tr("Could not append data set!");
         return;
     }
-
     emit monitoringDataAvailable();
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
 GtTask::clearMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     pimpl->monitoringDataTable.clear();
+    GT_SUPPRESS_DEPRECATED_END
 }

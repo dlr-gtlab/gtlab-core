@@ -1,0 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="TestOperation"
+        uuid="{d9ec9ed8-7fa4-4c31-a3b4-8f143a0d7a1b}"
+        name="Throwing Test Operation">
+  <property type="bool" name="throwsException">true</property>
+</object>

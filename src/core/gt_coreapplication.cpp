@@ -54,15 +54,11 @@ static const auto init_logging_destination_once = [](){
 }();
 
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
-GtVersionNumber GtCoreApplication::m_version = {GT_VERSION_MAJOR,
-                                                GT_VERSION_MINOR,
-                                                GT_VERSION_PATCH,
-                                                GT_VERSION_PRE_RELEASE,
-                                                GT_VERSION_BUILD};
+GtVersionNumber GtCoreApplication::m_version =
+    GtVersionNumber{QStringLiteral(GT_VERSION_STRING)};
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
-    m_settings(new GtSettings),
     m_sessionIds(QStringList() << QStringLiteral("default")),
     m_devMode(false),
     m_appMode(batch),
@@ -71,6 +67,7 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QCoreApplication::setOrganizationDomain("www.dlr.de");
     QCoreApplication::setOrganizationName("DLR");
     QCoreApplication::setApplicationName("GTlab 2");
+    m_settings = std::make_unique<GtSettings>();
 
     QCoreApplication::setApplicationVersion(
         GtCoreApplication::version().toString());
@@ -151,6 +148,12 @@ GtCoreApplication::readSessionIds()
 void
 GtCoreApplication::init()
 {
+    init(gt::LoggingOptions{});
+}
+
+void
+GtCoreApplication::init(const gt::LoggingOptions& loggingOptions)
+{
     if (m_self)
     {
         return;
@@ -158,7 +161,7 @@ GtCoreApplication::init()
 
     m_self = this;
 
-    initLogging();
+    initLogging(loggingOptions);
 
     // #####
     initFirstRun();
@@ -290,34 +293,29 @@ GtCoreApplication::initSession(const QString& id)
 }
 
 void
-GtCoreApplication::initLogging()
+GtCoreApplication::initLogging(const gt::LoggingOptions& loggingOptions)
 {
     gt::log::Logger& logger = gt::log::Logger::instance();
-
-    QStringList args = qApp->arguments();
-
-    const static auto enableDevMode = [&](){
-        logger.setLoggingLevel(gt::log::TraceLevel);
-        setDevMode(true);
-        gtDebug() << "DEV MODE";
-    };
 
     // init logmodel
     GtLogModel& logmodel = GtLogModel::instance();
     Q_UNUSED(logmodel);
 
     // verbosity
-    if (args.contains(QStringLiteral("--medium")))
+    if (loggingOptions.verbosity)
     {
-        logger.setVerbosity(gt::log::Medium);
-    }
-    else if (args.contains(QStringLiteral("--verbose")))
-    {
-        logger.setVerbosity(gt::log::Everything);
-    }
-    else if (args.contains(QStringLiteral("--silent")))
-    {
-        logger.setVerbosity(gt::log::Silent);
+        switch (*loggingOptions.verbosity)
+        {
+        case gt::LoggingVerbosityOverride::Medium:
+            logger.setVerbosity(gt::log::Medium);
+            break;
+        case gt::LoggingVerbosityOverride::Verbose:
+            logger.setVerbosity(gt::log::Everything);
+            break;
+        case gt::LoggingVerbosityOverride::Silent:
+            logger.setVerbosity(gt::log::Silent);
+            break;
+        }
     }
     else
     {
@@ -325,23 +323,28 @@ GtCoreApplication::initLogging()
     }
 
     // logging level
-    if (args.contains(QStringLiteral("--trace")))
+    if (loggingOptions.level)
     {
-        logger.setLoggingLevel(gt::log::TraceLevel);
-    }
-    else if (args.contains(QStringLiteral("--debug")))
-    {
-        logger.setLoggingLevel(gt::log::DebugLevel);
+        switch (*loggingOptions.level)
+        {
+        case gt::LoggingLevelOverride::Trace:
+            logger.setLoggingLevel(gt::log::TraceLevel);
+            break;
+        case gt::LoggingLevelOverride::Debug:
+            logger.setLoggingLevel(gt::log::DebugLevel);
+            break;
+        }
     }
     else
     {
         logger.setLoggingLevel(gt::log::levelFromInt(m_settings->loggingLevel()));
     }
 
-    // dev mode
-    if (args.contains(QStringLiteral("--dev")))
+    if (loggingOptions.developmentMode)
     {
-        enableDevMode();
+        logger.setLoggingLevel(gt::log::TraceLevel);
+        setDevMode(true);
+        gtDebug() << "DEV MODE";
     }
 }
 
@@ -530,6 +533,12 @@ GtCoreApplication::loadSingleModule(const QString& moduleFilePath)
     return m_moduleLoader->loadSingleModule(moduleFilePath);
 }
 
+gt::Modules
+GtCoreApplication::modules() const
+{
+    return gt::Modules{m_moduleLoader.get()};
+}
+
 QStringList
 GtCoreApplication::moduleIds()
 {
@@ -566,12 +575,8 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id) const
 {
-    if (!m_moduleLoader)
-    {
-        return GtVersionNumber();
-    }
-
-    return m_moduleLoader->moduleVersion(id);
+    // delegate to the module access of the application
+    return modules().version(id);
 }
 
 QString
