@@ -331,7 +331,7 @@ GtProjectUI::switchToProject(GtProject& toProject)
 
     if (gtApp->currentProject() && !gtApp->hasProjectChanges())
     {
-        GtSwitchProjectMessageBox mb;
+        GtSwitchProjectMessageBox mb(toProject.objectName(), nullptr);
         if (mb.exec() == QMessageBox::Cancel)
         {
             return;

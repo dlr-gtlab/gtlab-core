@@ -22,6 +22,7 @@ namespace Ui
 class GtMainWin;
 }
 
+class QString;
 class GtProject;
 class GtCornerWidget;
 class GtAbstractLoadingHelper;
@@ -53,6 +54,12 @@ public:
     ~GtMainWin() override;
 
 public slots:
+    /**
+     * @brief Opens a project from the given file path.
+     * @param projectFilePath Path to the project file.
+     */
+    void openProjectFromPath(const QString& projectFilePath);
+
     /**
      * @brief opens the process queue widget
      */
@@ -115,13 +122,19 @@ private:
      * @return Whether the project was added or an existing session project was found.
      */
     bool addProjectAndRequestOpen(std::unique_ptr<GtProject> project,
-                                  bool reuseExisting);
+                                  bool reuseExisting, QString* error = nullptr);
 
 
     /**
      * @brief setupDockWidgets
      */
     void setupDockWidgets();
+
+    /**
+     * @brief Closes through the normal shutdown path and requests a restart
+     * when the close is accepted.
+     */
+    void restartApplication();
 
     /**
      * @brief updateCollectionEntries

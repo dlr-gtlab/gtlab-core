@@ -15,6 +15,7 @@ GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal,
                                bool needsRestart) :
     m_ident(ident),
     m_initValue(initVal),
+    m_runtimeValue(QSettings().value(ident, initVal)),
     changesRequiresRestart(needsRestart)
 { }
 
@@ -36,11 +37,6 @@ GtSettingsItem::setValue(const QVariant &value)
     if (value != getValue())
     {
         QSettings().setValue(ident(), value);
-        hasChanged = true;
-    }
-    else
-    {
-        hasChanged = false;
     }
 }
 
@@ -53,5 +49,5 @@ GtSettingsItem::getValue() const
 bool
 GtSettingsItem::requiresRestart() const
 {
-    return changesRequiresRestart && hasChanged;
+    return changesRequiresRestart && getValue() != m_runtimeValue;
 }

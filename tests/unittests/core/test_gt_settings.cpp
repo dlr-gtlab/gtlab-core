@@ -60,17 +60,42 @@ TEST_F(TestSettings, getUnknown)
 
 TEST_F(TestSettings, registerSettingRestartAndRequiresAppRestart)
 {
+    QSettings().setValue("test/restart", 2);
     EXPECT_FALSE(settings.requiresAppRestart());
     ASSERT_NE(settings.registerSettingRestart("test/restart", 1), nullptr);
     EXPECT_FALSE(settings.requiresAppRestart());
 
+    settings.setSetting("test/restart", 3);
+    EXPECT_TRUE(settings.requiresAppRestart());
+
     settings.setSetting("test/restart", 2);
+    EXPECT_FALSE(settings.requiresAppRestart());
+}
+
+TEST_F(TestSettings, restartRequirementPersistsAcrossRepeatedSaves)
+{
+    QSettings().setValue("test/restart", 2);
+    ASSERT_NE(settings.registerSettingRestart("test/restart", 1), nullptr);
+
+    settings.setSetting("test/restart", 3);
     EXPECT_TRUE(settings.requiresAppRestart());
 
-    settings.setSetting("test/restart", 1);
+    settings.setSetting("test/restart", 3);
+    EXPECT_TRUE(settings.requiresAppRestart());
+}
+
+TEST_F(TestSettings, restartBaselineSurvivesReregisteringSetting)
+{
+    QSettings().setValue("test/restart", 2);
+    ASSERT_NE(settings.registerSettingRestart("test/restart", 1), nullptr);
+
+    settings.setSetting("test/restart", 3);
+    ASSERT_TRUE(settings.requiresAppRestart());
+
+    ASSERT_NE(settings.registerSettingRestart("test/restart", 1), nullptr);
     EXPECT_TRUE(settings.requiresAppRestart());
 
-    settings.setSetting("test/restart", 1);
+    settings.setSetting("test/restart", 2);
     EXPECT_FALSE(settings.requiresAppRestart());
 }
 
