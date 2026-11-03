@@ -100,10 +100,6 @@ deepCopyTask(GtTask* taskOrig, bool strict)
             delete copiedTask;
             return nullptr;
         }
-        else
-        {
-            return copiedTask;
-        }
     }
 
 
