@@ -412,6 +412,27 @@ Grid spacing methods:
 - ``GtGrid::setGridWidth`` / ``setGridHeight`` -> ``GtGrid::setHSpacing`` / ``setVSpacing`` (or ``GtGrid::setSpacing`` for both).
 - ``GtGrid::scaledGridSpacing`` return a ``GtGridSpacing`` struct with ``hSpacing`` and ``vSpacing`` members denoting the spacing in scene coordinate systems for the current zoom level.
 
+Module ID Required for Class Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The overloads of ``GtAbstractObjectFactory::registerClass`` / ``registerClasses``
+without a module ID argument have been removed, as well as the single-argument
+``GtTaskFactory::registerTaskData`` and ``GtCalculatorFactory::registerCalculatorData``.
+Always pass the ID of the providing module:
+
+.. code-block:: cpp
+
+    // old
+    gtObjectFactory->registerClass(GT_METADATA(MyObject));
+
+    // new
+    gtObjectFactory->registerClass(GT_METADATA(MyObject), GT_MODULENAME());
+    // or
+    gtObjectFactory->registerClass(GT_METADATA(MyObject), "My Module");
+
+GTlab built-ins use ``GtAbstractObjectFactory::builtinModuleId()``
+(``"GTlab"``). This ID is reserved for built-ins and must not be used by modules.
+
 ----
 
 Qt6 Migration

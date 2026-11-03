@@ -70,9 +70,9 @@ GtTaskFactory::instance()
 }
 
 bool
-GtTaskFactory::registerTaskData(GtTaskData taskData, const QString& moduleId)
+GtTaskFactory::registerTaskData(GtTaskData taskData, const QString& module)
 {
-    if (!gtObjectFactory->registerClass(taskData->metaData(), moduleId))
+    if (!gtObjectFactory->registerClass(taskData->metaData(), module))
     {
         return false;
     }
@@ -108,12 +108,12 @@ GtTaskFactory::taskDataExists(const QString& className)
 QString
 GtTaskFactory::moduleId(const QString& className) const
 {
-    QString moduleId = GtAbstractObjectFactory::moduleId(className);
+    QString id = GtAbstractObjectFactory::moduleId(className);
 
-    if (moduleId.isEmpty())
+    if (id.isEmpty())
     {
-        moduleId = gtObjectFactory->moduleId(className);
+        id = gtObjectFactory->moduleId(className);
     }
 
-    return moduleId;
+    return id;
 }

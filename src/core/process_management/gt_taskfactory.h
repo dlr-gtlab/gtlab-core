@@ -36,11 +36,11 @@ public:
     /**
      * @brief Registers task data to factory.
      * @param taskData New task data.
-     * @param moduleId Identification of the providing module.
+     * @param module Identification of the providing module.
      * @return Returns true if task data was successfully added.
      */
     virtual bool registerTaskData(GtTaskData taskData,
-                                  const QString& moduleId);
+                                  const QString& module);
 
     /**
      * @brief Returns full list of registered task data.
