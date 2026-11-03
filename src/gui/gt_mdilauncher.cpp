@@ -9,59 +9,34 @@
  */
 
 #include <QCoreApplication>
-#include <QMdiSubWindow>
-#include <QFrame>
-
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
 #include "gt_collectioninterface.h"
-#include "gt_algorithms.h"
-#include "gt_logging.h"
 #include "gt_tabwidget.h"
 #include "gt_collectionregistry.h"
 #include "gt_guifactory.h"
 #include "gt_guilayoutadapter.h"
+#include "gt_guilauncher.h"
 #include "gt_guitablayoutadapter.h"
 
-struct GtMdiLauncher::Impl
-{
-    QPointer<GtGuiLayoutAdapter> adapter{};
-};
+struct GtMdiLauncher::Impl { };
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
-    pimpl(std::make_unique<Impl>())
-{
-}
+    pimpl(nullptr)
+{ }
 
 GtMdiLauncher::~GtMdiLauncher() = default;
-
-bool
-GtMdiLauncher::isItemAllowed(GtMdiItem* mdiItem)
-{
-    if (!mdiItem) return false;
-
-    if (mdiItem->allowsMultipleInstances()) return true;
-
-    QString mdiId = mdiItem->currentId();
-
-    if (mdiId.isEmpty()) return false;
-
-    assert(pimpl->adapter);
-    return !pimpl->adapter->hasItem(mdiId);
-}
 
 void
 GtMdiLauncher::setFocus(const QString& mdiId)
 {
-    assert(pimpl->adapter);
-    pimpl->adapter->focus(mdiId);
+    GtGuiLauncher::instance().focus(mdiId);
 }
 
 void
 GtMdiLauncher::closeAll()
 {
-    assert(pimpl->adapter);
-    pimpl->adapter->closeAll();
+    GtGuiLauncher::instance().closeAll();
 }
 
 GtMdiLauncher*
@@ -78,8 +53,7 @@ GtMdiLauncher::instance()
 void
 GtMdiLauncher::setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter)
 {
-    pimpl->adapter = adapter.get();
-    if (adapter) adapter.release()->setParent(this);
+    GtGuiLauncher::instance().setAdapter(std::move(adapter));
 }
 
 void
@@ -132,91 +106,37 @@ GtMdiLauncher::registerCollection(const QString& str,
 void
 GtMdiLauncher::printCurrentWindow()
 {
-    assert(pimpl->adapter);
-
-    auto item = pimpl->adapter->currentItem();
-    if (item) item->print();
+    return GtGuiLauncher::instance().printCurrentWindow();
 }
 
 void
 GtMdiLauncher::print(QWidget* widget)
 {
-    if (!widget) return;
-
-    assert(pimpl->adapter);
-    auto* item = pimpl->adapter->itemFromWidget(*widget);
-    if (item) item->print();
+    return GtGuiLauncher::instance().print(widget);
 }
 
 bool
 GtMdiLauncher::isCurrentWindowPrintable() const
 {
-    assert(pimpl->adapter);
-
-    auto item = pimpl->adapter->currentItem();
-    return item && item->isPrintable();
+    return GtGuiLauncher::instance().isCurrentWindowPrintable();
 }
 
 bool
 GtMdiLauncher::isPrintable(QWidget* widget) const
 {
-    if (!widget) return false;
-
-    assert(pimpl->adapter);
-    auto* item = pimpl->adapter->itemFromWidget(*widget);
-    return item && item->isPrintable();
+    return GtGuiLauncher::instance().isPrintable(widget);
 }
 
 std::vector<GtQmlAction*>
 GtMdiLauncher::toolbarActions(QWidget* widget) const
 {
-    if (!widget) return {};
-
-    assert(pimpl->adapter);
-    auto* item = pimpl->adapter->itemFromWidget(*widget);
-    if (!item) return {};
-
-    return item->toolbarActions();
+    return GtGuiLauncher::instance().toolbarActions(widget);
 }
 
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
-    assert(pimpl->adapter);
-
-    auto& factory = GtGuiFactory::instance();
-    if (!factory.isKnownGuiItem(id))
-    {
-        gtWarning().medium() << tr("Unknown GUI item '%1'!").arg(id);
-        return nullptr;
-    }
-
-    auto item = factory.makeGuiItem(id);
-    if (!item) return nullptr;
-
-    // add parent to this class for now
-    item->setParent(this);
-
-    item->setCurrentObject(data, customId);
-
-    if (!isItemAllowed(item.get()))
-    {
-        auto activeItem = pimpl->adapter->item(item->currentId());
-        if (!activeItem) return nullptr;
-
-        if (data && activeItem->flags().testFlag(GtMdiItem::AllowsReopening))
-        {
-            activeItem->setCurrentObject(data);
-        }
-        pimpl->adapter->focus(activeItem->currentId());
-        return activeItem;
-    }
-
-    if (!pimpl->adapter->addItem(*item)) return nullptr;
-
-    item->setData(data);
-
-    return item.release();
+    return GtGuiLauncher::instance().open(id, data, customId);
 }
 
 GtMdiItem*

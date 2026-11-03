@@ -30,6 +30,7 @@ set(headers
     gt_mdilauncher.h
     gt_guifactory.h
     gt_guilayoutadapter.h
+    gt_guilauncher.h
     gt_guitablayoutadapter.h
     style/gt_palette.h
     style/gt_style.h
@@ -220,6 +221,7 @@ set(sources
     gt_mdilauncher.cpp
     gt_guifactory.cpp
     gt_guilayoutadapter.cpp
+    gt_guilauncher.cpp
     gt_guitablayoutadapter.cpp
     style/gt_palette.cpp
     style/gt_style.cpp

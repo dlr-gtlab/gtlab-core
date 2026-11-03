@@ -42,7 +42,8 @@ makeTabButtons(QPointer<GtTabWidget> tabWidget, QPointer<GtMdiWidget> mdiWidget,
     closeBtn->setIcon(gt::gui::icon::close());
     closeBtn->setFlat(true);
     // for identification in gui tests
-    closeBtn->setObjectName(QStringLiteral("GuiItemTabCloseBtn"));
+    closeBtn->setObjectName(
+        QStringLiteral("MdiTabCloseBtn")); // <- name needed for GUI Tests
 
     auto* undockBtn = new QPushButton;
     undockBtn->setIconSize(QSize{14, 14});
