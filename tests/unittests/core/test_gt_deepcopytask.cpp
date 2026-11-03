@@ -7,6 +7,10 @@
 
 #include "gtest/gtest.h"
 
+#include <memory>
+
+#include "gt_objectuuidmap.h"
+
 
 #include "test_gt_processtestclasses.h"
 #include "gt_task.h"
@@ -659,6 +663,5 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty, copyTaskWithRelativeObjectLinkPrope
     auto copiedCalc = copyCasted->findDirectChild<TestGtCalculator*>("c1");
 
     ASSERT_EQ(copiedRelObjLinkProp->getVal(), copiedCalc->uuid());
-
 
 }
