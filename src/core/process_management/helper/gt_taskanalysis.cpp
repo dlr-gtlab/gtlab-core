@@ -7,6 +7,9 @@
 
 #include "gt_taskanalysis.h"
 
+#include <algorithm>
+#include <iterator>
+
 #include "gt_processcomponent.h"
 #include "gt_taskgroup.h"
 #include "gt_task.h"
@@ -90,16 +93,20 @@ analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok)
     QList<GtPropertyConnection*> allPropCons =
         rootTask->findChildren<GtPropertyConnection*>();
 
-    QList<GtProcessComponent*> internalProcComps =
-        pComp->findChildren<GtProcessComponent*>();
+    const auto descendants = pComp->findChildren<GtProcessComponent*>();
+    QList<const GtProcessComponent*> internalProcComps;
+    std::copy(descendants.cbegin(), descendants.cend(),
+              std::back_inserter(internalProcComps));
     internalProcComps.append(pComp);
 
     foreach (GtPropertyConnection* propCon, allPropCons)
     {
-        GtProcessComponent* const sourceObj = qobject_cast<GtProcessComponent*>(
-            rootTask->getObjectByUuid(propCon->sourceUuid()));
-        GtProcessComponent* const targetObj = qobject_cast<GtProcessComponent*>(
-            rootTask->getObjectByUuid(propCon->targetUuid()));
+        const GtProcessComponent* const sourceObj =
+            qobject_cast<const GtProcessComponent*>(
+                rootTask->getObjectByUuid(propCon->sourceUuid()));
+        const GtProcessComponent* const targetObj =
+            qobject_cast<const GtProcessComponent*>(
+                rootTask->getObjectByUuid(propCon->targetUuid()));
 
         // lost connection to any object
         if (!sourceObj && !targetObj)
@@ -147,15 +154,16 @@ QString
 propertyConnectionsPrint(QList<GtPropertyConnection*>& cons)
 {
     QStringList retval;
-    for (auto* c : qAsConst(cons))
-    {
-        retval.append("   |-> Connection: " + c->objectName() + "Connected:" +
-                      (c->isConnected() ? QStringLiteral("true")
-                                        : QStringLiteral("false")) +
-                      "\n      |-> " + c->sourceUuid() + "(" + c->sourceProp() +
-                      ")" + " -> " + c->targetUuid() + "(" + c->targetProp() +
-                      ")");
-    }
+    std::transform(cons.cbegin(), cons.cend(), std::back_inserter(retval),
+                   [](GtPropertyConnection* c) {
+                       return "   |-> Connection: " + c->objectName() +
+                              "Connected:" +
+                              (c->isConnected() ? QStringLiteral("true")
+                                                : QStringLiteral("false")) +
+                              "\n      |-> " + c->sourceUuid() + "(" +
+                              c->sourceProp() + ")" + " -> " + c->targetUuid() +
+                              "(" + c->targetProp() + ")";
+                   });
 
     return retval.join("\n");
 }
