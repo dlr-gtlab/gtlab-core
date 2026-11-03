@@ -7,6 +7,10 @@
 
 #include "gtest/gtest.h"
 
+#include <memory>
+
+#include "gt_objectuuidmap.h"
+
 
 #include "test_gt_processtestclasses.h"
 #include "gt_task.h"
@@ -620,4 +624,119 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty,
     auto copiedCalc = copyCasted->findDirectChild<TestGtCalculator*>("c1");
 
     ASSERT_EQ(copiedRelObjLinkProp->getVal(), copiedCalc->uuid());
+}
+
+TEST_F(TestGtTaskPropertyConnections, incompleteMappingClearsMissingEndpoints)
+{
+    for (int missing = 1; missing <= 3; ++missing)
+    {
+        SCOPED_TRACE(missing);
+        GtTask task;
+        auto* connection = new GtPropertyConnection;
+        connection->setSourceUuid("original-source");
+        connection->setTargetUuid("original-target");
+        task.appendChild(connection);
+
+        GtObjectUUIDMap mapping;
+        if (!(missing & 1))
+        {
+            mapping.insert("original-source", "copied-source");
+        }
+        if (!(missing & 2))
+        {
+            mapping.insert("original-target", "copied-target");
+        }
+
+        EXPECT_FALSE(gt::utils::process::transferPropertyConnectionsViaMapping(
+            &task, &mapping));
+        EXPECT_EQ(connection->sourceUuid(),
+                  (missing & 1) ? QString() : QString("copied-source"));
+        EXPECT_EQ(connection->targetUuid(),
+                  (missing & 2) ? QString() : QString("copied-target"));
+        EXPECT_FALSE(connection->isConnected());
+    }
+}
+
+TEST_F(TestGtTaskPropertyConnections, copyDistinguishesCalculatorsWithSameName)
+{
+    calc1->setObjectName("calculator");
+    calc2->setObjectName("calculator");
+    calc1->prop2()->setVal(17.0);
+    calc2->prop2()->setVal(29.0);
+    const double originalTargetValue = calc2->prop1()->getVal();
+    std::unique_ptr<GtTask> copy(
+        gt::utils::process::deepCopyTask(subtask1, true));
+    ASSERT_NE(copy, nullptr);
+
+    auto* connection = copy->findChild<GtPropertyConnection*>("con4");
+    ASSERT_NE(connection, nullptr);
+    auto* source = qobject_cast<TestGtCalculator*>(
+        copy->getObjectByUuid(connection->sourceUuid()));
+    auto* target = qobject_cast<TestGtCalculator*>(
+        copy->getObjectByUuid(connection->targetUuid()));
+    ASSERT_NE(source, nullptr);
+    ASSERT_NE(target, nullptr);
+    EXPECT_NE(source, target);
+    EXPECT_EQ(source->objectName(), "calculator");
+    EXPECT_EQ(target->objectName(), "calculator");
+    EXPECT_NE(source->uuid(), calc1->uuid());
+    EXPECT_NE(target->uuid(), calc2->uuid());
+    EXPECT_TRUE(connection->isConnected());
+
+    EXPECT_DOUBLE_EQ(source->prop2()->getVal(), 17.0);
+    EXPECT_DOUBLE_EQ(target->prop2()->getVal(), 29.0);
+    source->prop2()->setVal(42.0);
+    EXPECT_DOUBLE_EQ(target->prop1()->getVal(), 42.0);
+    EXPECT_DOUBLE_EQ(calc2->prop1()->getVal(), originalTargetValue);
+}
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty, copyRemapsNestedRelativeLink)
+{
+    auto* nestedTask = new GtTask;
+    roottask->appendChild(nestedTask);
+    nestedTask->appendChild(calc1);
+    auto* target = new TestGtCalculator;
+    target->setObjectName("target");
+    nestedTask->appendChild(target);
+    calc1->relLink()->setVal(target->uuid());
+
+    std::unique_ptr<GtTask> copy(
+        gt::utils::process::deepCopyTask(roottask, true));
+    ASSERT_NE(copy, nullptr);
+    auto* copiedSource = copy->findChild<TestGtCalculator*>("c1");
+    auto* copiedTarget = copy->findChild<TestGtCalculator*>("target");
+    ASSERT_NE(copiedSource, nullptr);
+    ASSERT_NE(copiedTarget, nullptr);
+    EXPECT_EQ(copiedSource->relLink()->getVal(), copiedTarget->uuid());
+    EXPECT_NE(copiedTarget->uuid(), target->uuid());
+    EXPECT_EQ(calc1->relLink()->getVal(), target->uuid());
+}
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty,
+       externalRelativeLinkHonorsStrictness)
+{
+    TestGtCalculator external;
+    roottask->propRelObjLink()->setVal(external.uuid());
+
+    for (bool strict : {false, true})
+    {
+        SCOPED_TRACE(strict);
+        std::unique_ptr<GtTask> copy(
+            gt::utils::process::deepCopyTask(roottask, strict));
+        if (strict)
+        {
+            EXPECT_EQ(copy, nullptr);
+        }
+        else
+        {
+            ASSERT_NE(copy, nullptr);
+            auto* copiedTask =
+                qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(
+                    copy.get());
+            ASSERT_NE(copiedTask, nullptr);
+            EXPECT_EQ(copiedTask->propRelObjLink()->getVal(), external.uuid());
+        }
+        EXPECT_EQ(roottask->propRelObjLink()->getVal(), external.uuid());
+        EXPECT_EQ(calc1->parent(), roottask);
+    }
 }
