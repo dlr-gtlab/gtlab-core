@@ -1,0 +1,131 @@
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+# SPDX-License-Identifier: MPL-2.0+
+
+"""Smoke-test bump2version release transitions against the real version files."""
+
+import shutil
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+RELEASE_FILES = (
+    ".bumpversion.cfg",
+    "CMakeLists.txt",
+    "CHANGELOG.md",
+    "conanfile.py",
+    "docs/dev/conf.py",
+    "docs/user/conf.py",
+    "src/dataprocessor/gt_version.h",
+)
+
+
+class BumpVersionTest(unittest.TestCase):
+    def setUp(self):
+        self.assertIsNotNone(shutil.which("bump2version"), "Install bump2version==1.0.1")
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.workdir = Path(self.tmp.name)
+        for name in RELEASE_FILES:
+            dest = self.workdir / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / name, dest)
+        self.original_changelog = (self.workdir / "CHANGELOG.md").read_bytes()
+
+    def bump(self, *args):
+        result = subprocess.run(
+            ["bump2version", "--no-commit", "--no-tag", *args],
+            cwd=self.workdir,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode:
+            self.fail(
+                f"bump2version {args} failed with exit code {result.returncode}:\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
+
+    def check_version(self, version, cmake_version):
+        config = (self.workdir / ".bumpversion.cfg").read_text()
+        self.assertIn("current_version = " + version, config)
+        self.assertIn('version = "' + version + '"', (self.workdir / "conanfile.py").read_text())
+        self.assertIn('#define GT_VERSION_STRING "' + version + '"', (self.workdir / "src/dataprocessor/gt_version.h").read_text())
+        for path in ("docs/dev/conf.py", "docs/user/conf.py"):
+            self.assertIn('release = "' + version + '"', (self.workdir / path).read_text())
+        self.assertIn("project(GTlab-Core VERSION " + cmake_version + ")", (self.workdir / "CMakeLists.txt").read_text())
+        self.assertEqual(self.original_changelog, (self.workdir / "CHANGELOG.md").read_bytes())
+
+    def test_alpha_beta_rc_final_and_patch(self):
+        steps = (
+            (("--new-version", "2.1.0-alpha.1", "stage"), "2.1.0-alpha.1"),
+            (("development",), "2.1.0-alpha.1.dev"),
+            (("serial",), "2.1.0-alpha.2"),
+            (("--new-version", "2.1.0-beta.1", "stage"), "2.1.0-beta.1"),
+            (("development",), "2.1.0-beta.1.dev"),
+            (("--new-version", "2.1.0-rc.1", "stage"), "2.1.0-rc.1"),
+            (("development",), "2.1.0-rc.1.dev"),
+            (("stage",), "2.1.0"),
+            (("patch",), "2.1.1"),
+            (("patch",), "2.1.2"),
+        )
+        for args, version in steps:
+            with self.subTest(version=version):
+                self.bump(*args)
+                self.check_version(version, version.split("-")[0])
+
+    def test_stable_to_next_patch_dev_to_final(self):
+        self.bump("--new-version", "2.1.0", "stage")
+        self.bump("--new-version", "2.1.1-dev", "patch")
+        self.check_version("2.1.1-dev", "2.1.1")
+        self.bump("--new-version", "2.1.1", "stage")
+        self.check_version("2.1.1", "2.1.1")
+        self.bump("--new-version", "2.1.2-dev", "patch")
+        self.check_version("2.1.2-dev", "2.1.2")
+
+    def test_opt_in_to_patch_prerelease(self):
+        self.bump("--new-version", "2.1.0", "stage")
+        self.bump("--new-version", "2.1.1-alpha.1", "patch")
+        self.check_version("2.1.1-alpha.1", "2.1.1")
+        self.bump("development")
+        self.check_version("2.1.1-alpha.1.dev", "2.1.1")
+        self.bump("serial")
+        self.check_version("2.1.1-alpha.2", "2.1.1")
+        self.bump("--new-version", "2.1.1-rc.1", "stage")
+        self.bump("stage")
+        self.check_version("2.1.1", "2.1.1")
+
+    def test_release_tag_and_untagged_dev_commit(self):
+        def run(*args):
+            result = subprocess.run(
+                args, cwd=self.workdir, capture_output=True, text=True
+            )
+            if result.returncode:
+                self.fail(f'{args} failed:\n{result.stdout}\n{result.stderr}')
+            return result.stdout.strip()
+
+        run('git', 'init', '-q')
+        run('git', 'config', 'user.name', 'GTlab Release Test')
+        run('git', 'config', 'user.email', 'release-test@example.invalid')
+        run('git', 'add', '.')
+        run('git', 'commit', '-qm', 'fixture')
+
+        run('bump2version', '--new-version', '2.1.0-alpha.1', 'stage')
+        self.assertEqual(run('git', 'tag', '--list'), 'v2.1.0-alpha.1')
+        self.assertIn(
+            '#define GT_VERSION_STRING "2.1.0-alpha.1"',
+            run('git', 'show', 'v2.1.0-alpha.1:src/dataprocessor/gt_version.h'),
+        )
+
+        run('bump2version', '--no-tag', 'development')
+        self.assertEqual(run('git', 'tag', '--list'), 'v2.1.0-alpha.1')
+        self.check_version('2.1.0-alpha.1.dev', '2.1.0')
+        self.assertIn(
+            '#define GT_VERSION_STRING "2.1.0-alpha.1.dev"',
+            run('git', 'show', 'HEAD:src/dataprocessor/gt_version.h'),
+        )
+        self.assertEqual(len(run('git', 'log', '--format=%H').splitlines()), 3)
+
+if __name__ == "__main__":
+    unittest.main()

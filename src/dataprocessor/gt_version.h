@@ -14,8 +14,7 @@
 #define GT_VERSION_MAJOR 2
 #define GT_VERSION_MINOR 1
 #define GT_VERSION_PATCH 0
-#define GT_VERSION_PRE_RELEASE "dev"
-#define GT_VERSION_BUILD ""
+#define GT_VERSION_STRING "2.1.0-alpha.1.dev"
 
 /*
    can be used like #if (GT_VERSION >= GT_VERSION_CHECK(4, 4, 0))
@@ -98,9 +97,9 @@
     #define _GT_WARNING_DISABLE_DEPRECATED \
         _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 #else
-    #define GT_WARNING_PUSH_DEPRECATED
-    #define GT_WARNING_POP_DEPRECATED
-    #define GT_WARNING_DISABLE_DEPRECATED
+    #define _GT_WARNING_PUSH_DEPRECATED
+    #define _GT_WARNING_POP_DEPRECATED
+    #define _GT_WARNING_DISABLE_DEPRECATED
 #endif
 
 #define GT_SUPPRESS_DEPRECATED_BEGIN \

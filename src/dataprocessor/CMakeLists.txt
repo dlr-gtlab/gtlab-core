@@ -13,7 +13,7 @@ if (NOT TARGET mpark::variant)
     add_library(mpark::variant ALIAS mparkvariant)
     target_include_directories(mparkvariant INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty>
-        $<INSTALL_INTERFACE:include/core/thirdparty>)
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core/thirdparty>")
 
     install(TARGETS mparkvariant EXPORT GTlabTargets)
 endif()
@@ -23,7 +23,7 @@ if (NOT TARGET tl::optional)
     add_library(tl::optional ALIAS tloptional)
     target_include_directories(tloptional INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty>
-        $<INSTALL_INTERFACE:include/core/thirdparty>)
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core/thirdparty>")
 
     install(TARGETS tloptional EXPORT GTlabTargets)
 endif()
@@ -123,6 +123,7 @@ set(SOURCES
     gt_objectgroup.cpp
     gt_package.cpp
     gt_factorygroup.cpp
+    gt_finally.cpp
     gt_xmlutilities.cpp
     gt_qtutilities.cpp
     internal/varianthasher.cpp
@@ -185,7 +186,7 @@ target_include_directories(GTlabDataProcessor
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/property>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include/core>
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core>"
 )
 
 target_link_libraries(GTlabDataProcessor
@@ -209,18 +210,17 @@ if (BUILD_WITH_HDF5)
     )
 endif(BUILD_WITH_HDF5)
 
-set_target_properties(GTlabDataProcessor PROPERTIES 
-  # set rpath to lib directory, since it is installed to lib/core
-  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/..") 
+gtlab_set_install_rpath(GTlabDataProcessor
+    RELEASE_DIR "${GTLAB_INSTALL_LIBDIR}")
 
 install(TARGETS GTlabDataProcessor
     EXPORT GTlabTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    RUNTIME DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}"
+    LIBRARY DESTINATION "${GTLAB_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${GTLAB_INSTALL_LIBDIR}"
 )
 
-install(FILES ${HEADERS} DESTINATION include/core)
-install(FILES ${HEADERS_INTERNAL} DESTINATION include/core/internal)
-install(DIRECTORY thirdparty DESTINATION include/core)
+install(FILES ${HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core")
+install(FILES ${HEADERS_INTERNAL} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core/internal")
+install(DIRECTORY thirdparty DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/core")
 ######################################################################

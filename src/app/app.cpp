@@ -14,12 +14,15 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
+#include <QTimer>
 #include <QtGlobal>
 #include <QDebug>
 #include <QQuickStyle>
 
 #include "gt_mainwin.h"
+#include "gt_projectopenservice.h"
 #include "gt_application.h"
+#include "gt_versionnumber.h"
 #include "gt_logging.h"
 #include "gt_environmentdialog.h"
 #include "gt_environment.h"
@@ -71,8 +74,18 @@ registerWidgets()
 }
 
 
+namespace
+{
+
+struct RestartRequest
+{
+    bool requested{false};
+    QString executable;
+    QStringList arguments;
+};
+
 int
-main(int argc, char* argv[])
+runApplication(int argc, char* argv[], RestartRequest& restartRequest)
 {
     constexpr int delay = 100;
 
@@ -92,22 +105,119 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
+    a.setApplicationVersion(GtCoreApplication::version().toString());
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(
+        QObject::tr("GTlab project and application startup options"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("dev"), QObject::tr("Activate developer mode")));
+    parser.addOption(QCommandLineOption(QStringLiteral("trace"),
+                                        QObject::tr("Enable trace logging")));
+    parser.addOption(QCommandLineOption(QStringLiteral("debug"),
+                                        QObject::tr("Enable debug logging")));
+    parser.addOption(QCommandLineOption(
+        QStringLiteral("medium"), QObject::tr("Enable medium verbosity")));
+    parser.addOption(QCommandLineOption(QStringLiteral("verbose"),
+                                        QObject::tr("Enable verbose output")));
+    parser.addOption(QCommandLineOption(QStringLiteral("silent"),
+                                        QObject::tr("Disable logging output")));
+    parser.addPositionalArgument(QStringLiteral("project"),
+                                 QObject::tr("Project file to open."),
+                                 QStringLiteral("[project.gtlab]"));
+
+    parser.process(a);
+
+    const QStringList projectArguments = parser.positionalArguments();
+    if (projectArguments.size() > 1)
+    {
+        qCritical().noquote()
+            << QObject::tr("Only one project file can be specified.");
+        return 1;
+    }
+
+    gt::LoggingOptions loggingOptions;
+    if (parser.isSet(QStringLiteral("medium")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Medium;
+    }
+    else if (parser.isSet(QStringLiteral("verbose")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Verbose;
+    }
+    else if (parser.isSet(QStringLiteral("silent")))
+    {
+        loggingOptions.verbosity = gt::LoggingVerbosityOverride::Silent;
+    }
+
+    if (parser.isSet(QStringLiteral("trace")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Trace;
+    }
+    else if (parser.isSet(QStringLiteral("debug")))
+    {
+        loggingOptions.level = gt::LoggingLevelOverride::Debug;
+    }
+    loggingOptions.developmentMode = parser.isSet(QStringLiteral("dev"));
+
+    QString projectFilePath;
+    if (!projectArguments.isEmpty())
+    {
+        projectFilePath =
+            QDir::cleanPath(QDir(QDir::currentPath())
+                                .absoluteFilePath(projectArguments.first()));
+    }
+
+    GtProjectOpenService projectOpenService;
+    if (!projectFilePath.isEmpty() &&
+        projectOpenService.forwardProjectOpen(projectFilePath))
+    {
+        return 0;
+    }
+
+    projectOpenService.startServer();
+    if (!projectFilePath.isEmpty())
+    {
+        projectOpenService.enqueueProjectOpen(projectFilePath);
+    }
+
     GtSplashScreen splash(true, true);
     splash.show();
 
     GtApplication app(qApp);
 
-    splash.process(QObject::tr("initializing..."), [&app](){
-        app.init();
-    });
+    const auto prepareRestart = [&]() {
+        restartRequest.requested = app.restartRequested();
+        if (!restartRequest.requested)
+        {
+            return;
+        }
 
+        restartRequest.executable = QApplication::applicationFilePath();
+        restartRequest.arguments = QApplication::arguments();
+        if (!restartRequest.arguments.isEmpty())
+        {
+            restartRequest.arguments.removeFirst();
+        }
+    };
+
+    splash.process(QObject::tr("initializing..."),
+                   [&app, &loggingOptions]() { app.init(loggingOptions); });
+
+    if (app.restartRequested())
+    {
+        prepareRestart();
+        return 0;
+    }
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
     QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
     QStringList modInitEnvSetup;
 
-    splash.process([&modEnv, &modInitEnvSetup](){
-        for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
+    splash.process([&modEnv, &modInitEnvSetup]() {
+        for (auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
         {
             const auto& e = iter.key();
             if (!gtEnvironment->environmentVariableExists(e))
@@ -132,16 +242,14 @@ main(int argc, char* argv[])
     }
 
     // save to system environment (temporary)
-    splash.process([&app](){
-        app.saveSystemEnvironment();
-    });
+    splash.process([&app]() { app.saveSystemEnvironment(); });
 
 #ifdef GT_LICENCE
     if (!app.checkLicence())
     {
         QMessageBox::critical(nullptr, "Licence verification",
-                              "Could not verify license!",
-                              QMessageBox::Ok, QMessageBox::Ok);
+                              "Could not verify license!", QMessageBox::Ok,
+                              QMessageBox::Ok);
 
         return -1;
     }
@@ -149,37 +257,38 @@ main(int argc, char* argv[])
 #endif
 
     // application initialization
-//    gtGuiApp;
+    //    gtGuiApp;
 
-//    if (parser.isSet("lang"))
-//    {
-//        gtGuiApp->setLanguage(parser.value("lang"));
-//    }
-//    else
-//    {
-//        gtGuiApp->initLanguage();
-//    }
+    //    if (parser.isSet("lang"))
+    //    {
+    //        gtGuiApp->setLanguage(parser.value("lang"));
+    //    }
+    //    else
+    //    {
+    //        gtGuiApp->initLanguage();
+    //    }
     // language initialization
-    splash.process([&app](){
-        app.initLanguage();
-    });
+    splash.process([&app]() { app.initLanguage(); });
 
-    splash.process([&app](){
+    splash.process([&app]() {
         // short cuts initialization
         app.initShortCuts();
     });
 
 
     // datamodel initialization
-    splash.process(QObject::tr("loading datamodel..."), [&app](){
-        app.initDatamodel();
-        // mdi launcher initialization
-        app.initMdiLauncher();
-    }, delay);
+    splash.process(
+        QObject::tr("loading datamodel..."),
+        [&app]() {
+            app.initDatamodel();
+            // mdi launcher initialization
+            app.initMdiLauncher();
+        },
+        delay);
 
-    splash.process(QObject::tr("registering widgets..."), [](){
-        registerWidgets();
-    }, delay);
+    splash.process(
+        QObject::tr("registering widgets..."), []() { registerWidgets(); },
+        delay);
 
 
     // show refused plugins (application last run crash)
@@ -192,51 +301,83 @@ main(int argc, char* argv[])
 
     // load GTlab modules
 
-    splash.process(QObject::tr("loading modules..."), [&app](){
-        app.loadModules();
-    }, delay);
+    splash.process(
+        QObject::tr("loading modules..."), [&app]() { app.loadModules(); },
+        delay);
 
 
     // calculator initialization
-    splash.process(QObject::tr("loading calculators..."), [&app](){
-        app.initCalculators();
-    }, delay);
+    splash.process(
+        QObject::tr("loading calculators..."),
+        [&app]() { app.initCalculators(); }, delay);
 
 
     // session initialization
-    splash.process(QObject::tr("loading session..."), [&app](){
-        app.initSession();
-    }, delay);
+    splash.process(
+        QObject::tr("loading session..."), [&app]() { app.initSession(); },
+        delay);
 
 
     // perspective initialization
-    splash.process(QObject::tr("loading perspectives..."), [&app](){
-        app.initPerspective();
-    }, delay);
+    splash.process(
+        QObject::tr("loading perspectives..."),
+        [&app]() { app.initPerspective(); }, delay);
 
-//    gtApp->setLanguage("de");
+    //    gtApp->setLanguage("de");
 
-//    qDebug() << "system language: " << QLocale::system();
+    //    qDebug() << "system language: " << QLocale::system();
 
-//    gtApp->setToSystemLanguage();
+    //    gtApp->setToSystemLanguage();
 
 #ifdef GT_MODELTEST
     qDebug() << "Model test enabled!";
-    new QAbstractItemModelTester(gtDataModel,
-                                 QAbstractItemModelTester::FailureReportingMode::Fatal,
-                                 qApp);
+    new QAbstractItemModelTester(
+        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        qApp);
 #endif
 
     GtMainWin w;
 
+    projectOpenService.setProjectOpenHandler(
+        [&w](const QString& path) { w.openProjectFromPath(path); });
+    QObject::connect(&w, &GtMainWin::guiInitialized, &projectOpenService,
+                     [&projectOpenService]() {
+                         QTimer::singleShot(0, &projectOpenService,
+                                            [&projectOpenService]() {
+                                                projectOpenService.setReady();
+                                            });
+                     });
+
     splash.processEvents();
 
-    QObject::connect(&w, SIGNAL(guiInitialized()),
-                     &app, SLOT(onGuiInitializationFinished()));
+    QObject::connect(&w, SIGNAL(guiInitialized()), &app,
+                     SLOT(onGuiInitializationFinished()));
 
     w.show();
 
     splash.finish(&w);
 
-    return a.exec();
+    const int exitCode = a.exec();
+    prepareRestart();
+    return exitCode;
+}
+
+} // namespace
+
+int
+main(int argc, char* argv[])
+{
+    RestartRequest restartRequest;
+
+    const int exitCode = runApplication(argc, argv, restartRequest);
+
+    if (restartRequest.requested &&
+        !QProcess::startDetached(restartRequest.executable,
+                                 restartRequest.arguments))
+    {
+        qCritical() << "Could not restart GTlab.";
+        return 1;
+    }
+
+    return exitCode;
 }

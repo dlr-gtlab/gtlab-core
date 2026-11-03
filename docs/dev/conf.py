@@ -22,7 +22,7 @@ copyright = '2024, German Aerospace Center'
 author = 'Martin Siggel, DLR AT'
 
 # The full version, including alpha/beta/rc tags
-release = "2.0.13"
+release = "2.1.0-alpha.1.dev"
 
 # -- General configuration ---------------------------------------------------
 
@@ -30,10 +30,11 @@ release = "2.0.13"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "breathe" ,                # Parses doxygen xml
-    "myst_parser",             # Parses markdown files
-    "sphinx_toolbox.collapse", # Collapsing text blocks
-    'sphinx_copybutton'        # Copy buttom for code blocks
+    "breathe" ,                 # Parses doxygen xml
+    "myst_parser",              # Parses markdown files
+    "sphinx_toolbox.collapse",  # Collapsing text blocks
+    "sphinxcontrib.mermaid",    # Renders Mermaid diagrams
+    'sphinx_copybutton'         # Copy buttom for code blocks
 ]
 
 # Add any paths that contain templates here, relative to this directory.

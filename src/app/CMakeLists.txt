@@ -21,6 +21,7 @@ set(headers
     dock_widgets/process/gt_taskgroupmodel.h
     dock_widgets/properties/gt_propertycontainerwidget.h
     gt_mainwin.h
+    gt_projectopenservice.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
     preferences/pages/gt_preferenceslanguage.h
@@ -100,6 +101,7 @@ set(forms
 
 set(sources
     app.cpp
+    gt_projectopenservice.cpp
     dialogs/gt_moduledetailsdialog.cpp
     dialogs/gt_markdowneditor.cpp
     dialogs/gt_refusedpluginsdialog.cpp
@@ -184,9 +186,6 @@ if (WIN32)
     set(TYPE WIN32)
 endif(WIN32)
 
-# add search paths to shared libraries
-# unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
-
 add_executable(GTlab ${TYPE} ${sources} ${headers} ${forms})
 
 target_compile_definitions(GTlab
@@ -232,7 +231,10 @@ target_link_libraries(GTlab
     GTlabGui
 )
 
-install(TARGETS GTlab DESTINATION ${CMAKE_INSTALL_BINDIR})
+gtlab_set_install_rpath(GTlab
+    RELEASE_DIR "${GTLAB_INSTALL_RUNTIME_DIR_RELEASE}"
+    DEBUG_DIR "${GTLAB_INSTALL_RUNTIME_DIR_DEBUG}")
+install(TARGETS GTlab DESTINATION "${GTLAB_INSTALL_RUNTIME_DIR}")
 
 
 ######################################################################

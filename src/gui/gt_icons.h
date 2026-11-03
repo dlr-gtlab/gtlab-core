@@ -338,6 +338,7 @@ GT_GUI_EXPORT Icon magnet();
 
 GT_GUI_EXPORT Icon mass();
 
+GT_GUI_EXPORT Icon mathBar();
 GT_GUI_EXPORT Icon mathDivision();
 GT_GUI_EXPORT Icon mathExponent();
 GT_GUI_EXPORT Icon mathMinus();

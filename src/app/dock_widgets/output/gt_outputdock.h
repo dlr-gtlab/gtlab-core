@@ -96,6 +96,9 @@ private:
 
     QTimer m_delayFiltertimer;
 
+    /// Whether the next search update may change the selection.
+    bool m_selectFirstMatchAfterSearchUpdate{true};
+
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};
 

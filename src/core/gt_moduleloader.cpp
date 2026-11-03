@@ -16,12 +16,16 @@
 #include "gt_algorithms.h"
 #include "gt_versionnumber.h"
 #include "gt_coreapplication.h"
+#include "internal/gt_modulemetadata.h"
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_sharedfunctionhandler.h"
 #include "internal/gt_commandlinefunctionhandler.h"
 
 #include <QDir>
 #include <QPluginLoader>
+#include <QLibrary>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QDirIterator>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -32,11 +36,16 @@
 #include <QLockFile>
 #include <QThread>
 #include <QDomElement>
+#include <QSet>
+
+#include <optional>
 
 #include "gt_algorithms.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
 #include "gt_settings.h"
+
+using namespace gt::detail;
 
 namespace
 {
@@ -82,115 +91,89 @@ const auto logDebugOnce = [](QString const& msg) {
     }
 };
 
-class ModuleMetaData
-{
-public:
-
-    explicit ModuleMetaData(const QString& loc)
-       : m_libraryLocation(loc)
-    {}
-
-    /**
-     * Loads the meta data from the module json file
-     */
-    void readFromJson(const QJsonObject& json);
-
-    const QString& location() const noexcept
-    {
-        return m_libraryLocation;
-    }
-
-    const QString& moduleId() const noexcept
-    {
-        return m_id;
-    }
-
-    struct Dependency
-    {
-        // avoids faulty cpp-check warning
-        bool optional() const { return isOptional; }
-
-        QString name;
-        GtVersionNumber version;
-        bool isOptional {false};
-    };
-
-    /**
-     * @return A list of modules (modulename, version) of which
-     * this module depends.
-     */
-    const std::vector<Dependency>&
-    directDependencies() const noexcept
-    {
-        return m_deps;
-    }
-
-    /// Returns a list of modules that allow to suppress this module
-    const QStringList& suppressorModules() const noexcept
-    {
-        return m_suppression;
-    }
-
-    const QMap<QString, QString>& environmentVars() const noexcept
-    {
-        return m_envVars;
-    }
-
-private:
-    QVariantList
-    metaArray(const QJsonObject& metaData, const QString& id)
-    {
-        return metaData.value(id).toArray().toVariantList();
-    }
-
-    QString m_id;
-    QString m_libraryLocation;
-
-    std::vector<Dependency> m_deps;
-    QMap<QString, QString> m_envVars;
-    QStringList m_suppression;
-};
-
-
-// Function to check if a candidate string matches a dependency pattern.
-bool
-matchesDependency(const QString& dependency, const QString& candidate)
-{
-    const QString regexPrefix = "regex:";
-
-    // If the dependency starts with the explicit "regex" prefix, use regex matching.
-    if (dependency.startsWith(regexPrefix))
-    {
-        // Remove the prefix to get the actual regex pattern.
-        QString pattern = dependency.mid(regexPrefix.length());
-        QRegularExpression rx(pattern);
-
-        // Check if the candidate matches the regex pattern.
-        return rx.match(candidate).hasMatch();
-    }
-    else
-    {
-        // Otherwise, perform an exact, literal match.
-        return dependency == candidate;
-    }
-}
-
-using ModuleMetaMap = std::map<QString, ModuleMetaData>;
 ModuleMetaMap loadModuleMeta();
 
-QStringList
-getMatchedModuleIds(const QString& dependency,
-                    const ModuleMetaMap& allModules)
+struct ModuleFilenameComponents
 {
-    QStringList result;
+    QString abi;
+};
 
-    for (auto&& module : allModules)
+std::optional<ModuleFilenameComponents> parseModuleFilename(const QString& path)
+{
+    const QFileInfo fileInfo(path);
+    static const QRegularExpression moduleName(
+        QStringLiteral(R"(.+\.gtm\.(\d+\.\d+)\.[^.]+$)"),
+        QRegularExpression::CaseInsensitiveOption);
+    const auto match = moduleName.match(fileInfo.fileName());
+    if (!match.hasMatch() || !QLibrary::isLibrary(fileInfo.fileName()))
     {
-        auto moduleId = module.second.moduleId();
-        if (matchesDependency(dependency, moduleId)) result.push_back(moduleId);
+        return std::nullopt;
     }
 
-    return result;
+    return ModuleFilenameComponents{match.captured(1)};
+}
+
+QString currentModuleAbi()
+{
+    return QStringLiteral(GTLAB_MODULE_ABI);
+}
+
+bool hasCompatibleModuleAbi(const QString& path,
+                            const QJsonObject& pluginMetaData)
+{
+    const QString expectedAbi = currentModuleAbi();
+    const QString expectedCore = GtCoreApplication::version().toString();
+    const auto filename = parseModuleFilename(path);
+    if (!filename)
+    {
+        gtError().noquote()
+            << QObject::tr("Cannot load module '%1': filename does not match "
+                           "the GTlab module naming scheme (expected ABI %2 "
+                           "for GTlab Core %3).")
+                   .arg(path, expectedAbi, expectedCore);
+        return false;
+    }
+
+    const auto metadata =
+        pluginMetaData.value(QStringLiteral("MetaData")).toObject();
+    const auto metadataString = [&pluginMetaData,
+                                 &metadata](const QString& key) {
+        // Qt nests plugin-specific fields under MetaData. Retain the fallback
+        // for metadata objects that provide those fields at the root level.
+        auto value = metadata.value(key);
+        if (value.isUndefined())
+        {
+            value = pluginMetaData.value(key);
+        }
+
+        if (value.isArray())
+        {
+            const auto values = value.toArray();
+            return values.isEmpty() ? QString() : values.first().toString();
+        }
+        return value.toString();
+    };
+    const QString moduleAbi =
+        metadataString(QStringLiteral("gtlab_module_abi"));
+    const QString coreVersion =
+        metadataString(QStringLiteral("gtlab_core_version"));
+    if (moduleAbi.isEmpty() || coreVersion.isEmpty() ||
+        moduleAbi != expectedAbi || filename->abi != moduleAbi)
+    {
+        const QString detectedAbi =
+            moduleAbi.isEmpty() ? QObject::tr("missing") : moduleAbi;
+        const QString detectedCore =
+            coreVersion.isEmpty() ? QObject::tr("missing") : coreVersion;
+        gtError().noquote()
+            << QObject::tr("Rejecting module '%1': expected module ABI %2 "
+                           "(GTlab Core %3), filename ABI %4, metadata ABI %5 "
+                           "(built against GTlab Core %6).")
+                   .arg(path, expectedAbi, expectedCore, filename->abi,
+                        detectedAbi, detectedCore);
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace
@@ -248,10 +231,26 @@ public:
     /// Mapping of suppressed plugins to their suppressors
     QMap<QString, QSet<QString>> m_suppressedPlugins;
 
-    const std::map<QString, ModuleMetaData> m_metaData{loadModuleMeta()};
+    /// Effective meta data of all modules that can be found in the module
+    /// directories, including externally loaded or overridden modules.
+    /// This is the single source of information for module queries,
+    /// e.g. @ref GtModuleLoader::requirementsFor.
+    ModuleMetaMap m_metaData{loadModuleMeta()};
 
     /// Modules initialized indicator.
     bool m_modulesInitialized{false};
+
+    /**
+     * @brief Resolves the dependency closure of the given modules based on
+     * the effective module meta data.
+     *
+     * The module loading state is not changed by this query.
+     *
+     * @param moduleIdsToResolve Module identification strings to resolve
+     * @return Module closure including the unresolved dependencies
+     */
+    DependencyClosureResult dependencyClosure(
+        const QStringList& moduleIdsToResolve) const;
 
     /**
      * @brief performLoading
@@ -393,13 +392,6 @@ QList<QDir> getModuleDirectories()
     if  (applicationModules.exists())
         moduleDirectories.append(applicationModules);
 
-    for (auto&& dir : moduleDirectories)
-    {
-#ifdef Q_OS_WIN
-        dir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
-#endif
-    }
-
     return moduleDirectories;
 }
 
@@ -422,6 +414,11 @@ QStringList getModuleFilenames()
         // Convert to absolute paths and add (deduplicated)
         for (const auto& localFileName : files)
         {
+            if (!parseModuleFilename(localFileName))
+            {
+                continue;
+            }
+
             const QString absolute = dir.absoluteFilePath(localFileName);
             if (!seen.contains(absolute))
             {
@@ -578,9 +575,15 @@ ModuleMetaData loadModuleMeta(const QString& moduleFileName)
 
     // load plugin from entry
     QPluginLoader loader(moduleFileName);
-
+    const auto pluginMetaData = loader.metaData();
     ModuleMetaData meta(moduleFileName);
-    meta.readFromJson(loader.metaData());
+
+    if (!hasCompatibleModuleAbi(moduleFileName, pluginMetaData))
+    {
+        return meta;
+    }
+
+    meta.readFromJson(pluginMetaData);
 
     return meta;
 }
@@ -676,30 +679,20 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 
     const QStringList modulesToLoad{moduleMeta.moduleId()};
 
-    // the meta data from the module directory
+    // Publish candidate metadata only after loading succeeds.
     auto moduleMetaMap = m_pimpl->m_metaData;
-
-    // replace possibly existing module by the current module
-    const auto it = moduleMetaMap.find(moduleMeta.moduleId());
-    if (it != moduleMetaMap.end())
-    {
-        // module already exist in metadata, replace
-        it->second = moduleMeta;
-    }
-    else
-    {
-        moduleMetaMap.insert(std::make_pair(moduleMeta.moduleId(), moduleMeta));
-    }
+    moduleMetaMap.insert_or_assign(moduleMeta.moduleId(), moduleMeta);
 
     QStringList failedModules;
-    if (!m_pimpl->performLoading(*this, modulesToLoad,
-                                 moduleMetaMap, failedModules,
-                                 PreviousCrashPolicy::Ignore))
+    if (!m_pimpl->performLoading(*this, modulesToLoad, moduleMetaMap,
+                                 failedModules, PreviousCrashPolicy::Ignore))
     {
         gtError().verbose() << QObject::tr("Some modules failed to load!");
         Impl::printDependencies(failedModules, moduleMetaMap);
         return false;
     }
+
+    m_pimpl->m_metaData = std::move(moduleMetaMap);
 
     return true;
 }
@@ -957,59 +950,6 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     }
 }
 
-void
-createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
-                          const ModuleMetaMap& allModules,
-                          std::map<QString, QStringList>& matrix)
-{
-    for (const auto& moduleId : modulesToLoad)
-    {
-        // If the module is already in the matrix,
-        // it will not overwrite the current module
-        auto insertResult = matrix.insert(std::make_pair(moduleId, QStringList{}));
-
-        if (!insertResult.second)
-        {
-            // continue, module is already in matrix, stop recursion
-            continue;
-        }
-
-        auto moduleIt = allModules.find(moduleId);
-        if (moduleIt == allModules.end())
-        {
-            // dependency not found, skip it
-            continue;
-        }
-
-        // Add dependencies to matrix
-        auto& moduleDeps = insertResult.first->second;
-        for (const auto& dep : moduleIt->second.directDependencies())
-        {
-            auto matchedModulIds = getMatchedModuleIds(dep.name, allModules);
-            moduleDeps.append(matchedModulIds);
-        }
-
-        // recurse into dependencies
-        createAdjacencyMatrixImpl(moduleDeps, allModules, matrix);
-    }
-}
-
-/**
- * @brief Creates a map of all modules that need to be loaded,
- *        with key=moduleId and value=ModuleDependencies
- * @param modulesToLoad The list of modules to be included
- * @param allModules    The map of metadata of all modules (to query dependencies)
- * @return
- */
-std::map<QString, QStringList>
-createAdjacencyMatrix(const QStringList& modulesToLoad,
-                      const ModuleMetaMap& allModules)
-{
-    std::map<QString, QStringList> adjMatrix;
-    createAdjacencyMatrixImpl(modulesToLoad, allModules, adjMatrix);
-    return adjMatrix;
-}
-
 /**
  * @brief Solves, which modules need to be loaded and returns the correct
  *        order of loading
@@ -1058,12 +998,12 @@ getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
 
 bool
 GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
-                                 const QStringList& moduleIds,
-                                 const ModuleMetaMap& metaMap,
-                                 QStringList& failedModules,
-                                 PreviousCrashPolicy previousCrashPolicy)
+                                     const QStringList& modulesToLoad,
+                                     const ModuleMetaMap& metaMap,
+                                     QStringList& failedModules,
+                                     PreviousCrashPolicy previousCrashPolicy)
 {
-    auto sortedModuleIds = getSortedModulesToLoad(moduleIds, metaMap);
+    auto sortedModuleIds = getSortedModulesToLoad(modulesToLoad, metaMap);
 
     ModuleLoadingLock moduleLoadingLock;
     if (!moduleLoadingLock.locked())
@@ -1107,6 +1047,11 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         // load plugin from entry
         QPluginLoader loader(moduleMeta.location());
+        if (!hasCompatibleModuleAbi(moduleMeta.location(), loader.metaData()))
+        {
+            continue;
+        }
+
         std::unique_ptr<QObject> plugin(loader.instance());
 
         // check plugin object
@@ -1341,63 +1286,16 @@ GtModuleLoader::Impl::isSuppressed(const ModuleMetaData& meta) const
     return false;
 }
 
-/**
- * Loads the meta data from the module json file
- */
-void
-ModuleMetaData::readFromJson(const QJsonObject &pluginMetaData)
+DependencyClosureResult
+GtModuleLoader::Impl::dependencyClosure(
+    const QStringList& moduleIdsToResolve) const
 {
-    auto json = pluginMetaData.value(QStringLiteral("MetaData")).toObject();
+    return gt::detail::dependencyClosure(moduleIdsToResolve, m_metaData);
+}
 
-    // read plugin/module id
-    m_id = pluginMetaData.value("IID").toString();
-
-    // read dependencies
-    QVariantList deps = metaArray(json, QStringLiteral("dependencies"));
-
-    m_deps.clear();
-    for (const auto& d : qAsConst(deps))
-    {
-        QVariantMap mitem = d.toMap();
-
-        auto name = mitem.value(QStringLiteral("name")).toString();
-        GtVersionNumber version(mitem.value(QStringLiteral("version"))
-                                    .toString());
-
-        auto isOptionalVar = mitem.value(QStringLiteral("optional"));
-        bool isOptional = isOptionalVar.isValid() ?
-                              isOptionalVar.toBool() : false;
-
-        m_deps.push_back({name, version, isOptional});
-    }
-
-    // get sys_env_vars list
-    QVariantList sys_vars = metaArray(json,
-                                      QStringLiteral("sys_env_vars"));
-
-    m_envVars.clear();
-    for (const QVariant& var : qAsConst(sys_vars))
-    {
-        QVariantMap mitem = var.toMap();
-
-        const QString name =
-            mitem.value(QStringLiteral("name")).toString();
-        const QString initVar =
-            mitem.value(QStringLiteral("init")).toString();
-
-        if (!m_envVars.contains(name))
-        {
-            m_envVars.insert(name, initVar);
-        }
-    }
-
-    // get suppressor list
-    QVariantList supprs = metaArray(json,
-                                    QStringLiteral("allowSuppressionBy"));
-
-    m_suppression.clear();
-    for (const auto & s : qAsConst(supprs))
-    {
-        m_suppression.push_back(s.toString());
-    }
+gt::ModuleRequirements
+GtModuleLoader::requirementsFor(const QStringList& moduleIdsToResolve) const
+{
+    const auto closure = m_pimpl->dependencyClosure(moduleIdsToResolve);
+    return {closure.moduleIds, closure.unresolvedDependencies};
 }

@@ -69,11 +69,13 @@ An MDI item is associated with a compatible data-model object and opens in the
 central workspace. A dock widget provides a module-wide tool and should not be
 used as a substitute for an editor tied to one object.
 
+.. _map-objects-to-ui-classes:
+
 Map objects to UI classes
 -------------------------
 
 ``uiItems()`` maps the registered name of a data-model class to the metadata
-of its UI class:
+of its UI class (see :doc:`../user_interface/objectui` for more details):
 
 .. code-block:: cpp
 

@@ -10,3 +10,4 @@ implementation design.
    :maxdepth: 1
 
    0001-executable-operations
+   0002-module-binary-compatibility

@@ -12,6 +12,7 @@
 #define GTMODULELOADER_H
 
 #include "gt_core_exports.h"
+#include "gt_modules.h"
 
 #include <QMap>
 #include <QVariantList>
@@ -212,6 +213,29 @@ protected:
     virtual void insert(GtModuleInterface* plugin);
 
 private:
+    friend class gt::Modules;
+
+    /**
+     * @brief Returns the modules that are required by the given modules,
+     * including transitive dependencies.
+     *
+     * The requirements are resolved from the effective module meta data
+     * (the modules found in the module directories, including externally
+     * loaded or overridden modules), without changing the module loading
+     * state. Required dependencies whose meta data is not available are
+     * still included in the result, but they are reported as unresolved,
+     * because their own dependencies cannot be resolved. Unmatched "regex:"
+     * dependencies cannot be materialized to a module id; they are reported
+     * as unresolved too. Optional dependencies keep the semantics of the
+     * module loading: they only count if the corresponding module meta data
+     * is available.
+     *
+     * @param moduleIdsToResolve Module identification strings to resolve
+     * @return Required module ids including the unresolved dependencies
+     */
+    gt::ModuleRequirements requirementsFor(
+        const QStringList& moduleIdsToResolve) const;
+
     /// Private implementation
     class Impl;
     std::unique_ptr<Impl> m_pimpl;

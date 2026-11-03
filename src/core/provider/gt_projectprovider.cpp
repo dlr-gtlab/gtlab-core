@@ -12,7 +12,6 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_coredatamodel.h"
-#include "gt_objectlinkproperty.h"
 #include "gt_propertyconnection.h"
 #include "gt_footprint.h"
 #include "gt_algorithms.h"
@@ -88,7 +87,8 @@ GtProjectProvider::duplicateProject(const QString& newId,
 
     GtProject* retval = project();
 
-    // initialize task groups to replace process component UUIDs
+    // Task groups are stored outside the project memento. Load them before
+    // cloning so their tasks are included in the duplicate.
     if (auto pd = tmpProject->processData())
     {
         pd->initAllTaskGroups(tmpProject->path());
@@ -108,54 +108,20 @@ GtProjectProvider::duplicateProject(const QString& newId,
         retval->appendChild(copiedObj);
     }
 
-    QList<GtObject*> objs = retval->findChildren<GtObject*>();
-
-    // reset uuids and store mapped uuid informations
-    QMap<QString, QString> uuidMap;
-
-    foreach (GtObject* obj, objs)
+    // Re-establish property connections against the cloned object tree. UUIDs
+    // remain unchanged, so their endpoints do not need remapping.
+    foreach (GtObject* obj, retval->findChildren<GtObject*>())
     {
-        resetUuid(obj, uuidMap);
-    }
-
-    // modify copied object links
-    foreach (GtObject* obj, objs)
-    {
-        foreach (GtObjectLinkProperty* prop, objectLinkProperties(obj))
+        if (auto* connection = qobject_cast<GtPropertyConnection*>(obj))
         {
-            if (uuidMap.contains(prop->getVal()))
-            {
-                prop->setVal(uuidMap.value(prop->getVal()));
-            }
-        }
-    }
-
-    // modify copied property connections
-    foreach (GtObject* obj, objs)
-    {
-        GtPropertyConnection* propCon =
-                qobject_cast<GtPropertyConnection*>(obj);
-
-        if (propCon)
-        {
-            if (uuidMap.contains(propCon->sourceUuid()))
-            {
-                propCon->setSourceUuid(uuidMap.value(propCon->sourceUuid()));
-            }
-
-            if (uuidMap.contains(propCon->targetUuid()))
-            {
-                propCon->setTargetUuid(uuidMap.value(propCon->targetUuid()));
-            }
-
-            propCon->makeConnection();
+            connection->makeConnection();
         }
     }
 
     QDir oldDirectory(tmpPath);
     QDir newDirectory(newPath);
 
-    // moidify uuids and copy ini file
+    // Copy the project configuration without rewriting object UUIDs.
     QFile iniFile(oldDirectory.absoluteFilePath(QStringLiteral("project.ini")));
 
     if (iniFile.exists())
@@ -165,21 +131,8 @@ GtProjectProvider::duplicateProject(const QString& newId,
             QTextStream in(&iniFile);
             QString content = in.readAll();
 
-            gt::for_each_key (uuidMap, [&](const QString& e)
-            {
-                QString oldUuid = e;
-                oldUuid.remove(QStringLiteral("{"));
-                oldUuid.remove(QStringLiteral("}"));
-
-                QString newUuid = uuidMap.value(e);
-                newUuid.remove(QStringLiteral("{"));
-                newUuid.remove(QStringLiteral("}"));
-
-                content.replace(oldUuid, newUuid);
-            });
-
-            QFile newIniFile(newDirectory.absoluteFilePath(
-                                 QStringLiteral("project.ini")));
+            QFile newIniFile(
+                newDirectory.absoluteFilePath(QStringLiteral("project.ini")));
 
             if (newIniFile.open(QFile::WriteOnly | QFile::Text))
             {
@@ -189,7 +142,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
         }
     }
 
-        // copy template files
+    // copy template files
     QDir oldPostDir(oldDirectory.absoluteFilePath(QStringLiteral("post")));
     QDir newPostDir(newDirectory.absoluteFilePath(QStringLiteral("post")));
 
@@ -712,91 +665,6 @@ GtProjectProvider::generateModuleFile(const QString& id)
     file.close();
 
     return true;
-}
-
-QList<GtObjectLinkProperty*>
-GtProjectProvider::objectLinkProperties(GtObject* obj)
-{
-    // check object
-    if (!obj)
-    {
-        return QList<GtObjectLinkProperty*>();
-    }
-
-    QList<GtObjectLinkProperty*> retval;
-
-    foreach (GtAbstractProperty* prop, fullObjectPropertyList(obj))
-    {
-        GtObjectLinkProperty* linkProp =
-                qobject_cast<GtObjectLinkProperty*>(prop);
-
-        if (linkProp)
-        {
-            retval << linkProp;
-        }
-    }
-
-    return retval;
-}
-
-QList<GtAbstractProperty*>
-GtProjectProvider::fullObjectPropertyList(GtObject* obj)
-{
-    // check object
-    if (!obj)
-    {
-        return QList<GtAbstractProperty*>();
-    }
-
-    QList<GtAbstractProperty*> retval;
-
-    foreach (GtAbstractProperty* prop, obj->properties())
-    {
-        retval << fullPropertyList(prop);
-    }
-
-    return retval;
-}
-
-QList<GtAbstractProperty*>
-GtProjectProvider::fullPropertyList(GtAbstractProperty* p)
-{
-    // check property
-    if (!p)
-    {
-        return QList<GtAbstractProperty*>();
-    }
-
-    QList<GtAbstractProperty*> retval;
-
-    retval << p;
-
-    foreach (GtAbstractProperty* childProp, p->fullProperties())
-    {
-        retval.append(fullPropertyList(childProp));
-    }
-
-    return retval;
-}
-
-void
-GtProjectProvider::resetUuid(GtObject* obj, QMap<QString, QString>& mapping)
-{
-    // check object
-    if (!obj)
-    {
-        return;
-    }
-
-    QString oldUuid = obj->uuid();
-    obj->newUuid();
-
-    mapping.insert(oldUuid, obj->uuid());
-
-//    foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
-//    {
-//        resetUuid(child, mapping);
-//    }
 }
 
 QString

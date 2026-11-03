@@ -12,6 +12,7 @@
 #define TEST_MODULE_INTERFACE_H
 
 #include "gt_moduleinterface.h"
+#include "gt_operationinterface.h"
 #include "gt_processinterface.h"
 #include "gt_versionnumber.h"
 
@@ -19,12 +20,14 @@
  * @brief The TestDatamodelInterface class
  */
 class TestProcessInterface : public QObject,
-        public GtModuleInterface, public GtProcessInterface
- {
+                             public GtModuleInterface,
+                             public GtProcessInterface,
+                             public GtOperationInterface
+{
     Q_OBJECT
     GT_MODULE("test_process_interface.json")
 
-    Q_INTERFACES(GtProcessInterface)
+    Q_INTERFACES(GtProcessInterface GtOperationInterface)
 
 public:
 
@@ -45,6 +48,19 @@ public:
      * @return list including meta objects
      */
     QList<GtCalculatorData> calculators() override;
+
+    /**
+     * @brief Returns static meta objects of task classes.
+     * @return list including meta objects
+     */
+    QList<GtTaskData> tasks() override;
+
+    QList<QMetaObject> operations() const override;
+
+    /**
+     * @brief Registers the auxiliary data classes of the module.
+     */
+    void init() override;
 };
 
 #endif // TEST_MODULE_INTERFACE_H

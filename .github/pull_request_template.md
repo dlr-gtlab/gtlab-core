@@ -5,6 +5,14 @@
 <!--- Why is this change required? What problem does it solve? -->
 <!--- If it fixes an open issue, please link to the issue here. -->
 
+## What should reviewers look at closely?
+
+<!--
+Point out the parts of this change that deserve extra human attention:
+tricky logic, important assumptions or design decisions, and areas where the automated review found issues.
+Keep this short and specific. Do not summarize the whole change.
+-->
+
 ## How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->
 
@@ -15,6 +23,5 @@
 - [ ] A test for the new functionality was added (if applicable).
 - [ ] All tests run without failure.
 - [ ] The changelog has been extended, if this MR contains important changes from the users's point of view.
-- [ ] The new code complies with the GTlab's style guide.
 - [ ] New interface methods / functions are exported via `EXPORT`. Non-interface functions are NOT exported.
-- [ ] The number of code quality warnings is not increasing.
+- [ ] The module ABI impact has been considered. The first PR that introduces a binary-incompatible change bumps `GTLAB_MODULE_ABI` in that PR. Patch releases must not introduce ABI breaks.

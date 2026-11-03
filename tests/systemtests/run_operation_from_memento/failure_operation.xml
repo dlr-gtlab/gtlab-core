@@ -1,0 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
+<object class="TestOperation"
+        uuid="{ca6dff66-7ccd-4d92-8a8d-75a850d7fda4}"
+        name="Failing Test Operation">
+  <property type="bool" name="returnsFailure">true</property>
+</object>

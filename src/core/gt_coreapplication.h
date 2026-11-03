@@ -12,12 +12,14 @@
 #define GTCOREAPPLICATION_H
 
 #include "gt_core_exports.h"
+#include "gt_modules.h"
 
 #include <QObject>
 #include <QStringList>
 #include <QMap>
 
 #include <memory>
+#include <optional>
 
 #include "gt_globals.h"
 #include "gt_platform.h"
@@ -48,6 +50,30 @@ class GtCoreApplication;
 namespace gt
 {
 
+enum class LoggingVerbosityOverride
+{
+    Medium,
+    Verbose,
+    Silent
+};
+
+enum class LoggingLevelOverride
+{
+    Trace,
+    Debug
+};
+
+/**
+     * @brief CLI logging settings to apply during application initialization.
+     * Empty overrides preserve the values stored in application settings.
+     */
+struct LoggingOptions
+{
+    std::optional<LoggingVerbosityOverride> verbosity;
+    std::optional<LoggingLevelOverride> level;
+    bool developmentMode{false};
+};
+
     struct SettingsConfig
     {
         QString path; /// Directory path of the settings
@@ -75,6 +101,7 @@ namespace gt
 class GT_CORE_EXPORT GtCoreApplication : public QObject
 {
     Q_OBJECT
+
 
 public:
     /// Enumeration to handle the application mode of the application
@@ -120,6 +147,11 @@ public:
      * @brief Initialization
      */
     void init();
+
+    /**
+     * @brief Initialization with typed command-line logging settings.
+     */
+    void init(const gt::LoggingOptions& loggingOptions);
 
     /**
      * @brief session
@@ -306,6 +338,18 @@ public:
      * @return True, if loading was successful
      */
     bool loadSingleModule(const QString& moduleFilePath);
+
+    /**
+     * @brief Returns the module access of the application
+     *
+     * Provides coherent access to the module subsystem, e.g. module
+     * versions and module requirements queries. The returned handle
+     * refers to the module subsystem that is currently set up on the
+     * application; create it freshly before using it.
+     *
+     * @return Module access
+     */
+    gt::Modules modules() const;
 
     /**
      * @brief Returns identification strings of all loaded modules.
@@ -535,7 +579,7 @@ protected:
     /**
      * @brief inits the logging system
      */
-    void initLogging();
+    void initLogging(const gt::LoggingOptions& loggingOptions);
 
     /**
      * @brief loadLastSession

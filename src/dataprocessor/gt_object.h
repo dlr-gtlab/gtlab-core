@@ -241,18 +241,19 @@ public:
 
     /**
      * @brief Returns uuid of object.
-     * Uuid means universal unique identifier.
+     * UUID means universal unique identifier.
      * Each object has a uuid to identfy it even if the names of objects
-     * are identical.
-     * @return UUID
+     * are identical. The uuid may change. If it does `uuidChanged` is emitted
+     * @return Current UUID
      */
     QString uuid() const;
 
     /**
-     * @brief Sets new uuid for object.
-     * @param val - new uuid to use
+     * @brief Sets new uuid for object. Emits `uuidChanged` if the new uuid
+     * differs
+     * @param newValue - new uuid to use
      */
-    void setUuid(const QString& val);
+    void setUuid(const QString& newValue);
 
     /**
      * @brief Generates new object uuid uses this for the object
@@ -849,6 +850,13 @@ private slots:
     void onChildDataChanged();
 
 signals:
+
+    /**
+     * @brief Emitted once the uuid changes
+     * @param oldUuid Old uuid
+     */
+    void uuidChanged(QString oldUuid);
+
     /**
      * @brief dataChanged
      */

@@ -538,6 +538,9 @@ GtExplorerDock::onCurrentChanged(const QModelIndex& current,
 
     GtObject* obj = gtDataModel->objectFromIndex(index);
 
+    // Restoring an index after a model reset can select the same object again.
+    if (obj && obj == gtApp->selectedObject()) return;
+
     emit selectedObjectChanged(obj);
 }
 

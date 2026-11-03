@@ -10,7 +10,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased 2.1]
+## [Unreleased - 2.1]
+
+### Highlights
+### Fixed
+### Added
+ - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
+ - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
+ - Preferences now prompt the user to restart GTlab when a changed setting requires it.
+### Changed
+ - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
+ - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
+### Deprecated
+ - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
+
+## [2.1.0-alpha.1] - 2026-10-17
 
 ### Highlights
  - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
@@ -26,11 +40,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added color property `GtColorProperty` to store color information in data models - #1329
  - New implementations for boundaries based on optional values to support property definitions - #1381
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
+ - Open GTlab project files from the command line, forwarding requests to a running instance when available while preserving logging options. - #1374
  - Search functionality for the Memento-Viewer - #380
+ - Added the `GTlabConsole run_operation_from_memento` command for one-shot execution of serialized `GtExecutableOperation` objects. - #1530
+ - `GTlabConsole run` supports the repeatable option `--set "<path>=<value>"` to override task properties (including property container entries) before the task is executed - #457
+ - `GtProjectDependencyAnalyzer` analyses which classes are used by an open project and which
+   modules provide these classes. The new module access `gtApp->modules()` resolves which modules
+   are required by a set of modules, including transitive dependencies. The new
+   `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module
+   versions. - #1312
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
  - GTlab now requires C++17 for compilation and usage. - #1441
+ - GTlab modules now use ABI-tagged filenames and embedded Core/ABI metadata.
+   The loader rejects modules with missing or incompatible ABI metadata before
+   loading native code; existing modules must be rebuilt with the updated
+   `add_gtlab_module()` integration. - #1590
  - Core-managed process execution now resolves `currentProject()` through an
    execution-scoped project context. Existing calculators remain compatible;
    new execution code should pass an explicit project or `GtExecutionContext`.
@@ -43,10 +69,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The GtPropertyFactory class has been removed - #1332
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
  - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
+ - Standardized CMake install and module paths (libraries in `${CMAKE_INSTALL_LIBDIR}` instead of `lib/core`, modules in `build/modules`) and added relocatable RPATHs. Deployment scripts may need updating. - #1621
+ - GTlab and external modules now require CMake 3.18 or newer. - #1621
+ - Project footprints are no longer created from all modules loaded in the current GTlab environment.
+   A saved project now only stores the modules that its data actually requires, including their
+   transitive module dependencies. Required modules that are currently unavailable keep their
+   previously stored versions. - #1312
 
 ### Fixed
+ - Fixed object links and property connections becoming invalid after using Save Project As - #31
  - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
+ - Fixed local task completion reverting concurrent edits to project data - #48
+
+## [2.0.14] - 2026-10-14
+
+### Fixed
+ - Fixed crashes im property dock when working with property container - #1609
 
 ## [2.0.13] - 2026-09-07
 ### Fixed

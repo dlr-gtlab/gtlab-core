@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+# SPDX-License-Identifier: MPL-2.0+
+# Excerpts from PR #1635, CI run 39425512709, Ubuntu/Ninja job 118636943309.
+# GitHub log timestamps removed to reproduce the tee-captured compiler output.
+[61/646] Building CXX object src/dataprocessor/CMakeFiles/GTlabDataProcessor.dir/Debug/gt_qtutilities.cpp.o
+/home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/gt_qtutilities.cpp: In function ‘int gt::qvariantCompare(const QVariant&, const QVariant&)’:
+/home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/gt_qtutilities.cpp:21:13: warning: ‘bool QVariant::operator<(const QVariant&) const’ is deprecated [-Wdeprecated-declarations]
+   21 |     if (a < b) return -1;
+      |             ^
+In file included from /home/runner/work/gtlab-core/Qt/5.15.2/gcc_64/include/QtCore/QVariant:1,
+                 from /home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/gt_qtutilities.cpp:9:
+/home/runner/work/gtlab-core/Qt/5.15.2/gcc_64/include/QtCore/qvariant.h:467:31: note: declared here
+  467 |     QT_DEPRECATED inline bool operator<(const QVariant &v) const
+      |                               ^~~~~~~~
+/home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/gt_qtutilities.cpp:22:18: warning: ‘bool QVariant::operator>(const QVariant&) const’ is deprecated [-Wdeprecated-declarations]
+   22 |     else if (a > b) return 1;
+      |                  ^
+/home/runner/work/gtlab-core/Qt/5.15.2/gcc_64/include/QtCore/qvariant.h:471:31: note: declared here
+  471 |     QT_DEPRECATED inline bool operator>(const QVariant &v) const
+      |                               ^~~~~~~~
+/home/runner/work/gtlab-core/gtlab-core/tests/unittests/datamodel/test_gt_unitconverter.cpp: In member function ‘virtual void TestGtUnitConverter_convert_deprecated_custom_Test::TestBody()’:
+/home/runner/work/gtlab-core/gtlab-core/tests/unittests/datamodel/test_gt_unitconverter.cpp:4338:36: warning: ‘GtUnit::Custom’ is deprecated:  This deprecated function will be removed in GTlab version 2.2: Do not use Custom. It is not a valid unit category. [-Wdeprecated-declarations]
+ 4338 |     GtUnit::Category cat = GtUnit::Custom;
+      |                                    ^~~~~~
+In file included from /home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/property/gt_unitconverter.h:15,
+                 from /home/runner/work/gtlab-core/gtlab-core/tests/unittests/datamodel/test_gt_unitconverter.cpp:13:
+/home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/property/gt_unit.h:47:20: note: declared here
+   47 |                    Custom GT_DEPRECATED_ATTR(2, 2, "Do not use Custom. It is not a valid unit category."),
+      |                    ^~~~~~
+/home/runner/work/gtlab-core/gtlab-core/tests/unittests/datamodel/test_gt_unitconverter.cpp:4338:36: warning: ‘GtUnit::Custom’ is deprecated:  This deprecated function will be removed in GTlab version 2.2: Do not use Custom. It is not a valid unit category. [-Wdeprecated-declarations]
+ 4338 |     GtUnit::Category cat = GtUnit::Custom;
+      |                                    ^~~~~~
+/home/runner/work/gtlab-core/gtlab-core/src/dataprocessor/property/gt_unit.h:47:20: note: declared here
+   47 |                    Custom GT_DEPRECATED_ATTR(2, 2, "Do not use Custom. It is not a valid unit category."),
+      |                    ^~~~~~

@@ -16,6 +16,7 @@
 #include "gt_gui_exports.h"
 #include "gt_version.h"
 
+class QAction;
 class QMenu;
 class QKeyEvent;
 class QTreeView;
@@ -31,11 +32,18 @@ namespace gui
 /**
  * @brief The theme enum
  */
-enum class applicationTheme {
-    bright = 0,
-    dark = 1,
-    invalid = 32
+enum class ApplicationTheme
+{
+    Bright = 0,
+    Dark = 1,
+    Invalid = 32,
+
+    bright GT_DEPRECATED_ATTR(2, 2, "use `Bright` instead") = Bright,
+    dark GT_DEPRECATED_ATTR(2, 2, "use `Dark` instead") = Dark,
+    invalid GT_DEPRECATED_ATTR(2, 2, "use `Invalid` instead") = Invalid,
 };
+using applicationTheme GT_DEPRECATED_ATTR(
+    2, 2, "use `ApplicationTheme` instead") = ApplicationTheme;
 
 /**
  * @brief return the current theme of the application
@@ -43,7 +51,7 @@ enum class applicationTheme {
  * @return the value of the theme enum and bright as default for
  * invalid or undefined setups
  */
-GT_GUI_EXPORT gt::gui::applicationTheme theme();
+GT_GUI_EXPORT gt::gui::ApplicationTheme theme();
 
 /**
  * @brief function to check for dark theme
@@ -52,6 +60,11 @@ GT_GUI_EXPORT gt::gui::applicationTheme theme();
  */
 GT_GUI_EXPORT bool isApplicationDarkTheme();
 
+/**
+ * @brief Returns a list of items that are derived of type `T`.
+ * @param o Object that has method `items()` (uch as a QGraphicsScene).
+ * @return List of items derived of `T`.
+ */
 template <class T, class Obj>
 QList<T> findGraphicsItems(Obj& o)
 {
@@ -71,9 +84,10 @@ QList<T> findGraphicsItems(Obj& o)
 }
 
 /**
- * @brief Appends the actions to the menu.
- * @param actions Actions to append
- * @param menu Menu to append actions to.
+ * @brief Adds the actions to the menu. Uses the order priority of each
+ * action to insert the action at the corresponding poistion in the menu.
+ * @param actions Actions to add
+ * @param menu Menu to add actions to.
  * @param obj Object to pass to action methods
  * @pram parent Optional parent object used to invoke object ui actions on
  */
@@ -82,8 +96,13 @@ GT_GUI_EXPORT void addToMenu(const QList<GtObjectUIAction>& actions,
                              GtObject* obj,
                              QObject* parent = {});
 
+/// overload for std::initializer_list to avoid heap allocation
+GT_GUI_EXPORT void addToMenu(std::initializer_list<GtObjectUIAction> actions,
+                             QMenu& menu, GtObject* obj, QObject* parent = {});
+
 /**
- * @brief Appends the action to the menu.
+ * @brief Adds the action to the menu. Uses the order priority of the
+ * action to insert the action at the corresponding poistion in the menu.
  *
  * Usage:
  *
@@ -91,14 +110,14 @@ GT_GUI_EXPORT void addToMenu(const QList<GtObjectUIAction>& actions,
  *
  *  auto action = gt::gui::makeAction("My Action Text", myActionMethod)
  *      .setIcon(...)
- *      .setVisibility(...);
+ *      .setVisibilityMethod(...);
  *
  *  gt::gui::addToMenu(action, menu, nullptr);
  *
  *  menu.exec(QCursor::pos());
  *
- * @param actions Action to append
- * @param menu Menu to append action to.
+ * @param actions Action to add
+ * @param menu Menu to add action to.
  * @param obj Object to pass to action method
  * @pram parent Optional parent object used to invoke object ui actions on
  */
@@ -108,20 +127,30 @@ GT_GUI_EXPORT void addToMenu(const GtObjectUIAction& action,
                              QObject* parent = {});
 
 /**
- * @brief Creates a new import menu based on the registered importers and appends
- * it to the menu. Returns a pointer to new menu, which can be used to hide or
- * disable it. Ownership is already transfered to the base mneu.
- * @param menu Menu to append import menu to
+ * @brief Sets the order priority of the given action. An action with a lower
+ * priority 'x' prepends all actions with a higher prority > x.
+ * Does not automatically sort the action according to its priority if its
+ * already added to a menu.
+ * @param action Action
+ * @param priority New order priority of the action
+ */
+GT_GUI_EXPORT void setOrderPriority(QAction& action, int priority);
+
+/**
+ * @brief Creates a new import menu based on the registered importers and
+ * adds it to the menu. Returns a pointer to new menu, which can be used to
+ * hide or disable it. Ownership is already transfered to the base mneu.
+ * @param menu Menu to add import menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
  */
 GT_GUI_EXPORT QMenu* addImportMenu(QMenu& menu, GtObject& obj);
 
 /**
- * @brief Creates a new export menu based on the registered exporters and appends
- * it to the menu. Returns a pointer to new menu, which can be used to hide or
- * disable it. Ownership is already transfered to the base mneu.
- * @param menu Menu to append export menu to
+ * @brief Creates a new export menu based on the registered exporters and
+ * adds it to the menu. Returns a pointer to new menu, which can be used to
+ * hide or disable it. Ownership is already transfered to the base mneu.
+ * @param menu Menu to add export menu to
  * @param obj Object to create import menu for
  * @return Pointer to menu. May be null if no importers are registered
  */
@@ -149,10 +178,11 @@ GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
                                                 QAbstractItemView& view);
 
 /**
- * @brief Appends the ObjectUI Actions of obj to menu. Returns the number of
- * visible actions. Optionally one may pass an index and view parameter which
- * will be used for renaming the object (if its renamable). Can be used in
- * custom context menus for views that displays GtObjects.
+ * @brief Adds the ObjectUI Actions of `obj` to `menu`. Returns the number of
+ * visible actions. Optional `index` and `view` parameter are used for
+ * renaming the object (if its renamable) in a `QAbstractItemView`. Can be used
+ * in custom context menus for views that displays GtObjects. Automatically
+ * sorts the menu actions according to their order priorities.
  *
  * Usage:
  *
@@ -163,12 +193,13 @@ GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
  *      menu.exec(QCursor::pos());
  *  }
  *
- * @param menu Menu to append the actions to.
- * @param obj Object to fetch the object uis froms.
- * @param idx Index of the object in the view.
+ * @param menu Menu to adds the actions to.
+ * @param obj Optional. Object to fetch the object uis froms.
+ * @param idx Optional. Index of the object in the view.
  * This may be used to rename the object.
  * @param view View. May be used for renaming the object.
- * @return
+ * @return Number of visible actions. May be used to conditionally show menu
+ * only if visible actions are present.
  */
 GT_GUI_EXPORT int makeObjectContextMenu(QMenu& menu,
                                         GtObject& obj,

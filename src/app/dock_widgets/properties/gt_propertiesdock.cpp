@@ -125,6 +125,9 @@ GtPropertiesDock::resizeEvent(QResizeEvent* /*event*/)
 void
 GtPropertiesDock::objectSelected(GtObject* obj)
 {
+    // Repeated selection must preserve the active tab and its editors.
+    if (obj && m_obj == obj) return;
+
     // stop repainting until everything is ready
     // this removes flickering of the widget
     this->setUpdatesEnabled(false);
@@ -137,7 +140,10 @@ GtPropertiesDock::objectSelected(GtObject* obj)
     {
         QWidget* tmpWid = m_tab->widget(m_tab->count() - 1);
         m_tab->removeTab(m_tab->count() - 1);
-        delete tmpWid;
+        // Selection can change while a container's model or delegate is still
+        // handling an edit. Keep them alive until that call has returned.
+        tmpWid->hide();
+        tmpWid->deleteLater();
     }
 
     m_treeView->setObject(obj);

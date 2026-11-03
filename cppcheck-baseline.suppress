@@ -1923,21 +1923,6 @@
     <hash>12061014473839063385</hash>
   </suppress>
   <suppress>
-    <id>knownConditionTrueFalse</id>
-    <fileName>src/core/gt_project.cpp</fileName>
-    <hash>6194966153178430517</hash>
-  </suppress>
-  <suppress>
-    <id>knownConditionTrueFalse</id>
-    <fileName>src/core/gt_project.cpp</fileName>
-    <hash>14978279470716602919</hash>
-  </suppress>
-  <suppress>
-    <id>knownConditionTrueFalse</id>
-    <fileName>src/core/gt_project.cpp</fileName>
-    <hash>17082201486888829028</hash>
-  </suppress>
-  <suppress>
     <id>uselessOverride</id>
     <fileName>src/batch/gt_remoteprocessrunnerstates.h</fileName>
     <hash>11437393293437881069</hash>
