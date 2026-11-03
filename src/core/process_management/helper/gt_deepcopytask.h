@@ -84,7 +84,7 @@ GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
  * @return
  */
 GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
-    GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
+    GtObject* objCopy, const GtObjectUUIDMap* uuidMap);
 
 
 } // namespace process
