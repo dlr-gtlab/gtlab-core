@@ -212,13 +212,13 @@ cleanupPropertyConnections(GtTask* task)
 }
 
 bool
-transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy,
+transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy,
                                              const GtObjectUUIDMap* uuidMap)
 {
     bool retval = true;
 
 
-    for (auto prop : qAsConst(procCompCopy->properties()))
+    for (auto prop : qAsConst(objCopy->properties()))
     {
         auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
@@ -229,7 +229,7 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy,
             if (!uuidMap->containsOriginalUuid(originalUuid))
             {
                 gtError()
-                    << procCompCopy << " with uuid" << procCompCopy->uuid()
+                    << objCopy << " with uuid" << objCopy->uuid()
                     << ": Could not transfer " << propRelLink
                     << ", original linked UUID" << originalUuid
                     << "not found in original process component structure";
@@ -244,7 +244,7 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy,
     }
 
 
-    for (auto child : procCompCopy->findDirectChildren<GtProcessComponent*>())
+    for (auto child : objCopy->findDirectChildren<GtObject*>())
     {
 
         if (!transferRelativeObjectLinkPropertyViaMapping(child, uuidMap))
