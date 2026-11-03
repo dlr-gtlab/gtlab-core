@@ -12,21 +12,26 @@
 #include "gt_taskanalysis.h"
 
 
-
-namespace gt {
-namespace utils {
-namespace process {
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
 
 
 GtPropertyConnection*
-makePropertyConnection(GtProcessComponent* sourceComponent, const QString &sourceProperty, GtProcessComponent* targetComponent, const QString &targetProperty, bool *ok)
+makePropertyConnection(GtProcessComponent* sourceComponent,
+                       const QString& sourceProperty,
+                       GtProcessComponent* targetComponent,
+                       const QString& targetProperty, bool* ok)
 {
-    if(ok)
+    if (ok)
     {
         *ok = false;
     }
 
-    if(!sourceComponent || !targetComponent)
+    if (!sourceComponent || !targetComponent)
     {
         gtFatal() << "Source or target not set!"
                   << "\nSource:" << sourceComponent
@@ -35,29 +40,31 @@ makePropertyConnection(GtProcessComponent* sourceComponent, const QString &sourc
     }
 
 
-    if(!sourceComponent->findProperty(sourceProperty) || !targetComponent->findProperty(targetProperty))
+    if (!sourceComponent->findProperty(sourceProperty) ||
+        !targetComponent->findProperty(targetProperty))
     {
         QStringList msg;
-        if(!sourceComponent->findProperty(sourceProperty))
+        if (!sourceComponent->findProperty(sourceProperty))
         {
             msg << "Source property not found!";
         }
-        if(!targetComponent->findProperty(targetProperty))
+        if (!targetComponent->findProperty(targetProperty))
         {
             msg << "Target property not found!";
         }
 
-        gtFatal() << msg.join("\n")
-                  << QStringLiteral("\n")+"sourceComponent:" << sourceComponent
-                  << QStringLiteral("\n")+"sourceProperty:"  << sourceProperty
-                  << QStringLiteral("\n")+"targetComponent:" << targetComponent
-                  << QStringLiteral("\n")+"targetProperty:"  << targetProperty;
+        gtFatal() << msg.join("\n") << QStringLiteral("\n") + "sourceComponent:"
+                  << sourceComponent
+                  << QStringLiteral("\n") + "sourceProperty:" << sourceProperty
+                  << QStringLiteral("\n") + "targetComponent:"
+                  << targetComponent
+                  << QStringLiteral("\n") + "targetProperty:" << targetProperty;
         return nullptr;
     }
 
     auto rootTask = findRootTask(sourceComponent);
 
-    if(!rootTask)
+    if (!rootTask)
     {
         gtFatal() << "Highest parent not found";
         return nullptr;
@@ -78,15 +85,13 @@ makePropertyConnection(GtProcessComponent* sourceComponent, const QString &sourc
         return nullptr;
     }
 
-    if(ok)
+    if (ok)
     {
         *ok = true;
     }
 
     return c;
 }
-
-
 
 
 } // namespace process
