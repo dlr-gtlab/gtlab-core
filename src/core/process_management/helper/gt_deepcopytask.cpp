@@ -26,7 +26,7 @@ deepCopyTask(GtTask* taskOrig, bool strict)
 {
     GtObjectUUIDMap uuidMap;
 
-    if(!taskOrig)
+    if (!taskOrig)
     {
         gtFatal() << "Task to copy was NULL";
         return nullptr;
