@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "gt_objectuuidmap.h"
+#include "gt_objectgroup.h"
 
 
 #include "test_gt_processtestclasses.h"
@@ -796,4 +797,75 @@ TEST(TestGtRelativeObjectLinkTransfer,
     EXPECT_EQ(child->secondLink.getVal(), copiedTarget.uuid());
     EXPECT_EQ(sibling->firstLink.getVal(), copiedTarget.uuid());
     EXPECT_TRUE(sibling->secondLink.getVal().isEmpty());
+}
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty,
+       copyRemapsRelativeLinksToNonProcessObject)
+{
+    // GtObjectGroup is serializable but is not a GtProcessComponent.
+    auto* target = new GtObjectGroup;
+    target->setObjectName("nonProcessTarget");
+    roottask->appendChild(target);
+    ASSERT_EQ(qobject_cast<GtProcessComponent*>(target), nullptr);
+    roottask->propRelObjLink()->setVal(target->uuid());
+    calc1->relLink()->setVal(target->uuid());
+
+    std::unique_ptr<GtTask> copy(
+        gt::utils::process::deepCopyTask(roottask, true));
+    ASSERT_NE(copy, nullptr);
+    auto* copiedTask =
+        qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(copy.get());
+    auto* copiedTarget = copy->findChild<GtObjectGroup*>("nonProcessTarget");
+    auto* copiedCalculator = copy->findChild<TestGtCalculator*>("c1");
+    ASSERT_NE(copiedTask, nullptr);
+    ASSERT_NE(copiedTarget, nullptr);
+    ASSERT_NE(copiedCalculator, nullptr);
+    EXPECT_EQ(qobject_cast<GtProcessComponent*>(copiedTarget), nullptr);
+    EXPECT_NE(copiedTarget->uuid(), target->uuid());
+    EXPECT_EQ(copiedTask->propRelObjLink()->getVal(), copiedTarget->uuid());
+    EXPECT_EQ(copiedCalculator->relLink()->getVal(), copiedTarget->uuid());
+    EXPECT_EQ(copy->getObjectByUuid(copiedTask->propRelObjLink()->getVal()),
+              copiedTarget);
+
+    EXPECT_EQ(roottask->propRelObjLink()->getVal(), target->uuid());
+    EXPECT_EQ(calc1->relLink()->getVal(), target->uuid());
+}
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty,
+       copyRemapsRelativeLinksToNestedNonProcessObject)
+{
+    auto* container = new GtObjectGroup;
+    container->setObjectName("container");
+    roottask->appendChild(container);
+    auto* target = new GtObjectGroup;
+    target->setObjectName("nestedTarget");
+    container->appendChild(target);
+    roottask->propRelObjLink()->setVal(target->uuid());
+    calc1->relLink()->setVal(target->uuid());
+
+    std::unique_ptr<GtTask> copy(
+        gt::utils::process::deepCopyTask(roottask, true));
+    ASSERT_NE(copy, nullptr);
+    auto* copiedTask =
+        qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(copy.get());
+    auto* copiedContainer = copy->findDirectChild<GtObjectGroup*>("container");
+    ASSERT_NE(copiedTask, nullptr);
+    ASSERT_NE(copiedContainer, nullptr);
+    auto* copiedTarget =
+        copiedContainer->findDirectChild<GtObjectGroup*>("nestedTarget");
+    auto* copiedCalculator = copy->findChild<TestGtCalculator*>("c1");
+    ASSERT_NE(copiedTarget, nullptr);
+    ASSERT_NE(copiedCalculator, nullptr);
+    EXPECT_EQ(copy->findDirectChild<GtObjectGroup*>("nestedTarget"), nullptr);
+    EXPECT_EQ(copiedTarget->parent(), copiedContainer);
+    EXPECT_EQ(qobject_cast<GtProcessComponent*>(copiedTarget), nullptr);
+    EXPECT_NE(copiedTarget->uuid(), target->uuid());
+    EXPECT_EQ(copiedTask->propRelObjLink()->getVal(), copiedTarget->uuid());
+    EXPECT_EQ(copiedCalculator->relLink()->getVal(), copiedTarget->uuid());
+    EXPECT_EQ(copy->getObjectByUuid(copiedTask->propRelObjLink()->getVal()),
+              copiedTarget);
+
+    EXPECT_EQ(target->parent(), container);
+    EXPECT_EQ(roottask->propRelObjLink()->getVal(), target->uuid());
+    EXPECT_EQ(calc1->relLink()->getVal(), target->uuid());
 }
