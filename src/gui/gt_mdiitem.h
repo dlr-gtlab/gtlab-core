@@ -37,14 +37,38 @@ class GT_GUI_EXPORT GtMdiItem : public GtObject
 {
     Q_OBJECT
 
-    friend class GtMdiLauncher;
-
 public:
+    /**
+     * @brief ~GtMdiItem
+     */
+    ~GtMdiItem() override;
+
+    bool setCurrentObject(GtObject* object, QString customId = {});
+
+    bool regenerateId();
+
+    const QString& currentId() const noexcept;
+
+    enum Flag : int
+    {
+        NoFlag = 0,
+        AllowsMultipleInstances = 1 << 0,
+        AllowsReopening = 1 << 1,
+    };
+    using Flags = QFlags<Flag>;
+
+    void setFlag(Flag flag, bool enable = true) noexcept;
+    void setFlags(Flags flags) noexcept;
+    Flags flags() const noexcept;
+
     /**
      * @brief widget
      * @return
      */
     QWidget* widget();
+
+    GtObject* currentObject() noexcept;
+    const GtObject* currentObject() const noexcept;
 
     /**
      * @brief Virtual function to specify item specific icon.
@@ -58,27 +82,32 @@ public:
      */
     virtual void setData(GtObject* obj);
 
+    // TODO: make protected
     /** Event called after current project has changed.
         @param new current project */
     virtual void projectChangedEvent(GtProject* project);
 
+    // TODO: make protected
     /**
      * @brief Event called after object selection has changed.
      * @param current object
      */
     virtual void objectChangedEvent(GtObject* obj);
 
+    // TODO: make protected?
     /**
      * @brief showEvent
      */
     virtual void showEvent();
 
+    // TODO: make protected
     /**
      * @brief Event called after project was saved.
      * @param project Savend project.
      */
     virtual void projectSavedEvent(GtProject* project);
 
+    // TODO: make protected
     /**
      * @brief Initializes a new global state.
      * @param State identification string.
@@ -91,6 +120,7 @@ public:
                              const QVariant& initValue,
                              bool forceInitialization = false);
 
+    // TODO: make protected
     /**
      * @brief Initializes a new project specific state.
      * @param Project.
@@ -109,7 +139,11 @@ public:
       * @brief subWin
       * @return
       */
-    QWidget* subWin();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned. Use `widget()`.")
+    QWidget* subWin()
+    {
+        return widget();
+    }
 
     /**
      * @brief Virtual function to specify if mdi item allows multiple instances.
@@ -147,11 +181,6 @@ protected:
     GtMdiItem();
 
     /**
-     * @brief ~GtMdiItem
-     */
-    ~GtMdiItem() override;
-
-    /**
      * @brief initialized
      */
     virtual void initialized();
@@ -168,7 +197,8 @@ protected:
      * @brief setSubWin
      * @param subWin
      */
-    void setSubWin(QWidget *subWin);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned. Edit `widget()`.")
+    void setSubWin(QWidget* subWin);
 
     /**
      * @brief registerShortCut
@@ -186,16 +216,20 @@ protected:
      * @param data - short cut data to register
      * @return the key sequence used for this id
      */
-    [[deprecated("Use registerShortCut(QString const& id,"
-                 " QKeySequence const& k, bool readOnly = false) instead")]]
+    GT_DEPRECATED_REMOVED_IN(
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     QKeySequence registerShortCut(GtShortCutSettingsData const& data);
 
     /**
      * @brief registerShortCuts
      * @param list - list of short cuts to register
      */
-    [[deprecated("Use registerShortCut(QString const& id,"
-                 " QKeySequence const& k, bool readOnly = false) instead")]]
+    GT_DEPRECATED_REMOVED_IN(
+        2, 2,
+        "Use registerShortCut(QString const& id, "
+        "QKeySequence const& k, bool readOnly = false) instead")
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**
@@ -222,22 +256,12 @@ protected:
     QKeySequence getShortCut(const QString& id);
 
 private:
-    ///
-    QPointer<QFrame> m_frame;
-
-    /// Mdi item data
-    QPointer<GtObject> m_d;
-
-
-    /// Mdi item custom identification string
-    QString m_cid;
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
-
-
 private slots:
+
     /** Called after current project has changed.
         @param project new current project */
     void onProjectChanged(GtProject* project);
@@ -270,6 +294,7 @@ signals:
      * @brief try to reopening mdi item (Result View)
      * @param pointer to existing data object
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
     void tryReopening(GtObject* existDataObj);
 
 };

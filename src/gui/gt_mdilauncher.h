@@ -12,6 +12,7 @@
 #define GTMDILAUNCHER_H
 
 #include "gt_gui_exports.h"
+#include "gt_globals.h"
 
 #include "gt_abstractobjectfactory.h"
 
@@ -27,15 +28,15 @@ class GtMdiItem;
 class GtCollectionInterface;
 class GtAbstractCollectionSettings;
 class GtQmlAction;
+class GtGuiLayoutAdapter;
 
 /**
  * @brief The GtMdiLauncher class
  */
 class GT_GUI_EXPORT GtMdiLauncher : public QObject,
-        public GtAbstractObjectFactory
+                                    protected GtAbstractObjectFactory
 {
     friend class GtGuiModuleLoader;
-    friend class GtMainWin;
 
     Q_OBJECT
 
@@ -44,22 +45,21 @@ public:
      * @brief instance
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::instance`")
     static GtMdiLauncher* instance();
+
+    /**
+     * @brief Sets the adapter responsible for laying out the gui items
+     * @param adapter Adapter
+     */
+    void setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter);
 
     /**
      * @brief setMdiArea
      * @param area
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setAdapter` instead")
     void setMdiArea(QTabWidget* area);
-
-    /**
-     * @brief Checks if all mdiItems are invokable and registers their
-     * initial name
-     *
-     * @param mdiItems
-     * @return true on success
-     */
-    bool registerMdiWidgets(const QList<QMetaObject>& mdiItems);
 
     /**
      * @brief Returns the "open with" menu entry name for the launcher
@@ -67,12 +67,14 @@ public:
      *
      * @return The name. Returns the class name, if the menu name is not known
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::displayName`")
     QString mdiOpenWithName(const QString& classname) const;
 
     /**
      * @brief dockWidgetIds
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::knownDockWidgets`")
     QStringList dockWidgetIds();
 
     /**
@@ -80,12 +82,14 @@ public:
      * @param dock widget identification string
      * @return dock widget meta object
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::dockWidget`")
     QMetaObject dockWidget(const QString& id);
 
     /**
      * @brief collectionIds
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionIds`")
     QStringList collectionIds();
 
     /**
@@ -93,6 +97,7 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collectionIcon`")
     QIcon collectionIcon(const QString& id);
 
     /**
@@ -100,6 +105,8 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtCollectionRegistry::collectionStructure`")
     QMap<QString, QMetaType::Type> collectionStructure(const QString& id);
 
     /**
@@ -107,24 +114,36 @@ public:
      * @param id
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtCollectionRegistry::collection`")
     GtCollectionInterface* collection(const QString& id);
 
     /**
      * @brief Calls print routine of current mdi window.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::printCurrentWindow`")
     void printCurrentWindow();
 
     /**
      * @brief print
      * @param subWindow
      */
-    void print(QWidget *subWindow);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::print`")
+    void print(QWidget* widget);
 
     /**
-     * @brief Returns true in mdi item for given subwindow is printable.
-     * @param subWindow
+     * @brief Returns true if current gui item is printable.
+     * @return Is printable
      */
-    bool isPrintable(QWidget* subWindow) const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::isCurrentWindowPrintable`")
+    bool isCurrentWindowPrintable() const;
+
+    /**
+     * @brief Returns true if mdi item for given subwindow is printable.
+     * @param subWindow
+     * @return Is printable
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::isPrintable`")
+    bool isPrintable(QWidget* widget) const;
 
     /**
      * @brief Returns the toolbar actions of the currently opened MDI window,
@@ -134,14 +153,79 @@ public:
      *
      * @return The list of actions
      */
-    std::vector<GtQmlAction*> toolbarActions(QWidget* subWindow) const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::toolbarActions`")
+    std::vector<GtQmlAction*> toolbarActions(QWidget* widget) const;
 
     /**
      * @brief registerDockWidget
      * @param metaObj - meta object of dockwidget to add
      * @return true in case of success, else false
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerDockWidget`")
     bool registerDockWidget(QMetaObject metaObj);
+
+    /**
+     * @brief Closes all active MDI items.
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::closeAll`")
+    void closeAll();
+
+    /** DEPRECATED API **/
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::makeGuiItem`")
+    GtObject* newObject(const QString& className,
+                        GtObject* parent = nullptr) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtGuiFactory::guiItem()"
+                             "->superClass()->className()`")
+    QString superClassName(const QString& className) const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::classHierarchy` "
+                             "(gt_qtuitilities.h)")
+    QStringList classHierarchy(const QString& className) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::isKnownGuiItem`")
+    bool knownClass(const QString& className) const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::knownGuiItems`")
+    QStringList knownClasses() const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
+    bool registerClass(QMetaObject metaObj) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
+    bool registerClass(QMetaObject metaObj, const QString& moduleId) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::unregisterGuiItem`")
+    bool unregisterClass(const QMetaObject& metaObj);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
+    bool registerClasses(const QList<QMetaObject>& metaData) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
+    bool registerClasses(const QList<QMetaObject>& metaData,
+                         const QString& moduleId) override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::moduleId`")
+    QString moduleId(const QString& className) const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::isKnownGuiItem`")
+    bool containsDuplicates(const QList<QMetaObject>& metaData) const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::isDefaultConstructible` "
+                             "(gt_qtuitilities.h)")
+    bool invokable(const QMetaObject& metaObj) const override;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `gt::areDefaultConstructible` "
+                             "(gt_qtuitilities.h)")
+    bool allInvokable(const QList<QMetaObject>& metaData);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::guiItem`")
+    const QMetaObject* metaObject(const QString& clzName) const;
 
 protected:
     /**
@@ -149,6 +233,7 @@ protected:
      * @param metaData
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::isKnownDockWidget`")
     bool dockWidgetsExist(const QList<QMetaObject>& metaData);
 
     /**
@@ -156,6 +241,7 @@ protected:
      * @param metaData
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerDockWidget`")
     bool registerDockWidgets(const QList<QMetaObject>& metaData);
 
     /**
@@ -164,6 +250,8 @@ protected:
      * @param meta
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtCollectionRegistry::registerCollection`")
     bool registerCollection(const QString& str, GtCollectionInterface* coll);
 
 public slots:
@@ -174,6 +262,7 @@ public slots:
      * @param customId
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::open`")
     GtMdiItem* open(const QString& id,
                     GtObject* data = nullptr,
                     const QString& customId = QString());
@@ -184,16 +273,8 @@ public slots:
      * @param customId
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::open`")
     GtMdiItem* open(const QString& id, const QString& customId);
-
-    /**
-     * @brief changeTabTitle
-     * This slot changes the title of the current selected mdi item
-     * or if it is called by a connection it renames the mdi item
-     * which was the sender of the signal
-     * @param newTitle -  new title
-     */
-    void changeTabTitle(QString const& newTitle);
 
 private:
     /**
@@ -206,46 +287,19 @@ private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
-    /**
-     * @brief generateMdiItemId
-     * @param data
-     * @return
-     */
-    QString generateMdiItemId(GtMdiItem* mdiItem);
-
-    /**
-     * @brief mdiItemAllowed
-     * @param mdiItem
-     * @param data
-     * @return
-     */
-    bool mdiItemAllowed(GtMdiItem* mdiItem);
-
-    /**
-     * @brief openItemIds
-     * @return
-     */
-    QStringList openItemIds();
+//    /**
+//     * @brief isItemAllowed
+//     * @param mdiItem
+//     * @param data
+//     * @return
+//     */
+//    bool isItemAllowed(GtMdiItem* mdiItem);
 
     /**
      * @brief setFocus
      * @param mdiId
      */
     void setFocus(const QString& mdiId);
-
-    /**
-     * @brief Closes all active MDI items.
-     */
-    void close();
-
-private slots:
-    /**
-     * @brief onSubWindowClose
-     * @param obj
-     */
-    void onSubWindowClose(QObject* obj);
-
-    void onCloseTabRequest(int i);
 };
 
 #endif // GTMDILAUNCHER_H
