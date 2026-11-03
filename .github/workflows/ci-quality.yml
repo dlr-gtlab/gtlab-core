@@ -26,12 +26,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install --yes libpcre3-dev ninja-build
+        sudo apt-get install --yes ninja-build
 
     - name: Install Cppcheck 2.22
       run: |
         git clone --depth 1 --branch 2.22.0 https://github.com/cppcheck-opensource/cppcheck.git "$RUNNER_TEMP/cppcheck"
-        cmake -S "$RUNNER_TEMP/cppcheck" -B "$RUNNER_TEMP/cppcheck-build" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DHAVE_RULES=ON
+        cmake -S "$RUNNER_TEMP/cppcheck" -B "$RUNNER_TEMP/cppcheck-build" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
         cmake --build "$RUNNER_TEMP/cppcheck-build" --parallel 2
         sudo cmake --install "$RUNNER_TEMP/cppcheck-build"
         cppcheck --version
