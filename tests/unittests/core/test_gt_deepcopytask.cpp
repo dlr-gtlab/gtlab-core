@@ -740,3 +740,60 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty,
         EXPECT_EQ(calc1->parent(), roottask);
     }
 }
+
+namespace
+{
+class TestObjectWithRelativeLinks : public GtObject
+{
+public:
+    TestObjectWithRelativeLinks()
+    {
+        registerProperty(firstLink);
+        registerProperty(secondLink);
+    }
+
+    GtRelativeObjectLinkProperty firstLink{"first", "First", "", ""};
+    GtRelativeObjectLinkProperty secondLink{"second", "Second", "", ""};
+};
+} // namespace
+
+TEST(TestGtRelativeObjectLinkTransfer,
+     missingUuidDoesNotSkipRemainingPropertiesOrDescendants)
+{
+    GtObject missingTarget;
+    GtObject originalTarget;
+    GtObject copiedTarget;
+    GtObjectUUIDMap mapping;
+    mapping.insert(originalTarget.uuid(), copiedTarget.uuid());
+
+    TestObjectWithRelativeLinks root;
+    root.firstLink.setVal(missingTarget.uuid());
+    root.secondLink.setVal(originalTarget.uuid());
+
+    // Traversal must also cross objects that are not process components.
+    auto* intermediate = new GtObject;
+    root.appendChild(intermediate);
+    auto* child = new TestObjectWithRelativeLinks;
+    intermediate->appendChild(child);
+    child->firstLink.setVal(missingTarget.uuid());
+    child->secondLink.setVal(originalTarget.uuid());
+
+    auto* sibling = new TestObjectWithRelativeLinks;
+    root.appendChild(sibling);
+    sibling->firstLink.setVal(originalTarget.uuid());
+    // Leave secondLink empty: an unset link must not be remapped.
+
+    EXPECT_FALSE(
+        gt::utils::process::transferRelativeObjectLinkPropertyViaMapping(
+            &root, &mapping));
+
+    // Missing mappings report failure without altering the unresolved links.
+    EXPECT_EQ(root.firstLink.getVal(), missingTarget.uuid());
+    EXPECT_EQ(child->firstLink.getVal(), missingTarget.uuid());
+
+    // Valid links must still be remapped after failures at both levels.
+    EXPECT_EQ(root.secondLink.getVal(), copiedTarget.uuid());
+    EXPECT_EQ(child->secondLink.getVal(), copiedTarget.uuid());
+    EXPECT_EQ(sibling->firstLink.getVal(), copiedTarget.uuid());
+    EXPECT_TRUE(sibling->secondLink.getVal().isEmpty());
+}
