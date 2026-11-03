@@ -13,9 +13,12 @@
 #include "gt_taskanalysis.h"
 
 
-namespace gt {
-namespace utils {
-namespace process {
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
 
 
 GtTask*
@@ -27,20 +30,22 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     //TODO: copy will fire a gtError: "Property connection could not be established!   Source object not found! "
     //During restoring from memento, GtTask::onObjectDataMerged() will trigger makeConnection() of each property connection
     //This error needs to be suppressed
-    gtError() << "TODO: The possible following error(s) 'Property connection could not be established!   Source object not found!' are misleading and need suppression.";
+    gtError() << "TODO: The possible following error(s) 'Property connection "
+                 "could not be established!   Source object not found!' are "
+                 "misleading and need suppression.";
     auto copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
     gtError() << "<<< END TODO misleading error(s)";
 
-    if(!copiedTask)
+    if (!copiedTask)
     {
         return nullptr;
     }
 
     auto rootTask = findRootTask(taskOrig);
-    if(!rootTask)
+    if (!rootTask)
     {
         gtError() << "Could not find root task";
-        if(strict)
+        if (strict)
         {
             delete copiedTask;
             return nullptr;
@@ -51,13 +56,14 @@ deepCopyTask(GtTask* taskOrig, bool strict)
         }
     }
 
-    bool ok1=false;
+    bool ok1 = false;
     auto allCons = analyzePropertyConnectionsRelationship(taskOrig, &ok1);
-    if(!ok1)
+    if (!ok1)
     {
-        gtError() << "Analyzing the task property connections of original task failed.";
+        gtError() << "Analyzing the task property connections of original task "
+                     "failed.";
 
-        if(strict)
+        if (strict)
         {
             delete copiedTask;
             return nullptr;
@@ -71,20 +77,20 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     printWarningForLostPropertyConnections(taskOrig, &allCons, true);
 
     // not root task, take with the internal property connections
-    if(rootTask != taskOrig)
+    if (rootTask != taskOrig)
     {
-        for(auto* c: allCons.internal)
+        for (auto* c : allCons.internal)
         {
             auto newCon = c->copy();
             copiedTask->appendChild(newCon);
         }
     }
 
-    if(!transferPropertyConnectionsViaMapping(copiedTask, &uuidMap))
+    if (!transferPropertyConnectionsViaMapping(copiedTask, &uuidMap))
     {
         gtError() << "Could not transfer the property connections";
 
-        if(strict)
+        if (strict)
         {
             delete copiedTask;
             return nullptr;
@@ -96,12 +102,11 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     }
 
 
-
-    if(!transferRelativeObjectLinkPropertyViaMapping(copiedTask, &uuidMap))
+    if (!transferRelativeObjectLinkPropertyViaMapping(copiedTask, &uuidMap))
     {
         gtError() << "Could not transfer the relative object link properties";
 
-        if(strict)
+        if (strict)
         {
             delete copiedTask;
             return nullptr;
@@ -116,18 +121,20 @@ deepCopyTask(GtTask* taskOrig, bool strict)
 }
 
 bool
-transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* uuidMap)
+transferPropertyConnectionsViaMapping(GtTask* taskCopy,
+                                      const GtObjectUUIDMap* uuidMap)
 {
-    QList<GtPropertyConnection*> allCons = taskCopy->findChildren<GtPropertyConnection*>();
+    QList<GtPropertyConnection*> allCons =
+        taskCopy->findChildren<GtPropertyConnection*>();
 
     bool transferAllOk = true;
 
-    for(auto con: qAsConst(allCons))
+    for (auto con : qAsConst(allCons))
     {
-        gtError() << "Connection: " + con->objectName()
-                      + "\n      |-> " + con->sourceUuid() + "("+con->sourceProp()+")"
-                      + " -> "
-                      + con->targetUuid() + "("+con->targetProp()+")";
+        gtError() << "Connection: " + con->objectName() + "\n      |-> " +
+                         con->sourceUuid() + "(" + con->sourceProp() + ")" +
+                         " -> " + con->targetUuid() + "(" + con->targetProp() +
+                         ")";
 
         auto origSrcUuid = con->sourceUuid();
         auto origTargetUuid = con->targetUuid();
@@ -137,7 +144,7 @@ transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* u
         if (uuidMap->containsOriginalUuid(origSrcUuid))
         {
             QString newUuid = uuidMap->copiedUuid(origSrcUuid);
-            con->setSourceUuid( newUuid );
+            con->setSourceUuid(newUuid);
         }
         else
         {
@@ -149,7 +156,7 @@ transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* u
         if (uuidMap->containsOriginalUuid(origTargetUuid))
         {
             QString newUuid = uuidMap->copiedUuid(origTargetUuid);
-            con->setTargetUuid( newUuid );
+            con->setTargetUuid(newUuid);
         }
         else
         {
@@ -158,7 +165,7 @@ transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* u
             ok2 = false;
         }
 
-        if(ok2)
+        if (ok2)
         {
             con->makeConnection();
         }
@@ -166,26 +173,26 @@ transferPropertyConnectionsViaMapping(GtTask* taskCopy, const GtObjectUUIDMap* u
         {
             transferAllOk = false;
         }
-
     }
 
     return transferAllOk;
 }
 
 bool
-cleanupPropertyConnections(GtTask *task)
+cleanupPropertyConnections(GtTask* task)
 {
-    if(task!=findRootTask(task))
+    if (task != findRootTask(task))
     {
         gtWarning() << "Performing cleanup is only allowed on root tasks";
         return false;
     }
 
-    bool ok=false;
+    bool ok = false;
     auto allCons = analyzePropertyConnectionsRelationship(task, &ok);
-    if(!ok)
+    if (!ok)
     {
-        gtError() << "Analyzing the task property connections of original task failed.";
+        gtError() << "Analyzing the task property connections of original task "
+                     "failed.";
         return false;
     }
 
@@ -200,22 +207,27 @@ cleanupPropertyConnections(GtTask *task)
 }
 
 bool
-transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, const GtObjectUUIDMap *uuidMap)
+transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy,
+                                             const GtObjectUUIDMap* uuidMap)
 {
     bool retval = true;
 
 
-    for(auto prop: qAsConst(procCompCopy->properties()))
+    for (auto prop : qAsConst(procCompCopy->properties()))
     {
         auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
-        if(propRelLink && propRelLink->getVal() != "")
+        if (propRelLink && propRelLink->getVal() != "")
         {
             auto originalUuid = propRelLink->getVal();
 
-            if(!uuidMap->containsOriginalUuid(originalUuid))
+            if (!uuidMap->containsOriginalUuid(originalUuid))
             {
-                gtError() << procCompCopy << " with uuid"<< procCompCopy->uuid() <<": Could not transfer " << propRelLink << ", original linked UUID" << originalUuid << "not found in original process component structure";
+                gtError()
+                    << procCompCopy << " with uuid" << procCompCopy->uuid()
+                    << ": Could not transfer " << propRelLink
+                    << ", original linked UUID" << originalUuid
+                    << "not found in original process component structure";
                 return false;
             }
 
@@ -226,14 +238,13 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
     }
 
 
-    for(auto child: procCompCopy->findDirectChildren<GtProcessComponent*>())
+    for (auto child : procCompCopy->findDirectChildren<GtProcessComponent*>())
     {
 
-        if(!transferRelativeObjectLinkPropertyViaMapping(child, uuidMap))
+        if (!transferRelativeObjectLinkPropertyViaMapping(child, uuidMap))
         {
             retval = false;
         }
-
     }
 
 
@@ -241,12 +252,13 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy, c
 }
 
 bool
-pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel, QModelIndex* pastedModelIndex)
+pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child,
+                      bool useGtDataModel, QModelIndex* pastedModelIndex)
 {
     if (useGtDataModel)
     {
         QModelIndex newIndex = gtDataModel->appendChild(child, targetParent);
-        if(pastedModelIndex)
+        if (pastedModelIndex)
         {
             *pastedModelIndex = newIndex;
         }
@@ -258,17 +270,18 @@ pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool us
 
     auto parentTask = qobject_cast<GtTask*>(targetParent);
 
-    if(parentTask)
+    if (parentTask)
     {
         auto propCons = child->findChildren<GtPropertyConnection*>();
         auto roottask = findRootTask(parentTask);
-        if(!roottask)
+        if (!roottask)
         {
-            gtError() << "Could not find root task to transfer property connections";
+            gtError()
+                << "Could not find root task to transfer property connections";
             return false;
         }
 
-        for(auto c: qAsConst(propCons))
+        for (auto c : qAsConst(propCons))
         {
             if (useGtDataModel)
             {
@@ -283,7 +296,6 @@ pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child, bool us
 
     return true;
 }
-
 
 
 } // namespace process

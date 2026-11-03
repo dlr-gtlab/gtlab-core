@@ -140,7 +140,8 @@ class TestTaskWithRelativeObjectLinkProperty : public GtTask
 public:
     Q_INVOKABLE TestTaskWithRelativeObjectLinkProperty()
     {
-        m_relObjLink = new GtRelativeObjectLinkProperty("relObjLink", "RelativeObjectLink", "", "");
+        m_relObjLink = new GtRelativeObjectLinkProperty(
+            "relObjLink", "RelativeObjectLink", "", "");
 
         registerProperty(*m_relObjLink);
     }

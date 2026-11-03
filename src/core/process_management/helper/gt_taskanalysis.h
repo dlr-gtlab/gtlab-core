@@ -17,9 +17,12 @@ class GtTask;
 class GtProcessComponent;
 
 
-namespace gt {
-namespace utils {
-namespace process {
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
 
 /**
  * @brief Helper datatype for returning the relation of property connections to a process component
@@ -51,7 +54,9 @@ GT_CORE_EXPORT GtTask* findRootTask(GtProcessComponent* processComponent);
  * @param task
  * @return
  */
-GT_CORE_EXPORT const PropertyConnectionsRelationshipReturn analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok = nullptr);
+GT_CORE_EXPORT const PropertyConnectionsRelationshipReturn
+analyzePropertyConnectionsRelationship(GtProcessComponent* pComp,
+                                       bool* ok = nullptr);
 
 
 /**
@@ -60,8 +65,11 @@ GT_CORE_EXPORT const PropertyConnectionsRelationshipReturn analyzePropertyConnec
  * @param allCons optionally handover a previous analysis
  * @param verbose Output the connections analysis at the end
  */
-GT_CORE_EXPORT void printWarningForLostPropertyConnections(GtTask* task, bool verbose=false);
-GT_CORE_EXPORT void printWarningForLostPropertyConnections(GtTask* task, PropertyConnectionsRelationshipReturn* allCons, bool verbose=false);
+GT_CORE_EXPORT void printWarningForLostPropertyConnections(
+    GtTask* task, bool verbose = false);
+GT_CORE_EXPORT void printWarningForLostPropertyConnections(
+    GtTask* task, PropertyConnectionsRelationshipReturn* allCons,
+    bool verbose = false);
 
 
 } // namespace process

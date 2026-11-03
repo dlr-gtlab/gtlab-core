@@ -1510,9 +1510,12 @@ GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedUuids,
 }
 
 
-namespace {
+namespace
+{
 
-GtProcessComponent* processComponentIndexToObjectHelper(GtProcessDock* processdock, const QModelIndex& index, bool *ok)
+GtProcessComponent*
+processComponentIndexToObjectHelper(GtProcessDock* processdock,
+                                    const QModelIndex& index, bool* ok)
 {
     *ok = true;
 
@@ -1562,7 +1565,8 @@ GtProcessComponent* processComponentIndexToObjectHelper(GtProcessDock* processdo
 }
 
 
-GtObject* processComponentCloneCopyHelper(GtProcessComponent* pComp, bool *ok)
+GtObject*
+processComponentCloneCopyHelper(GtProcessComponent* pComp, bool* ok)
 {
     *ok = true;
 
@@ -1580,17 +1584,16 @@ GtObject* processComponentCloneCopyHelper(GtProcessComponent* pComp, bool *ok)
     {
         copy = pComp->copy();
 
-        if(!copy)
+        if (!copy)
         {
             *ok = false;
             return nullptr;
         }
-
     }
 
     return copy;
 }
-}
+} // namespace
 
 
 void
@@ -1598,20 +1601,22 @@ GtProcessDock::copyElement(const QModelIndex& index)
 {
     bool ok;
     auto pComp = processComponentIndexToObjectHelper(this, index, &ok);
-    if(!ok || !pComp)
+    if (!ok || !pComp)
     {
         return;
     }
 
     auto copy = processComponentCloneCopyHelper(pComp, &ok);
-    if(!ok || !copy)
+    if (!ok || !copy)
     {
         return;
     }
 
-    gt::utils::process::printWarningForLostPropertyConnections(qobject_cast<GtTask*>(pComp), true);
+    gt::utils::process::printWarningForLostPropertyConnections(
+        qobject_cast<GtTask*>(pComp), true);
 
-    gt::utils::process::printWarningForLostPropertyConnections(qobject_cast<GtTask*>(copy), true);
+    gt::utils::process::printWarningForLostPropertyConnections(
+        qobject_cast<GtTask*>(copy), true);
 
     QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
@@ -1632,10 +1637,10 @@ GtProcessDock::renameElement()
 
 void
 GtProcessDock::cloneElement(const QModelIndex& index)
-{    
+{
     bool ok;
     auto pComp = processComponentIndexToObjectHelper(this, index, &ok);
-    if(!ok || !pComp)
+    if (!ok || !pComp)
     {
         return;
     }
@@ -1647,7 +1652,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
     }
 
     auto copy = processComponentCloneCopyHelper(pComp, &ok);
-    if(!ok || !copy)
+    if (!ok || !copy)
     {
         return;
     }
@@ -1661,7 +1666,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
 {
     bool ok;
     auto pComp = processComponentIndexToObjectHelper(this, index, &ok);
-    if(!ok || !pComp)
+    if (!ok || !pComp)
     {
         return;
     }
@@ -1697,11 +1702,9 @@ GtProcessDock::cutElement(const QModelIndex& index)
                                                   gt::get_parent_object);
     assert(commonParent);
 
-    auto command =
-        gtApp->makeCommand(commonParent,
-                           tr("Cut Process Element") +
-                           QStringLiteral(" (") + pComp->objectName() +
-                           QStringLiteral(")"));
+    auto command = gtApp->makeCommand(
+        commonParent, tr("Cut Process Element") + QStringLiteral(" (") +
+                          pComp->objectName() + QStringLiteral(")"));
     Q_UNUSED(command)
 
     gtDataModel->deleteFromModel(toDelete);
@@ -1809,8 +1812,8 @@ GtProcessDock::pasteElement(GtObject* parent)
     const QMimeData* mimeData = clipboard->mimeData();
 
     // No new UUID here, we need and receive the mapping from deep copy
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, false,
-                    gtProcessFactory);
+    GtObject* obj =
+        gtDataModel->objectFromMimeData(mimeData, false, gtProcessFactory);
 
     if (!obj)
     {
@@ -1821,11 +1824,12 @@ GtProcessDock::pasteElement(GtObject* parent)
     GtObject* obj2 = nullptr;
 
     auto task = qobject_cast<GtTask*>(obj);
-    if(task)
+    if (task)
     {
         // Pasting a task twice needs to avoid pasting the same UUID twice. Thus, redo deep copy here.
         auto taskCopy = gt::utils::process::deepCopyTask(task);
-        if(!taskCopy) {
+        if (!taskCopy)
+        {
             delete obj;
             return;
         }
@@ -1893,14 +1897,15 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     }*/
 
     auto procComp = qobject_cast<GtProcessComponent*>(obj);
-    if(!procComp)
+    if (!procComp)
     {
         gtError() << "Pasted object is not a GtProcessComponent";
         return;
     }
 
     QModelIndex srcIndex;
-    if(!gt::utils::process::pasteProcessComponent(parent, procComp, true, &srcIndex))
+    if (!gt::utils::process::pasteProcessComponent(parent, procComp, true,
+                                                   &srcIndex))
     {
         gtError() << "Pasting was not successful";
         return;

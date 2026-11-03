@@ -14,9 +14,12 @@
 class GtProcessComponent;
 class GtPropertyConnection;
 
-namespace gt {
-namespace utils {
-namespace process {
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
 
 
 /**
@@ -29,11 +32,10 @@ namespace process {
  * @param ok Optional argument for a bool pointer, returns whether the connection could be made
  * @return The new property connection
  */
-GT_CORE_EXPORT GtPropertyConnection* makePropertyConnection(GtProcessComponent* sourceComponent,
-                                                            const QString &sourceProperty,
-                                                            GtProcessComponent* targetComponent,
-                                                            const QString &targetProperty,
-                                                            bool *ok=nullptr);
+GT_CORE_EXPORT GtPropertyConnection* makePropertyConnection(
+    GtProcessComponent* sourceComponent, const QString& sourceProperty,
+    GtProcessComponent* targetComponent, const QString& targetProperty,
+    bool* ok = nullptr);
 
 
 } // namespace process
