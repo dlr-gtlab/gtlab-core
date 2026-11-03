@@ -26,6 +26,11 @@ deepCopyTask(GtTask* taskOrig, bool strict)
 {
     GtObjectUUIDMap uuidMap;
 
+    if(!taskOrig)
+    {
+        gtFatal() << "Task to copy was NULL";
+        return nullptr;
+    }
 
     //TODO: copy will fire a gtError: "Property connection could not be established!   Source object not found! "
     //During restoring from memento, GtTask::onObjectDataMerged() will trigger makeConnection() of each property connection
@@ -228,7 +233,8 @@ transferRelativeObjectLinkPropertyViaMapping(GtProcessComponent* procCompCopy,
                     << ": Could not transfer " << propRelLink
                     << ", original linked UUID" << originalUuid
                     << "not found in original process component structure";
-                return false;
+                retval = false;
+                continue;
             }
 
             auto copiedUuid = uuidMap->copiedUuid(originalUuid);
