@@ -203,9 +203,8 @@ runApplication(int argc, char* argv[], RestartRequest& restartRequest)
         }
     };
 
-    splash.process(QObject::tr("initializing..."), [&app, &loggingOptions]() {
-        app.init(loggingOptions);
-    });
+    splash.process(QObject::tr("initializing..."),
+                   [&app, &loggingOptions]() { app.init(loggingOptions); });
 
     if (app.restartRequested())
     {

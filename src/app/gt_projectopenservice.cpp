@@ -23,120 +23,123 @@
 namespace
 {
 
-    constexpr quint32 maxMessageSize = 1024 * 1024;
-    constexpr int maxConnectionAttempts = 4;
-    constexpr int connectionTimeoutMs = 500;
-    constexpr int acknowledgementTimeoutMs = 5000;
-    constexpr int retryDelayMs = 100;
+constexpr quint32 maxMessageSize = 1024 * 1024;
+constexpr int maxConnectionAttempts = 4;
+constexpr int connectionTimeoutMs = 500;
+constexpr int acknowledgementTimeoutMs = 5000;
+constexpr int retryDelayMs = 100;
 
-    QString serviceName()
+QString
+serviceName()
+{
+    QFileInfo executable(QCoreApplication::applicationFilePath());
+    QString installation = executable.canonicalFilePath();
+    if (installation.isEmpty())
     {
-        QFileInfo executable(QCoreApplication::applicationFilePath());
-        QString installation = executable.canonicalFilePath();
-        if (installation.isEmpty())
-        {
-            installation = executable.absoluteFilePath();
-        }
-
-        const QByteArray identity = installation.toUtf8() + '\n' +
-                                    QDir::homePath().toUtf8() +
-                                    "\nproject-open-v1";
-        const QByteArray digest =
-            QCryptographicHash::hash(identity, QCryptographicHash::Sha256)
-                .toHex();
-        return QStringLiteral("gtp-%1").arg(
-            QString::fromLatin1(digest.left(32)));
+        installation = executable.absoluteFilePath();
     }
 
-    QByteArray encodeFrame(const QJsonObject& object)
+    const QByteArray identity = installation.toUtf8() + '\n' +
+                                QDir::homePath().toUtf8() + "\nproject-open-v1";
+    const QByteArray digest =
+        QCryptographicHash::hash(identity, QCryptographicHash::Sha256).toHex();
+    return QStringLiteral("gtp-%1").arg(QString::fromLatin1(digest.left(32)));
+}
+
+QByteArray
+encodeFrame(const QJsonObject& object)
+{
+    const QByteArray payload =
+        QJsonDocument(object).toJson(QJsonDocument::Compact);
+    QByteArray frame;
+    const quint32 payloadSize =
+        qToBigEndian(static_cast<quint32>(payload.size()));
+    frame.append(reinterpret_cast<const char*>(&payloadSize),
+                 sizeof(payloadSize));
+    frame.append(payload);
+    return frame;
+}
+
+bool
+decodeFrame(QByteArray& buffer, QByteArray& payload)
+{
+    if (buffer.size() < static_cast<int>(sizeof(quint32)))
     {
-        const QByteArray payload =
-            QJsonDocument(object).toJson(QJsonDocument::Compact);
-        QByteArray frame;
-        const quint32 payloadSize =
-            qToBigEndian(static_cast<quint32>(payload.size()));
-        frame.append(reinterpret_cast<const char*>(&payloadSize),
-                     sizeof(payloadSize));
-        frame.append(payload);
-        return frame;
+        return false;
     }
 
-    bool decodeFrame(QByteArray& buffer, QByteArray& payload)
+    const quint32 payloadSize = qFromBigEndian<quint32>(
+        reinterpret_cast<const uchar*>(buffer.constData()));
+    if (payloadSize > maxMessageSize)
     {
-        if (buffer.size() < static_cast<int>(sizeof(quint32)))
-        {
-            return false;
-        }
-
-        const quint32 payloadSize = qFromBigEndian<quint32>(
-            reinterpret_cast<const uchar*>(buffer.constData()));
-        if (payloadSize > maxMessageSize)
-        {
-            return false;
-        }
-
-        const int frameSize = static_cast<int>(sizeof(quint32) + payloadSize);
-        if (buffer.size() < frameSize)
-        {
-            return false;
-        }
-
-        payload = buffer.mid(static_cast<int>(sizeof(quint32)),
-                             static_cast<int>(payloadSize));
-        buffer.remove(0, frameSize);
-        return true;
+        return false;
     }
 
-    bool writeFrame(QLocalSocket& socket, const QJsonObject& object)
+    const int frameSize = static_cast<int>(sizeof(quint32) + payloadSize);
+    if (buffer.size() < frameSize)
     {
-        const QByteArray frame = encodeFrame(object);
-        return socket.write(frame) == frame.size() &&
-               socket.waitForBytesWritten(acknowledgementTimeoutMs);
+        return false;
     }
 
-    bool readFrame(QLocalSocket& socket, QByteArray& payload)
+    payload = buffer.mid(static_cast<int>(sizeof(quint32)),
+                         static_cast<int>(payloadSize));
+    buffer.remove(0, frameSize);
+    return true;
+}
+
+bool
+writeFrame(QLocalSocket& socket, const QJsonObject& object)
+{
+    const QByteArray frame = encodeFrame(object);
+    return socket.write(frame) == frame.size() &&
+           socket.waitForBytesWritten(acknowledgementTimeoutMs);
+}
+
+bool
+readFrame(QLocalSocket& socket, QByteArray& payload)
+{
+    QByteArray buffer;
+    QElapsedTimer timer;
+    timer.start();
+
+    while (timer.elapsed() < acknowledgementTimeoutMs)
     {
-        QByteArray buffer;
-        QElapsedTimer timer;
-        timer.start();
-
-        while (timer.elapsed() < acknowledgementTimeoutMs)
+        buffer.append(socket.readAll());
+        if (buffer.size() >= static_cast<int>(sizeof(quint32)))
         {
-            buffer.append(socket.readAll());
-            if (buffer.size() >= static_cast<int>(sizeof(quint32)))
-            {
-                const quint32 payloadSize = qFromBigEndian<quint32>(
-                    reinterpret_cast<const uchar*>(buffer.constData()));
-                if (payloadSize > maxMessageSize)
-                {
-                    return false;
-                }
-
-                const int frameSize =
-                    static_cast<int>(sizeof(quint32) + payloadSize);
-                if (buffer.size() >= frameSize)
-                {
-                    payload = buffer.mid(static_cast<int>(sizeof(quint32)),
-                                         static_cast<int>(payloadSize));
-                    return true;
-                }
-            }
-
-            const int remaining =
-                acknowledgementTimeoutMs - static_cast<int>(timer.elapsed());
-            if (remaining <= 0 || !socket.waitForReadyRead(remaining))
+            const quint32 payloadSize = qFromBigEndian<quint32>(
+                reinterpret_cast<const uchar*>(buffer.constData()));
+            if (payloadSize > maxMessageSize)
             {
                 return false;
             }
+
+            const int frameSize =
+                static_cast<int>(sizeof(quint32) + payloadSize);
+            if (buffer.size() >= frameSize)
+            {
+                payload = buffer.mid(static_cast<int>(sizeof(quint32)),
+                                     static_cast<int>(payloadSize));
+                return true;
+            }
         }
 
-        return false;
+        const int remaining =
+            acknowledgementTimeoutMs - static_cast<int>(timer.elapsed());
+        if (remaining <= 0 || !socket.waitForReadyRead(remaining))
+        {
+            return false;
+        }
     }
+
+    return false;
+}
 
 } // namespace
 
 GtProjectOpenService::GtProjectOpenService(QObject* parent) :
-    QObject(parent), m_serverName(serviceName()),
+    QObject(parent),
+    m_serverName(serviceName()),
     m_lockFile(QDir(QDir::tempPath())
                    .filePath(m_serverName + QStringLiteral(".lock"))),
     m_server()

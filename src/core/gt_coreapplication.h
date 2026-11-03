@@ -50,29 +50,29 @@ class GtCoreApplication;
 namespace gt
 {
 
-    enum class LoggingVerbosityOverride
-    {
-        Medium,
-        Verbose,
-        Silent
-    };
+enum class LoggingVerbosityOverride
+{
+    Medium,
+    Verbose,
+    Silent
+};
 
-    enum class LoggingLevelOverride
-    {
-        Trace,
-        Debug
-    };
+enum class LoggingLevelOverride
+{
+    Trace,
+    Debug
+};
 
-    /**
+/**
      * @brief CLI logging settings to apply during application initialization.
      * Empty overrides preserve the values stored in application settings.
      */
-    struct LoggingOptions
-    {
-        std::optional<LoggingVerbosityOverride> verbosity;
-        std::optional<LoggingLevelOverride> level;
-        bool developmentMode{false};
-    };
+struct LoggingOptions
+{
+    std::optional<LoggingVerbosityOverride> verbosity;
+    std::optional<LoggingLevelOverride> level;
+    bool developmentMode{false};
+};
 
     struct SettingsConfig
     {
