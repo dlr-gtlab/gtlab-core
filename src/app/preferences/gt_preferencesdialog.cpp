@@ -198,7 +198,8 @@ GtPreferencesDialog::saveChanges()
 
     if (gtApp->settings()->requiresAppRestart())
     {
-        QMessageBox::information(this, tr("Restart required"),
+        QMessageBox::information(
+            this, tr("Restart required"),
             tr("The changes require a restart of GTlab to take effect"));
     }
 

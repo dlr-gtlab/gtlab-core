@@ -39,8 +39,7 @@ public:
      * @param module Identification of the providing module.
      * @return Returns true if task data was successfully added.
      */
-    virtual bool registerTaskData(GtTaskData taskData,
-                                  const QString& module);
+    virtual bool registerTaskData(GtTaskData taskData, const QString& module);
 
     /**
      * @brief Returns full list of registered task data.

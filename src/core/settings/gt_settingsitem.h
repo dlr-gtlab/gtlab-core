@@ -75,7 +75,6 @@ private:
 
     /// true, if a change of the setting requires a restart
     bool changesRequiresRestart{false}, hasChanged{false};
-
 };
 
 #endif // GTSETTINGSITEM_H

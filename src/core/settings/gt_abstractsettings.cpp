@@ -130,4 +130,3 @@ GtAbstractSettings::getAllSettingIds() const
 
     return l;
 }
-

@@ -99,17 +99,15 @@ main(int argc, char* argv[])
 
     GtApplication app(qApp);
 
-    splash.process(QObject::tr("initializing..."), [&app](){
-        app.init();
-    });
+    splash.process(QObject::tr("initializing..."), [&app]() { app.init(); });
 
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
     QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
     QStringList modInitEnvSetup;
 
-    splash.process([&modEnv, &modInitEnvSetup](){
-        for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
+    splash.process([&modEnv, &modInitEnvSetup]() {
+        for (auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
         {
             const auto& e = iter.key();
             if (!gtEnvironment->environmentVariableExists(e))
@@ -134,16 +132,14 @@ main(int argc, char* argv[])
     }
 
     // save to system environment (temporary)
-    splash.process([&app](){
-        app.saveSystemEnvironment();
-    });
+    splash.process([&app]() { app.saveSystemEnvironment(); });
 
 #ifdef GT_LICENCE
     if (!app.checkLicence())
     {
         QMessageBox::critical(nullptr, "Licence verification",
-                              "Could not verify license!",
-                              QMessageBox::Ok, QMessageBox::Ok);
+                              "Could not verify license!", QMessageBox::Ok,
+                              QMessageBox::Ok);
 
         return -1;
     }
@@ -151,37 +147,38 @@ main(int argc, char* argv[])
 #endif
 
     // application initialization
-//    gtGuiApp;
+    //    gtGuiApp;
 
-//    if (parser.isSet("lang"))
-//    {
-//        gtGuiApp->setLanguage(parser.value("lang"));
-//    }
-//    else
-//    {
-//        gtGuiApp->initLanguage();
-//    }
+    //    if (parser.isSet("lang"))
+    //    {
+    //        gtGuiApp->setLanguage(parser.value("lang"));
+    //    }
+    //    else
+    //    {
+    //        gtGuiApp->initLanguage();
+    //    }
     // language initialization
-    splash.process([&app](){
-        app.initLanguage();
-    });
+    splash.process([&app]() { app.initLanguage(); });
 
-    splash.process([&app](){
+    splash.process([&app]() {
         // short cuts initialization
         app.initShortCuts();
     });
 
 
     // datamodel initialization
-    splash.process(QObject::tr("loading datamodel..."), [&app](){
-        app.initDatamodel();
-        // mdi launcher initialization
-        app.initMdiLauncher();
-    }, delay);
+    splash.process(
+        QObject::tr("loading datamodel..."),
+        [&app]() {
+            app.initDatamodel();
+            // mdi launcher initialization
+            app.initMdiLauncher();
+        },
+        delay);
 
-    splash.process(QObject::tr("registering widgets..."), [](){
-        registerWidgets();
-    }, delay);
+    splash.process(
+        QObject::tr("registering widgets..."), []() { registerWidgets(); },
+        delay);
 
 
     // show refused plugins (application last run crash)
@@ -194,47 +191,47 @@ main(int argc, char* argv[])
 
     // load GTlab modules
 
-    splash.process(QObject::tr("loading modules..."), [&app](){
-        app.loadModules();
-    }, delay);
+    splash.process(
+        QObject::tr("loading modules..."), [&app]() { app.loadModules(); },
+        delay);
 
 
     // calculator initialization
-    splash.process(QObject::tr("loading calculators..."), [&app](){
-        app.initCalculators();
-    }, delay);
+    splash.process(
+        QObject::tr("loading calculators..."),
+        [&app]() { app.initCalculators(); }, delay);
 
 
     // session initialization
-    splash.process(QObject::tr("loading session..."), [&app](){
-        app.initSession();
-    }, delay);
+    splash.process(
+        QObject::tr("loading session..."), [&app]() { app.initSession(); },
+        delay);
 
 
     // perspective initialization
-    splash.process(QObject::tr("loading perspectives..."), [&app](){
-        app.initPerspective();
-    }, delay);
+    splash.process(
+        QObject::tr("loading perspectives..."),
+        [&app]() { app.initPerspective(); }, delay);
 
-//    gtApp->setLanguage("de");
+    //    gtApp->setLanguage("de");
 
-//    qDebug() << "system language: " << QLocale::system();
+    //    qDebug() << "system language: " << QLocale::system();
 
-//    gtApp->setToSystemLanguage();
+    //    gtApp->setToSystemLanguage();
 
 #ifdef GT_MODELTEST
     qDebug() << "Model test enabled!";
-    new QAbstractItemModelTester(gtDataModel,
-                                 QAbstractItemModelTester::FailureReportingMode::Fatal,
-                                 qApp);
+    new QAbstractItemModelTester(
+        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        qApp);
 #endif
 
     GtMainWin w;
 
     splash.processEvents();
 
-    QObject::connect(&w, SIGNAL(guiInitialized()),
-                     &app, SLOT(onGuiInitializationFinished()));
+    QObject::connect(&w, SIGNAL(guiInitialized()), &app,
+                     SLOT(onGuiInitializationFinished()));
 
     w.show();
 

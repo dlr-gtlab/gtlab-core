@@ -295,7 +295,7 @@ GtCoreApplication::initLogging()
 
     QStringList args = qApp->arguments();
 
-    const static auto enableDevMode = [&](){
+    const static auto enableDevMode = [&]() {
         logger.setLoggingLevel(gt::log::TraceLevel);
         setDevMode(true);
         gtDebug() << "DEV MODE";

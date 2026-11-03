@@ -14,9 +14,11 @@ namespace
 class TestProject : public GtProject
 {
 public:
-    explicit TestProject(QString path) : GtProject(std::move(path)) {}
+    explicit TestProject(QString path) :
+        GtProject(std::move(path))
+    { }
 };
-}
+} // namespace
 
 TEST(GtProjectExecutionGuard, UsesCanonicalProjectIdentity)
 {

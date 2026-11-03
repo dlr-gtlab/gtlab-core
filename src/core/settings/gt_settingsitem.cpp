@@ -11,15 +11,12 @@
 #include "gt_settingsitem.h"
 #include <QSettings>
 
-GtSettingsItem::GtSettingsItem(const QString& ident,
-                               const QVariant& initVal,
+GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal,
                                bool needsRestart) :
     m_ident(ident),
     m_initValue(initVal),
     changesRequiresRestart(needsRestart)
-{
-
-}
+{ }
 
 const QString&
 GtSettingsItem::ident() const
@@ -58,4 +55,3 @@ GtSettingsItem::requiresRestart() const
 {
     return changesRequiresRestart && hasChanged;
 }
-

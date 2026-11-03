@@ -970,4 +970,3 @@ GtApplication::onGuiInitializationFinished()
 {
     initModules();
 }
-
