@@ -7,13 +7,11 @@
  */
 
 #include "test_memento_exporter.h"
-#include "test_memento_exporter_page.h"
 
 #include "test_dmi_externalobject.h"
 
 #include "gt_objectmemento.h"
 #include "gt_icons.h"
-#include "gt_selectfiletoexportpage.h"
 #include "gt_logging.h"
 
 #include <QIcon>
@@ -51,7 +49,7 @@ TestMementoExporter::doExport(GtObject* data, QFile& file)
         return false;
     }
 
-    file.write(data->toMemento(m_preserveUuids).toByteArray());
+    file.write(data->toMemento().toByteArray());
 
     file.close();
 
@@ -64,25 +62,4 @@ QString
 TestMementoExporter::extension() const
 {
     return QStringLiteral("XML (*.xml)");
-}
-
-QList<GtAbstractExporterPage*>
-TestMementoExporter::pages(GtObject* data)
-{
-    auto selectPage = new GtSelectFileToExportPage(data, this);
-    selectPage->setFileExtension(extension());
-
-    return {new TestMementoExporterPage(data, this), selectPage};
-}
-
-void
-TestMementoExporter::setPreserveUuids(bool preserve)
-{
-    m_preserveUuids = preserve;
-}
-
-bool
-TestMementoExporter::preserveUuids() const
-{
-    return m_preserveUuids;
 }

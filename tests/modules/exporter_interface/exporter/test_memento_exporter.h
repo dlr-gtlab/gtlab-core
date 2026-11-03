@@ -14,10 +14,10 @@
 #include "gt_abstractexporter.h"
 
 /**
- * @brief Exporter with explicit target list and wizard page. Writes the
- * memento (XML) of objects of the test data model interface
- * (TestDmiExternalObject, TestDmiData). Tests the full exporter interface
- * including page creation.
+ * @brief Exporter with explicit target list. Writes the memento (XML) of
+ * objects of the test data model interface (TestDmiExternalObject,
+ * TestDmiData). Relies on the default exporter wizard page for file
+ * selection.
  */
 class TEST_EXPORTER_INTERFACE_EXPORT TestMementoExporter
     : public GtAbstractExporter
@@ -55,29 +55,6 @@ public:
      * @return File extensions of exporter.
      */
     QString extension() const override;
-
-    /**
-     * @brief Returns wizard pages of exporter based on given object data.
-     * @param Object data.
-     * @return List of wizard pages.
-     */
-    QList<GtAbstractExporterPage*> pages(GtObject* data) override;
-
-    /**
-     * @brief Sets whether the UUIDs of the exported object are kept.
-     * @param preserve Preserve UUIDs indicator
-     */
-    void setPreserveUuids(bool preserve);
-
-    /**
-     * @brief Returns whether the UUIDs of the exported object are kept.
-     * @return Preserve UUIDs indicator
-     */
-    bool preserveUuids() const;
-
-private:
-    /// Exporter option, set by the exporter wizard page
-    bool m_preserveUuids = false;
 };
 
 #endif // TEST_MEMENTO_EXPORTER_H

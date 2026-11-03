@@ -53,14 +53,16 @@
 void
 registerWidgets()
 {
-    gtMdiLauncher->registerClass(GT_METADATA(GtMementoViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtTemplateViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtLabelUsageViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtSessionViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtStateViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtCollectionEditor));
-    gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget));
-    gtMdiLauncher->registerClass(GT_METADATA(GtStartupPage));
+    const QString coreId = GtAbstractObjectFactory::builtinModuleId();
+
+    gtMdiLauncher->registerClass(GT_METADATA(GtMementoViewer), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtTemplateViewer), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtLabelUsageViewer), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtSessionViewer), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtStateViewer), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtCollectionEditor), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget), coreId);
+    gtMdiLauncher->registerClass(GT_METADATA(GtStartupPage), coreId);
 
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtOutputDock));
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtExplorerDock));

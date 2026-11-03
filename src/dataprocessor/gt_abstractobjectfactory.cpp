@@ -19,6 +19,12 @@ GtAbstractObjectFactory::GtAbstractObjectFactory(bool silent) : m_silent(silent)
 
 GtAbstractObjectFactory::~GtAbstractObjectFactory() = default;
 
+QString
+GtAbstractObjectFactory::builtinModuleId()
+{
+    return QStringLiteral("GTlab");
+}
+
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {
@@ -110,7 +116,8 @@ GtAbstractObjectFactory::knownClasses() const
 }
 
 bool
-GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
+GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
+                                       const QString& moduleId)
 {
     QString classname = metaObj.className();
 
@@ -125,23 +132,12 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
     }
 
     m_knownClasses.insert(classname, metaObj);
-    return true;
-}
-
-bool
-GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
-                                       const QString& moduleId)
-{
-    // dispatch through non-module id overload, so that overrides of derived
-    // factories are always used for the actual registration for backwards
-    // compatibility
-    if (!registerClass(metaObj)) return false;
 
     if (!moduleId.isEmpty())
     {
-        m_classModuleIds.insert(QString::fromLatin1(metaObj.className()),
-                                moduleId);
+        m_classModuleIds.insert(classname, moduleId);
     }
+
     return true;
 }
 
@@ -158,12 +154,6 @@ GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
     }
 
     return false;
-}
-
-bool
-GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
-{
-    return registerClasses(metaData, {});
 }
 
 bool

@@ -19,9 +19,10 @@ struct TestFactory : public GtAbstractObjectFactory
 {
     TestFactory()
     {
-        registerClass(GT_METADATA(GtObject));
-        registerClass(GT_METADATA(GtObjectGroup));
-        registerClass(GT_METADATA(TestSpecialGtObject));
+        registerClass(GT_METADATA(GtObject), QStringLiteral("UnitTest"));
+        registerClass(GT_METADATA(GtObjectGroup), QStringLiteral("UnitTest"));
+        registerClass(GT_METADATA(TestSpecialGtObject),
+                      QStringLiteral("UnitTest"));
     }
 };
 
@@ -110,7 +111,9 @@ TEST_P(TestObjectLinkPropertyParametric, isAllowed_with_super_classes)
     GtLabelData l;
 
     bool wasRegistered = gtObjectFactory->knownClass(o.metaObject()->className());
-    if (!wasRegistered) gtObjectFactory->registerClass(*o.metaObject());
+    if (!wasRegistered)
+        gtObjectFactory->registerClass(*o.metaObject(),
+                                       QStringLiteral("UnitTest"));
 
     auto cleanup = gt::finally([&](){
         if (!wasRegistered) gtObjectFactory->unregisterClass(*o.metaObject());

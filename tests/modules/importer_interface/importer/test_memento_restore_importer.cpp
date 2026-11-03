@@ -79,8 +79,14 @@ TestMementoRestoreImporter::import(GtObject* data, QFile& file)
         return false;
     }
 
-    // exported mementos contain new uuids, always keep the object identity
-    data->setUuid(uuid);
+    if (m_changeUuid)
+    {
+        data->newUuid();
+    }
+    else
+    {
+        data->setUuid(uuid);
+    }
 
     if (m_keepObjectName)
     {
@@ -117,4 +123,16 @@ bool
 TestMementoRestoreImporter::keepObjectName() const
 {
     return m_keepObjectName;
+}
+
+void
+TestMementoRestoreImporter::setChangeUuid(bool change)
+{
+    m_changeUuid = change;
+}
+
+bool
+TestMementoRestoreImporter::changeUuid() const
+{
+    return m_changeUuid;
 }

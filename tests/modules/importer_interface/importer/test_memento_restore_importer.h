@@ -16,8 +16,9 @@
 /**
  * @brief Importer that restores the data of the targeted object from an
  * exported memento (XML). Acts on the data objects themselves, comparable
- * to a restore feature: the object identity (uuid) is always kept, the
- * object name can be kept or be overwritten with the exported name.
+ * to a restore feature: the object identity (uuid) is kept by default and
+ * can be replaced with a new uuid, the object name can be kept or be
+ * overwritten with the exported name.
  *
  * Used to test the importer interface of GTlab.
  */
@@ -78,9 +79,23 @@ public:
      */
     bool keepObjectName() const;
 
+    /**
+     * @brief Sets whether the target object gets a new UUID on restore.
+     * @param change change UUID indicator
+     */
+    void setChangeUuid(bool change);
+
+    /**
+     * @brief Returns whether the target object gets a new UUID on restore.
+     * @return change UUID indicator
+     */
+    bool changeUuid() const;
+
 private:
-    /// Importer option, set by the importer wizard page
+    /// Importer options, set by the importer wizard page
     bool m_keepObjectName = true;
+
+    bool m_changeUuid = false;
 };
 
 #endif // TEST_MEMENTO_RESTORE_IMPORTER_H

@@ -27,13 +27,24 @@ TestMementoRestoreImporterPage::TestMementoRestoreImporterPage(
     m_keepName = new QCheckBox(tr("Keep object name"), this);
     m_keepName->setChecked(importer && importer->keepObjectName());
 
+    m_changeUuid = new QCheckBox(tr("Change UUID"), this);
+    m_changeUuid->setChecked(importer && importer->changeUuid());
+
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_keepName);
+    layout->addWidget(m_changeUuid);
 
     connect(m_keepName, &QCheckBox::toggled, this, [this](bool checked) {
         if (m_importer)
         {
             m_importer->setKeepObjectName(checked);
+        }
+    });
+
+    connect(m_changeUuid, &QCheckBox::toggled, this, [this](bool checked) {
+        if (m_importer)
+        {
+            m_importer->setChangeUuid(checked);
         }
     });
 }

@@ -21,7 +21,7 @@ class QCheckBox;
 /**
  * @brief Wizard page of the memento restore importer. Allows to keep the
  * name of the target object instead of overwriting it with the name stored
- * in the memento.
+ * in the memento, and to assign a new UUID to the target object.
  */
 class TEST_IMPORTER_INTERFACE_EXPORT TestMementoRestoreImporterPage
     : public GtAbstractImporterPage
@@ -42,6 +42,9 @@ public:
 private:
     /// Checkbox to keep the object name
     QCheckBox* m_keepName = nullptr;
+
+    /// Checkbox to assign a new UUID to the target object
+    QCheckBox* m_changeUuid = nullptr;
 
     /// Pointer to importer
     QPointer<TestMementoRestoreImporter> m_importer;

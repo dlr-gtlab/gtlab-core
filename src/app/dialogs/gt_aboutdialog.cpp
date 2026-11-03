@@ -21,7 +21,6 @@
 #include <QTabWidget>
 #include <QTreeWidget>
 #include <QHeaderView>
-#include <QListWidget>
 #include <QSpacerItem>
 #include <QApplication>
 #include <QDir>
@@ -44,6 +43,8 @@
 #include "gt_splashscreen.h"
 
 #include "gt_aboutdialog.h"
+
+#include <functional>
 
 GtAboutLogo::GtAboutLogo(QWidget* parent) :
     QWidget(parent),
@@ -276,25 +277,61 @@ GtAboutDialog::readChangeLog() const
 void
 GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
 {
-    auto entry = [this, tabs](QStringList const& entries, QString const& title)
-    {
-        auto* page = new QWidget(this);
-        tabs->addTab(page, title);
-        auto* layout = new QVBoxLayout;
-        auto* listWidget = new QListWidget;
-        listWidget->setFrameStyle(QListWidget::NoFrame);
-        listWidget->insertItems(0, entries);
-        listWidget->sortItems();
-        layout->addWidget(listWidget);
-        page->setLayout(layout);
-    };
+    auto entry =
+        [this,
+         tabs](const QStringList& entries, const QString& title,
+               const std::function<QString(const QString&)>& moduleResolver =
+                   nullptr) {
+            auto* page = new QWidget(this);
+            tabs->addTab(page, title);
+            auto* layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+
+            auto* tree = new QTreeWidget;
+            tree->setFrameStyle(QFrame::NoFrame);
+            tree->setRootIsDecorated(false);
+            tree->setUniformRowHeights(true);
+            tree->setTextElideMode(Qt::ElideMiddle);
+
+            if (moduleResolver)
+            {
+                tree->setColumnCount(2);
+                tree->setHeaderLabels(QStringList{tr("Class"), tr("Module")});
+            }
+            else
+            {
+                tree->setColumnCount(1);
+                tree->setHeaderLabels(QStringList{tr("Class")});
+            }
+
+            tree->setColumnWidth(0, 350);
+            tree->header()->setStretchLastSection(true);
+
+            for (const auto& className : entries)
+            {
+                QStringList columns{className};
+
+                if (moduleResolver)
+                    columns.push_back(moduleResolver(className));
+
+                auto* item = new QTreeWidgetItem(columns);
+                tree->addTopLevelItem(item);
+            }
+            tree->sortItems(0, Qt::AscendingOrder);
+
+            layout->addWidget(tree);
+            page->setLayout(layout);
+        };
 
     // datamodel
-    entry(gtObjectFactory->knownClasses(), tr("Datamodel"));
+    entry(gtObjectFactory->knownClasses(), tr("Datamodel"),
+          [](const QString& c) { return gtObjectFactory->moduleId(c); });
 
     // calculators
     entry(gtProcessFactory->calculatorFactory()->knownClasses(),
-          tr("Calculators"));
+          tr("Calculators"), [](const QString& c) {
+              return gtProcessFactory->calculatorFactory()->moduleId(c);
+          });
 
     // tasks
     QStringList itemNames;
@@ -302,10 +339,12 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
     {
         itemNames.append(taskData->metaData().className());
     }
-    entry(itemNames, tr("Tasks"));
+    entry(itemNames, tr("Tasks"),
+          [](const QString& c) { return gtTaskFactory->moduleId(c); });
 
     // mdi items
-    entry(gtMdiLauncher->knownClasses(), tr("MDI Items"));
+    entry(gtMdiLauncher->knownClasses(), tr("MDI Items"),
+          [](const QString& c) { return gtMdiLauncher->moduleId(c); });
 
     // ui objects
     entry(gtApp->knownUIObjects(), tr("UI Objects"));

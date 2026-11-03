@@ -30,6 +30,14 @@ public:
     virtual ~GtAbstractObjectFactory();
 
     /**
+     * @brief Module id of the classes that are built into GTlab.
+     * Classes registered with this module id are considered as core
+     * classes and do not create module dependencies.
+     * @return The built-in module id
+     */
+    static QString builtinModuleId();
+
+    /**
      * @brief newObject - generates gtlab objects based on given classname
      * @param className
      * @param parent object for the new object
@@ -67,21 +75,10 @@ public:
     virtual QStringList knownClasses() const;
 
     /**
-     * @brief registerClass
-     * @param metaObject
-     * @return Whether the class was registered successfully.
-     * @note When overriding this function consider overriding the module id
-     * overload too, though it is not necessary.
-     */
-    virtual bool registerClass(QMetaObject metaObj);
-
-    /**
      * @brief Registers a class and its providing module.
      * @param metaObj Meta object to register.
      * @param moduleId Identification of the providing module.
      * @return Whether the class was registered successfully.
-     * @note The class registration is delegated to `registerClass(QMetaObject)`
-     * for backwards compatiblity.
      */
     virtual bool registerClass(QMetaObject metaObj, const QString& moduleId);
 
@@ -91,21 +88,6 @@ public:
      * @return Returns false if the class was not registered before
      */
     bool unregisterClass(const QMetaObject& metaObj);
-
-    /**
-     * @brief registerClasses
-     * @param metaObject
-     * @return Returns false if any registration fails. Does not revert
-     * successful registrations on a failure.
-     * @note Delegates to `registerClasses(QList<QMetaObject>, const QString&)`
-     * with an empty module id.
-     * @note When override this function consider overriding the module id
-     * overload too.
-     *
-     * @note Returns false if any registration fails. Does not revert
-     * successful registrations on a failure.
-     */
-    virtual bool registerClasses(const QList<QMetaObject>& metaData);
 
     /**
      * @brief Registers classes and their providing module.

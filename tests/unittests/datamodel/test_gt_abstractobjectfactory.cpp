@@ -18,15 +18,15 @@ namespace
     {
     };
 
-    /// Factory that only overrides the module id independent overload,
-    /// as e.g. the GtExportHandler and GtImportHandler do
-    class LegacyOverrideFactory : public GtAbstractObjectFactory
+    /// Factory that overrides the registration hook for a single class only
+    class SubclassOverrideFactory : public GtAbstractObjectFactory
     {
     public:
-        bool registerClass(QMetaObject metaObj) override
+        bool registerClass(QMetaObject metaObj,
+                           const QString& moduleId) override
         {
             m_registered << metaObj.className();
-            return GtAbstractObjectFactory::registerClass(metaObj);
+            return GtAbstractObjectFactory::registerClass(metaObj, moduleId);
         }
 
         QStringList registered() const
@@ -38,16 +38,7 @@ namespace
         QStringList m_registered;
     };
 
-} // namespace
-
-TEST(GtAbstractObjectFactory, ExistingRegistrationApiHasNoModuleId)
-{
-    TestObjectFactory factory;
-
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
-    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
-}
+    } // namespace
 
 TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 {
@@ -55,10 +46,20 @@ TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 
     ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
                                       QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("TestModule"));
 
     ASSERT_TRUE(factory.unregisterClass(GT_METADATA(GtObject)));
+    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
+TEST(GtAbstractObjectFactory, EmptyModuleIdIsNotRecorded)
+{
+    TestObjectFactory factory;
+
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
@@ -73,14 +74,6 @@ TEST(GtAbstractObjectFactory, BulkRegistrationAssignsModuleId)
               QStringLiteral("TestModule"));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObjectGroup)),
               QStringLiteral("TestModule"));
-}
-
-TEST(GtAbstractObjectFactory, LegacyBulkRegistrationHasNoModuleId)
-{
-    TestObjectFactory factory;
-
-    ASSERT_TRUE(factory.registerClasses({GT_METADATA(GtObject)}));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
 TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
@@ -98,16 +91,16 @@ TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
 TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
 {
     TestObjectFactory factory;
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
 
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
                                          QStringLiteral("TestModule")));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
-TEST(GtAbstractObjectFactory, ModuleIdOverloadUsesLegacyOverride)
+TEST(GtAbstractObjectFactory, SubclassOverrideIsUsed)
 {
-    LegacyOverrideFactory factory;
+    SubclassOverrideFactory factory;
     GtAbstractObjectFactory& base = factory;
 
     ASSERT_TRUE(base.registerClass(GT_METADATA(GtObject),
@@ -119,9 +112,9 @@ TEST(GtAbstractObjectFactory, ModuleIdOverloadUsesLegacyOverride)
               QStringLiteral("TestModule"));
 }
 
-TEST(GtAbstractObjectFactory, BulkRegistrationUsesLegacyOverride)
+TEST(GtAbstractObjectFactory, BulkRegistrationUsesSubclassOverride)
 {
-    LegacyOverrideFactory factory;
+    SubclassOverrideFactory factory;
     GtAbstractObjectFactory& base = factory;
     const QList<QMetaObject> classes{GT_METADATA(GtObject),
                                      GT_METADATA(GtObjectGroup)};

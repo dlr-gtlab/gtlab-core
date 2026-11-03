@@ -316,9 +316,10 @@ TEST(CurrentProjectCompatibility,
     application.installSession(std::move(session));
     ASSERT_TRUE(gtDataModel->openProject(first));
 
-    gtObjectFactory->registerClass(
-        EndToEndLegacyCalculator::staticMetaObject);
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(EndToEndLegacyCalculator::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
+    gtObjectFactory->registerClass(GtTask::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     auto task = std::make_unique<GtTask>();
     task->setFactory(gtObjectFactory);

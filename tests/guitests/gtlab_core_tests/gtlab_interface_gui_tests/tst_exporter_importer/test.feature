@@ -73,9 +73,8 @@ Feature: Test the exporter and importer interface
          # export the object into the project directory
          When the action 'Export > Memento Exporter...' in the context menu of the entry is activated
          Then the 'Export Wizard' wizard is enabled
-          And the wizard page title reads 'Memento Export Options'
-         When the wizard proceeds
-          And the input mask is filled out accordingly:
+          And the wizard page title reads 'Select Memento Exporter File'
+         When the input mask is filled out accordingly:
               | label_name | widget_type | input                                                              |
               | File Path  | QLineEdit   | $AUT/../tests/guitests/gui_test_export_import/data_memento.xml |
           And the wizard finishes

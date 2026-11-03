@@ -5,12 +5,10 @@
 add_gtlab_module(TestExporterInterface MODULE_ID "Test Exporter Interface"
   SOURCES
     exporter/test_memento_exporter.h
-    exporter/test_memento_exporter_page.h
     exporter_interface_exports.h
     exporter_interface.h
 
     exporter/test_memento_exporter.cpp
-    exporter/test_memento_exporter_page.cpp
     exporter_interface.cpp
 )
 

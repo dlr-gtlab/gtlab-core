@@ -21,7 +21,8 @@
 GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
-    GtExportHandler::registerClass(GT_METADATA(GtProcessExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtProcessExporter),
+                                   builtinModuleId());
 }
 
 GtExportHandler*
@@ -36,7 +37,7 @@ GtExportHandler::instance()
 }
 
 bool
-GtExportHandler::registerClass(QMetaObject metaObj)
+GtExportHandler::registerClass(QMetaObject metaObj, const QString& moduleId)
 {
     QString classname = metaObj.className();
 
@@ -53,7 +54,7 @@ GtExportHandler::registerClass(QMetaObject metaObj)
         return false;
     }
 
-    if (!GtAbstractObjectFactory::registerClass(metaObj))
+    if (!GtAbstractObjectFactory::registerClass(metaObj, moduleId))
     {
         return false;
     }

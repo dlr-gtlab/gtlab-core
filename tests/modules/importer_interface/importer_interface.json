@@ -1,5 +1,8 @@
 {
-    "dependencies" : [
-        { "name" : "Test Datamodel Interface", "version" : "1" }
+    "dependencies": [
+        {
+            "name": "Test Datamodel Interface",
+            "version": "1"
+        }
     ]
 }

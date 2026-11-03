@@ -9,6 +9,7 @@
 
 #include "gt_project.h"
 #include "gt_objectmemento.h"
+#include "gt_abstractobjectfactory.h"
 #include "gt_objectfactory.h"
 #include "gt_processfactory.h"
 
@@ -179,6 +180,13 @@ GtProjectDependencyAnalyzer::Impl::resolveClassModule(
     if (moduleId.isEmpty() && m_project)
     {
         moduleId = m_project->classModuleId(className);
+    }
+
+    // classes with the built-in module id are core classes and do not
+    // create module dependencies.
+    if (moduleId == GtAbstractObjectFactory::builtinModuleId())
+    {
+        return {};
     }
 
     return moduleId;
