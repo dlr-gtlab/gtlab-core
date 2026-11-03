@@ -869,3 +869,47 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty,
     EXPECT_EQ(roottask->propRelObjLink()->getVal(), target->uuid());
     EXPECT_EQ(calc1->relLink()->getVal(), target->uuid());
 }
+
+TEST_F(TestGtTaskRelativeObjectLinkProperty,
+       staleConnectionDoesNotSkipRelativeLinkTransfer)
+{
+    auto* staleConnection = new GtPropertyConnection;
+    staleConnection->setObjectName("staleConnection");
+    staleConnection->setSourceUuid(calc1->uuid());
+    staleConnection->setSourceProp("doubleProp2");
+    staleConnection->setTargetUuid("missing-target");
+    staleConnection->setTargetProp("doubleProp1");
+    roottask->appendChild(staleConnection);
+
+    for (bool strict : {false, true})
+    {
+        SCOPED_TRACE(strict);
+        std::unique_ptr<GtTask> copy(
+            gt::utils::process::deepCopyTask(roottask, strict));
+        if (strict)
+        {
+            EXPECT_EQ(copy, nullptr);
+        }
+        else
+        {
+            ASSERT_NE(copy, nullptr);
+            auto* copiedTask =
+                qobject_cast<TestTaskWithRelativeObjectLinkProperty*>(
+                    copy.get());
+            auto* copiedCalculator = copy->findChild<TestGtCalculator*>("c1");
+            auto* copiedConnection =
+                copy->findChild<GtPropertyConnection*>("staleConnection");
+            ASSERT_NE(copiedTask, nullptr);
+            ASSERT_NE(copiedCalculator, nullptr);
+            ASSERT_NE(copiedConnection, nullptr);
+            EXPECT_NE(copiedCalculator->uuid(), calc1->uuid());
+            EXPECT_EQ(copiedTask->propRelObjLink()->getVal(),
+                      copiedCalculator->uuid());
+            EXPECT_EQ(copiedConnection->sourceUuid(), copiedCalculator->uuid());
+            EXPECT_TRUE(copiedConnection->targetUuid().isEmpty());
+        }
+        EXPECT_EQ(roottask->propRelObjLink()->getVal(), calc1->uuid());
+        EXPECT_EQ(staleConnection->sourceUuid(), calc1->uuid());
+        EXPECT_EQ(staleConnection->targetUuid(), "missing-target");
+    }
+}
