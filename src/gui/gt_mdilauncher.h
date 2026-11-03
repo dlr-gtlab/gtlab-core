@@ -45,6 +45,7 @@ public:
      * @brief instance
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::instance`")
     static GtMdiLauncher* instance();
 
     /**
@@ -119,18 +120,21 @@ public:
     /**
      * @brief Calls print routine of current mdi window.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::printCurrentWindow`")
     void printCurrentWindow();
 
     /**
      * @brief print
      * @param subWindow
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::print`")
     void print(QWidget* widget);
 
     /**
      * @brief Returns true if current gui item is printable.
      * @return Is printable
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::isCurrentWindowPrintable`")
     bool isCurrentWindowPrintable() const;
 
     /**
@@ -138,6 +142,7 @@ public:
      * @param subWindow
      * @return Is printable
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::isPrintable`")
     bool isPrintable(QWidget* widget) const;
 
     /**
@@ -148,6 +153,7 @@ public:
      *
      * @return The list of actions
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::toolbarActions`")
     std::vector<GtQmlAction*> toolbarActions(QWidget* widget) const;
 
     /**
@@ -161,11 +167,12 @@ public:
     /**
      * @brief Closes all active MDI items.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::closeAll`")
     void closeAll();
 
     /** DEPRECATED API **/
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::makeGuiItem()`")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::makeGuiItem`")
     GtObject* newObject(const QString& className,
                         GtObject* parent = nullptr) override;
 
@@ -255,6 +262,7 @@ public slots:
      * @param customId
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::open`")
     GtMdiItem* open(const QString& id,
                     GtObject* data = nullptr,
                     const QString& customId = QString());
@@ -265,6 +273,7 @@ public slots:
      * @param customId
      * @return
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::open`")
     GtMdiItem* open(const QString& id, const QString& customId);
 
 private:
@@ -278,13 +287,13 @@ private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
-    /**
-     * @brief isItemAllowed
-     * @param mdiItem
-     * @param data
-     * @return
-     */
-    bool isItemAllowed(GtMdiItem* mdiItem);
+//    /**
+//     * @brief isItemAllowed
+//     * @param mdiItem
+//     * @param data
+//     * @return
+//     */
+//    bool isItemAllowed(GtMdiItem* mdiItem);
 
     /**
      * @brief setFocus
