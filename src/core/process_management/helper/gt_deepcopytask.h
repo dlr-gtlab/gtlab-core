@@ -93,7 +93,7 @@ GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtProcessCompon
  * @return
  */
 GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
-    GtProcessComponent* procCompCopy, const GtObjectUUIDMap* uuidMap);
+    GtObject* objCopy, const GtObjectUUIDMap* uuidMap);
 
 
 } // namespace process
