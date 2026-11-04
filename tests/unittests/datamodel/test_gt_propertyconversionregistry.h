@@ -8,6 +8,7 @@
 #define TEST_GT_PROPERTYCONVERSIONREGISTRY_H
 
 #include "gt_abstractproperty.h"
+#include "gt_doubleproperty.h"
 
 // Minimal GtAbstractProperty subclasses with unique class names used to
 // register isolated type pairs in the global GtPropertyConversionRegistry
@@ -211,4 +212,31 @@ public:
     }
 };
 
+class GtTestRegistryDoublePropA : public GtDoubleProperty
+{
+    Q_OBJECT
+
+public:
+    GtTestRegistryDoublePropA(const QString& ident,
+                              const QString& name,
+                              const QString& brief,
+                              const GtUnit::Category& unitCategory,
+                              const double& value = 0.0) :
+        GtDoubleProperty(ident, name, brief, unitCategory, value)
+    { }
+};
+
+class GtTestRegistryDoublePropB : public GtDoubleProperty
+{
+    Q_OBJECT
+
+public:
+    GtTestRegistryDoublePropB(const QString& ident,
+                              const QString& name,
+                              const QString& brief,
+                              const GtUnit::Category& unitCategory,
+                              const double& value = 0.0) :
+        GtDoubleProperty(ident, name, brief, unitCategory, value)
+    { }
+};
 #endif // TEST_GT_PROPERTYCONVERSIONREGISTRY_H

@@ -41,7 +41,11 @@
  * implicit default converter. It accepts a value if both property
  * instances hold the same variant type and passes the value through
  * unchanged (see gt::conversion::defaultConverter and
- * gt::conversion::defaultCompatibility).
+ * gt::conversion::defaultCompatibility). An explicitly registered
+ * converter always takes precedence over the implicit default
+ * converter, no matter where in the inheritance chains it matches.
+ * The implicit default converter is only used if no registered
+ * converter matches the pair at all.
  */
 class GT_DATAMODEL_EXPORT GtPropertyConversionRegistry
 {
@@ -99,7 +103,7 @@ public:
     template <typename Converter>
     void registerConnectionCompatibility(
         const QMetaObject& from, const QMetaObject& to, Converter&& conversion,
-        gt::conversion::isCompatible canConnect)
+        gt::conversion::isCompatible canConnect = {})
     {
         auto erasedConversion =
             gt::conversion::eraseConverter(std::forward<Converter>(conversion));

@@ -607,3 +607,31 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
 
     ASSERT_NE(iter2, log.end());
 }
+
+
+TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample)
+{
+    GtTestRegistryDoublePropA a{"a", "a", "a", GtUnit::Temperature};
+    GtTestRegistryDoublePropA a2{"a2", "a2", "a2", GtUnit::Pressure};
+
+    GtTestRegistryDoublePropB b{"b", "b", "b", GtUnit::Temperature};
+    GtTestRegistryDoublePropB b2{"b2", "b2", "b2", GtUnit::Pressure};
+
+    GtDoubleProperty d{"d", "d", "d", GtUnit::Temperature};
+    GtDoubleProperty d2{"d2", "d2", "d2", GtUnit::Pressure};
+
+    EXPECT_TRUE(a.canConnect(b));
+    EXPECT_TRUE(a.canConnect(d));
+
+    EXPECT_FALSE(a.canConnect(b2));
+    EXPECT_FALSE(a.canConnect(d2));
+
+    EXPECT_TRUE(b.canConnect(a));
+    EXPECT_TRUE(b.canConnect(d));
+
+    EXPECT_FALSE(b.canConnect(a2));
+    EXPECT_FALSE(b.canConnect(d2));
+
+    EXPECT_FALSE(a.canConnect(a2));
+    EXPECT_FALSE(b.canConnect(b2));
+}

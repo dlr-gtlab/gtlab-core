@@ -170,10 +170,7 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
 
         const bool isBetter =
             !best.found || score < bestScore ||
-            (score == bestScore && fromIndex < best.fromIndex) ||
-            (score == bestScore && fromIndex == best.fromIndex &&
-             toIndex == best.toIndex && candidate != nullptr &&
-             best.converter == nullptr);
+            (score == bestScore && fromIndex < best.fromIndex);
 
         if (isBetter)
         {
@@ -212,6 +209,15 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
     }
 
     if (!includeImplicit)
+    {
+        return best;
+    }
+
+    // An explicitly registered converter always takes precedence over
+    // the implicit default converter, no matter how far up the
+    // inheritance chains it matches. The implicit candidates are only
+    // considered if no registered converter matched at all.
+    if (best.found)
     {
         return best;
     }
