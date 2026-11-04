@@ -35,6 +35,9 @@ public:
 
     static bool isActive() noexcept
     {
+        // Scopes in other translation units change this thread-local state.
+        // Cppcheck 2.22 incorrectly treats its initial value as constant here.
+        // cppcheck-suppress knownConditionTrueFalse
         return depth() != 0;
     }
 
