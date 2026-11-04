@@ -21,6 +21,8 @@
 #include <QStringRef>
 
 #include <cfloat>
+#include <cerrno>
+#include <cstdlib>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -1016,6 +1018,93 @@ propertyToVariant(const QString& value, const QString& type)
     return retval;
 }
 
+/**
+ * @brief Parses a well-formed ASCII number with strtod (C locale)
+ * @param data UTF-16 data of the value
+ * @param length number of QChars in the value
+ * @param out parsed value on success
+ * @return true if the value could be parsed via the fast path
+ *
+ * QStringRef::toDouble() goes through the full QLocale C-locale parsing
+ * machinery. For values that are already plain ASCII numerics, strtod
+ * delivers bit-identical IEEE-754 results (verified against the full set of
+ * real project values). Anything else - signs, whitespace, hex, inf/nan,
+ * trailing garbage, overflow/underflow - falls back to the Qt parser.
+ */
+static bool
+tryParseDoubleAscii(const QChar* data, int length, double* out)
+{
+    // validate: [sign] digits [. digits] [eE [sign] digits]
+    int i = 0;
+    if (i < length
+        && (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
+    {
+        i++;
+    }
+    int digits = 0;
+    while (i < length
+           && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+    {
+        i++;
+        digits++;
+    }
+    if (i < length && data[i] == QLatin1Char('.'))
+    {
+        i++;
+        while (i < length
+               && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+        {
+            i++;
+            digits++;
+        }
+    }
+    if (digits == 0)
+    {
+        return false;
+    }
+    if (i < length
+        && (data[i] == QLatin1Char('e') || data[i] == QLatin1Char('E')))
+    {
+        i++;
+        if (i < length
+            && (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
+        {
+            i++;
+        }
+        int expDigits = 0;
+        while (i < length
+               && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+        {
+            i++;
+            expDigits++;
+        }
+        if (expDigits == 0)
+        {
+            return false;
+        }
+    }
+    if (i != length)
+    {
+        return false;
+    }
+
+    // every character is guaranteed ASCII at this point
+    char buf[64];
+    if (length > 63)
+    {
+        return false;
+    }
+    for (int j = 0; j < length; j++)
+    {
+        buf[j] = static_cast<char>(data[j].unicode());
+    }
+    buf[length] = '\0';
+
+    errno = 0;
+    *out = strtod(buf, nullptr);
+    return errno != ERANGE; // overflow/underflow -> let the Qt parser decide
+}
+
 QVariant
 propertyListToVariant(const QString& value, const QString& type)
 {
@@ -1030,7 +1119,12 @@ propertyListToVariant(const QString& value, const QString& type)
 
         foreach (const auto& val, strList)
         {
-            list.append(val.toDouble());
+            double fastVal = 0.0;
+            if (!tryParseDoubleAscii(val.data(), val.length(), &fastVal))
+            {
+                fastVal = val.toDouble();
+            }
+            list.append(fastVal);
         }
 
         var.setValue(list);
