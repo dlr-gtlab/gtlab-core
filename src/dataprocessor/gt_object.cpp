@@ -134,6 +134,10 @@ struct GtObject::Impl
     /// Runtime properties are owned independently of static member properties.
     std::vector<std::unique_ptr<GtAbstractProperty>> dynamicProperties;
 
+    /// index of registered properties by ident (cache for findProperty;
+    /// properties are never removed and idents are immutable)
+    QHash<QString, GtAbstractProperty*> propertyIndex;
+
     /// dynamic size properties
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
 
