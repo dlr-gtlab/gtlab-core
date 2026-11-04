@@ -9,6 +9,7 @@
 
 #include "gt_abstractproperty.h"
 #include "gt_doubleproperty.h"
+#include "gt_intproperty.h"
 
 // Minimal GtAbstractProperty subclasses with unique class names used to
 // register isolated type pairs in the global GtPropertyConversionRegistry
@@ -212,6 +213,28 @@ public:
     }
 };
 
+class GtTestRegistryPropJ : public GtAbstractProperty
+{
+    Q_OBJECT
+
+public:
+    GtTestRegistryPropJ() = default;
+
+    QVariant valueToVariant(const QString& unit, bool* success) const override
+    {
+        Q_UNUSED(unit)
+        if (success) *success = true;
+        return QVariant();
+    }
+
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override
+    {
+        Q_UNUSED(val)
+        Q_UNUSED(unit)
+        return true;
+    }
+};
+
 class GtTestRegistryDoublePropA : public GtDoubleProperty
 {
     Q_OBJECT
@@ -237,6 +260,31 @@ public:
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtDoubleProperty(ident, name, brief, unitCategory, value)
+    { }
+};
+
+class GtTestRegistryDoublePropC : public GtTestRegistryDoublePropB
+{
+    Q_OBJECT
+
+public:
+    GtTestRegistryDoublePropC(const QString& ident,
+                              const QString& name,
+                              const QString& brief,
+                              const GtUnit::Category& unitCategory,
+                              const double& value = 0.0) :
+        GtTestRegistryDoublePropB(ident, name, brief, unitCategory, value)
+    { }
+};
+class GtTestRegistryIntPropD : public GtIntProperty
+{
+    Q_OBJECT
+
+public:
+    GtTestRegistryIntPropD(const QString& ident,
+                           const QString& name,
+                           const QString& brief) :
+        GtIntProperty(ident, name, brief)
     { }
 };
 #endif // TEST_GT_PROPERTYCONVERSIONREGISTRY_H

@@ -149,6 +149,23 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
     EXPECT_FALSE(propG1.canConnect(propG2));
 }
 
+TEST(TestGtPropertyConversionRegistry, registerWithoutCanConnect)
+{
+    GtTestRegistryPropG propG;
+    GtTestRegistryPropJ propJ;
+
+    // a registered canConnect function
+    gtPropConversion().registerConnectionCompatibility(
+        GtTestRegistryPropG::staticMetaObject,
+        GtTestRegistryPropJ::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        -> gt::conversion::ConversionResult<bool> {
+            return gt::conversion::ConversionResult<bool>::success(true);
+        });
+
+    EXPECT_TRUE(propG.canConnect(propJ));
+}
+
 TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
 {
     GtTestRegistryPropH propH;
@@ -634,4 +651,42 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample)
 
     EXPECT_FALSE(a.canConnect(a2));
     EXPECT_FALSE(b.canConnect(b2));
+}
+
+TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
+{
+    // register converter D to double and to doubleB
+    // check which converter is chosen if there is asked for
+    // the conversion from D to C
+
+    gtPropConversion().registerConnectionCompatibility(
+        GtTestRegistryIntPropD::staticMetaObject,
+        GtDoubleProperty::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        -> gt::conversion::ConversionResult<double> {
+            return gt::conversion::ConversionResult<double>::success(10);
+        });
+
+    gtPropConversion().registerConnectionCompatibility(
+        GtTestRegistryIntPropD::staticMetaObject,
+        GtTestRegistryDoublePropB::staticMetaObject,
+        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        -> gt::conversion::ConversionResult<double> {
+            return gt::conversion::ConversionResult<double>::success(-5);
+        });
+
+    const auto function = gtPropConversion().convertFunction(
+        GtTestRegistryIntPropD::staticMetaObject,
+        GtTestRegistryDoublePropB::staticMetaObject);
+
+    GtTestRegistryIntPropD intd {"intd", "intd", "intd"};
+    GtTestRegistryDoublePropC doubleC {"doubleC", "doubleC", "doubleC",
+                                      GtUnit::None};
+    intd.setVal(1);
+    doubleC.setVal(1);
+
+    gt::conversion::ConversionResult<QVariant> res = function(intd, doubleC);
+
+    // indicator that the converter of the better match has been selected
+    EXPECT_TRUE(res.value->toDouble() < 0);
 }
