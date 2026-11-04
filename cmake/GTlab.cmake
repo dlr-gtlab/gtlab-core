@@ -19,7 +19,7 @@ macro(gtlab_standard_setup)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR})
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR})
 
 
     if(NOT DEFINED CMAKE_DEBUG_POSTFIX)
@@ -28,6 +28,9 @@ macro(gtlab_standard_setup)
 
     # Instruct CMake to run moc automatically when needed.
     set(CMAKE_AUTOMOC ON)
+
+    # set some standard installation paths
+    include(GNUInstallDirs)
 endmacro()
 
 function(_gtlab_get_layout_value name fallback output)
