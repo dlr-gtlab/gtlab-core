@@ -6,6 +6,7 @@
  */
 
 #include "gt_deepcopytask.h"
+#include "internal/gt_scopedconnectiondeferral.h"
 #include "gt_coredatamodel.h"
 #include "gt_objectuuidmap.h"
 #include "gt_relativeobjectlinkproperty.h"
@@ -32,14 +33,11 @@ deepCopyTask(GtTask* taskOrig, bool strict)
         return nullptr;
     }
 
-    //TODO: copy will fire a gtError: "Property connection could not be established!   Source object not found! "
-    //During restoring from memento, GtTask::onObjectDataMerged() will trigger makeConnection() of each property connection
-    //This error needs to be suppressed
-    gtError() << "TODO: The possible following error(s) 'Property connection "
-                 "could not be established!   Source object not found!' are "
-                 "misleading and need suppression.";
-    auto copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
-    gtError() << "<<< END TODO misleading error(s)";
+    GtTask* copiedTask = nullptr;
+    {
+        gt::detail::ScopedConnectionDeferral deferConnections;
+        copiedTask = qobject_cast<GtTask*>(taskOrig->copy(uuidMap));
+    }
 
     if (!copiedTask)
     {
@@ -84,6 +82,7 @@ deepCopyTask(GtTask* taskOrig, bool strict)
     // not root task, take with the internal property connections
     if (rootTask != taskOrig)
     {
+        gt::detail::ScopedConnectionDeferral deferConnections;
         for (auto* c : allCons.internal)
         {
             auto newCon = c->copy();
@@ -132,10 +131,10 @@ transferPropertyConnectionsViaMapping(GtTask* taskCopy,
 
     for (auto con : qAsConst(allCons))
     {
-        gtError() << "Connection: " + con->objectName() + "\n      |-> " +
-                         con->sourceUuid() + "(" + con->sourceProp() + ")" +
-                         " -> " + con->targetUuid() + "(" + con->targetProp() +
-                         ")";
+        gtDebug().verbose()
+            << "Connection: " + con->objectName() + "\n      |-> " +
+                   con->sourceUuid() + "(" + con->sourceProp() + ")" + " -> " +
+                   con->targetUuid() + "(" + con->targetProp() + ")";
 
         auto origSrcUuid = con->sourceUuid();
         auto origTargetUuid = con->targetUuid();
