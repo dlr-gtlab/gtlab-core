@@ -58,6 +58,8 @@ public:
      */
     QStringList knownUIObjects() const;
 
+    void initModulesGUI();
+
 protected:
     /**
      * @brief check
@@ -73,8 +75,9 @@ protected:
     void insert(GtModuleInterface* plugin) override;
 
 private:
-    // object specific user interfaces
-    QHash<QString, GtObjectUIList> m_uiObjs;
+    /// Private implementation
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief registerObjectUI

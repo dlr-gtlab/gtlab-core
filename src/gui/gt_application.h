@@ -83,6 +83,11 @@ public:
     void loadModules() override;
 
     /**
+     * @brief Initializes all loaded modules including GUI-related elements.
+     */
+    void initModules() override;
+
+    /**
      * @brief perspectiveIds
      * @return
      */
