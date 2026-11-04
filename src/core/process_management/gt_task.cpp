@@ -343,6 +343,8 @@ GtTask::selectedProcessRunner() const
 void
 GtTask::onObjectDataMerged()
 {
+    // Deep-copy scopes in another translation unit activate this state.
+    // cppcheck-suppress knownConditionTrueFalse
     if (gt::detail::ScopedConnectionDeferral::isActive())
     {
         return;
