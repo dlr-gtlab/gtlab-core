@@ -10,7 +10,6 @@
  */
 
 #include "gt_doublemonitoringproperty.h"
-#include "gt_propertyconversionregistry.h"
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& name,
@@ -22,7 +21,7 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& name) :
-    GtDoubleMonitoringProperty(ident, name, QString())
+    GtDoubleProperty(ident, name, QString())
 {
     setMonitoring(true);
 }
