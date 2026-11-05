@@ -413,7 +413,7 @@ GtAbstractProperty::isConnectable() const
 }
 
 bool
-GtAbstractProperty::canConnect(GtAbstractProperty const& b)
+GtAbstractProperty::canConnect(const GtAbstractProperty& b)
 {
     return gtPropConversion().connectionCheckAvailable(*this, b);
 }

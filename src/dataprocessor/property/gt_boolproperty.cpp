@@ -27,8 +27,7 @@ GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
 
 GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name) :
     GtBoolProperty(ident, name, QString(), false)
-{
-}
+{ }
 
 QVariant
 GtBoolProperty::valueToVariant(const QString& unit,

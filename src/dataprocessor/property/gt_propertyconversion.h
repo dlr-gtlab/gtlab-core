@@ -15,26 +15,26 @@
 
 namespace gt
 {
-    namespace conversion
-    {
-        /**
+namespace conversion
+{
+/**
          * @brief Result status of a property conversion
          *
          * Conversion functions report the outcome of a conversion with
          * this status as part of a ConversionResult.
          */
-        enum class conversionSuccess
-        {
-            /// The value could be converted without loss of information
-            Success = 0,
-            /// The value was converted, but part of the information was
-            /// lost
-            Lossy,
-            /// The value could not be converted
-            Failed
-        };
+enum class conversionSuccess
+{
+    /// The value could be converted without loss of information
+    Success = 0,
+    /// The value was converted, but part of the information was
+    /// lost
+    Lossy,
+    /// The value could not be converted
+    Failed
+};
 
-        /**
+/**
          * @brief Result of a property conversion
          *
          * Combines the computed target value with the conversion
@@ -45,61 +45,61 @@ namespace gt
          *
          * @tparam T Type of the converted value
          */
-        template <typename T>
-        struct ConversionResult
-        {
-            using value_type = T;
+template <typename T>
+struct ConversionResult
+{
+    using value_type = T;
 
-            /// Converted value, set for successful and lossy
-            /// conversions
-            std::optional<T> value;
-            /// Status of the conversion
-            conversionSuccess status{conversionSuccess::Failed};
+    /// Converted value, set for successful and lossy
+    /// conversions
+    std::optional<T> value;
+    /// Status of the conversion
+    conversionSuccess status{conversionSuccess::Failed};
 
-            /**
+    /**
              * @brief Creates a result for a lossless conversion
              * @param value Converted value
              * @return Result with status Success
              */
-            static ConversionResult success(T value)
-            {
-                return {std::move(value), conversionSuccess::Success};
-            }
+    static ConversionResult success(T value)
+    {
+        return {std::move(value), conversionSuccess::Success};
+    }
 
-            /**
+    /**
              * @brief Creates a result for a lossy conversion
              * @param value Converted value
              * @return Result with status Lossy
              */
-            static ConversionResult lossy(T value)
-            {
-                return {std::move(value), conversionSuccess::Lossy};
-            }
+    static ConversionResult lossy(T value)
+    {
+        return {std::move(value), conversionSuccess::Lossy};
+    }
 
-            /**
+    /**
              * @brief Creates a result for a failed conversion
              * @return Result without a value and status Failed
              */
-            static ConversionResult failed()
-            {
-                return {std::nullopt, conversionSuccess::Failed};
-            }
-        };
+    static ConversionResult failed()
+    {
+        return {std::nullopt, conversionSuccess::Failed};
+    }
+};
 
-        /// Type erased conversion result using QVariant as value type
-        using erasedConversionResult = ConversionResult<QVariant>;
+/// Type erased conversion result using QVariant as value type
+using erasedConversionResult = ConversionResult<QVariant>;
 
-        /**
+/**
          * @brief Type erased property conversion function
          *
          * Takes the source and the target property as const references
          * and computes the value of the target property. The function
          * does not modify the target property itself.
          */
-        using convert = std::function<erasedConversionResult(
-            const GtAbstractProperty& from, const GtAbstractProperty& to)>;
+using convert = std::function<erasedConversionResult(
+    const GtAbstractProperty& from, const GtAbstractProperty& to)>;
 
-        /**
+/**
          * @brief Wraps a typed conversion callable into a type erased
          * convert function
          *
@@ -113,42 +113,38 @@ namespace gt
          * @param converter Conversion callable to wrap
          * @return Type erased convert function
          */
-        template <typename Converter>
-        gt::conversion::convert eraseConverter(Converter converter)
-        {
-            return [converter = std::move(converter)](
-                       const GtAbstractProperty& from,
-                       const GtAbstractProperty& to) mutable
-                       -> gt::conversion::erasedConversionResult {
-                auto result = converter(from, to);
+template <typename Converter>
+gt::conversion::convert
+eraseConverter(Converter converter)
+{
+    return
+        [converter = std::move(converter)](const GtAbstractProperty& from,
+                                           const GtAbstractProperty& to) mutable
+            -> gt::conversion::erasedConversionResult {
+            auto result = converter(from, to);
 
-                if (result.status ==
-                        gt::conversion::conversionSuccess::Failed ||
-                    !result.value)
-                {
-                    return gt::conversion::erasedConversionResult::failed();
-                }
+            if (result.status == gt::conversion::conversionSuccess::Failed ||
+                !result.value)
+            {
+                return gt::conversion::erasedConversionResult::failed();
+            }
 
-                using ValueType = typename decltype(result)::value_type;
+            using ValueType = typename decltype(result)::value_type;
 
-                QVariant value;
+            QVariant value;
 
-                if constexpr (std::is_same_v<ValueType, QVariant>)
-                {
-                    value = std::move(*result.value);
-                }
-                else
-                {
-                    value = QVariant::fromValue(std::move(*result.value));
-                }
+            if constexpr (std::is_same_v<ValueType, QVariant>)
+            {
+                value = std::move(*result.value);
+            }
+            else
+            {
+                value = QVariant::fromValue(std::move(*result.value));
+            }
 
-                if (result.status == gt::conversion::conversionSuccess::Lossy)
-                {
-                    return gt::conversion::erasedConversionResult::lossy(
-                        std::move(value));
-                }
-
-                return gt::conversion::erasedConversionResult::success(
+            if (result.status == gt::conversion::conversionSuccess::Lossy)
+            {
+                return gt::conversion::erasedConversionResult::lossy(
                     std::move(value));
             };
         }
@@ -159,10 +155,10 @@ namespace gt
          * Returns true if the source property may be connected to the
          * target property.
          */
-        using isCompatible = std::function<bool(GtAbstractProperty const& from,
-                                                GtAbstractProperty const& to)>;
+using isCompatible = std::function<bool(const GtAbstractProperty& from,
+                                        const GtAbstractProperty& to)>;
 
-        /**
+/**
          * @brief Default conversion for identical value types
          *
          * Copies the value of the source property if both properties
@@ -173,10 +169,10 @@ namespace gt
          * @return Result carrying the source value, or Failed if the
          * variant types of the two properties do not match
          */
-        gt::conversion::ConversionResult<QVariant> defaultConverter(
-            const GtAbstractProperty& source, const GtAbstractProperty& target);
+gt::conversion::ConversionResult<QVariant> defaultConverter(
+    const GtAbstractProperty& source, const GtAbstractProperty& target);
 
-        /**
+/**
          * @brief Creates the default compatibility check
          *
          * The returned function accepts a connection if both
@@ -184,14 +180,14 @@ namespace gt
          *
          * @return Default compatibility check function
          */
-        gt::conversion::isCompatible defaultCompatibility();
+gt::conversion::isCompatible defaultCompatibility();
 
-        /**
+/**
          * @brief Conversions from a GtDoubleProperty source
          */
-        namespace fromDouble
-        {
-            /**
+namespace fromDouble
+{
+/**
              * @brief Checks if a double property may be connected to
              * another double property
              *
@@ -203,10 +199,10 @@ namespace gt
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToDouble(GtAbstractProperty const& source,
-                                    GtAbstractProperty const& target);
+bool canConnectToDouble(const GtAbstractProperty& source,
+                        const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Converts the value of a double property to int
              *
              * The value is rounded to the nearest integer. The
@@ -220,10 +216,10 @@ namespace gt
              * @param target Target property
              * @return Result carrying the converted value
              */
-            ConversionResult<int> toInt(GtAbstractProperty const& source,
-                                        GtAbstractProperty const& target);
+ConversionResult<int> toInt(const GtAbstractProperty& source,
+                            const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Checks if a double property may be connected to
              * an int property
              *
@@ -234,8 +230,8 @@ namespace gt
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToInt(GtAbstractProperty const& source,
-                                 GtAbstractProperty const& target);
+bool canConnectToInt(const GtAbstractProperty& source,
+                     const GtAbstractProperty& target);
 
 
         } // namespace fromDouble
