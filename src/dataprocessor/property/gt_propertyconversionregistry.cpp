@@ -72,14 +72,22 @@ gt::conversion::isCompatible
 GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
                                                    const QMetaObject& to) const
 {
-    const auto match = findBestConverterWithInheritance(
-        from, to, LookupPurpose::Compatibility);
+    const auto match = findBestConverterWithInheritance(from, to);
 
     if (!match.found) return {};
 
     if (!match.converter)
     {
         return gt::conversion::defaultCompatibility();
+    }
+
+    // A converter registered without a compatibility check implies
+    // that the connection is possible, the check always accepts.
+    if (!match.converter->isCompatibleFunc())
+    {
+        return [](GtAbstractProperty const&, GtAbstractProperty const&) {
+            return true;
+        };
     }
 
     return match.converter->isCompatibleFunc();
@@ -89,8 +97,7 @@ gt::conversion::convert
 GtPropertyConversionRegistry::convertFunction(const QMetaObject& from,
                                               const QMetaObject& to) const
 {
-    const auto match =
-        findBestConverterWithInheritance(from, to, LookupPurpose::Conversion);
+    const auto match = findBestConverterWithInheritance(from, to);
 
     if (!match.found) return {};
 
@@ -106,8 +113,7 @@ const GtPropertyConverter*
 GtPropertyConversionRegistry::findConverterWithInheritance(
     const QMetaObject& from, const QMetaObject& to) const
 {
-    const auto match = findBestConverterWithInheritance(
-        from, to, LookupPurpose::AnyRegistered, false);
+    const auto match = findBestConverterWithInheritance(from, to, false);
 
     return match.converter;
 }
@@ -145,8 +151,7 @@ GtPropertyConversionRegistry::connectionCheckAvailable(
 
 GtPropertyConversionRegistry::ConverterMatch
 GtPropertyConversionRegistry::findBestConverterWithInheritance(
-    const QMetaObject& from, const QMetaObject& to, LookupPurpose purpose,
-    bool includeImplicit) const
+    const QMetaObject& from, const QMetaObject& to, bool includeImplicit) const
 {
     const auto fromChain = inheritanceChain(from);
     const auto toChain = inheritanceChain(to);
@@ -192,18 +197,6 @@ GtPropertyConversionRegistry::findBestConverterWithInheritance(
         const auto toIndex = findTypeIndex(toChain, converter.toClassName());
 
         if (toIndex == toChain.size()) continue;
-
-        // Only consider converters that provide the requested function.
-        if (purpose == LookupPurpose::Conversion && !converter.convertFunc())
-        {
-            continue;
-        }
-
-        if (purpose == LookupPurpose::Compatibility &&
-            !converter.isCompatibleFunc())
-        {
-            continue;
-        }
 
         considerCandidate(&converter, fromIndex, toIndex);
     }

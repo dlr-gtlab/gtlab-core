@@ -46,6 +46,11 @@
  * converter, no matter where in the inheritance chains it matches.
  * The implicit default converter is only used if no registered
  * converter matches the pair at all.
+ *
+ * The compatibility check of a converter is optional. If the matching
+ * converter was registered without one, the pair is always considered
+ * connectable, the existence of the converter already states that the
+ * connection is possible.
  */
 class GT_DATAMODEL_EXPORT GtPropertyConversionRegistry
 {
@@ -122,7 +127,9 @@ public:
      * @param from Meta object of the source property class
      * @param to Meta object of the target property class
      * @return The compatibility check of the most specific matching
-     * converter. If the matching converter does not provide one, the
+     * converter. If the matching converter was registered without a
+     * compatibility check, a check that always accepts the connection
+     * is returned. If only the implicit default converter matches, the
      * implicit default compatibility check is returned. If no converter
      * matches at all, an empty function is returned.
      */
@@ -139,7 +146,7 @@ public:
      * @param from Meta object of the source property class
      * @param to Meta object of the target property class
      * @return The conversion function of the most specific matching
-     * converter. If the matching converter does not provide one, the
+     * converter. If only the implicit default converter matches, the
      * implicit default conversion function is returned. If no converter
      * matches at all, an empty function is returned.
      */
@@ -190,17 +197,6 @@ public:
                                   GtAbstractProperty const& b);
 
 private:
-    /// Purpose of a converter lookup
-    enum class LookupPurpose
-    {
-        /// Any registered converter matches
-        AnyRegistered,
-        /// Only converters providing a conversion function match
-        Conversion,
-        /// Only converters providing a compatibility function match
-        Compatibility
-    };
-
     /// Result of a converter lookup
     struct ConverterMatch
     {
@@ -226,13 +222,14 @@ private:
      * determined. The converter with the smallest sum of both indices
      * is the most specific match; if several converters match with the
      * same sum, the smaller source index wins, then the smaller target
-     * index. An explicitly registered converter beats the implicit
-     * default converter at the same position.
+     * index.
+     *
+     * An explicitly registered converter always takes precedence over
+     * the implicit default converter. The implicit candidates are only
+     * considered if no registered converter matched at all.
      *
      * @param from Meta object of the source property class
      * @param to Meta object of the target property class
-     * @param purpose Determines which functions a matching converter
-     * must provide
      * @param includeImplicit If true, the implicit default converter
      * is considered for pairs of classes sharing a common base
      * property class
@@ -240,7 +237,7 @@ private:
      * inheritance chains
      */
     ConverterMatch findBestConverterWithInheritance(
-        const QMetaObject& from, const QMetaObject& to, LookupPurpose purpose,
+        const QMetaObject& from, const QMetaObject& to,
         bool includeImplicit = true) const;
 
     /// Creates the registry instance and registers the converters of
