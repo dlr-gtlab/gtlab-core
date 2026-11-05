@@ -232,8 +232,13 @@ inline void GtProperty<ParamType>::setValFromConnection()
     gt::conversion::convert conversion = gtPropConversion().convertFunction(
         *source->metaObject(), *this->metaObject());
 
-    if (!conversion) return;
-
+    if (!conversion)
+    {
+        gtWarning() << tr("Conversion failure in connection from %1 to %2:"
+                          "Conversion function not available.")
+                           .arg(source->objectName(), objectName());
+        return;
+    }
     const auto result = conversion(*source, *this);
 
     if (result.status == gt::conversion::conversionSuccess::Failed ||

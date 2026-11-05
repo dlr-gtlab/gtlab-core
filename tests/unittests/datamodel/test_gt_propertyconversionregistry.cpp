@@ -615,6 +615,7 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
     EXPECT_EQ(connection->sourcePropObject(),
               gt::getConnectedProperty(*connection));
     EXPECT_EQ(gt::getConnectedValue(*connection).toInt(), 8);
+    EXPECT_EQ(target->getInt(), 8);
 
     //  Expect to see a gtWarning
     auto iter2 =
@@ -677,7 +678,7 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
 
     const auto function = gtPropConversion().convertFunction(
         GtTestRegistryIntPropD::staticMetaObject,
-        GtTestRegistryDoublePropB::staticMetaObject);
+        GtTestRegistryDoublePropC::staticMetaObject);
 
     GtTestRegistryIntPropD intd{"intd", "intd", "intd"};
     GtTestRegistryDoublePropC doubleC{"doubleC", "doubleC", "doubleC",
