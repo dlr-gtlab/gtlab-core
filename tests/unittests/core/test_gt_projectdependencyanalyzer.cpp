@@ -619,7 +619,8 @@ TEST_F(ProjectFootprintTest, legacyDummyWithoutProviderKeepsOldFootprint)
     // been stored with class provider metadata
     auto dummy = createDummy(QStringLiteral("LegacyUnknownClass"));
     ASSERT_NE(dummy, nullptr);
-    ASSERT_TRUE(project->appendChild(dummy.get()));
+    auto* dummyObject = dummy.get();
+    ASSERT_TRUE(project->appendChild(dummyObject));
     dummy.release();
 
     // the provider of the unknown class cannot be determined
@@ -651,7 +652,7 @@ TEST_F(ProjectFootprintTest, legacyDummyWithoutProviderKeepsOldFootprint)
               QStringLiteral("2.0.0"));
 
     // the footprint can be recalculated after the unknown object is removed
-    delete dummy;
+    delete dummyObject;
 
     ASSERT_TRUE(gtDataModel->saveProject(project));
 
