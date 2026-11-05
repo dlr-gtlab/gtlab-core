@@ -176,7 +176,7 @@ using isCompatible = std::function<bool(const GtAbstractProperty& from,
 gt::conversion::ConversionResult<QVariant> defaultConverter(
     const GtAbstractProperty& source, const GtAbstractProperty& target);
 
-    /**
+/**
          * @brief Creates the default compatibility check
          *
          * The returned function accepts a connection if both
@@ -184,14 +184,14 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
          *
          * @return Default compatibility check function
          */
-    gt::conversion::isCompatible defaultCompatibility();
+gt::conversion::isCompatible defaultCompatibility();
 
-    /**
+/**
          * @brief Conversions from a GtDoubleProperty source
          */
-    namespace fromDouble
-    {
-    /**
+namespace fromDouble
+{
+/**
              * @brief Checks if a double property may be connected to
              * another double property
              *
@@ -203,10 +203,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return True if the connection is allowed
              */
-    bool canConnectToDouble(const GtAbstractProperty& source,
-                            const GtAbstractProperty& target);
+bool canConnectToDouble(const GtAbstractProperty& source,
+                        const GtAbstractProperty& target);
 
-    /**
+/**
              * @brief Converts the value of a double property to int
              *
              * The value is rounded to the nearest integer. The
@@ -220,10 +220,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return Result carrying the converted value
              */
-    ConversionResult<int> toInt(const GtAbstractProperty& source,
-                                const GtAbstractProperty& target);
+ConversionResult<int> toInt(const GtAbstractProperty& source,
+                            const GtAbstractProperty& target);
 
-    /**
+/**
              * @brief Checks if a double property may be connected to
              * an int property
              *
@@ -234,18 +234,18 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return True if the connection is allowed
              */
-    bool canConnectToInt(const GtAbstractProperty& source,
-                         const GtAbstractProperty& target);
+bool canConnectToInt(const GtAbstractProperty& source,
+                     const GtAbstractProperty& target);
 
 
-    } // namespace fromDouble
+} // namespace fromDouble
 
-    /**
+/**
          * @brief Conversions from a GtIntProperty source
          */
-        namespace fromInt
-        {
-            /**
+namespace fromInt
+{
+/**
              * @brief Checks if an int property may be connected to
              * another int property
              *
@@ -256,10 +256,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToInt(GtAbstractProperty const& source,
-                                 GtAbstractProperty const& target);
+bool canConnectToInt(const GtAbstractProperty& source,
+                     const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Converts the value of an int property to double
              *
              * The value is converted without loss of information.
@@ -268,10 +268,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return Result carrying the converted value
              */
-            ConversionResult<double> toDouble(GtAbstractProperty const& source,
-                                              GtAbstractProperty const& target);
+ConversionResult<double> toDouble(const GtAbstractProperty& source,
+                                  const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Checks if an int property may be connected to a
              * double property
              *
@@ -297,7 +297,7 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
             bool canConnectToBool(GtAbstractProperty const& source,
                                   GtAbstractProperty const& target);
 
-    /**
+/**
              * @brief Converts the value of an int property to bool
              *
              * Zero maps to false, all other values to true. Values
@@ -307,17 +307,17 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return Result carrying the converted value
              */
-    ConversionResult<bool> toBool(const GtAbstractProperty& source,
-                                  const GtAbstractProperty& target);
+ConversionResult<bool> toBool(const GtAbstractProperty& source,
+                              const GtAbstractProperty& target);
 
         } // namespace fromInt
 
         /**
          * @brief Conversions from a GtBoolProperty source
          */
-    namespace fromBool
-    {
-    /**
+namespace fromBool
+{
+/**
              * @brief Checks if a bool property may be connected to an
              * int property
              *
