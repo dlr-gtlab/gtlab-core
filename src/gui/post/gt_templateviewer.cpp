@@ -100,8 +100,8 @@ GtTemplateViewer::GtTemplateViewer() :
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
     connect(buttonAdd, SIGNAL(clicked(bool)), SLOT(addButtonClicked()));
-    // cppcheck-suppress virtualCallInConstructor
-    connect(buttonPrint, SIGNAL(clicked(bool)), SLOT(printButtonClicked()));
+    connect(buttonPrint, &QPushButton::clicked, this,
+            &GtTemplateViewer::printButtonClicked);
     connect(buttonPDF, SIGNAL(clicked(bool)), SLOT(pdfButtonClicked()));
 
     laybutton->addWidget(m_titleLineEdit);
