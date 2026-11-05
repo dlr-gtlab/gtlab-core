@@ -100,6 +100,7 @@ GtTemplateViewer::GtTemplateViewer() :
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
     connect(buttonAdd, SIGNAL(clicked(bool)), SLOT(addButtonClicked()));
+    // cppcheck-suppress virtualCallInConstructor
     connect(buttonPrint, SIGNAL(clicked(bool)), SLOT(printButtonClicked()));
     connect(buttonPDF, SIGNAL(clicked(bool)), SLOT(pdfButtonClicked()));
 
