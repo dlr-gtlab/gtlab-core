@@ -240,13 +240,13 @@ class GtTestRegistryDoublePropA : public GtDoubleProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryDoublePropA(const QString& ident,
-                              const QString& name,
+    GtTestRegistryDoublePropA(const QString& ident, const QString& name,
                               const QString& brief,
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtDoubleProperty(ident, name, brief, unitCategory, value)
-    { }
+    {
+    }
 };
 
 class GtTestRegistryDoublePropB : public GtDoubleProperty
@@ -254,13 +254,13 @@ class GtTestRegistryDoublePropB : public GtDoubleProperty
     Q_OBJECT
 
 public:
-    GtTestRegistryDoublePropB(const QString& ident,
-                              const QString& name,
+    GtTestRegistryDoublePropB(const QString& ident, const QString& name,
                               const QString& brief,
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtDoubleProperty(ident, name, brief, unitCategory, value)
-    { }
+    {
+    }
 };
 
 class GtTestRegistryDoublePropC : public GtTestRegistryDoublePropB
@@ -268,23 +268,23 @@ class GtTestRegistryDoublePropC : public GtTestRegistryDoublePropB
     Q_OBJECT
 
 public:
-    GtTestRegistryDoublePropC(const QString& ident,
-                              const QString& name,
+    GtTestRegistryDoublePropC(const QString& ident, const QString& name,
                               const QString& brief,
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtTestRegistryDoublePropB(ident, name, brief, unitCategory, value)
-    { }
+    {
+    }
 };
 class GtTestRegistryIntPropD : public GtIntProperty
 {
     Q_OBJECT
 
 public:
-    GtTestRegistryIntPropD(const QString& ident,
-                           const QString& name,
+    GtTestRegistryIntPropD(const QString& ident, const QString& name,
                            const QString& brief) :
         GtIntProperty(ident, name, brief)
-    { }
+    {
+    }
 };
 #endif // TEST_GT_PROPERTYCONVERSIONREGISTRY_H

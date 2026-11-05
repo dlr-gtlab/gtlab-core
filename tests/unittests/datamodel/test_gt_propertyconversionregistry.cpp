@@ -159,7 +159,7 @@ TEST(TestGtPropertyConversionRegistry, registerWithoutCanConnect)
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropJ::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const& b)
-        -> gt::conversion::ConversionResult<bool> {
+            -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         });
 
@@ -663,7 +663,7 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
         GtTestRegistryIntPropD::staticMetaObject,
         GtDoubleProperty::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const& b)
-        -> gt::conversion::ConversionResult<double> {
+            -> gt::conversion::ConversionResult<double> {
             return gt::conversion::ConversionResult<double>::success(10);
         });
 
@@ -671,7 +671,7 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
         GtTestRegistryIntPropD::staticMetaObject,
         GtTestRegistryDoublePropB::staticMetaObject,
         [](GtAbstractProperty const& a, GtAbstractProperty const& b)
-        -> gt::conversion::ConversionResult<double> {
+            -> gt::conversion::ConversionResult<double> {
             return gt::conversion::ConversionResult<double>::success(-5);
         });
 
@@ -679,8 +679,8 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
         GtTestRegistryIntPropD::staticMetaObject,
         GtTestRegistryDoublePropB::staticMetaObject);
 
-    GtTestRegistryIntPropD intd {"intd", "intd", "intd"};
-    GtTestRegistryDoublePropC doubleC {"doubleC", "doubleC", "doubleC",
+    GtTestRegistryIntPropD intd{"intd", "intd", "intd"};
+    GtTestRegistryDoublePropC doubleC{"doubleC", "doubleC", "doubleC",
                                       GtUnit::None};
     intd.setVal(1);
     doubleC.setVal(1);

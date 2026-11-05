@@ -239,15 +239,14 @@ inline void GtProperty<ParamType>::setValFromConnection()
     if (result.status == gt::conversion::conversionSuccess::Failed ||
         !result.value)
     {
-        gtWarning() << tr("Conversion failure in connection from %1 to %2").arg(
-            source->objectName(), objectName());
+        gtWarning() << tr("Conversion failure in connection from %1 to %2")
+                           .arg(source->objectName(), objectName());
         return;
     }
 
     const QVariant& variant = *result.value;
 
-    if (!variant.isValid() ||
-        variant.userType() != qMetaTypeId<ParamType>())
+    if (!variant.isValid() || variant.userType() != qMetaTypeId<ParamType>())
     {
         gtError() << tr("Property converter returned an unexpected value type");
         return;
