@@ -243,15 +243,16 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
         else
         {
             // createUIs by calling abstract DM class function
-            GtPostTemplateItem* abstractDM =
-                dynamic_cast<GtPostTemplateItem*>(obj.get());
+            auto abstractDM =
+                gt::unique_qobject_cast<GtPostTemplateItem>(std::move(obj));
 
             if (abstractDM)
             {
-                if (m_postTemplateDM->appendChild(abstractDM))
+                if (m_postTemplateDM->appendChild(abstractDM.get()))
                 {
                     // datamodel has taken ownership
-                    obj.release();
+                    auto* addedItem = abstractDM.release();
+                    Q_ASSERT(addedItem);
                 }
                 else
                 {

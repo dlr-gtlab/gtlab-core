@@ -659,28 +659,20 @@ GtProject::readLabelData(const GtObjectList& moduleData)
                     if (!memento.isNull())
                     {
                         auto obj = memento.restore_unique(gtObjectFactory);
-                        if (obj)
+                        auto label =
+                            gt::unique_qobject_cast<GtLabel>(std::move(obj));
+                        if (label)
                         {
-                            GtLabel* l = qobject_cast<GtLabel*>(obj.get());
-                            if (l)
+                            if (data->addLabel(label.get()))
                             {
-                                if (data->addLabel(l))
-                                {
-                                    // data takes ownership of the label
-                                    obj.release();
-                                }
-                                else
-                                {
-                                    gtWarning() << tr("could not add label")
-                                                << " (" << tr("already exists")
-                                                << ")";
-                                }
+                                // data takes ownership of the label
+                                auto* addedLabel = label.release();
+                                Q_ASSERT(addedLabel);
                             }
                             else
                             {
-                                gtWarning() << tr("could not recreate label")
-                                            << " (" << tr("casting failed")
-                                            << ")";
+                                gtWarning() << tr("could not add label") << " ("
+                                            << tr("already exists") << ")";
                             }
                         }
                     }

@@ -81,7 +81,10 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     }
 
     /// validate object to import
-    if (!qobject_cast<GtProcessComponent*>(obj.get()))
+    auto component =
+        gt::unique_qobject_cast<GtProcessComponent>(std::move(obj));
+
+    if (!component)
     {
         gtError() << "resorted obj is not of type GtProcessElement.";
         return false;
@@ -91,7 +94,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     /// allowed to be improted
     if (!qobject_cast<GtTask*>(data))
     {
-        if (!qobject_cast<GtTask*>(obj.get()))
+        if (!qobject_cast<GtTask*>(component.get()))
         {
             gtError() << "Parent item of a calculator has to be a task";
             return false;
@@ -100,9 +103,9 @@ GtProcessImporter::import(GtObject* data, QFile &file)
 
     /// give new uuid to avoid doubled uuid usage
     /// reset uuids of children, too.
-    obj->newUuid(true);
+    component->newUuid(true);
 
-    data->appendChild(obj.release());
+    data->appendChild(component.release());
 
     return true;
 }
