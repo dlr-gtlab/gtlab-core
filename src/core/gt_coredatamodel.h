@@ -265,10 +265,11 @@ public:
      * If the child cannot be appended, it is destroyed when this function
      * returns.
      * @param child Child object
-     * @param parent Parent object
+     * @param parentObject Parent object
      * @return Model index of the appended child, or an invalid index
      */
-    QModelIndex appendChild(std::unique_ptr<GtObject> child, GtObject* parent);
+    QModelIndex appendChild(std::unique_ptr<GtObject> child,
+                            GtObject* parentObject);
 
     /**
      * @brief Appends given children to given parent object.

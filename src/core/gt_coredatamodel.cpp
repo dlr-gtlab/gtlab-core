@@ -946,15 +946,16 @@ GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
 }
 
 QModelIndex
-GtCoreDatamodel::appendChild(std::unique_ptr<GtObject> child, GtObject* parent)
+GtCoreDatamodel::appendChild(std::unique_ptr<GtObject> child,
+                             GtObject* parentObject)
 {
-    QModelIndex index = appendChild(child.get(), parent);
-    if (index.isValid())
+    QModelIndex childIndex = appendChild(child.get(), parentObject);
+    if (childIndex.isValid())
     {
         static_cast<void>(child.release());
     }
 
-    return index;
+    return childIndex;
 }
 
 QModelIndexList
