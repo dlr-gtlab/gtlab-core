@@ -12,6 +12,8 @@
 #include <QIcon>
 #include <QFile>
 
+#include <utility>
+
 #include "gt_taskfactory.h"
 #include "gt_task.h"
 #include "gt_objectfactory.h"
@@ -105,9 +107,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     /// reset uuids of children, too.
     component->newUuid(true);
 
-    data->appendChild(component.release());
-
-    return true;
+    return data->appendChild(std::move(component));
 }
 
 QStringList

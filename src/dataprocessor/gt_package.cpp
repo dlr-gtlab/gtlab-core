@@ -13,6 +13,8 @@
 #include "gt_objectfactory.h"
 #include "gt_logging.h"
 
+#include <utility>
+
 GtPackage::GtPackage()
 {
     setObjectName("Package");
@@ -51,7 +53,7 @@ GtPackage::readData(const QDomElement& root)
 
                 if (cobj)
                 {
-                    appendChild(cobj.release());
+                    appendChild(std::move(cobj));
                 }
                 else
                 {

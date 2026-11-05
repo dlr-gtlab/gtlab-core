@@ -283,6 +283,18 @@ GtObject::appendChild(GtObject* c)
 }
 
 bool
+GtObject::appendChild(std::unique_ptr<GtObject> child)
+{
+    if (!appendChild(child.get()))
+    {
+        return false;
+    }
+
+    static_cast<void>(child.release());
+    return true;
+}
+
+bool
 GtObject::appendChildren(const QList<GtObject*>& list)
 {
     return std::all_of(std::begin(list), std::end(list), [this](GtObject* child) {

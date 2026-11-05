@@ -226,6 +226,14 @@ public:
     bool appendChild(GtObject* c);
 
     /**
+     * @brief Appends the object as child and transfers ownership on success.
+     * If the child is rejected, it is destroyed when this function returns.
+     * @param child Child object
+     * @return Whether object has been appended or not
+     */
+    bool appendChild(std::unique_ptr<GtObject> child);
+
+    /**
      * @brief appendChildren - appends multiple objects as children.
      * Relationship to the old parents of the children objects are destroyed
      * @param list of the GtObjects.

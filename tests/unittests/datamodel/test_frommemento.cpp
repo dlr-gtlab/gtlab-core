@@ -14,6 +14,10 @@
 #include "gt_objectfactory.h"
 
 #include <QObject>
+#include <QPointer>
+
+#include <memory>
+#include <utility>
 
 /**
  * @brief These tests assume the functionality
@@ -264,6 +268,40 @@ TEST_F(TestFromMemento, restoreUniqueWrongType)
     auto newobj = memento.restore_unique<GtLabel>(GtObjectFactory::instance());
 
     EXPECT_TRUE(newobj == nullptr);
+}
+
+TEST_F(TestFromMemento, appendChildUniqueTransfersOwnership)
+{
+    QPointer<GtObject> observed;
+    {
+        GtObject parent;
+        auto child = std::make_unique<GtObject>();
+        observed = child.get();
+
+        ASSERT_TRUE(parent.appendChild(std::move(child)));
+        ASSERT_NE(observed.data(), nullptr);
+        EXPECT_EQ(observed->parent(), &parent);
+    }
+
+    EXPECT_TRUE(observed.isNull());
+}
+
+TEST_F(TestFromMemento, appendChildUniqueDeletesRejectedChild)
+{
+    class RejectingParent : public GtObject
+    {
+    protected:
+        bool childAccepted(GtObject*) override
+        {
+            return false;
+        }
+    } parent;
+
+    auto child = std::make_unique<GtObject>();
+    QPointer<GtObject> observed(child.get());
+
+    EXPECT_FALSE(parent.appendChild(std::move(child)));
+    EXPECT_TRUE(observed.isNull());
 }
 
 TEST_F(TestFromMemento, mergeDummyObject)
