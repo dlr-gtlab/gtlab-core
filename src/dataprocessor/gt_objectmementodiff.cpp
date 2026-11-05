@@ -287,10 +287,8 @@ namespace
             return false;
         }
 
-        static const auto type_QString =
-            gt::metaTypeIdFromName("QString");
-        static const auto type_QStringList =
-            gt::metaTypeIdFromName("QStringList");
+    static const auto type_QString = gt::metaTypeIdFromName("QString");
+    static const auto type_QStringList = gt::metaTypeIdFromName("QStringList");
 
         if (typeA == type_QString)
         {

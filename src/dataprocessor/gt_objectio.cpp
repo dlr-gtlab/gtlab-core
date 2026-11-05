@@ -1036,14 +1036,14 @@ tryParseDoubleAscii(const QChar* data, int length, double* out)
 {
     // validate: [sign] digits [. digits] [eE [sign] digits]
     int i = 0;
-    if (i < length
-        && (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
+    if (i < length &&
+        (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
     {
         i++;
     }
     int digits = 0;
-    while (i < length
-           && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+    while (i < length && data[i] >= QLatin1Char('0') &&
+           data[i] <= QLatin1Char('9'))
     {
         i++;
         digits++;
@@ -1051,8 +1051,8 @@ tryParseDoubleAscii(const QChar* data, int length, double* out)
     if (i < length && data[i] == QLatin1Char('.'))
     {
         i++;
-        while (i < length
-               && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+        while (i < length && data[i] >= QLatin1Char('0') &&
+               data[i] <= QLatin1Char('9'))
         {
             i++;
             digits++;
@@ -1062,18 +1062,18 @@ tryParseDoubleAscii(const QChar* data, int length, double* out)
     {
         return false;
     }
-    if (i < length
-        && (data[i] == QLatin1Char('e') || data[i] == QLatin1Char('E')))
+    if (i < length &&
+        (data[i] == QLatin1Char('e') || data[i] == QLatin1Char('E')))
     {
         i++;
-        if (i < length
-            && (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
+        if (i < length &&
+            (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
         {
             i++;
         }
         int expDigits = 0;
-        while (i < length
-               && data[i] >= QLatin1Char('0') && data[i] <= QLatin1Char('9'))
+        while (i < length && data[i] >= QLatin1Char('0') &&
+               data[i] <= QLatin1Char('9'))
         {
             i++;
             expDigits++;
