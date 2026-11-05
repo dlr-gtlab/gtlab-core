@@ -80,22 +80,8 @@ GtFactoryGroup::knownClasses() const
 }
 
 bool
-GtFactoryGroup::registerClass(QMetaObject /*metaObj*/)
-{
-    gtWarning() << QObject::tr("register class failed!");
-    return false;
-}
-
-bool
 GtFactoryGroup::registerClass(QMetaObject /*metaObj*/,
                               const QString& /*moduleId*/)
-{
-    gtWarning() << QObject::tr("register class failed!");
-    return false;
-}
-
-bool
-GtFactoryGroup::registerClasses(const QList<QMetaObject>& /*metaData*/)
 {
     gtWarning() << QObject::tr("register class failed!");
     return false;

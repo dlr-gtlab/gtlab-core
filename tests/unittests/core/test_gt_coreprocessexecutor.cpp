@@ -333,7 +333,8 @@ TEST_F(TestGtCoreProcessExecutor,
 
 TEST(GtCoreProcessExecutor, ReleasesProjectGuardAfterRealExecution)
 {
-    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+    gtObjectFactory->registerClass(GtTask::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     TestProject project(QStringLiteral("/tmp/gtlab-executor-real.gtlab"));
     project.setObjectName("project");

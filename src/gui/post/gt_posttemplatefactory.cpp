@@ -17,8 +17,7 @@
 GtPostTemplateFactory::GtPostTemplateFactory(QObject* parent) : QObject(parent)
 {
     /* GtStringContainer */
-    m_knownClasses.insert(GtStringContainer::staticMetaObject.className(),
-                          GtStringContainer::staticMetaObject);
+    registerClass(GtStringContainer::staticMetaObject, builtinModuleId());
 }
 
 GtPostTemplateFactory*
@@ -33,12 +32,13 @@ GtPostTemplateFactory::instance()
 }
 
 void
-GtPostTemplateFactory::registerPlots(const QList<QMetaObject>& metaObjects)
+GtPostTemplateFactory::registerPlots(const QList<QMetaObject>& metaObjects,
+                                     const QString& moduleId)
 {
     foreach (QMetaObject metaObj, metaObjects)
     {
         m_plotIds << metaObj.className();
-        registerClass(metaObj);
+        registerClass(metaObj, moduleId);
     }
 }
 

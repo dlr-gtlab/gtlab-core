@@ -49,7 +49,8 @@ protected:
         con5->setObjectName("Connection5");
         con5->setFactory(gtObjectFactory);
 
-        gtObjectFactory->registerClass(GtPropertyConnection::staticMetaObject);
+        gtObjectFactory->registerClass(GtPropertyConnection::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
 
         calc1 = new TestGtCalculator;
         calc1->setObjectName("Calc1");
@@ -64,7 +65,8 @@ protected:
         calc1->setObjectName("Calc4");
         calc4->setFactory(gtTaskFactory);
 
-        gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+        gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
 
         task = new GtTask;
         task->setFactory(gtObjectFactory);
@@ -76,7 +78,8 @@ protected:
         loop3 = new TestGtLoop;
         loop3->setFactory(gtObjectFactory);
 
-        gtObjectFactory->registerClass(TestGtLoop::staticMetaObject);
+        gtObjectFactory->registerClass(TestGtLoop::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
     }
 
     virtual void TearDown()

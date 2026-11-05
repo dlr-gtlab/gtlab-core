@@ -14,17 +14,18 @@
 
 #include "gt_tasklink.h"
 #include "gt_calculatordata.h"
+#include "gt_objectfactory.h"
 
 #include "gt_exporttomementocalculator.h"
 
 GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 {
     // TODO: task link should be deleted
-    registerClass(GT_METADATA(GtTaskLink));
+    registerClass(GT_METADATA(GtTaskLink), builtinModuleId());
 
     // Default calculators
     GtCalculatorFactory::registerCalculatorData(
-        GtExportToMementoCalculator::calculatorData());
+        GtExportToMementoCalculator::calculatorData(), builtinModuleId());
 }
 
 GtCalculatorFactory*
@@ -36,12 +37,6 @@ GtCalculatorFactory::instance()
         retval = new GtCalculatorFactory(qApp);
     }
     return retval;
-}
-
-bool
-GtCalculatorFactory::registerCalculatorData(GtCalculatorData calcData)
-{
-    return registerCalculatorData(std::move(calcData), {});
 }
 
 bool

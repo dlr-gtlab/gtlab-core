@@ -28,7 +28,9 @@ public:
     {
         if (!gtObjectFactory->knownClass("TestSpecialGtObject"))
         {
-            gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+            gtObjectFactory->registerClass(
+                TestSpecialGtObject::staticMetaObject,
+                QStringLiteral("UnitTest"));
         }
 
     }

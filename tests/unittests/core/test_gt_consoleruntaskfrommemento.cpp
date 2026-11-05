@@ -170,14 +170,16 @@ namespace
             MementoTestCalculator::produceWarning = false;
             MementoTestCalculator::shouldSucceed = true;
             application = std::make_unique<TestApplication>();
+            gtObjectFactory->registerClass(MementoTestPackage::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
+            gtObjectFactory->registerClass(MementoTestObject::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
             gtObjectFactory->registerClass(
-                MementoTestPackage::staticMetaObject);
-            gtObjectFactory->registerClass(
-                MementoTestObject::staticMetaObject);
-            gtObjectFactory->registerClass(
-                MementoTestCalculator::staticMetaObject);
+                MementoTestCalculator::staticMetaObject,
+                QStringLiteral("UnitTest"));
             gtCalculatorFactory->registerClass(
-                MementoTestCalculator::staticMetaObject);
+                MementoTestCalculator::staticMetaObject,
+                QStringLiteral("UnitTest"));
             ASSERT_TRUE(tempDir.isValid());
             workingDirectory =
                 QDir(tempDir.path()).filePath("paths with spaces");

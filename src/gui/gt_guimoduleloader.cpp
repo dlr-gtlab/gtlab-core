@@ -281,11 +281,13 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     // contains dynamic linked mdi classes
     if (mdip && !gtApp->batchMode())
     {
-        gtPostTemplateFactory->registerClasses(mdip->postItems());
+        gtPostTemplateFactory->registerClasses(mdip->postItems(),
+                                               plugin->ident());
 
-        gtPostTemplateFactory->registerPlots(mdip->postPlots());
+        gtPostTemplateFactory->registerPlots(mdip->postPlots(),
+                                             plugin->ident());
 
-        gtMdiLauncher->registerClasses(mdip->mdiItems());
+        gtMdiLauncher->registerClasses(mdip->mdiItems(), plugin->ident());
         gtMdiLauncher->registerDockWidgets(mdip->dockWidgets());
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
@@ -303,7 +305,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
     if (impp)
     {
-        gtImportHandler->registerClasses(impp->importer());
+        gtImportHandler->registerClasses(impp->importer(), plugin->ident());
     }
 
     // exporter interface
@@ -312,7 +314,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
     if (expp)
     {
-        gtExportHandler->registerClasses(expp->exporter());
+        gtExportHandler->registerClasses(expp->exporter(), plugin->ident());
     }
 
     // property interface

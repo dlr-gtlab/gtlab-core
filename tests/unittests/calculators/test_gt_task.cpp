@@ -146,24 +146,28 @@ protected:
     {
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
         {
-            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
         }
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtProcessComponent)))
         {
             gtObjectFactory->registerClass(
-                TestGtProcessComponent::staticMetaObject);
+                TestGtProcessComponent::staticMetaObject,
+                QStringLiteral("UnitTest"));
         }
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(WarningCalculator)))
         {
-            gtObjectFactory->registerClass(WarningCalculator::staticMetaObject);
+            gtObjectFactory->registerClass(WarningCalculator::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
         }
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(GtPropertyConnection)))
         {
             gtObjectFactory->registerClass(
-                GtPropertyConnection::staticMetaObject);
+                GtPropertyConnection::staticMetaObject,
+                QStringLiteral("UnitTest"));
         }
     }
 };

@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
 ### Deprecated
  - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
+### Removed
+ - The module-id-less overloads of `GtAbstractObjectFactory::registerClass`/`registerClasses` and the single-argument `GtTaskFactory::registerTaskData` and `GtCalculatorFactory::registerCalculatorData`. The id of the providing module is now mandatory - #1650
 
 ## [2.1.0-alpha.1] - 2026-10-17
 
