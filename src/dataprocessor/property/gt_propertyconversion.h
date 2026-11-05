@@ -117,44 +117,44 @@ template <typename Converter>
 gt::conversion::convert
 eraseConverter(Converter converter)
 {
-    return [converter = std::move(converter)](
-               const GtAbstractProperty& from,
-               const GtAbstractProperty& to) mutable
+    return
+        [converter = std::move(converter)](const GtAbstractProperty& from,
+                                           const GtAbstractProperty& to) mutable
            -> gt::conversion::erasedConversionResult {
-        auto result = converter(from, to);
+            auto result = converter(from, to);
 
-        if (result.status ==
-                gt::conversion::conversionSuccess::Failed ||
-            !result.value)
-        {
-            return gt::conversion::erasedConversionResult::failed();
-        }
+            if (result.status ==
+                    gt::conversion::conversionSuccess::Failed ||
+                !result.value)
+            {
+                return gt::conversion::erasedConversionResult::failed();
+            }
 
-        using ValueType = typename decltype(result)::value_type;
+            using ValueType = typename decltype(result)::value_type;
 
-        QVariant value;
+            QVariant value;
 
-        if constexpr (std::is_same_v<ValueType, QVariant>)
-        {
-            value = std::move(*result.value);
-        }
-        else
-        {
-            value = QVariant::fromValue(std::move(*result.value));
-        }
+            if constexpr (std::is_same_v<ValueType, QVariant>)
+            {
+                value = std::move(*result.value);
+            }
+            else
+            {
+                value = QVariant::fromValue(std::move(*result.value));
+            }
 
-        if (result.status == gt::conversion::conversionSuccess::Lossy)
-        {
-            return gt::conversion::erasedConversionResult::lossy(
+            if (result.status == gt::conversion::conversionSuccess::Lossy)
+            {
+                return gt::conversion::erasedConversionResult::lossy(
+                    std::move(value));
+            }
+
+            return gt::conversion::erasedConversionResult::success(
                 std::move(value));
-        }
+        };
+};
 
-        return gt::conversion::erasedConversionResult::success(
-            std::move(value));
-            };
-        }
-
-        /**
+/**
          * @brief Connection compatibility check function
          *
          * Returns true if the source property may be connected to the
