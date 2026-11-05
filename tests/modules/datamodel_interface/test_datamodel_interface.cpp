@@ -22,8 +22,7 @@
 
 void
 TestDatamodelInterface::init()
-{
-}
+{ }
 
 GtVersionNumber
 TestDatamodelInterface::version()

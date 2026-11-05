@@ -12,10 +12,11 @@
 GtPropertyConverter::GtPropertyConverter(
     QMetaObject from, QMetaObject to, gt::conversion::convert conversion,
     gt::conversion::isCompatible isCompatible) :
-    m_from(from), m_to(to), m_conversion(conversion),
+    m_from(from),
+    m_to(to),
+    m_conversion(conversion),
     m_isCompatibleFunc(isCompatible)
-{
-}
+{ }
 
 QString
 GtPropertyConverter::fromClassName() const

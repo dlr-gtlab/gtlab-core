@@ -297,7 +297,7 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
             bool canConnectToBool(GtAbstractProperty const& source,
                                   GtAbstractProperty const& target);
 
-            /**
+    /**
              * @brief Converts the value of an int property to bool
              *
              * Zero maps to false, all other values to true. Values
@@ -307,17 +307,17 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return Result carrying the converted value
              */
-            ConversionResult<bool> toBool(GtAbstractProperty const& source,
-                                          GtAbstractProperty const& target);
+    ConversionResult<bool> toBool(const GtAbstractProperty& source,
+                                  const GtAbstractProperty& target);
 
         } // namespace fromInt
 
         /**
          * @brief Conversions from a GtBoolProperty source
          */
-        namespace fromBool
-        {
-            /**
+    namespace fromBool
+    {
+    /**
              * @brief Checks if a bool property may be connected to an
              * int property
              *
@@ -327,10 +327,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToInt(GtAbstractProperty const& source,
-                                 GtAbstractProperty const& target);
+bool canConnectToInt(const GtAbstractProperty& source,
+                     const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Converts the value of a bool property to int
              *
              * False maps to zero, true maps to one. The value is
@@ -340,10 +340,10 @@ gt::conversion::ConversionResult<QVariant> defaultConverter(
              * @param target Target property
              * @return Result carrying the converted value
              */
-            ConversionResult<int> toInt(GtAbstractProperty const& source,
-                                        GtAbstractProperty const& target);
-        } // namespace fromBool
-    } // namespace conversion
+ConversionResult<int> toInt(const GtAbstractProperty& source,
+                            const GtAbstractProperty& target);
+} // namespace fromBool
+} // namespace conversion
 } // namespace gt
 
 #endif // GT_PROPERTYCONVERSION_H

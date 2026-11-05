@@ -34,8 +34,7 @@ GtStringProperty::GtStringProperty(const QString& ident,
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
     GtStringProperty(ident, name, QString(), QString(),
                      gt::rex::forExpressions())
-{
-}
+{ }
 
 void
 GtStringProperty::operator+=(const QString& b)

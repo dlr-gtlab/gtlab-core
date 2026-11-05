@@ -76,8 +76,7 @@ public:
             std::move(from), std::move(to),
             gt::conversion::eraseConverter(std::forward<Converter>(conversion)),
             std::move(isCompatible))
-    {
-    }
+    { }
 
     /**
      * @brief Returns the class name of the source property class

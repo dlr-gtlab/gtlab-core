@@ -95,7 +95,7 @@ TEST(TestGtPropertyConversionRegistry, registerIsCompatible)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropF::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
@@ -104,7 +104,7 @@ TEST(TestGtPropertyConversionRegistry, registerIsCompatible)
 
             return gt::conversion::ConversionResult<bool>::failed();
         },
-        [](GtAbstractProperty const& a, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty& a, const GtAbstractProperty&) -> bool {
             return a.objectName() == "testRegistryF";
         });
 
@@ -138,11 +138,11 @@ TEST(TestGtPropertyConversionRegistry, canConnectWithRegisteredFunction)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropG::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return false;
         });
 
@@ -158,7 +158,7 @@ TEST(TestGtPropertyConversionRegistry, registerWithoutCanConnect)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropG::staticMetaObject,
         GtTestRegistryPropJ::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         });
@@ -176,21 +176,21 @@ TEST(TestGtPropertyConversionRegistry, registrationDeduplication)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return true;
         });
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropH::staticMetaObject,
         GtTestRegistryPropI::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return false;
         });
 
@@ -248,7 +248,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropA::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
@@ -257,7 +257,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookup)
 
             return gt::conversion::ConversionResult<bool>::failed();
         },
-        [](GtAbstractProperty const& a, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty& a, const GtAbstractProperty&) -> bool {
             return a.objectName() == "testRegistryA";
         });
 
@@ -305,7 +305,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtAbstractProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             if (a.objectName() == "testRegistryF")
             {
@@ -314,14 +314,14 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
 
             return gt::conversion::ConversionResult<bool>::failed();
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return false;
         });
 
     gtPropConversion().registerConnectionCompatibility(
         GtAbstractProperty::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
