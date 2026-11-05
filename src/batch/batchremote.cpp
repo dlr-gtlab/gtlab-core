@@ -381,7 +381,7 @@ gt::batch::run(const QString& inputName,
 
     QDomElement modulesRootElement = outputDocument.createElement
             (QStringLiteral("MODULES"));
-    foreach (QString moduleId, modulesList)
+    foreach (const QString& moduleId, modulesList)
     {
         QDomElement moduleElement = outputDocument.createElement
                 (QStringLiteral("MODULE"));
@@ -397,7 +397,7 @@ gt::batch::run(const QString& inputName,
     QDomElement dataRootElement = outputDocument.createElement
             (QStringLiteral("DATA"));
 
-    foreach (GtObject* object, objectList)
+    foreach (const GtObject* object, objectList)
     {
         GtObjectMemento currMemento = object->toMemento();
         dataRootElement.appendChild(currMemento.documentElement());

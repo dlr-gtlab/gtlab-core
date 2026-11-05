@@ -224,7 +224,7 @@ protected:
     }
 
     /// @brief Creates a dummy object for a class that is not registered
-    GtObject* createDummy(const QString& className)
+    std::unique_ptr<GtObject> createDummy(const QString& className)
     {
         QDomDocument doc;
         if (!doc.setContent(
@@ -233,11 +233,11 @@ protected:
                     " uuid=\"{00000000-0000-0000-0000-000000000001}\"/>")
                     .arg(className)))
         {
-            return nullptr;
+            return {};
         }
 
         GtObjectMemento memento(doc.documentElement());
-        auto* dummy = memento.restore<GtObject*>(gtObjectFactory);
+        auto dummy = memento.restore_unique(gtObjectFactory);
         if (dummy)
         {
             EXPECT_TRUE(dummy->isDummy());
@@ -593,10 +593,11 @@ TEST_F(ProjectFootprintTest, dummyObjectsKeepTheirProviderModuleRequired)
     auto* project = new TestProject(path);
     ASSERT_TRUE(gtDataModel->newProject(project, true));
 
-    auto* dummy = createDummy(QStringLiteral("UnknownModuleClass"));
+    auto dummy = createDummy(QStringLiteral("UnknownModuleClass"));
     ASSERT_NE(dummy, nullptr);
 
-    ASSERT_TRUE(project->appendChild(dummy));
+    ASSERT_TRUE(project->appendChild(dummy.get()));
+    dummy.release();
 
     ASSERT_TRUE(gtDataModel->saveProject(project));
 
@@ -616,9 +617,10 @@ TEST_F(ProjectFootprintTest, legacyDummyWithoutProviderKeepsOldFootprint)
 
     // a legacy project contains a dummy object of a class that has never
     // been stored with class provider metadata
-    auto* dummy = createDummy(QStringLiteral("LegacyUnknownClass"));
+    auto dummy = createDummy(QStringLiteral("LegacyUnknownClass"));
     ASSERT_NE(dummy, nullptr);
-    ASSERT_TRUE(project->appendChild(dummy));
+    ASSERT_TRUE(project->appendChild(dummy.get()));
+    dummy.release();
 
     // the provider of the unknown class cannot be determined
     GtProjectDependencyAnalyzer analyzer(project);
