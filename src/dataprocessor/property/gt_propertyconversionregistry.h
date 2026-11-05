@@ -134,7 +134,7 @@ public:
      * matches at all, an empty function is returned.
      */
     gt::conversion::isCompatible isCompatibleFunction(
-        QMetaObject const& from, QMetaObject const& to) const;
+        const QMetaObject& from, const QMetaObject& to) const;
 
     /**
      * @brief Returns the conversion function of a source/target property
@@ -150,8 +150,8 @@ public:
      * implicit default conversion function is returned. If no converter
      * matches at all, an empty function is returned.
      */
-    gt::conversion::convert convertFunction(QMetaObject const& from,
-                                            QMetaObject const& to) const;
+    gt::conversion::convert convertFunction(const QMetaObject& from,
+                                            const QMetaObject& to) const;
 
     /**
      * @brief Finds the most specific explicitly registered converter
@@ -193,8 +193,8 @@ public:
      * @return True if the source property may be connected to the
      * target property
      */
-    bool connectionCheckAvailable(GtAbstractProperty const& a,
-                                  GtAbstractProperty const& b);
+    bool connectionCheckAvailable(const GtAbstractProperty& a,
+                                  const GtAbstractProperty& b);
 
 private:
     /// Result of a converter lookup

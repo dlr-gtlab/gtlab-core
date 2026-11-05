@@ -16,17 +16,17 @@
 
 namespace
 {
-    const auto inheritanceChain = [](const QMetaObject& metaObject) {
-        QVector<const QMetaObject*> result;
+const auto inheritanceChain = [](const QMetaObject& metaObject) {
+    QVector<const QMetaObject*> result;
 
-        for (auto* current = &metaObject; current != nullptr;
-             current = current->superClass())
-        {
-            result.append(current);
-        }
+    for (auto* current = &metaObject; current != nullptr;
+         current = current->superClass())
+    {
+        result.append(current);
+    }
 
-        return result;
-    };
+    return result;
+};
 } // namespace
 
 GtPropertyConversionRegistry&
@@ -85,7 +85,7 @@ GtPropertyConversionRegistry::isCompatibleFunction(const QMetaObject& from,
     // that the connection is possible, the check always accepts.
     if (!match.converter->isCompatibleFunc())
     {
-        return [](GtAbstractProperty const&, GtAbstractProperty const&) {
+        return [](const GtAbstractProperty&, const GtAbstractProperty&) {
             return true;
         };
     }
@@ -119,7 +119,7 @@ GtPropertyConversionRegistry::findConverterWithInheritance(
 }
 
 QStringList
-GtPropertyConversionRegistry::converterAvailable(QString const& from) const
+GtPropertyConversionRegistry::converterAvailable(const QString& from) const
 {
     QStringList retVal;
 
