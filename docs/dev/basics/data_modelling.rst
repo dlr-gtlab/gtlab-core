@@ -295,7 +295,7 @@ If no converter is registered for a type pair, an implicit default check applies
 
 .. note::
 
-   The registry follows the metaobject inheritance chain of both properties. A registration for a base type pair, e.g. ``GtDoubleProperty`` to ``GtIntProperty``, also applies to derived types such as ``GtDoubleMonitoringProperty``. If several registrations match, the pair with the smallest sum of the inheritance depths of source and target wins; if the sums are equal, the more specific source type is preferred, followed by the more specific target type. An explicitly registered converter is preferred over the implicit default conversion at the same position.
+   The registry follows the metaobject inheritance chain of both properties. A registration for a base type pair, e.g. ``GtDoubleProperty`` to ``GtIntProperty``, also applies to derived types. If several registrations match, the pair with the smallest sum of the inheritance depths of source and target wins; if the sums are equal, the more specific source type is preferred, followed by the more specific target type. An explicitly registered converter is preferred over the implicit default conversion at the same position.
 
    For a custom property type, a converter is registered in the constructor of the property class. The registration is global, so a static local variable should be used to ensure that it happens only once.
 
