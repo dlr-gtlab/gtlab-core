@@ -1332,28 +1332,27 @@ void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                                    QString& typeStr)
 {
-    auto varType = gt::metaTypeId(var);
+    // userType() and qMetaTypeId<T>() return the real type id on Qt 5 and
+    // Qt 6. QVariant::type() and QVariant::nameToType() collapse every
+    // runtime-registered type to QVariant::UserType on Qt 5.
+    const int varType = var.userType();
 
-    static auto type_QDoubleVector = gt::metaTypeIdFromName(
-                "QVector<double>");
-    static auto type_QIntList = gt::metaTypeIdFromName(
-                "QList<int>");
-    static auto type_QBoolList = gt::metaTypeIdFromName(
-                "QList<bool>");
-    static auto type_QPointFList = gt::metaTypeIdFromName(
-                "QList<QPointF>");
-    static auto type_QStringList = gt::metaTypeIdFromName(
-                "QStringList");
-
-    assert(QMetaType::isRegistered(type_QDoubleVector));
-    assert(QMetaType::isRegistered(type_QIntList));
-    assert(QMetaType::isRegistered(type_QBoolList));
-    assert(QMetaType::isRegistered(type_QPointFList));
-    assert(QMetaType::isRegistered(type_QStringList));
+    static const int type_QDoubleVector = qMetaTypeId<QVector<double>>();
+    static const int type_QDoubleList = qMetaTypeId<QList<double>>();
+    static const int type_QIntList = qMetaTypeId<QList<int>>();
+    static const int type_QBoolList = qMetaTypeId<QList<bool>>();
+    static const int type_QPointFList = qMetaTypeId<QList<QPointF>>();
+    static const int type_QStringList = qMetaTypeId<QStringList>();
 
     if (varType == type_QDoubleVector)
     {
         valStr = listToString(var.value<QVector<double> >());
+        typeStr = QStringLiteral("double");
+    }
+    else if (varType == type_QDoubleList)
+    {
+        // Qt 5 only: on Qt 6 QList<double> is QVector<double>
+        valStr = listToString(var.value<QList<double>>().toVector());
         typeStr = QStringLiteral("double");
     }
     else if (varType == type_QIntList)
