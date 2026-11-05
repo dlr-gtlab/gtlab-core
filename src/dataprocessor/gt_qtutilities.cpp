@@ -40,7 +40,9 @@ gt::metaTypeIdFromName(const char *name)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return QMetaType::fromName(name).id();
 #else
-    return QVariant::nameToType(name);
+    // QVariant::nameToType() returns QVariant::UserType for every
+    // runtime-registered type, QMetaType::type() returns the real id
+    return QMetaType::type(name);
 #endif
 }
 
