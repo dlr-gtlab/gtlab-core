@@ -114,7 +114,8 @@ using convert = std::function<erasedConversionResult(
          * @return Type erased convert function
          */
 template <typename Converter>
-gt::conversion::convert eraseConverter(Converter converter)
+gt::conversion::convert
+eraseConverter(Converter converter)
 {
     return [converter = std::move(converter)](
                const GtAbstractProperty& from,
@@ -281,10 +282,10 @@ ConversionResult<double> toDouble(const GtAbstractProperty& source,
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToDouble(GtAbstractProperty const& source,
-                                    GtAbstractProperty const& target);
+bool canConnectToDouble(const GtAbstractProperty& source,
+                        const GtAbstractProperty& target);
 
-            /**
+/**
              * @brief Checks if an int property may be connected to a
              * bool property
              *
@@ -294,8 +295,8 @@ ConversionResult<double> toDouble(const GtAbstractProperty& source,
              * @param target Target property
              * @return True if the connection is allowed
              */
-            bool canConnectToBool(GtAbstractProperty const& source,
-                                  GtAbstractProperty const& target);
+bool canConnectToBool(const GtAbstractProperty& source,
+                      const GtAbstractProperty& target);
 
 /**
              * @brief Converts the value of an int property to bool
@@ -310,9 +311,9 @@ ConversionResult<double> toDouble(const GtAbstractProperty& source,
 ConversionResult<bool> toBool(const GtAbstractProperty& source,
                               const GtAbstractProperty& target);
 
-        } // namespace fromInt
+} // namespace fromInt
 
-        /**
+/**
          * @brief Conversions from a GtBoolProperty source
          */
 namespace fromBool
