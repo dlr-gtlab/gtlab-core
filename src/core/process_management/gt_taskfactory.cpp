@@ -70,15 +70,14 @@ GtTaskFactory::instance()
 }
 
 bool
-GtTaskFactory::registerTaskData(GtTaskData taskData, const QString& module)
+GtTaskFactory::registerTaskData(GtTaskData data, const QString& module)
 {
-    if (!gtObjectFactory->registerClass(taskData->metaData(), module))
+    if (!gtObjectFactory->registerClass(data->metaData(), module))
     {
         return false;
     }
 
-    m_taskData.insert(taskData->metaData().className(), taskData);
-
+    m_taskData.insert(data->metaData().className(), data);
     return true;
 }
 

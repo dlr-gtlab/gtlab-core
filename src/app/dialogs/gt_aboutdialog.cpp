@@ -334,11 +334,13 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
           });
 
     // tasks
+    auto taskDataList = gtTaskFactory->taskDataList();
     QStringList itemNames;
-    for (const GtTaskData& taskData : gtTaskFactory->taskDataList())
-    {
-        itemNames.append(taskData->metaData().className());
-    }
+    std::transform(
+        taskDataList.begin(), taskDataList.end(), std::back_inserter(itemNames),
+        [](const GtTaskData& taskData) {
+            return QString::fromLatin1(taskData->metaData().className());
+        });
     entry(itemNames, tr("Tasks"),
           [](const QString& c) { return gtTaskFactory->moduleId(c); });
 
