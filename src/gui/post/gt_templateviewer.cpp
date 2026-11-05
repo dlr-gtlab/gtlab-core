@@ -19,6 +19,8 @@
 #include "qscrollarea.h"
 #include <QLabel>
 
+#include <utility>
+
 #include "gt_templateviewer.h"
 #include "gt_application.h"
 #include "gt_project.h"
@@ -248,18 +250,12 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
 
             if (abstractDM)
             {
-                if (m_postTemplateDM->appendChild(abstractDM.get()))
-                {
-                    // datamodel has taken ownership
-                    auto* addedItem = abstractDM.release();
-                    Q_ASSERT(addedItem);
-                }
-                else
+                const auto name = abstractDM->objectName();
+                if (!m_postTemplateDM->appendChild(std::move(abstractDM)))
                 {
                     gtWarning()
-                        << tr("Could not append child '")
-                        << abstractDM->objectName()
-                        << tr("' to datamodel whilst reading xml file!");
+                        << tr("Could not append child '%1' to datamodel!")
+                               .arg(name);
                 }
             }
         }

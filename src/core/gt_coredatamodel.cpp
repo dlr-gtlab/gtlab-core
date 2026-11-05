@@ -983,13 +983,17 @@ GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
         return QModelIndexList();
     }
 
-    // TODO: check whether children can be appended or not before appending
+    if (children.isEmpty() || !parent->canAppendChildren(children))
+    {
+        return {};
+    }
 
     beginInsertRows(parentIndex, parent->childCount<GtObject*>(),
                     parent->childCount<GtObject*>() + children.size() - 1);
 
     if (!parent->appendChildren(children))
     {
+        endInsertRows();
         return QModelIndexList();
     }
 
@@ -1039,12 +1043,17 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         return {};
     }
 
-    // TODO: check whether child can be appended or not before appending
+    if (row < 0 || row > parent->childCount<GtObject*>() ||
+        !parent->canAppendChildren({child}))
+    {
+        return {};
+    }
 
     beginInsertRows(parentIndex, row, row);
 
     if (!parent->insertChild(row, child))
     {
+        endInsertRows();
         return {};
     }
 

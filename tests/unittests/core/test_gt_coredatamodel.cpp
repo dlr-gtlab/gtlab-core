@@ -292,7 +292,24 @@ TEST_F(ProjectLifecycleTest, appendChildUniqueTransfersOwnership)
 
 TEST_F(ProjectLifecycleTest, appendChildUniqueDeletesRejectedChild)
 {
-    GtObject parent;
+    class RejectingParent : public GtObject
+    {
+    protected:
+        bool childAccepted(GtObject*) override
+        {
+            return false;
+        }
+    } parent;
+
+    GtProject* project = createProject(QStringLiteral("Reject Child"));
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
+    ASSERT_TRUE(project->appendChild(&parent));
+
+    const QModelIndex parentIndex = gtDataModel->indexFromObject(&parent);
+    ASSERT_TRUE(parentIndex.isValid());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
+
     auto child = std::make_unique<GtObject>();
     QPointer<GtObject> observed(child.get());
 
@@ -300,6 +317,7 @@ TEST_F(ProjectLifecycleTest, appendChildUniqueDeletesRejectedChild)
         gtDataModel->appendChild(std::move(child), &parent);
     EXPECT_FALSE(index.isValid());
     EXPECT_TRUE(observed.isNull());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
 }
 
 TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
