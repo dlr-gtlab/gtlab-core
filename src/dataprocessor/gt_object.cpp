@@ -25,7 +25,6 @@
 
 #include <QUuid>
 #include <QThread>
-#include <QHash>
 
 #include <algorithm>
 
@@ -48,7 +47,6 @@ struct GtObject::Impl
         m_isDummy = true;
         properties.clear();
         propertyContainer.clear();
-        propertyIndex.clear();
     }
 
     void importDummy(const GtObjectMemento& memento)
@@ -78,10 +76,6 @@ struct GtObject::Impl
 
     /// object properties
     QList<GtAbstractProperty*> properties;
-
-    /// index of registered properties by ident (cache for findProperty;
-    /// properties are never removed and idents are immutable)
-    QHash<QString, GtAbstractProperty*> propertyIndex;
 
     /// dynamic size properties
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
@@ -579,17 +573,10 @@ GtObject::fullPropertyList() const
 GtAbstractProperty*
 GtObject::findProperty(const QString& id)
 {
-    // fast path: index hit (properties are never removed, idents immutable)
-    if (GtAbstractProperty* property = pimpl->propertyIndex.value(id))
-    {
-        return property;
-    }
-
     for (GtAbstractProperty* property : qAsConst(pimpl->properties))
     {
         if (property->ident() == id)
         {
-            pimpl->propertyIndex.insert(id, property);
             return property;
         }
 
@@ -898,7 +885,6 @@ GtObject::registerProperty(GtAbstractProperty& property)
     connectProperty(property);
 
     pimpl->properties.append(&property);
-    pimpl->propertyIndex.insert(property.ident(), &property);
 
     return true;
 }
