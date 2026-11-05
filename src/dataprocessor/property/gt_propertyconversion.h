@@ -120,7 +120,7 @@ eraseConverter(Converter converter)
     return
         [converter = std::move(converter)](const GtAbstractProperty& from,
                                            const GtAbstractProperty& to) mutable
-           -> gt::conversion::erasedConversionResult {
+            -> gt::conversion::erasedConversionResult {
             auto result = converter(from, to);
 
             if (result.status ==

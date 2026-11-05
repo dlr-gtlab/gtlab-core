@@ -245,8 +245,7 @@ public:
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtDoubleProperty(ident, name, brief, unitCategory, value)
-    {
-    }
+    { }
 };
 
 class GtTestRegistryDoublePropB : public GtDoubleProperty
@@ -259,8 +258,7 @@ public:
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtDoubleProperty(ident, name, brief, unitCategory, value)
-    {
-    }
+    { }
 };
 
 class GtTestRegistryDoublePropC : public GtTestRegistryDoublePropB
@@ -273,8 +271,7 @@ public:
                               const GtUnit::Category& unitCategory,
                               const double& value = 0.0) :
         GtTestRegistryDoublePropB(ident, name, brief, unitCategory, value)
-    {
-    }
+    { }
 };
 class GtTestRegistryIntPropD : public GtIntProperty
 {
@@ -284,7 +281,6 @@ public:
     GtTestRegistryIntPropD(const QString& ident, const QString& name,
                            const QString& brief) :
         GtIntProperty(ident, name, brief)
-    {
-    }
+    { }
 };
 #endif // TEST_GT_PROPERTYCONVERSIONREGISTRY_H

@@ -325,7 +325,7 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return true;
         });
 
@@ -356,11 +356,11 @@ TEST(TestGtPropertyConversionRegistry, inheritanceLookupPriority)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryPropD::staticMetaObject,
         GtTestRegistryPropE::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<bool> {
             return gt::conversion::ConversionResult<bool>::success(true);
         },
-        [](GtAbstractProperty const&, GtAbstractProperty const&) -> bool {
+        [](const GtAbstractProperty&, const GtAbstractProperty&) -> bool {
             return true;
         });
 
@@ -450,14 +450,14 @@ TEST(TestGtPropertyConversionRegistry, convertFunctionBuiltInValues)
 
 TEST(TestGtPropertyConversionRegistry, converterAccessors)
 {
-    const auto convert = [](GtAbstractProperty const&,
-                            GtAbstractProperty const&)
+    const auto convert = [](const GtAbstractProperty&,
+                            const GtAbstractProperty&)
         -> gt::conversion::ConversionResult<double> {
         return gt::conversion::ConversionResult<double>::success(1.0);
     };
 
-    const auto canConnect = [](GtAbstractProperty const&,
-                               GtAbstractProperty const&) -> bool {
+    const auto canConnect = [](const GtAbstractProperty&,
+                               const GtAbstractProperty&) -> bool {
         return true;
     };
 
@@ -579,7 +579,7 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
     QVector<QString> log;
 
     auto dest = gt::log::makeFunctorDestination(
-        [this, &log](std::string const& msg, gt::log::Level level,
+        [this, &log](const std::string& msg, gt::log::Level level,
                      gt::log::Details details) {
             log.append(QStringLiteral("%1 [%2] [%3] %4")
                            .arg(level)
@@ -597,7 +597,7 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
                                               "information loss.");
 
     //  Expect to see no gtWarning
-    auto iter = std::find_if(log.begin(), log.end(), [=](QString const& entry) {
+    auto iter = std::find_if(log.begin(), log.end(), [=](const QString& entry) {
         return entry.contains(expectedWarningText);
     });
 
@@ -619,7 +619,7 @@ TEST(TestGtPropertyConversionRegistry, setValFromConnectionEndToEndFailure)
 
     //  Expect to see a gtWarning
     auto iter2 =
-        std::find_if(log.begin(), log.end(), [=](QString const& entry) {
+        std::find_if(log.begin(), log.end(), [=](const QString& entry) {
             return entry.contains(expectedWarningText);
         });
 
@@ -663,7 +663,7 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryIntPropD::staticMetaObject,
         GtDoubleProperty::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<double> {
             return gt::conversion::ConversionResult<double>::success(10);
         });
@@ -671,7 +671,7 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
     gtPropConversion().registerConnectionCompatibility(
         GtTestRegistryIntPropD::staticMetaObject,
         GtTestRegistryDoublePropB::staticMetaObject,
-        [](GtAbstractProperty const& a, GtAbstractProperty const& b)
+        [](const GtAbstractProperty& a, const GtAbstractProperty& b)
             -> gt::conversion::ConversionResult<double> {
             return gt::conversion::ConversionResult<double>::success(-5);
         });
