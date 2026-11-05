@@ -123,8 +123,7 @@ eraseConverter(Converter converter)
             -> gt::conversion::erasedConversionResult {
             auto result = converter(from, to);
 
-            if (result.status ==
-                    gt::conversion::conversionSuccess::Failed ||
+            if (result.status == gt::conversion::conversionSuccess::Failed ||
                 !result.value)
             {
                 return gt::conversion::erasedConversionResult::failed();
