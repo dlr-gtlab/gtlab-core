@@ -121,7 +121,7 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
         FOOTPRINT_${fixture}_PATH="$<TARGET_FILE:Footprint${fixture}>")
 endforeach()
 
-Plugin fixture for collection path tests in the main test runner.
+# Plugin fixture for collection path tests in the main test runner.
 add_library(CollectionPathFixture MODULE modulefixtures/collection.cpp)
 set_target_properties(CollectionPathFixture PROPERTIES
     AUTOMOC ON
