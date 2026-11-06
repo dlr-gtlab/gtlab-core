@@ -233,10 +233,11 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
 
   add_library(${GTLAB_ADD_MODULE_TARGET} SHARED ${GTLAB_ADD_MODULE_SOURCES})
 
+  # Keep the Debug postfix before the ABI tag required by the module loader.
   set_target_properties(${GTLAB_ADD_MODULE_TARGET} PROPERTIES
       PREFIX ""
       DEBUG_POSTFIX ""
-      OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}.gtm.${GTLAB_MODULE_ABI}"
+      OUTPUT_NAME "${GTLAB_ADD_MODULE_TARGET}$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>.gtm.${GTLAB_MODULE_ABI}"
       LIBRARY_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>"
       RUNTIME_OUTPUT_DIRECTORY "$<1:${_build_moduledir}>")
   set(_gtlab_output_configs ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE}

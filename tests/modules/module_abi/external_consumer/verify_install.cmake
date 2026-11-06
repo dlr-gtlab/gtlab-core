@@ -2,6 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
+if (NOT DEFAULT_MODULE STREQUAL EXPECTED_MODULE)
+    message(FATAL_ERROR
+        "Expected module filename '${EXPECTED_MODULE}', got '${DEFAULT_MODULE}'")
+endif()
+
 get_filename_component(_build_module_dir "${BUILD_MODULE}" DIRECTORY)
 get_filename_component(_expected_build_module_dir
     "${EXPECTED_BUILD_MODULEDIR}" ABSOLUTE)
