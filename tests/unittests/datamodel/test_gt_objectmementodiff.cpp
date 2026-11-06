@@ -1429,4 +1429,3 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 
     ASSERT_TRUE(diff.isNull());
 }
-
