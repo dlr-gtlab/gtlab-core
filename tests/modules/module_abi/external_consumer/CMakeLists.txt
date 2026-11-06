@@ -119,8 +119,10 @@ if (WIN32)
 else()
     set(_gtlab_console_name "GTlabConsole")
 endif()
+# CI installs GTlab in Debug mode and tests both Debug and Release consumers
+# against that installed module loader.
 set(_installed_gtlab_console
-    "${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>/${_gtlab_console_name}")
+    "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_DEBUG_BINDIR}/${_gtlab_console_name}")
 
 set(_test_environment)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
@@ -147,6 +149,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
     endif()
     list(APPEND _test_environment
         "${_runtime_library_path_variable}=${_runtime_library_path}:$ENV{${_runtime_library_path_variable}}")
+elseif (WIN32)
+    list(APPEND _test_environment
+        "PATH=${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_MODULEDIR_DEBUG};${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_MODULEDIR_RELEASE};$ENV{PATH}")
 endif()
 
 add_test(NAME ExternalModuleInstallLayout
