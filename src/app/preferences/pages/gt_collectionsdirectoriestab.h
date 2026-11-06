@@ -12,7 +12,7 @@
 
 namespace Ui
 {
-    class GtCollectionsDirectoriesTab;
+class GtCollectionsDirectoriesTab;
 }
 
 class GtCollectionsDirectoriesTab : public QWidget

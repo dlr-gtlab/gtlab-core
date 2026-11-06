@@ -12,7 +12,9 @@
 #include "gt_collectionitem.h"
 #include "gt_icons.h"
 
-GtCollectionItem::GtCollectionItem() : m_version(0.), m_icon(gt::gui::icon::property())
+GtCollectionItem::GtCollectionItem() :
+    m_version(0.),
+    m_icon(gt::gui::icon::property())
 {
 
 }
@@ -103,7 +105,7 @@ GtCollectionItem::icon() const
 }
 
 void
-GtCollectionItem::setIcon(const QIcon &val)
+GtCollectionItem::setIcon(const QIcon& val)
 {
     m_icon = val;
 }

@@ -267,7 +267,7 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
 
-   // m_moduleDirsTab->loadPaths();
+    // m_moduleDirsTab->loadPaths();
 
-   // m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
+    // m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
 }

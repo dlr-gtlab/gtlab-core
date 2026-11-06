@@ -161,13 +161,13 @@ GtCollectionLoader::collectionPath()
     {
         gtError() << tr("Invalid collection!");
         return QString();
-    }    
+    }
 
     auto settings = gtApp->settings();
 
-    QString collectionpathstr{} ;//= settings->userCollectionsDir();
+    QString collectionpathstr{}; //= settings->userCollectionsDir();
 
-    if(collectionpathstr.isEmpty())
+    if (collectionpathstr.isEmpty())
     {
         QDir roamingPath = gtApp->roamingPath();
         collectionpathstr = roamingPath.absoluteFilePath("collections");

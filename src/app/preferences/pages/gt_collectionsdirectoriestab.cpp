@@ -44,7 +44,8 @@ GtCollectionsDirectoriesTab::onShowInExplorer()
     QDesktopServices::openUrl(QUrl::fromLocalFile(target));
 }
 
-QString GtCollectionsDirectoriesTab::collectionsPath()
+QString
+GtCollectionsDirectoriesTab::collectionsPath()
 {
     return ui->edtGtlabEnvValue->text();
 }

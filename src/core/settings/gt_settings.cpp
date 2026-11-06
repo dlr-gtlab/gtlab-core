@@ -104,9 +104,9 @@ GtSettings::GtSettings()
         QStringLiteral("application/general/module_dirs"),
         QLatin1String(""));
 
-    pimpl->userCollectionsDir = registerSetting(
-        QStringLiteral("application/general/collections_dir"),
-        QLatin1String(""));
+    pimpl->userCollectionsDir =
+        registerSetting(QStringLiteral("application/general/collections_dir"),
+                        QLatin1String(""));
 
     pimpl->lastPerspective =
             registerSetting(
