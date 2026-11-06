@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QScopedPointer>
 #include <QDir>
 
@@ -15,7 +15,12 @@
 
 int main(int argc, char **argv)
 {
-    QCoreApplication app(argc, argv);
+    // GUI component tests run headlessly unless a platform was requested.
+    if (qgetenv("QT_QPA_PLATFORM").isEmpty())
+    {
+        qputenv("QT_QPA_PLATFORM", "offscreen");
+    }
+    QApplication app(argc, argv);
 
     QScopedPointer<GtTestHelper> helper {GtTestHelper::instance()};
 
