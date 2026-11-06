@@ -119,10 +119,19 @@ if (WIN32)
 else()
     set(_gtlab_console_name "GTlabConsole")
 endif()
-# CI installs GTlab in Debug mode and tests both Debug and Release consumers
-# against that installed module loader.
-set(_installed_gtlab_console
+set(_installed_gtlab_console_debug
     "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_DEBUG_BINDIR}/${_gtlab_console_name}")
+set(_installed_gtlab_console_release
+    "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_BINDIR}/${_gtlab_console_name}")
+if (EXISTS "${_installed_gtlab_console_debug}")
+    set(_installed_gtlab_console "${_installed_gtlab_console_debug}")
+elseif (EXISTS "${_installed_gtlab_console_release}")
+    set(_installed_gtlab_console "${_installed_gtlab_console_release}")
+else()
+    message(FATAL_ERROR
+        "Could not find the installed GTlab console in '${_installed_gtlab_console_debug}' "
+        "or '${_installed_gtlab_console_release}'")
+endif()
 
 set(_test_environment)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
