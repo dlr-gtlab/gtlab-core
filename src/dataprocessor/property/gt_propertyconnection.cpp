@@ -78,11 +78,12 @@ GtPropertyConnection::makeConnection()
     // check source property pointer
     if (m_sourcePropObj)
     {
-        // disconnect signals
-        connect(m_sourcePropObj.data(), SIGNAL(changed()),
-                this, SLOT(onSourcePropertyChange()));
-        connect(m_sourcePropObj.data(), SIGNAL(destroyed(QObject*)),
-                this, SLOT(deleteLater()));
+        // Disconnect the old source first; its later destroyed() signal must
+        // not delete this connection after it has been rewired.
+        disconnect(m_sourcePropObj.data(), SIGNAL(changed()), this,
+                   SLOT(onSourcePropertyChange()));
+        disconnect(m_sourcePropObj.data(), SIGNAL(destroyed(QObject*)), this,
+                   SLOT(deleteLater()));
 
         m_sourcePropObj = nullptr;
     }
@@ -184,6 +185,9 @@ GtPropertyConnection::makeConnection()
     connect(sourcePropety, SIGNAL(changed()), 
             SLOT(onSourcePropertyChange()), Qt::DirectConnection);
     connect(sourcePropety, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
+
+    // Keep the target so reconnecting also detaches its old value binding.
+    m_targetPropObj = targetProperty;
 
     // establish connection
     targetProperty->propertyConnect(this);
