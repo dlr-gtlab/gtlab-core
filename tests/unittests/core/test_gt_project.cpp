@@ -79,6 +79,43 @@ static bool writeProjectFile(const QString& dirPath, const QString& projectName)
     return file.write(data) == data.size();
 }
 
+static bool writeProjectFileWithCoreVersion(const QString& dirPath,
+                                            const QString& projectName,
+                                            const QString& coreVersion)
+{
+    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    {
+        return false;
+    }
+
+    // an empty core version produces a legacy project file without
+    // core-ver element (i.e. an empty environment footprint)
+    const QString fileVersion = coreVersion.isEmpty()
+        ? QStringLiteral("1.7.0-rc1")
+        : coreVersion;
+    const QString coreVerElement = coreVersion.isEmpty()
+        ? QString()
+        : QStringLiteral("        <core-ver>%1</core-ver>\n").arg(coreVersion);
+
+    const QByteArray data = QString(
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        "<GTLAB projectname=\"%1\" version=\"%2\">\n"
+        "    <env-footprint>\n"
+        "%3"
+        "        <modules/>\n"
+        "    </env-footprint>\n"
+        "    <comment/>\n"
+        "    <MODULES/>\n"
+        "    <PROCESSES/>\n"
+        "    <LABELS/>\n"
+        "</GTLAB>\n")
+        .arg(projectName, fileVersion, coreVerElement)
+        .toUtf8();
+
+    return file.write(data) == data.size();
+}
+
 static bool writeProjectFileWithClassModules(const QString& dirPath)
 {
     QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
@@ -462,6 +499,64 @@ TEST(GtProject, createBackupDoesNotCrash)
 
     TestProject project(tempDir.path());
     project.createBackup(QStringLiteral("Test backup"));
+}
+
+TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFileWithCoreVersion(tempDir.path(),
+                                                QStringLiteral("RestoreUpgradeTest"),
+                                                QStringLiteral("2.1.0")));
+
+    TestProject project(tempDir.path());
+    EXPECT_FALSE(project.upgradesAvailable());
+
+    const QString timeStamp = QStringLiteral("20240101000000");
+    const QString backupDir = tempDir.path() + QDir::separator() + "backup"
+                              + QDir::separator() + timeStamp;
+    ASSERT_TRUE(QDir().mkpath(backupDir));
+    ASSERT_TRUE(writeProjectFileWithCoreVersion(backupDir,
+                                                QStringLiteral("RestoreUpgradeTest"),
+                                                QString()));
+
+    EXPECT_EQ(project.restoreBackupFiles(timeStamp),
+              GtProject::RestoreStatus::Success);
+
+    QFile restored(tempDir.path() + QDir::separator() + GtProject::mainFilename());
+    ASSERT_TRUE(restored.open(QIODevice::ReadOnly | QIODevice::Text));
+    EXPECT_TRUE(restored.readAll().contains("1.7.0-rc1"));
+
+    // the restored backup contains outdated project data, so the project
+    // must be reported as upgrade available right after the restore
+    EXPECT_TRUE(project.upgradesAvailable());
+    EXPECT_TRUE(project.isValid());
+}
+
+TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFileWithCoreVersion(tempDir.path(),
+                                                QStringLiteral("RestoreCurrentTest"),
+                                                QStringLiteral("2.1.0")));
+
+    TestProject project(tempDir.path());
+    EXPECT_FALSE(project.upgradesAvailable());
+
+    const QString timeStamp = QStringLiteral("20240101000001");
+    const QString backupDir = tempDir.path() + QDir::separator() + "backup"
+                              + QDir::separator() + timeStamp;
+    ASSERT_TRUE(QDir().mkpath(backupDir));
+    ASSERT_TRUE(writeProjectFileWithCoreVersion(backupDir,
+                                                QStringLiteral("RestoreCurrentTest"),
+                                                QStringLiteral("2.1.0")));
+
+    EXPECT_EQ(project.restoreBackupFiles(timeStamp),
+              GtProject::RestoreStatus::Success);
+
+    EXPECT_FALSE(project.upgradesAvailable());
+    EXPECT_TRUE(project.isValid());
 }
 
 TEST(GtProject, readFootprintReturnsProjectFootprint)

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object class="TestObject" name="testobject" uuid="{9f80ad0d-fb45-4cd1-9aea-fd4460d55436}">
+    <property-container name="environmentVars">
+        <property name="{8ab14589-686e-4f04-9e67-ffa6ae0f7e11}" type="EnvironmentVarsStruct">
+            <property name="name" type="QString">PATH</property>
+            <property name="value" type="QString">/usr/bin</property>
+        </property>
+        <property name="{e6308b39-1641-40d1-a675-4ca644b5cf7a}" type="EnvironmentVarsStruct">
+            <property name="name" type="QString">LD_DEBUG</property>
+            <property name="value" type="QString">1</property>
+        </property>
+    </property-container>
+</object>
