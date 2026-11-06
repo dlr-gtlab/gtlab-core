@@ -15,6 +15,8 @@
 #include "gt_utilities.h"
 #include "gt_unitconverter.h"
 
+#include "gt_propertyconversionregistry.h"
+
 template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {
@@ -131,7 +133,13 @@ private:
     void forceSetVal(const ParamType& value, bool* success = nullptr);
 
     /**
-     * @brief setValFromConnection
+     * @brief Updates the property value from the connected source
+     * property
+     *
+     * The value is computed with the conversion function registered
+     * for the source/target property type pair. If no conversion is
+     * available or the conversion fails, the current value is kept. A
+     * lossy conversion is indicated by a warning.
      */
     void setValFromConnection() override;
 
@@ -215,31 +223,58 @@ template<class ParamType>
 inline void GtProperty<ParamType>::setValFromConnection()
 {
     // check connection
-    if (!m_connection)
+    if (!m_connection) return;
+
+    const GtAbstractProperty* source = gt::getConnectedProperty(*m_connection);
+
+    if (!source) return;
+
+    gt::conversion::convert conversion = gtPropConversion().convertFunction(
+        *source->metaObject(), *this->metaObject());
+
+    if (!conversion)
     {
+        gtWarning() << tr("Conversion failure in connection from %1 to %2:"
+                          "Conversion function not available.")
+                           .arg(source->objectName(), objectName());
+        return;
+    }
+    const auto result = conversion(*source, *this);
+
+    if (result.status == gt::conversion::conversionSuccess::Failed ||
+        !result.value)
+    {
+        gtWarning() << tr("Conversion failure in connection from %1 to %2")
+                           .arg(source->objectName(), objectName());
         return;
     }
 
-    // get source value in form of QVariant
-    QVariant variant = gt::getConnectedValue(*m_connection);
+    const QVariant& variant = *result.value;
 
-    // check variant
-    if (!variant.isValid())
+    if (!variant.isValid() || variant.userType() != qMetaTypeId<ParamType>())
     {
+        gtError() << tr("Property converter returned an unexpected value type");
         return;
     }
 
-    // check ability to convert to given param type
-    if (!variant.canConvert<ParamType>())
+    bool success = false;
+
+    forceSetVal(variant.value<ParamType>(), &success);
+
+    if (!success)
     {
+        gtError() << tr("The property %1 could not be set to %2 by "
+                        "connection from %3")
+                         .arg(ident(), variant.toString(), source->ident());
         return;
     }
 
-    // convert to param
-    ParamType param = variant.value<ParamType>();
-
-    // set value (forced)
-    forceSetVal(param);
+    if (result.status == gt::conversion::conversionSuccess::Lossy)
+    {
+        gtWarning() << tr("Conversion of %1 to %2 indicated some "
+                          "information loss.")
+                           .arg(source->ident(), ident());
+    }
 }
 
 template<class ParamType>

@@ -20,6 +20,10 @@
 
 #include "test_datamodel_interface.h"
 
+void
+TestDatamodelInterface::init()
+{ }
+
 GtVersionNumber
 TestDatamodelInterface::version()
 {

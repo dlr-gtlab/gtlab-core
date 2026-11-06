@@ -64,3 +64,15 @@ TEST_F(TestGtStringMonitoringProperty, setVal)
 
     ASSERT_STREQ(prop.getVal().toStdString().c_str(), "0.75");
 }
+
+TEST_F(TestGtStringMonitoringProperty, canConnect)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    GtStringMonitoringProperty monProp("testIdent", "testName");
+
+    GtStringProperty prop1("prop1", "test", "test");
+
+    ASSERT_TRUE(monProp.canConnect(prop1));
+
+    GT_SUPPRESS_DEPRECATED_END
+}

@@ -11,23 +11,12 @@
 
 #include "gt_boolproperty.h"
 
-GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name)
+
+GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name,
+                               const QString& brief, bool value)
 {
     setObjectName(name);
-
-    m_id = ident;
-    m_brief = QString();
-    m_unitCategory = GtUnit::Category::None;
-    m_initValue = false;
-    m_value = false;
-}
-
-GtBoolProperty::GtBoolProperty(const QString& ident,
-                               const QString &name,
-                               const QString &brief,
-                               bool value)
-{
-    setObjectName(name);
+    setConnectable();
 
     m_id = ident;
     m_brief = brief;
@@ -35,6 +24,10 @@ GtBoolProperty::GtBoolProperty(const QString& ident,
     m_initValue = value;
     m_value = value;
 }
+
+GtBoolProperty::GtBoolProperty(const QString& ident, const QString& name) :
+    GtBoolProperty(ident, name, QString(), false)
+{ }
 
 QVariant
 GtBoolProperty::valueToVariant(const QString& unit,

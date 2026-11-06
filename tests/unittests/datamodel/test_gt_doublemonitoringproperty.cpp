@@ -70,3 +70,16 @@ TEST_F(TestGtDoubleMonitoringProperty, setVal)
     ASSERT_DOUBLE_EQ(prop.getVal(), 0.75);
     GT_SUPPRESS_DEPRECATED_END
 }
+
+TEST_F(TestGtDoubleMonitoringProperty, canConnect)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    GtDoubleMonitoringProperty monProp("testIdent", "testName");
+
+    GtDoubleProperty prop1("prop1", "test", "test", GtUnit::Category::None,
+                           4.0);
+
+    ASSERT_TRUE(monProp.canConnect(prop1));
+
+    GT_SUPPRESS_DEPRECATED_END
+}

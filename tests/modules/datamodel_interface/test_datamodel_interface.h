@@ -30,6 +30,13 @@ class TestDatamodelInterface : public QObject,
 
 
 public:
+    /**
+     * @brief init
+     * No conversions are registered here, the converters of the
+     * standard property types are registered by the
+     * GtPropertyConversionRegistry itself
+     */
+    void init() override;
 
     /**
      * @brief Returns current version number of module
