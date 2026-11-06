@@ -1178,7 +1178,7 @@ propertyListToVariant(const QString& value, const QString& type)
         list.reserve(strList.size());
 
         foreach (const auto& val, strList)
-        {// cppcheck-suppress useStlAlgorithm
+        { // cppcheck-suppress useStlAlgorithm
             list.append(QVariant(val.toString()).toBool());
         }
 

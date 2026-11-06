@@ -689,7 +689,7 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
 {
     QHash<QString,const GtObjectMemento::PropertyData*> leftPropMap;
     foreach (const GtObjectMemento::PropertyData& lprop, leftProperties)
-    {// cppcheck-suppress useStlAlgorithm
+    { // cppcheck-suppress useStlAlgorithm
         leftPropMap.insert(lprop.name, &lprop);
     }
     // look for modified / added properties
