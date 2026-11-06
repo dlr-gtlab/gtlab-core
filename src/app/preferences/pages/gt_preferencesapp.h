@@ -17,6 +17,7 @@ class QCheckBox;
 class QSpinBox;
 class QComboBox;
 class GtModuleDirectoriesTab;
+class GtCollectionsDirectoriesTab;
 
 /**
  * @brief The GtPreferencesApp class
@@ -67,6 +68,8 @@ private:
     QComboBox* m_themeSelection;
 
     GtModuleDirectoriesTab* m_moduleDirsTab;
+    GtCollectionsDirectoriesTab* m_collectionDirsTab;
+
 };
 
 #endif // GTPREFERENCESAPP_H

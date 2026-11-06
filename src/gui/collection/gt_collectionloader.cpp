@@ -25,6 +25,7 @@
 #include "gt_downloaddialog.h"
 #include "gt_algorithms.h"
 #include "gt_qtutilities.h"
+#include "gt_settings.h"
 
 #include <QCoreApplication>
 #include <QDir>

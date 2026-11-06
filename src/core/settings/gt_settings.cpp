@@ -16,6 +16,7 @@
 #include <QSettings>
 #include <QMap>
 #include <QString>
+#include <gt_logging.h>
 
 struct GtSettings::Impl
 {
@@ -78,6 +79,9 @@ struct GtSettings::Impl
 
     /// User module directories
     GtSettingsItem* userModuleDirs;
+
+    /// User collections directory
+    GtSettingsItem* userCollectionsDir;
 };
 
 GtSettings::GtSettings()
@@ -98,6 +102,10 @@ GtSettings::GtSettings()
 
     pimpl->userModuleDirs = registerSettingRestart(
         QStringLiteral("application/general/module_dirs"),
+        QLatin1String(""));
+
+    pimpl->userCollectionsDir = registerSetting(
+        QStringLiteral("application/general/collections_dir"),
         QLatin1String(""));
 
     pimpl->lastPerspective =
@@ -481,4 +489,16 @@ GtSettings::setUserModuleDirs(const QStringList& dirs)
 {
     QString dirStr = dirs.join(";");
     pimpl->userModuleDirs->setValue(dirStr);
+}
+
+QString
+GtSettings::userCollectionsDir() const
+{
+    return pimpl->userCollectionsDir->getValue().toString();
+}
+
+void
+GtSettings::setUserCollectionsDir(const QString& dir)
+{
+    pimpl->userCollectionsDir->setValue(dir);
 }

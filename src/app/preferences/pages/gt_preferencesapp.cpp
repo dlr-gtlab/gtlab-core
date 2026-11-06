@@ -22,6 +22,7 @@
 #include "gt_logging.h"
 #include "gt_icons.h"
 #include "gt_moduledirectoriestab.h"
+#include "gt_collectionsdirectoriestab.h"
 
 #include "gt_preferencesapp.h"
 #include <QStandardItemModel>
@@ -152,6 +153,9 @@ GtPreferencesApp::GtPreferencesApp() :
     m_moduleDirsTab = new GtModuleDirectoriesTab;
     tabWidget->addTab(m_moduleDirsTab, tr("Module Directories"));
 
+    m_collectionDirsTab = new GtCollectionsDirectoriesTab;
+    tabWidget->addTab(m_collectionDirsTab, tr("Collections Directories"));
+
     QWidget* processRunnerPage = new QWidget;
     auto idx = tabWidget->addTab(processRunnerPage, tr("Process Runner"));
 
@@ -187,6 +191,9 @@ GtPreferencesApp::GtPreferencesApp() :
 
     // theme selection
     QString themeMode = settings->themeMode();
+
+    gtFatal() << "themeMode:" << themeMode;
+
     if (themeMode == "bright")
     {
         m_themeSelection->setCurrentIndex(1);
@@ -226,6 +233,11 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     // theme selection
     int index = m_themeSelection->currentIndex();
 
+    // theme selection
+    QString themeMode = settings.themeMode();
+    gtFatal() << "themeMode:" << themeMode;
+    gtFatal() << "themeMode index:" << index;
+
     if (index == 1)
     {
         settings.setThemeMode("bright");
@@ -243,6 +255,7 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     }
 
     settings.setUserModuleDirs(m_moduleDirsTab->userPaths());
+    //settings.setUserCollectionsDir(m_collectionDirsTab->collectionsPath());
 }
 
 void
@@ -253,4 +266,8 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultInstallPath(GtModuleLoader::applicationModuleDir());
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
+
+   // m_moduleDirsTab->loadPaths();
+
+   // m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
 }
