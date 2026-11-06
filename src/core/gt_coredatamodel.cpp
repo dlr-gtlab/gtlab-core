@@ -992,7 +992,7 @@ GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
         beginInsertRows(parentIndex, parent->childCount<GtObject*>(),
                         parent->childCount<GtObject*>() + children.size() - 1);
 
-        auto _ = gt::finally([this](){endInsertRows();});
+        auto _ = gt::finally([this]() { endInsertRows(); });
 
         if (!parent->appendChildren(children))
         {
@@ -1052,7 +1052,7 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
 
     {
         beginInsertRows(parentIndex, row, row);
-        auto _ = gt::finally([this](){endInsertRows();});
+        auto _ = gt::finally([this]() { endInsertRows(); });
 
         if (!parent->insertChild(row, child))
         {

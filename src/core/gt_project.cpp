@@ -658,7 +658,8 @@ GtProject::readLabelData(const GtObjectList& moduleData)
                     GtObjectMemento memento(le);
                     if (!memento.isNull())
                     {
-                        auto label = memento.restore_unique<GtLabel>(gtObjectFactory);
+                        auto label =
+                            memento.restore_unique<GtLabel>(gtObjectFactory);
 
                         if (label)
                         {
