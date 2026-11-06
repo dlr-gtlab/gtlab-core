@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Highlights
 ### Fixed
+ - Double and `QPointF` values (including lists) are now serialized losslessly, so object hashes stay stable across save/load and diff merges. - #1644
  - Qt 5: `QList<int>`, `QList<bool>`, `QList<QPointF>` and `QList<double>` object properties are no longer saved as empty lists. - #1644
 ### Added
  - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
