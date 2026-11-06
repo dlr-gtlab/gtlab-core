@@ -14,6 +14,9 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
+#include <QLocale>
+
+#include <limits>
 
 #include "gt_objectmemento.h"
 #include "gt_qtutilities.h"
@@ -104,8 +107,8 @@ public:
         if (gt::metaTypeId(var) == QMetaType::QPointF)
         {
             QPointF val = var.toPointF();
-            return QString::number(val.x()) + QStringLiteral("_")
-                   + QString::number(val.y());
+            return doubleToString(val.x()) + QStringLiteral("_") +
+                   doubleToString(val.y());
         }
         else if (var.isNull()) {
             return "";
@@ -135,6 +138,21 @@ public:
     }
 
 private:
+    /// Capacity estimate per serialized double (digits, sign, exponent)
+    static constexpr int S_ESTIMATED_DOUBLE_CHARS =
+        std::numeric_limits<double>::max_digits10 + 8;
+
+    /**
+     * Converts a double to the shortest string that reads back to the
+     * identical binary value.
+     * @param v Value to convert
+     * @return Round-trip safe string representation
+     */
+    static inline QString doubleToString(double v)
+    {
+        return QString::number(v, 'g', QLocale::FloatingPointShortest);
+    }
+
     /// Pointer to current object factory
     GtAbstractObjectFactory* m_factory;
 
