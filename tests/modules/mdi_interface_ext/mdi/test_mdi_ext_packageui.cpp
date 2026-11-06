@@ -17,6 +17,7 @@
 #include "gt_package.h"
 #include "test_mdi_ext_packageui.h"
 #include "test_mdi_ext_viewer.h"
+#include "test_dmi_data.h"
 
 #include "gt_icons.h"
 
@@ -26,18 +27,16 @@ TestMdiExtPackageUI::TestMdiExtPackageUI()
     auto k = registerShortCut(QStringLiteral("testMdiExtShortCut_1"),
                               QKeySequence(Qt::Key_F9));
 
-    addSingleAction("First Test Action", "testAction")
-        .setShortCut(k)
-        .setOrderPriority(
-            gt::gui::OrderPriority::First); // is placed first in menu
+    addSingleAction("Test Action 2", "testAction").setShortCut(k);
 
-    addActionGroup("Last Test Action Group")
-            .setOrderPriority(
-                gt::gui::OrderPriority::Last) // is placed last in menu
-            .setIcon("folder.svg")            // test icon by path
+    addActionGroup("Test Action Group 2")
+            .setIcon("folder.svg") // test icon by path
         << makeSingleAction("Test Group Action", "testGroupAction")
                .registerShortCut("testMdiExtShortCut_2", "testMdiExt",
                                  QKeySequence(Qt::Key_F10), true);
+
+    addSingleAction(tr("Add dynamic properties"), "addDynamicProperties");
+    addSingleAction(tr("Remove dynamic properties"), "removeDynamicProperties");
 }
 
 QIcon
@@ -74,3 +73,37 @@ TestMdiExtPackageUI::testGroupAction(GtObject* /*obj*/)
     gtInfo() << "TEST MDI INTERFACE EXT - TEST GROUP ACTION";
 }
 
+void
+TestMdiExtPackageUI::addDynamicProperties(GtObject* object)
+{
+    if (auto* data = qobject_cast<TestDmiData*>(object))
+    {
+        if (data->findProperty(QStringLiteral("runtimeBuiltInString")) ||
+            data->findProperty(QStringLiteral("runtimeCustomString")))
+        {
+            return;
+        }
+
+        auto command = gtApp->makeCommand(data, tr("dynamic properties added"));
+        Q_UNUSED(command)
+        data->addDynamicExampleProperties();
+    }
+}
+
+void
+TestMdiExtPackageUI::removeDynamicProperties(GtObject* object)
+{
+    if (auto* data = qobject_cast<TestDmiData*>(object))
+    {
+        if (!data->findProperty(QStringLiteral("runtimeBuiltInString")) &&
+            !data->findProperty(QStringLiteral("runtimeCustomString")))
+        {
+            return;
+        }
+
+        auto command =
+            gtApp->makeCommand(data, tr("dynamic properties removed"));
+        Q_UNUSED(command)
+        data->removeDynamicExampleProperties();
+    }
+}

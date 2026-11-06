@@ -12,6 +12,27 @@
 #include "gtest/gtest.h"
 
 #include "gt_doubleproperty.h"
+#include "gt_unit.h"
+
+TEST(GtUnit, isValidCategory)
+{
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::Default));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::ThermalConductivity));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::NonDimensionalPercentage));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::DataSize));
+    EXPECT_TRUE(GtUnit::isValidCategory(GtUnit::None));
+
+    EXPECT_FALSE(GtUnit::isValidCategory(
+        static_cast<int>(GtUnit::ThermalConductivity) + 1));
+    EXPECT_FALSE(GtUnit::isValidCategory(63));
+    EXPECT_FALSE(GtUnit::isValidCategory(67));
+    EXPECT_FALSE(GtUnit::isValidCategory(127));
+    EXPECT_FALSE(GtUnit::isValidCategory(-1));
+
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    EXPECT_FALSE(GtUnit::isValidCategory(GtUnit::Custom));
+    GT_SUPPRESS_DEPRECATED_END
+}
 
 /// This is a test fixture that does a init for each test
 class TestGtDoubleProperty : public ::testing::Test
