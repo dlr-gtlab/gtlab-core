@@ -163,7 +163,7 @@ GtCollectionLoader::collectionPath()
         return QString();
     }
 
-    auto settings = gtApp->settings();
+    const auto* settings = gtApp->settings();
 
     QString collectionpathstr = settings->userCollectionsDir();
 
