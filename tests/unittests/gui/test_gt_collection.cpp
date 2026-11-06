@@ -25,7 +25,7 @@ TEST(CollectionModel, CustomIconsArePreservedPerItem)
     GtLocalCollectionModel model;
     model.setItems({first, second});
 
-    ASSERT_EQ(2, model.rowCount());
+    ASSERT_EQ(2, model.rowCount(QModelIndex()));
     EXPECT_EQ(firstIcon.cacheKey(),
               model.data(model.index(0, 0), Qt::DecorationRole)
                   .value<QIcon>()
@@ -68,14 +68,14 @@ TEST(CollectionModel, ReplacingItemsReplacesTheirIcons)
     model.setItems({original});
     model.setItems({replacement});
 
-    ASSERT_EQ(1, model.rowCount());
+    ASSERT_EQ(1, model.rowCount(QModelIndex()));
     EXPECT_EQ(replacement.icon().cacheKey(),
               model.data(model.index(0, 0), Qt::DecorationRole)
                   .value<QIcon>()
                   .cacheKey());
 
     model.setItems({});
-    EXPECT_EQ(0, model.rowCount());
+    EXPECT_EQ(0, model.rowCount(QModelIndex()));
     EXPECT_FALSE(model.data(QModelIndex(), Qt::DecorationRole).isValid());
 }
 
