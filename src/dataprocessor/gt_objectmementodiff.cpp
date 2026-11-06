@@ -433,7 +433,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
                               QDomElement& diffRoot)
 {
     // fast path: strict byte-identical memento pair -> nothing to diff
-    if (mementosByteIdentical(leftOrig, rightOrig) && diffRoot.isNull())
+    if (mementosByteIdentical(leftOrig, rightOrig))
     {
         gtDebug() << QObject::tr("compared object mementos are identical!");
         return true;
@@ -522,13 +522,11 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         if (lchildIter != leftChildIndexMap.end())
         {
             // check for modifications
+            // (makeDiff has a fast path for byte-identical pairs)
             const GtObjectMemento& lchild(left.childObjects[*lchildIter]);
-            if (!mementosByteIdentical(lchild, rchild))
+            if (!makeDiff(lchild, rchild, diffRoot))
             {
-                if (!makeDiff(lchild, rchild, diffRoot))
-                {
-                    return false;
-                }
+                return false;
             }
             // take item from list to track removed objects
             leftChildIndexMap.erase(lchildIter);

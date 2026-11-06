@@ -22,7 +22,9 @@
 
 #include <cfloat>
 #include <cerrno>
+#include <clocale>
 #include <cstdlib>
+#include <cstring>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -1019,7 +1021,7 @@ propertyToVariant(const QString& value, const QString& type)
 }
 
 /**
- * @brief Parses a well-formed ASCII number with strtod (C locale)
+ * @brief Parses a well-formed ASCII number with strtod
  * @param data UTF-16 data of the value
  * @param length number of QChars in the value
  * @param out parsed value on success
@@ -1030,6 +1032,11 @@ propertyToVariant(const QString& value, const QString& type)
  * delivers bit-identical IEEE-754 results (verified against the full set of
  * real project values). Anything else - signs, whitespace, hex, inf/nan,
  * trailing garbage, overflow/underflow - falls back to the Qt parser.
+ *
+ * strtod() is locale dependent: it honors the process' LC_NUMERIC, so
+ * the grammar validated '.' is mapped to the current locale's decimal
+ * point (localeconv) before parsing. Without this, a de_DE locale
+ * would e.g. parse "2.4" as 2.
  */
 static bool
 tryParseDoubleAscii(const QChar* data, int length, double* out)
@@ -1100,8 +1107,42 @@ tryParseDoubleAscii(const QChar* data, int length, double* out)
     }
     buf[length] = '\0';
 
+    // strtod() honors the process' LC_NUMERIC: map the (grammar
+    // validated) '.' to the current locale's decimal point
+    const struct lconv* lc = localeconv();
+    const char* dec = lc->decimal_point;
+
+    if (dec == nullptr || dec[0] == '\0')
+    {
+        return false; // no usable decimal point -> Qt parser decides
+    }
+
+    const char* dot = static_cast<const char*>(memchr(buf, '.',
+                                                       static_cast<size_t>(length)));
+    bool needsAdaptation = (dot != nullptr) && (strcmp(dec, ".") != 0);
+
+    if (!needsAdaptation)
+    {
+        // no fraction part or already the locale's decimal point
+        errno = 0;
+        *out = strtod(buf, nullptr);
+        return errno != ERANGE; // overflow/underflow -> Qt parser decides
+    }
+
+    char num[72];
+    const size_t pre = static_cast<size_t>(dot - buf);
+    const size_t decLen = strlen(dec);
+    if (pre + decLen + static_cast<size_t>(length) + 1 > sizeof(num))
+    {
+        return false; // locale decimal point too long -> Qt parser decides
+    }
+
+    memcpy(num, buf, pre);
+    memcpy(num + pre, dec, decLen);
+    memcpy(num + pre + decLen, dot + 1, static_cast<size_t>(length) - pre);
+
     errno = 0;
-    *out = strtod(buf, nullptr);
+    *out = strtod(num, nullptr);
     return errno != ERANGE; // overflow/underflow -> let the Qt parser decide
 }
 

@@ -15,6 +15,9 @@
 
 #include <iostream>
 
+#include <clocale>
+#include <cstdio>
+
 /// This is a test fixture
 struct TestGtObjectIO_Read : public ::testing::Test
 {
@@ -25,6 +28,7 @@ struct TestGtObjectIO_Read : public ::testing::Test
          <propertylist name="emptyStringList" type="QString"></propertylist>
          <propertylist name="stringList" type="QString">hello;world</propertylist>
          <propertylist name="threeStrings" type="QString">;;</propertylist>
+         <propertylist name="doubleList" type="double">2.4;2.6;2.7</propertylist>
          <property name="invalidVariant" type=""/>
         </object>
         )";
@@ -92,5 +96,54 @@ TEST_F(TestGtObjectIO_Read, invalidQVariant)
     QVariant variant = variantProp->data();
 
     EXPECT_FALSE(variant.isValid());
+}
+
+TEST_F(TestGtObjectIO_Read, readDoubleList)
+{
+    // strtod based parsing is locale dependent: switch to a locale with
+    // a different decimal point when available, restore it afterwards
+    char prevLocale[128] = {};
+    if (const char* current = setlocale(LC_ALL, nullptr))
+    {
+        snprintf(prevLocale, sizeof(prevLocale), "%s", current);
+    }
+
+    setlocale(LC_ALL, "de_DE.UTF-8");
+
+    auto dblList = GtObjectMemento::findPropertyByName(memento.properties,
+                                                       "doubleList");
+
+    if (prevLocale[0] != '\0')
+    {
+        setlocale(LC_ALL, prevLocale);
+    }
+
+    ASSERT_TRUE(dblList != nullptr);
+
+    QVariant variant = dblList->data();
+    auto list = variant.value<QVector<double> >();
+
+    ASSERT_EQ(3, list.size());
+    EXPECT_DOUBLE_EQ(2.4, list[0]);
+    EXPECT_DOUBLE_EQ(2.6, list[1]);
+    EXPECT_DOUBLE_EQ(2.7, list[2]);
+}
+
+TEST_F(TestGtObjectIO_Read, doubleListByteRoundTrip)
+{
+    GtObjectMemento roundTrip(memento.toByteArray());
+
+    auto dblList = GtObjectMemento::findPropertyByName(roundTrip.properties,
+                                                       "doubleList");
+
+    ASSERT_TRUE(dblList != nullptr);
+
+    QVariant variant = dblList->data();
+    auto list = variant.value<QVector<double> >();
+
+    ASSERT_EQ(3, list.size());
+    EXPECT_DOUBLE_EQ(2.4, list[0]);
+    EXPECT_DOUBLE_EQ(2.6, list[1]);
+    EXPECT_DOUBLE_EQ(2.7, list[2]);
 }
 
