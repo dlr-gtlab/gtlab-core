@@ -136,8 +136,8 @@ TEST_F(TestGtObjectIO_Read, readDoubleList)
 
     GtObjectMemento parsed(xmlStr);
 
-    auto dblList = GtObjectMemento::findPropertyByName(parsed.properties,
-                                                       "doubleList");
+    auto dblList =
+        GtObjectMemento::findPropertyByName(parsed.properties, "doubleList");
 
     ASSERT_TRUE(dblList != nullptr);
 
@@ -160,7 +160,7 @@ TEST_F(TestGtObjectIO_Read, doubleListByteRoundTrip)
     ASSERT_TRUE(dblList != nullptr);
 
     QVariant variant = dblList->data();
-    auto list = variant.value<QVector<double> >();
+    auto list = variant.value<QVector<double>>();
 
     ASSERT_EQ(3, list.size());
     EXPECT_DOUBLE_EQ(2.4, list[0]);
@@ -174,8 +174,8 @@ TEST_F(TestGtObjectIO_Read, readDoubleListExponents)
 
     GtObjectMemento parsed(xmlStr);
 
-    auto dblList = GtObjectMemento::findPropertyByName(parsed.properties,
-                                                       "doubleListExp");
+    auto dblList =
+        GtObjectMemento::findPropertyByName(parsed.properties, "doubleListExp");
 
     ASSERT_TRUE(dblList != nullptr);
 
@@ -200,7 +200,7 @@ TEST_F(TestGtObjectIO_Read, readDoubleListOverflowFallback)
     ASSERT_TRUE(dblList != nullptr);
 
     QVariant variant = dblList->data();
-    auto list = variant.value<QVector<double> >();
+    auto list = variant.value<QVector<double>>();
 
     ASSERT_EQ(2, list.size());
 
@@ -232,11 +232,10 @@ TEST_F(TestGtObjectIO_Read, doubleListRoundTripExponents)
     ASSERT_TRUE(dblList != nullptr);
 
     QVariant variant = dblList->data();
-    auto list = variant.value<QVector<double> >();
+    auto list = variant.value<QVector<double>>();
 
     ASSERT_EQ(3, list.size());
     EXPECT_DOUBLE_EQ(1500.0, list[0]);
     EXPECT_DOUBLE_EQ(-0.0025, list[1]);
     EXPECT_DOUBLE_EQ(300.0, list[2]);
 }
-

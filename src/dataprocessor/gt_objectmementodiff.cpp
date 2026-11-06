@@ -338,10 +338,8 @@ variantByteIdentical(const QVariant& a, const QVariant& b)
 bool
 propertyByteIdentical(const PD& a, const PD& b)
 {
-    if (a.name != b.name
-        || a.isActive != b.isActive
-        || a.dataType() != b.dataType()
-        || a.type() != b.type())
+    if (a.name != b.name || a.isActive != b.isActive
+        || a.dataType() != b.dataType() || a.type() != b.type())
     {
         return false;
     }
@@ -357,8 +355,7 @@ propertyByteIdentical(const PD& a, const PD& b)
     }
     for (int i = 0; i < a.childProperties.size(); i++)
     {
-        if (!propertyByteIdentical(a.childProperties[i],
-                                   b.childProperties[i]))
+        if (!propertyByteIdentical(a.childProperties[i], b.childProperties[i]))
         {
             return false;
         }
@@ -367,8 +364,7 @@ propertyByteIdentical(const PD& a, const PD& b)
 }
 
 bool
-propertyBlocksByteIdentical(const GtObjectMemento& a,
-                            const GtObjectMemento& b)
+propertyBlocksByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
 {
     const auto& propsA = a.properties;
     const auto& propsB = b.properties;
@@ -401,13 +397,10 @@ propertyBlocksByteIdentical(const GtObjectMemento& a,
 }
 
 bool
-mementosByteIdentical(const GtObjectMemento& a,
-                      const GtObjectMemento& b)
+mementosByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
 {
-    if (a.className() != b.className()
-        || a.uuid() != b.uuid()
-        || a.ident() != b.ident()
-        || !propertyBlocksByteIdentical(a, b))
+    if (a.className() != b.className() || a.uuid() != b.uuid() ||
+        a.ident() != b.ident() || !propertyBlocksByteIdentical(a, b))
     {
         return false;
     }
