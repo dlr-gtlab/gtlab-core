@@ -9,6 +9,7 @@
  */
 
 #include "gt_task.h"
+#include "internal/gt_scopedconnectiondeferral.h"
 #include "gt_accessdata.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
@@ -342,6 +343,13 @@ GtTask::selectedProcessRunner() const
 void
 GtTask::onObjectDataMerged()
 {
+    // Deep-copy scopes in another translation unit activate this state.
+    // cppcheck-suppress knownConditionTrueFalse
+    if (gt::detail::ScopedConnectionDeferral::isActive())
+    {
+        return;
+    }
+
     foreach (GtPropertyConnection* connection,
              findDirectChildren<GtPropertyConnection*>())
     {
