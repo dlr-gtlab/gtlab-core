@@ -165,7 +165,7 @@ GtCollectionLoader::collectionPath()
 
     auto settings = gtApp->settings();
 
-    QString collectionpathstr{}; //= settings->userCollectionsDir();
+    QString collectionpathstr = settings->userCollectionsDir();
 
     if (collectionpathstr.isEmpty())
     {
