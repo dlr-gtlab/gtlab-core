@@ -18,24 +18,84 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 
+#include <memory>
+
 namespace
 {
+
+class CollectionTestApplication : public GtApplication
+{
+public:
+    CollectionTestApplication() :
+        GtApplication(QCoreApplication::instance(), false,
+                      GtCoreApplication::AppMode::Batch)
+    { }
+
+protected:
+    bool initFirstRun() override
+    {
+        return true;
+    }
+};
 
 class CollectionPathTest : public testing::Test
 {
 protected:
     void SetUp() override
     {
+        previousApplicationName = QCoreApplication::applicationName();
+        previousOrganizationName = QCoreApplication::organizationName();
+        previousOrganizationDomain = QCoreApplication::organizationDomain();
+        previousTestMode = QStandardPaths::isTestModeEnabled();
+        previousFormat = QSettings::defaultFormat();
+        previousModuleDirs = qgetenv("GTLAB_MODULE_DIRS");
         ASSERT_TRUE(directory.isValid());
-        gtApp->settings()->setUserCollectionsDir(directory.path());
+        QStandardPaths::setTestModeEnabled(true);
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        qputenv("GTLAB_MODULE_DIRS", QByteArray{});
+
+        application = std::make_unique<CollectionTestApplication>();
+        QCoreApplication::setApplicationName(
+            "GTlabCollectionPathTests-" +
+            QFileInfo(directory.path()).fileName());
+        application->init();
+        application->loadModules();
+        ASSERT_TRUE(application->loadSingleModule(
+            QString::fromUtf8(COLLECTION_FIXTURE_PATH)));
+        application->settings()->setUserCollectionsDir(directory.path());
     }
 
     void TearDown() override
     {
-        gtApp->settings()->setUserCollectionsDir(QString{});
+        if (application)
+        {
+            QSettings settings;
+            const QString settingsFile = settings.fileName();
+            settings.clear();
+            settings.sync();
+            QFile::remove(settingsFile);
+            QDir(GtCoreApplication::roamingPath()).removeRecursively();
+            application.reset();
+        }
+        QCoreApplication::setApplicationName(previousApplicationName);
+        QCoreApplication::setOrganizationName(previousOrganizationName);
+        QCoreApplication::setOrganizationDomain(previousOrganizationDomain);
+        QStandardPaths::setTestModeEnabled(previousTestMode);
+        QSettings::setDefaultFormat(previousFormat);
+        if (previousModuleDirs.isNull())
+            qunsetenv("GTLAB_MODULE_DIRS");
+        else
+            qputenv("GTLAB_MODULE_DIRS", previousModuleDirs);
     }
 
     QTemporaryDir directory;
+    std::unique_ptr<CollectionTestApplication> application;
+    QString previousApplicationName;
+    QString previousOrganizationName;
+    QString previousOrganizationDomain;
+    QByteArray previousModuleDirs;
+    bool previousTestMode = false;
+    QSettings::Format previousFormat = QSettings::NativeFormat;
 };
 
 TEST_F(CollectionPathTest, UsesConfiguredDirectoryAndCreatesCollectionFolder)
@@ -93,29 +153,3 @@ TEST_F(CollectionPathTest, ReturnsEmptyWhenConfiguredRootIsAFile)
 }
 
 } // namespace
-
-int
-main(int argc, char** argv)
-{
-    QApplication qtApp(argc, argv);
-    QStandardPaths::setTestModeEnabled(true);
-    QTemporaryDir settingsDirectory;
-    if (!settingsDirectory.isValid()) return 1;
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope,
-                       settingsDirectory.path());
-    qputenv("GTLAB_MODULE_DIRS", QByteArray{});
-
-    GtApplication application(&qtApp, false, GtCoreApplication::AppMode::Batch);
-    QCoreApplication::setApplicationName("GTlabCollectionPathTests");
-    application.init();
-    application.loadModules();
-    if (!application.loadSingleModule(
-            QString::fromUtf8(COLLECTION_FIXTURE_PATH)))
-    {
-        return 1;
-    }
-
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

@@ -121,8 +121,7 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
         FOOTPRINT_${fixture}_PATH="$<TARGET_FILE:Footprint${fixture}>")
 endforeach()
 
-# Collection path integration tests need QApplication for the GUI module loader.
-# Keep their application and settings state separate from the core test runner.
+# Plugin fixture for collection path tests in the main test runner.
 add_library(CollectionPathFixture MODULE modulefixtures/collection.cpp)
 set_target_properties(CollectionPathFixture PROPERTIES
     AUTOMOC ON
@@ -141,15 +140,7 @@ set_property(TARGET CollectionPathFixture APPEND PROPERTY AUTOMOC_MOC_OPTIONS
 )
 target_link_libraries(CollectionPathFixture PRIVATE GTlab::Gui)
 
-add_executable(GTlabCollectionPathTest collectionpaths/main.cpp)
-target_compile_definitions(GTlabCollectionPathTest PRIVATE
-    GT_MODULE_ID="Unittests"
-    GT_LOG_USE_QT_BINDINGS
+target_compile_definitions(GTlabUnitTest PRIVATE
     COLLECTION_FIXTURE_PATH="$<TARGET_FILE:CollectionPathFixture>"
 )
-target_link_libraries(GTlabCollectionPathTest PRIVATE GTlab::Gui gtest)
-add_dependencies(GTlabCollectionPathTest CollectionPathFixture)
-add_test(NAME CollectionPaths COMMAND GTlabCollectionPathTest)
-set_tests_properties(CollectionPaths PROPERTIES
-    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
-)
+add_dependencies(GTlabUnitTest CollectionPathFixture)
