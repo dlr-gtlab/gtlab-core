@@ -130,12 +130,15 @@ jobs:
         set PATH=%cd%\install\binDebug;%HDF5_BIN_DIR%;%PATH%
         cd build
         .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+        if errorlevel 1 exit /b %errorlevel%
+        ctest -C Debug -R "^CollectionPaths$" --output-on-failure
 
     - name: Unit Tests - Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
         cd build
         ./GTlabUnitTest --gtest_output=xml:unittests.xml
+        ctest -R "^CollectionPaths$" --output-on-failure
 
     - name: System Tests - Linux
       if: matrix.os == 'ubuntu-latest'
@@ -250,6 +253,8 @@ jobs:
         set PATH=%cd%\build\install\bin;%HDF5_BIN_DIR%;%PATH%
         cd build
         .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+        if errorlevel 1 exit /b %errorlevel%
+        ctest -C Release -R "^CollectionPaths$" --output-on-failure
 
     - name: Create Package (Windows)
       run: |
