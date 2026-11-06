@@ -200,6 +200,51 @@ TEST_F(TestSettings, concreteSettingsRoundTripAndDefaults)
     EXPECT_TRUE(concrete.autostartProcessRunner());
 }
 
+TEST_F(TestSettings, collectionDirectoryDefaultsToEmpty)
+{
+    GtSettings concrete;
+
+    EXPECT_TRUE(concrete.userCollectionsDir().isEmpty());
+}
+
+TEST_F(TestSettings, collectionDirectoryPersistsAcrossSettingsInstances)
+{
+    const QString directory = QDir::temp().filePath("collections with spaces");
+    {
+        GtSettings concrete;
+        concrete.setUserCollectionsDir(directory);
+        EXPECT_EQ(directory, concrete.userCollectionsDir());
+    }
+
+    GtSettings reloaded;
+    EXPECT_EQ(directory, reloaded.userCollectionsDir());
+    EXPECT_EQ(
+        directory,
+        QSettings().value("application/general/collections_dir").toString());
+}
+
+TEST_F(TestSettings, collectionDirectoryCanBeCleared)
+{
+    GtSettings concrete;
+    concrete.setUserCollectionsDir(QDir::temp().filePath("collections"));
+    concrete.setUserCollectionsDir(QString{});
+
+    EXPECT_TRUE(concrete.userCollectionsDir().isEmpty());
+    GtSettings reloaded;
+    EXPECT_TRUE(reloaded.userCollectionsDir().isEmpty());
+}
+
+TEST_F(TestSettings, restoringSettingsResetsCollectionDirectory)
+{
+    GtSettings concrete;
+    concrete.setUserCollectionsDir(QDir::temp().filePath("collections"));
+    concrete.restoreSettings();
+
+    EXPECT_TRUE(concrete.userCollectionsDir().isEmpty());
+    GtSettings reloaded;
+    EXPECT_TRUE(reloaded.userCollectionsDir().isEmpty());
+}
+
 TEST_F(TestSettings, shortcutsAndListsRoundTrip)
 {
     GtSettings concrete;
