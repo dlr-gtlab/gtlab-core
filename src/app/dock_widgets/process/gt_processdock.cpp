@@ -18,6 +18,8 @@
 #include <QLineEdit>
 #include <QInputDialog>
 
+#include <utility>
+
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
 #include "gt_processview.h"
@@ -547,13 +549,12 @@ GtProcessDock::addEmptyTask(GtObject* root)
     task->setObjectName(taskId);
     task->setFactory(gtProcessFactory);
 
-    QModelIndex srcIndex = gtDataModel->appendChild(task.get(), root);
+    QModelIndex srcIndex = gtDataModel->appendChild(std::move(task), root);
 
     QModelIndex index = mapFromSource(srcIndex);
 
     if (!index.isValid()) return;
 
-    task.release();
     QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
                                                 index.parent());
     QItemSelection itemSel(index, tmpIndex);
@@ -629,7 +630,7 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
+    auto newObj = memento.restore_unique<GtProcessComponent>(gtProcessFactory);
 
     if (!newObj)
     {
@@ -641,7 +642,7 @@ GtProcessDock::addCalculator()
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, obj);
+    QModelIndex newIndex = gtDataModel->appendChild(std::move(newObj), obj);
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -716,7 +717,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (memento.isNull()) return;
 
-    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
+    auto newObj = memento.restore_unique<GtProcessComponent>(gtProcessFactory);
 
     if (!newObj) return;
 
@@ -728,7 +729,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, parentObj);
+    QModelIndex newIndex =
+        gtDataModel->appendChild(std::move(newObj), parentObj);
 
     QModelIndex index = mapFromSource(newIndex);
 

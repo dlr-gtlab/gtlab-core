@@ -270,7 +270,7 @@ namespace
             return {};
         }
 
-        GtObject* object = memento.restore<GtObject*>(gtObjectFactory);
+        auto object = memento.restore_unique(gtObjectFactory);
         if (!object)
         {
             error = QObject::tr("Unsupported %1 Memento '%2'")
@@ -278,7 +278,7 @@ namespace
             return {};
         }
 
-        return std::unique_ptr<GtObject>(object);
+        return object;
     }
 
     std::unique_ptr<GtObjectGroup> restoreProjectData(QString const& fileName,

@@ -19,6 +19,8 @@
 #include "qscrollarea.h"
 #include <QLabel>
 
+#include <utility>
+
 #include "gt_templateviewer.h"
 #include "gt_application.h"
 #include "gt_project.h"
@@ -98,7 +100,8 @@ GtTemplateViewer::GtTemplateViewer() :
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
     connect(buttonAdd, SIGNAL(clicked(bool)), SLOT(addButtonClicked()));
-    connect(buttonPrint, SIGNAL(clicked(bool)), SLOT(printButtonClicked()));
+    connect(buttonPrint, &QPushButton::clicked, this,
+            &GtTemplateViewer::printButtonClicked);
     connect(buttonPDF, SIGNAL(clicked(bool)), SLOT(pdfButtonClicked()));
 
     laybutton->addWidget(m_titleLineEdit);
@@ -233,24 +236,28 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
     {
         GtObjectMemento memento(root);
 
-        GtObject* obj = memento.restore(gtPostTemplateFactory);
+        auto obj = memento.restore_unique(gtPostTemplateFactory);
 
         if (!obj)
         {
             gtWarning() << tr("Object cannot be restored while reading "
                               "template viewer post file");
         }
-
-        // createUIs by calling abstract DM class function
-        GtPostTemplateItem* abstractDM = dynamic_cast<GtPostTemplateItem*>(obj);
-
-        if (abstractDM)
+        else
         {
-            if (!m_postTemplateDM->appendChild(abstractDM))
+            // createUIs by calling abstract DM class function
+            auto abstractDM =
+                gt::unique_qobject_cast<GtPostTemplateItem>(std::move(obj));
+
+            if (abstractDM)
             {
-                gtWarning() << tr("Could not append child '")
-                            << abstractDM->objectName()
-                            << tr("' to datamodel whilst reading xml file!");
+                const auto name = abstractDM->objectName();
+                if (!m_postTemplateDM->appendChild(std::move(abstractDM)))
+                {
+                    gtWarning()
+                        << tr("Could not append child '%1' to datamodel!")
+                               .arg(name);
+                }
             }
         }
 

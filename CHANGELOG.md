@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    are required by a set of modules, including transitive dependencies. The new
    `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module
    versions. - #1312
+ - New method `GtObjectMemento::restore_unique` that returns the restored object as `std::unique_ptr`,
+   preventing memory leaks that occur easily with the raw pointer returned by `GtObjectMemento::restore` - #334
 
 ### Changed
  - GTlab is now built with Qt 6.8 by default
@@ -75,6 +77,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    A saved project now only stores the modules that its data actually requires, including their
    transitive module dependencies. Required modules that are currently unavailable keep their
    previously stored versions. - #1312
+### Deprecated
+ - Deprecated `GtObjectMemento::restore`. The returned raw pointer needs to be deleted manually,
+   which led to memory leaks. Use `GtObjectMemento::restore_unique`, which returns a
+   `std::unique_ptr`, instead. The deprecated method will be removed in GTlab 2.2 - #334
 
 ### Fixed
  - Fixed object links and property connections becoming invalid after using Save Project As - #31

@@ -658,26 +658,21 @@ GtProject::readLabelData(const GtObjectList& moduleData)
                     GtObjectMemento memento(le);
                     if (!memento.isNull())
                     {
-                        GtObject* obj = memento.restore(gtObjectFactory);
-                        if (obj)
+                        auto label =
+                            memento.restore_unique<GtLabel>(gtObjectFactory);
+
+                        if (label)
                         {
-                            GtLabel* l = qobject_cast<GtLabel*>(obj);
-                            if (l)
+                            if (data->addLabel(label.get()))
                             {
-                                if (!data->addLabel(l))
-                                {
-                                    gtWarning() << tr("could not add label")
-                                                << " (" << tr("already exists")
-                                                << ")";
-                                    delete obj;
-                                }
+                                // data takes ownership of the label
+                                auto* addedLabel = label.release();
+                                Q_ASSERT(addedLabel);
                             }
                             else
                             {
-                                gtWarning() << tr("could not recreate label")
-                                            << " (" << tr("casting failed")
-                                            << ")";
-                                delete obj;
+                                gtWarning() << tr("could not add label") << " ("
+                                            << tr("already exists") << ")";
                             }
                         }
                     }
@@ -1542,7 +1537,7 @@ GtProject::fromProjectDataMemento(GtObjectMemento& memento)
         return false;
     }
 
-    GtObjectGroup* group = memento.restore<GtObjectGroup*>(gtObjectFactory);
+    auto group = memento.restore_unique<GtObjectGroup>(gtObjectFactory);
 
     if (!group)
     {
@@ -1557,14 +1552,11 @@ GtProject::fromProjectDataMemento(GtObjectMemento& memento)
 
         if (!oldPkg)
         {
-            delete group;
             return false;
         }
 
         oldPkg->fromMemento(package->toMemento());
     }
-
-    delete group;
 
     return true;
 }

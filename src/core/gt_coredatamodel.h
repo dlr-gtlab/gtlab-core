@@ -19,6 +19,8 @@
 #include <QPointer>
 #include <QObject>
 
+#include <memory>
+
 #include <gt_version.h>
 
 #define gtDataModel (GtCoreDatamodel::instance())
@@ -257,6 +259,17 @@ public:
      * @return ModelIndex of appended child object
      */
     QModelIndex appendChild(GtObject* child, GtObject* parent);
+
+    /**
+     * @brief Appends the child and transfers ownership on success.
+     * If the child cannot be appended, it is destroyed when this function
+     * returns.
+     * @param child Child object
+     * @param parentObject Parent object
+     * @return Model index of the appended child, or an invalid index
+     */
+    QModelIndex appendChild(std::unique_ptr<GtObject> child,
+                            GtObject* parentObject);
 
     /**
      * @brief Appends given children to given parent object.

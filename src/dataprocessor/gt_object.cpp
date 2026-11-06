@@ -209,7 +209,7 @@ GtObject::copyClone(bool cloneObject, GtObjectUUIDMap* uuidMap) const
         return nullptr;
     }
 
-    return memento.restore(fac);
+    return memento.restore_unique(fac).release();
 }
 
 
@@ -243,22 +243,18 @@ GtObject::clone() const
 bool
 GtObject::appendChild(GtObject* c)
 {
-    if (!c)
+    if (!canAppendChild(c))
     {
         return false;
     }
 
-    if (children().contains(c))
-    {
-        return false;
-    }
+    appendChildUnchecked(c);
+    return true;
+}
 
-    if (!childAccepted(c))
-    {
-        gtDebug() << tr("child type not accepted!");
-        return false;
-    }
-
+void
+GtObject::appendChildUnchecked(GtObject* c)
+{
     c->disconnectFromParent();
     c->setParent(this);
 
@@ -278,16 +274,79 @@ GtObject::appendChild(GtObject* c)
     changed();
 
     emit childAppended(c, this);
+}
 
+bool
+GtObject::appendChild(std::unique_ptr<GtObject> child)
+{
+    if (!appendChild(child.get()))
+    {
+        return false;
+    }
+
+    static_cast<void>(child.release());
     return true;
 }
 
 bool
 GtObject::appendChildren(const QList<GtObject*>& list)
 {
-    return std::all_of(std::begin(list), std::end(list), [this](GtObject* child) {
-        return appendChild(child);
-    });
+    if (!canAppendChildren(list))
+    {
+        return false;
+    }
+
+    for (GtObject* child : list)
+    {
+        appendChildUnchecked(child);
+    }
+
+    return true;
+}
+
+
+bool
+GtObject::canAppendChild(const GtObject* child)
+{
+    const auto& existingChildren = children();
+
+    if (!child || existingChildren.contains(const_cast<GtObject*>(child)))
+    {
+        return false;
+    }
+
+    if (!childAccepted(const_cast<GtObject*>(child)))
+    {
+        gtDebug() << tr("child type not accepted!");
+        return false;
+    }
+
+    return true;
+}
+
+bool
+GtObject::canAppendChildren(const QList<GtObject*>& candidates)
+{
+    QList<GtObject*> seen;
+    const QObjectList existingChildren = children();
+
+    for (GtObject* child : candidates)
+    {
+        if (!child || existingChildren.contains(child) || seen.contains(child))
+        {
+            return false;
+        }
+
+        if (!childAccepted(child))
+        {
+            gtDebug() << tr("child type not accepted!");
+            return false;
+        }
+
+        seen.append(child);
+    }
+
+    return true;
 }
 
 void

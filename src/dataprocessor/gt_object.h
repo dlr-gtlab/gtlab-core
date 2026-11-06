@@ -226,6 +226,29 @@ public:
     bool appendChild(GtObject* c);
 
     /**
+     * @brief Appends the object as child and transfers ownership on success.
+     * If the child is rejected, it is destroyed when this function returns.
+     * @param child Child object
+     * @return Whether object has been appended or not
+     */
+    bool appendChild(std::unique_ptr<GtObject> child);
+
+    /**
+     * @brief Returns whether the given object can be appended as a child.
+     * @param childCandidate The candidate that should be checked for test.
+     * @return Whether the child is non-null, not already a child and accepted
+     */
+    bool canAppendChild(const GtObject* childCandidate);
+
+    /**
+     * @brief Returns whether all given objects can be appended as children.
+     * @param candidates Candidate child objects
+     * @return Whether every child is non-null, not already a child, accepted,
+     * and unique within the list
+     */
+    bool canAppendChildren(const QList<GtObject*>& candidates);
+
+    /**
      * @brief appendChildren - appends multiple objects as children.
      * Relationship to the old parents of the children objects are destroyed
      * @param list of the GtObjects.
@@ -610,6 +633,11 @@ public:
             return appendChild(obj);
         }
 
+        if (!canAppendChildren({obj}))
+        {
+            return false;
+        }
+
         QList<T> elementsBehindPos;
 
         for (int i = pos; i < list.size(); ++i)
@@ -784,6 +812,7 @@ protected slots:
     void changed();
 
 private:
+    void appendChildUnchecked(GtObject* child);
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;

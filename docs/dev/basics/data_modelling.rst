@@ -331,12 +331,19 @@ Restore an Object from a Memento
 
 .. code-block:: cpp
 
-   // Restore a new object instance from a memento
+   // Restore a new object instance from a memento. ``restore_unique``
+   // returns a ``std::unique_ptr`` and transfers ownership to the caller,
+   // so the restored object cannot leak.
    GtObjectMemento memento = sourceObject->toMemento();
-   auto* restored = memento.restore<GtObject*>(gtObjectFactory);
+   auto restored = memento.restore_unique<GtObject>(gtObjectFactory);
 
    // Or merge a memento into an existing object
    existingObject->fromMemento(memento);
+
+.. note::
+   ``GtObjectMemento::restore<T*>()`` returns a raw pointer that the caller
+   had to delete manually. It is deprecated since GTlab 2.1 and will be
+   removed in GTlab 2.2. Use ``restore_unique`` instead.
 
 Diff Two Mementos
 ^^^^^^^^^^^^^^^^^
@@ -413,7 +420,7 @@ Read object state with ``gt::xml`` helpers:
        GtObjectMemento memento(doc.documentElement());
 
        // memento -> object (new instance)
-       auto* restored = memento.restore<GtObject*>(gtObjectFactory);
+       auto restored = memento.restore_unique<GtObject>(gtObjectFactory);
    }
 
 Linked XML Serialization (SaveAsOwnFile)

@@ -34,6 +34,7 @@
 #include <QUuid>
 
 #include <memory>
+#include <utility>
 
 class ProjectUuidLinkObject : public GtObject
 {
@@ -267,6 +268,56 @@ TEST_F(ProjectLifecycleTest, opensClosesAndSwitchesProjects)
     EXPECT_TRUE(gtDataModel->closeProject(second));
     EXPECT_FALSE(second->isOpen());
     EXPECT_EQ(gtDataModel->currentProject(), nullptr);
+}
+
+TEST_F(ProjectLifecycleTest, appendChildUniqueTransfersOwnership)
+{
+    GtProject* project = createProject(QStringLiteral("Unique Child"));
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
+
+    auto child = std::make_unique<GtObject>();
+    QPointer<GtObject> observed(child.get());
+
+    const QModelIndex index =
+        gtDataModel->appendChild(std::move(child), project);
+    ASSERT_TRUE(index.isValid());
+    ASSERT_NE(observed.data(), nullptr);
+    EXPECT_EQ(gtDataModel->objectFromIndex(index), observed.data());
+    EXPECT_EQ(observed->parent(), project);
+
+    EXPECT_TRUE(gtDataModel->deleteFromModel(observed.data()));
+    EXPECT_TRUE(observed.isNull());
+}
+
+TEST_F(ProjectLifecycleTest, appendChildUniqueDeletesRejectedChild)
+{
+    class RejectingParent : public GtObject
+    {
+    protected:
+        bool childAccepted(GtObject*) override
+        {
+            return false;
+        }
+    } parent;
+
+    GtProject* project = createProject(QStringLiteral("Reject Child"));
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->newProject(project, false));
+    ASSERT_TRUE(project->appendChild(&parent));
+
+    const QModelIndex parentIndex = gtDataModel->indexFromObject(&parent);
+    ASSERT_TRUE(parentIndex.isValid());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
+
+    auto child = std::make_unique<GtObject>();
+    QPointer<GtObject> observed(child.get());
+
+    const QModelIndex index =
+        gtDataModel->appendChild(std::move(child), &parent);
+    EXPECT_FALSE(index.isValid());
+    EXPECT_TRUE(observed.isNull());
+    EXPECT_EQ(gtDataModel->rowCount(parentIndex), 0);
 }
 
 TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
