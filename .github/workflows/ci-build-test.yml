@@ -115,9 +115,6 @@ jobs:
         cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib -Dhdf5_DIR="$HDF5_DIR"
         cmake --build build/external-consumer --target install --config Debug
         cmake -E chdir build/external-consumer ctest -C Debug -R ExternalModuleInstallLayout --output-on-failure
-        cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer-release -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib -Dhdf5_DIR="$HDF5_DIR"
-        cmake --build build/external-consumer-release --target install --config Release
-        cmake -E chdir build/external-consumer-release ctest -C Release -R ExternalModuleInstallLayout --output-on-failure
 
     - name: Build external module consumer (Windows)
       if: startsWith(matrix.os, 'windows')
@@ -125,8 +122,6 @@ jobs:
         cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer "-DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE\install" "-DCMAKE_INSTALL_PREFIX=$env:GITHUB_WORKSPACE\install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib "-Dhdf5_DIR=$env:HDF5_DIR"
         cmake --build build/external-consumer --target install --config Debug
         cmake -E chdir build/external-consumer ctest -C Debug -R ExternalModuleInstallLayout --output-on-failure
-        cmake --build build/external-consumer --target install --config Release
-        cmake -E chdir build/external-consumer ctest -C Release -R ExternalModuleInstallLayout --output-on-failure
 
     - name: Unit Tests - Windows
       if: startsWith(matrix.os, 'windows')

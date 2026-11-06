@@ -123,15 +123,8 @@ set(_installed_gtlab_console_debug
     "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_DEBUG_BINDIR}/${_gtlab_console_name}")
 set(_installed_gtlab_console_release
     "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_BINDIR}/${_gtlab_console_name}")
-if (EXISTS "${_installed_gtlab_console_debug}")
-    set(_installed_gtlab_console "${_installed_gtlab_console_debug}")
-elseif (EXISTS "${_installed_gtlab_console_release}")
-    set(_installed_gtlab_console "${_installed_gtlab_console_release}")
-else()
-    message(FATAL_ERROR
-        "Could not find the installed GTlab console in '${_installed_gtlab_console_debug}' "
-        "or '${_installed_gtlab_console_release}'")
-endif()
+set(_installed_gtlab_console
+    "$<IF:$<CONFIG:Debug>,${_installed_gtlab_console_debug},${_installed_gtlab_console_release}>")
 
 set(_test_environment)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
@@ -158,9 +151,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
     endif()
     list(APPEND _test_environment
         "${_runtime_library_path_variable}=${_runtime_library_path}:$ENV{${_runtime_library_path_variable}}")
-elseif (WIN32)
-    list(APPEND _test_environment
-        "PATH=${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_MODULEDIR_DEBUG};${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_MODULEDIR_RELEASE};$ENV{PATH}")
 endif()
 
 add_test(NAME ExternalModuleInstallLayout

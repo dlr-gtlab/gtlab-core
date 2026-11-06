@@ -34,9 +34,18 @@ foreach(_module_spec
 endforeach()
 
 get_filename_component(_installed_module_dir "${INSTALLED_MODULE}" DIRECTORY)
+if (NOT EXISTS "${CONSOLE}")
+    message(FATAL_ERROR "Expected installed GTlab console '${CONSOLE}'")
+endif()
+
 set(_adjacent_dependency "${_installed_module_dir}/${ADJACENT_DEPENDENCY}")
 if (NOT EXISTS "${_adjacent_dependency}")
     message(FATAL_ERROR "Expected adjacent module dependency '${_adjacent_dependency}'")
+endif()
+
+# Add the module directory so Windows can resolve its adjacent DLL dependency.
+if (WIN32)
+    set(ENV{PATH} "${_installed_module_dir};$ENV{PATH}")
 endif()
 
 file(REMOVE "${LOAD_MARKER}")
