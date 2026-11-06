@@ -338,8 +338,8 @@ variantByteIdentical(const QVariant& a, const QVariant& b)
 bool
 propertyByteIdentical(const PD& a, const PD& b)
 {
-    if (a.name != b.name || a.isActive != b.isActive
-        || a.dataType() != b.dataType() || a.type() != b.type())
+    if (a.name != b.name || a.isActive != b.isActive ||
+        a.dataType() != b.dataType() || a.type() != b.type())
     {
         return false;
     }
@@ -689,7 +689,7 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
 {
     QHash<QString,const GtObjectMemento::PropertyData*> leftPropMap;
     foreach (const GtObjectMemento::PropertyData& lprop, leftProperties)
-    {
+    {// cppcheck-suppress useStlAlgorithm
         leftPropMap.insert(lprop.name, &lprop);
     }
     // look for modified / added properties
