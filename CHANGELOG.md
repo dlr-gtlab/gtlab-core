@@ -19,9 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
  - Preferences now prompt the user to restart GTlab when a changed setting requires it.
  - Support for property connections beyond trivial mappings. The API allows to register converters and thus add useful mapping options, including conversion and compatibility checks. - #1229 
+ - Support to allow more customization of a collection - #1549
 ### Changed
  - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
  - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
+ - Collections are not stored in the installation folder of GTlab anymore. By default, they are found in the config folder of the user. A new tab in Setting -> Application gives more options to set a dedicated path.
 ### Deprecated
  - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
 

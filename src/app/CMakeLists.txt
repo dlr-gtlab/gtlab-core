@@ -28,6 +28,7 @@ set(headers
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
     preferences/pages/gt_moduledirectoriestab.h
+    preferences/pages/gt_collectionsdirectoriestab.h
     tools/gt_maintoolbar.h
     tools/gt_iconbrowser.h
     widgets/gt_sessionlistwidget.h
@@ -97,6 +98,7 @@ set(headers
 set(forms 
     ui/gt_mainwin.ui
     preferences/pages/gt_moduledirectoriestab.ui
+    preferences/pages/gt_collectionsdirectoriestab.ui
 )
 
 set(sources
@@ -114,6 +116,7 @@ set(sources
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
     preferences/pages/gt_moduledirectoriestab.cpp
+    preferences/pages/gt_collectionsdirectoriestab.cpp
     tools/gt_maintoolbar.cpp
     tools/gt_iconbrowser.cpp
     widgets/gt_sessionlistwidget.cpp

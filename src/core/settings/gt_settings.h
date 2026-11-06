@@ -391,6 +391,16 @@ public:
      */
     void setUserModuleDirs(const QStringList& dirs);
 
+    /**
+     * @brief Returns the collections directory defined by the user
+     */
+    QString userCollectionsDir() const;
+
+    /**
+     * @brief Sets the user collections directory
+     */
+    void setUserCollectionsDir(const QString& dir);
+
 private:
 
     struct Impl;

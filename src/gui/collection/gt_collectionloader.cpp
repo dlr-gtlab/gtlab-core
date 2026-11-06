@@ -21,6 +21,7 @@
 #include "gt_downloaddialog.h"
 #include "gt_algorithms.h"
 #include "gt_qtutilities.h"
+#include "gt_settings.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -160,25 +161,16 @@ GtCollectionLoader::collectionPath()
     {
         gtError() << tr("Invalid collection!");
         return QString();
-    }
+    }    
 
+    auto settings = gtApp->settings();
 
-    QString collectionpathstr{""};
-
-    if(!gtEnvironment->environmentVariableExists("COLLECTIONS_PATH"))
-    {
-        gtEnvironment->addEnvironmentVariable("COLLECTIONS_PATH");
-    }
-    else
-    {
-        collectionpathstr = gtEnvironment->value("COLLECTIONS_PATH").toString();
-    }
-
+    QString collectionpathstr{} ;//= settings->userCollectionsDir();
 
     if(collectionpathstr.isEmpty())
     {
-        QDir dirtemp = gtApp->roamingPath();
-        collectionpathstr = dirtemp.absoluteFilePath("collections");
+        QDir roamingPath = gtApp->roamingPath();
+        collectionpathstr = roamingPath.absoluteFilePath("collections");
     }
 
     QDir dir{collectionpathstr};
