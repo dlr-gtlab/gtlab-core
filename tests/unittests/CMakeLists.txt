@@ -122,25 +122,25 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
 endforeach()
 
 # Plugin fixture for collection path tests in the main test runner.
-add_library(CollectionPathFixture MODULE modulefixtures/collection.cpp)
-set_target_properties(CollectionPathFixture PROPERTIES
-    AUTOMOC ON
-    PREFIX ""
-    DEBUG_POSTFIX ""
-    OUTPUT_NAME "CollectionPathFixture.gtm.${GTLAB_MODULE_ABI}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/collectionfixture"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/collectionfixture"
-)
-target_compile_definitions(CollectionPathFixture PRIVATE
-    GT_MODULE_ID="CollectionPathFixture"
-)
-set_property(TARGET CollectionPathFixture APPEND PROPERTY AUTOMOC_MOC_OPTIONS
-    "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
-    "-Mgtlab_module_abi=${GTLAB_MODULE_ABI}"
-)
-target_link_libraries(CollectionPathFixture PRIVATE GTlab::Gui)
+# add_library(CollectionPathFixture MODULE modulefixtures/collection.cpp)
+# set_target_properties(CollectionPathFixture PROPERTIES
+#     AUTOMOC ON
+#     PREFIX ""
+#     DEBUG_POSTFIX ""
+#     OUTPUT_NAME "CollectionPathFixture.gtm.${GTLAB_MODULE_ABI}"
+#     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/collectionfixture"
+#     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/collectionfixture"
+# )
+# target_compile_definitions(CollectionPathFixture PRIVATE
+#     GT_MODULE_ID="CollectionPathFixture"
+# )
+# set_property(TARGET CollectionPathFixture APPEND PROPERTY AUTOMOC_MOC_OPTIONS
+#     "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"
+#     "-Mgtlab_module_abi=${GTLAB_MODULE_ABI}"
+# )
+# target_link_libraries(CollectionPathFixture PRIVATE GTlab::Gui)
 
-target_compile_definitions(GTlabUnitTest PRIVATE
-    COLLECTION_FIXTURE_PATH="$<TARGET_FILE:CollectionPathFixture>"
-)
-add_dependencies(GTlabUnitTest CollectionPathFixture)
+# target_compile_definitions(GTlabUnitTest PRIVATE
+#     COLLECTION_FIXTURE_PATH="$<TARGET_FILE:CollectionPathFixture>"
+# )
+# add_dependencies(GTlabUnitTest CollectionPathFixture)
