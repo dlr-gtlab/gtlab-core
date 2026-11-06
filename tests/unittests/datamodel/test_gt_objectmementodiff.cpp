@@ -1352,3 +1352,81 @@ TEST_F(TestGtObjectMementoDiff, childIndexChanges)
     ASSERT_STREQ(childs[2]->objectName().toStdString().c_str(), "O3");
 }
 
+TEST_F(TestGtObjectMementoDiff, fastPathDeepTreeIdentical)
+{
+    obj1.appendChild(&obj3);
+    obj3.appendChild(&obj4);
+
+    GtObjectMemento mem1 = obj1.toMemento();
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    // sanity: the memento really contains a 3-level tree
+    ASSERT_EQ(mem1.childObjects.size(), 1);
+    ASSERT_EQ(mem1.childObjects[0].childObjects.size(), 1);
+
+    GtObjectMementoDiff diff(mem1, mem2);
+
+    ASSERT_TRUE(diff.isNull());
+    ASSERT_FALSE(GtObjectMementoDiff(mem1, mem2).hasObjectTreeChanges());
+}
+
+TEST_F(TestGtObjectMementoDiff, fastPathDeepTreeGrandchildChange)
+{
+    obj1.appendChild(&obj3);
+    obj3.appendChild(&obj4);
+
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj4.setDouble(7.5);
+
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    GtObjectMementoDiff diff(mem1, mem2);
+
+    ASSERT_FALSE(diff.isNull());
+
+    // only the grandchild is reported; unchanged ancestors stay out
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    QDomElement root = diff.documentElement();
+    ASSERT_STREQ(root.tagName().toStdString().c_str(), "object");
+    ASSERT_STREQ(root.attribute("uuid").toStdString().c_str(),
+                 obj4.uuid().toStdString().c_str());
+}
+
+TEST_F(TestGtObjectMementoDiff, fastPathIdenticalChildUnderChangedParent)
+{
+    obj1.appendChild(&obj3);
+    obj3.appendChild(&obj4);
+
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.setDouble(3.25);
+
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    GtObjectMementoDiff diff(mem1, mem2);
+
+    ASSERT_FALSE(diff.isNull());
+
+    // the byte-identical child subtree must not add any diff element
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    QDomElement root = diff.documentElement();
+    ASSERT_STREQ(root.tagName().toStdString().c_str(), "object");
+    ASSERT_STREQ(root.attribute("uuid").toStdString().c_str(),
+                 obj1.uuid().toStdString().c_str());
+}
+
+TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
+{
+    obj1.setDoubleVec(QVector<double>() << 0.1 << 0.2);
+
+    GtObjectMemento mem1 = obj1.toMemento();
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    GtObjectMementoDiff diff(mem1, mem2);
+
+    ASSERT_TRUE(diff.isNull());
+}
+
