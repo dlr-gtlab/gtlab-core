@@ -11,11 +11,8 @@
 
 #include "gt_collectionloader.h"
 
-<<<<<<< HEAD
 #include "gt_applicationpaths.h"
-=======
 #include "gt_coreapplication.h"
->>>>>>> abded84e (Use gtApp->roamingPath() as the default location for the collections)
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -187,25 +184,46 @@ GtCollectionLoader::collectionPath()
         return QString();
     }
 
-    QString error;
-    const auto dataDirectory = GtApplicationPaths::directory(
-        GtApplicationPaths::Location::Data, &error);
-    if (!dataDirectory)
+    auto settings = gtApp->settings();
+
+    QString collectionpathstr = settings->userCollectionsDir();
+
+    if (collectionpathstr.isEmpty())
     {
-        gtError() << QObject::tr("Could not access collection data directory:")
-                  << error;
-        return QString();
+
+        QString error;
+        const auto dataDirectory = GtApplicationPaths::directory(
+            GtApplicationPaths::Location::Data, &error);
+        if (!dataDirectory)
+        {
+            gtError() << QObject::tr("Could not access collection data directory:")
+            << error;
+            return QString();
+        }
+
+        collectionpathstr = dataDirectory->absoluteFilePath("collections");
     }
 
-    const QString relativePath =
-        QStringLiteral("Collections/%1").arg(m_collection->collectionId());
-    if (!dataDirectory->mkpath(relativePath))
+
+    QDir dir{collectionpathstr};
+    if (!dir.exists())
+    {
+        if (!dir.mkpath(dir.absolutePath()))
+        {
+            gtError() << tr("Could not create collection root path!");
+            return QString();
+        }
+    }
+
+    QString relativePath = m_collection->collectionId();
+
+    if (!dir.mkpath(relativePath))
     {
         gtError() << QObject::tr("Could not create collection path!");
         return QString();
     }
 
-    return QDir::cleanPath(dataDirectory->filePath(relativePath));
+    return QDir::cleanPath(dir.filePath(relativePath));
 }
 
 GtCollectionItem

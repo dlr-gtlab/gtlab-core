@@ -99,9 +99,9 @@ public:
     * @brief setIcon
     * @param val
     */
-   void setIcon(const QIcon &val);
+   void setIcon(const QIcon& val);
 
-private:
+   private:
    /// Identification string.
     QString m_ident;
 

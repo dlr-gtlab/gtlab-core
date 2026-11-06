@@ -69,7 +69,6 @@ private:
 
     GtModuleDirectoriesTab* m_moduleDirsTab;
     GtCollectionsDirectoriesTab* m_collectionDirsTab;
-
 };
 
 #endif // GTPREFERENCESAPP_H

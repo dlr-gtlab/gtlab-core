@@ -97,9 +97,10 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
 
     QVBoxLayout* colLay = new QVBoxLayout;
 
-    if(m_collectionSettings->showUpdateLocalCollectionButton())
+    if (m_collectionSettings->showUpdateLocalCollectionButton())
     {
-        m_updateLocalButton = new QPushButton(gt::gui::icon::sync(), tr("Update local collection"));
+        m_updateLocalButton = new QPushButton(gt::gui::icon::sync(),
+                                              tr("Update local collection"));
         m_updateLocalButton->setVisible(true);
         colLay->addWidget(m_updateLocalButton);
     }
@@ -177,8 +178,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
             SLOT(downloadSelectedItems()));
     connect(m_selectAllCheckBox, SIGNAL(toggled(bool)),
             SLOT(onSelectAllCheckToggled(bool)));
-    connect(m_updateAllButton, SIGNAL(clicked(bool)),
-            SLOT(updateAllItems()));
+    connect(m_updateAllButton, SIGNAL(clicked(bool)), SLOT(updateAllItems()));
     connect(m_updateLocalButton, SIGNAL(clicked(bool)),
             SLOT(updateLocalCollection()));
 }
