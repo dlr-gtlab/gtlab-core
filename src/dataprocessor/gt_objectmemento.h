@@ -92,9 +92,9 @@ public:
      * returns a std::unique_ptr and cannot leak.
      */
     GT_REMOVAL_GUARD(2, 2,
-                       "Use `restore_unique()`, which returns a "
-                       "std::unique_ptr instead of a raw pointer, "
-                       "to prevent memory leaks.")
+                     "Use `restore_unique()`, which returns a "
+                     "std::unique_ptr instead of a raw pointer, "
+                     "to prevent memory leaks.")
     template <class T = GtObject*>
     GT_DEPRECATED_ATTR(2, 2,
                        "Use `restore_unique()`, which returns a "
