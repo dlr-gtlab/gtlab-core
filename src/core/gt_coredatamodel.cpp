@@ -988,16 +988,17 @@ GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
         return {};
     }
 
-    beginInsertRows(parentIndex, parent->childCount<GtObject*>(),
-                    parent->childCount<GtObject*>() + children.size() - 1);
-
-    if (!parent->appendChildren(children))
     {
-        endInsertRows();
-        return QModelIndexList();
-    }
+        beginInsertRows(parentIndex, parent->childCount<GtObject*>(),
+                        parent->childCount<GtObject*>() + children.size() - 1);
 
-    endInsertRows();
+        auto _ = gt::finally([this](){endInsertRows();});
+
+        if (!parent->appendChildren(children))
+        {
+            return QModelIndexList();
+        }
+    }
 
     QModelIndexList retval;
 
@@ -1049,15 +1050,15 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         return {};
     }
 
-    beginInsertRows(parentIndex, row, row);
-
-    if (!parent->insertChild(row, child))
     {
-        endInsertRows();
-        return {};
-    }
+        beginInsertRows(parentIndex, row, row);
+        auto _ = gt::finally([this](){endInsertRows();});
 
-    endInsertRows();
+        if (!parent->insertChild(row, child))
+        {
+            return {};
+        }
+    }
 
     // return model index
     return indexFromObject(child);

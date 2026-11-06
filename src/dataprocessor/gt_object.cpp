@@ -243,7 +243,7 @@ GtObject::clone() const
 bool
 GtObject::appendChild(GtObject* c)
 {
-    if (!canAppendChildren({c}))
+    if (!canAppendChild(c))
     {
         return false;
     }
@@ -299,6 +299,26 @@ GtObject::appendChildren(const QList<GtObject*>& list)
     for (GtObject* child : list)
     {
         appendChildUnchecked(child);
+    }
+
+    return true;
+}
+
+
+bool
+GtObject::canAppendChild(const GtObject* child)
+{
+    const auto& existingChildren = children();
+
+    if (!child || existingChildren.contains(const_cast<GtObject*>(child)))
+    {
+        return false;
+    }
+
+    if (!childAccepted(const_cast<GtObject*>(child)))
+    {
+        gtDebug() << tr("child type not accepted!");
+        return false;
     }
 
     return true;

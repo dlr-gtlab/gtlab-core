@@ -91,6 +91,10 @@ public:
      * caller, who has to delete it. Use @ref restore_unique instead, which
      * returns a std::unique_ptr and cannot leak.
      */
+    GT_REMOVAL_GUARD(2, 2,
+                       "Use `restore_unique()`, which returns a "
+                       "std::unique_ptr instead of a raw pointer, "
+                       "to prevent memory leaks.")
     template <class T = GtObject*>
     GT_DEPRECATED_ATTR(2, 2,
                        "Use `restore_unique()`, which returns a "
@@ -98,18 +102,6 @@ public:
                        "to prevent memory leaks.")
     T restore(GtAbstractObjectFactory* factory, bool newUuid = false)
     {
-#if !defined(Q_MOC_RUN)
-  #if defined(GTLAB_DEPRECATIONS_AS_ERRORS)
-        static_assert(!std::is_same_v<T, T>,
-                      "Deprecated API is forbidden in strict mode: "
-                      "Use `restore_unique()` instead.");
-  #else
-        static_assert(GT_VERSION < GT_VERSION_CHECK(2, 2, 0) ||
-                          !std::is_same_v<T, T>,
-                      "The function needs to be removed, removal version "
-                      "reached (2.2): Use `restore_unique()` instead.");
-  #endif
-#endif
         return restore_unique<std::remove_pointer_t<T>>(factory, newUuid)
             .release();
     }
@@ -140,8 +132,8 @@ public:
         if (!tmp)
         {
             gtWarning() << QObject::tr("object not properly restored!")
-                        << QStringLiteral("(") << ident()
-                        << QStringLiteral(")");
+                        << QStringLiteral("(object: '%1', class: '%2'")
+                               .arg(ident(), className());
             return retval;
         }
 

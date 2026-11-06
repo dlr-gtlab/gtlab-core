@@ -234,6 +234,13 @@ public:
     bool appendChild(std::unique_ptr<GtObject> child);
 
     /**
+     * @brief Returns whether the given object can be appended as a child.
+     * @param childCandidate The candidate that should be checked for test.
+     * @return Whether the child is non-null, not already a child and accepted
+     */
+    bool canAppendChild(const GtObject* childCandidate);
+
+    /**
      * @brief Returns whether all given objects can be appended as children.
      * @param candidates Candidate child objects
      * @return Whether every child is non-null, not already a child, accepted,
