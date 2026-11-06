@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
+- Improvments of memento diffing function to increase executino speed - #1656 
   
 ### Deprecated
 - Empty property IDs are now deprecated and will stop working in GTlab 2.2. - #1684

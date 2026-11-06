@@ -45,8 +45,9 @@ option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)
 option(BUILD_TESTMODULES "Build the test modules" OFF)
+option(BUILD_PROFILINGBENCH "Build the profiling benchmarks (heavy A/B benchmark cases, separate executable)" OFF)
 
-if (BUILD_UNITTESTS OR BUILD_TESTMODULES)
+if (BUILD_UNITTESTS OR BUILD_TESTMODULES OR BUILD_PROFILINGBENCH)
     enable_testing()
 endif()
 set(GTLAB_COVERAGE_LCOV_ARGS ""
@@ -141,6 +142,10 @@ install (FILES
 if (BUILD_UNITTESTS)
     add_subdirectory(tests/unittests)
 endif(BUILD_UNITTESTS)
+
+if (BUILD_PROFILINGBENCH)
+    add_subdirectory(tests/profilingbench)
+endif(BUILD_PROFILINGBENCH)
 
 if (BUILD_TESTMODULES)
     add_subdirectory(tests/modules)
