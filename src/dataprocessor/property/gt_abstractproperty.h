@@ -12,6 +12,7 @@
 #define GTABSTRACTPROPERTY_H
 
 #include "gt_datamodel_exports.h"
+#include "gt_propertyconfiguration.h"
 #include "gt_platform.h"
 #include "gt_unit.h"
 
@@ -83,6 +84,22 @@ public:
      * @return
      */
     virtual QString brief() const;
+
+    /** Sets the persisted brief description for runtime-created properties. */
+    void setBrief(const QString& briefText);
+
+    /** Returns the JSON-like type-specific construction configuration. */
+    virtual gt::PropertyConfiguration configuration() const;
+
+    /**
+     * Applies type-specific construction configuration; empty config is default.
+     * Implementations must leave the property unchanged when returning false.
+     */
+    virtual bool applyConfiguration(const gt::PropertyConfiguration& config);
+
+    /** Stable factory ID for an owned runtime property; empty for static properties. */
+    const QString& propertyFactoryTypeId() const;
+    void setPropertyFactoryTypeId(const QString& typeId);
 
     /**
      * @brief Retrieves the SI unit of the parameter
@@ -165,6 +182,9 @@ public:
      * @return
      */
     bool isReadOnly();
+
+    /** Returns the configured read-only flag, excluding connection behavior. */
+    bool isReadOnlyConfigured() const;
 
     /**
      * @brief setReadOnly

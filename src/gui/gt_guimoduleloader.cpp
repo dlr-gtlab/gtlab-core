@@ -267,13 +267,13 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     return true;
 }
 
-void
+bool
 GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 {
-    if (!plugin) return;
+    if (!plugin) return false;
 
     QApplication::processEvents();
-    GtCoreModuleLoader::insert(plugin);
+    if (!GtCoreModuleLoader::insert(plugin)) return false;
 
     GtMdiInterface* mdip = checkInterface<GtMdiInterface>(plugin->ident(),
                                                           plugin);
@@ -333,6 +333,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
         gtMdiLauncher->registerCollection(coll->collectionId(),
                                           coll);
     }
+    return true;
 }
 
 void
@@ -351,4 +352,3 @@ GtGuiModuleLoader::registerObjectUI(const char* classId,
 
     m_uiObjs[classId].append(uio);
 }
-

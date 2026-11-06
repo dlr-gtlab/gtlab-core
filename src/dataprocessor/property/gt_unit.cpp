@@ -190,3 +190,61 @@ GtUnit::categoryToString(Category c)
     }
 }
 
+bool
+GtUnit::isValidCategory(int category)
+{
+    if (category < Default || category > None)
+    {
+        return false;
+    }
+
+    switch (static_cast<Category>(category))
+    {
+    case Default:
+    case Length:
+    case Area:
+    case Volume:
+    case VolumeFlow:
+    case Temperature:
+    case Time:
+    case Angle:
+    case Velocity:
+    case Mass:
+    case Massflow:
+    case Density:
+    case Force:
+    case Frequency:
+    case Torque:
+    case Pressure:
+    case Energy:
+    case SpecEnergy:
+    case Power:
+    case Inertia:
+    case SpecificEnergyPerTemperature:
+    case EnergyDensity:
+    case PowerDensity:
+    case PowerTempArea:
+    case MassMomentInertia:
+    case VGVGradients:
+    case VGVGradientsPow2:
+    case kinematicViscosity:
+    case Voltage:
+    case Current:
+    case Resistance:
+    case Impedance:
+    case HeatTransferCapability:
+    case HeatTransferCoefficient:
+    case ThermalConductivity:
+    case NonDimensionalPercentage:
+    case NonDimensional:
+    case DataSize:
+    case None:
+        return true;
+        GT_SUPPRESS_DEPRECATED_BEGIN
+    case Custom:
+        return false;
+        GT_SUPPRESS_DEPRECATED_END
+    }
+
+    return false;
+}

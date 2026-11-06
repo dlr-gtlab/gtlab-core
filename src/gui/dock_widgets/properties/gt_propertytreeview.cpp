@@ -99,6 +99,8 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     setModel(m_filterModel);
 
     connect(m_filterModel, SIGNAL(modelReset()), SLOT(setRootsSpanned()));
+    connect(m_filterModel, &QAbstractItemModel::modelReset, this,
+            [this]() { restoreDefaultExpandStates(this); });
     connect(m_filterModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             SLOT(setRootsSpanned()));
     connect(idDelegate, SIGNAL(deleteRequested(QModelIndex)),
