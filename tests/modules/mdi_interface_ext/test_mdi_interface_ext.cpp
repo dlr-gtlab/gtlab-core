@@ -16,6 +16,7 @@
 #include "test_mdi_ext_externalobjectui.h"
 
 #include "test_dmi_externalobject.h"
+#include "test_dmi_data.h"
 
 /**
  * generated (v 0.1)
@@ -71,6 +72,8 @@ TestDatamodelInterfaceExt::uiItems()
 
     retval.insert(GT_CLASSNAME(TestDmiExternalObject),
                   GT_METADATA(TestMdiExtExternalObjectUI));
+
+    retval.insert(GT_CLASSNAME(TestDmiData), GT_METADATA(TestMdiExtPackageUI));
 
     return retval;
 }

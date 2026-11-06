@@ -62,6 +62,8 @@ public slots:
      */
     void testGroupAction(GtObject* obj);
 
+    void addDynamicProperties(GtObject* obj);
+    void removeDynamicProperties(GtObject* obj);
 };
 
 #endif // TESTDMIEXTPACKAGEUI_H

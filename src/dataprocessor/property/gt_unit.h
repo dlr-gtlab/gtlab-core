@@ -71,6 +71,9 @@ public:
     static QString siUnit(Category);
 
     static QString categoryToString(Category cat);
+
+    /** Returns whether an integer represents a supported unit category. */
+    static bool isValidCategory(int category);
 };
 
 #endif // GTLAB_UNIT_H

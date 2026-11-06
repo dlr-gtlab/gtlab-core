@@ -421,6 +421,18 @@ public:
     const QList<GtAbstractProperty const*>& properties() const;
 
     /**
+     * @brief Adds a runtime property to the common property view.
+     * Ownership is transferred to the object. Property identifiers must be
+     * nonempty and unique across static and runtime property trees.
+     * The concrete property type must have a registered factory.
+     * @return Whether the property was accepted; on failure it is destroyed.
+     */
+    bool addDynamicProperty(std::unique_ptr<GtAbstractProperty> property);
+
+    /** Removes and destroys a runtime property by identifier. */
+    bool removeDynamicProperty(const QString& id);
+
+    /**
      * @brief Returns list of all property and sub property items. List
      * does not contain duplicates.
      * @return List of all properties.
@@ -842,8 +854,6 @@ private:
      * @brief renews child uuids recursively for all child objects
      * @param parent parent object
      */
-    void newChildUUIDs(GtObject* parent) const;
-
     /**
      * @brief Helper function for copying and cloning an object
      */
@@ -855,6 +865,18 @@ private:
     void makeDummy();
     void importMementoIntoDummy(const GtObjectMemento&);
     void exportDummyIntoMemento(GtObjectMemento&) const;
+
+    /**
+     * Installs a staged set after validating ownership, types, IDs and order.
+     * Retained pointers must belong to this object. On failure the live set is
+     * unchanged; replacements are destroyed. Structural notifications bracket
+     * the commit so editor models never observe dangling property pointers.
+     */
+    bool replaceDynamicProperties(
+        const QList<GtAbstractProperty*>& retained,
+        std::vector<std::unique_ptr<GtAbstractProperty>> replacements,
+        const QStringList& order,
+        const GtAbstractObjectFactory* propertyFactory);
 
     // ObjectPtr may be const
     template <typename R, typename ObjectPtr>
@@ -895,6 +917,11 @@ signals:
      * @brief dataChanged
      */
     void dataChanged(GtObject*, GtAbstractProperty*);
+
+    /// Emitted before any add/remove/replace/reorder in the property view.
+    void dynamicPropertyStructureAboutToChange();
+    /// Completes the paired notification, including a failed add attempt.
+    void dynamicPropertyStructureChanged();
 
     /**
      * @brief childAppended

@@ -369,6 +369,22 @@ GtPropertyModel::setObject(GtObject* obj)
     {
         disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
                    SLOT(resetObject()));
+        disconnect(m_obj.data(),
+                   SIGNAL(dynamicPropertyStructureAboutToChange()), this,
+                   SLOT(onDynamicPropertiesAboutToChange()));
+        disconnect(m_obj.data(), SIGNAL(dynamicPropertyStructureChanged()),
+                   this, SLOT(onDynamicPropertiesChanged()));
+        if (!m_containerId.isEmpty())
+        {
+            if (const auto* lastContainer =
+                    m_obj->findPropertyContainer(m_containerId))
+            {
+                disconnect(lastContainer, SIGNAL(entryRemoved(int)), this,
+                           SLOT(onContainerEntryRemoved(int)));
+                disconnect(lastContainer, SIGNAL(entryAdded(int)), this,
+                           SLOT(onContainerEntryAdded(int)));
+            }
+        }
     }
 
     beginResetModel();
@@ -382,6 +398,10 @@ GtPropertyModel::setObject(GtObject* obj)
     if (m_obj)
     {
         connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+        connect(m_obj.data(), SIGNAL(dynamicPropertyStructureAboutToChange()),
+                SLOT(onDynamicPropertiesAboutToChange()));
+        connect(m_obj.data(), SIGNAL(dynamicPropertyStructureChanged()),
+                SLOT(onDynamicPropertiesChanged()));
 
         foreach (GtAbstractProperty* prop, m_obj->properties())
         {
@@ -407,12 +427,18 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     {
         disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
                    SLOT(resetObject()));
+        disconnect(m_obj.data(),
+                   SIGNAL(dynamicPropertyStructureAboutToChange()), this,
+                   SLOT(onDynamicPropertiesAboutToChange()));
+        disconnect(m_obj.data(), SIGNAL(dynamicPropertyStructureChanged()),
+                   this, SLOT(onDynamicPropertiesChanged()));
 
         // disconnect container slots if last
         // scope was container entry of object
         if (!m_containerId.isEmpty())
         {
-            auto* lastContainer = m_obj->findPropertyContainer(m_containerId);
+            const auto* lastContainer =
+                m_obj->findPropertyContainer(m_containerId);
 
             assert(lastContainer);
 
@@ -808,6 +834,30 @@ void
 GtPropertyModel::resetObject()
 {
     setObject(nullptr);
+}
+
+void
+GtPropertyModel::onDynamicPropertiesAboutToChange()
+{
+    if (m_obj) beginResetModel();
+}
+
+void
+GtPropertyModel::onDynamicPropertiesChanged()
+{
+    if (!m_obj) return;
+    qDeleteAll(m_properties);
+    m_properties.clear();
+    foreach (GtAbstractProperty* prop, m_obj->properties())
+    {
+        if (!prop->isHidden()) addProperty(prop);
+    }
+    std::stable_sort(
+        m_properties.begin(), m_properties.end(),
+        [](GtPropertyCategoryItem* p1, GtPropertyCategoryItem* p2) {
+            return getOrder(p1) < getOrder(p2);
+        });
+    endResetModel();
 }
 
 void
