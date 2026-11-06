@@ -259,106 +259,56 @@ fetchExternalizedMementos(const GtObjectMemento& leftOrig,
 
 namespace
 {
-    //
-    // Strict structural identity checks for memento pairs.
-    //
-    // They compare exactly the byte content the hash computation
-    // (GtObjectMemento::calculateHashes / propertyHashHelper /
-    // gt::detail::VariantHasher) feeds into the SHA256 digests:
-    //   - className, uuid and ident (as in toUtf8, null == empty)
-    //   - property name, isActive, dataType, property type and the
-    //     QDataStream byte representation of the value - the very same
-    //     operator as used by gt::detail::VariantHasher, including its
-    //     behavior for types that cannot be streamed (type name only)
-    //   - nested child properties, property containers and child objects,
-    //     in order
-    //
-    // A `true` result therefore guarantees equal fullHash values. The checks
-    // replace the expensive SHA256 computation for memento pairs that are
-    // byte-identical; any mismatch falls through to the regular diff path.
+//
+// Strict structural identity checks for memento pairs.
+//
+// They compare exactly the byte content the hash computation
+// (GtObjectMemento::calculateHashes / propertyHashHelper /
+// gt::detail::VariantHasher) feeds into the SHA256 digests:
+//   - className, uuid and ident (as in toUtf8, null == empty)
+//   - property name, isActive, dataType, property type and the
+//     QDataStream byte representation of the value - the very same
+//     operator as used by gt::detail::VariantHasher, including its
+//     behavior for types that cannot be streamed (type name only)
+//   - nested child properties, property containers and child objects,
+//     in order
+//
+// A `true` result therefore guarantees equal fullHash values. The checks
+// replace the expensive SHA256 computation for memento pairs that are
+// byte-identical; any mismatch falls through to the regular diff path.
 
-    bool
-    variantByteIdentical(const QVariant& a, const QVariant& b)
+bool
+variantByteIdentical(const QVariant& a, const QVariant& b)
+{
+    auto typeA = gt::metaTypeId(a);
+    auto typeB = gt::metaTypeId(b);
+    if (typeA != typeB)
     {
-        auto typeA = gt::metaTypeId(a);
-        auto typeB = gt::metaTypeId(b);
-        if (typeA != typeB)
-        {
-            return false;
-        }
+        return false;
+    }
 
     static const auto type_QString = gt::metaTypeIdFromName("QString");
     static const auto type_QStringList = gt::metaTypeIdFromName("QStringList");
 
-        if (typeA == type_QString)
-        {
-            // VariantHasher hashes toString().toUtf8(): null and empty
-            // strings are not distinguished
-            return a.toString() == b.toString();
-        }
-        else if (typeA == type_QStringList)
-        {
-            // VariantHasher hashes the toUtf8() of every element: null and
-            // empty entries are not distinguished
-            const QStringList listA = a.toStringList();
-            const QStringList listB = b.toStringList();
-            if (listA.size() != listB.size())
-            {
-                return false;
-            }
-            for (int i = 0; i < listA.size(); i++)
-            {
-                if (listA[i] != listB[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // generic path: identical QDataStream byte representation as used
-        // by gt::detail::VariantHasher
-        QByteArray bytesA;
-        QByteArray bytesB;
-        {
-            QBuffer buffer(&bytesA);
-            buffer.open(QIODevice::WriteOnly);
-            QDataStream stream(&buffer);
-            stream << a;
-        }
-        {
-            QBuffer buffer(&bytesB);
-            buffer.open(QIODevice::WriteOnly);
-            QDataStream stream(&buffer);
-            stream << b;
-        }
-        return bytesA == bytesB;
-    }
-
-    bool
-    propertyByteIdentical(const PD& a, const PD& b)
+    if (typeA == type_QString)
     {
-        if (a.name != b.name
-            || a.isActive != b.isActive
-            || a.dataType() != b.dataType()
-            || a.type() != b.type())
+        // VariantHasher hashes toString().toUtf8(): null and empty
+        // strings are not distinguished
+        return a.toString() == b.toString();
+    }
+    else if (typeA == type_QStringList)
+    {
+        // VariantHasher hashes the toUtf8() of every element: null and
+        // empty entries are not distinguished
+        const QStringList listA = a.toStringList();
+        const QStringList listB = b.toStringList();
+        if (listA.size() != listB.size())
         {
             return false;
         }
-
-        if (!variantByteIdentical(a.data(), b.data()))
+        for (int i = 0; i < listA.size(); i++)
         {
-            return false;
-        }
-
-        if (a.childProperties.size() != b.childProperties.size())
-        {
-            return false;
-        }
-        for (int i = 0; i < a.childProperties.size(); i++)
-        {
-            if (!propertyByteIdentical(a.childProperties[i],
-                                       b.childProperties[i]))
+            if (listA[i] != listB[i])
             {
                 return false;
             }
@@ -366,65 +316,115 @@ namespace
         return true;
     }
 
-    bool
-    propertyBlocksByteIdentical(const GtObjectMemento& a,
-                                const GtObjectMemento& b)
+    // generic path: identical QDataStream byte representation as used
+    // by gt::detail::VariantHasher
+    QByteArray bytesA;
+    QByteArray bytesB;
     {
-        const auto& propsA = a.properties;
-        const auto& propsB = b.properties;
-        if (propsA.size() != propsB.size())
-        {
-            return false;
-        }
-        for (int i = 0; i < propsA.size(); i++)
-        {
-            if (!propertyByteIdentical(propsA[i], propsB[i]))
-            {
-                return false;
-            }
-        }
+        QBuffer buffer(&bytesA);
+        buffer.open(QIODevice::WriteOnly);
+        QDataStream stream(&buffer);
+        stream << a;
+    }
+    {
+        QBuffer buffer(&bytesB);
+        buffer.open(QIODevice::WriteOnly);
+        QDataStream stream(&buffer);
+        stream << b;
+    }
+    return bytesA == bytesB;
+}
 
-        const auto& contA = a.propertyContainers;
-        const auto& contB = b.propertyContainers;
-        if (contA.size() != contB.size())
-        {
-            return false;
-        }
-        for (int i = 0; i < contA.size(); i++)
-        {
-            if (!propertyByteIdentical(contA[i], contB[i]))
-            {
-                return false;
-            }
-        }
-        return true;
+bool
+propertyByteIdentical(const PD& a, const PD& b)
+{
+    if (a.name != b.name
+        || a.isActive != b.isActive
+        || a.dataType() != b.dataType()
+        || a.type() != b.type())
+    {
+        return false;
     }
 
-    bool
-    mementosByteIdentical(const GtObjectMemento& a,
-                          const GtObjectMemento& b)
+    if (!variantByteIdentical(a.data(), b.data()))
     {
-        if (a.className() != b.className()
-            || a.uuid() != b.uuid()
-            || a.ident() != b.ident()
-            || !propertyBlocksByteIdentical(a, b))
-        {
-            return false;
-        }
-
-        if (a.childObjects.size() != b.childObjects.size())
-        {
-            return false;
-        }
-        for (int i = 0; i < a.childObjects.size(); i++)
-        {
-            if (!mementosByteIdentical(a.childObjects[i], b.childObjects[i]))
-            {
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
+
+    if (a.childProperties.size() != b.childProperties.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < a.childProperties.size(); i++)
+    {
+        if (!propertyByteIdentical(a.childProperties[i],
+                                   b.childProperties[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+propertyBlocksByteIdentical(const GtObjectMemento& a,
+                            const GtObjectMemento& b)
+{
+    const auto& propsA = a.properties;
+    const auto& propsB = b.properties;
+    if (propsA.size() != propsB.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < propsA.size(); i++)
+    {
+        if (!propertyByteIdentical(propsA[i], propsB[i]))
+        {
+            return false;
+        }
+    }
+
+    const auto& contA = a.propertyContainers;
+    const auto& contB = b.propertyContainers;
+    if (contA.size() != contB.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < contA.size(); i++)
+    {
+        if (!propertyByteIdentical(contA[i], contB[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+mementosByteIdentical(const GtObjectMemento& a,
+                      const GtObjectMemento& b)
+{
+    if (a.className() != b.className()
+        || a.uuid() != b.uuid()
+        || a.ident() != b.ident()
+        || !propertyBlocksByteIdentical(a, b))
+    {
+        return false;
+    }
+
+    if (a.childObjects.size() != b.childObjects.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < a.childObjects.size(); i++)
+    {
+        if (!mementosByteIdentical(a.childObjects[i], b.childObjects[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
 } // namespace
 
 bool
@@ -474,9 +474,9 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     bool diffObjectEmpty = true;
 
     // check properties & attributes
-    if (left.className() != right.className()
-        || left.ident() != right.ident()
-        || !propertyBlocksByteIdentical(left, right))
+    if (left.className() != right.className() ||
+        left.ident() != right.ident() ||
+        !propertyBlocksByteIdentical(left, right))
     {
         diffObjectEmpty = false;
 

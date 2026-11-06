@@ -1117,8 +1117,8 @@ tryParseDoubleAscii(const QChar* data, int length, double* out)
         return false; // no usable decimal point -> Qt parser decides
     }
 
-    const char* dot = static_cast<const char*>(memchr(buf, '.',
-                                                       static_cast<size_t>(length)));
+    const char* dot =
+        static_cast<const char*>(memchr(buf, '.', static_cast<size_t>(length)));
     bool needsAdaptation = (dot != nullptr) && (strcmp(dec, ".") != 0);
 
     if (!needsAdaptation)
