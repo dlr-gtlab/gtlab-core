@@ -192,8 +192,6 @@ GtPreferencesApp::GtPreferencesApp() :
     // theme selection
     QString themeMode = settings->themeMode();
 
-    gtFatal() << "themeMode:" << themeMode;
-
     if (themeMode == "bright")
     {
         m_themeSelection->setCurrentIndex(1);
@@ -255,7 +253,7 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     }
 
     settings.setUserModuleDirs(m_moduleDirsTab->userPaths());
-    //settings.setUserCollectionsDir(m_collectionDirsTab->collectionsPath());
+    settings.setUserCollectionsDir(m_collectionDirsTab->collectionsPath());
 }
 
 void
@@ -269,5 +267,5 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
 
     // m_moduleDirsTab->loadPaths();
 
-    // m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
+    m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
 }
