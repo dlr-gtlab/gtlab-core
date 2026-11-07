@@ -8,6 +8,7 @@
 
 #include "gt_object.h"
 #include "gt_objectmemento.h"
+#include "gt_operationexecutionresult.h"
 
 #include <QJsonDocument>
 
@@ -74,6 +75,51 @@ GtStdioExecutionEventEncoder::encodeResult(GtObject const* result)
         record.insert(
             QStringLiteral("result"),
             QString::fromLatin1(result->toMemento().toByteArray().toBase64()));
+    }
+
+    return writeRecord(std::move(record), true);
+}
+
+bool
+GtStdioExecutionEventEncoder::encodeOutcome(
+    GtOperationExecutionResult const& outcome)
+{
+    QJsonObject record = commonRecord(QStringLiteral("result"), m_executionId);
+    switch (outcome.status)
+    {
+    case GtOperationExecutionResult::Status::Success:
+        record.insert(QStringLiteral("status"), QStringLiteral("success"));
+        break;
+    case GtOperationExecutionResult::Status::Failed:
+        record.insert(QStringLiteral("status"), QStringLiteral("failed"));
+        break;
+    case GtOperationExecutionResult::Status::Cancelled:
+        record.insert(QStringLiteral("status"), QStringLiteral("cancelled"));
+        break;
+    }
+
+    if (!outcome.code.isEmpty())
+    {
+        record.insert(QStringLiteral("code"), outcome.code);
+    }
+    if (!outcome.message.isEmpty())
+    {
+        record.insert(QStringLiteral("message"), outcome.message);
+    }
+
+    if (!outcome.result)
+    {
+        record.insert(QStringLiteral("resultEncoding"), QStringLiteral("null"));
+        record.insert(QStringLiteral("result"), QJsonValue::Null);
+    }
+    else
+    {
+        record.insert(QStringLiteral("resultEncoding"),
+                      QStringLiteral("memento-xml-base64"));
+        record.insert(
+            QStringLiteral("result"),
+            QString::fromLatin1(
+                outcome.result->toMemento().toByteArray().toBase64()));
     }
 
     return writeRecord(std::move(record), true);

@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 
 #include "gt_calculatorfactory.h"
+#include "gt_objectfactory.h"
 
 #include "gt_tasklink.h"
 #include "gt_calculatordata.h"
@@ -25,6 +26,9 @@ GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
     // Default calculators
     GtCalculatorFactory::registerCalculatorData(
         GtExportToMementoCalculator::calculatorData());
+    // Calculators are already registered with this factory above. Memento
+    // reconstruction also requires their types in the normal object factory.
+    gtObjectFactory->registerClass(GT_METADATA(GtExportToMementoCalculator));
 }
 
 GtCalculatorFactory*
