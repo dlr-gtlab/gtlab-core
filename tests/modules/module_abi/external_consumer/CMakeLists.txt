@@ -119,8 +119,12 @@ if (WIN32)
 else()
     set(_gtlab_console_name "GTlabConsole")
 endif()
+set(_installed_gtlab_console_debug
+    "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_DEBUG_BINDIR}/${_gtlab_console_name}")
+set(_installed_gtlab_console_release
+    "${CMAKE_INSTALL_PREFIX}/${GTLAB_INSTALL_BINDIR}/${_gtlab_console_name}")
 set(_installed_gtlab_console
-    "${CMAKE_INSTALL_PREFIX}/$<IF:$<CONFIG:Debug>,${GTLAB_INSTALL_DEBUG_BINDIR},${GTLAB_INSTALL_BINDIR}>/${_gtlab_console_name}")
+    "$<IF:$<CONFIG:Debug>,${_installed_gtlab_console_debug},${_installed_gtlab_console_release}>")
 
 set(_test_environment)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
@@ -160,6 +164,7 @@ add_test(NAME ExternalModuleInstallLayout
         "-DDEFAULT_MODULEDIR_RELEASE=${GTLAB_INSTALL_MODULEDIR_RELEASE}"
         "-DDEFAULT_MODULEDIR_DEBUG=${GTLAB_INSTALL_MODULEDIR_DEBUG}"
         "-DDEFAULT_MODULE=$<TARGET_FILE_NAME:ExternalAbiSmoke>"
+        "-DEXPECTED_MODULE=ExternalAbiSmoke$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>.gtm.${GTLAB_MODULE_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX}"
         "-DOVERRIDE_MODULEDIR=consumer-modules"
         "-DOVERRIDE_MODULE=$<TARGET_FILE_NAME:ExternalAbiOverrideSmoke>"
         "-DADJACENT_DEPENDENCY=$<TARGET_FILE_NAME:ExternalAbiAdjacentDependency>"

@@ -2,6 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
+if (NOT DEFAULT_MODULE STREQUAL EXPECTED_MODULE)
+    message(FATAL_ERROR
+        "Expected module filename '${EXPECTED_MODULE}', got '${DEFAULT_MODULE}'")
+endif()
+
 get_filename_component(_build_module_dir "${BUILD_MODULE}" DIRECTORY)
 get_filename_component(_expected_build_module_dir
     "${EXPECTED_BUILD_MODULEDIR}" ABSOLUTE)
@@ -29,33 +34,40 @@ foreach(_module_spec
 endforeach()
 
 get_filename_component(_installed_module_dir "${INSTALLED_MODULE}" DIRECTORY)
+if (NOT EXISTS "${CONSOLE}")
+    message(FATAL_ERROR "Expected installed GTlab console '${CONSOLE}'")
+endif()
+
 set(_adjacent_dependency "${_installed_module_dir}/${ADJACENT_DEPENDENCY}")
 if (NOT EXISTS "${_adjacent_dependency}")
     message(FATAL_ERROR "Expected adjacent module dependency '${_adjacent_dependency}'")
 endif()
 
-if (UNIX)
-    file(REMOVE "${LOAD_MARKER}")
-    execute_process(
-        COMMAND "${CMAKE_COMMAND}" -E env
-            "QT_QPA_PLATFORM=offscreen"
-            "GTLAB_ABI_TEST_MARKER=${LOAD_MARKER}"
-            "${CONSOLE}" load_module "${INSTALLED_MODULE}"
-        RESULT_VARIABLE _load_result
-        OUTPUT_VARIABLE _load_stdout
-        ERROR_VARIABLE _load_stderr
-    )
-    if (NOT _load_result EQUAL 0)
-        message(FATAL_ERROR
-            "Could not load installed module '${INSTALLED_MODULE}' with its adjacent dependency.\n"
-            "stdout: ${_load_stdout}\nstderr: ${_load_stderr}")
-    endif()
-    if (NOT EXISTS "${LOAD_MARKER}")
-        message(FATAL_ERROR "The installed module did not execute its load marker")
-    endif()
-    file(READ "${LOAD_MARKER}" _load_marker_contents)
-    if (NOT _load_marker_contents STREQUAL "1621")
-        message(FATAL_ERROR
-            "The installed module did not call its adjacent dependency: ${_load_marker_contents}")
-    endif()
+# Add the module directory so Windows can resolve its adjacent DLL dependency.
+if (WIN32)
+    set(ENV{PATH} "${_installed_module_dir};$ENV{PATH}")
+endif()
+
+file(REMOVE "${LOAD_MARKER}")
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" -E env
+        "QT_QPA_PLATFORM=offscreen"
+        "GTLAB_ABI_TEST_MARKER=${LOAD_MARKER}"
+        "${CONSOLE}" load_module "${INSTALLED_MODULE}"
+    RESULT_VARIABLE _load_result
+    OUTPUT_VARIABLE _load_stdout
+    ERROR_VARIABLE _load_stderr
+)
+if (NOT _load_result EQUAL 0)
+    message(FATAL_ERROR
+        "Could not load installed module '${INSTALLED_MODULE}' with its adjacent dependency.\n"
+        "stdout: ${_load_stdout}\nstderr: ${_load_stderr}")
+endif()
+if (NOT EXISTS "${LOAD_MARKER}")
+    message(FATAL_ERROR "The installed module did not execute its load marker")
+endif()
+file(READ "${LOAD_MARKER}" _load_marker_contents)
+if (NOT _load_marker_contents STREQUAL "1621")
+    message(FATAL_ERROR
+        "The installed module did not call its adjacent dependency: ${_load_marker_contents}")
 endif()
