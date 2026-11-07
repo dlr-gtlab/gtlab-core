@@ -121,7 +121,7 @@ jobs:
       run: |
         cmake -S tests/modules/module_abi/external_consumer -B build/external-consumer "-DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE\install" "-DCMAKE_INSTALL_PREFIX=$env:GITHUB_WORKSPACE\install" -DCMAKE_INSTALL_BINDIR=consumer-bin -DCMAKE_INSTALL_LIBDIR=consumer-lib "-Dhdf5_DIR=$env:HDF5_DIR"
         cmake --build build/external-consumer --target install --config Debug
-        $env:PATH = "$env:HDF5_BIN_DIR;$env:PATH"
+        $env:PATH = "$env:HDF5_BIN_DIR;$env:GITHUB_WORKSPACE\install\bin;$env:PATH"
         cmake -E chdir build/external-consumer ctest -C Debug -R ExternalModuleInstallLayout --output-on-failure
 
     - name: Unit Tests - Windows
