@@ -46,10 +46,7 @@ TEST(CollectionModel, CustomIconDoesNotReplaceInformationColumn)
     GtLocalCollectionModel model;
     model.setItems({item});
 
-    EXPECT_FALSE(model.data(model.index(0, 1), Qt::DecorationRole)
-                     .value<QIcon>()
-                     .isNull());
-    EXPECT_NE(item.icon().cacheKey(),
+    EXPECT_EQ(gt::gui::icon::info2().icon().cacheKey(),
               model.data(model.index(0, 1), Qt::DecorationRole)
                   .value<QIcon>()
                   .cacheKey());

@@ -179,8 +179,11 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     connect(m_selectAllCheckBox, SIGNAL(toggled(bool)),
             SLOT(onSelectAllCheckToggled(bool)));
     connect(m_updateAllButton, SIGNAL(clicked(bool)), SLOT(updateAllItems()));
-    connect(m_updateLocalButton, SIGNAL(clicked(bool)),
-            SLOT(updateLocalCollection()));
+    if (m_collectionSettings->showUpdateLocalCollectionButton())
+    {
+        connect(m_updateLocalButton, SIGNAL(clicked(bool)),
+                SLOT(updateLocalCollection()));
+    }
 }
 
 void
