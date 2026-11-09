@@ -3076,4 +3076,3 @@ GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 
     resetTaskGroupModel();
 }
-

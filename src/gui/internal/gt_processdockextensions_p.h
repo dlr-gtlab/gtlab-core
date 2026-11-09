@@ -50,4 +50,3 @@ GT_GUI_EXPORT QList<QAction*> addProcessDockActionsToMenu(
 } // namespace gt::gui::detail
 
 #endif // GTPROCESSDOCKEXTENSIONS_P_H
-

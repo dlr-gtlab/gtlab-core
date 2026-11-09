@@ -511,4 +511,3 @@ signals:
 };
 
 #endif // GTPROCESSDOCK_H
-
