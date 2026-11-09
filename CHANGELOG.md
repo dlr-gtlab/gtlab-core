@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Highlights
 ### Fixed
+ - Fixed a regression in 2.1.0-alpha.1 that prompted for a restart when saving unchanged preferences. - #1657
 ### Added
  - Property Dock values now refresh immediately after a property changes in Qt 6. - #1630
  - The `GtObjectUIAction`-API now supports reordering context menu actions using so-called order priorities - #1561
