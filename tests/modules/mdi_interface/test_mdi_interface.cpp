@@ -41,14 +41,14 @@ namespace
                     &GtProcessDockPage::activationRequested);
         }
 
-    QString pageId() const override
-    {
-        return QStringLiteral("test-mdi-interface-page");
+        QString pageId() const override
+        {
+            return QStringLiteral("test-mdi-interface-page");
         }
 
-    QString title() const override
-    {
-        return QStringLiteral("Test MDI Interface");
+        QString title() const override
+        {
+            return QStringLiteral("Test MDI Interface");
         }
     };
 
