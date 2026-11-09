@@ -59,7 +59,6 @@ GtVersionNumber GtCoreApplication::m_version =
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
-    m_settings(new GtSettings),
     m_sessionIds(QStringList() << QStringLiteral("default")),
     m_devMode(false),
     m_appMode(batch),
@@ -68,6 +67,7 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QCoreApplication::setOrganizationDomain("www.dlr.de");
     QCoreApplication::setOrganizationName("DLR");
     QCoreApplication::setApplicationName("GTlab 2");
+    m_settings = std::make_unique<GtSettings>();
 
     QCoreApplication::setApplicationVersion(
         GtCoreApplication::version().toString());
