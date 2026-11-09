@@ -21,6 +21,8 @@
 #include <QSet>
 #include <QPointer>
 
+#include <algorithm>
+#include <iterator>
 #include <memory>
 #include <utility>
 
@@ -914,7 +916,7 @@ GtProcessDock::updateRunButton()
 
     const QString& str = m_impl->currentProcess->objectName();
 
-    GtTask* current = gt::currentProcessExecutor().currentRunningTask();
+    const GtTask* current = gt::currentProcessExecutor().currentRunningTask();
 
     // no task is running
     if (!current)
@@ -1840,10 +1842,8 @@ GtProcessDock::cutElement(const QModelIndex& index)
             QList<GtPropertyConnection*> relatedCons =
                 detail::relatedPropertyConnections(child);
 
-            foreach (GtPropertyConnection* propCon, relatedCons)
-            {
-                toDelete.append(propCon);
-            }
+            std::copy(relatedCons.cbegin(), relatedCons.cend(),
+                      std::back_inserter(toDelete));
 
             detail::setOffLostConnectionWarnings(
                 relatedCons, detail::highestParentTask(child));
