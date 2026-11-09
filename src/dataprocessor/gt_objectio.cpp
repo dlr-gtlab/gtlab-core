@@ -22,6 +22,7 @@
 
 #include <cfloat>
 #include <algorithm>
+#include <iterator>
 #include <limits>
 #include <typeinfo>
 
@@ -358,11 +359,11 @@ inline QString GtObjectIO::listToString<QVector<double> >(
     // this code is optimized to avoid creating temporaries / reallocating strings,
     // please don't change unless you still make it faster...
     QString str;
-    str.reserve(t.size() * (DBL_DIG + 2));
+    str.reserve(t.size() * S_ESTIMATED_DOUBLE_CHARS);
 
     foreach (double m, t)
     {
-        str.append(QString::number(m, 'g', DBL_DIG)).append(';');
+        str.append(doubleToString(m)).append(';');
     }
     str.truncate(str.size() - 1);
 
@@ -410,12 +411,14 @@ inline QString GtObjectIO::listToString<QList<QPointF> >(
         const QList<QPointF>& t)
 {
     QString str;
-    str.reserve(2 * t.size() * (DBL_DIG + 2));
+    str.reserve(2 * t.size() * S_ESTIMATED_DOUBLE_CHARS);
 
     for (QPointF const& m : t)
     {
-        str.append(QString::number(m.x(), 'g', DBL_DIG)).append("_").append(
-                    QString::number(m.y(), 'g', DBL_DIG)).append(';');
+        str.append(doubleToString(m.x()))
+            .append("_")
+            .append(doubleToString(m.y()))
+            .append(';');
     }
     str.truncate(str.size()-1);
 
@@ -1332,28 +1335,27 @@ void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                                    QString& typeStr)
 {
-    auto varType = gt::metaTypeId(var);
+    // userType() and qMetaTypeId<T>() return the real type id on Qt 5 and
+    // Qt 6. QVariant::type() and QVariant::nameToType() collapse every
+    // runtime-registered type to QVariant::UserType on Qt 5.
+    const int varType = var.userType();
 
-    static auto type_QDoubleVector = gt::metaTypeIdFromName(
-                "QVector<double>");
-    static auto type_QIntList = gt::metaTypeIdFromName(
-                "QList<int>");
-    static auto type_QBoolList = gt::metaTypeIdFromName(
-                "QList<bool>");
-    static auto type_QPointFList = gt::metaTypeIdFromName(
-                "QList<QPointF>");
-    static auto type_QStringList = gt::metaTypeIdFromName(
-                "QStringList");
-
-    assert(QMetaType::isRegistered(type_QDoubleVector));
-    assert(QMetaType::isRegistered(type_QIntList));
-    assert(QMetaType::isRegistered(type_QBoolList));
-    assert(QMetaType::isRegistered(type_QPointFList));
-    assert(QMetaType::isRegistered(type_QStringList));
+    static const int type_QDoubleVector = qMetaTypeId<QVector<double>>();
+    static const int type_QDoubleList = qMetaTypeId<QList<double>>();
+    static const int type_QIntList = qMetaTypeId<QList<int>>();
+    static const int type_QBoolList = qMetaTypeId<QList<bool>>();
+    static const int type_QPointFList = qMetaTypeId<QList<QPointF>>();
+    static const int type_QStringList = qMetaTypeId<QStringList>();
 
     if (varType == type_QDoubleVector)
     {
         valStr = listToString(var.value<QVector<double> >());
+        typeStr = QStringLiteral("double");
+    }
+    else if (varType == type_QDoubleList)
+    {
+        // Qt 5 only: on Qt 6 QList<double> is QVector<double>
+        valStr = listToString(var.value<QList<double>>().toVector());
         typeStr = QStringLiteral("double");
     }
     else if (varType == type_QIntList)
@@ -1436,23 +1438,40 @@ namespace
 QVariant
 propertyToVariant(const QString& value, const QString& type)
 {
-
-    if (type.isEmpty() && value.trimmed().isEmpty())
+    if (type.isEmpty())
     {
+        return value.trimmed().isEmpty() ? QVariant{} : QVariant{value};
+    }
+
+    if (type == QStringLiteral("QPointF"))
+    {
+        const QStringList pvars = value.split(QStringLiteral("_"));
+        if (pvars.size() == 2)
+        {
+            bool okX = false;
+            bool okY = false;
+            const auto x = pvars[0].toDouble(&okX);
+            const auto y = pvars[1].toDouble(&okY);
+            if (okX && okY)
+            {
+                return QPointF{x, y};
+            }
+        }
+        gtWarning() << "Invalid QPointF property value:" << value;
         return QVariant{};
     }
 
     std::string str = type.toStdString();
     const char* p = str.c_str();
 
-    auto v_type = gt::metaTypeIdFromName(p);
+    const int v_type = gt::metaTypeIdFromName(p);
     QVariant retval(value);
 
-    if (QMetaType::isRegistered(v_type))
+    if (QMetaType::isRegistered(v_type) && !retval.convert(v_type))
     {
-        retval.convert(v_type);
+        gtWarning() << "Could not convert property value" << value << "to type"
+                    << type;
     }
-
     return retval;
 }
 
@@ -1468,10 +1487,8 @@ propertyListToVariant(const QString& value, const QString& type)
         QVector<double> list;
         list.reserve(strList.size());
 
-        foreach (const auto& val, strList)
-        {
-            list.append(val.toDouble());
-        }
+        std::transform(strList.begin(), strList.end(), std::back_inserter(list),
+                       [](const QStringRef& val) { return val.toDouble(); });
 
         var.setValue(list);
     }
@@ -1482,10 +1499,10 @@ propertyListToVariant(const QString& value, const QString& type)
         QList<bool> list;
         list.reserve(strList.size());
 
-        foreach (const auto& val, strList)
-        {
-            list.append(QVariant(val.toString()).toBool());
-        }
+        std::transform(strList.begin(), strList.end(), std::back_inserter(list),
+                       [](const QStringRef& val) {
+                           return QVariant(val.toString()).toBool();
+                       });
 
         var.setValue(list);
     }
@@ -1502,16 +1519,31 @@ propertyListToVariant(const QString& value, const QString& type)
     }
     else if (type == QStringLiteral("QPointF"))
     {
-        QList<QPointF> list;
-        QStringList values = value.split(QStringLiteral(";"));
-
-        foreach (const QString& val, values)
+        if (value.isEmpty())
         {
-            QStringList pvars = val.split(QStringLiteral("_"));
+            return QVariant::fromValue(QList<QPointF>{});
+        }
+        QList<QPointF> list;
+        const auto values = value.split(';', Qt::KeepEmptyParts);
+        list.reserve(values.size());
 
+        for (const QString& val : values)
+        {
+            const QStringList pvars = val.split(QStringLiteral("_"));
+
+            bool okX = false;
+            bool okY = false;
             if (pvars.size() == 2)
             {
-                list << QPointF(pvars[0].toDouble(), pvars[1].toDouble());
+                const double x = pvars[0].toDouble(&okX);
+                const double y = pvars[1].toDouble(&okY);
+                list << QPointF{x, y};
+            }
+
+            if (!okX || !okY)
+            {
+                gtWarning() << "Invalid QPointF list property value:" << value;
+                return QVariant{};
             }
         }
 
