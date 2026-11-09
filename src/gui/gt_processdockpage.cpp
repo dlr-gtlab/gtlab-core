@@ -11,23 +11,23 @@
 namespace
 {
 
-QList<gt::gui::ProcessDockPageFactory>& pageFactories()
-{
-    static QList<gt::gui::ProcessDockPageFactory> factories;
-    return factories;
-}
+    QList<gt::gui::ProcessDockPageFactory>& pageFactories()
+    {
+        static QList<gt::gui::ProcessDockPageFactory> factories;
+        return factories;
+    }
 
-QList<GtObjectUIAction>& addActions()
-{
-    static QList<GtObjectUIAction> actions;
-    return actions;
-}
+    QList<GtObjectUIAction>& addActions()
+    {
+        static QList<GtObjectUIAction> actions;
+        return actions;
+    }
 
-QList<GtObjectUIAction>& contextActions()
-{
-    static QList<GtObjectUIAction> actions;
-    return actions;
-}
+    QList<GtObjectUIAction>& contextActions()
+    {
+        static QList<GtObjectUIAction> actions;
+        return actions;
+    }
 
 } // namespace
 

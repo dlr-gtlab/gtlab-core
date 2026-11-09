@@ -160,30 +160,31 @@ TestModuleInterface::metaInformation() const
 namespace
 {
 
-class TestProcessDockPage : public GtProcessDockPage
-{
-public:
-    TestProcessDockPage()
+    class TestProcessDockPage : public GtProcessDockPage
     {
-        auto* layout = new QVBoxLayout(this);
-        layout->addWidget(new QLabel(tr("Test Process-Dock extension"), this));
+    public:
+        TestProcessDockPage()
+        {
+            auto* layout = new QVBoxLayout(this);
+            layout->addWidget(
+                new QLabel(tr("Test Process-Dock extension"), this));
 
-        auto* activateButton = new QPushButton(tr("Activate page"), this);
-        layout->addWidget(activateButton);
-        connect(activateButton, &QPushButton::clicked,
-                this, &GtProcessDockPage::activationRequested);
-    }
+            auto* activateButton = new QPushButton(tr("Activate page"), this);
+            layout->addWidget(activateButton);
+            connect(activateButton, &QPushButton::clicked, this,
+                    &GtProcessDockPage::activationRequested);
+        }
 
-    QString pageId() const override
-    {
-        return QStringLiteral("test-module-page");
-    }
+        QString pageId() const override
+        {
+            return QStringLiteral("test-module-page");
+        }
 
-    QString title() const override
-    {
-        return QStringLiteral("Test Module");
-    }
-};
+        QString title() const override
+        {
+            return QStringLiteral("Test Module");
+        }
+    };
 
 } // namespace
 
@@ -197,7 +198,5 @@ TestModuleInterface::init()
     };
     GtApplication::addCustomPreferencePage(pageFactory);
 
-    gt::gui::registerProcessDockPage([] {
-        return new TestProcessDockPage;
-    });
+    gt::gui::registerProcessDockPage([] { return new TestProcessDockPage; });
 }

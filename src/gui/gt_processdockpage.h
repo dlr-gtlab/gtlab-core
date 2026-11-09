@@ -31,7 +31,10 @@ public:
 
     virtual QString pageId() const = 0;
     virtual QString title() const = 0;
-    virtual QIcon icon() const { return {}; }
+    virtual QIcon icon() const
+    {
+        return {};
+    }
 
 signals:
     void activationRequested();
@@ -40,25 +43,26 @@ signals:
 namespace gt::gui
 {
 
-using ProcessDockPageFactory = std::function<GtProcessDockPage*()>;
+    using ProcessDockPageFactory = std::function<GtProcessDockPage*()>;
 
-/// Registers a factory for a page in the Process Dock.
-GT_GUI_EXPORT void registerProcessDockPage(ProcessDockPageFactory factory);
+    /// Registers a factory for a page in the Process Dock.
+    GT_GUI_EXPORT void registerProcessDockPage(ProcessDockPageFactory factory);
 
-/// Registers an action in the Process Dock's Add menu.
-GT_GUI_EXPORT void registerProcessAddAction(GtObjectUIAction action);
+    /// Registers an action in the Process Dock's Add menu.
+    GT_GUI_EXPORT void registerProcessAddAction(GtObjectUIAction action);
 
-/// Registers an action in a process component's context menu.
-GT_GUI_EXPORT void registerProcessContextAction(GtObjectUIAction action);
+    /// Registers an action in a process component's context menu.
+    GT_GUI_EXPORT void registerProcessContextAction(GtObjectUIAction action);
 
-/// Returns registered factories for use by the Process Dock.
-GT_GUI_EXPORT const QList<ProcessDockPageFactory>& processDockPageFactories();
+    /// Returns registered factories for use by the Process Dock.
+    GT_GUI_EXPORT const QList<ProcessDockPageFactory>&
+    processDockPageFactories();
 
-/// Returns registered Add actions for use by the Process Dock.
-GT_GUI_EXPORT const QList<GtObjectUIAction>& processAddActions();
+    /// Returns registered Add actions for use by the Process Dock.
+    GT_GUI_EXPORT const QList<GtObjectUIAction>& processAddActions();
 
-/// Returns registered Context actions for use by the Process Dock.
-GT_GUI_EXPORT const QList<GtObjectUIAction>& processContextActions();
+    /// Returns registered Context actions for use by the Process Dock.
+    GT_GUI_EXPORT const QList<GtObjectUIAction>& processContextActions();
 
 } // namespace gt::gui
 
