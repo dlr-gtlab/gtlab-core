@@ -368,7 +368,7 @@ GtProcessDock::initAfterStartup()
     m_impl->pagesInitialized = true;
 
     gt::gui::detail::initializeProcessDockPages(m_impl->pageStack,
-                                                m_impl->pageSelection);
+                                                m_impl->pageSelection, this);
 }
 
 void
@@ -601,12 +601,6 @@ GtProcessDock::resetTaskGroupModel()
 }
 
 void
-GtProcessDock::addEmptyTaskToRoot()
-{
-    addEmptyTask(m_impl->taskGroup);
-}
-
-void
 GtProcessDock::addEmptyTask(GtObject* root)
 {
     if (!root) return;
@@ -663,34 +657,26 @@ GtProcessDock::componentByModelIndex(const QModelIndex& index)
 }
 
 void
-GtProcessDock::addCalculator()
+GtProcessDock::addCalculator(GtObject* parentObj)
 {
-    QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
-
-    if (!srcIndex.isValid())
+    QPointer<GtObject> guardedParent{parentObj};
+    if (!guardedParent || !qobject_cast<GtTask*>(parentObj))
     {
         return;
     }
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
-
-    if (!obj)
-    {
-        return;
-    }
-
-    auto project = obj->findParent<GtProject*>();
-
+    QPointer<GtProject> project{parentObj->findParent<GtProject*>()};
     if (!project)
     {
         return;
     }
 
     GtCalculatorProvider provider;
-    GtProcessWizard wizard(project, &provider, this);
+    GtProcessWizard wizard(project.data(), &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec())
+    if (!wizard.exec() || !guardedParent || !project ||
+        project != gtApp->currentProject())
     {
         return;
     }
@@ -714,7 +700,8 @@ GtProcessDock::addCalculator()
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(std::move(newObj), obj);
+    QModelIndex newIndex =
+        gtDataModel->appendChild(std::move(newObj), guardedParent.data());
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -729,7 +716,8 @@ GtProcessDock::addCalculator()
         m_impl->filterModel->index(index.row(), 1, index.parent());
     QItemSelection itemSel(index, tmpIndex);
 
-    m_impl->view->expand(m_impl->view->currentIndex());
+    m_impl->view->expand(
+        mapFromSource(gtDataModel->indexFromObject(guardedParent.data())));
     m_impl->view->scrollTo(index);
     m_impl->view->selectionModel()->select(itemSel,
                                            QItemSelectionModel::ClearAndSelect);
@@ -737,42 +725,27 @@ GtProcessDock::addCalculator()
 }
 
 void
-GtProcessDock::addTask()
+GtProcessDock::addTask(GtObject* parentObj)
 {
-    GtObject* parentObj = nullptr;
-
-    if (!m_impl->view->currentIndex().isValid())
-    {
-        parentObj = m_impl->taskGroup;
-    }
-    else
-    {
-        // add task to other task
-        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
-
-        if (!srcIndex.isValid()) return;
-
-        parentObj = gtDataModel->objectFromIndex(srcIndex);
-    }
-
     addTaskToParent(parentObj);
 }
 
 void
-GtProcessDock::addRootTask()
+GtProcessDock::addRootTask(GtTaskGroup* root)
 {
-    addTaskToParent(m_impl->taskGroup);
+    addTaskToParent(root);
 }
 
 void
 GtProcessDock::addTaskToParent(GtObject* parentObj)
 {
-    if (!m_impl->taskGroup) return;
+    QPointer<GtObject> guardedParent{parentObj};
+    if (!guardedParent)
+    {
+        return;
+    }
 
-    if (!parentObj) return;
-
-    auto project = m_impl->taskGroup->findParent<GtProject*>();
-
+    QPointer<GtProject> project{parentObj->findParent<GtProject*>()};
     if (!project)
     {
         gtError() << "project == nullptr";
@@ -780,10 +753,14 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     }
 
     GtTaskProvider provider;
-    GtProcessWizard wizard(project, &provider, this);
+    GtProcessWizard wizard(project.data(), &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec()) return;
+    if (!wizard.exec() || !guardedParent || !project ||
+        project != gtApp->currentProject())
+    {
+        return;
+    }
 
     GtObjectMemento memento = provider.componentData();
 
@@ -793,7 +770,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!newObj) return;
 
-    QString taskId = gt::makeUniqueName(newObj->objectName(), parentObj);
+    QString taskId =
+        gt::makeUniqueName(newObj->objectName(), guardedParent.data());
     newObj->setObjectName(taskId);
 
     gtDebug().verbose()
@@ -802,7 +780,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     updateLastUsedElementList(newObj->metaObject()->className());
 
     QModelIndex newIndex =
-        gtDataModel->appendChild(std::move(newObj), parentObj);
+        gtDataModel->appendChild(std::move(newObj), guardedParent.data());
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -814,7 +792,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
         m_impl->filterModel->index(index.row(), 1, index.parent());
     QItemSelection itemSel(index, tmpIndex);
 
-    m_impl->view->expand(m_impl->view->currentIndex());
+    m_impl->view->expand(
+        mapFromSource(gtDataModel->indexFromObject(guardedParent.data())));
     m_impl->view->scrollTo(index);
     m_impl->view->selectionModel()->select(itemSel,
                                            QItemSelectionModel::ClearAndSelect);
@@ -1149,64 +1128,75 @@ GtProcessDock::addElement()
 void
 GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
 {
-    QModelIndex srcIdx = mapToSource(m_impl->view->currentIndex());
-
-    GtObject* obj =
+    const QModelIndex srcIdx = mapToSource(m_impl->view->currentIndex());
+    GtObject* selectedObject =
         srcIdx.isValid() ? gtDataModel->objectFromIndex(srcIdx) : nullptr;
 
-    // add empty task action
-    auto addEmptyTaskAction =
-        std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
+    // Snapshot the insertion context because a context click may differ from
+    // the current selection while the menu is open.
+    const QPointer<GtObject> insertionTarget{gt::gui::detail::processAddTarget(
+        selectedComponent, selectedObject, m_impl->taskGroup)};
+    const QPointer<GtTaskGroup> rootTarget = m_impl->taskGroup;
+
+    auto addEmptyRootTask = [this, rootTarget](GtObject*) {
+        if (rootTarget)
+        {
+            addEmptyTask(rootTarget.data());
+        }
+    };
     auto addemptytask =
-        gt::gui::makeAction(tr("Empty Root Task"), addEmptyTaskAction)
+        gt::gui::makeAction(tr("Empty Root Task"), addEmptyRootTask)
             .setIcon(gt::gui::icon::processAdd());
-
-    auto addCalculatorAction = std::bind(&GtProcessDock::addCalculator, this);
-    auto addcalc =
-        gt::gui::makeAction(tr("New Calculator..."), addCalculatorAction)
-            .setIcon(gt::gui::icon::calculator());
-
-    auto addTaskAction = std::bind(&GtProcessDock::addTask, this);
-    auto addtask = gt::gui::makeAction(tr("New Task..."), addTaskAction)
-                       .setIcon(gt::gui::icon::processAdd());
-
-    auto addRootTaskAction = std::bind(&GtProcessDock::addRootTask, this);
-    auto addroottask =
-        gt::gui::makeAction(tr("New Root Task..."), addRootTaskAction)
-            .setIcon(gt::gui::icon::processAdd());
-
-    gt::gui::addToMenu(addemptytask, menu, obj);
+    gt::gui::addToMenu(addemptytask, menu, nullptr);
 
     menu.addSeparator();
 
-    // add calculator action
-    if (obj && qobject_cast<GtTask*>(obj))
+    if (qobject_cast<GtTask*>(insertionTarget.data()))
     {
-        gt::gui::addToMenu(addcalc, menu, obj);
-        gt::gui::addToMenu(addroottask, menu, obj);
+        auto addCalculator = [this, insertionTarget](GtObject*) {
+            if (insertionTarget)
+            {
+                this->addCalculator(insertionTarget.data());
+            }
+        };
+        auto addcalc =
+            gt::gui::makeAction(tr("New Calculator..."), addCalculator)
+                .setIcon(gt::gui::icon::calculator());
+        gt::gui::addToMenu(addcalc, menu, nullptr);
+
+        auto addRootTask = [this, rootTarget](GtObject*) {
+            if (rootTarget)
+            {
+                this->addRootTask(rootTarget.data());
+            }
+        };
+        auto addroottask =
+            gt::gui::makeAction(tr("New Root Task..."), addRootTask)
+                .setIcon(gt::gui::icon::processAdd());
+        gt::gui::addToMenu(addroottask, menu, nullptr);
     }
-    // only add task if obj is not a calc
-    if (!obj || qobject_cast<GtTask*>(obj))
+
+    if (insertionTarget)
     {
-        gt::gui::addToMenu(addtask, menu, obj);
+        auto addTask = [this, insertionTarget](GtObject*) {
+            if (insertionTarget)
+            {
+                this->addTask(insertionTarget.data());
+            }
+        };
+        auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
+                           .setIcon(gt::gui::icon::processAdd());
+        gt::gui::addToMenu(addtask, menu, nullptr);
     }
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
     {
         menu.addSeparator();
-        generateLastUsedElementMenu(&menu, !srcIdx.isValid());
+        generateLastUsedElementMenu(&menu, insertionTarget.data());
     }
 
-    GtObject* insertionTarget = gt::gui::detail::processAddTarget(
-        selectedComponent, obj, m_impl->taskGroup);
-    const auto processActions = gt::gui::detail::processDockAddActions();
-    if (gt::gui::detail::hasVisibleProcessDockActions(processActions,
-                                                      insertionTarget))
-    {
-        menu.addSeparator();
-        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
-                                                     insertionTarget);
-    }
+    gt::gui::detail::addProcessDockActionsToMenu(
+        gt::gui::detail::processDockAddActions(), menu, insertionTarget.data());
 }
 
 void
@@ -1477,13 +1467,8 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 
     gt::gui::addToMenu(delete_, menu, &obj);
 
-    const auto processActions = gt::gui::detail::processDockContextActions();
-    if (gt::gui::detail::hasVisibleProcessDockActions(processActions, &obj))
-    {
-        menu.addSeparator();
-        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
-                                                     &obj);
-    }
+    gt::gui::detail::addProcessDockActionsToMenu(
+        gt::gui::detail::processDockContextActions(), menu, &obj);
 
     menu.exec(QCursor::pos());
 }
@@ -2335,9 +2320,16 @@ GtProcessDock::onTaskDataChanged(GtObject* obj)
 }
 
 void
-GtProcessDock::actionTriggered(QObject* obj)
+GtProcessDock::actionTriggered(QObject* obj, GtObject* insertionTarget)
 {
-    if (!gtApp->currentProject())
+    QPointer<GtObject> guardedTarget{insertionTarget};
+    if (!gtApp->currentProject() || !guardedTarget)
+    {
+        return;
+    }
+
+    QPointer<GtProject> project{guardedTarget->findParent<GtProject*>()};
+    if (!project || project != gtApp->currentProject())
     {
         return;
     }
@@ -2383,10 +2375,11 @@ GtProcessDock::actionTriggered(QObject* obj)
         task->setFactory(gtProcessFactory);
 
         GtTaskProvider provider(task);
-        GtProcessWizard wizard(gtApp->currentProject(), &provider, this);
+        GtProcessWizard wizard(project.data(), &provider, this);
         wizard.setWindowTitle(tr("Config ") + taskData->id);
 
-        if (!wizard.exec())
+        if (!wizard.exec() || !guardedTarget || !project ||
+            project != gtApp->currentProject())
         {
             delete task;
             return;
@@ -2402,24 +2395,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         task->fromMemento(memento);
 
-        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
-
-        GtObject* parentObj = nullptr;
-
-        if (srcIndex.isValid())
-        {
-            parentObj = gtDataModel->objectFromIndex(srcIndex);
-        }
-        else
-        {
-            parentObj = m_impl->taskGroup;
-        }
-
-        if (!parentObj)
-        {
-            delete task;
-            return;
-        }
+        GtObject* parentObj = guardedTarget.data();
 
         updateLastUsedElementList(task->metaObject()->className());
 
@@ -2438,7 +2414,8 @@ GtProcessDock::actionTriggered(QObject* obj)
             m_impl->filterModel->index(index.row(), 1, index.parent());
         QItemSelection itemSel(index, tmpIndex);
 
-        m_impl->view->expand(m_impl->view->currentIndex());
+        m_impl->view->expand(
+            mapFromSource(gtDataModel->indexFromObject(guardedTarget.data())));
         m_impl->view->scrollTo(index);
         m_impl->view->selectionModel()->select(
             itemSel, QItemSelectionModel::ClearAndSelect);
@@ -2447,16 +2424,8 @@ GtProcessDock::actionTriggered(QObject* obj)
     }
     else if (gtCalculatorFactory->calculatorDataExists(className))
     {
-        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
-
-        if (!srcIndex.isValid())
-        {
-            return;
-        }
-
-        GtObject* currentObj = gtDataModel->objectFromIndex(srcIndex);
-
-        if (!currentObj)
+        GtObject* currentObj = guardedTarget.data();
+        if (!qobject_cast<GtTask*>(currentObj))
         {
             return;
         }
@@ -2487,10 +2456,11 @@ GtProcessDock::actionTriggered(QObject* obj)
         calc->setFactory(gtProcessFactory);
 
         GtCalculatorProvider provider(calc);
-        GtProcessWizard wizard(gtApp->currentProject(), &provider, this);
+        GtProcessWizard wizard(project.data(), &provider, this);
         wizard.setWindowTitle(tr("Config ") + calcData->id);
 
-        if (!wizard.exec())
+        if (!wizard.exec() || !guardedTarget || !project ||
+            project != gtApp->currentProject())
         {
             delete calc;
             return;
@@ -2508,7 +2478,8 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         updateLastUsedElementList(newObj->metaObject()->className());
 
-        QModelIndex newIndex = gtDataModel->appendChild(calc, currentObj);
+        QModelIndex newIndex =
+            gtDataModel->appendChild(calc, guardedTarget.data());
 
         QModelIndex index = mapFromSource(newIndex);
 
@@ -2860,7 +2831,8 @@ GtProcessDock::updateLastUsedElementList(const QString& str)
 }
 
 void
-GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
+GtProcessDock::generateLastUsedElementMenu(QMenu* menu,
+                                           GtObject* insertionTarget)
 {
     if (!menu)
     {
@@ -2890,10 +2862,27 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                 {
                     QAction* act = menu->addAction(taskData->id);
                     act->setData(entry);
+                    if (insertionTarget)
+                    {
+                        QObject::connect(insertionTarget, &QObject::destroyed,
+                                         act,
+                                         [act]() { act->setEnabled(false); });
+                    }
+                    else
+                    {
+                        act->setEnabled(false);
+                    }
 
                     disconnect(act, &QAction::triggered, nullptr, nullptr);
-                    connect(act, &QAction::triggered, this,
-                            [this, act](bool) { actionTriggered(act); });
+                    connect(
+                        act, &QAction::triggered, this,
+                        [this, act,
+                         target = QPointer<GtObject>{insertionTarget}](bool) {
+                            if (target)
+                            {
+                                actionTriggered(act, target.data());
+                            }
+                        });
 
                     count++;
 
@@ -2939,11 +2928,27 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                 {
                     QAction* act = menu->addAction(calcData->id);
                     act->setData(entry);
-
+                    if (insertionTarget)
+                    {
+                        QObject::connect(insertionTarget, &QObject::destroyed,
+                                         act,
+                                         [act]() { act->setEnabled(false); });
+                    }
+                    else
+                    {
+                        act->setEnabled(false);
+                    }
 
                     disconnect(act, &QAction::triggered, nullptr, nullptr);
-                    connect(act, &QAction::triggered, this,
-                            [this, act](bool) { actionTriggered(act); });
+                    connect(
+                        act, &QAction::triggered, this,
+                        [this, act,
+                         target = QPointer<GtObject>{insertionTarget}](bool) {
+                            if (target)
+                            {
+                                actionTriggered(act, target.data());
+                            }
+                        });
 
                     count++;
 
@@ -2960,7 +2965,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                         act->setIcon(extendedData->icon);
                     }
 
-                    if (isRoot)
+                    if (!qobject_cast<GtTask*>(insertionTarget))
                     {
                         act->setEnabled(false);
                     }
@@ -3071,3 +3076,4 @@ GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 
     resetTaskGroupModel();
 }
+

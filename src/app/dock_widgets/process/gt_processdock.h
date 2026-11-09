@@ -159,27 +159,26 @@ private:
      */
     void setCurrentProcess(GtTask* process = nullptr);
 
-    /**
-     * @brief addEmptyTaskToRoot
-     */
-    void addEmptyTaskToRoot();
-
+    /** Adds an empty task to the given root object. */
     void addEmptyTask(GtObject* root);
 
     /**
-     * @brief addCalculator
+     * @brief Opens the calculator wizard and adds the result to the parent.
+     * @param parentObj Task that receives the new calculator.
      */
-    void addCalculator();
+    void addCalculator(GtObject* parentObj);
 
     /**
-     * @brief Opens task wizard to select new task.
+     * @brief Opens the task wizard and adds the result to the parent.
+     * @param parentObj Task or task group that receives the new task.
      */
-    void addTask();
+    void addTask(GtObject* parentObj);
 
     /**
-     * @brief Opens task wizard to select new task to be added as root.
+     * @brief Opens the task wizard and adds the result to the task group.
+     * @param root Task group that receives the root task.
      */
-    void addRootTask();
+    void addRootTask(GtTaskGroup* root);
 
     /**
      * @brief addTaskToParent
@@ -224,12 +223,11 @@ private:
     void updateLastUsedElementList(const QString& str);
 
     /**
-     * @brief Generates menu based on list of last used process elements.
+     * @brief Generates a menu of recently used process elements.
      * @param menu Parent menu.
-     * @param isRoot Identifier whether element menu should be generated for a
-     * root component.
+     * @param insertionTarget Object that receives the selected element.
      */
-    void generateLastUsedElementMenu(QMenu* menu, bool isRoot);
+    void generateLastUsedElementMenu(QMenu* menu, GtObject* insertionTarget);
 
     /**
      * @brief deleteProcessComponent
@@ -469,10 +467,11 @@ private slots:
     void onTaskDataChanged(GtObject* obj);
 
     /**
-     * @brief Called after action was triggered.
-     * @param obj Triggered aciton
+     * @brief Adds the selected recently used process element.
+     * @param obj Triggered action.
+     * @param insertionTarget Object that receives the new element.
      */
-    void actionTriggered(QObject* obj);
+    void actionTriggered(QObject* obj, GtObject* insertionTarget);
 
     /**
      * @brief Handles executor change
@@ -512,3 +511,4 @@ signals:
 };
 
 #endif // GTPROCESSDOCK_H
+

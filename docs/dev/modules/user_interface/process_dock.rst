@@ -87,3 +87,22 @@ Register both actions from ``MyModule::init()``:
                                    // Inspect the clicked process component.
                                })));
   }
+
+Manual smoke test
+-----------------
+
+The ``TestMdiInterface`` test module registers a sample page and both action
+types from ``init()``. Build and load that module in GTlab, then check the
+following in the Process Dock:
+
+* The ``Test MDI Interface`` page appears in the page selector and can be
+  selected.
+* Click **Activate page** and confirm that the page is selected again.
+* Select task A, right-click task B, open **Add...**, and trigger **Show Add
+  Target**. The page should report task B. The built-in **New Task...**,
+  **New Calculator...**, and last-used entries should also use task B as their
+  insertion parent.
+* Clear the task selection, trigger **Show Add Target** from **Add...**, and
+  confirm that the page reports the current task group.
+* Open a process component's context menu and trigger **Show Context Target**.
+  The page should report the clicked component.

@@ -11,7 +11,9 @@
 
 #include <QPointer>
 
+class QAction;
 class QComboBox;
+class QDockWidget;
 class QMenu;
 class QStackedWidget;
 class GtTask;
@@ -37,15 +39,15 @@ GT_GUI_EXPORT QList<ProcessDockAction> processDockAddActions();
 GT_GUI_EXPORT QList<ProcessDockAction> processDockContextActions();
 
 GT_GUI_EXPORT void initializeProcessDockPages(QStackedWidget* stack,
-                                              QComboBox* selector);
+                                              QComboBox* selector,
+                                              QDockWidget* dock);
 GT_GUI_EXPORT GtObject* processAddTarget(GtObject* selectedComponent,
                                          GtObject* selectedObject,
                                          GtTaskGroup* taskGroup);
-GT_GUI_EXPORT bool hasVisibleProcessDockActions(
-    const QList<ProcessDockAction>& actions, GtObject* target);
-GT_GUI_EXPORT void addProcessDockActionsToMenu(
+GT_GUI_EXPORT QList<QAction*> addProcessDockActionsToMenu(
     const QList<ProcessDockAction>& actions, QMenu& menu, GtObject* target);
 
 } // namespace gt::gui::detail
 
 #endif // GTPROCESSDOCKEXTENSIONS_P_H
+

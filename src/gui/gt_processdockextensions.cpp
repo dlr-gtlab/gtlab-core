@@ -12,16 +12,64 @@
 #include "gt_task.h"
 #include "gt_taskgroup.h"
 
+#include <QAction>
 #include <QComboBox>
+#include <QDockWidget>
+#include <QMenuBar>
+#include <QPointer>
 #include <QMenu>
 #include <QSet>
 #include <QStackedWidget>
+#include <QWidget>
 
 #include <algorithm>
 #include <utility>
 
 namespace
 {
+
+QAction*
+actionBefore(QMenu& menu, int priority)
+{
+    if (priority == gt::gui::OrderPriority::Last)
+    {
+        return nullptr;
+    }
+
+    const auto actions = menu.actions();
+    if (actions.isEmpty())
+    {
+        return nullptr;
+    }
+    if (priority == gt::gui::OrderPriority::First)
+    {
+        return actions.first();
+    }
+
+    const auto iter = std::find_if(
+        actions.cbegin(), actions.cend(), [priority](const QAction* action) {
+            bool ok = false;
+            const int existingPriority =
+                action->property("orderPriority").toInt(&ok);
+            return (ok ? existingPriority : 0) > priority;
+        });
+    return iter == actions.cend() ? nullptr : *iter;
+}
+
+QWidget*
+findParentWidget(QWidget& menu)
+{
+    auto* parent = qobject_cast<QWidget*>(menu.parent());
+    if (auto* parentMenu = qobject_cast<QMenu*>(parent))
+    {
+        return findParentWidget(*parentMenu);
+    }
+    if (auto* parentMenuBar = qobject_cast<QMenuBar*>(parent))
+    {
+        return findParentWidget(*parentMenuBar);
+    }
+    return parent;
+}
 
 QList<gt::gui::detail::ProcessDockPage>&
 pageRegistrations()
@@ -114,9 +162,10 @@ gt::gui::detail::processDockContextActions()
 
 void
 gt::gui::detail::initializeProcessDockPages(QStackedWidget* stack,
-                                            QComboBox* selector)
+                                            QComboBox* selector,
+                                            QDockWidget* dock)
 {
-    if (!stack || !selector)
+    if (!stack || !selector || !dock)
     {
         return;
     }
@@ -156,9 +205,12 @@ gt::gui::detail::initializeProcessDockPages(QStackedWidget* stack,
 
         const int pageIndex = stack->addWidget(page);
         selector->addItem(page->icon(), page->title(), id);
-        QObject::connect(
-            page, &GtProcessDockPage::activationRequested, selector,
-            [selector, pageIndex]() { selector->setCurrentIndex(pageIndex); });
+        QObject::connect(page, &GtProcessDockPage::activationRequested, dock,
+                         [selector, dock, pageIndex]() {
+                             selector->setCurrentIndex(pageIndex);
+                             dock->show();
+                             dock->raise();
+                         });
     }
 
     selector->setVisible(stack->count() > 1);
@@ -173,33 +225,158 @@ gt::gui::detail::processAddTarget(GtObject* selectedComponent,
     return qobject_cast<GtTask*>(context) ? context : taskGroup;
 }
 
-bool
-gt::gui::detail::hasVisibleProcessDockActions(
-    const QList<ProcessDockAction>& actions, GtObject* target)
-{
-    for (const auto& entry : actions)
-    {
-        const auto& action = entry.action;
-        if (entry.owner && !action.isEmpty() && action.method() &&
-            (!action.visibilityMethod() ||
-             action.visibilityMethod()(entry.owner, target)))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void
+QList<QAction*>
 gt::gui::detail::addProcessDockActionsToMenu(
     const QList<ProcessDockAction>& actions, QMenu& menu, GtObject* target)
 {
+    QList<QAction*> addedActions;
+
     for (const auto& entry : actions)
     {
-        if (entry.owner)
+        const QPointer<QObject> owner = entry.owner;
+        if (!owner)
         {
-            gt::gui::addToMenu(entry.action, menu, target, entry.owner);
+            continue;
+        }
+
+        const auto& uiAction = entry.action;
+        if (uiAction.isSeparator())
+        {
+            QAction* separator = menu.insertSeparator(
+                actionBefore(menu, uiAction.orderPriority()));
+            gt::gui::setOrderPriority(*separator, uiAction.orderPriority());
+            continue;
+        }
+
+        const auto method = uiAction.method();
+        if (!method)
+        {
+            continue;
+        }
+
+        auto* action = new QAction(uiAction.name(), &menu);
+        gt::gui::setOrderPriority(*action, uiAction.orderPriority());
+        menu.insertAction(actionBefore(menu, uiAction.orderPriority()), action);
+        addedActions.append(action);
+
+        if (!uiAction.icon().isNull())
+        {
+            action->setIcon(uiAction.icon());
+        }
+
+        if (!uiAction.shortCut().isEmpty())
+        {
+            action->setShortcut(uiAction.shortCut());
+            action->setShortcutContext(Qt::ApplicationShortcut);
+            if (QWidget* parent = findParentWidget(menu))
+            {
+                parent->addAction(action);
+            }
+        }
+
+        const QPointer<GtObject> guardedTarget{target};
+        const bool hasTarget = target != nullptr;
+        const auto visibility = uiAction.visibilityMethod();
+        const auto verification = uiAction.verificationMethod();
+
+        const auto isAlive = [owner, guardedTarget, hasTarget]() {
+            return owner && (!hasTarget || !guardedTarget.isNull());
+        };
+        const auto updateState = [owner, guardedTarget, hasTarget, visibility,
+                                  verification, isAlive, action]() {
+            if (!isAlive())
+            {
+                action->setEnabled(false);
+                action->setVisible(false);
+                return;
+            }
+
+            GtObject* liveTarget = hasTarget ? guardedTarget.data() : nullptr;
+            if (visibility)
+            {
+                const bool isVisible = visibility(owner.data(), liveTarget);
+                if (!isAlive())
+                {
+                    action->setEnabled(false);
+                    action->setVisible(false);
+                    return;
+                }
+                action->setVisible(isVisible);
+            }
+            if (verification)
+            {
+                const bool isEnabled = verification(
+                    owner.data(), hasTarget ? guardedTarget.data() : nullptr);
+                if (!isAlive())
+                {
+                    action->setEnabled(false);
+                    action->setVisible(false);
+                    return;
+                }
+                action->setEnabled(isEnabled);
+            }
+        };
+
+        updateState();
+        if (visibility || verification)
+        {
+            QObject::connect(&menu, &QMenu::aboutToShow, action, updateState);
+        }
+
+        QObject::connect(action, &QAction::triggered, &menu,
+                         [owner, guardedTarget, hasTarget, isAlive, method]() {
+                             if (!isAlive())
+                             {
+                                 return;
+                             }
+                             method(owner.data(),
+                                    hasTarget ? guardedTarget.data() : nullptr);
+                         });
+
+        QObject::connect(owner.data(), &QObject::destroyed, action, [action]() {
+            action->setEnabled(false);
+            action->setVisible(false);
+        });
+        if (hasTarget)
+        {
+            QObject::connect(target, &QObject::destroyed, action, [action]() {
+                action->setEnabled(false);
+                action->setVisible(false);
+            });
         }
     }
+
+    if (!addedActions.isEmpty())
+    {
+        QAction* firstAddedAction = nullptr;
+        for (QAction* menuAction : menu.actions())
+        {
+            if (addedActions.contains(menuAction))
+            {
+                firstAddedAction = menuAction;
+                break;
+            }
+        }
+
+        if (firstAddedAction)
+        {
+            QAction* sectionSeparator = menu.insertSeparator(firstAddedAction);
+            const auto updateSeparator = [addedActions, sectionSeparator]() {
+                const bool anyVisible = std::any_of(
+                    addedActions.cbegin(), addedActions.cend(),
+                    [](const QAction* action) { return action->isVisible(); });
+                sectionSeparator->setVisible(anyVisible);
+            };
+            updateSeparator();
+            QObject::connect(&menu, &QMenu::aboutToShow, sectionSeparator,
+                             updateSeparator);
+            for (QAction* action : addedActions)
+            {
+                QObject::connect(action, &QAction::changed, sectionSeparator,
+                                 updateSeparator);
+            }
+        }
+    }
+
+    return addedActions;
 }
