@@ -11,6 +11,7 @@
 
 #include "gt_collectionloader.h"
 
+#include "gt_coreapplication.h"
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -20,6 +21,7 @@
 #include "gt_downloaddialog.h"
 #include "gt_algorithms.h"
 #include "gt_qtutilities.h"
+#include "gt_settings.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -161,16 +163,17 @@ GtCollectionLoader::collectionPath()
         return QString();
     }
 
-    QDir dir(qApp->applicationDirPath());
+    const auto* settings = gtApp->settings();
 
-    if (!dir.cdUp())
+    QString collectionpathstr = settings->userCollectionsDir();
+
+    if (collectionpathstr.isEmpty())
     {
-        gtError() << tr("Could not reach collection path!");
-        return QString();
+        QDir roamingPath = gtApp->roamingPath();
+        collectionpathstr = roamingPath.absoluteFilePath("collections");
     }
 
-    dir.setPath(dir.absolutePath() + QDir::separator() +
-                QStringLiteral("Collections"));
+    QDir dir{collectionpathstr};
 
     if (!dir.exists())
     {

@@ -65,6 +65,7 @@ public:
         const QList<GtCollectionNetworkItem>& availableItems,
         const QList<GtCollectionNetworkItem>& updataAvailableItems) = 0;
 
+    virtual bool showUpdateLocalCollectionButton() const;
 signals:
     /**
      * @brief themeChanged - emit signal for changed theme
