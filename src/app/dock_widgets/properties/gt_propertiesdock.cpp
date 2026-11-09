@@ -84,11 +84,7 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 
     toolbarLayout->addWidget(m_search);
 
-    //    toolbarLayout->addWidget(calcSettingBtn);
-
     frame->setAutoFillBackground(true);
-
-    m_treeView->setFrameStyle(QTreeView::NoFrame);
 
     setWidget(frame);
 

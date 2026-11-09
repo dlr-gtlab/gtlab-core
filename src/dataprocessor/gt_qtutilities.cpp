@@ -5,8 +5,10 @@
  */
 
 #include "gt_qtutilities.h"
+#include "gt_utilities.h"
 
 #include <QVariant>
+#include <QMetaMethod>
 
 int
 gt::qvariantCompare(const QVariant &a, const QVariant &b)
@@ -53,4 +55,28 @@ gt::metaTypeNameIsRegistered(const char *typeName)
     int typeId = QVariant::nameToType(typeName);
     return typeId != QVariant::Invalid && QMetaType::isRegistered(typeId);
 #endif
+}
+
+bool
+gt::isDefaultConstructible(const QMetaObject& metaObject)
+{
+    auto range = gt::range(0, metaObject.constructorCount());
+    auto found =
+        std::find_if(range.begin(), range.end(), [&metaObject](int idx) {
+            return metaObject.constructor(idx).parameterCount() == 0;
+        });
+    return found != range.end();
+}
+
+QStringList
+gt::classHierarchy(const QMetaObject& metaObject)
+{
+    QStringList retval;
+    const QMetaObject* parent = &metaObject;
+    while (parent)
+    {
+        retval.push_back(parent->className());
+        parent = parent->superClass();
+    }
+    return retval;
 }

@@ -28,6 +28,10 @@ set(headers
     gt_mdiinterface.h
     gt_mdiitem.h
     gt_mdilauncher.h
+    gt_guifactory.h
+    gt_guilayoutadapter.h
+    gt_guilauncher.h
+    gt_guitablayoutadapter.h
     style/gt_palette.h
     style/gt_style.h
     style/gt_stylesheets.h
@@ -180,6 +184,7 @@ set(headers
     collection/gt_collectionhelper.h
     collection/gt_collectionnetworkitem.h
     collection/gt_collectionhelperdata.h
+    collection/gt_collectionregistry.h
     mdi_items/collection_env/gt_collectionbrowsermodelitem.h
     mdi_items/collection_env/gt_abstractbrowserwidget.h
     mdi_items/collection_env/gt_collectionloadingwidget.h
@@ -214,6 +219,10 @@ set(sources
     gt_icons.cpp
     gt_mdiitem.cpp
     gt_mdilauncher.cpp
+    gt_guifactory.cpp
+    gt_guilayoutadapter.cpp
+    gt_guilauncher.cpp
+    gt_guitablayoutadapter.cpp
     style/gt_palette.cpp
     style/gt_style.cpp
     style/gt_stylesheets.cpp
@@ -359,6 +368,7 @@ set(sources
     collection/gt_collectionhelper.cpp
     collection/gt_collectionnetworkitem.cpp
     collection/gt_collectionhelperdata.cpp
+    collection/gt_collectionregistry.cpp
     mdi_items/collection_env/gt_collectionbrowsermodelitem.cpp
     mdi_items/collection_env/gt_abstractbrowserwidget.cpp
     mdi_items/collection_env/gt_collectionloadingwidget.cpp
