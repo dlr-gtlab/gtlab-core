@@ -103,8 +103,15 @@ GtSession::createDefault()
 bool
 GtSession::createEmptySession(const QString& id)
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("session");
+    const QString basePath = gtApp->roamingPath();
+    if (basePath.isEmpty())
+    {
+        gtError() << tr("Cannot create session without an application data "
+                        "directory.");
+        return false;
+    }
+
+    QString path = basePath + QDir::separator() + QStringLiteral("session");
 
     QDir dir(path);
 
@@ -342,18 +349,23 @@ GtSession::projectIndex(GtProject* project)
 QString
 GtSession::roamingPath()
 {
-    return GtCoreApplication::roamingPath() + QDir::separator() +
-           QStringLiteral("session");
+    const QString basePath = GtCoreApplication::roamingPath();
+    return basePath.isEmpty()
+               ? QString()
+               : QDir(basePath).filePath(QStringLiteral("session"));
 }
 
 bool 
 GtSession::hasDefaultSession()
 {
-    const QString path = gtApp->roamingPath() + QDir::separator() +
-                         QStringLiteral("session") + QDir::separator() +
-                         "default.json";
+    const QString sessionPath = roamingPath();
+    if (sessionPath.isEmpty())
+    {
+        return false;
+    }
 
-    return QFileInfo::exists(path);
+    return QFileInfo::exists(
+        QDir(sessionPath).filePath(QStringLiteral("default.json")));
 }
 
 bool
@@ -449,7 +461,13 @@ GtSession::onTreeDataChange()
 QString
 GtSession::sessionFilePath(const QString& sessionID)
 {
-    QDir path(roamingPath());
+    const QString sessionPath = roamingPath();
+    if (sessionPath.isEmpty())
+    {
+        return {};
+    }
+
+    QDir path(sessionPath);
 
     if (path.exists())
     {

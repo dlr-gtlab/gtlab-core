@@ -11,6 +11,7 @@
 
 #include "gt_collectionloader.h"
 
+#include "gt_applicationpaths.h"
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -29,6 +30,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QThread>
+#include <QSet>
 
 GtCollectionLoader::GtCollectionLoader(const QString& collectionId,
                                        QObject* parent) : QObject(parent)
@@ -47,38 +49,56 @@ GtCollectionLoader::loadLocalCollection()
         return retval;
     }
 
-    const QString colPath = collectionPath();
-
-    if (colPath.isEmpty())
+    QStringList paths;
+    const QString writablePath = collectionPath();
+    if (!writablePath.isEmpty())
     {
-        gtError() << tr("Invalid collection path!");
-        return retval;
+        paths << writablePath;
     }
 
-    QDirIterator directories(colPath,
-                             QDir::Dirs |
-                             QDir::NoSymLinks |
-                             QDir::NoDotAndDotDot,
-                             QDirIterator::Subdirectories);
-
-    while (directories.hasNext())
+    QDir legacyRoot(QCoreApplication::applicationDirPath());
+    if (legacyRoot.cdUp())
     {
-        directories.next();
-        GtCollectionItem item = loadLocalCollectionItem(directories.filePath());
-
-        if (item.isValid())
+        const QString legacyPath = QDir::cleanPath(
+            legacyRoot.filePath(QStringLiteral("Collections/%1")
+                                    .arg(m_collection->collectionId())));
+        if (!paths.contains(legacyPath))
         {
-//            gtDebug() << "item successfully loaded!";
-//            gtDebug() << "  |-> " << item.ident();
-//            gtDebug() << "  |-> " << item.version();
-//            gtDebug() << "  |-> " << item.propertyIds();
-            retval << item;
+            paths << legacyPath;
+        }
+    }
+
+    QSet<QString> loadedUuids;
+    for (const QString& path : paths)
+    {
+        if (!QDir(path).exists())
+        {
+            continue;
         }
 
-        else
+        QDirIterator directories(
+            path, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot,
+            QDirIterator::Subdirectories);
+
+        while (directories.hasNext())
         {
-            gtError() << tr("Invalid collection item!") <<
-                      QStringLiteral(" - ") << directories.filePath();
+            directories.next();
+            GtCollectionItem item =
+                loadLocalCollectionItem(directories.filePath());
+
+            if (item.isValid())
+            {
+                if (!loadedUuids.contains(item.uuid()))
+                {
+                    loadedUuids.insert(item.uuid());
+                    retval << item;
+                }
+            }
+            else
+            {
+                gtError() << tr("Invalid collection item!")
+                          << QStringLiteral(" - ") << directories.filePath();
+            }
         }
     }
 
@@ -161,39 +181,24 @@ GtCollectionLoader::collectionPath()
         return QString();
     }
 
-    QDir dir(qApp->applicationDirPath());
-
-    if (!dir.cdUp())
+    QString error;
+    const auto dataDirectory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Data, &error);
+    if (!dataDirectory)
     {
-        gtError() << tr("Could not reach collection path!");
+        gtError() << tr("Could not access collection data directory:") << error;
         return QString();
     }
 
-    dir.setPath(dir.absolutePath() + QDir::separator() +
-                QStringLiteral("Collections"));
-
-    if (!dir.exists())
+    const QString relativePath =
+        QStringLiteral("Collections/%1").arg(m_collection->collectionId());
+    if (!dataDirectory->mkpath(relativePath))
     {
-        if (!dir.mkpath(dir.absolutePath()))
-        {
-            gtError() << tr("Could not create collection root path!");
-            return QString();
-        }
+        gtError() << tr("Could not create collection path!");
+        return QString();
     }
 
-    dir.setPath(dir.absolutePath() + QDir::separator() +
-                m_collection->collectionId());
-
-    if (!dir.exists())
-    {
-        if (!dir.mkpath(dir.absolutePath()))
-        {
-            gtError() << tr("Could not create collection path!");
-            return QString();
-        }
-    }
-
-    return dir.absolutePath();
+    return QDir::cleanPath(dataDirectory->filePath(relativePath));
 }
 
 GtCollectionItem

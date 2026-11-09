@@ -30,6 +30,19 @@ Data Processor API
    :members:
 
 
+Application paths
+=================
+
+Core and module code should use ``GtApplicationPaths::directory`` for
+application-owned writable directories. Installed resources remain under the
+installation directory and should only be read. The ``Temp`` location is a
+unique directory shared by the process and removed on normal shutdown; use
+``QTemporaryDir`` below it for task-specific temporary data.
+
+.. doxygenclass:: GtApplicationPaths
+   :members:
+
+
 Execution API
 =============
 

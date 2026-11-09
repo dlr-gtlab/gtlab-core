@@ -22,8 +22,14 @@ GtPerspective::GtPerspective(const QString& id)
 bool
 GtPerspective::createDefault()
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
+    const QString settingsPath = gtApp->roamingPath();
+    if (settingsPath.isEmpty())
+    {
+        gtFatal() << tr("Application settings directory is unavailable!");
+        return false;
+    }
+
+    QString path = QDir(settingsPath).filePath(QStringLiteral("perspective"));
 
     if (!QDir().mkpath(path))
     {

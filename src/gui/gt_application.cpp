@@ -38,7 +38,6 @@
 #include <QUndoStack>
 #include <QUuid>
 #include <QKeyEvent>
-#include <QStandardPaths>
 #include <QSettings>
 
 
@@ -82,15 +81,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
 GtApplication::~GtApplication()
 {
     QApplication::clipboard()->clear();
-
-    // remove temp directory
-    QString tmpPath = QCoreApplication::applicationDirPath() +
-                      QDir::separator() + QStringLiteral("temp");
-
-    gtDebug().medium().quote() << "Deleting temp dir:" << tmpPath;
-
-    QDir dir(tmpPath);
-    dir.removeRecursively();
 }
 
 void
@@ -839,7 +829,14 @@ GtApplication::initFirstRun()
     GtCoreApplication::initFirstRun();
 
     // create application directories
-    QString path = roamingPath() + QDir::separator() + "perspective";
+    const QString settingsPath = roamingPath();
+    if (settingsPath.isEmpty())
+    {
+        gtWarning() << tr("Could not access application settings directory!");
+        return false;
+    }
+
+    QString path = QDir(settingsPath).filePath(QStringLiteral("perspective"));
 
     if (!QDir().mkpath(path))
     {

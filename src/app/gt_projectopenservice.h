@@ -8,6 +8,7 @@
 #define GTPROJECTOPENSERVICE_H
 
 #include <functional>
+#include <memory>
 
 #include <QLocalServer>
 #include <QLockFile>
@@ -62,7 +63,7 @@ private:
     bool isServiceReachable() const;
 
     QString m_serverName;
-    QLockFile m_lockFile;
+    std::unique_ptr<QLockFile> m_lockFile;
     QLocalServer m_server;
     QQueue<QString> m_pendingPaths;
     std::function<void(const QString&)> m_projectOpenHandler;

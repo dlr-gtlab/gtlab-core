@@ -18,10 +18,13 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSettings>
+#include <QFile>
+#include <QFileInfo>
 #include <QtGlobal>
 #include <QDebug>
 
 #include "gt_coreapplication.h"
+#include "gt_applicationpaths.h"
 #include "gt_externalizationmanager.h"
 #include "gt_objectfactory.h"
 #include "gt_processfactory.h"
@@ -95,17 +98,27 @@ QString
 GtCoreApplication::roamingPath()
 {
 #ifdef _WIN32
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    constexpr auto location = GtApplicationPaths::Location::Data;
+    constexpr auto fallback = QStandardPaths::AppDataLocation;
 #else
-    return QStandardPaths::writableLocation(
-                QStandardPaths::AppConfigLocation);
+    constexpr auto location = GtApplicationPaths::Location::Config;
+    constexpr auto fallback = QStandardPaths::AppConfigLocation;
 #endif
+    const auto directory = GtApplicationPaths::directory(location);
+    return directory ? directory->absolutePath()
+                     : QStandardPaths::writableLocation(fallback);
 }
 
 QStringList
 GtCoreApplication::crashedModules()
 {
-    QSettings settings(localApplicationIniFilePath(), QSettings::IniFormat);
+    const QString path = localApplicationIniFilePath();
+    if (path.isEmpty())
+    {
+        return {};
+    }
+
+    QSettings settings(path, QSettings::IniFormat);
 
     return settings.value(QStringLiteral("loading_crashed")).toStringList();
 }
@@ -113,9 +126,36 @@ GtCoreApplication::crashedModules()
 const QString&
 GtCoreApplication::localApplicationIniFilePath()
 {
-    static QString const filePath = QCoreApplication::applicationDirPath() +
-                                    QDir::separator() +
-                                    QStringLiteral("GTlab.ini");
+    static const QString filePath = [] {
+        auto directory =
+            GtApplicationPaths::directory(GtApplicationPaths::Location::State);
+        if (!directory)
+        {
+            gtWarning() << "Could not access application state directory; "
+                           "using the config directory instead.";
+            directory = GtApplicationPaths::directory(
+                GtApplicationPaths::Location::Config);
+        }
+
+        if (!directory)
+        {
+            return QString();
+        }
+
+        const QString targetPath =
+            directory->filePath(QStringLiteral("GTlab.ini"));
+        const QString legacyPath = QDir(QCoreApplication::applicationDirPath())
+                                       .filePath(QStringLiteral("GTlab.ini"));
+        if (!QFileInfo::exists(targetPath) && QFileInfo::exists(legacyPath) &&
+            !QFile::copy(legacyPath, targetPath) &&
+            !QFileInfo::exists(targetPath))
+        {
+            gtWarning() << "Could not migrate application state from"
+                        << legacyPath << "to" << targetPath;
+        }
+
+        return targetPath;
+    }();
     return filePath;
 }
 
@@ -124,7 +164,13 @@ GtCoreApplication::readSessionIds()
 {
     m_sessionIds.clear();
 
-    QDir path(roamingPath());
+    const QString basePath = roamingPath();
+    if (basePath.isEmpty())
+    {
+        return false;
+    }
+
+    QDir path(basePath);
 
     if (path.exists() && path.cd(QStringLiteral("session")))
     {
@@ -195,7 +241,7 @@ GtCoreApplication::initFirstRun()
     // create application directories
     QString path = GtSession::roamingPath();
 
-    if (!QDir(path).exists() && !QDir().mkpath(path))
+    if (path.isEmpty() || (!QDir(path).exists() && !QDir().mkpath(path)))
     {
         gtWarning() << tr("Could not create application directories!");
         return false;
@@ -659,28 +705,17 @@ GtCoreApplication::version()
 QDir
 GtCoreApplication::applicationTempDir()
 {
-    QDir retval(QCoreApplication::applicationDirPath() + QDir::separator()
-                + QStringLiteral("temp"));
-
-    if (!retval.exists())
+    QString error;
+    const auto root = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Temp, &error);
+    if (!root)
     {
-        retval = QDir(QCoreApplication::applicationDirPath());
-
-        if (!retval.mkpath(retval.absolutePath() + QDir::separator()
-                           + QStringLiteral("temp")))
-        {
-            gtWarning() << tr("Could not create temporary directory!");
-            return QDir();
-        }
-
-        if (!retval.cd(QStringLiteral("temp")))
-        {
-            gtWarning() << tr("Could not create temporary directory!");
-            return QDir();
-        }
+        gtWarning() << tr("Could not create temporary directory:") << error;
+        return QDir();
     }
 
-    return GtCoreApplication::createTempDir(retval.absolutePath());
+    // Preserve the historical behavior: each call returns a fresh directory.
+    return GtCoreApplication::createTempDir(root->absolutePath());
 }
 
 QDir

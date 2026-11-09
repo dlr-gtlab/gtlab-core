@@ -77,6 +77,7 @@ set(headers
     states/gt_statehandler.h
     states/gt_statecontainer.h
     gt_coreapplication.h
+    gt_applicationpaths.h
     gt_executioncontext.h
     gt_executionenvironment.h
     gt_executionresult.h
@@ -202,6 +203,7 @@ set(sources
     states/gt_statehandler.cpp
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
+    gt_applicationpaths.cpp
     gt_executioncontext.cpp
     gt_executionenvironment.cpp
     gt_executionresult.cpp

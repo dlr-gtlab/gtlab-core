@@ -17,6 +17,7 @@
 #include <QVector>
 #include <QRandomGenerator>
 #include <QStringList>
+#include <QTemporaryDir>
 
 class QDir;
 class QString;
@@ -89,8 +90,7 @@ private:
 
     GtTestHelper();
 
-    QString tempPath();
-
+    QTemporaryDir m_tempDirectory;
 };
 
 #endif // GTTESTHELPER_H
