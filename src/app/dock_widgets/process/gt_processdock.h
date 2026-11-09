@@ -264,8 +264,7 @@ private:
      * @param copy
      * @return
      */
-    bool mapPropertyConnections(GtTask* orig,
-                                GtTask* copy);
+    bool mapPropertyConnections(GtTask* orig, GtTask* copy);
 
     /**
      * @brief Updates list of last used process elements.
@@ -317,7 +316,8 @@ private:
      * @brief processContextMenu
      * @param obj
      */
-    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index, bool isTask);
+    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index,
+                            bool isTask);
 
     /**
      * @brief multiSelectionContextMenu

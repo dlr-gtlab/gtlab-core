@@ -62,7 +62,8 @@
 #include "gt_statehandler.h"
 #include "gt_state.h"
 #include "gt_logging.h"
-#include "gt_processdockpage.h"
+#include "gt_processdockextensions.h"
+#include "internal/gt_processdockextensions_p.h"
 
 #include "gt_processdock.h"
 
@@ -72,26 +73,6 @@ using namespace gt::gui;
 
 namespace
 {
-
-    bool hasVisibleActions(const QList<GtObjectUIAction>& actions,
-                           QObject* parent, GtObject* target)
-    {
-        for (const auto& action : actions)
-        {
-            if (action.isEmpty() || !action.method())
-            {
-                continue;
-            }
-
-            if (!action.visibilityMethod() ||
-                action.visibilityMethod()(parent, target))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
 inline bool useExtendedProcessExecutor()
 {
@@ -238,10 +219,6 @@ GtProcessDock::GtProcessDock() :
     dockLayout->addWidget(m_pageSelection);
     dockLayout->addWidget(m_pageStack);
 
-    connect(m_pageSelection,
-            QOverload<int>::of(&QComboBox::currentIndexChanged), m_pageStack,
-            &QStackedWidget::setCurrentIndex);
-
     m_model = new GtProcessComponentModel(this);
     m_filterModel = new GtProcessFilterModel(m_model);
     m_model->setSourceModel(gtDataModel);
@@ -357,45 +334,7 @@ GtProcessDock::initAfterStartup()
     }
     m_pagesInitialized = true;
 
-    QSet<QString> pageIds{QStringLiteral("processes")};
-
-    for (const auto& factory : gt::gui::processDockPageFactories())
-    {
-        GtProcessDockPage* page = factory ? factory() : nullptr;
-        if (!page)
-        {
-            gtWarning()
-                << "Ignoring a Process Dock page factory that returned null.";
-            continue;
-        }
-
-        const QString id = page->pageId().trimmed();
-        const QString title = page->title().trimmed();
-        if (id.isEmpty() || title.isEmpty())
-        {
-            gtWarning()
-                << "Ignoring a Process Dock page with an empty ID or title.";
-            delete page;
-            continue;
-        }
-
-        if (pageIds.contains(id))
-        {
-            gtWarning() << "Ignoring duplicate Process Dock page ID:" << id;
-            delete page;
-            continue;
-        }
-        pageIds.insert(id);
-
-        const int pageIndex = m_pageStack->addWidget(page);
-        m_pageSelection->addItem(page->icon(), page->title(), id);
-        connect(page, &GtProcessDockPage::activationRequested, this,
-                [this, pageIndex]() {
-                    m_pageSelection->setCurrentIndex(pageIndex);
-                });
-    }
-
-    m_pageSelection->setVisible(m_pageStack->count() > 1);
+    gt::gui::detail::initializeProcessDockPages(m_pageStack, m_pageSelection);
 }
 
 void
@@ -1224,14 +1163,15 @@ GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
         generateLastUsedElementMenu(&menu, !srcIdx.isValid());
     }
 
-    GtObject* addContext = selectedComponent ? selectedComponent : obj;
     GtObject* insertionTarget =
-        qobject_cast<GtTask*>(addContext) ? addContext : m_taskGroup;
-    const auto& processActions = gt::gui::processAddActions();
-    if (hasVisibleActions(processActions, this, insertionTarget))
+        gt::gui::detail::processAddTarget(selectedComponent, obj, m_taskGroup);
+    const auto processActions = gt::gui::detail::processDockAddActions();
+    if (gt::gui::detail::hasVisibleProcessDockActions(processActions,
+                                                      insertionTarget))
     {
         menu.addSeparator();
-        gt::gui::addToMenu(processActions, menu, insertionTarget, this);
+        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
+                                                     insertionTarget);
     }
 }
 
@@ -1497,11 +1437,12 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 
     gt::gui::addToMenu(delete_, menu, &obj);
 
-    const auto& processActions = gt::gui::processContextActions();
-    if (hasVisibleActions(processActions, this, &obj))
+    const auto processActions = gt::gui::detail::processDockContextActions();
+    if (gt::gui::detail::hasVisibleProcessDockActions(processActions, &obj))
     {
         menu.addSeparator();
-        gt::gui::addToMenu(processActions, menu, &obj, this);
+        gt::gui::detail::addProcessDockActionsToMenu(processActions, menu,
+                                                     &obj);
     }
 
     menu.exec(QCursor::pos());
@@ -3109,4 +3050,3 @@ GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 
     resetTaskGroupModel();
 }
-

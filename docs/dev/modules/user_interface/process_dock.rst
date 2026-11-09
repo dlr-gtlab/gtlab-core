@@ -16,7 +16,7 @@ and a non-empty title, then register a factory:
 
 .. code-block:: cpp
 
-  #include "gt_processdockpage.h"
+  #include "gt_processdockextensions.h"
 
   class ResultsPage : public GtProcessDockPage
   {
@@ -37,7 +37,7 @@ and a non-empty title, then register a factory:
   void MyModule::init()
   {
       gt::gui::registerProcessDockPage(
-          [] { return new ResultsPage; });
+          this, [] { return new ResultsPage; });
   }
 
 The Process Dock owns each page returned by a factory. The optional ``icon()``
@@ -46,29 +46,44 @@ become active, for example after the user invokes a related command. GTlab
 ignores factories that return null pages and pages with an empty or duplicate
 ID or an empty title. The built-in ``processes`` page ID is reserved.
 
-Add menu actions
-----------------
+Add actions
+-----------
 
-Register actions to add process elements or to extend a process component's
-context menu:
+An Add action receives the selected task as its target. If no task is selected,
+it receives the current task group. Register it from ``MyModule::init()`` and
+pass the module interface as the owner so invokable callbacks use the module
+object as their parent.
+
+Context actions
+---------------
+
+An action in a process component's context menu receives the clicked process
+component. Register it from the same ``MyModule::init()`` hook.
+
+The module interface owns both registrations. GTlab ignores them after the
+owner is destroyed. Use the ``GtObjectUIAction`` visibility and verification
+methods to hide or disable actions for targets that do not support them. See
+:cpp:class:`GtObjectUIAction` for the available callback options.
+
+Register both actions from ``MyModule::init()``:
 
 .. code-block:: cpp
 
-  gt::gui::registerProcessAddAction(
-      GtObjectUIAction(QStringLiteral("Add result"),
-                       [](GtObject* target) {
-                           // Add an object to target.
-                       }));
+  void MyModule::init()
+  {
+      gt::gui::registerProcessAddAction(
+          this,
+          GtObjectUIAction(QStringLiteral("Add result"),
+                           GtObjectUIAction::InvokableActionMethod(
+                               [this](QObject*, GtObject* target) {
+                                   // Add an object to target.
+                               })));
 
-  gt::gui::registerProcessContextAction(
-      GtObjectUIAction(QStringLiteral("Inspect process"),
-                       [](GtObject* component) {
-                           // Inspect the clicked process component.
-                       }));
-
-An Add action receives the selected task as its target, or the current task
-group when no task is selected. A component context action receives the
-process component whose context menu is open. Use the ``GtObjectUIAction``
-visibility and verification methods to hide or disable actions for targets
-that do not support them. These contributions use the existing object UI
-action mechanism; see :cpp:class:`GtObjectUIAction` for its callback options.
+      gt::gui::registerProcessContextAction(
+          this,
+          GtObjectUIAction(QStringLiteral("Inspect process"),
+                           GtObjectUIAction::InvokableActionMethod(
+                               [this](QObject*, GtObject* component) {
+                                   // Inspect the clicked process component.
+                               })));
+  }
