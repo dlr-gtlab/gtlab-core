@@ -46,6 +46,8 @@ public:
      */
     QString description() const override;
 
+    void init() override;
+
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
