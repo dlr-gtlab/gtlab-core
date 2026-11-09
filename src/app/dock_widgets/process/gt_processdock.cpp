@@ -659,12 +659,12 @@ GtProcessDock::componentByModelIndex(const QModelIndex& index)
 void
 GtProcessDock::addCalculator(GtObject* parentObj)
 {
-    QPointer<GtObject> guardedParent{parentObj};
-    if (!guardedParent || !qobject_cast<GtTask*>(parentObj))
+    if (!parentObj || !qobject_cast<GtTask*>(parentObj))
     {
         return;
     }
 
+    QPointer<GtObject> guardedParent{parentObj};
     QPointer<GtProject> project{parentObj->findParent<GtProject*>()};
     if (!project)
     {
@@ -675,7 +675,7 @@ GtProcessDock::addCalculator(GtObject* parentObj)
     GtProcessWizard wizard(project.data(), &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec() || !guardedParent || !project ||
+    if (!wizard.exec() || guardedParent.isNull() || !project ||
         project != gtApp->currentProject())
     {
         return;
@@ -739,12 +739,12 @@ GtProcessDock::addRootTask(GtTaskGroup* root)
 void
 GtProcessDock::addTaskToParent(GtObject* parentObj)
 {
-    QPointer<GtObject> guardedParent{parentObj};
-    if (!guardedParent)
+    if (!parentObj)
     {
         return;
     }
 
+    QPointer<GtObject> guardedParent{parentObj};
     QPointer<GtProject> project{parentObj->findParent<GtProject*>()};
     if (!project)
     {
@@ -756,7 +756,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     GtProcessWizard wizard(project.data(), &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec() || !guardedParent || !project ||
+    if (!wizard.exec() || guardedParent.isNull() || !project ||
         project != gtApp->currentProject())
     {
         return;
@@ -1153,38 +1153,29 @@ GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
 
     if (qobject_cast<GtTask*>(insertionTarget.data()))
     {
-        auto addCalculator = [this, insertionTarget](GtObject*) {
-            if (insertionTarget)
-            {
-                this->addCalculator(insertionTarget.data());
-            }
+        auto addCalculatorCallback = [this, insertionTarget](GtObject*) {
+            this->addCalculator(insertionTarget.data());
         };
         auto addcalc =
-            gt::gui::makeAction(tr("New Calculator..."), addCalculator)
+            gt::gui::makeAction(tr("New Calculator..."), addCalculatorCallback)
                 .setIcon(gt::gui::icon::calculator());
         gt::gui::addToMenu(addcalc, menu, nullptr);
 
-        auto addRootTask = [this, rootTarget](GtObject*) {
-            if (rootTarget)
-            {
-                this->addRootTask(rootTarget.data());
-            }
+        auto addRootTaskCallback = [this, rootTarget](GtObject*) {
+            this->addRootTask(rootTarget.data());
         };
         auto addroottask =
-            gt::gui::makeAction(tr("New Root Task..."), addRootTask)
+            gt::gui::makeAction(tr("New Root Task..."), addRootTaskCallback)
                 .setIcon(gt::gui::icon::processAdd());
         gt::gui::addToMenu(addroottask, menu, nullptr);
     }
 
     if (insertionTarget)
     {
-        auto addTask = [this, insertionTarget](GtObject*) {
-            if (insertionTarget)
-            {
-                this->addTask(insertionTarget.data());
-            }
+        auto addTaskCallback = [this, insertionTarget](GtObject*) {
+            this->addTask(insertionTarget.data());
         };
-        auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
+        auto addtask = gt::gui::makeAction(tr("New Task..."), addTaskCallback)
                            .setIcon(gt::gui::icon::processAdd());
         gt::gui::addToMenu(addtask, menu, nullptr);
     }

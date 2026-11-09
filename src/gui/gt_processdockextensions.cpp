@@ -348,19 +348,16 @@ gt::gui::detail::addProcessDockActionsToMenu(
 
     if (!addedActions.isEmpty())
     {
-        QAction* firstAddedAction = nullptr;
-        for (QAction* menuAction : menu.actions())
-        {
-            if (addedActions.contains(menuAction))
-            {
-                firstAddedAction = menuAction;
-                break;
-            }
-        }
+        const QList<QAction*> menuActions = menu.actions();
+        const auto firstAddedAction =
+            std::find_if(menuActions.cbegin(), menuActions.cend(),
+                         [&addedActions](const QAction* menuAction) {
+                             return addedActions.contains(menuAction);
+                         });
 
-        if (firstAddedAction)
+        if (firstAddedAction != menuActions.cend())
         {
-            QAction* sectionSeparator = menu.insertSeparator(firstAddedAction);
+            QAction* sectionSeparator = menu.insertSeparator(*firstAddedAction);
             const auto updateSeparator = [addedActions, sectionSeparator]() {
                 const bool anyVisible = std::any_of(
                     addedActions.cbegin(), addedActions.cend(),
@@ -370,7 +367,7 @@ gt::gui::detail::addProcessDockActionsToMenu(
             updateSeparator();
             QObject::connect(&menu, &QMenu::aboutToShow, sectionSeparator,
                              updateSeparator);
-            for (QAction* action : addedActions)
+            for (const QAction* action : addedActions)
             {
                 QObject::connect(action, &QAction::changed, sectionSeparator,
                                  updateSeparator);
