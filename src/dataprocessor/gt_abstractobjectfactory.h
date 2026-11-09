@@ -18,9 +18,9 @@
 #include <memory>
 #include <typeindex>
 
-#include "gt_datamodel_exports.h"
-#include "property/gt_abstractproperty.h"
-#include "property/gt_propertyfactory.h"
+#include <gt_datamodel_exports.h>
+#include <gt_abstractproperty.h>
+#include <gt_propertyfactory.h>
 
 class GtObject;
 

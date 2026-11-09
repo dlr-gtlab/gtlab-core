@@ -24,7 +24,7 @@
 #include <type_traits>
 
 #include "gt_object.h"
-#include "property/gt_propertyconfiguration.h"
+#include "gt_propertyconfiguration.h"
 #include "gt_logging.h"
 #include "gt_logging/qt_bindings.h"
 #include "gt_qtutilities.h"
