@@ -19,7 +19,9 @@
 #include <QInputDialog>
 #include <QStackedWidget>
 #include <QSet>
+#include <QPointer>
 
+#include <memory>
 #include <utility>
 
 #include "gt_algorithms.h"
@@ -61,6 +63,7 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_command.h"
 #include "gt_logging.h"
 #include "gt_processdockextensions.h"
 #include "internal/gt_processdockextensions_p.h"
@@ -74,21 +77,40 @@ using namespace gt::gui;
 namespace
 {
 
-inline bool useExtendedProcessExecutor()
+inline bool
+useExtendedProcessExecutor()
 {
     return gtApp->devMode() && gtApp->settings()->useExtendedProcessExecutor();
 }
 
 } // namespace
 
+class GtProcessDock::Impl
+{
+public:
+    QComboBox* taskGroupSelection{nullptr};
+    QComboBox* pageSelection{nullptr};
+    QStackedWidget* pageStack{nullptr};
+    bool pagesInitialized{false};
+    QPushButton* runButton{nullptr};
+    QPushButton* addElementButton{nullptr};
+    QPushButton* processQueueButton{nullptr};
+    GtProcessView* view{nullptr};
+    GtProcessComponentModel* model{nullptr};
+    GtTaskGroupModel* taskGroupModel{nullptr};
+    QPointer<GtTreeFilterModel> filterModel;
+    GtSearchWidget* search{nullptr};
+    QPointer<GtTaskGroup> taskGroup;
+    QPointer<GtTask> currentProcess;
+    QPointer<GtProject> project;
+    GtCommand command{};
+    GtState* expandedItemUuidsState{nullptr};
+    GtState* lastTaskGroupScopeState{nullptr};
+    GtState* lastTaskGroupIdState{nullptr};
+};
+
 GtProcessDock::GtProcessDock() :
-    m_taskGroupSelection(nullptr), m_pageSelection(nullptr),
-    m_pageStack(nullptr), m_pagesInitialized(false), m_runButton(nullptr),
-    m_addElementButton(nullptr), m_processQueueButton(nullptr), m_view(nullptr),
-    m_model(nullptr), m_taskGroupModel(nullptr), m_filterModel(nullptr),
-    m_search(nullptr), m_taskGroup(nullptr), m_currentProcess(nullptr),
-    m_project(nullptr), m_expandedItemUuidsState(nullptr),
-    m_lastTaskGroupScopeState(nullptr), m_lastTaskGroupIdState(nullptr)
+    m_impl(std::make_unique<Impl>())
 {
     setObjectName(tr("Processes/Calculators"));
 
@@ -103,93 +125,94 @@ GtProcessDock::GtProcessDock() :
     frameLayout->setContentsMargins(0, 0, 0, 0);
     frameLayout->setSpacing(0);
 
-    m_runButton = new QPushButton(tr("Run"));
-    m_runButton->setIcon(gt::gui::icon::processRun());
-    m_runButton->setToolTip(tr("Run Selected Process"));
-    m_runButton->setEnabled(false);
+    m_impl->runButton = new QPushButton(tr("Run"));
+    m_impl->runButton->setIcon(gt::gui::icon::processRun());
+    m_impl->runButton->setToolTip(tr("Run Selected Process"));
+    m_impl->runButton->setEnabled(false);
 
-    m_runButton->setStyleSheet(
-                gt::gui::stylesheet::processRunButton(
-                    gt::gui::stylesheet::RunButtonState::NotSelected));
+    m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+        gt::gui::stylesheet::RunButtonState::NotSelected));
 
-    m_addElementButton = new QPushButton(tr("Add..."));
-    m_addElementButton->setIcon(gt::gui::icon::add());
-    m_addElementButton->setToolTip(tr("Add New Element"));
-    m_addElementButton->setEnabled(false);
-    m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
+    m_impl->addElementButton = new QPushButton(tr("Add..."));
+    m_impl->addElementButton->setIcon(gt::gui::icon::add());
+    m_impl->addElementButton->setToolTip(tr("Add New Element"));
+    m_impl->addElementButton->setEnabled(false);
+    m_impl->addElementButton->setStyleSheet(gt::gui::stylesheet::button());
 
     auto btnLayout = new QHBoxLayout;
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setSpacing(1);
-    btnLayout->addWidget(m_runButton);
-    btnLayout->addWidget(m_addElementButton);
+    btnLayout->addWidget(m_impl->runButton);
+    btnLayout->addWidget(m_impl->addElementButton);
 
-    m_processQueueButton = new QPushButton();
-    m_processQueueButton->setIcon(gt::gui::icon::queue());
-    m_processQueueButton->setMaximumSize(QSize(20, 20));
-    m_processQueueButton->setFlat(true);
-    m_processQueueButton->setToolTip(tr("View Process Queue"));
-    m_processQueueButton->setEnabled(false);
+    m_impl->processQueueButton = new QPushButton();
+    m_impl->processQueueButton->setIcon(gt::gui::icon::queue());
+    m_impl->processQueueButton->setMaximumSize(QSize(20, 20));
+    m_impl->processQueueButton->setFlat(true);
+    m_impl->processQueueButton->setToolTip(tr("View Process Queue"));
+    m_impl->processQueueButton->setEnabled(false);
 
-    m_search = new GtSearchWidget;
+    m_impl->search = new GtSearchWidget;
 
     QHBoxLayout* filterLayout = new QHBoxLayout;
     filterLayout->setContentsMargins(0, 0, 0, 0);
     filterLayout->setSpacing(0);
-    filterLayout->addWidget(m_search);
+    filterLayout->addWidget(m_impl->search);
     filterLayout->addStretch(1);
-    filterLayout->addWidget(m_processQueueButton);
+    filterLayout->addWidget(m_impl->processQueueButton);
 
-    m_view = new GtProcessView(this);
-    frameLayout->addWidget(m_view);
+    m_impl->view = new GtProcessView(this);
+    frameLayout->addWidget(m_impl->view);
     frameLayout->addLayout(filterLayout);
 
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
 
-    auto delegate = new GtTextFilterDelegate(this,
-                                             GtTextFilterDelegate::allowSpaces);
+    auto delegate =
+        new GtTextFilterDelegate(this, GtTextFilterDelegate::allowSpaces);
 
-    m_view->setFrameStyle(QTreeView::NoFrame);
-    m_view->setItemDelegate(delegate);
-    m_view->setEditTriggers(QTreeView::SelectedClicked);
+    m_impl->view->setFrameStyle(QTreeView::NoFrame);
+    m_impl->view->setItemDelegate(delegate);
+    m_impl->view->setEditTriggers(QTreeView::SelectedClicked);
 
     // task group overview and selection
-    m_taskGroupSelection = new QComboBox;
-    m_taskGroupSelection->setEnabled(false);
+    m_impl->taskGroupSelection = new QComboBox;
+    m_impl->taskGroupSelection->setEnabled(false);
 
-    m_taskGroupModel = new GtTaskGroupModel(this);
-    m_taskGroupSelection->setModel(m_taskGroupModel);
+    m_impl->taskGroupModel = new GtTaskGroupModel(this);
+    m_impl->taskGroupSelection->setModel(m_impl->taskGroupModel);
 
     auto* addTaskGroupButton = new QPushButton;
     addTaskGroupButton->setIcon(gt::gui::icon::add());
     addTaskGroupButton->setToolTip(tr("Add new custom task group"));
     addTaskGroupButton->setMaximumWidth(40);
-    connect(addTaskGroupButton, &QPushButton::clicked,
-            this, &GtProcessDock::addNewCustomTaskGroup);
+    connect(addTaskGroupButton, &QPushButton::clicked, this,
+            &GtProcessDock::addNewCustomTaskGroup);
 
     auto* deleteTaskGroupButton = new QPushButton;
-    deleteTaskGroupButton->setObjectName(QStringLiteral("deleteTaskGroupButton"));
+    deleteTaskGroupButton->setObjectName(
+        QStringLiteral("deleteTaskGroupButton"));
     deleteTaskGroupButton->setIcon(gt::gui::icon::remove());
     deleteTaskGroupButton->setToolTip(tr("Delete selected custom task group"));
     deleteTaskGroupButton->setEnabled(false);
     deleteTaskGroupButton->setMaximumWidth(40);
-    connect(deleteTaskGroupButton, &QPushButton::clicked,
-            this, &GtProcessDock::onDeleteTaskGroupButtonClicked);
+    connect(deleteTaskGroupButton, &QPushButton::clicked, this,
+            &GtProcessDock::onDeleteTaskGroupButtonClicked);
 
     auto* renameTaskGroupButton = new QPushButton;
     renameTaskGroupButton->setIcon(gt::gui::icon::rename());
     renameTaskGroupButton->setToolTip(tr("Rename selected custom task group"));
     renameTaskGroupButton->setEnabled(false);
     renameTaskGroupButton->setMaximumWidth(40);
-    renameTaskGroupButton->setObjectName(QStringLiteral("renameTaskGroupButton"));
-    connect(renameTaskGroupButton, &QPushButton::clicked,
-            this, &GtProcessDock::onRenameTaskGroupButtonClicked);
+    renameTaskGroupButton->setObjectName(
+        QStringLiteral("renameTaskGroupButton"));
+    connect(renameTaskGroupButton, &QPushButton::clicked, this,
+            &GtProcessDock::onRenameTaskGroupButtonClicked);
 
     auto* taskGroupLayout = new QHBoxLayout;
     taskGroupLayout->setContentsMargins(0, 0, 0, 0);
     taskGroupLayout->setSpacing(2);
-    taskGroupLayout->addWidget(m_taskGroupSelection);
+    taskGroupLayout->addWidget(m_impl->taskGroupSelection);
     taskGroupLayout->addWidget(addTaskGroupButton);
     taskGroupLayout->addWidget(deleteTaskGroupButton);
     taskGroupLayout->addWidget(renameTaskGroupButton);
@@ -204,91 +227,97 @@ GtProcessDock::GtProcessDock() :
 
     processPage->setLayout(layout);
 
-    m_pageSelection = new QComboBox(widget);
-    m_pageSelection->setObjectName(QStringLiteral("processDockPageSelection"));
-    m_pageSelection->addItem(tr("Processes"), QStringLiteral("processes"));
-    m_pageSelection->hide();
+    m_impl->pageSelection = new QComboBox(widget);
+    m_impl->pageSelection->setObjectName(
+        QStringLiteral("processDockPageSelection"));
+    m_impl->pageSelection->addItem(tr("Processes"),
+                                   QStringLiteral("processes"));
+    m_impl->pageSelection->hide();
 
-    m_pageStack = new QStackedWidget(widget);
-    m_pageStack->setObjectName(QStringLiteral("processDockPages"));
-    m_pageStack->addWidget(processPage);
+    m_impl->pageStack = new QStackedWidget(widget);
+    m_impl->pageStack->setObjectName(QStringLiteral("processDockPages"));
+    m_impl->pageStack->addWidget(processPage);
 
     auto* dockLayout = new QVBoxLayout(widget);
     dockLayout->setContentsMargins(0, 0, 0, 0);
     dockLayout->setSpacing(0);
-    dockLayout->addWidget(m_pageSelection);
-    dockLayout->addWidget(m_pageStack);
+    dockLayout->addWidget(m_impl->pageSelection);
+    dockLayout->addWidget(m_impl->pageStack);
 
-    m_model = new GtProcessComponentModel(this);
-    m_filterModel = new GtProcessFilterModel(m_model);
-    m_model->setSourceModel(gtDataModel);
-    m_filterModel->setSourceModel(m_model);
-    m_view->setModel(m_filterModel);
+    m_impl->model = new GtProcessComponentModel(this);
+    m_impl->filterModel = new GtProcessFilterModel(m_impl->model);
+    m_impl->model->setSourceModel(gtDataModel);
+    m_impl->filterModel->setSourceModel(m_impl->model);
+    m_impl->view->setModel(m_impl->filterModel);
 
-    connect(m_model,
-            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+    connect(m_impl->model,
+            SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)),
             SLOT(onRowsAboutToBeMoved()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+    connect(m_impl->model,
+            SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
             SLOT(onRowsMoved()));
 
     // Current changed (keyboard navigation), Mouse clicks are filtered
     // to improve drag and drop functionality
-    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, [this](const QModelIndex &current, const QModelIndex &)
-    {
-        if (QApplication::mouseButtons() == Qt::NoButton)
-            onCurrentChanged(current);
-    });
+    connect(m_impl->view->selectionModel(),
+            &QItemSelectionModel::currentChanged, this,
+            [this](const QModelIndex& current, const QModelIndex&) {
+                if (QApplication::mouseButtons() == Qt::NoButton)
+                    onCurrentChanged(current);
+            });
 
-    connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
+    connect(m_impl->view, SIGNAL(collapsed(QModelIndex)), this,
             SLOT(itemCollapsed(QModelIndex)));
-    connect(m_view, SIGNAL(expanded(QModelIndex)), this,
+    connect(m_impl->view, SIGNAL(expanded(QModelIndex)), this,
             SLOT(itemExpanded(QModelIndex)));
 
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
             SLOT(endResetView()), Qt::DirectConnection);
 
-    connect(gtApp, &GtApplication::themeChanged, this, [&](){
-        m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
+    connect(gtApp, &GtApplication::themeChanged, this, [&]() {
+        m_impl->addElementButton->setStyleSheet(gt::gui::stylesheet::button());
         updateRunButton();
     });
 
-    connect(m_search, SIGNAL(textEdited(QString)),
+    connect(m_impl->search, SIGNAL(textEdited(QString)),
             SLOT(filterData(QString)));
-    connect(m_search, SIGNAL(textChanged(QString)),
+    connect(m_impl->search, SIGNAL(textChanged(QString)),
             SLOT(filterData(QString)));
-    connect(m_view, SIGNAL(searchRequest()), m_search,
+    connect(m_impl->view, SIGNAL(searchRequest()), m_impl->search,
             SLOT(enableSearch()));
-    connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
+    connect(m_impl->view, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenu(QPoint)));
-    connect(m_view, SIGNAL(clicked(QModelIndex)), SLOT(onClicked(QModelIndex)));
-    connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
+    connect(m_impl->view, SIGNAL(clicked(QModelIndex)),
+            SLOT(onClicked(QModelIndex)));
+    connect(m_impl->view, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));
-    connect(m_view, SIGNAL(copyProcessElement(QModelIndex)),
+    connect(m_impl->view, SIGNAL(copyProcessElement(QModelIndex)),
             SLOT(copyElement(QModelIndex)));
-    connect(m_view, SIGNAL(cutProcessElement(QModelIndex)),
+    connect(m_impl->view, SIGNAL(cutProcessElement(QModelIndex)),
             SLOT(cutElement(QModelIndex)));
-    connect(m_view, SIGNAL(cloneProcessElement(QModelIndex)),
+    connect(m_impl->view, SIGNAL(cloneProcessElement(QModelIndex)),
             SLOT(cloneElement(QModelIndex)));
-    connect(m_view, SIGNAL(deleteProcessElements(QList<QModelIndex>)),
+    connect(m_impl->view, SIGNAL(deleteProcessElements(QList<QModelIndex>)),
             SLOT(deleteProcessElements(QList<QModelIndex>)));
-    connect(m_view, SIGNAL(pasteProcessElement(QModelIndex)),
+    connect(m_impl->view, SIGNAL(pasteProcessElement(QModelIndex)),
             SLOT(pasteElement(QModelIndex)));
-    connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
+    connect(m_impl->view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
-    connect(m_view, SIGNAL(skipCalculatorElements(const QList<QModelIndex>&,bool)),
-            SLOT(skipComponents(const QList<QModelIndex>&,bool)));
-    connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
+    connect(m_impl->view,
+            SIGNAL(skipCalculatorElements(const QList<QModelIndex>&, bool)),
+            SLOT(skipComponents(const QList<QModelIndex>&, bool)));
+    connect(m_impl->view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
 
-    connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
-    connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
+    connect(m_impl->runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
+    connect(m_impl->addElementButton, SIGNAL(clicked(bool)),
+            SLOT(addElement()));
 
-    connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+    connect(m_impl->taskGroupSelection, SIGNAL(currentIndexChanged(int)),
             SLOT(currentTaskGroupIndexChanged(int)));
 
     // open process queue via main window
-    connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
+    connect(m_impl->processQueueButton, &QPushButton::clicked, this, [&](bool) {
         // main window may not yet exist
         if (auto mainwin = qobject_cast<GtMainWin*>(parentWidget()))
         {
@@ -298,16 +327,16 @@ GtProcessDock::GtProcessDock() :
 
     // connect each executor as it becomes available
     connect(&gt::processExecutorManager(),
-            &GtProcessExecutorManager::executorChanged,
-            this, &GtProcessDock::onExecutorChanged, Qt::UniqueConnection);
+            &GtProcessExecutorManager::executorChanged, this,
+            &GtProcessDock::onExecutorChanged, Qt::UniqueConnection);
 
     auto* processRunner = gt::findExecutorByType<GtProcessRunner>();
     assert(processRunner);
-    connect(processRunner, &GtProcessRunner::connectionStateChanged,
-            this, [this](){ updateRunButton(); });
+    connect(processRunner, &GtProcessRunner::connectionStateChanged, this,
+            [this]() { updateRunButton(); });
 
-    connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
-            gtApp, SIGNAL(objectSelected(GtObject*)));
+    connect(this, SIGNAL(selectedObjectChanged(GtObject*)), gtApp,
+            SIGNAL(objectSelected(GtObject*)));
 
     registerShortCut("runProcess", QKeySequence(Qt::CTRL | Qt::Key_R));
     registerShortCut("unskipProcess", QKeySequence(Qt::CTRL | Qt::Key_T));
@@ -316,6 +345,8 @@ GtProcessDock::GtProcessDock() :
     // udpate executor
     onExecutorChanged(&gt::currentProcessExecutor());
 }
+
+GtProcessDock::~GtProcessDock() = default;
 
 Qt::DockWidgetArea
 GtProcessDock::getDockWidgetArea()
@@ -328,36 +359,37 @@ GtProcessDock::initAfterStartup()
 {
     GtDockWidget::initAfterStartup();
 
-    if (m_pagesInitialized)
+    if (m_impl->pagesInitialized)
     {
         return;
     }
-    m_pagesInitialized = true;
+    m_impl->pagesInitialized = true;
 
-    gt::gui::detail::initializeProcessDockPages(m_pageStack, m_pageSelection);
+    gt::gui::detail::initializeProcessDockPages(m_impl->pageStack,
+                                                m_impl->pageSelection);
 }
 
 void
 GtProcessDock::setCurrentProcess(GtTask* process)
 {
-    if (process == m_currentProcess)
+    if (process == m_impl->currentProcess)
     {
         return;
     }
 
-    if (m_currentProcess)
+    if (m_impl->currentProcess)
     {
-        disconnect(m_currentProcess, SIGNAL(destroyed()),
-                   this, SLOT(onProcessDestroyed()));
-        disconnect(m_currentProcess, SIGNAL(objectNameChanged(QString)),
+        disconnect(m_impl->currentProcess, SIGNAL(destroyed()), this,
+                   SLOT(onProcessDestroyed()));
+        disconnect(m_impl->currentProcess, SIGNAL(objectNameChanged(QString)),
                    this, SLOT(updateRunButton()));
-        disconnect(m_currentProcess, SIGNAL(skipPropertyChanged()),
-                   this, SLOT(updateRunButton()));
-        disconnect(m_currentProcess, SIGNAL(dataChanged(GtObject*)),
-                   this, SLOT(onTaskDataChanged(GtObject*)));
+        disconnect(m_impl->currentProcess, SIGNAL(skipPropertyChanged()), this,
+                   SLOT(updateRunButton()));
+        disconnect(m_impl->currentProcess, SIGNAL(dataChanged(GtObject*)), this,
+                   SLOT(onTaskDataChanged(GtObject*)));
     }
 
-    m_currentProcess = process;
+    m_impl->currentProcess = process;
 
     if (process)
     {
@@ -371,69 +403,70 @@ GtProcessDock::setCurrentProcess(GtTask* process)
     }
     else
     {
-        m_runButton->setEnabled(false);
+        m_impl->runButton->setEnabled(false);
     }
 }
 
 void
 GtProcessDock::projectChangedEvent(GtProject* project)
 {
-    m_processQueueButton->setEnabled(project);
-    m_addElementButton->setEnabled(project);
+    m_impl->processQueueButton->setEnabled(project);
+    m_impl->addElementButton->setEnabled(project);
 
-    if (project != m_project)
+    if (project != m_impl->project)
     {
-        m_project = project;
-        m_taskGroupSelection->clear();
+        m_impl->project = project;
+        m_impl->taskGroupSelection->clear();
 
-        if (m_project && m_project->processData())
+        if (m_impl->project && m_impl->project->processData())
         {
             resetTaskGroupModel();
 
-            m_taskGroupSelection->setEnabled(true);
+            m_impl->taskGroupSelection->setEnabled(true);
 
-            m_expandedItemUuidsState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("ProcessDock"),
-                        QStringLiteral("Expanded Process Dock Item UUIDs"),
-                        "default;ProcessDock;expandPdItemUuids",
-                        QStringList{}, m_project);
+            m_impl->expandedItemUuidsState = gtStateHandler->initializeState(
+                m_impl->project, QStringLiteral("ProcessDock"),
+                QStringLiteral("Expanded Process Dock Item UUIDs"),
+                "default;ProcessDock;expandPdItemUuids", QStringList{},
+                m_impl->project);
 
-            m_lastTaskGroupScopeState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("ProcessDock"),
-                        QStringLiteral("Scope of the last selected Task Group"),
-                        "default;ProcessDock;lastTaskGroupScope",
-                        GtTaskGroup::USER, m_project);
+            m_impl->lastTaskGroupScopeState = gtStateHandler->initializeState(
+                m_impl->project, QStringLiteral("ProcessDock"),
+                QStringLiteral("Scope of the last selected Task Group"),
+                "default;ProcessDock;lastTaskGroupScope", GtTaskGroup::USER,
+                m_impl->project);
 
-            m_lastTaskGroupIdState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("ProcessDock"),
-                        QStringLiteral("ID of the last selected Task Group"),
-                        "default;ProcessDock;lastTaskGroupId",
-                        GtTaskGroup::defaultUserGroupId(), m_project);
+            m_impl->lastTaskGroupIdState = gtStateHandler->initializeState(
+                m_impl->project, QStringLiteral("ProcessDock"),
+                QStringLiteral("ID of the last selected Task Group"),
+                "default;ProcessDock;lastTaskGroupId",
+                GtTaskGroup::defaultUserGroupId(), m_impl->project);
 
-            m_project->processData()->switchCurrentTaskGroup(
-                        lastTaskGroupId(), lastTaskGroupScope(),
-                        m_project->path());
+            m_impl->project->processData()->switchCurrentTaskGroup(
+                lastTaskGroupId(), lastTaskGroupScope(),
+                m_impl->project->path());
         }
         else
         {
-            m_taskGroupModel->init({}, {});
+            m_impl->taskGroupModel->init({}, {});
 
-            m_taskGroupSelection->setEnabled(false);
+            m_impl->taskGroupSelection->setEnabled(false);
 
-            m_expandedItemUuidsState = nullptr;
-            m_lastTaskGroupScopeState = nullptr;
-            m_lastTaskGroupIdState = nullptr;
+            m_impl->expandedItemUuidsState = nullptr;
+            m_impl->lastTaskGroupScopeState = nullptr;
+            m_impl->lastTaskGroupIdState = nullptr;
         }
 
         // update current task group
         updateCurrentTaskGroup();
 
-        if (m_taskGroup)
+        if (m_impl->taskGroup)
         {
-            m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
+            m_impl->taskGroupSelection->setCurrentText(
+                m_impl->taskGroup->objectName());
         }
 
-        if (m_project && m_project->processData())
+        if (m_impl->project && m_impl->project->processData())
         {
             updateCustomTaskGroupsButtons();
         }
@@ -443,130 +476,132 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 void
 GtProcessDock::updateCurrentTaskGroup()
 {
-    auto taskGroup = m_project && m_project->processData() ?
-                m_project->processData()->taskGroup() : nullptr;
+    auto taskGroup = m_impl->project && m_impl->project->processData()
+                         ? m_impl->project->processData()->taskGroup()
+                         : nullptr;
 
-    if (taskGroup && m_taskGroup == taskGroup)
+    if (taskGroup && m_impl->taskGroup == taskGroup)
     {
         return;
     }
 
-    m_taskGroup = taskGroup;
+    m_impl->taskGroup = taskGroup;
 
     setCurrentProcess();
 
-    updateButtons(m_taskGroup);
+    updateButtons(m_impl->taskGroup);
 
     updateProcessViewRootIndex();
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    m_filterModel->setFilterRegExp(m_search->text());
+    m_impl->filterModel->setFilterRegExp(m_impl->search->text());
 #else
-    m_filterModel->setFilterRegularExpression(m_search->text());
+    m_impl->filterModel->setFilterRegularExpression(m_impl->search->text());
 #endif
 
-    m_view->resizeColumns();
+    m_impl->view->resizeColumns();
 }
 
 void
 GtProcessDock::updateProcessViewRootIndex()
 {
-    if (!m_taskGroup)
+    if (!m_impl->taskGroup)
     {
         return;
     }
 
-    auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
+    auto index = mapFromSource(gtDataModel->indexFromObject(m_impl->taskGroup));
 
-    if (index.isValid() && m_view->rootIndex() != index)
+    if (index.isValid() && m_impl->view->rootIndex() != index)
     {
-        m_view->setRootIndex(index);
+        m_impl->view->setRootIndex(index);
         restoreExpandStates();
-        m_view->setCurrentIndex({});
+        m_impl->view->setCurrentIndex({});
     }
 }
 
 QStringList
 GtProcessDock::expandedItemUuids() const
 {
-    if (!m_expandedItemUuidsState)
+    if (!m_impl->expandedItemUuidsState)
     {
         return {};
     }
 
-    return m_expandedItemUuidsState->getValue().toStringList();
+    return m_impl->expandedItemUuidsState->getValue().toStringList();
 }
 
 void
 GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
 {
-    if (m_expandedItemUuidsState)
+    if (m_impl->expandedItemUuidsState)
     {
-        m_expandedItemUuidsState->setValue(uuids, false);
+        m_impl->expandedItemUuidsState->setValue(uuids, false);
     }
 }
 
 GtTaskGroup::SCOPE
 GtProcessDock::lastTaskGroupScope() const
 {
-    if (!m_lastTaskGroupScopeState)
+    if (!m_impl->lastTaskGroupScopeState)
     {
         return {};
     }
 
-    return m_lastTaskGroupScopeState->getValue().value<GtTaskGroup::SCOPE>();
+    return m_impl->lastTaskGroupScopeState->getValue()
+        .value<GtTaskGroup::SCOPE>();
 }
 
 void
 GtProcessDock::setLastTaskGroupScope(GtTaskGroup::SCOPE scope)
 {
-    if (m_lastTaskGroupScopeState)
+    if (m_impl->lastTaskGroupScopeState)
     {
-        m_lastTaskGroupScopeState->setValue(scope, false);
+        m_impl->lastTaskGroupScopeState->setValue(scope, false);
     }
 }
 
 QString
 GtProcessDock::lastTaskGroupId() const
 {
-    if (!m_lastTaskGroupIdState)
+    if (!m_impl->lastTaskGroupIdState)
     {
         return {};
     }
 
-    return m_lastTaskGroupIdState->getValue().toString();
+    return m_impl->lastTaskGroupIdState->getValue().toString();
 }
 
 void
 GtProcessDock::setLastTaskGroupId(const QString& groupId)
 {
-    if (m_lastTaskGroupIdState)
+    if (m_impl->lastTaskGroupIdState)
     {
-        m_lastTaskGroupIdState->setValue(groupId, false);
+        m_impl->lastTaskGroupIdState->setValue(groupId, false);
     }
 }
 
 void
 GtProcessDock::resetTaskGroupModel()
 {
-    if (!m_project || !m_project->processData())
+    if (!m_impl->project || !m_impl->project->processData())
     {
         return;
     }
 
-    auto userGroups = m_project->processData()->userGroupIds();
-    auto customGroups = m_project->processData()->customGroupIds();
+    auto userGroups = m_impl->project->processData()->userGroupIds();
+    auto customGroups = m_impl->project->processData()->customGroupIds();
 
     userGroups.sort(Qt::CaseInsensitive);
     customGroups.sort(Qt::CaseInsensitive);
 
-    m_taskGroupModel->init(userGroups, customGroups);
+    m_impl->taskGroupModel->init(userGroups, customGroups);
 }
 
 void
 GtProcessDock::addEmptyTaskToRoot()
 {
-    addEmptyTask(m_taskGroup);
+    addEmptyTask(m_impl->taskGroup);
 }
 
 void
@@ -578,7 +613,7 @@ GtProcessDock::addEmptyTask(GtObject* root)
 
     if (taskId.isEmpty()) return;
 
-    m_view->setFocus();
+    m_impl->view->setFocus();
 
     auto task = std::make_unique<GtTask>();
     task->setObjectName(taskId);
@@ -590,19 +625,19 @@ GtProcessDock::addEmptyTask(GtObject* root)
 
     if (!index.isValid()) return;
 
-    QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                                                index.parent());
+    QModelIndex tmpIndex =
+        m_impl->filterModel->index(index.row(), 1, index.parent());
     QItemSelection itemSel(index, tmpIndex);
 
-    m_view->scrollTo(index);
-    m_view->selectionModel()->select(itemSel,
-                                     QItemSelectionModel::ClearAndSelect);
-    m_view->setCurrentIndex(index);
-    m_view->edit(index);
+    m_impl->view->scrollTo(index);
+    m_impl->view->selectionModel()->select(itemSel,
+                                           QItemSelectionModel::ClearAndSelect);
+    m_impl->view->setCurrentIndex(index);
+    m_impl->view->edit(index);
 }
 
 GtProcessComponent*
-GtProcessDock::componentByModelIndex(const QModelIndex &index)
+GtProcessDock::componentByModelIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
@@ -622,13 +657,13 @@ GtProcessDock::componentByModelIndex(const QModelIndex &index)
     }
 
     return qobject_cast<GtProcessComponent*>(
-                gtDataModel->objectFromIndex(srcIndex));
+        gtDataModel->objectFromIndex(srcIndex));
 }
 
 void
 GtProcessDock::addCalculator()
 {
-    QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+    QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
 
     if (!srcIndex.isValid())
     {
@@ -686,17 +721,17 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    m_view->setFocus();
+    m_impl->view->setFocus();
 
-    QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                           index.parent());
+    QModelIndex tmpIndex =
+        m_impl->filterModel->index(index.row(), 1, index.parent());
     QItemSelection itemSel(index, tmpIndex);
 
-    m_view->expand(m_view->currentIndex());
-    m_view->scrollTo(index);
-    m_view->selectionModel()->select(itemSel,
-                                     QItemSelectionModel::ClearAndSelect);
-    m_view->setCurrentIndex(index);
+    m_impl->view->expand(m_impl->view->currentIndex());
+    m_impl->view->scrollTo(index);
+    m_impl->view->selectionModel()->select(itemSel,
+                                           QItemSelectionModel::ClearAndSelect);
+    m_impl->view->setCurrentIndex(index);
 }
 
 void
@@ -704,14 +739,14 @@ GtProcessDock::addTask()
 {
     GtObject* parentObj = nullptr;
 
-    if (!m_view->currentIndex().isValid())
+    if (!m_impl->view->currentIndex().isValid())
     {
-        parentObj = m_taskGroup;
+        parentObj = m_impl->taskGroup;
     }
     else
     {
         // add task to other task
-        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
 
         if (!srcIndex.isValid()) return;
 
@@ -724,17 +759,17 @@ GtProcessDock::addTask()
 void
 GtProcessDock::addRootTask()
 {
-    addTaskToParent(m_taskGroup);
+    addTaskToParent(m_impl->taskGroup);
 }
 
 void
 GtProcessDock::addTaskToParent(GtObject* parentObj)
 {
-    if (!m_taskGroup) return;
+    if (!m_impl->taskGroup) return;
 
     if (!parentObj) return;
 
-    auto project = m_taskGroup->findParent<GtProject*>();
+    auto project = m_impl->taskGroup->findParent<GtProject*>();
 
     if (!project)
     {
@@ -759,8 +794,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     QString taskId = gt::makeUniqueName(newObj->objectName(), parentObj);
     newObj->setObjectName(taskId);
 
-    gtDebug().verbose() << tr("Task appended! (%1)").arg(
-                               newObj->metaObject()->className());
+    gtDebug().verbose()
+        << tr("Task appended! (%1)").arg(newObj->metaObject()->className());
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
@@ -771,18 +806,18 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!index.isValid()) return;
 
-    m_view->setFocus();
+    m_impl->view->setFocus();
 
-    QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                           index.parent());
+    QModelIndex tmpIndex =
+        m_impl->filterModel->index(index.row(), 1, index.parent());
     QItemSelection itemSel(index, tmpIndex);
 
-    m_view->expand(m_view->currentIndex());
-    m_view->scrollTo(index);
-    m_view->selectionModel()->select(itemSel,
-                                     QItemSelectionModel::ClearAndSelect);
-    m_view->setCurrentIndex(index);
-    m_view->edit(index);
+    m_impl->view->expand(m_impl->view->currentIndex());
+    m_impl->view->scrollTo(index);
+    m_impl->view->selectionModel()->select(itemSel,
+                                           QItemSelectionModel::ClearAndSelect);
+    m_impl->view->setCurrentIndex(index);
+    m_impl->view->edit(index);
 }
 
 GtTask*
@@ -827,12 +862,12 @@ void
 GtProcessDock::filterData(const QString& val)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    m_filterModel->setFilterRegExp(val);
+    m_impl->filterModel->setFilterRegExp(val);
 #else
-    m_filterModel->setFilterRegularExpression(val);
+    m_impl->filterModel->setFilterRegularExpression(val);
 #endif
 
-    if (!m_view->rootIndex().isValid())
+    if (!m_impl->view->rootIndex().isValid())
     {
         updateProcessViewRootIndex();
     }
@@ -845,14 +880,14 @@ GtProcessDock::filterData(const QString& val)
 void
 GtProcessDock::updateButtons(GtObject* obj)
 {
-    m_addElementButton->setEnabled(m_taskGroup);
+    m_impl->addElementButton->setEnabled(m_impl->taskGroup);
 
     setCurrentProcess(findRootTaskHelper(obj));
 
-    if (obj && (qobject_cast<GtCalculator*>(obj) ||
-                obj->isDummy() || obj->hasDummyParents()))
+    if (obj && (qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
+                obj->hasDummyParents()))
     {
-        m_addElementButton->setEnabled(false);
+        m_impl->addElementButton->setEnabled(false);
     }
 
     updateRunButton();
@@ -864,21 +899,20 @@ void
 GtProcessDock::updateRunButton()
 {
     // no process selected
-    if (!m_currentProcess)
+    if (!m_impl->currentProcess)
     {
-        m_runButton->setIcon(gt::gui::icon::processRun());
+        m_impl->runButton->setIcon(gt::gui::icon::processRun());
 
-        m_runButton->setStyleSheet(
-                    gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::NotSelected));
+        m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+            gt::gui::stylesheet::RunButtonState::NotSelected));
 
-        m_runButton->setEnabled(false);
-        m_runButton->setText(tr("Run"));
-        m_runButton->setToolTip(tr("No Process selected"));
+        m_impl->runButton->setEnabled(false);
+        m_impl->runButton->setText(tr("Run"));
+        m_impl->runButton->setToolTip(tr("No Process selected"));
         return;
     }
 
-    const QString& str = m_currentProcess->objectName();
+    const QString& str = m_impl->currentProcess->objectName();
 
     GtTask* current = gt::currentProcessExecutor().currentRunningTask();
 
@@ -886,76 +920,74 @@ GtProcessDock::updateRunButton()
     if (!current)
     {
 
-        m_runButton->setIcon(gt::gui::icon::processRun());
-        m_runButton->setStyleSheet(
-                    gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::RunProcess));
+        m_impl->runButton->setIcon(gt::gui::icon::processRun());
+        m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+            gt::gui::stylesheet::RunButtonState::RunProcess));
 
         if (str.isEmpty())
         {
-            m_runButton->setEnabled(false);
-            m_runButton->setToolTip(tr("No Process selected"));
-            m_runButton->setText(tr("Run"));
+            m_impl->runButton->setEnabled(false);
+            m_impl->runButton->setToolTip(tr("No Process selected"));
+            m_impl->runButton->setText(tr("Run"));
         }
         else
         {
-            m_runButton->setEnabled(true);
-            m_runButton->setToolTip(tr("Run Selected Process"));
+            m_impl->runButton->setEnabled(true);
+            m_impl->runButton->setToolTip(tr("Run Selected Process"));
 
             QString additional = gt::squoted(str);
 
             if (useExtendedProcessExecutor() &&
-                &gt::currentProcessExecutor() == gt::findExecutorByType<GtProcessRunner>())
+                &gt::currentProcessExecutor() ==
+                    gt::findExecutorByType<GtProcessRunner>())
             {
                 additional += QStringLiteral(" (detached)");
             }
 
-            m_runButton->setText(tr("Run") + ' ' + additional);
+            m_impl->runButton->setText(tr("Run") + ' ' + additional);
         }
     }
     // a task is running
-    else if (current != m_currentProcess)
+    else if (current != m_impl->currentProcess)
     {
         // queue
-        m_runButton->setIcon(gt::gui::icon::queue());
+        m_impl->runButton->setIcon(gt::gui::icon::queue());
 
-        m_runButton->setStyleSheet(
-                    gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::QueueProcess));
+        m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+            gt::gui::stylesheet::RunButtonState::QueueProcess));
 
-        if (gt::currentProcessExecutor().taskQueued(m_currentProcess))
+        if (gt::currentProcessExecutor().taskQueued(m_impl->currentProcess))
         {
-            m_runButton->setEnabled(false);
-            m_runButton->setText(tr("'%1' already queued").arg(str));
-            m_runButton->setToolTip(tr("Process already queued"));
+            m_impl->runButton->setEnabled(false);
+            m_impl->runButton->setText(tr("'%1' already queued").arg(str));
+            m_impl->runButton->setToolTip(tr("Process already queued"));
         }
         else
         {
-            m_runButton->setEnabled(true);
-            m_runButton->setText(tr("Add '%1' to queue").arg(str));
-            m_runButton->setToolTip(tr("Add Selected Process to Queue"));
+            m_impl->runButton->setEnabled(true);
+            m_impl->runButton->setText(tr("Add '%1' to queue").arg(str));
+            m_impl->runButton->setToolTip(tr("Add Selected Process to Queue"));
         }
     }
     // selected task is running
     else
     {
-        m_runButton->setStyleSheet(
-                    gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::StopProcess));
+        m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+            gt::gui::stylesheet::RunButtonState::StopProcess));
 
         // stopping
-        if (m_currentProcess->currentState() ==
-                GtProcessComponent::TERMINATION_REQUESTED)
+        if (m_impl->currentProcess->currentState() ==
+            GtProcessComponent::TERMINATION_REQUESTED)
         {
-            m_runButton->setIcon(gt::gui::icon::timer());
-            m_runButton->setEnabled(false);
-            m_runButton->setToolTip(tr("Terminating process..."));
-            m_runButton->setText(str + tr(" terminating..."));
+            m_impl->runButton->setIcon(gt::gui::icon::timer());
+            m_impl->runButton->setEnabled(false);
+            m_impl->runButton->setToolTip(tr("Terminating process..."));
+            m_impl->runButton->setText(str + tr(" terminating..."));
         }
         else
         {
-            m_runButton->setIcon(gt::gui::icon::stop());
-            m_runButton->setEnabled(true);
+            m_impl->runButton->setIcon(gt::gui::icon::stop());
+            m_impl->runButton->setEnabled(true);
 
             QString text;
             QString info = gt::brackets(str);
@@ -985,21 +1017,21 @@ GtProcessDock::updateRunButton()
                 break;
             }
 
-            m_runButton->setToolTip(tr("Stop Selected Process"));
-            m_runButton->setText(text + ' ' + info);
+            m_impl->runButton->setToolTip(tr("Stop Selected Process"));
+            m_impl->runButton->setText(text + ' ' + info);
         }
     }
 
     // disable run button if process is not ready, skip running task
-    if (current != m_currentProcess && (m_currentProcess->hasDummyChildren() ||
-                                        m_currentProcess->isSkipped()))
+    if (current != m_impl->currentProcess &&
+        (m_impl->currentProcess->hasDummyChildren() ||
+         m_impl->currentProcess->isSkipped()))
     {
         // text, style and icon are already set
-        m_runButton->setEnabled(false);
-        m_runButton->setToolTip(tr("Invalid Process selected"));
-        m_runButton->setStyleSheet(
-                    gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::NotSelected));
+        m_impl->runButton->setEnabled(false);
+        m_impl->runButton->setToolTip(tr("Invalid Process selected"));
+        m_impl->runButton->setStyleSheet(gt::gui::stylesheet::processRunButton(
+            gt::gui::stylesheet::RunButtonState::NotSelected));
     }
 }
 
@@ -1070,7 +1102,7 @@ GtProcessDock::onDoubleClicked(const QModelIndex& index)
 void
 GtProcessDock::runProcess()
 {
-    QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+    QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
 
     if (srcIndex.isValid())
     {
@@ -1094,12 +1126,12 @@ GtProcessDock::runProcess()
 void
 GtProcessDock::terminateProcess()
 {
-    if (!m_currentProcess)
+    if (!m_impl->currentProcess)
     {
         return;
     }
 
-    gt::currentProcessExecutor().terminateTask(m_currentProcess);
+    gt::currentProcessExecutor().terminateTask(m_impl->currentProcess);
 }
 
 void
@@ -1115,10 +1147,10 @@ GtProcessDock::addElement()
 void
 GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
 {
-    QModelIndex srcIdx = mapToSource(m_view->currentIndex());
+    QModelIndex srcIdx = mapToSource(m_impl->view->currentIndex());
 
-    GtObject* obj = srcIdx.isValid() ?
-                        gtDataModel->objectFromIndex(srcIdx) : nullptr;
+    GtObject* obj =
+        srcIdx.isValid() ? gtDataModel->objectFromIndex(srcIdx) : nullptr;
 
     // add empty task action
     auto addEmptyTaskAction =
@@ -1163,8 +1195,8 @@ GtProcessDock::makeAddMenu(QMenu& menu, GtObject* selectedComponent)
         generateLastUsedElementMenu(&menu, !srcIdx.isValid());
     }
 
-    GtObject* insertionTarget =
-        gt::gui::detail::processAddTarget(selectedComponent, obj, m_taskGroup);
+    GtObject* insertionTarget = gt::gui::detail::processAddTarget(
+        selectedComponent, obj, m_impl->taskGroup);
     const auto processActions = gt::gui::detail::processDockAddActions();
     if (gt::gui::detail::hasVisibleProcessDockActions(processActions,
                                                       insertionTarget))
@@ -1185,9 +1217,10 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
     }
 
     // multi selection
-    if (m_view->selectionModel()->selectedRows(0).size() > 1)
+    if (m_impl->view->selectionModel()->selectedRows(0).size() > 1)
     {
-        multiSelectionContextMenu(m_view->selectionModel()->selectedIndexes());
+        multiSelectionContextMenu(
+            m_impl->view->selectionModel()->selectedIndexes());
         return;
     }
 
@@ -1206,12 +1239,12 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
 void
 GtProcessDock::customContextMenu(const QPoint& pos)
 {
-    if (!m_view->model())
+    if (!m_impl->view->model())
     {
         return;
     }
 
-    QModelIndex index = m_view->indexAt(pos);
+    QModelIndex index = m_impl->view->indexAt(pos);
     QModelIndex srcIndex = mapToSource(index);
 
     customContextMenu(srcIndex);
@@ -1219,15 +1252,14 @@ GtProcessDock::customContextMenu(const QPoint& pos)
 
 /// helper method for creating paste action
 GtObjectUIAction
-makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false)
+makePasteAction(GtProcessDock* dock, GtObject* obj,
+                bool allowCalculator = false)
 {
-    auto doPaste = [=](GtObject*){
-        dock->pasteElement(obj);
-    };
+    auto doPaste = [=](GtObject*) { dock->pasteElement(obj); };
 
-    auto isEnabled = [=](GtObject*){
+    auto isEnabled = [=](GtObject*) {
         auto* clipboard = QApplication::clipboard();
-        auto const* mimeData = clipboard->mimeData();
+        const auto* mimeData = clipboard->mimeData();
 
         if (mimeData && mimeData->hasFormat(GT_CLASSNAME(GtObject)))
         {
@@ -1239,8 +1271,7 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
                                          gtProcessFactory);
             }
 
-            return memento.canCastTo(GT_CLASSNAME(GtTask),
-                                     gtProcessFactory);
+            return memento.canCastTo(GT_CLASSNAME(GtTask), gtProcessFactory);
         }
         return false;
     };
@@ -1263,25 +1294,24 @@ GtProcessDock::defaultContextMenu()
 
     menu.addSeparator();
 
-    if (m_taskGroup)
+    if (m_impl->taskGroup)
     {
         // import action
-        auto imenu = new GtImportMenu(m_taskGroup, &menu);
+        auto imenu = new GtImportMenu(m_impl->taskGroup, &menu);
         menu.addMenu(imenu);
         menu.addSeparator();
     }
 
-    auto paste = makePasteAction(this, m_taskGroup);
+    auto paste = makePasteAction(this, m_impl->taskGroup);
 
-    gt::gui::addToMenu(paste, menu, m_taskGroup);
+    gt::gui::addToMenu(paste, menu, m_impl->taskGroup);
 
     menu.exec(QCursor::pos());
 }
 
 void
 GtProcessDock::processContextMenu(GtProcessComponent& obj,
-                                  const QModelIndex& index,
-                                  bool isTask)
+                                  const QModelIndex& index, bool isTask)
 {
     // incomplete processelements should not be modified
     bool hasInvalidParents = obj.hasDummyParents();
@@ -1293,7 +1323,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
     bool isRootTask = isTask && qobject_cast<GtTaskGroup*>(obj.parent());
     if (isRootTask)
     {
-        auto const doRun = [this](auto ID){
+        const auto doRun = [this](auto ID) {
             if (gt::processExecutorManager().setCurrentExecutor(ID))
             {
                 runProcess();
@@ -1302,46 +1332,49 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 
         bool isTaskReady = isReady && !obj.isSkipped();
 
-        auto runremote = gt::gui::makeAction(tr("Run Task - detached execution"),
-                                             [doRun](GtObject*){
-                doRun(GtProcessRunner::S_ID);
-            })
-            .setIcon(gt::gui::icon::processRun())
-            .setEnabled(isTaskReady)
-            .setVisible(useExtendedProcessExecutor());
+        auto runremote =
+            gt::gui::makeAction(
+                tr("Run Task - detached execution"),
+                [doRun](GtObject*) { doRun(GtProcessRunner::S_ID); })
+                .setIcon(gt::gui::icon::processRun())
+                .setEnabled(isTaskReady)
+                .setVisible(useExtendedProcessExecutor());
 
-        auto runlocal = gt::gui::makeAction(tr("Run Task"), [doRun](GtObject*){
-                doRun(GtProcessExecutor::S_ID);
-            })
-            .setIcon(gt::gui::icon::processRun())
-            .setEnabled(isTaskReady)
-            .setShortCut(getShortCut(QStringLiteral("runProcess")));
+        auto runlocal =
+            gt::gui::makeAction(
+                tr("Run Task"),
+                [doRun](GtObject*) { doRun(GtProcessExecutor::S_ID); })
+                .setIcon(gt::gui::icon::processRun())
+                .setEnabled(isTaskReady)
+                .setShortCut(getShortCut(QStringLiteral("runProcess")));
 
-        auto stop = gt::gui::makeAction(tr("Stop Task"), [=](GtObject*){
-                terminateProcess();
-            })
-            .setIcon(gt::gui::icon::stop())
-            .setVisible(!isReady);
+        auto stop = gt::gui::makeAction(tr("Stop Task"),
+                                        [=](GtObject*) { terminateProcess(); })
+                        .setIcon(gt::gui::icon::stop())
+                        .setVisible(!isReady);
 
-        gt::gui::addToMenu({ runremote, runlocal, stop }, menu, &obj);
+        gt::gui::addToMenu({runremote, runlocal, stop}, menu, &obj);
 
         menu.addSeparator();
     }
 
-    auto config = gt::gui::makeAction(tr("Config..."), [=, o = &obj](GtObject*){
-            isTask ? configTask(static_cast<GtTask*>(o)) :
-                     configCalculator(static_cast<GtCalculator*>(o));
-        })
-        .setIcon(gt::gui::icon::config())
-        .setEnabled(isReady);
+    auto config = gt::gui::makeAction(
+                      tr("Config..."),
+                      [=, o = &obj](GtObject*) {
+                          isTask
+                              ? configTask(static_cast<GtTask*>(o))
+                              : configCalculator(static_cast<GtCalculator*>(o));
+                      })
+                      .setIcon(gt::gui::icon::config())
+                      .setEnabled(isReady);
 
-    auto connect = gt::gui::makeAction(tr("Connection Editor"), [=](GtObject*){
-            openConnectionEditor(index);
-        })
-        .setIcon(gt::gui::icon::connection())
-        .setEnabled(isReady);
+    auto connect =
+        gt::gui::makeAction(tr("Connection Editor"),
+                            [=](GtObject*) { openConnectionEditor(index); })
+            .setIcon(gt::gui::icon::connection())
+            .setEnabled(isReady);
 
-    gt::gui::addToMenu({ config, connect }, menu, &obj);
+    gt::gui::addToMenu({config, connect}, menu, &obj);
 
     menu.addSeparator();
 
@@ -1355,21 +1388,22 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         menu.addSeparator();
     }
 
-    auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
-            skipComponent(mapFromSource(index));
-        })
-        .setIcon(gt::gui::icon::skip())
-        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
-        .setVisible(!obj.isSkipped());
+    auto skip =
+        gt::gui::makeAction(
+            tr("Skip"), [=](GtObject*) { skipComponent(mapFromSource(index)); })
+            .setIcon(gt::gui::icon::skip())
+            .setShortCut(getShortCut(QStringLiteral("skipProcess")))
+            .setVisible(!obj.isSkipped());
 
-    auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
-            skipComponent(mapFromSource(index), false);
-        })
-        .setIcon(gt::gui::icon::unskip())
-        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
-        .setVisible(obj.isSkipped());
+    auto unskip =
+        gt::gui::makeAction(
+            tr("Unskip"),
+            [=](GtObject*) { skipComponent(mapFromSource(index), false); })
+            .setIcon(gt::gui::icon::unskip())
+            .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
+            .setVisible(obj.isSkipped());
 
-    gt::gui::addToMenu({ skip, unskip }, menu, &obj);
+    gt::gui::addToMenu({skip, unskip}, menu, &obj);
 
     menu.addSeparator();
 
@@ -1387,7 +1421,8 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         menu.addSeparator();
     }
 
-    auto rename = gt::gui::makeRenameAction(obj, mapFromSource(index), *m_view);
+    auto rename =
+        gt::gui::makeRenameAction(obj, mapFromSource(index), *m_impl->view);
 
     if (!rename.isEmpty())
     {
@@ -1395,28 +1430,28 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         gt::gui::addToMenu(rename, menu, &obj);
     }
 
-    auto clone = gt::gui::makeAction(tr("Clone"), [=](GtObject*){
-            cloneElement(mapFromSource(index));
-        })
-        .setIcon(gt::gui::icon::clone())
-        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("clone")))
-        .setEnabled(isReady);
+    auto clone =
+        gt::gui::makeAction(
+            tr("Clone"), [=](GtObject*) { cloneElement(mapFromSource(index)); })
+            .setIcon(gt::gui::icon::clone())
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("clone")))
+            .setEnabled(isReady);
 
-    auto cut = gt::gui::makeAction(tr("Cut"), [=](GtObject*){
-            cutElement(mapFromSource(index));
-        })
-        .setIcon(gt::gui::icon::cut())
-        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("cut")))
-        .setEnabled(isReady);
+    auto cut =
+        gt::gui::makeAction(
+            tr("Cut"), [=](GtObject*) { cutElement(mapFromSource(index)); })
+            .setIcon(gt::gui::icon::cut())
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("cut")))
+            .setEnabled(isReady);
 
-    auto copy = gt::gui::makeAction(tr("Copy"), [=](GtObject*){
-            copyElement(mapFromSource(index));
-        })
-        .setIcon(gt::gui::icon::copy())
-        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("copy")))
-        .setEnabled(isReady);
+    auto copy =
+        gt::gui::makeAction(
+            tr("Copy"), [=](GtObject*) { copyElement(mapFromSource(index)); })
+            .setIcon(gt::gui::icon::copy())
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("copy")))
+            .setEnabled(isReady);
 
-    gt::gui::addToMenu({ clone, cut, copy}, menu, &obj);
+    gt::gui::addToMenu({clone, cut, copy}, menu, &obj);
 
     if (isTask)
     {
@@ -1428,12 +1463,15 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
     menu.addSeparator();
 
     auto delete_ =
-        gt::gui::makeAction(tr("Delete"), [=](GtObject*){
-            deleteProcessElements(m_view->selectionModel()->selectedIndexes());
-        })
-        .setIcon(gt::gui::icon::delete_())
-        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
-        .setEnabled(isReady);
+        gt::gui::makeAction(
+            tr("Delete"),
+            [=](GtObject*) {
+                deleteProcessElements(
+                    m_impl->view->selectionModel()->selectedIndexes());
+            })
+            .setIcon(gt::gui::icon::delete_())
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
+            .setEnabled(isReady);
 
     gt::gui::addToMenu(delete_, menu, &obj);
 
@@ -1449,7 +1487,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 }
 
 void
-GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
+GtProcessDock::multiSelectionContextMenu(const QList<QModelIndex>& indexList)
 {
 
     QMenu menu(this);
@@ -1494,33 +1532,31 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
         hideUnskipped = true;
     }
 
-    auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
-            skipComponents(indexList);
-        })
-        .setIcon(gt::gui::icon::skip())
-        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
-        .setVisible(!hideSkip);
+    auto skip = gt::gui::makeAction(
+                    tr("Skip"), [=](GtObject*) { skipComponents(indexList); })
+                    .setIcon(gt::gui::icon::skip())
+                    .setShortCut(getShortCut(QStringLiteral("skipProcess")))
+                    .setVisible(!hideSkip);
 
-    auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
-            skipComponents(indexList, false);
-        })
-        .setIcon(gt::gui::icon::unskip())
-        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
-        .setVisible(!hideUnskipped);
+    auto unskip =
+        gt::gui::makeAction(
+            tr("Unskip"), [=](GtObject*) { skipComponents(indexList, false); })
+            .setIcon(gt::gui::icon::unskip())
+            .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
+            .setVisible(!hideUnskipped);
 
-    gt::gui::addToMenu({ skip, unskip }, menu, first, this);
+    gt::gui::addToMenu({skip, unskip}, menu, first, this);
 
     menu.addSeparator();
 
     bool hideDelete = dummyObjects > 0;
 
     auto delete_ =
-        gt::gui::makeAction(tr("Delete"), [=](GtObject*){
-            deleteProcessElements(indexList);
-        })
-        .setIcon(gt::gui::icon::delete_())
-        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
-        .setEnabled(!hideDelete);
+        gt::gui::makeAction(
+            tr("Delete"), [=](GtObject*) { deleteProcessElements(indexList); })
+            .setIcon(gt::gui::icon::delete_())
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
+            .setEnabled(!hideDelete);
 
     gt::gui::addToMenu(delete_, menu, first, this);
 
@@ -1530,16 +1566,16 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 void
 GtProcessDock::restoreExpandStates()
 {
-    auto rootIndex = m_view->rootIndex();
+    auto rootIndex = m_impl->view->rootIndex();
 
-    if (rootIndex.isValid() && rootIndex.model() == m_filterModel)
+    if (rootIndex.isValid() && rootIndex.model() == m_impl->filterModel)
     {
-        m_view->setUpdatesEnabled(false);
+        m_impl->view->setUpdatesEnabled(false);
 
         restoreExpandStatesHelper(expandedItemUuids(),
-                                  m_filterModel->index(0, 0, rootIndex));
+                                  m_impl->filterModel->index(0, 0, rootIndex));
 
-        m_view->setUpdatesEnabled(true);
+        m_impl->view->setUpdatesEnabled(true);
     }
 }
 
@@ -1547,22 +1583,19 @@ void
 GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedUuids,
                                          const QModelIndex& startIndex)
 {
-    if (!startIndex.isValid())
-        return;
+    if (!startIndex.isValid()) return;
 
     auto model = startIndex.model();
 
     for (const auto& uuid : expandedUuids)
     {
-        auto matchedIndices = model->match(startIndex,
-                                           GtCoreDatamodel::UuidRole,
-                                           QVariant::fromValue(uuid));
+        auto matchedIndices = model->match(
+            startIndex, GtCoreDatamodel::UuidRole, QVariant::fromValue(uuid));
 
         for (const auto& index : qAsConst(matchedIndices))
         {
-            m_view->setExpanded(index, true);
-            restoreExpandStatesHelper(expandedUuids,
-                                      model->index(0, 0, index));
+            m_impl->view->setExpanded(index, true);
+            restoreExpandStatesHelper(expandedUuids, model->index(0, 0, index));
         }
     }
 }
@@ -1642,8 +1675,8 @@ GtProcessDock::copyElement(const QModelIndex& index)
             }
 
             detail::setOffLostConnectionWarnings(
-                        detail::lostPropertyConnections(origTask),
-                        detail::highestParentTask(origTask));
+                detail::lostPropertyConnections(origTask),
+                detail::highestParentTask(origTask));
 
             mapPropertyConnections(origTaskClone, newTask);
 
@@ -1662,11 +1695,11 @@ GtProcessDock::copyElement(const QModelIndex& index)
 void
 GtProcessDock::renameElement()
 {
-    QModelIndex srcIndex = m_view->currentIndex();
+    QModelIndex srcIndex = m_impl->view->currentIndex();
 
     if (srcIndex.isValid())
     {
-        m_view->edit(m_view->currentIndex());
+        m_impl->view->edit(m_impl->view->currentIndex());
     }
 }
 
@@ -1735,8 +1768,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         }
         else
         {
-            GtTask* origTaskClone =
-                qobject_cast<GtTask*>(origTask->clone());
+            GtTask* origTaskClone = qobject_cast<GtTask*>(origTask->clone());
 
             if (!origTaskClone)
             {
@@ -1759,8 +1791,8 @@ GtProcessDock::cloneElement(const QModelIndex& index)
             }
 
             detail::setOffLostConnectionWarnings(
-                        detail::lostPropertyConnections(origTask),
-                        detail::highestParentTask(origTask));
+                detail::lostPropertyConnections(origTask),
+                detail::highestParentTask(origTask));
 
             mapPropertyConnections(origTaskClone, newTask);
 
@@ -1795,7 +1827,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     if (!pComp->isReady()) return;
 
-    if (!m_taskGroup) return;
+    if (!m_impl->taskGroup) return;
 
     copyElement(index);
 
@@ -1814,21 +1846,19 @@ GtProcessDock::cutElement(const QModelIndex& index)
             }
 
             detail::setOffLostConnectionWarnings(
-                        relatedCons, detail::highestParentTask(child));
+                relatedCons, detail::highestParentTask(child));
         }
     }
 
     toDelete.append(pComp);
 
-    auto* commonParent = gt::find_lowest_ancestor(toDelete,
-                                                  gt::get_parent_object);
+    auto* commonParent =
+        gt::find_lowest_ancestor(toDelete, gt::get_parent_object);
     assert(commonParent);
 
-    auto command =
-        gtApp->makeCommand(commonParent,
-                           tr("Cut Process Element") +
-                           QStringLiteral(" (") + obj->objectName() +
-                           QStringLiteral(")"));
+    auto command = gtApp->makeCommand(
+        commonParent, tr("Cut Process Element") + QStringLiteral(" (") +
+                          obj->objectName() + QStringLiteral(")"));
     Q_UNUSED(command)
 
     gtDataModel->deleteFromModel(toDelete);
@@ -1901,31 +1931,29 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
 
     switch (ret)
     {
-        case QMessageBox::Yes:
+    case QMessageBox::Yes: {
+        gtDataModel->reduceToParents(objects);
+
+        auto* commonParent =
+            gt::find_lowest_ancestor(objects, gt::get_parent_object);
+        assert(commonParent);
+
+        auto cmd =
+            gtApp->makeCommand(commonParent, tr("Delete Process Elements"));
+        Q_UNUSED(cmd)
+
+        for (GtObject* obj : qAsConst(objects))
         {
-            gtDataModel->reduceToParents(objects);
-
-            auto* commonParent = gt::find_lowest_ancestor(
-                        objects, gt::get_parent_object);
-            assert(commonParent);
-
-            auto cmd = gtApp->makeCommand(commonParent,
-                                          tr("Delete Process Elements"));
-            Q_UNUSED(cmd)
-
-            for (GtObject* obj : qAsConst(objects))
-            {
-                deleteProcessComponent(obj);
-            }
+            deleteProcessComponent(obj);
         }
+    }
 
-        case QMessageBox::Cancel:
-        {
-            break;
-        }
+    case QMessageBox::Cancel: {
+        break;
+    }
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -1935,8 +1963,8 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
-                    gtProcessFactory);
+    GtObject* obj =
+        gtDataModel->objectFromMimeData(mimeData, true, gtProcessFactory);
 
     if (!obj)
     {
@@ -1984,12 +2012,11 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     // set new identification string
     obj->setObjectName(newId);
 
-    m_view->setFocus();
+    m_impl->view->setFocus();
 
-    auto pasteCmd = gtApp->makeCommand(parent,
-                                       tr("Paste process element"));
+    auto pasteCmd = gtApp->makeCommand(parent, tr("Paste process element"));
 
-    auto const propCons = obj->findChildren<GtPropertyConnection*>();
+    const auto propCons = obj->findChildren<GtPropertyConnection*>();
 
     for (GtPropertyConnection* propCon : propCons)
     {
@@ -2019,14 +2046,14 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     if (index.isValid())
     {
-        QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                               index.parent());
+        QModelIndex tmpIndex =
+            m_impl->filterModel->index(index.row(), 1, index.parent());
         QItemSelection itemSel(index, tmpIndex);
 
-        m_view->scrollTo(index);
-        m_view->selectionModel()->select(itemSel,
-                                         QItemSelectionModel::ClearAndSelect);
-        m_view->setCurrentIndex(index);
+        m_impl->view->scrollTo(index);
+        m_impl->view->selectionModel()->select(
+            itemSel, QItemSelectionModel::ClearAndSelect);
+        m_impl->view->setCurrentIndex(index);
     }
 }
 
@@ -2084,9 +2111,9 @@ GtProcessDock::skipComponents(const QList<QModelIndex>& indexList, bool skip)
     }
 
     QString msg = tr("%1 selected Process Elements")
-                  .arg(skip ? tr("Skip") : tr("Unskip"));
+                      .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    auto cmd = gtApp->makeCommand(m_taskGroup, msg);
+    auto cmd = gtApp->makeCommand(m_impl->taskGroup, msg);
     Q_UNUSED(cmd)
 
     for (GtProcessComponent* pc : qAsConst(pcs))
@@ -2134,9 +2161,8 @@ GtProcessDock::configCalculator(GtCalculator* calc)
         return;
     }
 
-    auto command = gtApp->makeCommand(calc,
-                                      calc->objectName() +
-                                      tr(" configuration changed"));
+    auto command = gtApp->makeCommand(calc, calc->objectName() +
+                                                tr(" configuration changed"));
     Q_UNUSED(command)
 
     calc->fromMemento(memento);
@@ -2177,9 +2203,8 @@ GtProcessDock::configTask(GtTask* task)
         return;
     }
 
-    auto command = gtApp->makeCommand(task,
-                                      task->objectName() +
-                                      tr(" configuration changed"));
+    auto command = gtApp->makeCommand(task, task->objectName() +
+                                                tr(" configuration changed"));
     Q_UNUSED(command)
 
     task->fromMemento(memento);
@@ -2193,9 +2218,9 @@ GtProcessDock::mapToSource(const QModelIndex& index)
         return {};
     }
 
-    QModelIndex tmp1 = m_filterModel->mapToSource(index);
+    QModelIndex tmp1 = m_impl->filterModel->mapToSource(index);
 
-    return m_model->mapToSource(tmp1);
+    return m_impl->model->mapToSource(tmp1);
 }
 
 QModelIndex
@@ -2206,9 +2231,9 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
         return {};
     }
 
-    QModelIndex tmp1 = m_model->mapFromSource(index);
+    QModelIndex tmp1 = m_impl->model->mapFromSource(index);
 
-    return  m_filterModel->mapFromSource(tmp1);
+    return m_impl->filterModel->mapFromSource(tmp1);
 }
 
 void
@@ -2274,8 +2299,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
             if (!diff.isNull())
             {
                 QString delMsg = tr("Update Task Connections") +
-                                 QStringLiteral(" - ") +
-                                 rootTask->objectName();
+                                 QStringLiteral(" - ") + rootTask->objectName();
 
                 auto command = gtApp->makeCommand(project, delMsg);
                 Q_UNUSED(command)
@@ -2289,22 +2313,22 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
 void
 GtProcessDock::onRowsAboutToBeMoved()
 {
-    assert(m_taskGroup);
+    assert(m_impl->taskGroup);
 
-    m_command = gtApp->startCommand(m_taskGroup,
-                                    tr("Process elements moved"));
+    m_impl->command =
+        gtApp->startCommand(m_impl->taskGroup, tr("Process elements moved"));
 }
 
 void
 GtProcessDock::onRowsMoved()
 {
-    gtApp->endCommand(m_command);
+    gtApp->endCommand(m_impl->command);
 }
 
 void
 GtProcessDock::onTaskDataChanged(GtObject* obj)
 {
-    if (obj == m_currentProcess)
+    if (obj == m_impl->currentProcess)
     {
         updateRunButton();
     }
@@ -2378,7 +2402,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         task->fromMemento(memento);
 
-        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
 
         GtObject* parentObj = nullptr;
 
@@ -2388,7 +2412,7 @@ GtProcessDock::actionTriggered(QObject* obj)
         }
         else
         {
-            parentObj = m_taskGroup;
+            parentObj = m_impl->taskGroup;
         }
 
         if (!parentObj)
@@ -2408,22 +2432,22 @@ GtProcessDock::actionTriggered(QObject* obj)
             return;
         }
 
-        m_view->setFocus();
+        m_impl->view->setFocus();
 
-        QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                               index.parent());
+        QModelIndex tmpIndex =
+            m_impl->filterModel->index(index.row(), 1, index.parent());
         QItemSelection itemSel(index, tmpIndex);
 
-        m_view->expand(m_view->currentIndex());
-        m_view->scrollTo(index);
-        m_view->selectionModel()->select(itemSel,
-                                         QItemSelectionModel::ClearAndSelect);
-        m_view->setCurrentIndex(index);
-        m_view->edit(index);
+        m_impl->view->expand(m_impl->view->currentIndex());
+        m_impl->view->scrollTo(index);
+        m_impl->view->selectionModel()->select(
+            itemSel, QItemSelectionModel::ClearAndSelect);
+        m_impl->view->setCurrentIndex(index);
+        m_impl->view->edit(index);
     }
     else if (gtCalculatorFactory->calculatorDataExists(className))
     {
-        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+        QModelIndex srcIndex = mapToSource(m_impl->view->currentIndex());
 
         if (!srcIndex.isValid())
         {
@@ -2493,17 +2517,17 @@ GtProcessDock::actionTriggered(QObject* obj)
             return;
         }
 
-        m_view->setFocus();
+        m_impl->view->setFocus();
 
-        QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                               index.parent());
+        QModelIndex tmpIndex =
+            m_impl->filterModel->index(index.row(), 1, index.parent());
         QItemSelection itemSel(index, tmpIndex);
 
-        m_view->expand(m_view->currentIndex());
-        m_view->scrollTo(index);
-        m_view->selectionModel()->select(itemSel,
-                                         QItemSelectionModel::ClearAndSelect);
-        m_view->setCurrentIndex(index);
+        m_impl->view->expand(m_impl->view->currentIndex());
+        m_impl->view->scrollTo(index);
+        m_impl->view->selectionModel()->select(
+            itemSel, QItemSelectionModel::ClearAndSelect);
+        m_impl->view->setCurrentIndex(index);
     }
 }
 
@@ -2512,28 +2536,28 @@ GtProcessDock::onExecutorChanged(GtCoreProcessExecutor* exec)
 {
     if (exec)
     {
-        connect(exec, &GtCoreProcessExecutor::queueChanged,
-                this, [this](){ updateRunButton(); });
+        connect(exec, &GtCoreProcessExecutor::queueChanged, this,
+                [this]() { updateRunButton(); });
     }
 }
 
 void
 GtProcessDock::currentTaskGroupIndexChanged(int index)
 {
-    if (!m_project || !m_project->processData())
+    if (!m_impl->project || !m_impl->project->processData())
     {
         return;
     }
 
-    const GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(index);
+    const GtTaskGroup::SCOPE scope = m_impl->taskGroupModel->rowScope(index);
 
     if (scope == GtTaskGroup::UNDEFINED)
     {
         return;
     }
 
-    GtTaskGroup* currentGroup = m_project->processData()->taskGroup();
-    const QString groupId = m_taskGroupSelection->itemText(index);
+    GtTaskGroup* currentGroup = m_impl->project->processData()->taskGroup();
+    const QString groupId = m_impl->taskGroupSelection->itemText(index);
 
     // check if selection matches current task
     if (currentGroup && currentGroup->objectName() == groupId)
@@ -2541,8 +2565,8 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
-    if (m_project->processData()->switchCurrentTaskGroup(
-                groupId, scope, m_project->path()))
+    if (m_impl->project->processData()->switchCurrentTaskGroup(
+            groupId, scope, m_impl->project->path()))
     {
         setLastTaskGroupScope(scope);
         setLastTaskGroupId(groupId);
@@ -2556,22 +2580,21 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
 void
 GtProcessDock::onDeleteTaskGroupButtonClicked()
 {
-    int currentIndex = m_taskGroupSelection->currentIndex();
+    int currentIndex = m_impl->taskGroupSelection->currentIndex();
 
     if (currentIndex < 0) return;
 
-    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+    GtTaskGroup::SCOPE scope = m_impl->taskGroupModel->rowScope(currentIndex);
 
     if (scope != GtTaskGroup::CUSTOM) return;
 
-    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+    QString groupName = m_impl->taskGroupSelection->itemText(currentIndex);
 
     QMessageBox::StandardButton reply = QMessageBox::question(
-        this,
-        tr("Delete Task Group"),
-        tr("Are you sure you want to delete the task group '%1'?").arg(groupName),
-        QMessageBox::Yes | QMessageBox::No,
-        QMessageBox::No);
+        this, tr("Delete Task Group"),
+        tr("Are you sure you want to delete the task group '%1'?")
+            .arg(groupName),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
     if (reply == QMessageBox::Yes)
     {
@@ -2582,20 +2605,20 @@ GtProcessDock::onDeleteTaskGroupButtonClicked()
 void
 GtProcessDock::onRenameTaskGroupButtonClicked()
 {
-    int currentIndex = m_taskGroupSelection->currentIndex();
+    int currentIndex = m_impl->taskGroupSelection->currentIndex();
 
     if (currentIndex < 0) return;
 
-    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+    GtTaskGroup::SCOPE scope = m_impl->taskGroupModel->rowScope(currentIndex);
 
     if (scope != GtTaskGroup::CUSTOM) return;
 
-    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+    QString groupName = m_impl->taskGroupSelection->itemText(currentIndex);
 
-    if (!m_project || !m_project->processData()) return;
+    if (!m_impl->project || !m_impl->project->processData()) return;
 
-    QStringList groupIds = m_project->processData()->customGroupIds();
-    groupIds.append(m_project->processData()->userGroupIds());
+    QStringList groupIds = m_impl->project->processData()->customGroupIds();
+    groupIds.append(m_impl->project->processData()->userGroupIds());
     groupIds.sort(Qt::CaseInsensitive);
 
     GtTaskGroupRenameDialog dialog(groupName, groupIds, this);
@@ -2606,15 +2629,17 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 
         if (newName == groupName) return;
 
-        if (!m_project->processData()->renameTaskGroup(groupName, newName,
-                    GtTaskGroup::CUSTOM, m_project->path()))
+        if (!m_impl->project->processData()->renameTaskGroup(
+                groupName, newName, GtTaskGroup::CUSTOM,
+                m_impl->project->path()))
         {
             gtError() << tr("Failed to rename task group from '%1' to '%2'")
-                         .arg(groupName).arg(newName);
+                             .arg(groupName)
+                             .arg(newName);
             return;
         }
 
-        if (!m_project->processData()->save(m_project->path()))
+        if (!m_impl->project->processData()->save(m_impl->project->path()))
         {
             gtError() << tr("Failed to save project after renaming task group");
             return;
@@ -2622,12 +2647,12 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 
         resetTaskGroupModel();
 
-        QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
-            GtTaskGroup::CUSTOM);
+        QModelIndex newIndex = m_impl->taskGroupModel->indexByGroupName(
+            newName, GtTaskGroup::CUSTOM);
 
         if (newIndex.isValid())
         {
-            m_taskGroupSelection->setCurrentIndex(newIndex.row());
+            m_impl->taskGroupSelection->setCurrentIndex(newIndex.row());
         }
     }
 }
@@ -2635,18 +2660,17 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 void
 GtProcessDock::addNewCustomTaskGroup()
 {
-    if (!m_project || !m_project->processData()) return;
+    if (!m_impl->project || !m_impl->project->processData()) return;
 
-    QStringList customGroupIds = m_project->processData()->customGroupIds();
+    QStringList customGroupIds =
+        m_impl->project->processData()->customGroupIds();
     customGroupIds.sort(Qt::CaseInsensitive);
 
     bool ok = false;
-    QString groupNameRaw  = QInputDialog::getText(this,
-        tr("Add New Custom Task Group"),
-        tr("Enter name for new custom task group:"),
-        QLineEdit::Normal,
-        QString(),
-        &ok);
+    QString groupNameRaw =
+        QInputDialog::getText(this, tr("Add New Custom Task Group"),
+                              tr("Enter name for new custom task group:"),
+                              QLineEdit::Normal, QString(), &ok);
 
     if (!ok) return;
 
@@ -2655,13 +2679,12 @@ GtProcessDock::addNewCustomTaskGroup()
 
     if (customGroupIds.contains(groupName, Qt::CaseInsensitive))
     {
-        QMessageBox::warning(this,
-            tr("Invalid Group Name"),
-            tr("A task group with this name already exists."));
+        QMessageBox::warning(this, tr("Invalid Group Name"),
+                             tr("A task group with this name already exists."));
         return;
     }
 
-    GtTaskGroup* newGroup = m_project->processData()->createNewTaskGroup(
+    GtTaskGroup* newGroup = m_impl->project->processData()->createNewTaskGroup(
         groupName, GtTaskGroup::CUSTOM);
 
     if (!newGroup)
@@ -2670,21 +2693,21 @@ GtProcessDock::addNewCustomTaskGroup()
         return;
     }
 
-    if (!m_project->processData()->save(m_project->path()))
+    if (!m_impl->project->processData()->save(m_impl->project->path()))
     {
         gtError() << tr("Failed to save project after creating task group: %1")
-                     .arg(groupName);
+                         .arg(groupName);
         return;
     }
 
     resetTaskGroupModel();
 
-    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(groupName,
-        GtTaskGroup::CUSTOM);
+    QModelIndex newIndex = m_impl->taskGroupModel->indexByGroupName(
+        groupName, GtTaskGroup::CUSTOM);
 
     if (newIndex.isValid())
     {
-        m_taskGroupSelection->setCurrentIndex(newIndex.row());
+        m_impl->taskGroupSelection->setCurrentIndex(newIndex.row());
     }
 }
 
@@ -2695,14 +2718,14 @@ GtProcessDock::endResetView()
     resetTaskGroupModel();
 
     // update selection after reset
-    if (m_view->selectionModel()->selection().size() > 0) return;
+    if (m_impl->view->selectionModel()->selection().size() > 0) return;
 
     GtObject* selectedObj = gtApp->selectedObject();
     if (!selectedObj) return;
 
     auto index = gtDataModel->indexFromObject(selectedObj);
 
-    m_view->setCurrentIndex(mapFromSource(index));
+    m_impl->view->setCurrentIndex(mapFromSource(index));
 }
 
 void
@@ -2745,30 +2768,30 @@ GtProcessDock::updateCustomTaskGroupsButtons()
 {
     bool customScope = false;
 
-    int currentIndex = m_taskGroupSelection->currentIndex();
+    int currentIndex = m_impl->taskGroupSelection->currentIndex();
     if (currentIndex >= 0)
     {
-        GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+        GtTaskGroup::SCOPE scope =
+            m_impl->taskGroupModel->rowScope(currentIndex);
 
         customScope = (scope == GtTaskGroup::CUSTOM);
     }
 
     if (auto* deleteButton =
-        findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
+            findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
     {
         deleteButton->setEnabled(customScope);
     }
 
-    if (auto* renameButton = findChild<QPushButton*>(
-            QStringLiteral("renameTaskGroupButton")))
+    if (auto* renameButton =
+            findChild<QPushButton*>(QStringLiteral("renameTaskGroupButton")))
     {
         renameButton->setEnabled(customScope);
     }
 }
 
 bool
-GtProcessDock::mapPropertyConnections(GtTask* orig,
-                                      GtTask* copy)
+GtProcessDock::mapPropertyConnections(GtTask* orig, GtTask* copy)
 {
     QList<GtPropertyConnection*> origCons =
         orig->findChildren<GtPropertyConnection*>();
@@ -2783,7 +2806,8 @@ GtProcessDock::mapPropertyConnections(GtTask* orig,
 
     foreach (GtPropertyConnection* origCon, origCons)
     {
-        GtPropertyConnection* newCon = detail::findConnectionCopy(origCon, newCons);
+        GtPropertyConnection* newCon =
+            detail::findConnectionCopy(origCon, newCons);
 
         if (!newCon)
         {
@@ -2861,29 +2885,26 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
             if (taskData->isValid())
             {
                 if (gtApp->devMode() ||
-                        taskData->status == GtTaskDataImpl::RELEASE)
+                    taskData->status == GtTaskDataImpl::RELEASE)
                 {
                     QAction* act = menu->addAction(taskData->id);
                     act->setData(entry);
 
                     disconnect(act, &QAction::triggered, nullptr, nullptr);
-                    connect(act, &QAction::triggered, this, [this, act](bool) {
-                        actionTriggered(act);
-                    });
+                    connect(act, &QAction::triggered, this,
+                            [this, act](bool) { actionTriggered(act); });
 
                     count++;
 
                     auto extendedData =
-                            dynamic_cast<GtExtendedTaskDataImpl*>(
-                                taskData.get());
+                        dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
 
-                    if (!extendedData ||
-                        extendedData->icon.isNull())
+                    if (!extendedData || extendedData->icon.isNull())
                     {
                         QIcon icn;
 
                         GtObjectUI* oui = gtApp->defaultObjectUI(
-                                    taskData->metaData().className());
+                            taskData->metaData().className());
 
                         if (oui)
                         {
@@ -2920,18 +2941,16 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 
 
                     disconnect(act, &QAction::triggered, nullptr, nullptr);
-                    connect(act, &QAction::triggered, this, [this, act](bool) {
-                        actionTriggered(act);
-                    });
+                    connect(act, &QAction::triggered, this,
+                            [this, act](bool) { actionTriggered(act); });
 
                     count++;
 
                     auto extendedData =
-                            dynamic_cast<GtExtendedCalculatorDataImpl*>(
-                                calcData.get());
+                        dynamic_cast<GtExtendedCalculatorDataImpl*>(
+                            calcData.get());
 
-                    if (!extendedData ||
-                        extendedData->icon.isNull())
+                    if (!extendedData || extendedData->icon.isNull())
                     {
                         act->setIcon(gt::gui::icon::calculator());
                     }
@@ -2986,22 +3005,23 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 void
 GtProcessDock::keyPressEvent(QKeyEvent* event)
 {
-    if (!m_view)
+    if (!m_impl->view)
     {
         return;
     }
 
-    if (!m_view->selectionModel())
+    if (!m_impl->view->selectionModel())
     {
         return;
     }
 
-    if (m_view->selectionModel()->selectedIndexes().isEmpty())
+    if (m_impl->view->selectionModel()->selectedIndexes().isEmpty())
     {
         return;
     }
 
-    QModelIndex index = m_view->selectionModel()->selectedIndexes().first();
+    QModelIndex index =
+        m_impl->view->selectionModel()->selectedIndexes().first();
 
     QModelIndex srcIndex = mapToSource(index);
 
@@ -3017,13 +3037,13 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
 
     if (gtApp->compareKeyEvent(event, "rename"))
     {
-        if (m_taskGroupSelection->hasFocus())
+        if (m_impl->taskGroupSelection->hasFocus())
         {
             onRenameTaskGroupButtonClicked();
         }
         else
         {
-            emit m_view->renameProcessElement(index);
+            emit m_impl->view->renameProcessElement(index);
         }
     }
 }
@@ -3031,20 +3051,20 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
 void
 GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 {
-    if (!m_project || !m_project->processData()) return;
+    if (!m_impl->project || !m_impl->project->processData()) return;
 
     GtTaskGroup::SCOPE scope = GtTaskGroup::CUSTOM;
 
-    if (!m_project->processData()->deleteTaskGroup(groupName, scope))
+    if (!m_impl->project->processData()->deleteTaskGroup(groupName, scope))
     {
         gtError() << tr("Failed to delete task group: %1").arg(groupName);
         return;
     }
 
-    if (!m_project->processData()->save(m_project->path()))
+    if (!m_impl->project->processData()->save(m_impl->project->path()))
     {
         gtError() << tr("Failed to save project after deleting task group: %1")
-                     .arg(groupName);
+                         .arg(groupName);
         return;
     }
 

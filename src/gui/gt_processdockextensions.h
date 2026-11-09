@@ -27,44 +27,60 @@ class GT_GUI_EXPORT GtProcessDockPage : public QWidget
 
 public:
     using QWidget::QWidget;
+    /** Virtual destructor. */
     ~GtProcessDockPage() override = default;
 
+    /**
+     * @brief Returns the unique identifier for this page.
+     *
+     * The Process Dock stores this value in the page selector item data and
+     * uses it to reject duplicate page registrations. It must be non-empty,
+     * unique within the dock, and must not be "processes".
+     */
     virtual QString pageId() const = 0;
+
+    /** @brief Returns the user-visible title displayed in the page selector. */
     virtual QString title() const = 0;
+
+    /**
+     * @brief Returns the icon shown next to the page title.
+     * @return The page icon, or an empty icon when no icon is needed.
+     */
     virtual QIcon icon() const
     {
         return {};
     }
 
 signals:
+    /** Emit this signal to make the Process Dock select this page. */
     void activationRequested();
 };
 
 namespace gt::gui
 {
 
-    using ProcessDockPageFactory = std::function<GtProcessDockPage*()>;
+using ProcessDockPageFactory = std::function<GtProcessDockPage*()>;
 
-    /** Registers a factory for a Process Dock page.
+/** Registers a factory for a Process Dock page.
      * @param owner QObject that owns the registration, usually the module
      * interface. Contributions are ignored after the owner is destroyed.
      */
-    GT_GUI_EXPORT void registerProcessDockPage(QObject* owner,
-                                               ProcessDockPageFactory factory);
+GT_GUI_EXPORT void registerProcessDockPage(QObject* owner,
+                                           ProcessDockPageFactory factory);
 
-    /** Registers an action in the Process Dock's Add menu.
+/** Registers an action in the Process Dock's Add menu.
      * @param owner QObject used as the parent for action callbacks, usually
      * the module interface. Contributions are ignored after it is destroyed.
      */
-    GT_GUI_EXPORT void registerProcessAddAction(QObject* owner,
+GT_GUI_EXPORT void registerProcessAddAction(QObject* owner,
+                                            GtObjectUIAction action);
+
+/** Registers an action in a process component's context menu.
+     * @param owner QObject used as the parent for action callbacks, usually
+     * the module interface. Contributions are ignored after it is destroyed.
+     */
+GT_GUI_EXPORT void registerProcessContextAction(QObject* owner,
                                                 GtObjectUIAction action);
-
-    /** Registers an action in a process component's context menu.
-     * @param owner QObject used as the parent for action callbacks, usually
-     * the module interface. Contributions are ignored after it is destroyed.
-     */
-    GT_GUI_EXPORT void registerProcessContextAction(QObject* owner,
-                                                    GtObjectUIAction action);
 
 } // namespace gt::gui
 

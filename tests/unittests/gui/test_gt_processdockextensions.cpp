@@ -18,19 +18,19 @@
 namespace
 {
 
-    class TestProcessDockPage : public GtProcessDockPage
+class TestProcessDockPage : public GtProcessDockPage
+{
+public:
+    QString pageId() const override
     {
-    public:
-        QString pageId() const override
-        {
-            return QStringLiteral("test-process-dock-page");
-        }
+        return QStringLiteral("test-process-dock-page");
+    }
 
-        QString title() const override
-        {
-            return QStringLiteral("Test page");
-        }
-    };
+    QString title() const override
+    {
+        return QStringLiteral("Test page");
+    }
+};
 
 } // namespace
 
@@ -137,7 +137,7 @@ TEST(ProcessDockExtensions, removesContributionsWhenOwnerIsDestroyed)
         QObject owner;
         gt::gui::registerProcessAddAction(
             &owner,
-            GtObjectUIAction(QStringLiteral("Temporary"), [](GtObject*) {}));
+            GtObjectUIAction(QStringLiteral("Temporary"), [](GtObject*) { }));
         EXPECT_FALSE(gt::gui::detail::processDockAddActions().isEmpty());
     }
 

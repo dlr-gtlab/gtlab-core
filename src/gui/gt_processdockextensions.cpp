@@ -23,23 +23,26 @@
 namespace
 {
 
-    QList<gt::gui::detail::ProcessDockPage>& pageRegistrations()
-    {
-        static QList<gt::gui::detail::ProcessDockPage> registrations;
-        return registrations;
-    }
+QList<gt::gui::detail::ProcessDockPage>&
+pageRegistrations()
+{
+    static QList<gt::gui::detail::ProcessDockPage> registrations;
+    return registrations;
+}
 
-    QList<gt::gui::detail::ProcessDockAction>& addActionRegistrations()
-    {
-        static QList<gt::gui::detail::ProcessDockAction> registrations;
-        return registrations;
-    }
+QList<gt::gui::detail::ProcessDockAction>&
+addActionRegistrations()
+{
+    static QList<gt::gui::detail::ProcessDockAction> registrations;
+    return registrations;
+}
 
-    QList<gt::gui::detail::ProcessDockAction>& contextActionRegistrations()
-    {
-        static QList<gt::gui::detail::ProcessDockAction> registrations;
-        return registrations;
-    }
+QList<gt::gui::detail::ProcessDockAction>&
+contextActionRegistrations()
+{
+    static QList<gt::gui::detail::ProcessDockAction> registrations;
+    return registrations;
+}
 
 } // namespace
 

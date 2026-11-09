@@ -20,31 +20,31 @@ class GtTaskGroup;
 namespace gt::gui::detail
 {
 
-    struct ProcessDockAction
-    {
-        QPointer<QObject> owner;
-        GtObjectUIAction action;
-    };
+struct ProcessDockAction
+{
+    QPointer<QObject> owner;
+    GtObjectUIAction action;
+};
 
-    struct ProcessDockPage
-    {
-        QPointer<QObject> owner;
-        ProcessDockPageFactory factory;
-    };
+struct ProcessDockPage
+{
+    QPointer<QObject> owner;
+    ProcessDockPageFactory factory;
+};
 
-    GT_GUI_EXPORT QList<ProcessDockPage> processDockPages();
-    GT_GUI_EXPORT QList<ProcessDockAction> processDockAddActions();
-    GT_GUI_EXPORT QList<ProcessDockAction> processDockContextActions();
+GT_GUI_EXPORT QList<ProcessDockPage> processDockPages();
+GT_GUI_EXPORT QList<ProcessDockAction> processDockAddActions();
+GT_GUI_EXPORT QList<ProcessDockAction> processDockContextActions();
 
-    GT_GUI_EXPORT void initializeProcessDockPages(QStackedWidget* stack,
-                                                  QComboBox* selector);
-    GT_GUI_EXPORT GtObject* processAddTarget(GtObject* selectedComponent,
-                                             GtObject* selectedObject,
-                                             GtTaskGroup* taskGroup);
-    GT_GUI_EXPORT bool hasVisibleProcessDockActions(
-        const QList<ProcessDockAction>& actions, GtObject* target);
-    GT_GUI_EXPORT void addProcessDockActionsToMenu(
-        const QList<ProcessDockAction>& actions, QMenu& menu, GtObject* target);
+GT_GUI_EXPORT void initializeProcessDockPages(QStackedWidget* stack,
+                                              QComboBox* selector);
+GT_GUI_EXPORT GtObject* processAddTarget(GtObject* selectedComponent,
+                                         GtObject* selectedObject,
+                                         GtTaskGroup* taskGroup);
+GT_GUI_EXPORT bool hasVisibleProcessDockActions(
+    const QList<ProcessDockAction>& actions, GtObject* target);
+GT_GUI_EXPORT void addProcessDockActionsToMenu(
+    const QList<ProcessDockAction>& actions, QMenu& menu, GtObject* target);
 
 } // namespace gt::gui::detail
 

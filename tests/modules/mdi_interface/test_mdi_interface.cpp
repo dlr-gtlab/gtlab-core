@@ -26,38 +26,37 @@
 namespace
 {
 
-    class TestProcessDockPage : public GtProcessDockPage
+class TestProcessDockPage : public GtProcessDockPage
+{
+public:
+    TestProcessDockPage()
     {
-    public:
-        TestProcessDockPage()
-        {
-            auto* layout = new QVBoxLayout(this);
-            layout->addWidget(
-                new QLabel(tr("Test Process-Dock extension"), this));
+        auto* layout = new QVBoxLayout(this);
+        layout->addWidget(new QLabel(tr("Test Process-Dock extension"), this));
 
-            auto* activateButton = new QPushButton(tr("Activate page"), this);
-            layout->addWidget(activateButton);
-            connect(activateButton, &QPushButton::clicked, this,
-                    &GtProcessDockPage::activationRequested);
-        }
+        auto* activateButton = new QPushButton(tr("Activate page"), this);
+        layout->addWidget(activateButton);
+        connect(activateButton, &QPushButton::clicked, this,
+                &GtProcessDockPage::activationRequested);
+    }
 
-        QString pageId() const override
-        {
-            return QStringLiteral("test-mdi-interface-page");
-        }
+    QString pageId() const override
+    {
+        return QStringLiteral("test-mdi-interface-page");
+    }
 
-        QString title() const override
-        {
-            return QStringLiteral("Test MDI Interface");
-        }
-    };
+    QString title() const override
+    {
+        return QStringLiteral("Test MDI Interface");
+    }
+};
 
 } // namespace
 
 GtVersionNumber
 TestMdiInterface::version()
 {
-    return GtVersionNumber(1,2,3);
+    return GtVersionNumber(1, 2, 3);
 }
 
 QString

@@ -11,12 +11,11 @@
 #ifndef GTPROCESSDOCK_H
 #define GTPROCESSDOCK_H
 
+#include <memory>
+
 #include "gt_dockwidget.h"
-#include "gt_command.h"
 #include "gt_taskgroup.h"
 
-#include <QPointer>
-#include <QPersistentModelIndex>
 
 class QPushButton;
 class QMenu;
@@ -48,11 +47,13 @@ public:
      * @brief GtProcessDock
      */
     Q_INVOKABLE GtProcessDock();
+    ~GtProcessDock() override;
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
     Qt::DockWidgetArea getDockWidgetArea() override;
 
+    /** Initializes module-contributed pages after modules have been started. */
     void initAfterStartup() override;
 
     /**
@@ -143,58 +144,8 @@ protected:
     void projectChangedEvent(GtProject* project) override;
 
 private:
-    /// Combobox for task group selection
-    QComboBox* m_taskGroupSelection;
-
-    /// Selector and content for the built-in and contributed pages
-    QComboBox* m_pageSelection;
-    QStackedWidget* m_pageStack;
-    bool m_pagesInitialized;
-
-    /// Button to run selected process
-    QPushButton* m_runButton;
-
-    /// Button to add a new element to process control environment
-    QPushButton* m_addElementButton;
-
-    /// Button to open the process queue
-    QPushButton* m_processQueueButton;
-
-    /// Tree view
-    GtProcessView* m_view;
-
-    /// model
-    GtProcessComponentModel* m_model;
-
-    /// model
-    GtTaskGroupModel* m_taskGroupModel;
-
-    /// model
-    QPointer<GtTreeFilterModel> m_filterModel;
-
-    /// Search widget
-    GtSearchWidget* m_search;
-
-    /// Pointer to selected task group of current project
-    QPointer<GtTaskGroup> m_taskGroup;
-
-    /// Pointer to current process
-    QPointer<GtTask> m_currentProcess;
-
-    /// Pointer to current project
-    QPointer<GtProject> m_project;
-
-    /// Command
-    GtCommand m_command{};
-
-    /// Expanded item UUIDs
-    GtState* m_expandedItemUuidsState;
-
-    /// Scope of the last selected task group
-    GtState* m_lastTaskGroupScopeState;
-
-    /// ID of the last selected task group
-    GtState* m_lastTaskGroupIdState;
+    class Impl;
+    std::unique_ptr<Impl> m_impl;
 
     /**
      * @brief Determines the current Task Group from the process data and
@@ -304,7 +255,7 @@ private:
      * the index provided.
      * @param srcIndex Index to create context menu on
      */
-    void customContextMenu(QModelIndex const& srcIndex);
+    void customContextMenu(const QModelIndex& srcIndex);
 
     /**
      * @brief Creates the default context menu (i.e. when no valid index was
