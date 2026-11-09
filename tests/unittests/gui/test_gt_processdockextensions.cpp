@@ -378,5 +378,3 @@ TEST(ProcessDockExtensions, allowsContributedActionsWithNullTarget)
     EXPECT_EQ(calls, 1);
     EXPECT_TRUE(receivedNullTarget);
 }
-
-} // namespace
