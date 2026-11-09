@@ -2684,7 +2684,7 @@ GtProcessDock::addNewCustomTaskGroup()
         return;
     }
 
-    GtTaskGroup* newGroup = m_impl->project->processData()->createNewTaskGroup(
+    const GtTaskGroup* newGroup = m_impl->project->processData()->createNewTaskGroup(
         groupName, GtTaskGroup::CUSTOM);
 
     if (!newGroup)
