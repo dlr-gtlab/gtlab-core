@@ -2,9 +2,10 @@ Extending the Process Dock
 ==========================
 
 Modules can add process-specific pages and actions to the Process Dock.
-Register these contributions from the module's ``init()`` method. The Process
-Dock calls page factories after module initialization, when it is ready to
-create its pages.
+Register these contributions from :cpp:func:`GtModuleInterface::init`. The
+:ref:`module interface guide <moduleinterface>` explains when GTlab calls this
+startup hook. The Process Dock calls page factories after module
+initialization, when it is ready to create its pages.
 
 Add a page
 ----------
