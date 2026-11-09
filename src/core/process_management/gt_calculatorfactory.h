@@ -37,11 +37,11 @@ public:
     /**
      * @brief Registers calculator data to factory.
      * @param calcData New calculstor data.
-     * @param moduleId Identification of the providing module.
+     * @param moduleIdent Identification of the providing module.
      * @return Returns true if calculstor data was successfully added.
      */
     virtual bool registerCalculatorData(GtCalculatorData calcData,
-                                        const QString& moduleId);
+                                        const QString& moduleIdent);
 
     /**
      * @brief Returns full list of registered calculator data.

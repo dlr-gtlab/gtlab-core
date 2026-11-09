@@ -8,18 +8,44 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-#include <QMutex>
-#include <QMutexLocker>
-
-#include <algorithm>
-#include <QSet>
-#include <vector>
-#include <typeindex>
 
 #include "gt_abstractobjectfactory.h"
-#include "gt_logging.h"
+
 #include "gt_object.h"
+#include "gt_logging.h"
+
+#include <QMutex>
+#include <QMutexLocker>
+#include <QSet>
+
+#include <algorithm>
+#include <typeindex>
+#include <vector>
+
+namespace
+{
+
+// Helper struct to nicely log list of meta objects
+struct LogMetaData
+{
+    const QList<QMetaObject>& list;
+};
+
+gt::log::Stream&
+operator<<(gt::log::Stream& s, const LogMetaData& data)
+{
+    {
+        gt::log::StreamStateSaver saver{s};
+        s.nospace() << '\n';
+        for (QMetaObject metaObj : data.list)
+        {
+            s << "- " << metaObj.className() << '\n';
+        }
+    }
+    return s;
+}
+
+} // namespace
 
 struct GtAbstractObjectFactory::Impl
 {
@@ -44,7 +70,7 @@ GtAbstractObjectFactory::GtAbstractObjectFactory(bool silent) :
 GtAbstractObjectFactory::~GtAbstractObjectFactory() = default;
 
 QString
-GtAbstractObjectFactory::builtinModuleId()
+GtAbstractObjectFactory::coreModuleId()
 {
     return QStringLiteral("GTlab");
 }
@@ -52,27 +78,26 @@ GtAbstractObjectFactory::builtinModuleId()
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {
-    GtObject* retval = nullptr;
-    if (m_knownClasses.contains(className))
+    const QMetaObject* mo = metaObject(className);
+    if (!mo)
     {
-        const QMetaObject& mo = m_knownClasses[className];
-        retval = newObject(mo, parent);
-        if (!retval)
+        if (!isSilent())
         {
-            if (!m_silent)
-            {
-                qCritical() << "GtObjectFactory : Error creating " << className;
-                qDebug() << knownClasses();
-            }
-            return nullptr;
+            gtError() << QObject::tr("GtAbstractObjectFactory: "
+                                     "Unknown class '%1'!")
+                             .arg(className);
         }
+        return nullptr;
     }
-    else
+
+    GtObject* retval = newObject(*mo, parent);
+    if (!retval)
     {
-        if (!m_silent)
+        if (!isSilent())
         {
-            // TODO: uncomment
-//            qWarning() << "WARNING: classname not found! (" << className << ")";
+            gtError() << QObject::tr("GtAbstractObjectFactory: "
+                                     "Failed to instance '%1'!")
+                             .arg(className);
         }
         return nullptr;
     }
@@ -84,13 +109,12 @@ GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 QString
 GtAbstractObjectFactory::superClassName(const QString& className) const
 {
-    if (m_knownClasses.contains(className))
+    if (const QMetaObject* mo = metaObject(className))
     {
-        const QMetaObject& mo = m_knownClasses[className];
-        return mo.superClass()->className();
+        return mo->superClass()->className();
     }
 
-    return QString();
+    return QString{};
 }
 
 QStringList
@@ -98,11 +122,10 @@ GtAbstractObjectFactory::classHierarchy(const QString& className)
 {
     QStringList retval;
 
-    if (m_knownClasses.contains(className))
+    if (const QMetaObject* mo = metaObject(className))
     {
         retval << className;
-        const QMetaObject& mo = m_knownClasses[className];
-        if (const QMetaObject* smo = mo.superClass())
+        if (const QMetaObject* smo = mo->superClass())
         {
             retval.append(classHierarchy(smo));
         }
@@ -144,22 +167,32 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
                                        const QString& moduleIdent)
 {
     QString classname = metaObj.className();
+    assert(!classname.isEmpty());
+
+    if (moduleIdent.isEmpty())
+    {
+        if (!isSilent())
+        {
+            gtWarning() << QObject::tr("Failed to register class '%1', "
+                                       "invalid module id!")
+                               .arg(classname);
+        }
+        return false;
+    }
 
     if (knownClass(classname))
     {
-        if (!m_silent)
+        if (!isSilent())
         {
-            qWarning() << "WARNING" << ": " << "class already exists!" << " ("
-                       << classname + ")";
+            gtWarning() << QObject::tr("Failed to register class '%1', "
+                                       "class already exists!")
+                               .arg(classname);
         }
         return false;
     }
 
     m_knownClasses.insert(classname, metaObj);
-    if (!moduleIdent.isEmpty())
-    {
-        m_classModuleIds.insert(classname, moduleIdent);
-    }
+    m_classModuleIds.insert(classname, moduleIdent);
 
     return true;
 }
@@ -183,12 +216,23 @@ bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
                                          const QString& moduleIdent)
 {
+    if (moduleIdent.isEmpty())
+    {
+        if (!isSilent())
+        {
+            gtWarning() << QObject::tr("Invalid module id, failed to register "
+                                       "classes:")
+                        << LogMetaData{metaData};
+        }
+        return false;
+    }
+
     if (containsDuplicates(metaData)) return false;
 
     bool success = true;
-    foreach (const QMetaObject& metaObj, metaData)
+    for (const QMetaObject& metaObj : metaData)
     {
-        success &= registerClass(metaObj, moduleId);
+        success &= registerClass(metaObj, moduleIdent);
     }
     return success;
 }
@@ -226,30 +270,26 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 bool
 GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
-    foreach (const QMetaObject& mobj, metaData)
+    const auto duplicate = std::find_if(
+        metaData.begin(), metaData.end(), [this](const QMetaObject& mobj) {
+            const QString classname = mobj.className();
+            return knownClass(classname);
+        });
+    const bool hasDuplicate = duplicate != metaData.end();
+    if (hasDuplicate && !isSilent())
     {
-        QString classname = mobj.className();
-        if (m_knownClasses.contains(classname))
-        {
-            if (!m_silent)
-            {
-                qWarning() << "class name '"
-                              + classname
-                              + "' already exists!";
-
-            }
-            return true;
-        }
+        gtWarning() << QObject::tr("class '%1' already exists!")
+                           .arg(duplicate->className());
     }
-    return false;
+    return hasDuplicate;
 }
 
 bool
 GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
 {
-    return std::all_of(std::begin(metaData), std::end(metaData), [this](const QMetaObject& mobj) {
-        return invokable(mobj);
-    });
+    return std::all_of(
+        std::begin(metaData), std::end(metaData),
+        [this](const QMetaObject& mobj) { return invokable(mobj); });
 }
 
 const QMetaObject*
@@ -551,14 +591,27 @@ GtAbstractObjectFactory::createProperty(const QString& typeId,
 }
 
 bool
+GtAbstractObjectFactory::isSilent() const noexcept
+{
+    return m_silent;
+}
+
+void
+GtAbstractObjectFactory::setSilent(bool silent) noexcept
+{
+    m_silent = silent;
+}
+
+bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 {
     GtObject* obj = newObject(metaObj);
     if (!obj)
     {
-        if (!m_silent)
+        if (!isSilent())
         {
-            qWarning() << "class " << metaObj.className() << " not invokable!";
+            gtWarning() << QObject::tr("class '%1' is not default invokable!")
+                               .arg(metaObj.className());
         }
         return false;
     }

@@ -789,7 +789,8 @@ TEST_F(TestGtObject, dynamicPropertiesPersistDefinitionAndValue)
         ConfigurableStringProperty::staticMetaObject,
         [](const QString& id) { return new ConfigurableStringProperty(id); });
     ASSERT_TRUE(propertyFactory.isValid());
-    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject);
+    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     auto property =
         std::make_unique<ConfigurableStringProperty>("runtimeValue");
@@ -922,7 +923,8 @@ TEST_F(TestGtObject, nonStructDynamicPropertyChildStateRoundtripsAndApplies)
         *gtObjectFactory, typeId, StringPropertyWithIntChild::staticMetaObject,
         [](const QString& id) { return new StringPropertyWithIntChild(id); });
     ASSERT_TRUE(propertyFactory.isValid());
-    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject);
+    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
 
     GtObjectGroup source;
     GtObjectGroup target;
@@ -1080,7 +1082,8 @@ TEST_F(TestGtObject, builtinDynamicConstructionConfigurationRoundtrips)
 {
     GtObjectGroup object;
     object.setFactory(gtObjectFactory);
-    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject);
+    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
     auto integer = std::make_unique<GtIntProperty>(
         QStringLiteral("runtimeInt"), QStringLiteral("Runtime Int"),
         QStringLiteral("bounded"), gt::Boundaries<int>::makeNormalized(2, 20),
@@ -1120,7 +1123,8 @@ TEST_F(TestGtObject, dynamicStringInitialValueRoundtripsThroughXml)
 {
     GtObjectGroup object;
     object.setFactory(gtObjectFactory);
-    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject);
+    gtObjectFactory->registerClass(GtObjectGroup::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
     auto property = std::make_unique<GtStringProperty>(
         QStringLiteral("runtimeString"), QStringLiteral("Runtime String"),
         QString(), QStringLiteral("default"));

@@ -30,26 +30,23 @@ struct GtProcessRunnerCommandHelperFactory :
         setObjectName("GtProcessCommandHelperFactory");
 
         // commands, notifications and responses
-        registerClass(GT_METADATA(GtProcessRunnerNotification),
-                      builtinModuleId());
-        registerClass(GT_METADATA(GtProcessRunnerResponse), builtinModuleId());
+        registerClass(GT_METADATA(GtProcessRunnerNotification), coreModuleId());
+        registerClass(GT_METADATA(GtProcessRunnerResponse), coreModuleId());
         registerClass(GT_METADATA(GtProcessRunnerInitSessionCommand),
-                      builtinModuleId());
+                      coreModuleId());
         registerClass(GT_METADATA(GtProcessRunnerRunTaskCommand),
-                      builtinModuleId());
+                      coreModuleId());
         registerClass(GT_METADATA(GtProcessRunnerCollectTaskCommand),
-                      builtinModuleId());
-        registerClass(GT_METADATA(GtProcessRunnerPingCommand),
-                      builtinModuleId());
-        registerClass(GT_METADATA(GtProcessRunnerAbortCommand),
-                      builtinModuleId());
+                      coreModuleId());
+        registerClass(GT_METADATA(GtProcessRunnerPingCommand), coreModuleId());
+        registerClass(GT_METADATA(GtProcessRunnerAbortCommand), coreModuleId());
 
         // meta data
         registerClass(
             GT_METADATA(gt::process_runner::ProcessComponentStatePayload),
-            builtinModuleId());
+            coreModuleId());
         registerClass(GT_METADATA(gt::process_runner::MementoDiffPayload),
-                      builtinModuleId());
+                      coreModuleId());
     }
 };
 

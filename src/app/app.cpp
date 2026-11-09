@@ -56,7 +56,7 @@
 void
 registerWidgets()
 {
-    const QString coreId = GtAbstractObjectFactory::builtinModuleId();
+    const QString coreId = GtAbstractObjectFactory::coreModuleId();
 
     gtMdiLauncher->registerClass(GT_METADATA(GtMementoViewer), coreId);
     gtMdiLauncher->registerClass(GT_METADATA(GtTemplateViewer), coreId);

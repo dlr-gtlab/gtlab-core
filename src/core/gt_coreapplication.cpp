@@ -122,9 +122,9 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
 
     // register data classes of core lib here
     gtObjectFactory->registerClass(GT_METADATA(GtProcessData),
-                                   GtAbstractObjectFactory::builtinModuleId());
+                                   GtAbstractObjectFactory::coreModuleId());
     gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup),
-                                   GtAbstractObjectFactory::builtinModuleId());
+                                   GtAbstractObjectFactory::coreModuleId());
 }
 
 GtCoreApplication::~GtCoreApplication()

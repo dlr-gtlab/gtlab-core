@@ -553,3 +553,64 @@ TEST_F(TestGtUtilities, range)
 
     EXPECT_EQ(*gt::range(9, 10).begin(), 9);
 }
+
+TEST_F(TestGtUtilities, insert_missing_into)
+{
+    QMap<int, char> dest;
+    QHash<int, char> source{
+        {1, 'a'},
+        {2, 'b'},
+        {3, 'c'},
+        {4, 'd'},
+    };
+    ASSERT_EQ(dest.size(), 0);
+    ASSERT_EQ(source.size(), 4);
+
+    // merge into empty map
+    gt::insertMissingInto(dest, source);
+
+    ASSERT_EQ(dest.size(), 4);
+    ASSERT_EQ(source.size(), 4);
+    EXPECT_EQ(dest.value(1), 'a');
+    EXPECT_EQ(dest.value(2), 'b');
+    EXPECT_EQ(dest.value(3), 'c');
+    EXPECT_EQ(dest.value(4), 'd');
+
+    // modify dest
+    dest.remove(2);
+    dest[4] = 'e';
+    dest[1] = '1';
+    ASSERT_EQ(dest.size(), 3);
+
+    // merge only missing
+    gt::insertMissingInto(dest, source);
+    ASSERT_EQ(dest.size(), 4);
+    ASSERT_EQ(source.size(), 4);
+    EXPECT_EQ(dest.value(1), '1');
+    EXPECT_EQ(dest.value(2), 'b');
+    EXPECT_EQ(dest.value(3), 'c');
+    EXPECT_EQ(dest.value(4), 'e');
+
+    dest[5] = 'd';
+    ASSERT_EQ(dest.size(), 5);
+
+    // merge does not remove entries
+    gt::insertMissingInto(dest, source);
+    ASSERT_EQ(dest.size(), 5);
+    ASSERT_EQ(source.size(), 4);
+    EXPECT_EQ(dest.value(1), '1');
+    EXPECT_EQ(dest.value(2), 'b');
+    EXPECT_EQ(dest.value(3), 'c');
+    EXPECT_EQ(dest.value(4), 'e');
+    EXPECT_EQ(dest.value(5), 'd');
+
+    // merge only missing
+    gt::insertMissingInto(source, dest);
+    ASSERT_EQ(dest.size(), 5);
+    ASSERT_EQ(source.size(), 5);
+    EXPECT_EQ(source.value(1), 'a');
+    EXPECT_EQ(source.value(2), 'b');
+    EXPECT_EQ(source.value(3), 'c');
+    EXPECT_EQ(source.value(4), 'd');
+    EXPECT_EQ(source.value(5), 'd');
+}

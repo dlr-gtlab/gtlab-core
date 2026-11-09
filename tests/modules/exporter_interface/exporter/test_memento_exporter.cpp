@@ -49,9 +49,16 @@ TestMementoExporter::doExport(GtObject* data, QFile& file)
         return false;
     }
 
-    file.write(data->toMemento().toByteArray());
+    QByteArray mementoData = data->toMemento().toByteArray();
+    int bytesWritten = file.write(mementoData);
 
     file.close();
+
+    if (mementoData.size() != bytesWritten)
+    {
+        gtError() << tr("Not all data written to the file!") << file.fileName();
+        return false;
+    }
 
     gtInfo() << "Memento export finished";
 

@@ -37,10 +37,11 @@ public:
     /**
      * @brief Module id of the classes that are built into GTlab.
      * Classes registered with this module id are considered as core
-     * classes and do not create module dependencies.
-     * @return The built-in module id
+     * classes and do not create module dependencies. Should not be used
+     * by external modules.
+     * @return The built-in core module id
      */
-    static QString builtinModuleId();
+    static QString coreModuleId();
 
     /**
      * @brief newObject - generates gtlab objects based on given classname
@@ -82,7 +83,8 @@ public:
     /**
      * @brief Registers a class and its providing module.
      * @param metaObj Meta object to register.
-     * @param moduleId Identification of the providing module.
+     * @param moduleId Identification of the providing module. Must not be
+     * empty.
      * @return Whether the class was registered successfully.
      */
     virtual bool registerClass(QMetaObject metaObj, const QString& moduleIdent);
@@ -97,11 +99,11 @@ public:
     /**
      * @brief Registers classes and their providing module.
      * @param metaData Meta objects to register.
-     * @param moduleId Identification of the providing module.
-     * @return Returns false if any registration fails. Does not revert
-     * successful registrations on a failure.
-     * @note Delegates the registration of each meta object to
-     * `registerClass(QMetaObject, const QString&)`
+     * @param moduleId Identification of the providing module. Must not be
+     * empty.
+     * @return Checks if registration is allowed upfront and returns if
+     * registration is possible.
+     * @note Delegates the registration of each meta object to `registerClass`
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
                                  const QString& moduleIdent);
@@ -214,6 +216,18 @@ protected:
 
     /// debug output indicator
     bool m_silent;
+
+    /**
+     * @brief Returns true if the factory should not log errors
+     * @return Is silent
+     */
+    bool isSilent() const noexcept;
+
+    /**
+     * @brief Sets whether the factory should log errors
+     * @param silent
+     */
+    void setSilent(bool silent = true) noexcept;
 
     /**
      * @brief GtAbstractObjectFactory

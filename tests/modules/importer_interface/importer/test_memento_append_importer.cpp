@@ -61,8 +61,7 @@ TestMementoAppendImporter::import(GtObject* data, QFile& file)
         return false;
     }
 
-    auto* obj = memento.restore(gtObjectFactory, true);
-
+    auto obj = memento.restore_unique(gtObjectFactory, true);
     if (!obj)
     {
         gtError() << tr("Could not restore object!") << memento.className();
@@ -72,7 +71,6 @@ TestMementoAppendImporter::import(GtObject* data, QFile& file)
     if (obj->isDummy())
     {
         gtError() << tr("Unknown object type!") << memento.className();
-        delete obj;
         return false;
     }
 
@@ -81,10 +79,9 @@ TestMementoAppendImporter::import(GtObject* data, QFile& file)
         obj->setObjectName(obj->objectName() + m_suffix);
     }
 
-    if (!data->appendChild(obj))
+    if (!data->appendChild(std::move(obj)))
     {
         gtError() << tr("Could not add object to") << data->objectName();
-        delete obj;
         return false;
     }
 

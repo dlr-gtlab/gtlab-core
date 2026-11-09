@@ -21,11 +21,11 @@
 GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 {
     // TODO: task link should be deleted
-    registerClass(GT_METADATA(GtTaskLink), builtinModuleId());
+    registerClass(GT_METADATA(GtTaskLink), coreModuleId());
 
     // Default calculators
     GtCalculatorFactory::registerCalculatorData(
-        GtExportToMementoCalculator::calculatorData(), builtinModuleId());
+        GtExportToMementoCalculator::calculatorData(), coreModuleId());
 }
 
 GtCalculatorFactory*
@@ -41,9 +41,9 @@ GtCalculatorFactory::instance()
 
 bool
 GtCalculatorFactory::registerCalculatorData(GtCalculatorData calcData,
-                                            const QString& moduleId)
+                                            const QString& moduleIdent)
 {
-    if (!registerClass(calcData->metaData(), moduleId))
+    if (!registerClass(calcData->metaData(), moduleIdent))
     {
         return false;
     }

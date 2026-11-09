@@ -45,6 +45,8 @@
 #include "gt_aboutdialog.h"
 
 #include <functional>
+#include <algorithm>
+#include <iterator>
 
 GtAboutLogo::GtAboutLogo(QWidget* parent) :
     QWidget(parent),

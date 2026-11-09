@@ -54,12 +54,12 @@ TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
-TEST(GtAbstractObjectFactory, EmptyModuleIdIsNotRecorded)
+TEST(GtAbstractObjectFactory, EmptyModuleIdIsNotAllowed)
 {
     TestObjectFactory factory;
 
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
-    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
+    ASSERT_FALSE(factory.registerClass(GT_METADATA(GtObject), QString{}));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
@@ -91,27 +91,18 @@ TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
 TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
 {
     TestObjectFactory factory;
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject), QString{}));
-
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("TestModule")));
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
                                          QStringLiteral("TestModule")));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
-}
+    EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
+                                         factory.coreModuleId()));
 
-TEST(GtAbstractObjectFactory, SubclassOverrideIsUsed)
-{
-    SubclassOverrideFactory factory;
-    GtAbstractObjectFactory& base = factory;
-
-    ASSERT_TRUE(base.registerClass(GT_METADATA(GtObject),
-                                   QStringLiteral("TestModule")));
-
-    const QStringList expected{GT_CLASSNAME(GtObject)};
-    EXPECT_EQ(factory.registered(), expected);
-    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObject)),
+    EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("TestModule"));
 }
 
+// calling registerClasses calls `registerClass`
 TEST(GtAbstractObjectFactory, BulkRegistrationUsesSubclassOverride)
 {
     SubclassOverrideFactory factory;

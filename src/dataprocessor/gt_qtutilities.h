@@ -44,7 +44,7 @@ inline auto& container_const_cast(Vec<T...>& contianer)
 }
 
 /**
- * @brief Overlaod for const l-values
+ * @brief Overload for const l-values
  * @param container Container to cast
  * @return Const container
  */
@@ -65,6 +65,28 @@ inline auto container_const_cast(Vec<T...>&& contianer)
 {
     void* ptr = static_cast<void*>(&contianer); // :)
     return *static_cast<Vec<gt::trait::to_const_t<T>...>*>(ptr);
+}
+
+/**
+ * @brief Merges missing key-value pairs into `dest`. If the key exists,
+ * it is skipped.
+ * @note For QMultiMap/QMultiHash or similar only the last item is inserted
+ * @param dest Destination map-like object (must have Key-Value insert function)
+ * @param source Source map-like object (must have Key-Value-Iterator)
+ */
+template <typename DestinationMap, typename SourceMap,
+          typename = std::enable_if_t<
+              gt::trait::has_key_value_iterators<SourceMap>::value>>
+void
+insertMissingInto(DestinationMap& dest, const SourceMap& source)
+{
+    for (auto it = source.keyValueBegin(); it != source.keyValueEnd(); ++it)
+    {
+        const auto& kv = *it;
+        const auto& k = kv.first;
+        const auto& v = kv.second;
+        if (qAsConst(dest).find(k) == dest.cend()) dest.insert(k, v);
+    }
 }
 
 /**

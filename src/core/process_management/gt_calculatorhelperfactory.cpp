@@ -125,7 +125,7 @@ GtCalculatorHelperFactory::connectHelper(
         return true;
     }
 
-    registerClass(helper, builtinModuleId());
+    registerClass(helper, coreModuleId());
     calcHelper.append(QString::fromUtf8(helper.className()));
 
     m_calcHelperConnection.insert(parentClassName, calcHelper);

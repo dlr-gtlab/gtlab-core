@@ -22,7 +22,7 @@ GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
     GtExportHandler::registerClass(GT_METADATA(GtProcessExporter),
-                                   builtinModuleId());
+                                   coreModuleId());
 }
 
 GtExportHandler*

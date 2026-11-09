@@ -65,10 +65,7 @@ taskClassModuleIds(const QString& projectPath)
 
         const auto mappings =
             gt::xml::readClassModuleMap(document.documentElement());
-        for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
-        {
-            if (!result.contains(it.key())) result.insert(it.key(), it.value());
-        }
+        gt::insertMissingInto(result, mappings);
     }
     return result;
 }
@@ -520,15 +517,9 @@ GtProject::loadMetaData()
 
     // module meta data
     readModuleMetaData(root);
+
     pimpl->classModuleIds = gt::xml::readClassModuleMap(root);
-    const auto taskMappings = taskClassModuleIds(path());
-    for (auto it = taskMappings.cbegin(); it != taskMappings.cend(); ++it)
-    {
-        if (!pimpl->classModuleIds.contains(it.key()))
-        {
-            pimpl->classModuleIds.insert(it.key(), it.value());
-        }
-    }
+    gt::insertMissingInto(pimpl->classModuleIds, taskClassModuleIds(path()));
 
     return true;
 }
@@ -591,38 +582,48 @@ GtProject::readModuleMetaData(const QDomElement& root)
 
         module = module.nextSiblingElement(QStringLiteral("MODULE"));
     }
-
-
 }
 
 void
 GtProject::updateClassModuleIds()
 {
-    QMap<QString, QString> updated = pimpl->classModuleIds;
+    QMap<QString, QString> updated;
     for (const GtObject* object : findChildren<GtObject*>())
     {
         const QString className = object->isDummy()
                                       ? object->toMemento().className()
                                       : object->metaObject()->className();
-        if (className.isEmpty()) continue;
+        // skip visited classes
+        if (className.isEmpty() || updated.contains(className)) continue;
 
         QString moduleId;
         if (const auto* factory = object->factory())
         {
             moduleId = factory->moduleId(className);
         }
-        if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
+        if (moduleId.isEmpty())
+        {
+            moduleId = gtObjectFactory->moduleId(className);
+        }
         if (moduleId.isEmpty())
         {
             moduleId = pimpl->classModuleIds.value(className);
         }
-        // core classes are not stored in the manifest
-        if (!moduleId.isEmpty() &&
-            moduleId != GtAbstractObjectFactory::builtinModuleId())
+        if (!moduleId.isEmpty())
         {
             updated.insert(className, moduleId);
         }
     }
+
+    // merge remaining classes not handled by loaded modules
+    for (auto it = pimpl->classModuleIds.cbegin();
+         it != pimpl->classModuleIds.cend(); ++it)
+    {
+        // skip visited classes
+        if (it.value().isEmpty() || updated.contains(it.value())) continue;
+        updated.insert(it.key(), it.value());
+    }
+
     pimpl->classModuleIds = std::move(updated);
 }
 
@@ -774,15 +775,9 @@ GtProject::readModuleData()
             continue;
         }
 
-        const auto moduleMappings = gt::xml::takeClassModuleMap(root);
-        for (auto it = moduleMappings.cbegin(); it != moduleMappings.cend();
-             ++it)
-        {
-            if (!pimpl->classModuleIds.contains(it.key()))
-            {
-                pimpl->classModuleIds.insert(it.key(), it.value());
-            }
-        }
+        // update class module id map
+        gt::insertMissingInto(pimpl->classModuleIds,
+                              gt::xml::takeClassModuleMap(root));
 
         GtObject* obj = gtObjectFactory->newObject(packageId);
 

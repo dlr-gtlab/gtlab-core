@@ -27,7 +27,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     simpleTask->id = QStringLiteral("Simple Task");
     simpleTask->version = GtVersionNumber(0,1);
     simpleTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(simpleTask, builtinModuleId());
+    GtTaskFactory::registerTaskData(simpleTask, coreModuleId());
 
     GtTaskData loopTask = GT_TASK_DATA(GtLoop);
     loopTask->id = QStringLiteral("Loop");
@@ -35,7 +35,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     loopTask->description = tr("Repeats execution until maixmum "
                                "number of iterations is reached.");
     loopTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(loopTask, builtinModuleId());
+    GtTaskFactory::registerTaskData(loopTask, coreModuleId());
 
     GtTaskData residualLoopTask = GT_TASK_DATA(GtResidualLoop);
     residualLoopTask->id = QStringLiteral("Residual Loop");
@@ -45,7 +45,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                        "maximum number of iterations "
                                        "is reached.");
     residualLoopTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(residualLoopTask, builtinModuleId());
+    GtTaskFactory::registerTaskData(residualLoopTask, coreModuleId());
 
     GtTaskData parameterLoop = GT_TASK_DATA(GtParameterLoop);
     parameterLoop->id = QStringLiteral("Parameter Loop");
@@ -54,7 +54,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                     "Sets a parameter to a new value "
                                     "between start and end value");
     parameterLoop->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(parameterLoop, builtinModuleId());
+    GtTaskFactory::registerTaskData(parameterLoop, coreModuleId());
 }
 
 
@@ -70,9 +70,9 @@ GtTaskFactory::instance()
 }
 
 bool
-GtTaskFactory::registerTaskData(GtTaskData data, const QString& module)
+GtTaskFactory::registerTaskData(GtTaskData data, const QString& moduleIdent)
 {
-    if (!gtObjectFactory->registerClass(data->metaData(), module))
+    if (!gtObjectFactory->registerClass(data->metaData(), moduleIdent))
     {
         return false;
     }

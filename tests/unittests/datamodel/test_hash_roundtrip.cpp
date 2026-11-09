@@ -150,12 +150,14 @@ protected:
         if (!gtObjectFactory->knownClass("TestSpecialGtObject"))
         {
             gtObjectFactory->registerClass(
-                TestSpecialGtObject::staticMetaObject);
+                TestSpecialGtObject::staticMetaObject,
+                QStringLiteral("UnitTest"));
         }
         auto registerClassOnce = [this](QMetaObject meta, const char* name) {
             if (!gtObjectFactory->knownClass(QString(name)))
             {
-                gtObjectFactory->registerClass(meta);
+                gtObjectFactory->registerClass(meta,
+                                               QStringLiteral("UnitTest"));
             }
         };
         registerClassOnce(TestHashContainerObject::staticMetaObject,
