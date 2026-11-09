@@ -349,11 +349,12 @@ gt::gui::detail::addProcessDockActionsToMenu(
     if (!addedActions.isEmpty())
     {
         const QList<QAction*> menuActions = menu.actions();
-        const auto firstAddedAction =
-            std::find_if(menuActions.cbegin(), menuActions.cend(),
-                         [&addedActions](const QAction* menuAction) {
-                             return addedActions.contains(menuAction);
-                         });
+        const auto firstAddedAction = std::find_if(
+            menuActions.cbegin(), menuActions.cend(),
+            [&addedActions](const QAction* menuAction) {
+                return std::find(addedActions.cbegin(), addedActions.cend(),
+                                 menuAction) != addedActions.cend();
+            });
 
         if (firstAddedAction != menuActions.cend())
         {
