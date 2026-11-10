@@ -718,7 +718,7 @@ GtObject*
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) const
 {
     auto makeDummy = [parent](const QString& msg) -> std::unique_ptr<GtObject> {
-        gtLogOnce(Warning) << msg;
+        gtLogOnce(Trace) << msg;
         auto newObj = std::make_unique<GtObject>(parent);
         newObj->makeDummy();
         return newObj;
@@ -785,7 +785,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory* factory) const
     {
         // we need to make it a dummy, to avoid changing the original object
         // and to highlight a problem
-        gtLogOnce(Warning)
+        gtLogOnce(Trace)
             << QObject::tr("Creating dummy object for unresolved object '%1'")
                    .arg(ident());
         obj.makeDummy();
