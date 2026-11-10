@@ -14,10 +14,10 @@ project(GTlabUnittests)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if (NOT TARGET Qt::Core)
-    # Todo version agnostic qt version search
-    find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+if (NOT DEFINED QT_VERSION_MAJOR)
+    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
 endif()
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Test REQUIRED)
 
 if (NOT TARGET GTlab::Core)
     find_package(GTlab REQUIRED)
@@ -67,6 +67,7 @@ target_include_directories(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch
 )
 target_link_libraries(GTlabUnitTest PRIVATE
+    Qt${QT_VERSION_MAJOR}::Test
     GTlab::Core
     GTlab::Gui
     GTlab::DataProcessor
