@@ -264,6 +264,15 @@ GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
 }
 
 void
+GtRecordingSession::notifyObjectValueWritten(const GtObject& object)
+{
+    if (!isObserved(object)) return;
+
+    pimpl->dispatch(ObjectValueWritten,
+                    [&]() { pimpl->observer.objectValueWritten(object); });
+}
+
+void
 GtRecordingSession::notifyObjectAttached(const GtObject& parent,
                                          const GtObject& child)
 {
@@ -403,6 +412,15 @@ gt::detail::recordPropertyWritten(const GtAbstractProperty& property) noexcept
     if (const GtObject* owner = property.ownerObject())
     {
         session->notifyPropertyWritten(*owner, property);
+    }
+}
+
+void
+gt::detail::recordObjectValueWritten(const GtObject& object) noexcept
+{
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->notifyObjectValueWritten(object);
     }
 }
 

@@ -56,6 +56,13 @@ public:
                                  const GtAbstractProperty& property);
 
     /**
+     * @brief A value of an observed object was changed through an accessor
+     * of the object itself (see gt::notifyObjectValueWritten()), not through
+     * a registered property. Counterpart of objectValueRead().
+     */
+    virtual void objectValueWritten(const GtObject& object);
+
+    /**
      * @brief A child was attached to an observed parent.
      *
      * The child may still be under construction (no valid UUID, derived

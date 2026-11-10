@@ -276,3 +276,64 @@ TEST(GtRecordingProperties, objectValueReadsFollowEventMask)
 
     EXPECT_TRUE(eventKinds(observer).isEmpty());
 }
+
+TEST(GtRecordingProperties, objectValueWritesReachObserverWithObject)
+{
+    RecordingTestObject root;
+    auto* child = new RecordingTestObject(&root);
+    RecordingTestObject unrelated;
+    RecordingTestObserver observer;
+
+    record(observer, roots(&root), [&]() {
+        root.setOffset(1.0);
+        child->setOffset(2.0);
+        unrelated.setOffset(3.0);
+    });
+
+    const auto entries = observer.entries();
+    ASSERT_EQ(eventKinds(observer),
+              (QStringList{"valueWritten", "valueWritten"}));
+    EXPECT_EQ(entries[1].object, &root);
+    EXPECT_EQ(entries[1].property, nullptr);
+    EXPECT_EQ(entries[2].object, child);
+}
+
+TEST(GtRecordingProperties, objectValueWritesOutsideRecordingAreIgnored)
+{
+    RecordingTestObject obj;
+    RecordingTestObserver observer;
+
+    obj.setOffset(1.0);
+
+    EXPECT_TRUE(observer.entries().isEmpty());
+}
+
+TEST(GtRecordingProperties, objectValueWritesInsideReadAreReported)
+{
+    RecordingTestObject obj;
+    RecordingTestObserver observer;
+
+    record(observer, roots(&obj), [&]() { (void)obj.cachedOffset(); });
+
+    EXPECT_EQ(eventKinds(observer),
+              (QStringList{"valueRead", "valueWritten"}));
+}
+
+TEST(GtRecordingProperties, objectValueWritesFollowEventMask)
+{
+    RecordingTestObject obj;
+    RecordingTestObserver observer;
+    GtObject component;
+
+    // Events(AllEvents): Qt5 has no operator&(Enum, QFlags)
+    const GtRecordingSession::Events mask =
+        GtRecordingSession::Events(GtRecordingSession::AllEvents) &
+        ~GtRecordingSession::Events(GtRecordingSession::ObjectValueWritten);
+    GtRecordingSession session{component, observer, roots(&obj), mask};
+    session.run([&]() {
+        obj.setOffset(1.0);
+        return true;
+    });
+
+    EXPECT_TRUE(eventKinds(observer).isEmpty());
+}

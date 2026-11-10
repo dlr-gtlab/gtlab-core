@@ -39,6 +39,12 @@ GtRecordingObserver::propertyWritten(const GtObject&, const GtAbstractProperty&)
 }
 
 void
+GtRecordingObserver::objectValueWritten(const GtObject&)
+{
+    // nothing to do here
+}
+
+void
 GtRecordingObserver::objectAttached(const GtObject&, const GtObject&)
 {
     // nothing to do here
