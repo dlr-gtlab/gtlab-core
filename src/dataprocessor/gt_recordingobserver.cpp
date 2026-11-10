@@ -57,7 +57,7 @@ GtRecordingObserver::objectDetached(const GtObject&, const GtObject&)
 }
 
 void
-GtRecordingObserver::objectDestroyed(const GtObject&)
+GtRecordingObserver::objectDestroyed(const GtObject*, const GtObject&)
 {
     // nothing to do here
 }

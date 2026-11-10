@@ -141,9 +141,11 @@ public:
         log({QStringLiteral("detached"), &parent, nullptr, &child});
     }
 
-    void objectDestroyed(const GtObject& object) override
+    /// Logs the parent as object and the deleted object as child
+    void objectDestroyed(const GtObject* parent,
+                         const GtObject& object) override
     {
-        log({QStringLiteral("destroyed"), &object});
+        log({QStringLiteral("destroyed"), parent, nullptr, &object});
     }
 
     void recordingFinished(const GtRecordingSession&, bool success) override

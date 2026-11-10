@@ -162,11 +162,41 @@ TEST(GtRecordingTree, deletionIsReportedAndForgotten)
         (void)fresh.value.getVal();
     });
 
+    // a deletion is never reported as a detach
     const auto entries = observer.entries();
-    ASSERT_EQ(eventKinds(observer), (QStringList{"detached"}));
+    ASSERT_EQ(eventKinds(observer), (QStringList{"destroyed"}));
     EXPECT_EQ(entries[1].object, &root);
     EXPECT_EQ(entries[1].child, deleted);
     EXPECT_NE(entries[1].child, deletedGrandChild);
+}
+
+TEST(GtRecordingTree, deletionFollowsObjectDestroyedMaskOnly)
+{
+    // Events(...): Qt5 has no operator&(Enum, QFlags)
+    const GtRecordingSession::Events all(GtRecordingSession::AllEvents);
+    const GtRecordingSession::Events destroyedOnly(
+        GtRecordingSession::ObjectDestroyed);
+    const GtRecordingSession::Events withoutDestroyed =
+        all & ~GtRecordingSession::Events(GtRecordingSession::ObjectDestroyed);
+
+    for (const auto mask : {destroyedOnly, withoutDestroyed})
+    {
+        RecordingTestObject root;
+        auto* child = new RecordingTestObject(&root);
+        RecordingTestObserver observer;
+        GtObject component;
+        GtRecordingSession session{component, observer, roots(&root), mask};
+
+        session.run([&]() {
+            delete child;
+            return true;
+        });
+
+        const QStringList expected = mask == destroyedOnly
+                                         ? QStringList{"destroyed"}
+                                         : QStringList{};
+        EXPECT_EQ(eventKinds(observer), expected);
+    }
 }
 
 TEST(GtRecordingTree, unrelatedTreeChangesAreIgnored)
@@ -238,7 +268,8 @@ TEST(GtRecordingTree, deletionInNestedSessionReachesSuspendedParent)
 
     // the nested session does not observe the object
     EXPECT_EQ(eventKinds(childObserver), QStringList{});
-    ASSERT_EQ(eventKinds(parentObserver), (QStringList{"read", "detached"}));
+    ASSERT_EQ(eventKinds(parentObserver), (QStringList{"read", "destroyed"}));
+    EXPECT_EQ(parentObserver.entries()[2].object, &parentRoot);
     EXPECT_EQ(parentObserver.entries()[2].child, deleted);
 }
 
@@ -256,7 +287,27 @@ TEST(GtRecordingTree, deletedObservedRootIsReported)
 
     const auto entries = observer.entries();
     ASSERT_EQ(eventKinds(observer), (QStringList{"read", "destroyed"}));
-    EXPECT_EQ(entries[2].object, deleted);
+    EXPECT_EQ(entries[2].object, nullptr);
+    EXPECT_EQ(entries[2].child, deleted);
+}
+
+TEST(GtRecordingTree, deletedObservedRootWithUnobservedParentIsReported)
+{
+    GtObject project;
+    auto* root = new RecordingTestObject(&project);
+    RecordingTestObserver observer;
+    const GtObject* deleted = root;
+
+    record(observer, roots(root), [&](GtRecordingSession& s) {
+        delete root;
+        EXPECT_FALSE(s.isObserved(*deleted));
+    });
+
+    // the parent is reported although it is not observed
+    const auto entries = observer.entries();
+    ASSERT_EQ(eventKinds(observer), (QStringList{"destroyed"}));
+    EXPECT_EQ(entries[1].object, &project);
+    EXPECT_EQ(entries[1].child, deleted);
 }
 
 TEST(GtRecordingTree, descendantsOfDeletedRootAreNotReportedSeparately)

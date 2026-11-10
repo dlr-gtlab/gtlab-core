@@ -479,16 +479,10 @@ gt::detail::recordObjectDestroyed(const GtObject* parent,
     // to the suspended parent sessions too, they hold the object as well
     for (GtRecordingSession* s = session; topLevel && s; s = s->pimpl->parent)
     {
-        if (parent && s->isObserved(*parent))
-        {
-            s->pimpl->dispatch(GtRecordingSession::ObjectDetached, [&]() {
-                s->pimpl->observer.objectDetached(*parent, object);
-            });
-        }
-        else if (!parent && s->isObserved(object))
+        if (s->isObserved(object))
         {
             s->pimpl->dispatch(GtRecordingSession::ObjectDestroyed, [&]() {
-                s->pimpl->observer.objectDestroyed(object);
+                s->pimpl->observer.objectDestroyed(parent, object);
             });
         }
 
