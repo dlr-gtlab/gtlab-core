@@ -559,7 +559,8 @@ GtProject::loadMetaData()
 
     if (gtApp && gtApp->session())
     {
-        GtProject* existingProject = gtApp->session()->findProject(projectname);
+        const GtProject* existingProject =
+            gtApp->session()->findProject(projectname);
         if (existingProject && existingProject != this)
         {
             gtWarning() << tr("Project name is already used in the session:")
