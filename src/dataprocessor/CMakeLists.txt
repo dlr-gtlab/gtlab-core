@@ -57,6 +57,9 @@ set(HEADERS
     gt_factorygroup.h
     gt_finally.h
     gt_qtutilities.h
+    gt_recordinghooks.h
+    gt_recordingobserver.h
+    gt_recordingsession.h
     gt_typetraits.h
     gt_utilities.h
     gt_variantconvert.h
@@ -126,6 +129,8 @@ set(SOURCES
     gt_finally.cpp
     gt_xmlutilities.cpp
     gt_qtutilities.cpp
+    gt_recordingobserver.cpp
+    gt_recordingsession.cpp
     internal/varianthasher.cpp
     property/gt_objectlinkproperty.cpp
     gt_objectmementodiff.cpp

@@ -49,6 +49,7 @@ GtColorProperty::GtColorProperty(const QString& ident, const QString& name,
 QVariant
 GtColorProperty::valueToVariant(const QString &unit, bool *ok) const
 {
+    gt::detail::PropertyReadScope readScope(*this);
     return gt::valueSuccess(QVariant::fromValue(m_value), ok);
 }
 
