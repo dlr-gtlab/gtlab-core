@@ -689,3 +689,43 @@ TEST_F(ProjectLifecycleTest, diffReorderDoesNotDuplicateStructuralNotifications)
     ASSERT_TRUE(second->applyDiff(nestedDiff));
     EXPECT_EQ(changes.count(), previous + 1);
 }
+
+TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
+{
+    auto* first = createProject(QStringLiteral("Hidden Process Project"));
+    auto* second = createProject(QStringLiteral("Other Hidden Process Project"));
+    ASSERT_TRUE(gtDataModel->newProject(first, false));
+    ASSERT_TRUE(gtDataModel->newProject(second, false));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+    ASSERT_NE(first->processData(), nullptr);
+    ASSERT_TRUE(first->processData()->isUserHidden());
+    auto* taskGroup = first->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    LifecycleStyledModel styled;
+    styled.setSourceModel(gtDataModel);
+    GtExplorerModel explorer;
+    explorer.setSourceModel(&styled);
+    const auto hiddenParent = styled.mapFromSource(
+        gtDataModel->indexFromObject(first->processData()));
+    ASSERT_FALSE(explorer.mapFromSource(hiddenParent).isValid());
+    const auto descendant = styled.mapFromSource(
+        gtDataModel->indexFromObject(taskGroup));
+    // The process dock can select this object before a command resets all
+    // views. Restoring that selection in the explorer must not create an
+    // index with an invisible parent.
+    ASSERT_FALSE(explorer.mapFromSource(descendant).isValid());
+
+    auto* visible = new GtObjectGroup;
+    ASSERT_TRUE(gtDataModel->appendChild(visible, first).isValid());
+    QPersistentModelIndex visibleIndex(explorer.mapFromSource(
+        styled.mapFromSource(gtDataModel->indexFromObject(visible))));
+    ASSERT_TRUE(visibleIndex.isValid());
+    EXPECT_EQ(explorer.objectFromIndex(visibleIndex), visible);
+    for (int i = 0; i < 3; ++i)
+    {
+        ASSERT_TRUE(gtDataModel->switchProject(second));
+        EXPECT_FALSE(visibleIndex.isValid());
+        ASSERT_TRUE(gtDataModel->switchProject(first));
+    }
+}
