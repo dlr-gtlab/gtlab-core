@@ -209,10 +209,6 @@ jobs:
       checks: write
       pull-requests: write
 
-    concurrency:
-      group: header-includes-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-
     steps:
     - uses: actions/checkout@v4
       with:
@@ -250,10 +246,6 @@ jobs:
       contents: read
       checks: write
 
-    concurrency:
-      group: header-includes-${{ github.ref }}
-      cancel-in-progress: true
-
     steps:
     - uses: actions/checkout@v4
       with:
@@ -289,10 +281,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-
-    concurrency:
-      group: header-includes-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
 
     steps:
     - uses: actions/checkout@v4

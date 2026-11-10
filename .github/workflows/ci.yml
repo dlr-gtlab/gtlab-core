@@ -43,6 +43,9 @@ jobs:
 
   quality:
     name: "Quality"
+    concurrency:
+      group: quality-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     # Jobs of a reusable workflow may only use the permissions granted by the
     # calling job. Cppcheck uploads SARIF results, and the header include
     # linter reports annotations, so their write permissions are granted here.
