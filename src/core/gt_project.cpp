@@ -466,6 +466,7 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     };
 
     // stash files, since the backup might fail
+    // cppcheck-suppress useStlAlgorithm
     for (const auto& file : projectFiles)
     {
         if (!stash(file))

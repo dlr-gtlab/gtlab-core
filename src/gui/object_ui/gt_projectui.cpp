@@ -1788,15 +1788,18 @@ GtProjectUI::restoreBackup(GtObject *obj)
         {
             if (!gtDataModel->closeProject(project))
             {
-                QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                QMessageBox::critical(
+                    nullptr, tr("Backup restore failed"),
                     tr("The project could not be closed before "
                        "restoring the backup."));
                 return;
             }
         }
 
-        bool success = project->restoreBackupFiles(selectedFolder) ==
-                       GtProject::RestoreStatus::Success;
+        const bool restoreSucceeded =
+            project->restoreBackupFiles(selectedFolder) ==
+            GtProject::RestoreStatus::Success;
+        bool success = restoreSucceeded;
 
         if (success && initialOpenProject && !project->upgradesAvailable())
         {
@@ -1806,7 +1809,7 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         // update the project entry since the restored backup may
         // contain different (e.g. outdated) project data
-        if (success)
+        if (restoreSucceeded)
         {
             gtDataModel->updateObject(project);
         }
@@ -1816,20 +1819,24 @@ GtProjectUI::restoreBackup(GtObject *obj)
         {
             if (project->upgradesAvailable())
             {
-                QMessageBox::information(nullptr, tr("Backup restored"),
-                    tr("The project has been successfully restored from backup. "
+                QMessageBox::information(
+                    nullptr, tr("Backup restored"),
+                    tr("The project has been successfully restored from "
+                       "backup. "
                        "The project data is outdated and requires an upgrade "
                        "before it can be opened."));
             }
             else
             {
                 QMessageBox::information(nullptr, tr("Backup restored"),
-                    tr("The project has been successfully restored from backup."));
+                                         tr("The project has been successfully "
+                                            "restored from backup."));
             }
         }
         else
         {
-            QMessageBox::critical(nullptr, tr("Backup restore failed"),
+            QMessageBox::critical(
+                nullptr, tr("Backup restore failed"),
                 tr("The project backup could not be restored."));
         }
     }
