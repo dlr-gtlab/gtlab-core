@@ -78,15 +78,19 @@ GtCoreDatamodel::setSession(GtSession* session)
     {
         connect(m_session, &GtObject::diffChildAboutToChange, this,
                 [this](GtObject* parent, int row, bool insert) {
-            const auto index = indexFromObject(parent);
-            if (insert) beginInsertRows(index, row, row);
-            else beginRemoveRows(index, row, row);
-        });
+                    const auto index = indexFromObject(parent);
+                    if (insert)
+                        beginInsertRows(index, row, row);
+                    else
+                        beginRemoveRows(index, row, row);
+                });
         connect(m_session, &GtObject::diffChildChanged, this,
                 [this](GtObject*, int, bool insert) {
-            if (insert) endInsertRows();
-            else endRemoveRows();
-        });
+                    if (insert)
+                        endInsertRows();
+                    else
+                        endRemoveRows();
+                });
     }
     endResetModel();
 }

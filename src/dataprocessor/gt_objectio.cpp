@@ -2042,9 +2042,8 @@ handleObjectAdd(GtObject& parent,
 
     const int row = std::min(ind, numberOfChildren);
     emit parent.diffChildAboutToChange(&parent, row, true);
-    auto notify = gt::finally([&]() {
-        emit parent.diffChildChanged(&parent, row, true);
-    });
+    auto notify = gt::finally(
+        [&]() { emit parent.diffChildChanged(&parent, row, true); });
 
     if (ind >= numberOfChildren)
     {
@@ -2161,9 +2160,8 @@ handleIndexChange(GtObject& parent,
     const int numberOfChildren = parent.findDirectChildren().size();
     const int row = std::min(newIndex, numberOfChildren);
     emit parent.diffChildAboutToChange(&parent, row, true);
-    auto notify = gt::finally([&]() {
-        emit parent.diffChildChanged(&parent, row, true);
-    });
+    auto notify = gt::finally(
+        [&]() { emit parent.diffChildChanged(&parent, row, true); });
 
     if (newIndex > parent.findDirectChildren().size())
     {

@@ -554,13 +554,16 @@ public:
 class ResultAddingCalculator : public GtCalculator
 {
 public:
-    explicit ResultAddingCalculator(GtObject& target) : m_target(target) {}
+    explicit ResultAddingCalculator(GtObject& target) :
+        m_target(target)
+    { }
     bool run() override
     {
         auto result = std::make_unique<GtObjectGroup>();
         result->setObjectName(QStringLiteral("Calculator Result"));
         return m_target.appendChild(std::move(result));
     }
+
 private:
     GtObject& m_target;
 };
@@ -568,10 +571,20 @@ private:
 class LifecycleRunnable : public GtAbstractRunnable
 {
 public:
-    void run() override {}
-    QDir tempDir() override { return {}; }
-    bool clearTempDir(const QString&) override { return true; }
-    QString projectPath() override { return {}; }
+    void run() override
+    { }
+    QDir tempDir() override
+    {
+        return {};
+    }
+    bool clearTempDir(const QString&) override
+    {
+        return true;
+    }
+    QString projectPath() override
+    {
+        return {};
+    }
 };
 
 TEST_F(ProjectLifecycleTest, calculatorResultMergeKeepsExplorerConsistent)
@@ -594,17 +607,17 @@ TEST_F(ProjectLifecycleTest, calculatorResultMergeKeepsExplorerConsistent)
     GtExplorerModel explorer;
     explorer.setSourceModel(&styled);
     QObject::connect(m_app->session(),
-                     qOverload<GtObject*>(&GtObject::dataChanged),
-                     gtDataModel, [=](GtObject* object) {
-        auto index = gtDataModel->indexFromObject(object);
-        emit gtDataModel->dataChanged(index, index);
-    });
-    QAbstractItemModelTester sourceTester(gtDataModel,
-        QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester styledTester(&styled,
-        QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester explorerTester(&explorer,
-        QAbstractItemModelTester::FailureReportingMode::Fatal);
+                     qOverload<GtObject*>(&GtObject::dataChanged), gtDataModel,
+                     [=](GtObject* object) {
+                         auto index = gtDataModel->indexFromObject(object);
+                         emit gtDataModel->dataChanged(index, index);
+                     });
+    QAbstractItemModelTester sourceTester(
+        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal);
+    QAbstractItemModelTester styledTester(
+        &styled, QAbstractItemModelTester::FailureReportingMode::Fatal);
+    QAbstractItemModelTester explorerTester(
+        &explorer, QAbstractItemModelTester::FailureReportingMode::Fatal);
 
     // Reproduce the result merge: computation changes a detached copy, then
     // its diff is applied to the project currently displayed by the explorer.
@@ -661,16 +674,16 @@ TEST_F(ProjectLifecycleTest, diffReorderDoesNotDuplicateStructuralNotifications)
     styled.setSourceModel(gtDataModel);
     GtExplorerModel explorer;
     explorer.setSourceModel(&styled);
-    QObject::connect(m_app->session(),
-                     qOverload<GtObject*>(&GtObject::dataChanged),
-                     gtDataModel, [=](GtObject* object) {
-        const auto index = gtDataModel->indexFromObject(object);
-        emit gtDataModel->dataChanged(index, index);
-    });
-    QAbstractItemModelTester tester(gtDataModel,
-        QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester proxyTester(&explorer,
-        QAbstractItemModelTester::FailureReportingMode::Fatal);
+    QObject::connect(
+        m_app->session(), qOverload<GtObject*>(&GtObject::dataChanged),
+        gtDataModel, [=](GtObject* object) {
+            const auto index = gtDataModel->indexFromObject(object);
+            emit gtDataModel->dataChanged(index, index);
+        });
+    QAbstractItemModelTester tester(
+        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal);
+    QAbstractItemModelTester proxyTester(
+        &explorer, QAbstractItemModelTester::FailureReportingMode::Fatal);
     QSignalSpy changes(gtDataModel, &QAbstractItemModel::rowsInserted);
     for (int i = 0; i < 3; ++i)
     {
@@ -693,7 +706,8 @@ TEST_F(ProjectLifecycleTest, diffReorderDoesNotDuplicateStructuralNotifications)
 TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
 {
     auto* first = createProject(QStringLiteral("Hidden Process Project"));
-    auto* second = createProject(QStringLiteral("Other Hidden Process Project"));
+    auto* second =
+        createProject(QStringLiteral("Other Hidden Process Project"));
     ASSERT_TRUE(gtDataModel->newProject(first, false));
     ASSERT_TRUE(gtDataModel->newProject(second, false));
     ASSERT_TRUE(gtDataModel->openProject(first));
@@ -709,8 +723,8 @@ TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
     const auto hiddenParent = styled.mapFromSource(
         gtDataModel->indexFromObject(first->processData()));
     ASSERT_FALSE(explorer.mapFromSource(hiddenParent).isValid());
-    const auto descendant = styled.mapFromSource(
-        gtDataModel->indexFromObject(taskGroup));
+    const auto descendant =
+        styled.mapFromSource(gtDataModel->indexFromObject(taskGroup));
     // The process dock can select this object before a command resets all
     // views. Restoring that selection in the explorer must not create an
     // index with an invisible parent.
