@@ -1,0 +1,9 @@
+{
+  "source_root": "../../src",
+  "exclude": [
+    "**/thirdparty/**",
+    "**/third_party/**",
+    "**/3rdparty/**",
+    "**/vendor/**"
+  ]
+}

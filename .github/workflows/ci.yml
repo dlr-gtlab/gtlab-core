@@ -44,12 +44,13 @@ jobs:
   quality:
     name: "Quality"
     # Jobs of a reusable workflow may only use the permissions granted by the
-    # calling job. "cppcheck" uploads SARIF results to GitHub Code Scanning,
-    # so "security-events: write" has to be granted here (and not only in
-    # ci-quality.yml).
+    # calling job. Cppcheck uploads SARIF results, and the header include
+    # linter reports annotations, so their write permissions are granted here.
     permissions:
       contents: read
       security-events: write
+      checks: write
+      pull-requests: write
     uses: ./.github/workflows/ci-quality.yml
     secrets: inherit
 
