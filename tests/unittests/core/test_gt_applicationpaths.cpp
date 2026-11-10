@@ -14,7 +14,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QStandardPaths>
+#include <QTextStream>
+#include <QThread>
 #include <QUuid>
 
 namespace
@@ -72,7 +75,14 @@ struct RemoveDirectoryOnExit
 QString
 readTemporaryDirectoryLine(QProcess& process, const QString& mode)
 {
-    process.start(QCoreApplication::applicationFilePath(), {mode});
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert(QStringLiteral("GTLAB_APPLICATION_TEMP_DIR_TEST_MODE"),
+                       mode);
+    process.setProcessEnvironment(environment);
+    process.start(QCoreApplication::applicationFilePath(),
+                  {QStringLiteral("--gtest_filter=GtApplicationPaths."
+                                  "DISABLED_TemporaryDirectoryProcessHelper"),
+                   QStringLiteral("--gtest_also_run_disabled_tests")});
     if (!process.waitForStarted(5000))
     {
         process.kill();
@@ -99,6 +109,29 @@ readTemporaryDirectoryLine(QProcess& process, const QString& mode)
 }
 
 } // namespace
+
+// Launched only as a child process by TemporaryDirectoryIsSharedAndProcessOwned.
+TEST(GtApplicationPaths, DISABLED_TemporaryDirectoryProcessHelper)
+{
+    const QString mode =
+        qEnvironmentVariable("GTLAB_APPLICATION_TEMP_DIR_TEST_MODE");
+    ASSERT_TRUE(mode == QStringLiteral("hold") ||
+                mode == QStringLiteral("exit"));
+
+    const auto directory =
+        GtApplicationPaths::directory(GtApplicationPaths::Location::Temp);
+    ASSERT_TRUE(directory);
+
+    QTextStream(stdout) << "GTLAB_TEMP_PATH=" << directory->absolutePath()
+                        << Qt::endl;
+    if (mode == QStringLiteral("hold"))
+    {
+        while (true)
+        {
+            QThread::sleep(1);
+        }
+    }
+}
 
 TEST(GtApplicationPaths, CreatesWritableStandardDirectories)
 {
@@ -157,15 +190,15 @@ TEST(GtApplicationPaths, TemporaryDirectoryIsSharedAndProcessOwned)
     EXPECT_EQ(first->absolutePath(), second->absolutePath());
 
     QProcess crashedProcess;
-    const QString crashedPath = readTemporaryDirectoryLine(
-        crashedProcess, QStringLiteral("--application-temp-dir-hold"));
+    const QString crashedPath =
+        readTemporaryDirectoryLine(crashedProcess, QStringLiteral("hold"));
     RemoveDirectoryOnExit cleanup{crashedPath};
     ASSERT_FALSE(crashedPath.isEmpty());
     ASSERT_TRUE(QDir(crashedPath).exists());
 
     QProcess normalProcess;
-    const QString normalPath = readTemporaryDirectoryLine(
-        normalProcess, QStringLiteral("--application-temp-dir-exit"));
+    const QString normalPath =
+        readTemporaryDirectoryLine(normalProcess, QStringLiteral("exit"));
     ASSERT_FALSE(normalPath.isEmpty());
     EXPECT_NE(first->absolutePath(), normalPath);
     EXPECT_NE(normalPath, crashedPath);
@@ -179,8 +212,8 @@ TEST(GtApplicationPaths, TemporaryDirectoryIsSharedAndProcessOwned)
     EXPECT_TRUE(QDir(crashedPath).exists());
 
     QProcess anotherProcess;
-    const QString anotherPath = readTemporaryDirectoryLine(
-        anotherProcess, QStringLiteral("--application-temp-dir-exit"));
+    const QString anotherPath =
+        readTemporaryDirectoryLine(anotherProcess, QStringLiteral("exit"));
     ASSERT_FALSE(anotherPath.isEmpty());
     ASSERT_TRUE(anotherProcess.waitForFinished(5000));
     EXPECT_NE(normalPath, anotherPath);
