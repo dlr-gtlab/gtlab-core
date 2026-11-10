@@ -168,8 +168,40 @@ jobs:
     - name: Run REUSE lint
       run: reuse lint
 
-  header_includes:
-    name: "GTlab header includes"
+  header_includes_scan:
+    name: "GTlab header includes (scan)"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Scan header includes
+      shell: bash
+      run: |
+        python .github/scripts/check_header_includes.py --format rdjsonl > header-includes.rdjsonl
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: header-includes-rdjsonl
+        path: header-includes.rdjsonl
+        if-no-files-found: error
+
+  header_includes_report:
+    name: "GTlab header includes (PR review)"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    needs: header_includes_scan
     runs-on: ubuntu-latest
 
     permissions:
@@ -177,32 +209,117 @@ jobs:
       checks: write
       pull-requests: write
 
+    concurrency:
+      group: header-includes-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        persist-credentials: false
 
-    - uses: actions/setup-python@v5
+    - uses: actions/download-artifact@v4
       with:
-        python-version: "3.11"
+        name: header-includes-rdjsonl
+        path: reviewdog-input
 
     - uses: reviewdog/action-setup@v1
       with:
         reviewdog_version: latest
 
-    - name: Check header includes
+    - name: Report header include findings
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
       run: |
-        set -o pipefail
-        python .github/scripts/check_header_includes.py --format rdjsonl \
-          | reviewdog \
-              -f=rdjsonl \
-              -name="GTlab Header Includes" \
-              -reporter="${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}" \
-              -filter-mode=added \
-              -fail-level=error
+        reviewdog \
+          -f=rdjsonl \
+          -name="GTlab Header Includes" \
+          -reporter=github-pr-review \
+          -filter-mode=added \
+          -fail-level=error < reviewdog-input/header-includes.rdjsonl
+
+  header_includes_report_push:
+    name: "GTlab header includes (push check)"
+    if: github.event_name == 'push'
+    needs: header_includes_scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write
+
+    concurrency:
+      group: header-includes-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: header-includes-rdjsonl
+        path: reviewdog-input
+
+    - uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: latest
+
+    - name: Report header include findings
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        reviewdog -f=rdjsonl -name="GTlab Header Includes" \
+          -reporter=github-check -filter-mode=added -fail-level=error \
+          < reviewdog-input/header-includes.rdjsonl
+
+  header_includes_report_fork:
+    name: "GTlab header includes (fork annotations)"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    needs: header_includes_scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    concurrency:
+      group: header-includes-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: header-includes-rdjsonl
+        path: reviewdog-input
+
+    - uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: latest
+
+    - name: Annotate fork findings
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        reviewdog \
+          -f=rdjsonl \
+          -name="GTlab Header Includes" \
+          -reporter=github-pr-annotations \
+          -filter-mode=added \
+          -fail-level=error < reviewdog-input/header-includes.rdjsonl
 
   coverage_linux:
     name: "Coverage (linux)"

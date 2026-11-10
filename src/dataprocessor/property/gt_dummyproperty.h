@@ -8,7 +8,7 @@
 #define GTDUMMYPROPERTY_H
 
 #include "gt_abstractproperty.h"
-# include "gt_objectmemento.h"
+#include "gt_objectmemento.h"
 
 /** Placeholder retaining the complete original dynamic-property record. */
 class GT_DATAMODEL_EXPORT GtDummyProperty : public GtAbstractProperty
