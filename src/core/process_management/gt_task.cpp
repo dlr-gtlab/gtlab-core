@@ -19,7 +19,6 @@
 #include "gt_monitoringdatatable.h"
 #include "gt_logging.h"
 
-#include <QDebug>
 #include <QThreadPool>
 
 #include <algorithm>
@@ -225,11 +224,7 @@ GtTask::run(GtAbstractRunnable* r)
 
     tp->start(runnable());
 
-    gtTrace() << QObject::tr("#### exec event loop...");
-
     pimpl->eventLoop.exec();
-
-    gtTrace() << QObject::tr("#### exec finished");
 }
 
 QList<GtCalculator*>
@@ -269,8 +264,6 @@ GtTask::runIteration()
 {
     // get list of all child process components
     //    QList<GtProcessComponent*> childs = processComponents();
-
-    gtTrace() << QObject::tr("starting iteration...");
 
     do
     {
@@ -373,10 +366,6 @@ GtTask::runChildElements()
     // increment current iteration step and continue iteration
     m_currentIter.setVal(m_currentIter.getVal() + 1);
 
-    gtTrace() << QObject::tr("iteration step (%1/%2)")
-                     .arg(m_currentIter.getVal())
-                     .arg(m_maxIter.getVal());
-
     // trigger transfer of monitoring properties before running calculators
     emit transferMonitoringProperties();
 
@@ -386,8 +375,6 @@ GtTask::runChildElements()
         comp->setStateRecursively(GtProcessComponent::QUEUED);
     }
 
-    gtTrace() << QObject::tr("running calculators...");
-
     // run calculators
     foreach (GtProcessComponent* comp, childs)
     {
@@ -395,8 +382,6 @@ GtTask::runChildElements()
         {
             // calculator run failed
             setState(GtProcessComponent::FAILED);
-
-            gtTrace() << QObject::tr("   |-> run failed!");
 
             return false;
         }
@@ -421,7 +406,6 @@ GtTask::runChildElements()
         }
     }
 
-    gtTrace() << QObject::tr("evaluating...");
     // evaluate current iteration step
     m_lastEval = evaluate();
 
@@ -577,8 +561,6 @@ void
 GtTask::handleRunnableFinished()
 {
     bool success = true;
-
-    gtTrace() << QObject::tr("handleRunnableFinished");
 
     if (!runnable()->successful())
     {

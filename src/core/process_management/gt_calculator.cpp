@@ -8,7 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
 #include <QDir>
 
 #include "gt_abstractrunnable.h"
@@ -66,7 +65,6 @@ GtCalculator::exec()
         return true;
     }
 
-    gtTrace() << QObject::tr("%1::exec()").arg(objectName());
     // initialize pointer to runnable
     setRunnable(nullptr);
 
