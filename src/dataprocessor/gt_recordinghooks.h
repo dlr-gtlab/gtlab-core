@@ -18,7 +18,8 @@ class GtRecordingSession;
 /**
  * Internal hooks that forward data model accesses to the active
  * GtRecordingSession. Not intended for direct use; GtObject subclasses with
- * own value accessors use gt::ObjectValueReadScope.
+ * own value accessors use gt::ObjectValueReadScope and
+ * gt::notifyObjectValueWritten().
  */
 namespace gt
 {
@@ -47,6 +48,11 @@ GT_DATAMODEL_EXPORT void enterObjectValueRead(const GtObject& object) noexcept;
 /// Forwards a change reported by the property to the active session
 GT_DATAMODEL_EXPORT void recordPropertyWritten(
     const GtAbstractProperty& property) noexcept;
+
+/// Forwards a change of an object value to the active session. Use
+/// gt::notifyObjectValueWritten() instead.
+GT_DATAMODEL_EXPORT void recordObjectValueWritten(
+    const GtObject& object) noexcept;
 
 /// Called by GtObject after a child was attached
 GT_DATAMODEL_EXPORT void recordObjectAttached(const GtObject& parent,
@@ -146,6 +152,33 @@ public:
 private:
     bool m_entered;
 };
+
+/**
+ * @brief Reports a changed value of an object.
+ *
+ * Write counterpart of gt::ObjectValueReadScope for GtObject subclasses whose
+ * setters change data that is not held in registered properties. Call it
+ * after the change; it is reported to the observer as objectValueWritten()
+ * if the object is observed:
+ *
+ * @code
+ * void MyObject::setValue(double value)
+ * {
+ *     m_value = value;
+ *     gt::notifyObjectValueWritten(*this);
+ * }
+ * @endcode
+ *
+ * Writes are reported even inside a read, e.g. when a getter fills a cache.
+ */
+inline void
+notifyObjectValueWritten(const GtObject& object) noexcept
+{
+    if (detail::isAnyRecordingRunning())
+    {
+        detail::recordObjectValueWritten(object);
+    }
+}
 
 } // namespace gt
 

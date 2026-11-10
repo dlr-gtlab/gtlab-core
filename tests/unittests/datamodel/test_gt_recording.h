@@ -45,7 +45,27 @@ public:
         return 2.0 * value.getVal();
     }
 
+    /// Own setter that reports an object value write
+    void setOffset(double offset)
+    {
+        m_offset = offset;
+        gt::notifyObjectValueWritten(*this);
+    }
+
+    /// Own getter that fills a cache, i.e. writes inside a read
+    double cachedOffset() const
+    {
+        gt::ObjectValueReadScope readScope(*this);
+        m_cachedOffset = m_offset;
+        gt::notifyObjectValueWritten(*this);
+        return m_cachedOffset;
+    }
+
     GtDoubleProperty value;
+
+private:
+    double m_offset{0.0};
+    mutable double m_cachedOffset{0.0};
 };
 
 /// Test-only observer that logs every callback
@@ -99,6 +119,11 @@ public:
                          const GtAbstractProperty& property) override
     {
         log({QStringLiteral("written"), &owner, &property});
+    }
+
+    void objectValueWritten(const GtObject& object) override
+    {
+        log({QStringLiteral("valueWritten"), &object});
     }
 
     void objectValueRead(const GtObject& object) override

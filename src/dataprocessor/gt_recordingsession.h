@@ -75,11 +75,13 @@ public:
         PropertyRead = 0x1,
         ObjectValueRead = 0x20,
         PropertyWritten = 0x2,
+        ObjectValueWritten = 0x40,
         ObjectAttached = 0x4,
         ObjectDetached = 0x8,
         ObjectDestroyed = 0x10,
         AllEvents = PropertyRead | ObjectValueRead | PropertyWritten |
-                    ObjectAttached | ObjectDetached | ObjectDestroyed
+                    ObjectValueWritten | ObjectAttached | ObjectDetached |
+                    ObjectDestroyed
     };
     Q_DECLARE_FLAGS(Events, Event)
 
@@ -169,6 +171,7 @@ public:
     void notifyObjectValueRead(const GtObject& object);
     void notifyPropertyWritten(const GtObject& owner,
                                const GtAbstractProperty& property);
+    void notifyObjectValueWritten(const GtObject& object);
 
     /**
      * @brief Updates the observed tree of this session and of its suspended
