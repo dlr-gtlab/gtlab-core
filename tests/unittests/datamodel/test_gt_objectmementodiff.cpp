@@ -1464,6 +1464,21 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 //   container*   - struct property container entries, one or many entries
 //                  changed
 //
+// Production relevance of the warm variants: an audit of all
+// GtObjectMementoDiff call sites in src/ (console run from memento,
+// memento editor drag & drop, command/undo-redo, process dock connection
+// editor, import menu, task runner, remote process runner collect,
+// finished process loading) shows that every production comparison is
+// one-shot with fresh mementos on both sides. The only long-lived
+// mementos (the remote process runner's initial task and data snapshots)
+// are diffed exactly once per task run, and toMemento() does not populate
+// the hash cache, so even there both sides start cold. Re-diffing the same
+// instances, i.e. the case where the old implementation's cached hashes
+// make repeated comparisons cheap, does not occur in production today.
+// The warm numbers document that fast path; if future code re-diffs a
+// stable memento tree, a per-instance fullHash cache could be added to
+// the fastpath implementation to recover it.
+//
 // Sizes: small tree = 100 nodes, large tree = 500 nodes (with a wider list
 // payload), containers = 500 / 2000 entries.
 //
@@ -1801,7 +1816,11 @@ runTreeBench(const char* caseName, BenchTreeConfig cfg, int changeMode,
                   std::accumulate(times.begin(), times.end(), 0.0) / times.size());
     }
 
-    // diff api, warm: same instances, repeated diff construction
+    // diff api, warm: same instances, repeated diff construction.
+    // No production call site re-diffs the same instances (all pairs are
+    // one-shot, see "Production relevance of the warm variants" above);
+    // this case documents the hash cache fast path of the old
+    // implementation.
     {
         BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
                                        cfg.listLen, changeMode);
