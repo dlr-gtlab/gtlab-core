@@ -49,7 +49,7 @@ public:
     void setOffset(double offset)
     {
         m_offset = offset;
-        gt::notifyObjectValueWritten(*this);
+        gt::recordObjectValueWritten(*this);
     }
 
     /// Own getter that fills a cache, i.e. writes inside a read
@@ -57,7 +57,7 @@ public:
     {
         gt::ObjectValueReadScope readScope(*this);
         m_cachedOffset = m_offset;
-        gt::notifyObjectValueWritten(*this);
+        gt::recordObjectValueWritten(*this);
         return m_cachedOffset;
     }
 

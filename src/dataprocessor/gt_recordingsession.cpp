@@ -23,11 +23,11 @@ namespace
 /// Session active on the current thread
 thread_local GtRecordingSession* currentSession = nullptr;
 
-/// Nesting depth of property reads on the current thread
-thread_local int propertyReadDepth = 0;
+/// Nesting depth of property and object value reads on the current thread
+thread_local int readDepth = 0;
 
 /// Clears the active session of the current thread for its lifetime, so that
-/// observer callbacks never create observations.
+/// observer callbacks never create events.
 class SuppressionScope
 {
 public:
@@ -49,7 +49,7 @@ private:
     GtRecordingSession* m_previous;
 };
 
-/// Calls an observer callback with observations suppressed. Returns false if
+/// Calls an observer callback with events suppressed. Returns false if
 /// the callback threw.
 template <typename Callback>
 bool
@@ -234,7 +234,7 @@ GtRecordingSession::isObserved(const GtObject& object) const
 }
 
 void
-GtRecordingSession::notifyPropertyRead(const GtObject& owner,
+GtRecordingSession::handlePropertyRead(const GtObject& owner,
                                        const GtAbstractProperty& property)
 {
     if (!isObserved(owner)) return;
@@ -244,7 +244,7 @@ GtRecordingSession::notifyPropertyRead(const GtObject& owner,
 }
 
 void
-GtRecordingSession::notifyObjectValueRead(const GtObject& object)
+GtRecordingSession::handleObjectValueRead(const GtObject& object)
 {
     if (!isObserved(object)) return;
 
@@ -253,7 +253,7 @@ GtRecordingSession::notifyObjectValueRead(const GtObject& object)
 }
 
 void
-GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
+GtRecordingSession::handlePropertyWritten(const GtObject& owner,
                                           const GtAbstractProperty& property)
 {
     if (!isObserved(owner)) return;
@@ -264,7 +264,7 @@ GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
 }
 
 void
-GtRecordingSession::notifyObjectValueWritten(const GtObject& object)
+GtRecordingSession::handleObjectValueWritten(const GtObject& object)
 {
     if (!isObserved(object)) return;
 
@@ -273,10 +273,10 @@ GtRecordingSession::notifyObjectValueWritten(const GtObject& object)
 }
 
 void
-GtRecordingSession::notifyObjectAttached(const GtObject& parent,
+GtRecordingSession::handleObjectAttached(const GtObject& parent,
                                          const GtObject& child)
 {
-    // suspended parent sessions keep their observed tree up to date
+    // parent sessions keep their observed tree up to date
     for (GtRecordingSession* s = this; s; s = s->pimpl->parent)
     {
         s->pimpl->updateOnAttach(parent, child);
@@ -289,7 +289,7 @@ GtRecordingSession::notifyObjectAttached(const GtObject& parent,
 }
 
 void
-GtRecordingSession::notifyObjectDetached(const GtObject& parent,
+GtRecordingSession::handleObjectDetached(const GtObject& parent,
                                          const GtObject& child)
 {
     if (isObserved(parent))
@@ -306,10 +306,27 @@ GtRecordingSession::notifyObjectDetached(const GtObject& parent,
 }
 
 void
-GtRecordingSession::forget(const GtObject& object)
+GtRecordingSession::handleObjectDestroyed(const GtObject* parent,
+                                          const GtObject& object)
 {
+    // children of a deleted object see no GtObject parent but still a QObject
+    // parent: only the top of a deleted subtree is reported
+    const bool topLevel = parent || !object.QObject::parent();
+
     for (GtRecordingSession* s = this; s; s = s->pimpl->parent)
     {
+        // an observed object is deleted within the chain that observes it:
+        // report to the parent sessions too, they hold the object as well
+        if (topLevel && s->isObserved(object))
+        {
+            s->pimpl->dispatch(ObjectDestroyed, [&]() {
+                s->pimpl->observer.objectDestroyed(parent, object);
+            });
+        }
+
+        if (topLevel) s->pimpl->updateOnDetach(object);
+
+        // the address may be reused by a new object
         s->pimpl->forget(object);
     }
 }
@@ -331,7 +348,7 @@ GtRecordingSession::start()
         return false;
     }
     pimpl->used = true;
-    ++gt::detail::runningRecordings;
+    ++gt::detail::runningSessions;
 
     pimpl->parent = currentSession;
     pimpl->parentId = pimpl->parent ? pimpl->parent->id() : QUuid();
@@ -357,7 +374,7 @@ GtRecordingSession::finish(bool success) noexcept
 {
     pimpl->running = false;
     currentSession = pimpl->parent;
-    --gt::detail::runningRecordings;
+    --gt::detail::runningSessions;
 
     if (pimpl->startFailed) return;
 
@@ -366,38 +383,38 @@ GtRecordingSession::finish(bool success) noexcept
     });
 }
 
-std::atomic<int> gt::detail::runningRecordings{0};
+std::atomic<int> gt::detail::runningSessions{0};
 
 void
 gt::detail::enterPropertyRead(const GtAbstractProperty& property) noexcept
 {
     // only the outermost read is reported
-    if (propertyReadDepth++ > 0) return;
+    if (readDepth++ > 0) return;
 
     GtRecordingSession* session = currentSession;
     if (!session) return;
 
     if (const GtObject* owner = property.ownerObject())
     {
-        session->notifyPropertyRead(*owner, property);
+        session->handlePropertyRead(*owner, property);
     }
 }
 
 void
-gt::detail::leavePropertyRead() noexcept
+gt::detail::leaveRead() noexcept
 {
-    --propertyReadDepth;
+    --readDepth;
 }
 
 void
 gt::detail::enterObjectValueRead(const GtObject& object) noexcept
 {
     // only the outermost read is reported, property reads included
-    if (propertyReadDepth++ > 0) return;
+    if (readDepth++ > 0) return;
 
     if (GtRecordingSession* session = currentSession)
     {
-        session->notifyObjectValueRead(object);
+        session->handleObjectValueRead(object);
     }
 }
 
@@ -411,16 +428,18 @@ gt::detail::recordPropertyWritten(const GtAbstractProperty& property) noexcept
 
     if (const GtObject* owner = property.ownerObject())
     {
-        session->notifyPropertyWritten(*owner, property);
+        session->handlePropertyWritten(*owner, property);
     }
 }
 
 void
-gt::detail::recordObjectValueWritten(const GtObject& object) noexcept
+gt::recordObjectValueWritten(const GtObject& object) noexcept
 {
+    if (!detail::isAnyRecordingRunning()) return;
+
     if (GtRecordingSession* session = currentSession)
     {
-        session->notifyObjectValueWritten(object);
+        session->handleObjectValueWritten(object);
     }
 }
 
@@ -446,7 +465,7 @@ gt::detail::recordObjectAttached(const GtObject& parent,
 
     if (GtRecordingSession* session = currentSession)
     {
-        session->notifyObjectAttached(parent, child);
+        session->handleObjectAttached(parent, child);
     }
 }
 
@@ -458,7 +477,7 @@ gt::detail::recordObjectDetached(const GtObject& parent,
 
     if (GtRecordingSession* session = currentSession)
     {
-        session->notifyObjectDetached(parent, child);
+        session->handleObjectDetached(parent, child);
     }
 }
 
@@ -468,29 +487,10 @@ gt::detail::recordObjectDestroyed(const GtObject* parent,
 {
     if (!isAnyRecordingRunning()) return;
 
-    GtRecordingSession* session = currentSession;
-    if (!session) return;
-
-    // children of a deleted object see no GtObject parent but still a QObject
-    // parent: only the top of a deleted subtree is reported
-    const bool topLevel = parent || !object.QObject::parent();
-
-    // an observed object is deleted within the chain that observes it: report
-    // to the suspended parent sessions too, they hold the object as well
-    for (GtRecordingSession* s = session; topLevel && s; s = s->pimpl->parent)
+    if (GtRecordingSession* session = currentSession)
     {
-        if (s->isObserved(object))
-        {
-            s->pimpl->dispatch(GtRecordingSession::ObjectDestroyed, [&]() {
-                s->pimpl->observer.objectDestroyed(parent, object);
-            });
-        }
-
-        s->pimpl->updateOnDetach(object);
+        session->handleObjectDestroyed(parent, object);
     }
-
-    // the address may be reused by a new object
-    session->forget(object);
 }
 
 gt::detail::GtRecordingScope::GtRecordingScope(

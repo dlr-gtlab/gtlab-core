@@ -67,7 +67,7 @@ TEST(GtRecordingProperties, noSessionProducesNoEvents)
     RecordingTestObject obj;
     RecordingTestObserver observer;
 
-    EXPECT_EQ(gt::detail::runningRecordings.load(), 0);
+    EXPECT_EQ(gt::detail::runningSessions.load(), 0);
     obj.value.setVal(1.0);
     (void)obj.value.getVal();
     (void)static_cast<GtAbstractProperty&>(obj.value).valueToVariant();
@@ -227,9 +227,9 @@ TEST(GtRecordingProperties, counterIsResetAfterRecording)
     RecordingTestObserver observer;
 
     record(observer, roots(&obj),
-           [&]() { EXPECT_EQ(gt::detail::runningRecordings.load(), 1); });
+           [&]() { EXPECT_EQ(gt::detail::runningSessions.load(), 1); });
 
-    EXPECT_EQ(gt::detail::runningRecordings.load(), 0);
+    EXPECT_EQ(gt::detail::runningSessions.load(), 0);
 }
 
 TEST(GtRecordingProperties, objectValueReadsReachObserverWithObject)

@@ -32,10 +32,17 @@ Classes and placement
   bridge are needed; the recorded component is passed as ``const GtObject&``.
 * The executor owns the observer and the session for one call and runs the
   work through ``session.run()``. The session stores no events and does not
-  own child sessions.
+  own nested sessions.
 * Internal hooks live in ``gt_recordinghooks.h`` (``gt::detail``). The
   activation helper ``gt::detail::GtRecordingScope`` is exported because the
   header template ``gt::propagateRecording()`` needs it.
+* Each layer uses one verb: hooks ``record…`` point events and mark reads
+  with ``…Scope`` (``enter…Read``/``leaveRead`` internally), the session
+  ``handle…``\s them in private methods that only the hooks call, and the
+  observer receives past-tense callbacks (``propertyRead``, …). The only
+  public hooks are ``gt::ObjectValueReadScope`` and
+  ``gt::recordObjectValueWritten()``. Terms are defined in the
+  :doc:`/modules/recording_glossary`.
 
 Execution boundary
 ~~~~~~~~~~~~~~~~~~
@@ -60,7 +67,7 @@ Active session
   thread-local lookup, so the no-session path of the inline property getters
   costs one relaxed load.
 * While any observer callback runs, the thread has no active session:
-  callbacks never create observations and may read properties.
+  callbacks never create events and may read properties.
 * Observer exceptions are caught at every dispatch: a failing
   ``recordingStarted()`` runs the work unrecorded (the session stays active so
   nothing leaks into a parent session), a failing event callback stops event
@@ -73,7 +80,7 @@ Observed objects
 * Each component observes its own ``linkedObjects()`` and their descendants.
   ``GtProcessComponent::linkedObjects()`` is public for this (ADR 0002).
 * The observed set is built when ``run()`` starts and kept up to date on
-  attach, detach, move and deletion, including in suspended parent sessions.
+  attach, detach, move and deletion, including in parent sessions.
   Roots always stay observed. A read-write lock protects the set.
 * Attach and detach events are filtered by the parent: the new parent for
   attach, the old parent for detach. Deletion events are filtered by the
@@ -116,13 +123,15 @@ Object tree hooks
   derived class is constructed. Observers keep pointers during the run and
   resolve everything in ``recordingFinished()``.
 
-Nested recordings and threads
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Nested recording sessions and threads
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* A child gets its own session only if its effective executor is the
-  recording executor; with the default ``parent`` mode this applies to all
-  children of a recorded task. Other children run in the parent's session.
-* A child session takes over the thread; the suspended parent only receives
+* A child component gets its own recording session only if its effective
+  executor is the recording executor; with the default ``parent`` mode this
+  applies to all children of a recorded task. Other children run in the
+  task's session.
+* A nested session takes over the thread; its parent session is suspended
+  and only receives
   membership updates and ``objectDestroyed`` for objects it observes, so no
   observer keeps a pointer to a deleted object.
 * All recording state is per thread. ``gt::propagateRecording()`` carries the
