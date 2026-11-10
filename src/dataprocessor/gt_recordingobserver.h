@@ -14,14 +14,14 @@ class GtAbstractProperty;
 class GtRecordingSession;
 
 /**
- * @brief Receives the events of a recording session.
+ * @brief Receives the lifecycle callbacks and events of a recording session.
  *
  * Implemented by modules (e.g. Provenance). Events are delivered directly and
  * synchronously in the thread that caused them, so implementations must be
  * thread-safe if the recorded code uses worker threads.
  *
  * While any callback runs, no recording is active on the calling thread:
- * callbacks may read properties without creating observations. Exceptions
+ * callbacks may read properties without creating events. Exceptions
  * thrown by callbacks are caught by the session and never reach the recorded
  * execution.
  */
@@ -65,7 +65,7 @@ public:
 
     /**
      * @brief A value of an observed object was changed through an accessor
-     * of the object itself (see gt::notifyObjectValueWritten()), not through
+     * of the object itself (see gt::recordObjectValueWritten()), not through
      * a registered property. Counterpart of objectValueRead().
      */
     virtual void objectValueWritten(const GtObject& object);
@@ -94,7 +94,7 @@ public:
      * derived class is already destroyed; only its identity and UUID are
      * valid. Descendants of the object are not reported separately.
      *
-     * Unlike the other events, suspended parent sessions receive it too if
+     * Unlike the other events, parent sessions receive it too if
      * they observe the object, so an observer never keeps a pointer to a
      * deleted object.
      *

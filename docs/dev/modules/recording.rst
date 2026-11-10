@@ -7,7 +7,8 @@ when to record and which objects to observe. Core provides the recording
 lifecycle and forwards events; the module processes and stores them.
 
 Without a recording executor, execution is unchanged and no recording
-objects are created.
+sessions are created. The terms used here are defined in the
+:doc:`recording_glossary`.
 
 .. note::
 
@@ -28,8 +29,8 @@ Overview
      - Creates an observer and a ``GtRecordingSession`` per execution and runs
        the work through ``session.run()``.
    * - ``GtRecordingSession``
-     - One recording: ID, parent ID, observed roots, event mask, start/finish,
-       filtering and dispatch. Stores no events.
+     - One recording of one execution: ID, parent ID, observed roots, event
+       mask, start/finish, filtering and dispatch. Stores no events.
    * - ``GtRecordingObserver``
      - Implemented by the module. Receives lifecycle callbacks and events.
 
@@ -125,7 +126,7 @@ Rules for observers:
   them. If the recorded code uses worker threads, the observer must be
   thread-safe, for example with one accumulator per thread that is merged in
   ``recordingFinished()``.
-* **No observations in callbacks.** While any callback runs, no recording is
+* **No events from callbacks.** While any callback runs, no recording is
   active on the thread. Callbacks may read properties, e.g. to capture a
   baseline in ``recordingStarted()``.
 * **Exceptions are contained.** If ``recordingStarted()`` throws, the work
@@ -166,7 +167,7 @@ attached, detached, moved or deleted. Roots always stay observed.
        value did not change.
    * - ``objectValueWritten``
      - A setter of an observed object calls
-       ``gt::notifyObjectValueWritten()`` (see below).
+       ``gt::recordObjectValueWritten()`` (see below).
    * - ``objectAttached``
      - A child is attached to an observed parent (``appendChild()``, including
        ``GtObject(parent)``).
@@ -204,7 +205,7 @@ The scope shares the nesting with property reads: only the outermost read is
 reported, so property reads inside the accessor produce no extra event.
 Without a running recording, the scope only checks a counter.
 
-Setters that change such data call ``gt::notifyObjectValueWritten()`` after
+Setters that change such data call ``gt::recordObjectValueWritten()`` after
 the change:
 
 .. code-block:: cpp
@@ -213,28 +214,28 @@ the change:
    MyObject::setValue(double value)
    {
        m_value = value;
-       gt::notifyObjectValueWritten(*this);
+       gt::recordObjectValueWritten(*this);
    }
 
 If the object is observed, the observer receives
 ``objectValueWritten(object)``. Writes are reported even inside a read, e.g.
 when a getter fills a cache.
 
-Nested recordings
------------------
+Nested recording sessions
+-------------------------
 
-A child component gets its own recording only if its effective executor is
-the recording executor. With the default ``parent`` mode this is the case for
-all children of a recorded task. The child session:
+A child component gets its own recording session only if its effective
+executor is the recording executor. With the default ``parent`` mode this is
+the case for all children of a recorded task. The nested session:
 
 * takes over the thread while it runs; only its observer gets events,
-* has the task's recording as ``parentId()``,
-* keeps the suspended task session's observed tree up to date,
-* also sends ``objectDestroyed()`` to the suspended task observer if that
-  session observes the deleted object, so no observer keeps a pointer to a
-  deleted object.
+* has the task's recording session as its parent session (``parentId()``),
+* keeps the observed tree of its parent session up to date,
+* also sends ``objectDestroyed()`` to the observer of its parent session if
+  that session observes the deleted object, so no observer keeps a pointer to
+  a deleted object.
 
-A child in ``local`` mode runs in the task's recording. Its events reach the
+A child in ``local`` mode runs in the task's recording session. Its events reach the
 task observer only for objects the task itself links.
 
 Worker threads
@@ -257,14 +258,14 @@ workers before the recorded work returns.
 Limits
 ------
 
-* A task recording only sees a ``local`` child's accesses on objects the task
+* A task's recording session only sees a ``local`` child's accesses on objects the task
   links.
 * Adding or removing property container entries produces no event.
 * No recording in out-of-process runs (process runner) or for children on a
   remote executor.
 * Code that reads property member values directly bypasses the read hooks.
   Own accessors are recorded only if they use ``gt::ObjectValueReadScope``
-  or ``gt::notifyObjectValueWritten()``.
+  or ``gt::recordObjectValueWritten()``.
 * No ``objectAccessed()`` event; mutations through mutable references are
   reported as reads.
 

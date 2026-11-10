@@ -86,6 +86,7 @@ Your first module
    modules/user_interface
    modules/logging
    modules/recording
+   modules/recording_glossary
 
 .. toctree::
    :caption: Concepts

@@ -82,7 +82,7 @@ TEST(GtRecordingSession, callbacksRunWithoutActiveSession)
     GtRecordingSession session{t.component, observer, roots(&t.root)};
 
     session.run([&]() {
-        GtRecordingSession::current()->notifyPropertyRead(t.root, t.root.value);
+        (void)t.root.value.getVal();
         return true;
     });
 
@@ -107,11 +107,11 @@ TEST(GtRecordingSession, eventsAreFilteredByObservedTreeAndMask)
         EXPECT_TRUE(s->isObserved(*t.child));
         EXPECT_FALSE(s->isObserved(t.unrelated));
 
-        s->notifyPropertyRead(t.root, t.root.value);
-        s->notifyPropertyRead(*t.child, t.child->value);
-        s->notifyPropertyRead(t.unrelated, t.unrelated.value);
+        (void)t.root.value.getVal();
+        (void)t.child->value.getVal();
+        (void)t.unrelated.value.getVal();
         // masked out
-        s->notifyPropertyWritten(t.root, t.root.value);
+        t.root.value.setVal(1.0);
         return true;
     });
 
@@ -134,14 +134,12 @@ TEST(GtRecordingSession, nestedSessionReplacesAndRestoresParent)
 
     parent.run([&]() {
         child.run([&]() {
-            GtRecordingSession::current()->notifyPropertyRead(t.root,
-                                                              t.root.value);
+            (void)t.root.value.getVal();
             return true;
         });
 
         EXPECT_EQ(GtRecordingSession::current(), &parent);
-        GtRecordingSession::current()->notifyPropertyRead(*t.child,
-                                                          t.child->value);
+        (void)t.child->value.getVal();
         return true;
     });
 
@@ -182,8 +180,7 @@ TEST(GtRecordingSession, failingStartRunsWorkUnrecorded)
     parent.run([&]() {
         return child.run([&]() {
             workRan = true;
-            GtRecordingSession::current()->notifyPropertyRead(t.root,
-                                                              t.root.value);
+            (void)t.root.value.getVal();
             return true;
         });
     });
@@ -202,10 +199,9 @@ TEST(GtRecordingSession, failingEventCallbackStopsForwarding)
     GtRecordingSession session{t.component, observer, roots(&t.root)};
 
     EXPECT_TRUE(session.run([&]() {
-        auto* s = GtRecordingSession::current();
-        s->notifyPropertyRead(t.root, t.root.value);
-        s->notifyPropertyRead(t.root, t.root.value);
-        s->notifyPropertyWritten(t.root, t.root.value);
+        (void)t.root.value.getVal();
+        (void)t.root.value.getVal();
+        t.root.value.setVal(1.0);
         return true;
     }));
 

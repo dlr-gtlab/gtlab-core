@@ -108,7 +108,7 @@ public:
     GtRecordingSession(GtRecordingSession&&) = delete;
     GtRecordingSession& operator=(GtRecordingSession&&) = delete;
 
-    /// Unique ID of this recording.
+    /// Unique ID of this recording session.
     QUuid id() const;
 
     /// ID of the session that was active when run() was called, or null.
@@ -166,26 +166,6 @@ public:
      */
     bool isObserved(const GtObject& object) const;
 
-    void notifyPropertyRead(const GtObject& owner,
-                            const GtAbstractProperty& property);
-    void notifyObjectValueRead(const GtObject& object);
-    void notifyPropertyWritten(const GtObject& owner,
-                               const GtAbstractProperty& property);
-    void notifyObjectValueWritten(const GtObject& object);
-
-    /**
-     * @brief Updates the observed tree of this session and of its suspended
-     * parent sessions. Reports the event if the parent is observed.
-     */
-    void notifyObjectAttached(const GtObject& parent, const GtObject& child);
-
-    /**
-     * @brief Reports the event if the parent is observed and removes the
-     * child's subtree from the observed tree of this session and of its
-     * suspended parent sessions.
-     */
-    void notifyObjectDetached(const GtObject& parent, const GtObject& child);
-
     /**
      * @brief Returns the session active on the calling thread, or nullptr.
      *
@@ -203,9 +183,46 @@ private:
     /// Restores the previous session and finishes the recording.
     void finish(bool success) noexcept;
 
-    /// Removes a destroyed object from the observed trees of the chain
-    void forget(const GtObject& object);
+    // Event handlers, called by the hooks in gt_recordinghooks.h
 
+    void handlePropertyRead(const GtObject& owner,
+                            const GtAbstractProperty& property);
+    void handleObjectValueRead(const GtObject& object);
+    void handlePropertyWritten(const GtObject& owner,
+                               const GtAbstractProperty& property);
+    void handleObjectValueWritten(const GtObject& object);
+
+    /**
+     * @brief Updates the observed tree of this session and of its parent
+     * sessions. Reports the event if the parent is observed.
+     */
+    void handleObjectAttached(const GtObject& parent, const GtObject& child);
+
+    /**
+     * @brief Reports the event if the parent is observed and removes the
+     * child's subtree from the observed tree of this session and of its
+     * parent sessions.
+     */
+    void handleObjectDetached(const GtObject& parent, const GtObject& child);
+
+    /**
+     * @brief Reports the deletion of an observed object to this session and
+     * to its parent sessions that observe it, and removes the object from
+     * all their observed trees. Descendants of a deleted object are only
+     * removed, not reported.
+     */
+    void handleObjectDestroyed(const GtObject* parent, const GtObject& object);
+
+    friend void gt::detail::enterPropertyRead(
+        const GtAbstractProperty&) noexcept;
+    friend void gt::detail::enterObjectValueRead(const GtObject&) noexcept;
+    friend void gt::detail::recordPropertyWritten(
+        const GtAbstractProperty&) noexcept;
+    friend void gt::recordObjectValueWritten(const GtObject&) noexcept;
+    friend void gt::detail::recordObjectAttached(const GtObject&,
+                                                 const GtObject&) noexcept;
+    friend void gt::detail::recordObjectDetached(const GtObject&,
+                                                 const GtObject&) noexcept;
     friend void gt::detail::recordObjectDestroyed(const GtObject*,
                                                   const GtObject&) noexcept;
     friend class gt::detail::GtRecordingScope;

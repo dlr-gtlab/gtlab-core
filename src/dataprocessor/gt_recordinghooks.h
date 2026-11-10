@@ -16,10 +16,10 @@ class GtObject;
 class GtRecordingSession;
 
 /**
- * Internal hooks that forward data model accesses to the active
- * GtRecordingSession. Not intended for direct use; GtObject subclasses with
- * own value accessors use gt::ObjectValueReadScope and
- * gt::notifyObjectValueWritten().
+ * Hooks that report events of the data model to the active
+ * GtRecordingSession. The gt::detail hooks are not intended for direct use;
+ * GtObject subclasses with own value accessors use gt::ObjectValueReadScope
+ * and gt::recordObjectValueWritten().
  */
 namespace gt
 {
@@ -27,32 +27,28 @@ namespace detail
 {
 
 /// Number of recording sessions currently running in the process
-GT_DATAMODEL_EXPORT extern std::atomic<int> runningRecordings;
+GT_DATAMODEL_EXPORT extern std::atomic<int> runningSessions;
 
 /// Cheap check used before any thread-local lookup
 inline bool
 isAnyRecordingRunning() noexcept
 {
-    return runningRecordings.load(std::memory_order_relaxed) > 0;
+    return runningSessions.load(std::memory_order_relaxed) > 0;
 }
 
 GT_DATAMODEL_EXPORT void enterPropertyRead(
     const GtAbstractProperty& property) noexcept;
 
-GT_DATAMODEL_EXPORT void leavePropertyRead() noexcept;
+/// Ends a property or object value read
+GT_DATAMODEL_EXPORT void leaveRead() noexcept;
 
 /// Reports a value read of the object; shares the nesting depth with
-/// property reads. Leave with leavePropertyRead().
+/// property reads. Leave with leaveRead().
 GT_DATAMODEL_EXPORT void enterObjectValueRead(const GtObject& object) noexcept;
 
-/// Forwards a change reported by the property to the active session
+/// Reports a change reported by the property to the active session
 GT_DATAMODEL_EXPORT void recordPropertyWritten(
     const GtAbstractProperty& property) noexcept;
-
-/// Forwards a change of an object value to the active session. Use
-/// gt::notifyObjectValueWritten() instead.
-GT_DATAMODEL_EXPORT void recordObjectValueWritten(
-    const GtObject& object) noexcept;
 
 /// Called by GtObject after a child was attached
 GT_DATAMODEL_EXPORT void recordObjectAttached(const GtObject& parent,
@@ -83,7 +79,7 @@ public:
 
     ~PropertyReadScope()
     {
-        if (m_entered) leavePropertyRead();
+        if (m_entered) leaveRead();
     }
 
     PropertyReadScope(const PropertyReadScope&) = delete;
@@ -143,7 +139,7 @@ public:
 
     ~ObjectValueReadScope()
     {
-        if (m_entered) detail::leavePropertyRead();
+        if (m_entered) detail::leaveRead();
     }
 
     ObjectValueReadScope(const ObjectValueReadScope&) = delete;
@@ -165,20 +161,14 @@ private:
  * void MyObject::setValue(double value)
  * {
  *     m_value = value;
- *     gt::notifyObjectValueWritten(*this);
+ *     gt::recordObjectValueWritten(*this);
  * }
  * @endcode
  *
  * Writes are reported even inside a read, e.g. when a getter fills a cache.
  */
-inline void
-notifyObjectValueWritten(const GtObject& object) noexcept
-{
-    if (detail::isAnyRecordingRunning())
-    {
-        detail::recordObjectValueWritten(object);
-    }
-}
+GT_DATAMODEL_EXPORT void recordObjectValueWritten(
+    const GtObject& object) noexcept;
 
 } // namespace gt
 
