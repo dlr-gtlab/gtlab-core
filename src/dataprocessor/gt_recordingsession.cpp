@@ -122,11 +122,7 @@ struct GtRecordingSession::Impl
 
             rootSet.insert(root);
             observed.insert(root);
-            for (const GtObject* child :
-                 root->QObject::findChildren<GtObject*>())
-            { // cppcheck-suppress useStlAlgorithm
-                observed.insert(child);
-            }
+            setSubtreeObserved(*root, false);
         }
     }
 
