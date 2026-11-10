@@ -563,6 +563,11 @@ TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
     styled.setSourceModel(gtDataModel);
     GtExplorerModel explorer;
     explorer.setSourceModel(&styled);
+    EXPECT_FALSE(explorer.mapFromSource(QModelIndex{}).isValid());
+    const auto projectIndex = gtDataModel->indexFromObject(first);
+    ASSERT_TRUE(projectIndex.isValid());
+    // Only indexes from the immediate source model may be mapped.
+    EXPECT_FALSE(explorer.mapFromSource(projectIndex).isValid());
     const auto hiddenParent = styled.mapFromSource(
         gtDataModel->indexFromObject(first->processData()));
     ASSERT_FALSE(explorer.mapFromSource(hiddenParent).isValid());
