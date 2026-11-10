@@ -813,11 +813,9 @@ GtObject::getObjectByPath(const QString& objectPath) const
 void
 GtObject::connectProperty(GtAbstractProperty& property)
 {
-    connect(&property, &GtAbstractProperty::changed, this,
-            [this, p = &property]() {
-        setFlag(GtObject::HasOwnChanges, true);
-        emit dataChanged(this, p);
-    });
+    // the property sets HasOwnChanges and emits dataChanged() itself, which
+    // saves one connection per property
+    property.enableOwnerNotification();
 
     for (GtAbstractProperty* child : qAsConst(property.fullProperties()))
     {

@@ -795,8 +795,8 @@ private:
     QString objectPath(QString& str) const;
 
     /**
-     * @brief Connects the property changed singal to the data changed signal
-     * of this object
+     * @brief Lets changes of the property and its sub-properties set
+     * HasOwnChanges and emit the data changed signal of this object
      * @param property Property to connect
      */
     void connectProperty(GtAbstractProperty& property);
