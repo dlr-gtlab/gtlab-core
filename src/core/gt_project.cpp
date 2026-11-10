@@ -41,6 +41,7 @@
 #include "gt_abstractloadinghelper.h"
 #include "gt_batchsaver.h"
 #include "gt_projectdependencyanalyzer.h"
+#include "gt_finally.h"
 
 #include "internal/gt_moduleupgrader.h"
 
@@ -469,6 +470,7 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return moveRelativePath(tempDir, projectDir, rel);
     };
 
+    bool metadataReloadStarted = false;
     auto rollback = [&]() {
         const auto restoredFiles = gt::filesystem::directoryEntries(
             projectDir, true, projectModuleTasksRex);
@@ -491,7 +493,14 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
                     << "Failed to restore original file '" << file << "'";
             }
         }
+
+        if (metadataReloadStarted)
+        {
+            pimpl->valid = loadMetaData();
+            pimpl->upgradesAvailable = checkForUpgrades();
+        }
     };
+    auto rollbackGuard = gt::finally([&]() { rollback(); });
 
     // stash files, since the backup might fail
     // cppcheck-suppress useStlAlgorithm
@@ -501,7 +510,6 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         {
             gtError().nospace().noquote() << "Failed to stash '" << file << "'";
             // try to undo partial stash best-effort
-            rollback();
             return S::ErrorCopyFailed;
         }
     }
@@ -512,22 +520,21 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         gt::filesystem::CopyStatus::Success)
     {
         // restore project files since backup restored has failed
-        rollback();
         return S::ErrorCopyFailed;
     }
 
     // reload project state since the restored backup may contain
     // different (e.g. outdated) project data
+    metadataReloadStarted = true;
     pimpl->valid = loadMetaData();
     if (!pimpl->valid)
     {
-        rollback();
-        pimpl->valid = loadMetaData();
-        pimpl->upgradesAvailable = checkForUpgrades();
+        rollbackGuard.finalize();
         return S::ErrorCopyFailed;
     }
 
     pimpl->upgradesAvailable = checkForUpgrades();
+    rollbackGuard.clear();
 
     return S::Success;
 }
