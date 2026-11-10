@@ -89,8 +89,8 @@ GtCalculator::exec()
     // search for object link and object path properties
     foreach (GtAbstractProperty* prop, props)
     {
-        if (GtObjectLinkProperty* objLink =
-                    qobject_cast<GtObjectLinkProperty*>(prop))
+        if (const GtObjectLinkProperty* objLink =
+                qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
             GtObject* linkedObj =
@@ -106,7 +106,7 @@ GtCalculator::exec()
                 gtDebug() << "Linked object not found in runnable";
             }
         }
-        else if (GtObjectPathProperty* objPath =
+        else if (const GtObjectPathProperty* objPath =
                      qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
@@ -199,9 +199,9 @@ GtCalculator::execMode()
 }
 
 void
-GtCalculator::setExecMode(const QString& execMode)
+GtCalculator::setExecMode(const QString& mode)
 {
-    pimpl->execMode.setVal(execMode);
+    pimpl->execMode.setVal(mode);
 }
 
 void

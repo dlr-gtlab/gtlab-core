@@ -217,8 +217,6 @@ GtObject::fromMemento(const GtObjectMemento& memento)
 
     if (memento.isFlagEnabled(GtObjectMemento::IsUnresolved))
     {
-        gtLogOnce(Warning) << tr("Creating dummy object '%1' due to "
-                          "unresolved object file").arg(memento.ident());
         makeDummy();
         setSaveAsOwnFile(true);
     }
