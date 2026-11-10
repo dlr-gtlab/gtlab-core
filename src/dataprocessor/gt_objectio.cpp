@@ -2035,22 +2035,21 @@ handleObjectAdd(GtObject& parent,
 
     int numberOfChildren = parent.findDirectChildren().size();
 
-    if (ind < 0 || !parent.canAppendChild(newObj.get()))
+    if (ind >= numberOfChildren)
     {
+        parent.appendChild(newObj.release());
+    }
+    else if (ind >= 0)
+    {
+        parent.insertChild(ind, newObj.release());
+    }
+    else
+    {
+        gtDebug() << "INDEX:" << ind;
+        gtDebug() << "INDEX NOT IN RANGE -> CANNOT ADD OBJECT!";
         return false;
     }
 
-    const int row = std::min(ind, numberOfChildren);
-    emit parent.diffChildAboutToChange(&parent, row, true);
-    auto notify = gt::finally(
-        [&]() { emit parent.diffChildChanged(&parent, row, true); });
-
-    if (ind >= numberOfChildren)
-    {
-        return parent.appendChild(std::move(newObj));
-    }
-    if (!parent.insertChild(ind, newObj.get())) return false;
-    static_cast<void>(newObj.release());
     return true;
 }
 
@@ -2083,10 +2082,7 @@ handleObjectRemove(GtObject& parent,
         return false;
     }
 
-    const int row = toRemove->childNumber();
-    emit parent.diffChildAboutToChange(&parent, row, false);
     delete toRemove;
-    emit parent.diffChildChanged(&parent, row, false);
 
     return true;
 }
@@ -2147,21 +2143,7 @@ handleIndexChange(GtObject& parent,
         return false;
     }
 
-    const int oldIndex = toMove->childNumber();
-    if (newIndex < 0) return false;
-    if (newIndex == oldIndex) return true;
-
-    // Express a diff reorder as removal followed by insertion. In particular,
-    // disconnect forwarding connections before reattaching the same object.
-    emit parent.diffChildAboutToChange(&parent, oldIndex, false);
-    toMove->disconnectFromParent();
-    emit parent.diffChildChanged(&parent, oldIndex, false);
-
-    const int numberOfChildren = parent.findDirectChildren().size();
-    const int row = std::min(newIndex, numberOfChildren);
-    emit parent.diffChildAboutToChange(&parent, row, true);
-    auto notify = gt::finally(
-        [&]() { emit parent.diffChildChanged(&parent, row, true); });
+    toMove->setParent(nullptr);
 
     if (newIndex > parent.findDirectChildren().size())
     {

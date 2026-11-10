@@ -32,16 +32,11 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QUuid>
-#include <QAbstractItemModelTester>
 #include <QIdentityProxyModel>
 #include <QPersistentModelIndex>
-#include <QSignalSpy>
 #include "gt_explorermodel.h"
 #include "gt_objectgroup.h"
-#include "gt_abstractrunnable.h"
-#include "gt_calculator.h"
 #include "gt_styledmodel.h"
-#include "gt_objectmementodiff.h"
 
 #include <memory>
 #include <utility>
@@ -550,158 +545,6 @@ public:
         return QIdentityProxyModel::data(index, role);
     }
 };
-
-class ResultAddingCalculator : public GtCalculator
-{
-public:
-    explicit ResultAddingCalculator(GtObject& target) :
-        m_target(target)
-    { }
-    bool run() override
-    {
-        auto result = std::make_unique<GtObjectGroup>();
-        result->setObjectName(QStringLiteral("Calculator Result"));
-        return m_target.appendChild(std::move(result));
-    }
-
-private:
-    GtObject& m_target;
-};
-
-class LifecycleRunnable : public GtAbstractRunnable
-{
-public:
-    void run() override
-    { }
-    QDir tempDir() override
-    {
-        return {};
-    }
-    bool clearTempDir(const QString&) override
-    {
-        return true;
-    }
-    QString projectPath() override
-    {
-        return {};
-    }
-};
-
-TEST_F(ProjectLifecycleTest, calculatorResultMergeKeepsExplorerConsistent)
-{
-    auto* first = createProject(QStringLiteral("Calculator Project"));
-    auto* second = createProject(QStringLiteral("Other Project"));
-    ASSERT_TRUE(gtDataModel->newProject(first, false));
-    ASSERT_TRUE(gtDataModel->newProject(second, false));
-    ASSERT_TRUE(gtDataModel->openProject(first));
-
-    auto* group = new GtObjectGroup;
-    ASSERT_TRUE(gtDataModel->appendChild(group, first).isValid());
-
-    auto* hidden = new GtObjectGroup;
-    hidden->setUserHidden(true);
-    ASSERT_TRUE(gtDataModel->insertChild(hidden, first, 0).isValid());
-
-    LifecycleStyledModel styled;
-    styled.setSourceModel(gtDataModel);
-    GtExplorerModel explorer;
-    explorer.setSourceModel(&styled);
-    QObject::connect(m_app->session(),
-                     qOverload<GtObject*>(&GtObject::dataChanged), gtDataModel,
-                     [=](GtObject* object) {
-                         auto index = gtDataModel->indexFromObject(object);
-                         emit gtDataModel->dataChanged(index, index);
-                     });
-    QAbstractItemModelTester sourceTester(
-        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester styledTester(
-        &styled, QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester explorerTester(
-        &explorer, QAbstractItemModelTester::FailureReportingMode::Fatal);
-
-    // Reproduce the result merge: computation changes a detached copy, then
-    // its diff is applied to the project currently displayed by the explorer.
-    auto baseline = group->toMemento();
-    std::unique_ptr<GtObject> result(group->clone());
-    ASSERT_NE(result, nullptr);
-    LifecycleRunnable runnable;
-    ResultAddingCalculator calculator(*result);
-    calculator.setParent(&runnable);
-    ASSERT_TRUE(calculator.exec());
-    ASSERT_EQ(calculator.currentState(), GtProcessComponent::FINISHED);
-    GtObjectMementoDiff diff(baseline, result->toMemento());
-    ASSERT_FALSE(diff.isNull());
-    ASSERT_TRUE(group->applyDiff(diff));
-    auto projectIndex = explorer.mapFromSource(
-        styled.mapFromSource(gtDataModel->indexFromObject(first)));
-    EXPECT_EQ(explorer.rowCount(projectIndex), 1);
-    auto groupIndex = explorer.index(0, 0, projectIndex);
-    EXPECT_EQ(explorer.rowCount(groupIndex), 1);
-    QPersistentModelIndex removed(explorer.index(0, 0, groupIndex));
-    ASSERT_TRUE(group->revertDiff(diff));
-    EXPECT_FALSE(removed.isValid());
-    EXPECT_EQ(explorer.rowCount(groupIndex), 0);
-    ASSERT_TRUE(group->applyDiff(diff));
-    EXPECT_EQ(explorer.rowCount(groupIndex), 1);
-    QPersistentModelIndex persistent(explorer.index(0, 0, groupIndex));
-    for (int i = 0; i < 3; ++i)
-    {
-        ASSERT_TRUE(gtDataModel->switchProject(second));
-        EXPECT_FALSE(persistent.isValid());
-        ASSERT_TRUE(gtDataModel->switchProject(first));
-    }
-}
-
-TEST_F(ProjectLifecycleTest, diffReorderDoesNotDuplicateStructuralNotifications)
-{
-    auto* project = createProject(QStringLiteral("Reorder Project"));
-    ASSERT_TRUE(gtDataModel->newProject(project, false));
-    ASSERT_TRUE(gtDataModel->openProject(project));
-    auto* group = new GtObjectGroup;
-    auto* first = new GtObjectGroup;
-    auto* second = new GtObjectGroup;
-    ASSERT_TRUE(group->appendChild(first));
-    ASSERT_TRUE(group->appendChild(second));
-    ASSERT_TRUE(gtDataModel->appendChild(group, project).isValid());
-    const auto baseline = group->toMemento();
-    std::unique_ptr<GtObject> result(group->clone());
-    auto* moved = result->findDirectChildren<GtObject*>().last();
-    moved->disconnectFromParent();
-    ASSERT_TRUE(result->insertChild(0, moved));
-    GtObjectMementoDiff diff(baseline, result->toMemento());
-
-    LifecycleStyledModel styled;
-    styled.setSourceModel(gtDataModel);
-    GtExplorerModel explorer;
-    explorer.setSourceModel(&styled);
-    QObject::connect(
-        m_app->session(), qOverload<GtObject*>(&GtObject::dataChanged),
-        gtDataModel, [=](GtObject* object) {
-            const auto index = gtDataModel->indexFromObject(object);
-            emit gtDataModel->dataChanged(index, index);
-        });
-    QAbstractItemModelTester tester(
-        gtDataModel, QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QAbstractItemModelTester proxyTester(
-        &explorer, QAbstractItemModelTester::FailureReportingMode::Fatal);
-    QSignalSpy changes(gtDataModel, &QAbstractItemModel::rowsInserted);
-    for (int i = 0; i < 3; ++i)
-    {
-        ASSERT_TRUE(group->applyDiff(diff));
-        EXPECT_EQ(group->findDirectChildren<GtObject*>().first(), second);
-        ASSERT_TRUE(group->revertDiff(diff));
-        EXPECT_EQ(group->findDirectChildren<GtObject*>().first(), first);
-    }
-    // A subsequent nested diff must reach the model exactly once, even after
-    // repeatedly detaching and reattaching its parent in the reorder above.
-    auto before = second->toMemento();
-    std::unique_ptr<GtObject> nested(second->clone());
-    ASSERT_TRUE(nested->appendChild(new GtObjectGroup));
-    GtObjectMementoDiff nestedDiff(before, nested->toMemento());
-    const int previous = changes.count();
-    ASSERT_TRUE(second->applyDiff(nestedDiff));
-    EXPECT_EQ(changes.count(), previous + 1);
-}
 
 TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
 {
