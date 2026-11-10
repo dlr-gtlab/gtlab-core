@@ -21,10 +21,6 @@
 #include <QStringRef>
 
 #include <cfloat>
-#include <cerrno>
-#include <clocale>
-#include <cstdlib>
-#include <cstring>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -1020,132 +1016,6 @@ propertyToVariant(const QString& value, const QString& type)
     return retval;
 }
 
-/**
- * @brief Parses a well-formed ASCII number with strtod
- * @param data UTF-16 data of the value
- * @param length number of QChars in the value
- * @param out parsed value on success
- * @return true if the value could be parsed via the fast path
- *
- * QStringRef::toDouble() goes through the full QLocale C-locale parsing
- * machinery. For values that are already plain ASCII numerics, strtod
- * delivers bit-identical IEEE-754 results (verified against the full set of
- * real project values). Anything else - signs, whitespace, hex, inf/nan,
- * trailing garbage, overflow/underflow - falls back to the Qt parser.
- *
- * strtod() is locale dependent: it honors the process' LC_NUMERIC, so
- * the grammar validated '.' is mapped to the current locale's decimal
- * point (localeconv) before parsing. Without this, a de_DE locale
- * would e.g. parse "2.4" as 2.
- */
-static bool
-tryParseDoubleAscii(const QChar* data, int length, double* out)
-{
-    // validate: [sign] digits [. digits] [eE [sign] digits]
-    int i = 0;
-    if (i < length &&
-        (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
-    {
-        i++;
-    }
-    int digits = 0;
-    while (i < length && data[i] >= QLatin1Char('0') &&
-           data[i] <= QLatin1Char('9'))
-    {
-        i++;
-        digits++;
-    }
-    if (i < length && data[i] == QLatin1Char('.'))
-    {
-        i++;
-        while (i < length && data[i] >= QLatin1Char('0') &&
-               data[i] <= QLatin1Char('9'))
-        {
-            i++;
-            digits++;
-        }
-    }
-    if (digits == 0)
-    {
-        return false;
-    }
-    if (i < length &&
-        (data[i] == QLatin1Char('e') || data[i] == QLatin1Char('E')))
-    {
-        i++;
-        if (i < length &&
-            (data[i] == QLatin1Char('+') || data[i] == QLatin1Char('-')))
-        {
-            i++;
-        }
-        int expDigits = 0;
-        while (i < length && data[i] >= QLatin1Char('0') &&
-               data[i] <= QLatin1Char('9'))
-        {
-            i++;
-            expDigits++;
-        }
-        if (expDigits == 0)
-        {
-            return false;
-        }
-    }
-    if (i != length)
-    {
-        return false;
-    }
-
-    // every character is guaranteed ASCII at this point
-    char buf[64];
-    if (length > 63)
-    {
-        return false;
-    }
-    for (int j = 0; j < length; j++)
-    {
-        buf[j] = static_cast<char>(data[j].unicode());
-    }
-    buf[length] = '\0';
-
-    // strtod() honors the process' LC_NUMERIC: map the (grammar
-    // validated) '.' to the current locale's decimal point
-    const struct lconv* lc = localeconv();
-    const char* dec = lc->decimal_point;
-
-    if (dec == nullptr || dec[0] == '\0')
-    {
-        return false; // no usable decimal point -> Qt parser decides
-    }
-
-    const char* dot =
-        static_cast<const char*>(memchr(buf, '.', static_cast<size_t>(length)));
-    bool needsAdaptation = (dot != nullptr) && (strcmp(dec, ".") != 0);
-
-    if (!needsAdaptation)
-    {
-        // no fraction part or already the locale's decimal point
-        errno = 0;
-        *out = strtod(buf, nullptr);
-        return errno != ERANGE; // overflow/underflow -> Qt parser decides
-    }
-
-    char num[72];
-    const size_t pre = static_cast<size_t>(dot - buf);
-    const size_t decLen = strlen(dec);
-    if (pre + decLen + static_cast<size_t>(length) + 1 > sizeof(num))
-    {
-        return false; // locale decimal point too long -> Qt parser decides
-    }
-
-    memcpy(num, buf, pre);
-    memcpy(num + pre, dec, decLen);
-    memcpy(num + pre + decLen, dot + 1, static_cast<size_t>(length) - pre);
-
-    errno = 0;
-    *out = strtod(num, nullptr);
-    return errno != ERANGE; // overflow/underflow -> let the Qt parser decide
-}
-
 QVariant
 propertyListToVariant(const QString& value, const QString& type)
 {
@@ -1160,12 +1030,7 @@ propertyListToVariant(const QString& value, const QString& type)
 
         foreach (const auto& val, strList)
         {
-            double fastVal = 0.0;
-            if (!tryParseDoubleAscii(val.data(), val.length(), &fastVal))
-            {
-                fastVal = val.toDouble();
-            }
-            list.append(fastVal);
+            list.append(val.toDouble());
         }
 
         var.setValue(list);
