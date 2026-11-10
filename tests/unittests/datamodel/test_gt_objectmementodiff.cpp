@@ -17,6 +17,17 @@
 #include "test_gt_object.h"
 #include "gt_objectfactory.h"
 
+#include <QUuid>
+
+#include <algorithm>
+#include <chrono>
+#include <cstdlib>
+#include <functional>
+#include <iomanip>
+#include <numeric>
+#include <sstream>
+#include <vector>
+
 
 /// This is a test fixture that does a init for each test
 class TestGtObjectMementoDiff : public ::testing::Test
@@ -1429,3 +1440,560 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 
     ASSERT_TRUE(diff.isNull());
 }
+
+// =====================================================================
+// MementoDiffBench - A/B benchmark for memento comparison
+//
+// Compares two memento comparison strategies for defined cases:
+//
+//   hash_decision : calculateHashes() + fullHash() comparison. This is the
+//                   decision path of the old hash-based implementation.
+//                   The code is identical in every build and serves as the
+//                   reference measurement.
+//   diff_api      : GtObjectMementoDiff construction, i.e. the production
+//                   path. Baseline build runs the old algorithm there, the
+//                   fastpath build the byte-identical implementation.
+//
+// Cases:
+//   identical    - equal mementos, cold (fresh pair, no cached hashes) and
+//                  warm (repeated comparison of the same instances - the
+//                  case where the hash cache benefits the old
+//                  implementation)
+//   deepChange   - one small change in a node deep in the tree
+//   manyChanges  - about 10 % of all nodes changed
+//   container*   - struct property container entries, one or many entries
+//                  changed
+//
+// Sizes: small tree = 100 nodes, large tree = 500 nodes (with a wider list
+// payload), containers = 500 / 2000 entries.
+//
+// Machine readable result lines (for A/B joining):
+//   BENCH|<case>|payload=<n>|iters=<k>|<variant>|<us per call>us
+//
+// Environment knobs (for later profiling runs, e.g. valgrind):
+//   GT_MEMENTO_BENCH_ITER_MULT - multiplies the cold pair count and the
+//                                warm iteration budget (default 1)
+//   GT_MEMENTO_BENCH_NODE_MULT - multiplies the tree/entry sizes
+//                                (default 1)
+//
+// Budget: every test stays well below 30 s.
+// =====================================================================
+
+namespace {
+
+using SteadyClock = std::chrono::steady_clock;
+
+double
+benchUs(SteadyClock::time_point from, SteadyClock::time_point to)
+{
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(to - from).count()
+           / 1000.0;
+}
+
+long long
+benchEnvMult(const char* key, long long fallback)
+{
+    const char* raw = std::getenv(key);
+    if (raw == nullptr)
+        return fallback;
+    char* end = nullptr;
+    const long long value = std::strtoll(raw, &end, 10);
+    return (end != nullptr && *end == '\0' && value > 0) ? value : fallback;
+}
+
+template <typename Fn>
+double
+benchMeanUsPerCall(int warmup, int iterations, Fn fn)
+{
+    for (int i = 0; i < warmup; ++i)
+        fn();
+
+    size_t acc = 0;
+    const auto t0 = SteadyClock::now();
+    for (int i = 0; i < iterations; ++i)
+        acc += fn();
+    const auto t1 = SteadyClock::now();
+
+    volatile size_t sink = acc; // prevents dead code elimination
+    Q_UNUSED(sink);
+
+    return benchUs(t0, t1) / double(iterations);
+}
+
+// Warm benchmark: a probe call determines how many iterations fit into the
+// budget, then the mean is measured over those iterations.
+template <typename Fn>
+double
+benchWarmUsPerCall(int warmup, double budgetUs, int minIters, int maxIters,
+                   int& usedIters, Fn fn)
+{
+    for (int i = 0; i < warmup; ++i)
+        fn();
+
+    size_t acc = 0;
+    const auto p0 = SteadyClock::now();
+    acc = fn();
+    const auto p1 = SteadyClock::now();
+    volatile size_t sink = acc;
+    Q_UNUSED(sink);
+
+    const double probeUs = std::max(benchUs(p0, p1), 1.0);
+    usedIters = qBound<int>(minIters, int(budgetUs / probeUs), maxIters);
+    return benchMeanUsPerCall(0, usedIters, fn);
+}
+
+void
+benchEmit(const char* caseName, long long payload, long long iters,
+          const char* variant, double usPerCall)
+{
+    std::ostringstream os;
+    os << "BENCH|" << caseName << "|payload=" << payload << "|iters=" << iters
+       << '|' << variant << '|' << std::fixed << std::setprecision(3)
+       << usPerCall << "us";
+    std::cout << os.str() << std::endl;
+}
+
+// Correctness check: both implementations must detect the same changes.
+void
+benchCheckDiff(const char* caseName, const GtObjectMemento& left,
+               const GtObjectMemento& right, bool expectChanges,
+               const QString& expectedToken)
+{
+    GtObjectMementoDiff diff(left, right);
+    const QByteArray xml = diff.toByteArray();
+    if (expectChanges)
+    {
+        EXPECT_FALSE(diff.isNull()) << caseName;
+        EXPECT_GT(diff.numberOfDiffSteps(), 0) << caseName;
+        if (!expectedToken.isEmpty())
+            EXPECT_TRUE(xml.contains(expectedToken.toUtf8())) << caseName;
+    }
+    else
+    {
+        EXPECT_TRUE(diff.isNull()) << caseName;
+        EXPECT_EQ(diff.numberOfDiffSteps(), 0) << caseName;
+    }
+}
+
+// ------------------------------------------------------------------
+// Tree builder: TestSpecialGtObject nodes (~14 properties each,
+// including sub-properties, list properties and member vectors)
+// ------------------------------------------------------------------
+
+void
+configureBenchNode(TestSpecialGtObject* node, int id, int listLen)
+{
+    node->setBool(id % 2 == 0);
+    node->setDouble(id * 0.5);
+    node->setInt(id);
+    node->setLabel(QString("label%1").arg(id));
+    node->setMode(QString("mode%1").arg(id % 7));
+    node->setString(QString("str%1").arg(id)); // regex: letters and digits only
+    node->setLink(QString("link%1").arg(id));
+    node->setFile(QString("file%1.dat").arg(id));
+    node->setVariant(QString("variant%1").arg(id));
+
+    QVector<double> list;
+    list.reserve(listLen);
+    for (int k = 0; k < listLen; ++k)
+        list.append(id * 0.125 + k * 0.015625);
+    node->m_doubleListProp.setVal(list);
+
+    node->doubleVec.clear();
+    for (int k = 0; k < listLen / 2 + 1; ++k)
+        node->doubleVec.append(id * 0.5 - k * 0.25);
+
+    node->stringList.clear();
+    for (int k = 0; k < 3; ++k)
+        node->stringList << QString("s%1_%2").arg(id).arg(k);
+}
+
+GtObject*
+buildBenchTree(int numNodes, int childrenPerNode, int listLen)
+{
+    auto* root = new TestSpecialGtObject();
+    configureBenchNode(root, 0, listLen);
+    root->setUuid(QUuid::createUuid().toString(QUuid::Id128));
+
+    std::vector<TestSpecialGtObject*> frontier;
+    frontier.push_back(root);
+    size_t head = 0;
+    int created = 1;
+    while (created < numNodes && head < frontier.size())
+    {
+        TestSpecialGtObject* parent = frontier[head++];
+        for (int c = 0; c < childrenPerNode && created < numNodes; ++c)
+        {
+            auto* child = new TestSpecialGtObject();
+            configureBenchNode(child, created, listLen);
+            child->setUuid(QUuid::createUuid().toString(QUuid::Id128));
+            if (parent->appendChild(child))
+            {
+                frontier.push_back(child);
+                ++created;
+            }
+            else
+            {
+                delete child;
+            }
+        }
+    }
+    return root;
+}
+
+TestSpecialGtObject*
+benchNodeAtDepth(GtObject* root, int depth)
+{
+    std::function<TestSpecialGtObject* (GtObject*, int)> walk =
+        [&](GtObject* node, int d) -> TestSpecialGtObject* {
+        if (d == depth)
+            return dynamic_cast<TestSpecialGtObject*>(node);
+        for (auto* child : node->findDirectChildren())
+            if (TestSpecialGtObject* hit = walk(child, d + 1))
+                return hit;
+        return nullptr;
+    };
+    return walk(root, 0);
+}
+
+void
+applyDeepBenchChange(GtObject* root)
+{
+    TestSpecialGtObject* target = benchNodeAtDepth(root, 3);
+    if (target == nullptr)
+        target = dynamic_cast<TestSpecialGtObject*>(root);
+    if (target == nullptr)
+        return;
+    target->setDouble(target->getDouble() + 0.001);
+    target->setString(QString("str%1x").arg(target->getInt()));
+}
+
+int
+applyManyBenchChanges(GtObject* root)
+{
+    int changed = 0;
+    int index = 0;
+    std::function<void(GtObject*)> walk = [&](GtObject* node) {
+        if (index++ % 10 == 5)
+        {
+            if (TestSpecialGtObject* t = dynamic_cast<TestSpecialGtObject*>(node))
+            {
+                t->setBool(!t->getBool());
+                t->setInt(t->getInt() + 1);
+                t->setLabel(QString("label%1").arg(t->getInt()) + "chg");
+                ++changed;
+            }
+        }
+        for (auto* child : node->findDirectChildren())
+            walk(child);
+    };
+    walk(root);
+    return changed;
+}
+
+struct BenchPair
+{
+    GtObject* tree = nullptr;
+    GtObjectMemento left;
+    GtObjectMemento right;
+
+    ~BenchPair()
+    {
+        delete tree;
+    }
+};
+
+BenchPair
+makeBenchPair(int numNodes, int childrenPerNode, int listLen, int changeMode)
+{
+    BenchPair pair;
+    pair.tree = buildBenchTree(numNodes, childrenPerNode, listLen);
+    pair.left = pair.tree->toMemento();
+    if (changeMode == 1)
+        applyDeepBenchChange(pair.tree);
+    else if (changeMode == 2)
+        applyManyBenchChanges(pair.tree);
+    pair.right = pair.tree->toMemento();
+    return pair;
+}
+
+struct BenchTreeConfig
+{
+    int nodes;
+    int childrenPerNode;
+    int listLen;
+};
+
+void
+runTreeBench(const char* caseName, BenchTreeConfig cfg, int changeMode,
+             const QString& expectedToken)
+{
+    const long long iterMult = benchEnvMult("GT_MEMENTO_BENCH_ITER_MULT", 1);
+    cfg.nodes *= int(benchEnvMult("GT_MEMENTO_BENCH_NODE_MULT", 1));
+
+    const int coldPairs = int(50 * iterMult);
+    const double warmBudgetUs = 3.0e6 * double(iterMult);
+
+    // correctness on one representative pair
+    {
+        BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                       cfg.listLen, changeMode);
+        EXPECT_FALSE(pair.left.isNull());
+        EXPECT_FALSE(pair.right.isNull());
+        benchCheckDiff(caseName, pair.left, pair.right, changeMode != 0,
+                       expectedToken);
+    }
+
+    // hash decision, cold: fresh pair per measurement, no cached hashes
+    {
+        std::vector<double> times;
+        times.reserve(coldPairs);
+        size_t acc = 0;
+        for (int i = 0; i < coldPairs; ++i)
+        {
+            BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                           cfg.listLen, changeMode);
+            const auto t0 = SteadyClock::now();
+            pair.left.calculateHashes();
+            pair.right.calculateHashes();
+            acc += (pair.left.fullHash() == pair.right.fullHash()) ? 1 : 0;
+            const auto t1 = SteadyClock::now();
+            times.push_back(benchUs(t0, t1));
+        }
+        volatile size_t sink = acc;
+        Q_UNUSED(sink);
+        benchEmit(caseName, cfg.nodes, coldPairs, "hash_decision_cold",
+                  std::accumulate(times.begin(), times.end(), 0.0) / times.size());
+    }
+
+    // hash decision, warm: same instances, hashes cached after warmup
+    {
+        BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                       cfg.listLen, changeMode);
+        int iters = 0;
+        const double mean = benchWarmUsPerCall(
+            3, warmBudgetUs, 100, 100000, iters, [&pair]() -> size_t {
+                pair.left.calculateHashes();
+                pair.right.calculateHashes();
+                return (pair.left.fullHash() == pair.right.fullHash()) ? 1 : 0;
+            });
+        benchEmit(caseName, cfg.nodes, iters, "hash_decision_warm", mean);
+    }
+
+    // diff api, cold: fresh pair per measurement
+    {
+        std::vector<double> times;
+        times.reserve(coldPairs);
+        size_t acc = 0;
+        for (int i = 0; i < coldPairs; ++i)
+        {
+            BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                           cfg.listLen, changeMode);
+            const auto t0 = SteadyClock::now();
+            GtObjectMementoDiff diff(pair.left, pair.right);
+            acc += diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+            const auto t1 = SteadyClock::now();
+            times.push_back(benchUs(t0, t1));
+        }
+        volatile size_t sink = acc;
+        Q_UNUSED(sink);
+        benchEmit(caseName, cfg.nodes, coldPairs, "diff_api_cold",
+                  std::accumulate(times.begin(), times.end(), 0.0) / times.size());
+    }
+
+    // diff api, warm: same instances, repeated diff construction
+    {
+        BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                       cfg.listLen, changeMode);
+        int iters = 0;
+        const double mean = benchWarmUsPerCall(
+            3, warmBudgetUs, 100, 20000, iters, [&pair]() -> size_t {
+                GtObjectMementoDiff diff(pair.left, pair.right);
+                return diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+            });
+        benchEmit(caseName, cfg.nodes, iters, "diff_api_warm", mean);
+    }
+}
+
+// ------------------------------------------------------------------
+// Property container bench: TestObject root with struct entries
+// ------------------------------------------------------------------
+
+struct BenchContainerPair
+{
+    TestObject* obj = nullptr;
+    GtObjectMemento left;
+    GtObjectMemento right;
+
+    ~BenchContainerPair()
+    {
+        delete obj;
+    }
+};
+
+BenchContainerPair
+makeContainerPair(int entries, int changeMode)
+{
+    BenchContainerPair pair;
+    pair.obj = new TestObject();
+    for (int i = 0; i < entries; ++i)
+        pair.obj->addEnvironmentVar(QString("var%1").arg(i),
+                                    QString("value%1_").arg(i) + QString(16, 'x'));
+    pair.left = pair.obj->toMemento();
+    if (changeMode == 1)
+        pair.obj->environmentVars.at(entries / 2).setMemberVal(
+            "value", QString("CHANGED_%1").arg(entries / 2));
+    else if (changeMode == 2)
+        for (int i = 0; i < entries; ++i)
+            if (i % 10 == 3)
+                pair.obj->environmentVars.at(i).setMemberVal(
+                    "value", QString("CHANGED_%1").arg(i));
+    pair.right = pair.obj->toMemento();
+    return pair;
+}
+
+void
+runContainerBench(const char* caseName, int entries, int changeMode)
+{
+    const long long iterMult = benchEnvMult("GT_MEMENTO_BENCH_ITER_MULT", 1);
+    entries *= int(benchEnvMult("GT_MEMENTO_BENCH_NODE_MULT", 1));
+
+    const int coldPairs = int(50 * iterMult);
+    const double warmBudgetUs = 3.0e6 * double(iterMult);
+
+    // correctness
+    {
+        BenchContainerPair pair = makeContainerPair(entries, changeMode);
+        EXPECT_FALSE(pair.left.isNull());
+        EXPECT_FALSE(pair.right.isNull());
+        benchCheckDiff(caseName, pair.left, pair.right, changeMode != 0,
+                       QStringLiteral("environmentVars"));
+    }
+
+    // hash decision, cold: fresh pair per measurement, no cached hashes
+    {
+        std::vector<double> times;
+        times.reserve(coldPairs);
+        size_t acc = 0;
+        for (int i = 0; i < coldPairs; ++i)
+        {
+            BenchContainerPair pair = makeContainerPair(entries, changeMode);
+            const auto t0 = SteadyClock::now();
+            pair.left.calculateHashes();
+            pair.right.calculateHashes();
+            acc += (pair.left.fullHash() == pair.right.fullHash()) ? 1 : 0;
+            const auto t1 = SteadyClock::now();
+            times.push_back(benchUs(t0, t1));
+        }
+        volatile size_t sink = acc;
+        Q_UNUSED(sink);
+        benchEmit(caseName, entries, coldPairs, "hash_decision_cold",
+                  std::accumulate(times.begin(), times.end(), 0.0) / times.size());
+    }
+
+    // hash decision, warm: same instances, hashes cached after warmup
+    {
+        BenchContainerPair pair = makeContainerPair(entries, changeMode);
+        int iters = 0;
+        const double mean = benchWarmUsPerCall(
+            3, warmBudgetUs, 100, 100000, iters, [&pair]() -> size_t {
+                pair.left.calculateHashes();
+                pair.right.calculateHashes();
+                return (pair.left.fullHash() == pair.right.fullHash()) ? 1 : 0;
+            });
+        benchEmit(caseName, entries, iters, "hash_decision_warm", mean);
+    }
+
+    // diff api, cold: fresh pair per measurement
+    {
+        std::vector<double> times;
+        times.reserve(coldPairs);
+        size_t acc = 0;
+        for (int i = 0; i < coldPairs; ++i)
+        {
+            BenchContainerPair pair = makeContainerPair(entries, changeMode);
+            const auto t0 = SteadyClock::now();
+            GtObjectMementoDiff diff(pair.left, pair.right);
+            acc += diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+            const auto t1 = SteadyClock::now();
+            times.push_back(benchUs(t0, t1));
+        }
+        volatile size_t sink = acc;
+        Q_UNUSED(sink);
+        benchEmit(caseName, entries, coldPairs, "diff_api_cold",
+                  std::accumulate(times.begin(), times.end(), 0.0) / times.size());
+    }
+
+    // diff api, warm: same instances, repeated diff construction
+    {
+        BenchContainerPair pair = makeContainerPair(entries, changeMode);
+        int iters = 0;
+        const double mean = benchWarmUsPerCall(
+            3, warmBudgetUs, 100, 20000, iters, [&pair]() -> size_t {
+                GtObjectMementoDiff diff(pair.left, pair.right);
+                return diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+            });
+        benchEmit(caseName, entries, iters, "diff_api_warm", mean);
+    }
+}
+
+} // anonymous namespace
+
+class MementoDiffBench : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        if (!gtObjectFactory->knownClass("TestSpecialGtObject"))
+            gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+        if (!gtObjectFactory->knownClass("TestObject"))
+            gtObjectFactory->registerClass(TestObject::staticMetaObject);
+    }
+};
+
+// identical mementos: cold (fresh pair, no cached hashes) + warm (same
+// instances, repeated comparisons)
+TEST_F(MementoDiffBench, identicalSmall)
+{
+    runTreeBench("identical", {100, 3, 8}, 0, QString());
+}
+
+TEST_F(MementoDiffBench, identicalLarge)
+{
+    runTreeBench("identical", {500, 3, 32}, 0, QString());
+}
+
+// one small change in a node at depth 3
+TEST_F(MementoDiffBench, deepChangeSmall)
+{
+    runTreeBench("deepChange", {100, 3, 8}, 1, QStringLiteral("doubleProp"));
+}
+
+TEST_F(MementoDiffBench, deepChangeLarge)
+{
+    runTreeBench("deepChange", {500, 3, 32}, 1, QStringLiteral("doubleProp"));
+}
+
+// ~10 % of all nodes changed (bool + int + label)
+TEST_F(MementoDiffBench, manyChangesSmall)
+{
+    runTreeBench("manyChanges", {100, 3, 8}, 2, QStringLiteral("labelProp"));
+}
+
+TEST_F(MementoDiffBench, manyChangesLarge)
+{
+    runTreeBench("manyChanges", {500, 3, 32}, 2, QStringLiteral("labelProp"));
+}
+
+// struct property container, one entry changed (of 500)
+TEST_F(MementoDiffBench, containerDeep)
+{
+    runContainerBench("containerDeep", 500, 1);
+}
+
+// struct property container, ~10 % of entries changed (of 2000)
+TEST_F(MementoDiffBench, containerMany)
+{
+    runContainerBench("containerMany", 2000, 2);
+}
+
