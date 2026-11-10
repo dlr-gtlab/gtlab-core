@@ -93,6 +93,7 @@ Your first module
 
    basics/data_modelling
    basics/process_elements
+   basics/application_paths
 
 .. toctree::
    :caption: Maintenance and support

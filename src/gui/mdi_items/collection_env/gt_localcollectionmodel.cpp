@@ -11,12 +11,68 @@
 
 #include <QIcon>
 #include <QDir>
+#include <QFileInfo>
+#include <QObject>
 
+#include "gt_applicationpaths.h"
 #include "gt_icons.h"
 #include "gt_collectionitem.h"
+#include "gt_logging.h"
 
 #include "gt_localcollectionmodel.h"
 #include "gt_qtutilities.h"
+
+namespace
+{
+
+bool
+isUserCollectionPath(const QString& itemPath, QString* error)
+{
+    const auto dataDirectory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Data, error);
+    if (!dataDirectory)
+    {
+        return false;
+    }
+
+    const QString rootPath =
+        QFileInfo(dataDirectory->filePath(QStringLiteral("Collections")))
+            .canonicalFilePath();
+    const QString canonicalItemPath = QFileInfo(itemPath).canonicalFilePath();
+    if (canonicalItemPath.isEmpty())
+    {
+        if (error)
+        {
+            *error = QObject::tr("Could not resolve the collection item path.");
+        }
+        return false;
+    }
+
+    if (rootPath.isEmpty())
+    {
+        if (error)
+        {
+            *error = QObject::tr("Installed collection items are read-only.");
+        }
+        return false;
+    }
+
+    const QString relativePath = QDir::fromNativeSeparators(
+        QDir(rootPath).relativeFilePath(canonicalItemPath));
+    const bool isDescendant = !relativePath.isEmpty() &&
+                              relativePath != QStringLiteral(".") &&
+                              relativePath != QStringLiteral("..") &&
+                              !relativePath.startsWith(QStringLiteral("../")) &&
+                              !QDir::isAbsolutePath(relativePath);
+    if (!isDescendant && error)
+    {
+        *error = QObject::tr("Installed collection items are read-only.");
+    }
+
+    return isDescendant;
+}
+
+} // namespace
 
 GtLocalCollectionModel::GtLocalCollectionModel(QObject* parent) :
     QAbstractListModel(parent), m_showInfoColumns(true)
@@ -196,17 +252,25 @@ GtLocalCollectionModel::uninstallItem(const QModelIndex& index)
         return false;
     }
 
-    beginRemoveRows(QModelIndex(), row, row);
-
-    GtCollectionItem item = m_items.takeAt(row);
-
-    QDir dir(item.localPath());
-
-    if (dir.exists())
+    const GtCollectionItem& item = m_items.at(row);
+    QString error;
+    if (!isUserCollectionPath(item.localPath(), &error))
     {
-        dir.removeRecursively();
+        gtWarning() << QObject::tr("Cannot uninstall collection item:")
+                    << error;
+        return false;
     }
 
+    QDir dir(item.localPath());
+    if (dir.exists() && !dir.removeRecursively())
+    {
+        gtError() << QObject::tr("Could not remove collection item directory:")
+                  << item.localPath();
+        return false;
+    }
+
+    beginRemoveRows(QModelIndex(), row, row);
+    m_items.removeAt(row);
     endRemoveRows();
 
     return true;

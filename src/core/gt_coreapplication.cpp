@@ -9,6 +9,7 @@
  */
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QStandardPaths>
 #include <QTranslator>
@@ -62,6 +63,47 @@ static const auto init_logging_destination_once = [](){
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
 GtVersionNumber GtCoreApplication::m_version =
     GtVersionNumber{QStringLiteral(GT_VERSION_STRING)};
+
+namespace
+{
+
+QString
+applicationInstallationIdentity()
+{
+    QString installationPath =
+        QFileInfo(QCoreApplication::applicationFilePath()).canonicalPath();
+    if (installationPath.isEmpty())
+    {
+        installationPath =
+            QDir::cleanPath(QCoreApplication::applicationDirPath());
+    }
+
+    return QString::fromLatin1(
+        QCryptographicHash::hash(installationPath.toUtf8(),
+                                 QCryptographicHash::Sha256)
+            .toHex());
+}
+
+void
+migrateLegacyApplicationIni(const QString& targetPath)
+{
+    const QString legacyPath = QDir(QCoreApplication::applicationDirPath())
+                                   .filePath(QStringLiteral("GTlab.ini"));
+    if (targetPath.isEmpty() || QFileInfo::exists(targetPath) ||
+        !QFileInfo::exists(legacyPath))
+    {
+        return;
+    }
+
+    if (!QFile::copy(legacyPath, targetPath) && !QFileInfo::exists(targetPath))
+    {
+        gtWarning() << QObject::tr("Could not migrate application state from "
+                                   "%1 to %2")
+                           .arg(legacyPath, targetPath);
+    }
+}
+
+} // namespace
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
@@ -146,20 +188,20 @@ GtCoreApplication::localApplicationIniFilePath()
             return QString();
         }
 
-        const QString targetPath =
-            directory->filePath(QStringLiteral("GTlab.ini"));
-        const QString legacyPath = QDir(QCoreApplication::applicationDirPath())
-                                       .filePath(QStringLiteral("GTlab.ini"));
-        if (!QFileInfo::exists(targetPath) && QFileInfo::exists(legacyPath) &&
-            !QFile::copy(legacyPath, targetPath) &&
-            !QFileInfo::exists(targetPath))
+        const QString installationDirectory =
+            directory->filePath(QStringLiteral("installation-%1")
+                                    .arg(applicationInstallationIdentity()));
+        if (!QDir().mkpath(installationDirectory))
         {
-            gtWarning() << QObject::tr(
-                               "Could not migrate application state from %1 to "
-                               "%2")
-                               .arg(legacyPath, targetPath);
+            gtWarning() << QObject::tr("Could not create installation state "
+                                       "directory: %1")
+                               .arg(installationDirectory);
+            return QString();
         }
 
+        const QString targetPath =
+            QDir(installationDirectory).filePath(QStringLiteral("GTlab.ini"));
+        migrateLegacyApplicationIni(targetPath);
         return targetPath;
     }();
     return filePath;

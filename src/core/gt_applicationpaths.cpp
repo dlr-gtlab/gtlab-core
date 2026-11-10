@@ -11,10 +11,10 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFileInfo>
 #include <QObject>
 #include <QStandardPaths>
 #include <QTemporaryDir>
-#include <QTemporaryFile>
 #include <QtGlobal>
 
 #include <memory>
@@ -83,6 +83,70 @@ createApplicationTemporaryDirectory(TemporaryDirectoryOwner& owner,
 }
 
 QString
+runtimeDirectoryPath(QString* error)
+{
+    const QString organization = QCoreApplication::organizationName();
+    const QString application = QCoreApplication::applicationName();
+    const auto applicationPath = [&](const QString& root) {
+        return QDir(root).filePath(QDir(organization).filePath(application));
+    };
+
+    const QString preferredRoot =
+        QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    if (!preferredRoot.isEmpty())
+    {
+        const QString preferredPath = applicationPath(preferredRoot);
+        if (QDir().mkpath(preferredPath) &&
+            QFileInfo(preferredPath).isWritable())
+        {
+            return preferredPath;
+        }
+    }
+
+    const QString tempRoot =
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    if (tempRoot.isEmpty())
+    {
+        if (error)
+        {
+            *error = QObject::tr("Neither runtime nor temporary location is "
+                                 "available.");
+        }
+        return {};
+    }
+
+    const QByteArray userIdentity = QDir::homePath().toUtf8();
+    const QByteArray userHash =
+        QCryptographicHash::hash(userIdentity, QCryptographicHash::Sha256)
+            .toHex()
+            .left(16);
+    const QString fallbackRoot = QDir(tempRoot).filePath(
+        QStringLiteral("gtlab-runtime-%1").arg(QString::fromLatin1(userHash)));
+    const QString fallbackPath = applicationPath(fallbackRoot);
+    if (QDir().mkpath(fallbackPath) && QFileInfo(fallbackPath).isWritable())
+    {
+        return fallbackPath;
+    }
+
+    if (error)
+    {
+        if (preferredRoot.isEmpty())
+        {
+            *error = QObject::tr("Could not create a usable runtime directory "
+                                 "at '%1'.")
+                         .arg(fallbackPath);
+        }
+        else
+        {
+            *error = QObject::tr("Runtime directory '%1' and fallback '%2' "
+                                 "are unavailable.")
+                         .arg(preferredRoot, fallbackPath);
+        }
+    }
+    return {};
+}
+
+QString
 locationPath(GtApplicationPaths::Location type, QString* error)
 {
     switch (type)
@@ -118,40 +182,8 @@ locationPath(GtApplicationPaths::Location type, QString* error)
     }
 #endif
 
-    case GtApplicationPaths::Location::Runtime: {
-        QString runtimeRoot =
-            QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
-
-        if (runtimeRoot.isEmpty())
-        {
-            const QString tempRoot =
-                QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-            if (tempRoot.isEmpty())
-            {
-                if (error)
-                {
-                    *error = QObject::tr(
-                        "Neither runtime nor temporary location is available.");
-                }
-                return {};
-            }
-
-            const QByteArray userIdentity = QDir::homePath().toUtf8();
-            const QByteArray userHash =
-                QCryptographicHash::hash(userIdentity,
-                                         QCryptographicHash::Sha256)
-                    .toHex()
-                    .left(16);
-            runtimeRoot = QDir(tempRoot).filePath(
-                QStringLiteral("gtlab-runtime-%1")
-                    .arg(QString::fromLatin1(userHash)));
-        }
-
-        const QString organization = QCoreApplication::organizationName();
-        const QString application = QCoreApplication::applicationName();
-        return QDir(runtimeRoot)
-            .filePath(QDir(organization).filePath(application));
-    }
+    case GtApplicationPaths::Location::Runtime:
+        return runtimeDirectoryPath(error);
 
     case GtApplicationPaths::Location::Temp:
         break;
@@ -165,7 +197,7 @@ locationPath(GtApplicationPaths::Location type, QString* error)
 }
 
 bool
-ensureWritableDirectory(const QString& path, QString* error)
+ensureDirectory(const QString& path, QString* error)
 {
     if (path.isEmpty())
     {
@@ -184,19 +216,6 @@ ensureWritableDirectory(const QString& path, QString* error)
         }
         return false;
     }
-
-    QTemporaryFile writeProbe(
-        QDir(path).filePath(QStringLiteral(".gtlab-write-test-XXXXXX")));
-    if (!writeProbe.open())
-    {
-        if (error)
-        {
-            *error = QObject::tr("Directory '%1' is not writable: %2")
-                         .arg(path, writeProbe.errorString());
-        }
-        return false;
-    }
-
     return true;
 }
 
@@ -226,7 +245,7 @@ GtApplicationPaths::directory(Location type, QString* error)
     }
 
     const QString path = locationPath(type, error);
-    if (!ensureWritableDirectory(path, error))
+    if (!ensureDirectory(path, error))
     {
         return std::nullopt;
     }
