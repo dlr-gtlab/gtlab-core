@@ -22,7 +22,8 @@ int main(int argc, char **argv)
 
     const QStringList arguments = app.arguments();
     if (arguments.size() > 1 &&
-        arguments.at(1).startsWith(QStringLiteral("--application-temp-dir-")))
+        (arguments.at(1) == QStringLiteral("--application-temp-dir-hold") ||
+         arguments.at(1) == QStringLiteral("--application-temp-dir-exit")))
     {
         QCoreApplication::setOrganizationName(QStringLiteral("DLR"));
         QCoreApplication::setApplicationName(QStringLiteral("GTlab 2"));

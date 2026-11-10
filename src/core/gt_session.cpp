@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDir>
+#include <QObject>
 
 #include "gt_session.h"
 #include "gt_project.h"
@@ -106,8 +107,8 @@ GtSession::createEmptySession(const QString& id)
     const QString basePath = gtApp->roamingPath();
     if (basePath.isEmpty())
     {
-        gtError() << tr("Cannot create session without an application data "
-                        "directory.");
+        gtError() << QObject::tr("Cannot create session without an application "
+                                 "data directory.");
         return false;
     }
 

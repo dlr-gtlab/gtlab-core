@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QtGlobal>
 #include <QDebug>
+#include <QObject>
 
 #include <algorithm>
 
@@ -133,8 +134,9 @@ GtCoreApplication::localApplicationIniFilePath()
             GtApplicationPaths::directory(GtApplicationPaths::Location::State);
         if (!directory)
         {
-            gtWarning() << "Could not access application state directory; "
-                           "using the config directory instead.";
+            gtWarning() << QObject::tr("Could not access application state "
+                                       "directory; using the config "
+                                       "directory instead.");
             directory = GtApplicationPaths::directory(
                 GtApplicationPaths::Location::Config);
         }
@@ -152,8 +154,10 @@ GtCoreApplication::localApplicationIniFilePath()
             !QFile::copy(legacyPath, targetPath) &&
             !QFileInfo::exists(targetPath))
         {
-            gtWarning() << "Could not migrate application state from"
-                        << legacyPath << "to" << targetPath;
+            gtWarning() << QObject::tr(
+                               "Could not migrate application state from %1 to "
+                               "%2")
+                               .arg(legacyPath, targetPath);
         }
 
         return targetPath;
@@ -712,7 +716,8 @@ GtCoreApplication::applicationTempDir()
         GtApplicationPaths::Location::Temp, &error);
     if (!root)
     {
-        gtWarning() << tr("Could not create temporary directory:") << error;
+        gtWarning() << QObject::tr("Could not create temporary directory:")
+                    << error;
         return QDir();
     }
 

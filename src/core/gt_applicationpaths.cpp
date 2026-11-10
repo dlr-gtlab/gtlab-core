@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QObject>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
@@ -46,7 +47,7 @@ createApplicationTemporaryDirectory(TemporaryDirectoryOwner& owner,
         if (error)
         {
             *error =
-                QStringLiteral("The system temporary location is unavailable.");
+                QObject::tr("The system temporary location is unavailable.");
         }
         return false;
     }
@@ -55,9 +56,9 @@ createApplicationTemporaryDirectory(TemporaryDirectoryOwner& owner,
     {
         if (error)
         {
-            *error = QStringLiteral(
-                         "The system temporary location does not exist: %1")
-                         .arg(tempRoot);
+            *error =
+                QObject::tr("The system temporary location does not exist: %1")
+                    .arg(tempRoot);
         }
         return false;
     }
@@ -69,14 +70,14 @@ createApplicationTemporaryDirectory(TemporaryDirectoryOwner& owner,
     {
         if (error)
         {
-            *error = QStringLiteral("Could not create an application temporary "
-                                    "directory: %1")
+            *error = QObject::tr("Could not create an application temporary "
+                                 "directory: %1")
                          .arg(directory->errorString());
         }
         return false;
     }
 
-    gtInfo() << "Using temporary directory:" << directory->path();
+    gtInfo() << QObject::tr("Using temporary directory:") << directory->path();
     owner.directory = std::move(directory);
     return true;
 }
@@ -108,7 +109,7 @@ locationPath(GtApplicationPaths::Location type, QString* error)
         {
             if (error)
             {
-                *error = QStringLiteral(
+                *error = QObject::tr(
                     "The application data location for state is unavailable.");
             }
             return {};
@@ -129,7 +130,7 @@ locationPath(GtApplicationPaths::Location type, QString* error)
             {
                 if (error)
                 {
-                    *error = QStringLiteral(
+                    *error = QObject::tr(
                         "Neither runtime nor temporary location is available.");
                 }
                 return {};
@@ -158,7 +159,7 @@ locationPath(GtApplicationPaths::Location type, QString* error)
 
     if (error)
     {
-        *error = QStringLiteral("Unknown application path location.");
+        *error = QObject::tr("Unknown application path location.");
     }
     return {};
 }
@@ -170,8 +171,7 @@ ensureWritableDirectory(const QString& path, QString* error)
     {
         if (error && error->isEmpty())
         {
-            *error =
-                QStringLiteral("The requested writable location is empty.");
+            *error = QObject::tr("The requested writable location is empty.");
         }
         return false;
     }
@@ -180,8 +180,7 @@ ensureWritableDirectory(const QString& path, QString* error)
     {
         if (error)
         {
-            *error =
-                QStringLiteral("Could not create directory '%1'.").arg(path);
+            *error = QObject::tr("Could not create directory '%1'.").arg(path);
         }
         return false;
     }
@@ -192,7 +191,7 @@ ensureWritableDirectory(const QString& path, QString* error)
     {
         if (error)
         {
-            *error = QStringLiteral("Directory '%1' is not writable: %2")
+            *error = QObject::tr("Directory '%1' is not writable: %2")
                          .arg(path, writeProbe.errorString());
         }
         return false;

@@ -147,7 +147,7 @@ GtProjectOpenService::GtProjectOpenService(QObject* parent) :
         GtApplicationPaths::directory(GtApplicationPaths::Location::Runtime);
     if (runtimeDirectory)
     {
-        m_lockFile = std::make_unique<QLockFile>(
+        m_lockFile.emplace(
             runtimeDirectory->filePath(m_serverName + QStringLiteral(".lock")));
         m_lockFile->setStaleLockTime(0);
     }

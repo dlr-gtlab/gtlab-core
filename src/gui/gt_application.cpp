@@ -34,6 +34,7 @@
 #include <QIcon>
 #include <QApplication>
 #include <QDir>
+#include <QObject>
 #include <QClipboard>
 #include <QUndoStack>
 #include <QUuid>
@@ -832,7 +833,8 @@ GtApplication::initFirstRun()
     const QString settingsPath = roamingPath();
     if (settingsPath.isEmpty())
     {
-        gtWarning() << tr("Could not access application settings directory!");
+        gtWarning() << QObject::tr("Could not access application settings "
+                                   "directory!");
         return false;
     }
 

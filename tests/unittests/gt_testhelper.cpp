@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QUuid>
 #include <QDebug>
+#include <QObject>
 
 #include "gt_testhelper.h"
 #include "gt_logging.h"
@@ -22,7 +23,8 @@ GtTestHelper::GtTestHelper() :
 {
     if (!m_tempDirectory.isValid())
     {
-        qCritical() << "ERROR: Could not create test temporary directory!";
+        qCritical() << QObject::tr(
+            "Could not create test temporary directory!");
     }
 
      // setup gt logging

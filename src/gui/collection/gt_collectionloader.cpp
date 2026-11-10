@@ -31,6 +31,7 @@
 #include <QJsonArray>
 #include <QThread>
 #include <QSet>
+#include <QObject>
 
 GtCollectionLoader::GtCollectionLoader(const QString& collectionId,
                                        QObject* parent) : QObject(parent)
@@ -96,7 +97,7 @@ GtCollectionLoader::loadLocalCollection()
             }
             else
             {
-                gtError() << tr("Invalid collection item!")
+                gtError() << QObject::tr("Invalid collection item!")
                           << QStringLiteral(" - ") << directories.filePath();
             }
         }
@@ -186,7 +187,8 @@ GtCollectionLoader::collectionPath()
         GtApplicationPaths::Location::Data, &error);
     if (!dataDirectory)
     {
-        gtError() << tr("Could not access collection data directory:") << error;
+        gtError() << QObject::tr("Could not access collection data directory:")
+                  << error;
         return QString();
     }
 
@@ -194,7 +196,7 @@ GtCollectionLoader::collectionPath()
         QStringLiteral("Collections/%1").arg(m_collection->collectionId());
     if (!dataDirectory->mkpath(relativePath))
     {
-        gtError() << tr("Could not create collection path!");
+        gtError() << QObject::tr("Could not create collection path!");
         return QString();
     }
 

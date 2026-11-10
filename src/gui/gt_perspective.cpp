@@ -9,6 +9,7 @@
  */
 
 #include <QDir>
+#include <QObject>
 
 #include "gt_logging.h"
 #include "gt_perspective.h"
@@ -25,7 +26,8 @@ GtPerspective::createDefault()
     const QString settingsPath = gtApp->roamingPath();
     if (settingsPath.isEmpty())
     {
-        gtFatal() << tr("Application settings directory is unavailable!");
+        gtFatal() << QObject::tr("Application settings directory is "
+                                 "unavailable!");
         return false;
     }
 
