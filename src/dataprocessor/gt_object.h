@@ -83,6 +83,7 @@ class GT_DATAMODEL_EXPORT GtObject : public QObject
     Q_OBJECT
 
     friend class GtObjectIO;
+    friend class GtObjectDiffAccess;
     friend class GtObjectMemento;
 
 public:
@@ -173,16 +174,18 @@ public:
     void fromMemento(const GtObjectMemento& memento);
 
     /**
-     * @brief applyDiff
+     * @brief Apply a memento diff on this object's thread.
      * @param diff
-     * @return
+     * @return False on failure or a foreign-thread call. Completed diff steps
+     * remain applied and their structural notifications are paired.
      */
     bool applyDiff(GtObjectMementoDiff& diff);
 
     /**
-     * @brief revertDiff
+     * @brief Revert a memento diff on this object's thread.
      * @param diff
-     * @return
+     * @return False on failure or a foreign-thread call. Completed diff steps
+     * remain reverted and their structural notifications are paired.
      */
     bool revertDiff(GtObjectMementoDiff& diff);
 
@@ -650,20 +653,7 @@ public:
             return false;
         }
 
-        QList<T> elementsBehindPos;
-
-        for (int i = pos; i < list.size(); ++i)
-        {
-            elementsBehindPos.append(list.at(i));
-            list.at(i)->setParent(nullptr);
-        }
-
-        appendChild(obj);
-
-        for (T element : elementsBehindPos)
-        {
-            element->setParent(this);
-        }
+        insertChildUnchecked(pos, obj);
 
         return true;
     }
@@ -825,6 +815,21 @@ protected slots:
 
 private:
     void appendChildUnchecked(GtObject* child);
+    void attachChild(GtObject* child);
+    template <typename T>
+    void insertChildUnchecked(int pos, T child)
+    {
+        const auto following = findDirectChildren<T>().mid(pos);
+        for (auto* object : following)
+            object->setParent(nullptr);
+        attachChild(child);
+        for (auto* object : following)
+            object->setParent(this);
+
+        // Observers must see the complete hierarchy, including following rows.
+        changed();
+        emit childAppended(child, this);
+    }
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
@@ -922,6 +927,16 @@ signals:
     void dynamicPropertyStructureAboutToChange();
     /// Completes the paired notification, including a failed add attempt.
     void dynamicPropertyStructureChanged();
+
+    /// Structural notifications for memento diffs, forwarded to the tree root.
+    /// The parent and row refer to its direct GtObject children. insert is
+    /// false for removal. Ordinary model APIs provide their own notifications.
+    void diffChildAboutToChange(GtObject* parent, int row, bool insert);
+    void diffChildChanged(GtObject* parent, int row, bool insert);
+
+    /// A same-parent move. destination is the final row after the move.
+    void diffChildAboutToMove(GtObject* parent, int source, int destination);
+    void diffChildMoved(GtObject* parent, int source, int destination);
 
     /**
      * @brief childAppended

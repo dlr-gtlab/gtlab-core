@@ -9,6 +9,7 @@
  */
 
 #include <QSet>
+#include <QThread>
 #include <QStringList>
 #include <QMetaProperty>
 #include <QDomDocument>
@@ -42,6 +43,42 @@
 #include "gt_objectuuidmap.h"
 
 #include "gt_objectio.h"
+
+// Keep validation outside Qt's structural notification pairs. Once a pair
+// begins, the unchecked mutation cannot reject the operation or lose ownership.
+class GtObjectDiffAccess
+{
+public:
+    static bool insert(GtObject& parent, int row,
+                       std::unique_ptr<GtObject> child)
+    {
+        if (row < 0 || child->thread() != parent.thread() ||
+            !parent.canAppendChild(child.get()))
+            return false;
+
+        const int count = parent.findDirectChildren().size();
+        row = std::min(row, count);
+        emit parent.diffChildAboutToChange(&parent, row, true);
+        parent.insertChildUnchecked(row, child.release());
+        emit parent.diffChildChanged(&parent, row, true);
+        return true;
+    }
+
+    static bool move(GtObject& parent, GtObject& child, int row)
+    {
+        if (row < 0) return false;
+        const int count = parent.findDirectChildren().size();
+        row = std::min(row, count - 1);
+        const int oldRow = child.childNumber();
+        if (row == oldRow) return true;
+
+        emit parent.diffChildAboutToMove(&parent, oldRow, row);
+        child.disconnectFromParent();
+        parent.insertChildUnchecked(row, &child);
+        emit parent.diffChildMoved(&parent, oldRow, row);
+        return true;
+    }
+};
 
 const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<int>")
@@ -813,7 +850,7 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
         return true;
     }
 
-    if (!parentObject)
+    if (!parentObject || parentObject->thread() != QThread::currentThread())
     {
         return false;
     }
@@ -855,6 +892,9 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
 bool
 GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 {
+    // Qt model notifications must run synchronously on the hierarchy's thread.
+    if (!obj || obj->thread() != QThread::currentThread()) return false;
+
     if (diff.isNull())
     {
         return true;
@@ -894,6 +934,9 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 bool
 GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
 {
+    // Qt model notifications must run synchronously on the hierarchy's thread.
+    if (!obj || obj->thread() != QThread::currentThread()) return false;
+
     if (diff.isNull())
     {
         return true;
@@ -2033,24 +2076,7 @@ handleObjectAdd(GtObject& parent,
         return false;
     }
 
-    int numberOfChildren = parent.findDirectChildren().size();
-
-    if (ind >= numberOfChildren)
-    {
-        parent.appendChild(newObj.release());
-    }
-    else if (ind >= 0)
-    {
-        parent.insertChild(ind, newObj.release());
-    }
-    else
-    {
-        gtDebug() << "INDEX:" << ind;
-        gtDebug() << "INDEX NOT IN RANGE -> CANNOT ADD OBJECT!";
-        return false;
-    }
-
-    return true;
+    return GtObjectDiffAccess::insert(parent, ind, std::move(newObj));
 }
 
 bool
@@ -2082,7 +2108,10 @@ handleObjectRemove(GtObject& parent,
         return false;
     }
 
+    const int row = toRemove->childNumber();
+    emit parent.diffChildAboutToChange(&parent, row, false);
     delete toRemove;
+    emit parent.diffChildChanged(&parent, row, false);
 
     return true;
 }
@@ -2143,18 +2172,7 @@ handleIndexChange(GtObject& parent,
         return false;
     }
 
-    toMove->setParent(nullptr);
-
-    if (newIndex > parent.findDirectChildren().size())
-    {
-        parent.appendChild(toMove);
-    }
-    else
-    {
-        parent.insertChild(newIndex, toMove);
-    }
-
-    return true;
+    return GtObjectDiffAccess::move(parent, *toMove, newIndex);
 }
 
 } // namespace
