@@ -76,7 +76,8 @@ Observed objects
   attach, detach, move and deletion, including in suspended parent sessions.
   Roots always stay observed. A read-write lock protects the set.
 * Attach and detach events are filtered by the parent: the new parent for
-  attach, the old parent for detach.
+  attach, the old parent for detach. Deletion events are filtered by the
+  deleted object itself.
 
 Property hooks
 ~~~~~~~~~~~~~~
@@ -105,9 +106,12 @@ Object tree hooks
 * ``GtObject::appendChild()`` reports ``objectAttached`` once the parent was
   actually set (Qt refuses cross-thread reparenting).
   ``disconnectFromParent()`` reports ``objectDetached``; a move reports both.
-* ``~GtObject`` reports ``objectDetached`` and removes the object from all
+* ``~GtObject`` reports ``objectDestroyed(parent, object)`` for an observed
+  object, whether it is a root or a descendant, and removes it from all
   observed sets, so a new object at the same address is not treated as
-  observed. Only identity and UUID are valid at that point.
+  observed. Only identity and UUID are valid at that point. A deletion is
+  never reported as ``objectDetached``, so that event always means a live
+  child, and the ``ObjectDestroyed`` flag alone controls deletion events.
 * ``GtObject(parent)`` attaches before the UUID is assigned and before the
   derived class is constructed. Observers keep pointers during the run and
   resolve everything in ``recordingFinished()``.
@@ -119,7 +123,8 @@ Nested recordings and threads
   recording executor; with the default ``parent`` mode this applies to all
   children of a recorded task. Other children run in the parent's session.
 * A child session takes over the thread; the suspended parent only receives
-  membership updates, no events.
+  membership updates and ``objectDestroyed`` for objects it observes, so no
+  observer keeps a pointer to a deleted object.
 * All recording state is per thread. ``gt::propagateRecording()`` carries the
   session into worker threads. One session accepts concurrent events, which
   also prepares for child components running in parallel; the task's thread

@@ -30,11 +30,19 @@ class GT_DATAMODEL_EXPORT GtRecordingObserver
 public:
     virtual ~GtRecordingObserver();
 
-    /// Called once before the recorded work starts.
+    /**
+     * @brief Called once before the recorded work starts.
+     *
+     * Like recordingFinished(), it is called regardless of the session's
+     * event mask. If it throws, the work runs without recording.
+     */
     virtual void recordingStarted(const GtRecordingSession& session);
 
     /**
      * @brief Called once after the recorded work finished.
+     *
+     * Not called if recordingStarted() threw.
+     *
      * @param success Whether the recorded execution succeeded.
      */
     virtual void recordingFinished(const GtRecordingSession& session,
