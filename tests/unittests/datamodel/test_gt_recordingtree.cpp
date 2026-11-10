@@ -192,9 +192,8 @@ TEST(GtRecordingTree, deletionFollowsObjectDestroyedMaskOnly)
             return true;
         });
 
-        const QStringList expected = mask == destroyedOnly
-                                         ? QStringList{"destroyed"}
-                                         : QStringList{};
+        const QStringList expected =
+            mask == destroyedOnly ? QStringList{"destroyed"} : QStringList{};
         EXPECT_EQ(eventKinds(observer), expected);
     }
 }

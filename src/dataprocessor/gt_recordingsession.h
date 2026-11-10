@@ -80,8 +80,8 @@ public:
         ObjectDetached = 0x8,
         ObjectDestroyed = 0x10,
         AllEvents = PropertyRead | ObjectValueRead | PropertyWritten |
-                    ObjectValueWritten | ObjectAttached | ObjectDetached |
-                    ObjectDestroyed
+            ObjectValueWritten | ObjectAttached | ObjectDetached |
+            ObjectDestroyed
     };
     Q_DECLARE_FLAGS(Events, Event)
 
