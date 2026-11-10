@@ -321,6 +321,10 @@ GtObject::appendChildUnchecked(GtObject* c)
             this, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged));
     connect(c, &GtObject::childAppended,
             this, &GtObject::childAppended);
+    connect(c, &GtObject::diffChildAboutToChange,
+            this, &GtObject::diffChildAboutToChange);
+    connect(c, &GtObject::diffChildChanged,
+            this, &GtObject::diffChildChanged);
     connect(c, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
             this, &GtObject::onChildDataChanged);
     connect(c, qOverload<GtObject*>(&GtObject::dataChanged),
@@ -418,6 +422,10 @@ GtObject::disconnectFromParent()
                    p, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged));
         disconnect(this, &GtObject::childAppended,
                    p, &GtObject::childAppended);
+        disconnect(this, &GtObject::diffChildAboutToChange,
+                   p, &GtObject::diffChildAboutToChange);
+        disconnect(this, &GtObject::diffChildChanged,
+                   p, &GtObject::diffChildChanged);
         disconnect(this, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
                    p, &GtObject::onChildDataChanged);
         disconnect(this, qOverload<GtObject*>(&GtObject::dataChanged),

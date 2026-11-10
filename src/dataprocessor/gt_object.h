@@ -923,6 +923,12 @@ signals:
     /// Completes the paired notification, including a failed add attempt.
     void dynamicPropertyStructureChanged();
 
+    /// Structural notifications for memento diffs, forwarded to the tree root.
+    /// The parent and row refer to its direct GtObject children. insert is
+    /// false for removal. Ordinary model APIs provide their own notifications.
+    void diffChildAboutToChange(GtObject* parent, int row, bool insert);
+    void diffChildChanged(GtObject* parent, int row, bool insert);
+
     /**
      * @brief childAppended
      * @param child

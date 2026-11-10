@@ -67,6 +67,7 @@ target_include_directories(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch
 )
 target_link_libraries(GTlabUnitTest PRIVATE
+    Qt${QT_VERSION_MAJOR}::Test
     GTlab::Core
     GTlab::Gui
     GTlab::DataProcessor
