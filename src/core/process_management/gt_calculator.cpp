@@ -126,14 +126,14 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString execMode = pimpl->execMode.get();
+    QString currentExecMode = pimpl->execMode.get();
 
-    if (execMode != "local")
+    if (currentExecMode != "local")
     {
         // plugin execution
         // find executor
         GtAbstractCalculatorExecutor* executor =
-            gtCalcExecList->executor(execMode);
+            gtCalcExecList->executor(currentExecMode);
 
         if (!executor)
         {
