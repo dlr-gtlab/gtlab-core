@@ -315,8 +315,7 @@ TEST(GtRecordingProperties, objectValueWritesInsideReadAreReported)
 
     record(observer, roots(&obj), [&]() { (void)obj.cachedOffset(); });
 
-    EXPECT_EQ(eventKinds(observer),
-              (QStringList{"valueRead", "valueWritten"}));
+    EXPECT_EQ(eventKinds(observer), (QStringList{"valueRead", "valueWritten"}));
 }
 
 TEST(GtRecordingProperties, objectValueWritesFollowEventMask)
