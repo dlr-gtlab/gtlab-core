@@ -2158,7 +2158,8 @@ handleIndexChange(GtObject& parent,
     toMove->disconnectFromParent();
     emit parent.diffChildChanged(&parent, oldIndex, false);
 
-    const int row = std::min(newIndex, parent.findDirectChildren().size());
+    const int numberOfChildren = parent.findDirectChildren().size();
+    const int row = std::min(newIndex, numberOfChildren);
     emit parent.diffChildAboutToChange(&parent, row, true);
     auto notify = gt::finally([&]() {
         emit parent.diffChildChanged(&parent, row, true);
