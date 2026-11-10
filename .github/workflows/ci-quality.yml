@@ -168,6 +168,82 @@ jobs:
     - name: Run REUSE lint
       run: reuse lint
 
+  header_includes_scan:
+    name: "GTlab header includes (scan)"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Scan header includes
+      shell: bash
+      run: |
+        python .github/scripts/check_header_includes.py --format rdjsonl > header-includes.rdjsonl
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: header-includes-rdjsonl
+        path: header-includes.rdjsonl
+        if-no-files-found: error
+
+  header_includes_report:
+    name: "GTlab header includes (report)"
+    needs: header_includes_scan
+    runs-on: ubuntu-latest
+
+    # GitHub automatically limits the token to read-only on fork PRs.
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: header-includes-rdjsonl
+        path: reviewdog-input
+
+    - uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: latest
+
+    - name: Report header include findings
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+      shell: bash
+      run: |
+        if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+          reporter="github-check"
+        elif [[ "$PR_HEAD_REPO" == "$GITHUB_REPOSITORY" ]]; then
+          reporter="github-pr-review"
+        else
+          # Fork PRs have read-only tokens; emit workflow annotations.
+          reporter="github-pr-annotations"
+        fi
+
+        reviewdog \
+          -f=rdjsonl \
+          -name="GTlab Header Includes" \
+          -reporter="$reporter" \
+          -filter-mode=added \
+          -fail-level=error < reviewdog-input/header-includes.rdjsonl
+
   coverage_linux:
     name: "Coverage (linux)"
     runs-on: ubuntu-latest
