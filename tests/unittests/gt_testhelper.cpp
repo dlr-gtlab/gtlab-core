@@ -80,5 +80,4 @@ GtTestHelper::randomStringList(int length)
 }
 
 GtTestHelper::~GtTestHelper()
-{
-}
+{ }

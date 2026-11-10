@@ -23,6 +23,8 @@
 #include <QtGlobal>
 #include <QDebug>
 
+#include <algorithm>
+
 #include "gt_coreapplication.h"
 #include "gt_applicationpaths.h"
 #include "gt_externalizationmanager.h"
@@ -177,11 +179,11 @@ GtCoreApplication::readSessionIds()
         QStringList entries = path.entryList(QStringList()
                                              << QStringLiteral("*.json"));
 
-        foreach (QString entry, entries)
-        {
-            m_sessionIds.append(entry.replace(QStringLiteral(".json"),
-                                              QString{}));
-        }
+        std::transform(
+            entries.begin(), entries.end(), entries.begin(), [](QString entry) {
+                return entry.replace(QStringLiteral(".json"), QString{});
+            });
+        m_sessionIds = entries;
 
         m_sessionIds.removeDuplicates();
 
