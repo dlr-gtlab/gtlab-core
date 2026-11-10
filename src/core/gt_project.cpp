@@ -523,6 +523,23 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return S::ErrorCopyFailed;
     }
 
+    const QDomElement restoredRoot =
+        readProjectData(projectDir).documentElement();
+    const QString restoredName =
+        restoredRoot.attribute(QStringLiteral("projectname"));
+    if (gtApp && gtApp->session() && !restoredName.isEmpty())
+    {
+        const GtProject* existingProject =
+            gtApp->session()->findProject(restoredName);
+        if (existingProject && existingProject != this)
+        {
+            gtWarning() << tr("Project name is already used in the session:")
+                        << restoredName;
+            rollbackGuard.finalize();
+            return S::ErrorCopyFailed;
+        }
+    }
+
     // reload project state since the restored backup may contain
     // different (e.g. outdated) project data
     metadataReloadStarted = true;
@@ -555,18 +572,6 @@ GtProject::loadMetaData()
     {
         gtError() << tr("Invalid GTlab project file!");
         return false;
-    }
-
-    if (gtApp && gtApp->session())
-    {
-        const GtProject* existingProject =
-            gtApp->session()->findProject(projectname);
-        if (existingProject && existingProject != this)
-        {
-            gtWarning() << tr("Project name is already used in the session:")
-                        << projectname;
-            return false;
-        }
     }
 
     setObjectName(projectname);
