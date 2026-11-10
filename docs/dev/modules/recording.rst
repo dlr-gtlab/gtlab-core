@@ -103,17 +103,20 @@ Override only the callbacks you need:
    {
    public:
        void recordingStarted(const GtRecordingSession& session) override;
+       void recordingFinished(const GtRecordingSession& session,
+                              bool success) override;
        void propertyRead(const GtObject& owner,
                          const GtAbstractProperty& property) override;
+       void objectValueRead(const GtObject& object) override;
        void propertyWritten(const GtObject& owner,
                             const GtAbstractProperty& property) override;
-       void objectValueRead(const GtObject& object) override;
+       void objectValueWritten(const GtObject& object) override;
        void objectAttached(const GtObject& parent,
                            const GtObject& child) override;
        void objectDetached(const GtObject& parent,
                            const GtObject& child) override;
-       void recordingFinished(const GtRecordingSession& session,
-                              bool success) override;
+       void objectDestroyed(const GtObject* parent,
+                            const GtObject& object) override;
    };
 
 Rules for observers:
@@ -133,7 +136,7 @@ Rules for observers:
 * **Store identities, resolve later.** ``objectAttached()`` can deliver a
   child that is still being constructed: no valid UUID yet, derived class and
   properties not set up, and the derived constructor's ``setVal()`` calls
-  produce write events. ``objectDetached()`` is also sent from ``~GtObject``,
+  produce write events. ``objectDestroyed()`` is sent from ``~GtObject``,
   when only identity and UUID remain valid. Keep pointers during the run and
   resolve everything in ``recordingFinished()``.
 
@@ -155,23 +158,30 @@ attached, detached, moved or deleted. Roots always stay observed.
        ``getVal()``, ``operator()()`` or ``valueToVariant()``. Accessors that
        call each other produce one event. Mutable references from ``get()``
        count as reads.
-   * - ``propertyWritten``
-     - A property of an observed object emits ``changed()``, even if the
-       value did not change.
    * - ``objectValueRead``
      - An accessor of an observed object marked with
        ``gt::ObjectValueReadScope`` runs (see below).
+   * - ``propertyWritten``
+     - A property of an observed object emits ``changed()``, even if the
+       value did not change.
+   * - ``objectValueWritten``
+     - A setter of an observed object calls
+       ``gt::notifyObjectValueWritten()`` (see below).
    * - ``objectAttached``
      - A child is attached to an observed parent (``appendChild()``, including
        ``GtObject(parent)``).
    * - ``objectDetached``
-     - A child is detached from an observed parent
-       (``disconnectFromParent()``, moves, deletion).
+     - A live child is detached from an observed parent
+       (``disconnectFromParent()``, moves).
+   * - ``objectDestroyed``
+     - An observed object is deleted, roots included. Passes the parent it
+       had, or ``nullptr``. Descendants are not reported separately.
 
 Properties are attributed to the object that registered them, including
 sub-properties and property container entries. Properties registered with
 ``registerSilentProperty()`` are not recorded. Restrict the events with the
-event mask of the session.
+event mask of the session; ``recordingStarted()`` and ``recordingFinished()``
+are always called.
 
 Record own accessors
 ^^^^^^^^^^^^^^^^^^^^
@@ -194,6 +204,22 @@ The scope shares the nesting with property reads: only the outermost read is
 reported, so property reads inside the accessor produce no extra event.
 Without a running recording, the scope only checks a counter.
 
+Setters that change such data call ``gt::notifyObjectValueWritten()`` after
+the change:
+
+.. code-block:: cpp
+
+   void
+   MyObject::setValue(double value)
+   {
+       m_value = value;
+       gt::notifyObjectValueWritten(*this);
+   }
+
+If the object is observed, the observer receives
+``objectValueWritten(object)``. Writes are reported even inside a read, e.g.
+when a getter fills a cache.
+
 Nested recordings
 -----------------
 
@@ -203,7 +229,10 @@ all children of a recorded task. The child session:
 
 * takes over the thread while it runs; only its observer gets events,
 * has the task's recording as ``parentId()``,
-* keeps the suspended task session's observed tree up to date.
+* keeps the suspended task session's observed tree up to date,
+* also sends ``objectDestroyed()`` to the suspended task observer if that
+  session observes the deleted object, so no observer keeps a pointer to a
+  deleted object.
 
 A child in ``local`` mode runs in the task's recording. Its events reach the
 task observer only for objects the task itself links.
@@ -234,7 +263,8 @@ Limits
 * No recording in out-of-process runs (process runner) or for children on a
   remote executor.
 * Code that reads property member values directly bypasses the read hooks.
-  Own accessors are recorded only if they use ``gt::ObjectValueReadScope``.
+  Own accessors are recorded only if they use ``gt::ObjectValueReadScope``
+  or ``gt::notifyObjectValueWritten()``.
 * No ``objectAccessed()`` event; mutations through mutable references are
   reported as reads.
 
