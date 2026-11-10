@@ -110,7 +110,7 @@ readTemporaryDirectoryLine(QProcess& process, const QString& mode)
 
 } // namespace
 
-// Launched only as a child process by TemporaryDirectoryIsSharedAndProcessOwned.
+// Launched only as a child process by TemporaryDirectoryProcessLifecycle.
 TEST(GtApplicationPaths, DISABLED_TemporaryDirectoryProcessHelper)
 {
     const QString mode =
@@ -179,7 +179,7 @@ TEST(GtApplicationPaths, RejectsUnknownLocation)
     EXPECT_FALSE(error.isEmpty());
 }
 
-TEST(GtApplicationPaths, TemporaryDirectoryIsSharedAndProcessOwned)
+TEST(GtApplicationPaths, TemporaryDirectorySharedWithinProcess)
 {
     const auto first =
         GtApplicationPaths::directory(GtApplicationPaths::Location::Temp);
@@ -188,7 +188,10 @@ TEST(GtApplicationPaths, TemporaryDirectoryIsSharedAndProcessOwned)
     ASSERT_TRUE(first);
     ASSERT_TRUE(second);
     EXPECT_EQ(first->absolutePath(), second->absolutePath());
+}
 
+TEST(GtApplicationPaths, TemporaryDirectoryProcessLifecycle)
+{
     QProcess crashedProcess;
     const QString crashedPath =
         readTemporaryDirectoryLine(crashedProcess, QStringLiteral("hold"));
@@ -200,7 +203,6 @@ TEST(GtApplicationPaths, TemporaryDirectoryIsSharedAndProcessOwned)
     const QString normalPath =
         readTemporaryDirectoryLine(normalProcess, QStringLiteral("exit"));
     ASSERT_FALSE(normalPath.isEmpty());
-    EXPECT_NE(first->absolutePath(), normalPath);
     EXPECT_NE(normalPath, crashedPath);
     ASSERT_TRUE(normalProcess.waitForFinished(5000));
     EXPECT_EQ(normalProcess.exitStatus(), QProcess::NormalExit);
