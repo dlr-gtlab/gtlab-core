@@ -66,7 +66,7 @@ GtCalculator::exec()
         return true;
     }
 
-    gtTrace() << objectName() << "::exec()";
+    gtTrace() << QObject::tr("%1::exec()").arg(objectName());
     // initialize pointer to runnable
     setRunnable(nullptr);
 
@@ -103,7 +103,7 @@ GtCalculator::exec()
             }
             else
             {
-                gtDebug() << "Linked object not found in runnable";
+                gtDebug() << QObject::tr("Linked object not found in runnable");
             }
         }
         else if (const GtObjectPathProperty* objPath =
@@ -120,7 +120,7 @@ GtCalculator::exec()
             }
             else
             {
-                gtDebug() << "Linked object not found in runnable";
+                gtDebug() << QObject::tr("Linked object not found in runnable");
             }
         }
     }

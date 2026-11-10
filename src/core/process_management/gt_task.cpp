@@ -225,11 +225,11 @@ GtTask::run(GtAbstractRunnable* r)
 
     tp->start(runnable());
 
-    gtTrace() << "#### exec event loop...";
+    gtTrace() << QObject::tr("#### exec event loop...");
 
     pimpl->eventLoop.exec();
 
-    gtTrace() << "#### exec finished";
+    gtTrace() << QObject::tr("#### exec finished");
 }
 
 QList<GtCalculator*>
@@ -270,7 +270,7 @@ GtTask::runIteration()
     // get list of all child process components
     //    QList<GtProcessComponent*> childs = processComponents();
 
-    gtTrace() << "starting iteration...";
+    gtTrace() << QObject::tr("starting iteration...");
 
     do
     {
@@ -373,7 +373,9 @@ GtTask::runChildElements()
     // increment current iteration step and continue iteration
     m_currentIter.setVal(m_currentIter.getVal() + 1);
 
-    gtTrace() << "iteration step (" << m_currentIter << "/" << m_maxIter << ")";
+    gtTrace() << QObject::tr("iteration step (%1/%2)")
+                     .arg(m_currentIter.getVal())
+                     .arg(m_maxIter.getVal());
 
     // trigger transfer of monitoring properties before running calculators
     emit transferMonitoringProperties();
@@ -384,7 +386,7 @@ GtTask::runChildElements()
         comp->setStateRecursively(GtProcessComponent::QUEUED);
     }
 
-    gtTrace() << "running calculators...";
+    gtTrace() << QObject::tr("running calculators...");
 
     // run calculators
     foreach (GtProcessComponent* comp, childs)
@@ -394,7 +396,7 @@ GtTask::runChildElements()
             // calculator run failed
             setState(GtProcessComponent::FAILED);
 
-            gtTrace() << "   |-> run failed!";
+            gtTrace() << QObject::tr("   |-> run failed!");
 
             return false;
         }
@@ -419,7 +421,7 @@ GtTask::runChildElements()
         }
     }
 
-    gtTrace() << "evaluating...";
+    gtTrace() << QObject::tr("evaluating...");
     // evaluate current iteration step
     m_lastEval = evaluate();
 
@@ -576,7 +578,7 @@ GtTask::handleRunnableFinished()
 {
     bool success = true;
 
-    gtTrace() << __FUNCTION__;
+    gtTrace() << QObject::tr("handleRunnableFinished");
 
     if (!runnable()->successful())
     {
