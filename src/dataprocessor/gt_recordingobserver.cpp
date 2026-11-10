@@ -15,6 +15,12 @@ GtRecordingObserver::recordingStarted(const GtRecordingSession&)
 }
 
 void
+GtRecordingObserver::recordingFinished(const GtRecordingSession&, bool)
+{
+    // nothing to do here
+}
+
+void
 GtRecordingObserver::propertyRead(const GtObject&, const GtAbstractProperty&)
 {
     // nothing to do here
@@ -40,12 +46,6 @@ GtRecordingObserver::objectAttached(const GtObject&, const GtObject&)
 
 void
 GtRecordingObserver::objectDetached(const GtObject&, const GtObject&)
-{
-    // nothing to do here
-}
-
-void
-GtRecordingObserver::recordingFinished(const GtRecordingSession&, bool)
 {
     // nothing to do here
 }

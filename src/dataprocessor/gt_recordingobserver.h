@@ -33,6 +33,13 @@ public:
     /// Called once before the recorded work starts.
     virtual void recordingStarted(const GtRecordingSession& session);
 
+    /**
+     * @brief Called once after the recorded work finished.
+     * @param success Whether the recorded execution succeeded.
+     */
+    virtual void recordingFinished(const GtRecordingSession& session,
+                                   bool success);
+
     /// A property of an observed object was read.
     virtual void propertyRead(const GtObject& owner,
                               const GtAbstractProperty& property);
@@ -68,13 +75,6 @@ public:
      * parent, so an observer never keeps a pointer to a deleted object.
      */
     virtual void objectDetached(const GtObject& parent, const GtObject& child);
-
-    /**
-     * @brief Called once after the recorded work finished.
-     * @param success Whether the recorded execution succeeded.
-     */
-    virtual void recordingFinished(const GtRecordingSession& session,
-                                   bool success);
 
     /**
      * @brief An observed object without a parent was deleted.

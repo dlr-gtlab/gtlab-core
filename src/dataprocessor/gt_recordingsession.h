@@ -73,13 +73,13 @@ public:
     enum Event
     {
         PropertyRead = 0x1,
+        ObjectValueRead = 0x20,
         PropertyWritten = 0x2,
         ObjectAttached = 0x4,
         ObjectDetached = 0x8,
         ObjectDestroyed = 0x10,
-        ObjectValueRead = 0x20,
-        AllEvents = PropertyRead | PropertyWritten | ObjectAttached |
-                    ObjectDetached | ObjectDestroyed | ObjectValueRead
+        AllEvents = PropertyRead | ObjectValueRead | PropertyWritten |
+                    ObjectAttached | ObjectDetached | ObjectDestroyed
     };
     Q_DECLARE_FLAGS(Events, Event)
 
@@ -166,9 +166,9 @@ public:
 
     void notifyPropertyRead(const GtObject& owner,
                             const GtAbstractProperty& property);
+    void notifyObjectValueRead(const GtObject& object);
     void notifyPropertyWritten(const GtObject& owner,
                                const GtAbstractProperty& property);
-    void notifyObjectValueRead(const GtObject& object);
 
     /**
      * @brief Updates the observed tree of this session and of its suspended

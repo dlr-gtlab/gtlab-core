@@ -244,6 +244,15 @@ GtRecordingSession::notifyPropertyRead(const GtObject& owner,
 }
 
 void
+GtRecordingSession::notifyObjectValueRead(const GtObject& object)
+{
+    if (!isObserved(object)) return;
+
+    pimpl->dispatch(ObjectValueRead,
+                    [&]() { pimpl->observer.objectValueRead(object); });
+}
+
+void
 GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
                                           const GtAbstractProperty& property)
 {
@@ -252,15 +261,6 @@ GtRecordingSession::notifyPropertyWritten(const GtObject& owner,
     pimpl->dispatch(PropertyWritten, [&]() {
         pimpl->observer.propertyWritten(owner, property);
     });
-}
-
-void
-GtRecordingSession::notifyObjectValueRead(const GtObject& object)
-{
-    if (!isObserved(object)) return;
-
-    pimpl->dispatch(ObjectValueRead,
-                    [&]() { pimpl->observer.objectValueRead(object); });
 }
 
 void
