@@ -1464,6 +1464,12 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 //   container*   - struct property container entries, one or many entries
 //                  changed
 //
+// Each case reports the diff API in three cache states: cold (fresh pair
+// per iteration), warm (same instances on both sides, repeated diff) and
+// left-warm (the same left memento instance is diffed on every iteration
+// while the right memento is fresh, created outside the timed region).
+// Left-warm models a long-lived snapshot re-diffed against a fresh state.
+//
 // Production relevance of the warm variants: an audit of all
 // GtObjectMementoDiff call sites in src/ (console run from memento,
 // memento editor drag & drop, command/undo-redo, process dock connection
@@ -1477,7 +1483,11 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 // make repeated comparisons cheap, does not occur in production today.
 // The warm numbers document that fast path; if future code re-diffs a
 // stable memento tree, a per-instance fullHash cache could be added to
-// the fastpath implementation to recover it.
+// the fastpath implementation to recover it. The left-warm variant - one
+// side reused, the other fresh per iteration - is likewise not exercised
+// by any production call site today; it quantifies what a long-lived left
+// memento re-diffed per cycle would cost and how each implementation
+// reacts to the reused side.
 //
 // Sizes: small tree = 100 nodes, large tree = 500 nodes (with a wider list
 // payload), containers = 500 / 2000 entries.
@@ -1555,6 +1565,57 @@ benchWarmUsPerCall(int warmup, double budgetUs, int minIters, int maxIters,
     const double probeUs = std::max(benchUs(p0, p1), 1.0);
     usedIters = qBound<int>(minIters, int(budgetUs / probeUs), maxIters);
     return benchMeanUsPerCall(0, usedIters, fn);
+}
+
+// Warm benchmark for the one-sided warm case: the same left memento
+// instance is diffed on every iteration (any state it gained from earlier
+// diffs persists), while prepareRight() creates a fresh right memento on
+// every iteration - outside the timed region, mirroring diff_api_cold,
+// where pair creation is not timed. The mean is taken over the diff
+// construction only.
+template <typename PrepareRight>
+double
+benchWarmLeftWarmUsPerCall(int warmup, double budgetUs, int minIters,
+                           int maxIters, int& usedIters,
+                           const GtObjectMemento& left,
+                           PrepareRight prepareRight)
+{
+    for (int i = 0; i < warmup; ++i)
+    {
+        const GtObjectMemento right = prepareRight();
+        GtObjectMementoDiff diff(left, right);
+        volatile size_t sink =
+            diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+        Q_UNUSED(sink);
+    }
+
+    // probe one diff against a fresh right memento to size the budget
+    const GtObjectMemento probeRight = prepareRight();
+    const auto p0 = SteadyClock::now();
+    {
+        GtObjectMementoDiff diff(left, probeRight);
+        volatile size_t sink =
+            diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+        Q_UNUSED(sink);
+    }
+    const auto p1 = SteadyClock::now();
+    const double probeUs = std::max(benchUs(p0, p1), 1.0);
+    usedIters = qBound<int>(minIters, int(budgetUs / probeUs), maxIters);
+
+    double sumUs = 0.0;
+    size_t acc = 0;
+    for (int i = 0; i < usedIters; ++i)
+    {
+        const GtObjectMemento right = prepareRight();
+        const auto d0 = SteadyClock::now();
+        GtObjectMementoDiff diff(left, right);
+        const auto d1 = SteadyClock::now();
+        acc += diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
+        sumUs += benchUs(d0, d1);
+    }
+    volatile size_t sink = acc;
+    Q_UNUSED(sink);
+    return sumUs / double(usedIters);
 }
 
 void
@@ -1832,6 +1893,36 @@ runTreeBench(const char* caseName, BenchTreeConfig cfg, int changeMode,
             });
         benchEmit(caseName, cfg.nodes, iters, "diff_api_warm", mean);
     }
+
+    // diff api, left warm: the same left memento instance is diffed on
+    // every iteration while a fresh right memento is taken from the same
+    // tree state each iteration (created outside the timed region,
+    // mirroring diff_api_cold). The fresh memento carries the same uuids
+    // and property values as the original right side, but no cached
+    // hashes, so only the left side may benefit from hash caching.
+    // Models a long-lived snapshot re-diffed against a fresh state; no
+    // production call site does this today (see "Production relevance of
+    // the warm variants").
+    {
+        GtObject* leftTree =
+            buildBenchTree(cfg.nodes, cfg.childrenPerNode, cfg.listLen);
+        GtObjectMemento left = leftTree->toMemento();
+        if (changeMode == 1)
+            applyDeepBenchChange(leftTree);
+        else if (changeMode == 2)
+            applyManyBenchChanges(leftTree);
+
+        // correctness on the exact left-warm setup
+        benchCheckDiff(caseName, left, leftTree->toMemento(), changeMode != 0,
+                       expectedToken);
+
+        int iters = 0;
+        const double mean = benchWarmLeftWarmUsPerCall(
+            3, warmBudgetUs, 100, 20000, iters, left,
+            [leftTree]() { return leftTree->toMemento(); });
+        benchEmit(caseName, cfg.nodes, iters, "diff_api_left_warm", mean);
+        delete leftTree;
+    }
 }
 
 // ------------------------------------------------------------------
@@ -1850,23 +1941,36 @@ struct BenchContainerPair
     }
 };
 
-BenchContainerPair
-makeContainerPair(int entries, int changeMode)
+TestObject*
+buildBenchContainer(int entries)
 {
-    BenchContainerPair pair;
-    pair.obj = new TestObject();
+    auto* obj = new TestObject();
     for (int i = 0; i < entries; ++i)
-        pair.obj->addEnvironmentVar(QString("var%1").arg(i),
-                                    QString("value%1_").arg(i) + QString(16, 'x'));
-    pair.left = pair.obj->toMemento();
+        obj->addEnvironmentVar(QString("var%1").arg(i),
+                               QString("value%1_").arg(i) + QString(16, 'x'));
+    return obj;
+}
+
+void
+applyContainerBenchChange(TestObject* obj, int entries, int changeMode)
+{
     if (changeMode == 1)
-        pair.obj->environmentVars.at(entries / 2).setMemberVal(
+        obj->environmentVars.at(entries / 2).setMemberVal(
             "value", QString("CHANGED_%1").arg(entries / 2));
     else if (changeMode == 2)
         for (int i = 0; i < entries; ++i)
             if (i % 10 == 3)
-                pair.obj->environmentVars.at(i).setMemberVal(
+                obj->environmentVars.at(i).setMemberVal(
                     "value", QString("CHANGED_%1").arg(i));
+}
+
+BenchContainerPair
+makeContainerPair(int entries, int changeMode)
+{
+    BenchContainerPair pair;
+    pair.obj = buildBenchContainer(entries);
+    pair.left = pair.obj->toMemento();
+    applyContainerBenchChange(pair.obj, entries, changeMode);
     pair.right = pair.obj->toMemento();
     return pair;
 }
@@ -1953,6 +2057,31 @@ runContainerBench(const char* caseName, int entries, int changeMode)
                 return diff.isNull() ? 0 : size_t(diff.numberOfDiffSteps());
             });
         benchEmit(caseName, entries, iters, "diff_api_warm", mean);
+    }
+
+    // diff api, left warm: the same left memento instance is diffed on
+    // every iteration while a fresh right memento is taken from the same
+    // container state each iteration (created outside the timed region,
+    // mirroring diff_api_cold). The fresh memento carries the same uuid
+    // and property values as the original right side, but no cached
+    // hashes, so only the left side may benefit from hash caching.
+    // Reduced budget and iteration floor keep the wall time in check for
+    // the 2000-entry case.
+    {
+        TestObject* leftObj = buildBenchContainer(entries);
+        GtObjectMemento left = leftObj->toMemento();
+        applyContainerBenchChange(leftObj, entries, changeMode);
+
+        // correctness on the exact left-warm setup
+        benchCheckDiff(caseName, left, leftObj->toMemento(), changeMode != 0,
+                       QStringLiteral("environmentVars"));
+
+        int iters = 0;
+        const double mean = benchWarmLeftWarmUsPerCall(
+            3, warmBudgetUs / 2.0, 25, 20000, iters, left,
+            [leftObj]() { return leftObj->toMemento(); });
+        benchEmit(caseName, entries, iters, "diff_api_left_warm", mean);
+        delete leftObj;
     }
 }
 
