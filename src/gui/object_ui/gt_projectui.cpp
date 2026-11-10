@@ -1799,24 +1799,21 @@ GtProjectUI::restoreBackup(GtObject *obj)
         const bool restoreSucceeded =
             project->restoreBackupFiles(selectedFolder) ==
             GtProject::RestoreStatus::Success;
-        bool success = restoreSucceeded;
+        bool projectOpened = false;
 
-        if (success && initialOpenProject && !project->upgradesAvailable())
+        if (restoreSucceeded && initialOpenProject &&
+            !project->upgradesAvailable())
         {
             // reopen the project since it was open before the restore
-            success = gtDataModel->openProject(project);
+            projectOpened = gtDataModel->openProject(project);
         }
 
-        // update the project entry since the restored backup may
-        // contain different (e.g. outdated) project data
         if (restoreSucceeded)
         {
+            // update the project entry since the restored backup may
+            // contain different (e.g. outdated) project data
             gtDataModel->updateObject(project);
-        }
 
-        // notify the user on the success
-        if (success)
-        {
             if (project->upgradesAvailable())
             {
                 QMessageBox::information(
@@ -1825,6 +1822,13 @@ GtProjectUI::restoreBackup(GtObject *obj)
                        "backup. "
                        "The project data is outdated and requires an upgrade "
                        "before it can be opened."));
+            }
+            else if (initialOpenProject && !projectOpened)
+            {
+                QMessageBox::warning(
+                    nullptr, tr("Backup restored"),
+                    tr("The backup was restored, but the project could not "
+                       "be reopened."));
             }
             else
             {

@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 
 #include "gt_project.h"
+#include "gt_coreapplication.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_objectgroup.h"
 #include "gt_processdata.h"
@@ -82,7 +83,9 @@ static bool writeProjectFile(const QString& dirPath, const QString& projectName)
 static bool
 writeProjectFileWithCoreVersion(const QString& dirPath,
                                 const QString& projectName,
-                                const QString& coreVersion)
+                                const QString& coreVersion,
+                                const QString& comment = {},
+                                bool includeComment = true)
 {
     QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate |
@@ -100,6 +103,10 @@ writeProjectFileWithCoreVersion(const QString& dirPath,
             ? QString()
             : QStringLiteral("        <core-ver>%1</core-ver>\n")
                   .arg(coreVersion);
+    const QString commentElement =
+        includeComment
+            ? QStringLiteral("    <comment>%1</comment>\n").arg(comment)
+            : QString();
 
     const QByteArray data =
         QString("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -108,12 +115,13 @@ writeProjectFileWithCoreVersion(const QString& dirPath,
                 "%3"
                 "        <modules/>\n"
                 "    </env-footprint>\n"
-                "    <comment/>\n"
+                "%4"
                 "    <MODULES/>\n"
                 "    <PROCESSES/>\n"
                 "    <LABELS/>\n"
                 "</GTLAB>\n")
             .arg(projectName, fileVersion, coreVerElement)
+            .arg(commentElement)
             .toUtf8();
 
     return file.write(data) == data.size();
@@ -510,7 +518,8 @@ TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
     ASSERT_TRUE(tempDir.isValid());
     ASSERT_TRUE(writeProjectFileWithCoreVersion(
         tempDir.path(), QStringLiteral("RestoreUpgradeTest"),
-        QStringLiteral("2.1.0")));
+        GtCoreApplication::version().toString(),
+        QStringLiteral("Comment before restore")));
 
     TestProject project(tempDir.path());
     EXPECT_FALSE(project.upgradesAvailable());
@@ -520,7 +529,8 @@ TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
                               QDir::separator() + timeStamp;
     ASSERT_TRUE(QDir().mkpath(backupDir));
     ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        backupDir, QStringLiteral("RestoreUpgradeTest"), QString()));
+        backupDir, QStringLiteral("RestoreUpgradeTest"), QString(), QString(),
+        false));
 
     EXPECT_EQ(project.restoreBackupFiles(timeStamp),
               GtProject::RestoreStatus::Success);
@@ -534,6 +544,7 @@ TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
     // must be reported as upgrade available right after the restore
     EXPECT_TRUE(project.upgradesAvailable());
     EXPECT_TRUE(project.isValid());
+    EXPECT_TRUE(project.comment().isEmpty());
 }
 
 TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
@@ -542,7 +553,8 @@ TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
     ASSERT_TRUE(tempDir.isValid());
     ASSERT_TRUE(writeProjectFileWithCoreVersion(
         tempDir.path(), QStringLiteral("RestoreCurrentTest"),
-        QStringLiteral("2.1.0")));
+        GtCoreApplication::version().toString(),
+        QStringLiteral("Original comment")));
 
     TestProject project(tempDir.path());
     EXPECT_FALSE(project.upgradesAvailable());
@@ -553,13 +565,45 @@ TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
     ASSERT_TRUE(QDir().mkpath(backupDir));
     ASSERT_TRUE(writeProjectFileWithCoreVersion(
         backupDir, QStringLiteral("RestoreCurrentTest"),
-        QStringLiteral("2.1.0")));
+        GtCoreApplication::version().toString(),
+        QStringLiteral("Restored comment")));
 
     EXPECT_EQ(project.restoreBackupFiles(timeStamp),
               GtProject::RestoreStatus::Success);
 
     EXPECT_FALSE(project.upgradesAvailable());
     EXPECT_TRUE(project.isValid());
+    EXPECT_EQ(project.comment(), QStringLiteral("Restored comment"));
+}
+
+TEST(GtProject, restoreBackupRejectsInvalidProjectMetadata)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFileWithCoreVersion(
+        tempDir.path(), QStringLiteral("InvalidRestoreTest"),
+        GtCoreApplication::version().toString(),
+        QStringLiteral("Original comment")));
+
+    TestProject project(tempDir.path());
+    const QString timeStamp = QStringLiteral("20240101000002");
+    const QString backupDir = tempDir.path() + QDir::separator() + "backup" +
+                              QDir::separator() + timeStamp;
+    ASSERT_TRUE(QDir().mkpath(backupDir));
+
+    QFile invalidProjectFile(backupDir + QDir::separator() +
+                             GtProject::mainFilename());
+    ASSERT_TRUE(
+        invalidProjectFile.open(QIODevice::WriteOnly | QIODevice::Text));
+    const QByteArray invalidData = "<GTLAB projectname=\"broken\">";
+    ASSERT_EQ(invalidProjectFile.write(invalidData), invalidData.size());
+    invalidProjectFile.close();
+
+    EXPECT_EQ(project.restoreBackupFiles(timeStamp),
+              GtProject::RestoreStatus::ErrorCopyFailed);
+    EXPECT_TRUE(project.isValid());
+    EXPECT_EQ(project.objectName(), QStringLiteral("InvalidRestoreTest"));
+    EXPECT_EQ(project.comment(), QStringLiteral("Original comment"));
 }
 
 TEST(GtProject, readFootprintReturnsProjectFootprint)
