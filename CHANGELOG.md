@@ -25,11 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Fixed projects requiring a project update from a module, even when the project is not using that module. - #1305
-   making it impossible to distinguish between a debug and release build
  - Double and `QPointF` values (including lists) are now serialized losslessly, so object hashes stay stable across save/load and diff merges. - #1644
  - **Regression fixes compared to 2.1.0-alpha.1**:
    - Fixed the settings dialog prompted for a restart when saving unchanged preferences. - #1657
-   - Fixed the module's debug postfix was removed from the module file name
+   - Fixed the module's debug postfix was removed from the module file name making it impossible to distinguish between a debug and release build
    - Fixed `CMAKE_INSTALL_LIBDIR` was not set anymore
 
 ### Added
