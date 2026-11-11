@@ -23,7 +23,7 @@ namespace process
 {
 
 
-struct PropertyConnectionsRelationshipReturn;
+struct PropertyConnectionAnalysis;
 
 /**
  * @brief Perform a deep copy of a task, assigning new UUIDs to the copied task's process components
@@ -33,46 +33,19 @@ struct PropertyConnectionsRelationshipReturn;
  * sub-components) are transferred. Connections to other process components outside of this task will trigger a
  * lost connection warning.
  * @param taskOrig
- * @param strict If true, the operation fails when property connections could not be transferred (does not count for stale or obsolete properties)
  * @return
  */
-GT_CORE_EXPORT GtTask* deepCopyTask(GtTask* taskOrig, bool strict = false);
-
-
-/**
- * @brief Add a process component as a child to an object and check if the new parent is a
- * process component. If so, transfer the propery connections to the root task
- * @param targetParent
- * @param child The object to be pasted
- * @param useGtDataModel Set true if the GUI-related append method should be used
- * @param pastedModelIndex If useGtDataModel is true, the index of the pasted process component is written to this pointer
- * @return
- */
-GT_CORE_EXPORT bool pasteProcessComponent(
-    GtObject* targetParent, GtProcessComponent* child,
-    bool useGtDataModel = false, QModelIndex* pastedModelIndex = nullptr);
-
+[[nodiscard]] GT_CORE_EXPORT std::unique_ptr<GtTask> deepCopyTask(GtTask* taskOrig);
 
 /**
- * @brief In a copied task, the property connections are st to the new UUIDs of source/target with the mapping received
+ * @brief In a copied task, the property connections are set to the new UUIDs of source/target with the mapping received
  * through GtObject::copy(GtObjectUUIDMap&)
- * @param copy
+ * @param taskOrig
+ * @param taskCopy
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(
-    GtTask* taskCopy, const GtObjectUUIDMap* uuidMap);
-
-
-/**
- * @brief Remove stale or obsolete property connections from a task
- * As the property connections are only stored in the root task, it can only be applied to root tasks.
- * If tasks is no root task, a warning will be issued and the function returns false.
- * @param task
- * @return Whether cleanup was successful
- */
-GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
-
+GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const GtObjectUUIDMap& uuidMap);
 
 /**
  * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
@@ -83,8 +56,16 @@ GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
-    GtObject* objCopy, const GtObjectUUIDMap* uuidMap);
+GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy, const GtObjectUUIDMap& uuidMap);
+
+/**
+ * @brief Remove stale or obsolete property connections from a task
+ * As the property connections are only stored in the root task, it can only be applied to root tasks.
+ * If tasks is no root task, a warning will be issued and the function returns false.
+ * @param task
+ * @return Whether cleanup was successful
+ */
+GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
 
 
 } // namespace process
