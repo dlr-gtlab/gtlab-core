@@ -25,7 +25,6 @@
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
-#include "gt_objectuuidmap.h"
 #include "gt_processview.h"
 #include "gt_datamodel.h"
 #include "gt_project.h"
@@ -64,9 +63,10 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
-#include "gt_deepcopytask.h"
 #include "gt_processdock.h"
 #include "gt_taskgrouprenamedialog.h"
+#include "gt_deepcopytask.h"
+#include "gt_pasteprocesselement.h"
 
 using namespace gt::gui;
 
@@ -1576,12 +1576,15 @@ processComponentCloneCopyHelper(GtProcessComponent* pComp, bool* ok)
 
     GtObject* copy = nullptr;
 
-    GtTask* origTask = qobject_cast<GtTask*>(pComp);
+    auto origTask = qobject_cast<GtTask*>(pComp);
+
+    gt::utils::process::printWarningForLostPropertyConnections(origTask, true);
 
     if (origTask)
     {
-        auto newTask = gt::utils::process::deepCopyTask(origTask, false);
-        copy = qobject_cast<GtObject*>(newTask);
+        auto newTask = gt::utils::process::deepCopyTask(origTask);
+
+        copy = qobject_cast<GtObject*>(newTask.release());
     }
     else
     {
@@ -1830,6 +1833,9 @@ GtProcessDock::pasteElement(GtObject* parent)
     GtObject* obj2 = nullptr;
 
     auto task = qobject_cast<GtTask*>(obj);
+
+    gt::utils::process::printWarningForLostPropertyConnections(task, true);
+
     if (task)
     {
         // Pasting a task twice needs to avoid pasting the same UUID twice. Thus, redo deep copy here.
@@ -1840,7 +1846,7 @@ GtProcessDock::pasteElement(GtObject* parent)
             return;
         }
 
-        obj2 = qobject_cast<GtObject*>(taskCopy);
+        obj2 = qobject_cast<GtObject*>(taskCopy.release());
     }
     else
     {
@@ -1909,9 +1915,10 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
         return;
     }
 
-    QModelIndex srcIndex;
-    if (!gt::utils::process::pasteProcessComponent(parent, procComp, true,
-                                                   &srcIndex))
+    bool success = false;
+    auto srcIndex = gt::utils::process::pasteProcessComponentToDatamodel(parent, procComp, &success);
+
+    if (!success)
     {
         gtError() << "Pasting was not successful";
         return;
