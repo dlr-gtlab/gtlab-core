@@ -26,7 +26,7 @@ deepCopyTask(GtTask* taskOrig)
 {
     GtObjectUUIDMap uuidMap;
 
-    if(!taskOrig)
+    if (!taskOrig)
     {
         gtError() << "Task to copy is null";
         return {};
@@ -41,21 +41,15 @@ deepCopyTask(GtTask* taskOrig)
     std::unique_ptr<GtObject> objectCopy{taskOrig->copy(uuidMap)};
     gtError() << "<<< END TODO misleading error(s)";
 
-    auto* task = qobject_cast<GtTask*>(objectCopy.get());
-    if (!task)
+    if (!qobject_cast<GtTask*>(objectCopy.get()))
     {
         return {};
     }
 
-    objectCopy.release();
-    std::unique_ptr<GtTask> copiedTask{task};
+    std::unique_ptr<GtTask> copiedTask{
+        static_cast<GtTask*>(objectCopy.release())};
 
-    if (!copiedTask)
-    {
-        return {};
-    }
-
-    auto rootTask = findRootTask(taskOrig);
+    const auto* rootTask = findRootTask(taskOrig);
     if (!rootTask)
     {
         gtError() << "Could not find root task";
@@ -63,13 +57,15 @@ deepCopyTask(GtTask* taskOrig)
     }
 
 
-    if (!transferPropertyConnectionsViaMapping(taskOrig, copiedTask.get(), uuidMap))
+    if (!transferPropertyConnectionsViaMapping(taskOrig, copiedTask.get(),
+                                               uuidMap))
     {
         gtError() << "Could not transfer the property connections";
         return {};
     }
 
-    if (!transferRelativeObjectLinkPropertyViaMapping(copiedTask.get(), uuidMap))
+    if (!transferRelativeObjectLinkPropertyViaMapping(copiedTask.get(),
+                                                      uuidMap))
     {
         gtError() << "Could not transfer the relative object link properties";
         return {};
@@ -79,10 +75,9 @@ deepCopyTask(GtTask* taskOrig)
 }
 
 
-
-
 bool
-transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const GtObjectUUIDMap& uuidMap)
+transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy,
+                                      const GtObjectUUIDMap& uuidMap)
 {
     // delete all connections, will be added in next step from analysis
     auto connections = taskCopy->findChildren<GtPropertyConnection*>();
@@ -106,7 +101,8 @@ transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const 
     }
 
     // transfer the UUID mapping of connections
-    QList<GtPropertyConnection*> allCons = taskCopy->findChildren<GtPropertyConnection*>();
+    QList<GtPropertyConnection*> allCons =
+        taskCopy->findChildren<GtPropertyConnection*>();
     bool transferAllOk = true;
     for (auto con : qAsConst(allCons))
     {
@@ -117,35 +113,36 @@ transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const 
         con->setSourceUuid(uuidMap.copiedUuid(origSrcUuid));
         con->setTargetUuid(uuidMap.copiedUuid(origTargetUuid));
 
-        if (uuidMap.containsOriginalUuid(origSrcUuid) && uuidMap.containsOriginalUuid(origTargetUuid) )
+        if (uuidMap.containsOriginalUuid(origSrcUuid) &&
+            uuidMap.containsOriginalUuid(origTargetUuid))
         {
             con->makeConnection();
         }
         else
         {
-            gtError() << "Failed to update connection: " + con->objectName() + "\n      |-> " +
-                         origSrcUuid + "(" + con->sourceProp() + ")" +
-                         " -> " + origTargetUuid + "(" + con->targetProp() +
-                         ")";
-            if(!uuidMap.containsOriginalUuid(origSrcUuid))
+            gtError() << "Failed to update connection: " + con->objectName() +
+                             "\n      |-> " + origSrcUuid + "(" +
+                             con->sourceProp() + ")" + " -> " + origTargetUuid +
+                             "(" + con->targetProp() + ")";
+            if (!uuidMap.containsOriginalUuid(origSrcUuid))
             {
                 gtError() << "|-> Source UUID not in original task to copy";
             }
-            if(!uuidMap.containsOriginalUuid(origTargetUuid))
+            if (!uuidMap.containsOriginalUuid(origTargetUuid))
             {
                 gtError() << "|-> Target UUID not in original task to copy";
             }
 
             transferAllOk = false;
         }
-
     }
 
     return transferAllOk;
 }
 
 bool
-transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy, const GtObjectUUIDMap& uuidMap)
+transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy,
+                                             const GtObjectUUIDMap& uuidMap)
 {
     bool retval = true;
 
@@ -215,7 +212,6 @@ cleanupPropertyConnections(GtTask* task)
 
     return true;
 }
-
 
 
 } // namespace process

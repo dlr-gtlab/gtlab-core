@@ -35,7 +35,8 @@ struct PropertyConnectionAnalysis;
  * @param taskOrig
  * @return
  */
-[[nodiscard]] GT_CORE_EXPORT std::unique_ptr<GtTask> deepCopyTask(GtTask* taskOrig);
+[[nodiscard]] GT_CORE_EXPORT std::unique_ptr<GtTask> deepCopyTask(
+    GtTask* taskOrig);
 
 /**
  * @brief In a copied task, the property connections are set to the new UUIDs of source/target with the mapping received
@@ -45,7 +46,8 @@ struct PropertyConnectionAnalysis;
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const GtObjectUUIDMap& uuidMap);
+GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(
+    GtTask* taskOrig, GtTask* taskCopy, const GtObjectUUIDMap& uuidMap);
 
 /**
  * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
@@ -56,7 +58,8 @@ GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTa
  * @param uuidMap
  * @return
  */
-GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy, const GtObjectUUIDMap& uuidMap);
+GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
+    GtObject* objCopy, const GtObjectUUIDMap& uuidMap);
 
 /**
  * @brief Remove stale or obsolete property connections from a task

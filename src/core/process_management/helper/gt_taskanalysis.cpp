@@ -24,7 +24,7 @@ namespace process
 {
 
 GtTask*
-findRootTask(GtProcessComponent *processComponent)
+findRootTask(GtProcessComponent* processComponent)
 {
     if (!processComponent)
     {
@@ -84,7 +84,7 @@ analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok)
               std::back_inserter(internalProcComps));
     internalProcComps.append(pComp);
 
-    foreach(auto propCon, allPropCons)
+    foreach (auto propCon, allPropCons)
     {
         const GtProcessComponent* const sourceObj =
             qobject_cast<const GtProcessComponent*>(
@@ -179,8 +179,8 @@ printWarningForLostPropertyConnections(GtTask* task, bool verbose)
 }
 
 void
-printWarningForLostPropertyConnections(GtTask* task,
-                                       const PropertyConnectionAnalysis& allCons, bool verbose)
+printWarningForLostPropertyConnections(
+    GtTask* task, const PropertyConnectionAnalysis& allCons, bool verbose)
 {
 
     if (allCons.external.size() > 0)

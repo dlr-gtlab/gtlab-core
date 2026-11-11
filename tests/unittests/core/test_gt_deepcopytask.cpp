@@ -455,7 +455,6 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
 
     ASSERT_EQ(con4_copied->sourceUuid(), calc1_copied->uuid());
     ASSERT_EQ(con4_copied->targetUuid(), calc2_copied->uuid());
-
 }
 
 
@@ -496,7 +495,6 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     // check if connections have been transferred to new UUIDs
     ASSERT_EQ(con7_copied->sourceUuid(), subtask2_copied->uuid());
     ASSERT_EQ(con7_copied->targetUuid(), calc3_copied->uuid());
-
 }
 
 
@@ -754,7 +752,9 @@ TEST(TestGtRelativeObjectLinkTransfer,
     sibling->firstLink.setVal(originalTarget.uuid());
     // Leave secondLink empty: an unset link must not be remapped.
 
-    EXPECT_FALSE(gt::utils::process::transferRelativeObjectLinkPropertyViaMapping(&root, mapping));
+    EXPECT_FALSE(
+        gt::utils::process::transferRelativeObjectLinkPropertyViaMapping(
+            &root, mapping));
 
     // Missing mappings report failure without altering the unresolved links.
     EXPECT_EQ(root.firstLink.getVal(), missingTarget.uuid());

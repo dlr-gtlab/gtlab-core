@@ -22,17 +22,18 @@ namespace process
 
 
 bool
-pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child, bool useGtDataModel = false, QModelIndex* modelIndex = nullptr)
+pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child,
+                            bool useGtDataModel = false,
+                            QModelIndex* modelIndex = nullptr)
 {
 
     if (useGtDataModel)
     {
         auto newIndex = gtDataModel->appendChild(child, targetParent);
-        if(modelIndex)
+        if (modelIndex)
         {
             *modelIndex = newIndex;
         }
-
     }
     else
     {
@@ -47,7 +48,8 @@ pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child, b
         auto roottask = findRootTask(parentTask);
         if (!roottask)
         {
-            gtError() << "Could not find root task to transfer property connections";
+            gtError()
+                << "Could not find root task to transfer property connections";
             return false;
         }
 
@@ -67,30 +69,32 @@ pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child, b
     return true;
 }
 
-bool pasteProcessComponent(GtObject *targetParent, GtProcessComponent *child)
+bool
+pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child)
 {
     return pasteProcessComponentHelper(targetParent, child, false, nullptr);
 }
 
 QModelIndex
-pasteProcessComponentToDatamodel(GtObject *targetParent, GtProcessComponent *child, bool* success)
+pasteProcessComponentToDatamodel(GtObject* targetParent,
+                                 GtProcessComponent* child, bool* success)
 {
     QModelIndex idx;
-    bool helperRetval = pasteProcessComponentHelper(targetParent, child, true, &idx);
+    bool helperRetval =
+        pasteProcessComponentHelper(targetParent, child, true, &idx);
 
-    if(success)
+    if (success)
     {
         *success = helperRetval;
     }
 
-    if(!helperRetval)
+    if (!helperRetval)
     {
         return {};
     }
 
     return idx;
 }
-
 
 
 } // namespace process
