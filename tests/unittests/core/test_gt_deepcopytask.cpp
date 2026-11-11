@@ -17,6 +17,8 @@
 #include "gt_task.h"
 
 #include "gt_deepcopytask.h"
+#include "gt_logging.h"
+#include "gt_logdestfunctor.h"
 #include "gt_taskanalysis.h"
 #include "gt_makepropertyconnection.h"
 
@@ -912,4 +914,119 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty,
         EXPECT_EQ(staleConnection->sourceUuid(), calc1->uuid());
         EXPECT_EQ(staleConnection->targetUuid(), "missing-target");
     }
+}
+
+namespace
+{
+class ScopedCopyErrorCapture
+{
+public:
+    ScopedCopyErrorCapture() :
+        m_previousLevel(gt::log::Logger::instance().loggingLevel())
+    {
+        auto& logger = gt::log::Logger::instance();
+        auto destination = gt::log::makeFunctorDestination(
+            [this](const std::string& message, gt::log::Level level,
+                   const gt::log::Details&) {
+                if (level == gt::log::ErrorLevel ||
+                    level == gt::log::FatalLevel)
+                {
+                    errors.append(QString::fromStdString(message));
+                }
+            });
+        m_registered =
+            logger.addDestination("task-copy-errors", std::move(destination));
+        EXPECT_TRUE(m_registered);
+        logger.setLoggingLevel(gt::log::ErrorLevel);
+    }
+
+    ~ScopedCopyErrorCapture()
+    {
+        auto& logger = gt::log::Logger::instance();
+        if (m_registered)
+        {
+            logger.removeDestination("task-copy-errors");
+        }
+        logger.setLoggingLevel(m_previousLevel);
+    }
+
+    ScopedCopyErrorCapture(const ScopedCopyErrorCapture&) = delete;
+    ScopedCopyErrorCapture& operator=(const ScopedCopyErrorCapture&) = delete;
+
+    QStringList errors;
+
+private:
+    gt::log::Level m_previousLevel;
+    bool m_registered = false;
+};
+} // namespace
+
+TEST_F(TestGtTaskPropertyConnections, deepCopyConnectsWithoutPrematureErrors)
+{
+    ASSERT_TRUE(gt::utils::process::cleanupPropertyConnections(roottask));
+    for (auto* original : {roottask, subtask1})
+    {
+        // Exercise a nested task's restore hook for the root copy. For the
+        // subtask copy, use the usual storage of connections at the root.
+        if (original == roottask)
+        {
+            subtask1->appendChild(con4);
+        }
+        else
+        {
+            roottask->appendChild(con4);
+        }
+        SCOPED_TRACE(original->objectName().toStdString());
+        ScopedCopyErrorCapture log;
+        std::unique_ptr<GtTask> copy(
+            gt::utils::process::deepCopyTask(original, true));
+        ASSERT_NE(copy, nullptr);
+        EXPECT_TRUE(log.errors.isEmpty())
+            << log.errors.join("\n").toStdString();
+        auto* connection = copy->findChild<GtPropertyConnection*>("con4");
+        ASSERT_NE(connection, nullptr);
+        EXPECT_TRUE(connection->isConnected());
+        auto* source = qobject_cast<TestGtCalculator*>(
+            copy->getObjectByUuid(connection->sourceUuid()));
+        auto* target = qobject_cast<TestGtCalculator*>(
+            copy->getObjectByUuid(connection->targetUuid()));
+        ASSERT_NE(source, nullptr);
+        ASSERT_NE(target, nullptr);
+        EXPECT_NE(source->uuid(), calc1->uuid());
+        EXPECT_NE(target->uuid(), calc2->uuid());
+        source->prop2()->setVal(42.0);
+        EXPECT_DOUBLE_EQ(target->prop1()->getVal(), 42.0);
+    }
+}
+
+TEST_F(TestGtTaskPropertyConnections, normalRestoreStillInitializesConnections)
+{
+    ASSERT_TRUE(gt::utils::process::cleanupPropertyConnections(roottask));
+    ScopedCopyErrorCapture log;
+    std::unique_ptr<GtObject> restored(roottask->clone());
+    ASSERT_NE(restored, nullptr);
+    auto* connection = restored->findChild<GtPropertyConnection*>("con4");
+    ASSERT_NE(connection, nullptr);
+    EXPECT_TRUE(connection->isConnected());
+    EXPECT_TRUE(log.errors.isEmpty()) << log.errors.join("\n").toStdString();
+}
+
+TEST_F(TestGtTaskPropertyConnections, failedCopyDoesNotDeferLaterRestores)
+{
+    {
+        ScopedCopyErrorCapture log;
+        std::unique_ptr<GtTask> copy(
+            gt::utils::process::deepCopyTask(roottask, true));
+        EXPECT_EQ(copy, nullptr);
+        EXPECT_FALSE(log.errors.isEmpty());
+    }
+
+    ASSERT_TRUE(gt::utils::process::cleanupPropertyConnections(roottask));
+    ScopedCopyErrorCapture log;
+    std::unique_ptr<GtObject> restored(roottask->clone());
+    ASSERT_NE(restored, nullptr);
+    auto* connection = restored->findChild<GtPropertyConnection*>("con4");
+    ASSERT_NE(connection, nullptr);
+    EXPECT_TRUE(connection->isConnected());
+    EXPECT_TRUE(log.errors.isEmpty()) << log.errors.join("\n").toStdString();
 }

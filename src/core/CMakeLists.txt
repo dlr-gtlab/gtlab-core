@@ -128,6 +128,7 @@ set(headers
 )
 
 set(hdr_private
+  internal/gt_scopedconnectiondeferral.h
   internal/gt_moduleupgrader.h
   internal/gt_modulemetadata.h
   internal/gt_commandlinefunctionhandler.h
