@@ -10,7 +10,6 @@
  */
 
 #include <QDir>
-#include <QDebug>
 
 #include <optional>
 
@@ -54,9 +53,6 @@ GtRunnable::run()
         calc->setStateRecursively(GtProcessComponent::QUEUED);
     }
 
-    qDebug() << "";
-    qDebug() << "--- calculator execution ---";
-
     for (GtProcessComponent* pc : qAsConst(m_queue))
     {
         // success
@@ -87,15 +83,7 @@ GtRunnable::run()
 
     if (success)
     {
-        qDebug() << "--- calculator execution finished ---";
-        qDebug() << "";
-
         writeObjects();
-    }
-    else
-    {
-        qDebug() << "--- calculator execution failed ---";
-        qDebug() << "";
     }
 
     m_successfulRun = success;
