@@ -113,31 +113,27 @@ transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy, const 
         auto origSrcUuid = con->sourceUuid();
         auto origTargetUuid = con->targetUuid();
 
+        // Remap each endpoint independently; missing mappings yield empty UUIDs.
+        con->setSourceUuid(uuidMap.copiedUuid(origSrcUuid));
+        con->setTargetUuid(uuidMap.copiedUuid(origTargetUuid));
+
         if (uuidMap.containsOriginalUuid(origSrcUuid) && uuidMap.containsOriginalUuid(origTargetUuid) )
         {
-            QString newUuidSrc = uuidMap.copiedUuid(origSrcUuid);
-            con->setSourceUuid(newUuidSrc);
-
-            QString newUuidDst = uuidMap.copiedUuid(origTargetUuid);
-            con->setTargetUuid(newUuidDst);
-
             con->makeConnection();
         }
         else
         {
             gtError() << "Failed to update connection: " + con->objectName() + "\n      |-> " +
-                         con->sourceUuid() + "(" + con->sourceProp() + ")" +
-                         " -> " + con->targetUuid() + "(" + con->targetProp() +
+                         origSrcUuid + "(" + con->sourceProp() + ")" +
+                         " -> " + origTargetUuid + "(" + con->targetProp() +
                          ")";
             if(!uuidMap.containsOriginalUuid(origSrcUuid))
             {
                 gtError() << "|-> Source UUID not in original task to copy";
-                con->setSourceUuid("");
             }
-            else if(!uuidMap.containsOriginalUuid(origTargetUuid))
+            if(!uuidMap.containsOriginalUuid(origTargetUuid))
             {
                 gtError() << "|-> Target UUID not in original task to copy";
-                con->setTargetUuid("");
             }
 
             transferAllOk = false;
