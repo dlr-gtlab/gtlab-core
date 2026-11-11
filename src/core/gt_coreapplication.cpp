@@ -29,6 +29,7 @@
 #include <algorithm>
 
 #include "gt_coreapplication.h"
+#include "internal/gt_coreapplication_p.h"
 #include "gt_applicationpaths.h"
 #include "gt_externalizationmanager.h"
 #include "gt_objectfactory.h"
@@ -90,28 +91,8 @@ migrateLegacyApplicationIni(const QString& targetPath)
 {
     const QString legacyPath = QDir(QCoreApplication::applicationDirPath())
                                    .filePath(QStringLiteral("GTlab.ini"));
-    if (targetPath.isEmpty() || QFileInfo::exists(targetPath) ||
-        !QFileInfo::exists(legacyPath))
-    {
-        return;
-    }
-
-    if (!QFile::copy(legacyPath, targetPath) && !QFileInfo::exists(targetPath))
-    {
-        gtWarning() << QObject::tr("Could not migrate application state from "
-                                   "%1 to %2")
-                           .arg(legacyPath, targetPath);
-        return;
-    }
-
-    const QFileDevice::Permissions permissions = QFile::permissions(targetPath);
-    if (!QFile::setPermissions(targetPath,
-                               permissions | QFileDevice::WriteOwner))
-    {
-        gtWarning() << QObject::tr("Could not make migrated application state "
-                                   "writable: %1")
-                           .arg(targetPath);
-    }
+    GtCoreApplicationPrivate::migrateLegacyApplicationIni(legacyPath,
+                                                          targetPath);
 }
 
 } // namespace

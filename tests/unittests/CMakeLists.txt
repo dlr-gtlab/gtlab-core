@@ -65,6 +65,7 @@ target_compile_definitions(GTlabUnitTest PRIVATE GT_MODULE_ID="Unittests" "GT_LO
 target_include_directories(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch
+    ${CMAKE_CURRENT_LIST_DIR}/../../src/core
 )
 target_link_libraries(GTlabUnitTest PRIVATE
     GTlab::Core

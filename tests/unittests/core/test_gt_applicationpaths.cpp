@@ -6,6 +6,7 @@
 
 #include "gt_applicationpaths.h"
 #include "gt_coreapplication.h"
+#include "internal/gt_coreapplication_p.h"
 
 #include <gtest/gtest.h>
 
@@ -16,9 +17,11 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 #include <QTextStream>
 #include <QThread>
 #include <QUuid>
+#include <QtGlobal>
 
 namespace
 {
@@ -71,6 +74,85 @@ struct RemoveDirectoryOnExit
         }
     }
 };
+
+#ifdef Q_OS_UNIX
+class ScopedEnvironmentVariable
+{
+public:
+    explicit ScopedEnvironmentVariable(const char* variableName) :
+        name(variableName),
+        wasSet(qEnvironmentVariableIsSet(variableName)),
+        previousValue(qgetenv(variableName))
+    { }
+
+    ~ScopedEnvironmentVariable()
+    {
+        if (wasSet)
+        {
+            qputenv(name, previousValue);
+        }
+        else
+        {
+            qunsetenv(name.constData());
+        }
+    }
+
+    bool set(const QString& value)
+    {
+        return qputenv(name, value.toLocal8Bit());
+    }
+
+private:
+    QByteArray name;
+    bool wasSet;
+    QByteArray previousValue;
+};
+
+bool
+blockPreferredRuntimeLocation(const QString& temporaryRoot,
+                              ScopedEnvironmentVariable& xdgRuntimeDirectory,
+                              ScopedEnvironmentVariable& temporaryDirectory)
+{
+    const QString invalidRuntimePath =
+        QDir(temporaryRoot).filePath(QStringLiteral("invalid-runtime"));
+    QFile invalidRuntime(invalidRuntimePath);
+    if (!invalidRuntime.open(QIODevice::WriteOnly))
+    {
+        return false;
+    }
+    invalidRuntime.close();
+
+    if (!xdgRuntimeDirectory.set(invalidRuntimePath) ||
+        !temporaryDirectory.set(temporaryRoot))
+    {
+        return false;
+    }
+
+    const QString runtimeRoot =
+        QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    if (runtimeRoot.isEmpty())
+    {
+        return true;
+    }
+
+    const QString relativePath =
+        QDir(temporaryRoot).relativeFilePath(runtimeRoot);
+    if (relativePath == QStringLiteral("..") ||
+        relativePath.startsWith(QStringLiteral("../")))
+    {
+        return false;
+    }
+
+    QDir(runtimeRoot).removeRecursively();
+    QFile runtimeBlocker(runtimeRoot);
+    if (!runtimeBlocker.open(QIODevice::WriteOnly))
+    {
+        return false;
+    }
+    runtimeBlocker.close();
+    return true;
+}
+#endif
 
 QString
 readTemporaryDirectoryLine(QProcess& process, const QString& mode)
@@ -177,6 +259,234 @@ TEST(GtApplicationPaths, RejectsUnknownLocation)
         static_cast<GtApplicationPaths::Location>(-1), &error);
     EXPECT_FALSE(directory);
     EXPECT_FALSE(error.isEmpty());
+}
+
+#ifdef Q_OS_UNIX
+TEST(GtApplicationPaths, RuntimeUsesPreferredLocationWhenAvailable)
+{
+    ScopedTestPaths testPaths;
+    QTemporaryDir runtimeRoot;
+    ASSERT_TRUE(runtimeRoot.isValid());
+    ScopedEnvironmentVariable runtimeDirectory("XDG_RUNTIME_DIR");
+    ASSERT_TRUE(runtimeDirectory.set(runtimeRoot.path()));
+
+    const QString expectedPath =
+        QDir(runtimeRoot.path())
+            .filePath(QDir(QCoreApplication::organizationName())
+                          .filePath(QCoreApplication::applicationName()));
+
+    QString error;
+    const auto directory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(directory) << error.toStdString();
+    EXPECT_TRUE(error.isEmpty());
+    EXPECT_TRUE(directory->exists());
+    EXPECT_EQ(directory->absolutePath(), expectedPath);
+}
+
+TEST(GtApplicationPaths, RuntimeFallsBackToStablePerUserLocation)
+{
+    ScopedTestPaths testPaths;
+    QTemporaryDir runtimeTemp;
+    ASSERT_TRUE(runtimeTemp.isValid());
+    ScopedEnvironmentVariable xdgRuntimeDirectory("XDG_RUNTIME_DIR");
+    ScopedEnvironmentVariable temporaryDirectory("TMPDIR");
+    ASSERT_TRUE(blockPreferredRuntimeLocation(
+        runtimeTemp.path(), xdgRuntimeDirectory, temporaryDirectory));
+
+    const QString dataRoot =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    ASSERT_FALSE(dataRoot.isEmpty());
+    testPaths.addPath(dataRoot);
+    const QString expectedPath =
+        QDir(dataRoot).filePath(QStringLiteral("runtime"));
+
+    QString error;
+    const auto first = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(first) << error.toStdString();
+    EXPECT_TRUE(error.isEmpty());
+    EXPECT_TRUE(first->exists());
+    EXPECT_EQ(first->absolutePath(), expectedPath);
+
+    const auto second = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(second) << error.toStdString();
+    EXPECT_EQ(second->absolutePath(), first->absolutePath());
+}
+
+TEST(GtApplicationPaths, RuntimeFallbackRepairsAndReusesPrivateDirectory)
+{
+    ScopedTestPaths testPaths;
+    QTemporaryDir runtimeTemp;
+    ASSERT_TRUE(runtimeTemp.isValid());
+    ScopedEnvironmentVariable xdgRuntimeDirectory("XDG_RUNTIME_DIR");
+    ScopedEnvironmentVariable temporaryDirectory("TMPDIR");
+    ASSERT_TRUE(blockPreferredRuntimeLocation(
+        runtimeTemp.path(), xdgRuntimeDirectory, temporaryDirectory));
+
+    const QString dataRoot =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    ASSERT_FALSE(dataRoot.isEmpty());
+    testPaths.addPath(dataRoot);
+    ASSERT_TRUE(QDir().mkpath(dataRoot));
+    const QString fallbackPath =
+        QDir(dataRoot).filePath(QStringLiteral("runtime"));
+    ASSERT_TRUE(QDir().mkpath(fallbackPath));
+
+    const QFileDevice::Permissions broadPermissions =
+        QFileDevice::ReadOwner | QFileDevice::WriteOwner |
+        QFileDevice::ExeOwner | QFileDevice::ReadGroup |
+        QFileDevice::WriteGroup | QFileDevice::ExeGroup |
+        QFileDevice::ReadOther | QFileDevice::WriteOther |
+        QFileDevice::ExeOther;
+    ASSERT_TRUE(QFile::setPermissions(fallbackPath, broadPermissions));
+
+    QString error;
+    const auto first = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(first) << error.toStdString();
+    EXPECT_TRUE(error.isEmpty());
+
+    const auto second = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(second) << error.toStdString();
+    EXPECT_EQ(second->absolutePath(), first->absolutePath());
+
+    const QFileDevice::Permissions permissions =
+        QFile::permissions(fallbackPath);
+    const QFileDevice::Permissions sharedPermissions =
+        QFileDevice::ReadGroup | QFileDevice::WriteGroup |
+        QFileDevice::ExeGroup | QFileDevice::ReadOther |
+        QFileDevice::WriteOther | QFileDevice::ExeOther;
+    EXPECT_EQ(permissions & sharedPermissions, QFileDevice::Permissions{});
+}
+
+TEST(GtApplicationPaths, RuntimeRejectsFileAtFallbackLocation)
+{
+    ScopedTestPaths testPaths;
+    QTemporaryDir runtimeTemp;
+    ASSERT_TRUE(runtimeTemp.isValid());
+    ScopedEnvironmentVariable xdgRuntimeDirectory("XDG_RUNTIME_DIR");
+    ScopedEnvironmentVariable temporaryDirectory("TMPDIR");
+    ASSERT_TRUE(blockPreferredRuntimeLocation(
+        runtimeTemp.path(), xdgRuntimeDirectory, temporaryDirectory));
+
+    const QString dataRoot =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    ASSERT_FALSE(dataRoot.isEmpty());
+    testPaths.addPath(dataRoot);
+    ASSERT_TRUE(QDir().mkpath(dataRoot));
+    const QString fallbackPath =
+        QDir(dataRoot).filePath(QStringLiteral("runtime"));
+    QDir(fallbackPath).removeRecursively();
+    QFile::remove(fallbackPath);
+    QFile fallbackBlocker(fallbackPath);
+    ASSERT_TRUE(fallbackBlocker.open(QIODevice::WriteOnly));
+    fallbackBlocker.close();
+
+    QString error;
+    const auto directory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    EXPECT_FALSE(directory);
+    EXPECT_NE(error.indexOf(QStringLiteral("private fallback")), -1);
+}
+#endif
+
+TEST(GtCoreApplicationPrivate, MigratesReadOnlyLegacyIni)
+{
+    QTemporaryDir sourceRoot;
+    QTemporaryDir targetRoot;
+    ASSERT_TRUE(sourceRoot.isValid());
+    ASSERT_TRUE(targetRoot.isValid());
+
+    const QString sourcePath =
+        QDir(sourceRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+    const QString targetPath =
+        QDir(targetRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+    const QByteArray contents("loading_crashed=LegacyModule\n");
+    QFile source(sourcePath);
+    ASSERT_TRUE(source.open(QIODevice::WriteOnly));
+    ASSERT_EQ(source.write(contents), contents.size());
+    source.close();
+    ASSERT_TRUE(QFile::setPermissions(sourcePath, QFileDevice::ReadOwner));
+
+    GtCoreApplicationPrivate::migrateLegacyApplicationIni(sourcePath,
+                                                          targetPath);
+
+    QFile target(targetPath);
+    ASSERT_TRUE(target.open(QIODevice::ReadOnly));
+    EXPECT_EQ(target.readAll(), contents);
+    EXPECT_NE(QFile::permissions(targetPath) & QFileDevice::WriteOwner,
+              QFileDevice::Permissions{});
+}
+
+TEST(GtCoreApplicationPrivate, DoesNotOverwriteExistingApplicationIni)
+{
+    QTemporaryDir sourceRoot;
+    QTemporaryDir targetRoot;
+    ASSERT_TRUE(sourceRoot.isValid());
+    ASSERT_TRUE(targetRoot.isValid());
+
+    const QString sourcePath =
+        QDir(sourceRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+    const QString targetPath =
+        QDir(targetRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+    QFile source(sourcePath);
+    ASSERT_TRUE(source.open(QIODevice::WriteOnly));
+    ASSERT_EQ(source.write("legacy state"), 12);
+    source.close();
+    QFile target(targetPath);
+    ASSERT_TRUE(target.open(QIODevice::WriteOnly));
+    ASSERT_EQ(target.write("current state"), 13);
+    target.close();
+
+    GtCoreApplicationPrivate::migrateLegacyApplicationIni(sourcePath,
+                                                          targetPath);
+
+    ASSERT_TRUE(target.open(QIODevice::ReadOnly));
+    EXPECT_EQ(target.readAll(), QByteArray("current state"));
+}
+
+TEST(GtCoreApplicationPrivate, MissingLegacyIniIsNotCreated)
+{
+    QTemporaryDir sourceRoot;
+    QTemporaryDir targetRoot;
+    ASSERT_TRUE(sourceRoot.isValid());
+    ASSERT_TRUE(targetRoot.isValid());
+
+    const QString sourcePath =
+        QDir(sourceRoot.path()).filePath(QStringLiteral("missing.ini"));
+    const QString targetPath =
+        QDir(targetRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+
+    GtCoreApplicationPrivate::migrateLegacyApplicationIni(sourcePath,
+                                                          targetPath);
+
+    EXPECT_FALSE(QFileInfo::exists(targetPath));
+}
+
+TEST(GtCoreApplicationPrivate, FailedMigrationKeepsLegacyIni)
+{
+    QTemporaryDir sourceRoot;
+    QTemporaryDir targetRoot;
+    ASSERT_TRUE(sourceRoot.isValid());
+    ASSERT_TRUE(targetRoot.isValid());
+
+    const QString sourcePath =
+        QDir(sourceRoot.path()).filePath(QStringLiteral("GTlab.ini"));
+    const QString targetPath =
+        QDir(targetRoot.path()).filePath(QStringLiteral("missing/GTlab.ini"));
+    QFile source(sourcePath);
+    ASSERT_TRUE(source.open(QIODevice::WriteOnly));
+    ASSERT_GT(source.write("legacy state"), 0);
+    source.close();
+
+    GtCoreApplicationPrivate::migrateLegacyApplicationIni(sourcePath,
+                                                          targetPath);
+
+    EXPECT_TRUE(QFileInfo::exists(sourcePath));
+    EXPECT_FALSE(QFileInfo::exists(targetPath));
 }
 
 TEST(GtApplicationPaths, TemporaryDirectorySharedWithinProcess)
