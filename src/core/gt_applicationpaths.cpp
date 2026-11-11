@@ -106,13 +106,22 @@ ensurePrivateRuntimeDirectory(const QString& path)
         QFileDevice::ExeGroup | QFileDevice::ReadOther |
         QFileDevice::WriteOther | QFileDevice::ExeOther;
 
-    if (!QFile::setPermissions(path, privatePermissions))
+    info.refresh();
+    QFileDevice::Permissions permissions = info.permissions();
+    const bool permissionsArePrivate =
+        (permissions & privatePermissions) == privatePermissions &&
+        (permissions & sharedPermissions) == QFileDevice::Permissions{};
+    if (!permissionsArePrivate)
     {
-        return false;
+        if (!QFile::setPermissions(path, privatePermissions))
+        {
+            return false;
+        }
+
+        info.refresh();
+        permissions = info.permissions();
     }
 
-    info.refresh();
-    const QFileDevice::Permissions permissions = info.permissions();
     return !info.isSymLink() && info.isDir() &&
            (permissions & privatePermissions) == privatePermissions &&
            (permissions & sharedPermissions) == QFileDevice::Permissions{} &&
