@@ -23,6 +23,7 @@
 #include "gt_calculatorfactory.h"
 
 #include "gt_calculator.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 struct GtCalculator::Impl
 {
@@ -51,6 +52,8 @@ GtCalculator::~GtCalculator() = default;
 bool
 GtCalculator::exec()
 {
+    GtProcessComponentExecutionScope componentScope(this);
+
     // clear old linked objects
     linkedObjects().clear();
 
@@ -88,8 +91,8 @@ GtCalculator::exec()
     // search for object link and object path properties
     foreach (GtAbstractProperty* prop, props)
     {
-        if (GtObjectLinkProperty* objLink =
-                    qobject_cast<GtObjectLinkProperty*>(prop))
+        if (GtObjectLinkProperty const* objLink =
+                qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
             GtObject* linkedObj =
@@ -105,7 +108,7 @@ GtCalculator::exec()
                 qDebug() << "Linked object not found in runnable";
             }
         }
-        else if (GtObjectPathProperty* objPath =
+        else if (GtObjectPathProperty const* objPath =
                      qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
@@ -125,14 +128,14 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString execMode = pimpl->execMode.get();
+    QString executionMode = pimpl->execMode.get();
 
-    if (execMode != "local")
+    if (executionMode != "local")
     {
         // plugin execution
         // find executor
         GtAbstractCalculatorExecutor* executor =
-            gtCalcExecList->executor(execMode);
+            gtCalcExecList->executor(executionMode);
 
         if (!executor)
         {

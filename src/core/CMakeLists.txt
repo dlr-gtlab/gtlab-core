@@ -128,6 +128,7 @@ set(hdr_private
   internal/gt_modulemetadata.h
   internal/gt_commandlinefunctionhandler.h
   internal/gt_coreupgraderoutines.h
+  internal/gt_legacyprojectaccess.h
   internal/gt_platformspecifics.h
   internal/gt_projectio.h
   internal/gt_sharedfunctionhandler.h
@@ -143,6 +144,7 @@ set(sources
     gt_sharedfunction.cpp
     internal/gt_commandlinefunctionhandler.cpp
     internal/gt_coreupgraderoutines.cpp
+    internal/gt_legacyprojectaccess.cpp
     internal/gt_platformspecifics.cpp
     internal/gt_projectio.cpp
     internal/gt_sharedfunctionhandler.cpp

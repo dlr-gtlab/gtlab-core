@@ -13,7 +13,6 @@
 #include <QDomDocument>
 
 #include "gt_logging.h"
-#include "gt_coreapplication.h"
 #include "gt_project.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
@@ -84,10 +83,11 @@ GtExportToMementoCalculator::run()
         {
             // to project directory
             gtDebug() << "relative to project directory mode";
-            if (gtApp->currentProject())
+            const QString projectPath = this->projectPath();
+
+            if (!projectPath.isEmpty())
             {
-                path = gtApp->currentProject()->path() + QDir::separator() +
-                       m_relativeFilePath;
+                path = projectPath + QDir::separator() + m_relativeFilePath;
             }
         }
     }
@@ -134,4 +134,3 @@ GtExportToMementoCalculator::calculatorData()
     exportMemento->category = "Core";
     return exportMemento;
 }
-
