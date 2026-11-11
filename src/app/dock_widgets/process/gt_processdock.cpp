@@ -1916,7 +1916,8 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     }
 
     bool success = false;
-    auto srcIndex = gt::utils::process::pasteProcessComponentToDatamodel(parent, procComp, &success);
+    auto srcIndex = gt::utils::process::pasteProcessComponentToDatamodel(
+        parent, procComp, &success);
 
     if (!success)
     {

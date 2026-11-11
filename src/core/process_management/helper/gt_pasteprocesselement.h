@@ -29,7 +29,8 @@ namespace process
  * @param child The object to be pasted
  * @return
  */
-GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessComponent* child);
+GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent,
+                                          GtProcessComponent* child);
 
 
 /**
@@ -41,8 +42,8 @@ GT_CORE_EXPORT bool pasteProcessComponent(GtObject* targetParent, GtProcessCompo
  * @param child The object to be pasted
  * @return the index of the pasted process component
  */
-GT_CORE_EXPORT QModelIndex pasteProcessComponentToDatamodel(GtObject* targetParent, GtProcessComponent* child, bool* success = nullptr);
-
+GT_CORE_EXPORT QModelIndex pasteProcessComponentToDatamodel(
+    GtObject* targetParent, GtProcessComponent* child, bool* success = nullptr);
 
 
 } // namespace process
