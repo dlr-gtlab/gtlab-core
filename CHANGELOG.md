@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Highlights
 ### Fixed
+ - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties.
+   
 ### Added
 ### Changed
 ### Deprecated
@@ -30,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Fixed the settings dialog prompted for a restart when saving unchanged preferences. - #1657
    - Fixed the module's debug postfix was removed from the module file name making it impossible to distinguish between a debug and release build
    - Fixed `CMAKE_INSTALL_LIBDIR` was not set anymore
- - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties.
 
 ### Added
  - Open GTlab project files from the command line, forwarding requests to a running instance when available while preserving logging options. - #1374
