@@ -138,6 +138,8 @@ bool
 GtPropertyConversionRegistry::connectionCheckAvailable(
     const GtAbstractProperty& a, const GtAbstractProperty& b)
 {
+    if (b.isMonitoring()) return false;
+    
     auto function = isCompatibleFunction(*a.metaObject(), *b.metaObject());
 
     // if no connectionCheck function is available check based
