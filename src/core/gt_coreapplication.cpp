@@ -141,15 +141,17 @@ GtCoreApplication::roamingPath()
     constexpr auto location = GtApplicationPaths::Location::Config;
     constexpr auto fallback = QStandardPaths::AppConfigLocation;
 #endif
-    const auto directory = GtApplicationPaths::directory(location);
+    QString error;
+    const auto directory = GtApplicationPaths::directory(location, &error);
     if (directory)
     {
         return directory->absolutePath();
     }
 
-    gtLogOnce(Warning) << QObject::tr(
-        "Could not access the application directory; falling "
-        "back to QStandardPaths.");
+    gtLogOnce(Warning)
+        << QObject::tr("Could not access the application directory (%1); "
+                       "falling back to QStandardPaths.")
+               .arg(error);
     return QStandardPaths::writableLocation(fallback);
 }
 

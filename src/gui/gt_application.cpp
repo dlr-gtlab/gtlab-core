@@ -784,14 +784,10 @@ GtApplication::readPerspectiveIds()
 
     if (!perspectivePath.isEmpty() && path.exists())
     {
-        QStringList entries = path.entryList(QStringList() <<
-                                             QStringLiteral("*.geom"));
-
-        foreach (QString entry, entries)
-        {
-            m_perspectiveIds.append(entry.replace(QStringLiteral(".geom"),
-                                                  QStringLiteral("")));
-        }
+        m_perspectiveIds =
+            path.entryList(QStringList() << QStringLiteral("*.geom"));
+        m_perspectiveIds.replaceInStrings(QStringLiteral(".geom"),
+                                          QStringLiteral(""));
 
         m_perspectiveIds.removeDuplicates();
 
