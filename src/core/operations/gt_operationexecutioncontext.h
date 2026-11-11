@@ -9,7 +9,7 @@
 
 #include "gt_core_exports.h"
 
-#include <atomic>
+#include <functional>
 #include <memory>
 
 #include <QString>
@@ -64,6 +64,29 @@ class GT_CORE_EXPORT GtCancellationToken
 {
 public:
     /**
+     * @brief RAII subscription to a cancellation notification.
+     *
+     * Destroying the subscription prevents future callback invocations and
+     * waits for in-flight callback invocations to finish. The callback must
+     * not destroy its own subscription.
+     */
+    class GT_CORE_EXPORT Subscription
+    {
+    public:
+        Subscription() = default;
+        ~Subscription();
+        Subscription(Subscription&& other) noexcept;
+        Subscription& operator=(Subscription&& other) noexcept;
+        Subscription(Subscription const&) = delete;
+        Subscription& operator=(Subscription const&) = delete;
+
+    private:
+        friend class GtCancellationToken;
+        explicit Subscription(std::function<void()> unsubscribe);
+        std::function<void()> m_unsubscribe;
+    };
+
+    /**
      * @brief Creates a token whose cancellation has not been requested.
      */
     GtCancellationToken();
@@ -71,6 +94,16 @@ public:
      * @brief Requests cancellation for every copy of this token.
      */
     void requestCancellation() noexcept;
+    /**
+     * @brief Subscribes to cancellation requests.
+     *
+     * The callback is invoked immediately when cancellation was already
+     * requested. It may run on the thread that requests cancellation.
+     *
+     * @param callback Function to invoke once cancellation is requested.
+     * @return A subscription that disconnects the callback when destroyed.
+     */
+    Subscription subscribe(std::function<void()> callback) const;
     /**
      * @brief Returns whether cancellation was requested.
      *

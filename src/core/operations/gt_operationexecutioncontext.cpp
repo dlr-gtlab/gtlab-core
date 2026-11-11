@@ -8,13 +8,67 @@
 
 #include "gt_executioneventstream.h"
 
+#include <condition_variable>
+#include <mutex>
+#include <unordered_map>
 #include <utility>
 
 #include <QUuid>
 
 struct GtCancellationToken::State
 {
-    std::atomic_bool requested{false};
+    struct Subscriber
+    {
+        explicit Subscriber(std::function<void()> callback) :
+            callback(std::move(callback))
+        {
+        }
+
+        void invoke() noexcept
+        {
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                if (!active)
+                {
+                    return;
+                }
+                ++inFlight;
+            }
+
+            try
+            {
+                callback();
+            }
+            catch (...)
+            {
+                // Cancellation requests must remain noexcept.
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                --inFlight;
+                condition.notify_all();
+            }
+        }
+
+        void deactivate()
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            active = false;
+            condition.wait(lock, [this] { return inFlight == 0; });
+        }
+
+        std::function<void()> callback;
+        std::mutex mutex;
+        std::condition_variable condition;
+        bool active{true};
+        std::size_t inFlight{0};
+    };
+
+    std::mutex mutex;
+    std::unordered_map<std::size_t, std::shared_ptr<Subscriber>> subscribers;
+    std::size_t nextSubscriberId{0};
+    bool requested{false};
 };
 
 struct GtOperationExecutionContext::Impl
@@ -51,16 +105,103 @@ GtCancellationToken::GtCancellationToken() : m_state(std::make_shared<State>())
 {
 }
 
+GtCancellationToken::Subscription::Subscription(
+    std::function<void()> unsubscribe) : m_unsubscribe(std::move(unsubscribe))
+{
+}
+
+GtCancellationToken::Subscription::~Subscription()
+{
+    if (m_unsubscribe)
+    {
+        m_unsubscribe();
+    }
+}
+
+GtCancellationToken::Subscription::Subscription(Subscription&& other) noexcept :
+    m_unsubscribe(std::move(other.m_unsubscribe))
+{
+}
+
+GtCancellationToken::Subscription&
+GtCancellationToken::Subscription::operator=(Subscription&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (m_unsubscribe)
+        {
+            m_unsubscribe();
+        }
+        m_unsubscribe = std::move(other.m_unsubscribe);
+    }
+    return *this;
+}
+
 void
 GtCancellationToken::requestCancellation() noexcept
 {
-    m_state->requested.store(true, std::memory_order_release);
+    std::unordered_map<std::size_t, std::shared_ptr<State::Subscriber>>
+        subscribers;
+    {
+        std::lock_guard<std::mutex> lock(m_state->mutex);
+        if (m_state->requested)
+        {
+            return;
+        }
+        m_state->requested = true;
+        subscribers.swap(m_state->subscribers);
+    }
+
+    for (const auto& entry : subscribers)
+    {
+        entry.second->invoke();
+    }
+}
+
+GtCancellationToken::Subscription
+GtCancellationToken::subscribe(std::function<void()> callback) const
+{
+    if (!callback)
+    {
+        return {};
+    }
+
+    auto subscriber = std::make_shared<State::Subscriber>(std::move(callback));
+    std::size_t subscriberId{};
+    bool requested{};
+    {
+        std::lock_guard<std::mutex> lock(m_state->mutex);
+        requested = m_state->requested;
+        if (!requested)
+        {
+            subscriberId = m_state->nextSubscriberId++;
+            m_state->subscribers.emplace(subscriberId, subscriber);
+        }
+    }
+
+    if (requested)
+    {
+        subscriber->invoke();
+        subscriber->deactivate();
+        return {};
+    }
+
+    std::weak_ptr<State> weakState = m_state;
+    return Subscription([weakState, subscriberId, subscriber] {
+        subscriber->deactivate();
+        if (auto state = weakState.lock())
+        {
+            std::lock_guard<std::mutex> lock(state->mutex);
+            state->subscribers.erase(subscriberId);
+        }
+    });
 }
 
 bool
 GtCancellationToken::isCancellationRequested() const noexcept
 {
-    return m_state->requested.load(std::memory_order_acquire);
+    std::lock_guard<std::mutex> lock(m_state->mutex);
+    return m_state->requested;
 }
 
 GtOperationExecutionContext::GtOperationExecutionContext(
