@@ -393,6 +393,28 @@ TEST(GtApplicationPaths, RuntimeRejectsFileAtFallbackLocation)
 }
 #endif
 
+#ifdef Q_OS_WIN
+TEST(GtApplicationPaths, RuntimeUsesWindowsLocalDataLocation)
+{
+    ScopedTestPaths testPaths;
+    const QString localDataRoot =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    ASSERT_FALSE(localDataRoot.isEmpty());
+    testPaths.addPath(localDataRoot);
+
+    const QString expectedPath =
+        QDir(localDataRoot).filePath(QStringLiteral("runtime"));
+    QString error;
+    const auto directory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Runtime, &error);
+    ASSERT_TRUE(directory) << error.toStdString();
+    EXPECT_TRUE(error.isEmpty());
+    EXPECT_EQ(directory->absolutePath(), expectedPath);
+    EXPECT_NE(directory->absolutePath(), QStandardPaths::writableLocation(
+                                             QStandardPaths::RuntimeLocation));
+}
+#endif
+
 TEST(GtCoreApplicationPrivate, MigratesReadOnlyLegacyIni)
 {
     QTemporaryDir sourceRoot;

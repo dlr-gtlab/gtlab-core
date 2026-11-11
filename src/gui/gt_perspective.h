@@ -86,6 +86,8 @@ protected:
      */
     static bool emptyFile(const QDir& dir, const QString& filename);
 
+private:
+    static QString directoryPath();
 };
 
 #endif // GTPERSPECTIVE_H

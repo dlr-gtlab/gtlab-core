@@ -20,20 +20,28 @@ GtPerspective::GtPerspective(const QString& id)
     setObjectName(id);
 }
 
-bool
-GtPerspective::createDefault()
+QString
+GtPerspective::directoryPath()
 {
+    if (!gtApp)
+    {
+        return {};
+    }
+
     const QString settingsPath = gtApp->roamingPath();
     if (settingsPath.isEmpty())
     {
-        gtFatal() << QObject::tr("Application settings directory is "
-                                 "unavailable!");
-        return false;
+        return {};
     }
 
-    QString path = QDir(settingsPath).filePath(QStringLiteral("perspective"));
+    return QDir(settingsPath).filePath(QStringLiteral("perspective"));
+}
 
-    if (!QDir().mkpath(path))
+bool
+GtPerspective::createDefault()
+{
+    const QString path = directoryPath();
+    if (path.isEmpty() || !QDir().mkpath(path))
     {
         gtFatal() << tr("Could not create application directories!");
         return false;
@@ -45,12 +53,10 @@ GtPerspective::createDefault()
 bool
 GtPerspective::createEmptyPerspective(const QString& id)
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtFatal() << tr("Roaming path not found!");
         return false;
@@ -73,12 +79,10 @@ bool
 GtPerspective::duplicatePerspective(const QString& source,
                                     const QString& target)
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtFatal() << tr("Roaming path not found!");
         return false;
@@ -122,12 +126,10 @@ GtPerspective::duplicatePerspective(const QString& source,
 void
 GtPerspective::saveGeometry(const QByteArray& data)
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtError() << tr("roaming path not found!");
         return;
@@ -151,12 +153,10 @@ GtPerspective::saveGeometry(const QByteArray& data)
 void
 GtPerspective::saveState(const QByteArray& data)
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtError() << tr("roaming path not found!");
         return;
@@ -180,12 +180,10 @@ GtPerspective::saveState(const QByteArray& data)
 QByteArray
 GtPerspective::loadGeometry()
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtFatal() << tr("roaming path not found!");
         return QByteArray();
@@ -211,12 +209,10 @@ GtPerspective::loadGeometry()
 QByteArray
 GtPerspective::loadState()
 {
-    QString path = gtApp->roamingPath() + QDir::separator() +
-                   QStringLiteral("perspective");
-
+    const QString path = directoryPath();
     QDir dir(path);
 
-    if (!dir.exists())
+    if (path.isEmpty() || !dir.exists())
     {
         gtFatal() << tr("Roaming path not found!");
         return QByteArray();

@@ -19,6 +19,10 @@ not fixed guarantees. Actual paths depend on the operating system, environment
 and XDG settings. ``Runtime`` and ``State`` include GTlab-specific
 subdirectories; ``Runtime`` also has a fallback location.
 
+``Temp`` is owned by one GTlab process and is removed after normal shutdown.
+``Runtime`` stays stable across GTlab processes so they can coordinate. ``State``
+stores persistent state for an installation.
+
 .. rst-class:: compact-table
 
 .. list-table:: Standard application locations
@@ -73,11 +77,10 @@ subdirectories; ``Runtime`` also has a fallback location.
 
        Shared by GTlab processes. If the preferred location is unavailable,
        GTlab uses a stable per-user fallback.
-     - **Preferred** (``QStandardPaths::RuntimeLocation`` plus
+     - **Linux preferred** (``QStandardPaths::RuntimeLocation`` plus
        ``DLR/GTlab 2``)
 
        | **Linux:** ``/run/user/<UID>/DLR/GTlab 2``
-       | **Windows:** ``%USERPROFILE%/DLR/GTlab 2``
 
        **Fallback** (``AppLocalDataLocation/runtime``)
 

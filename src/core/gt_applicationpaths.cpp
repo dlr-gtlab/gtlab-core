@@ -135,6 +135,7 @@ ensurePrivateRuntimeDirectory(const QString& path)
 QString
 runtimeDirectoryPath(QString* error)
 {
+#ifndef Q_OS_WIN
     const QString organization = QCoreApplication::organizationName();
     const QString application = QCoreApplication::applicationName();
     const auto applicationPath = [&](const QString& root) {
@@ -152,6 +153,7 @@ runtimeDirectoryPath(QString* error)
             return preferredPath;
         }
     }
+#endif
 
     // Keep the fallback per-user and stable for cooperating processes.
     const QString fallbackRoot =
@@ -160,8 +162,7 @@ runtimeDirectoryPath(QString* error)
     {
         if (error)
         {
-            *error = QObject::tr("Neither runtime nor per-user application "
-                                 "data location is available.");
+            *error = QObject::tr("No per-user runtime location is available.");
         }
         return {};
     }
@@ -175,9 +176,14 @@ runtimeDirectoryPath(QString* error)
 
     if (error)
     {
+#ifdef Q_OS_WIN
+        *error = QObject::tr("Could not create the runtime directory at '%1'.")
+                     .arg(fallbackPath);
+#else
         *error = QObject::tr("Runtime location '%1' is unusable and a private "
                              "fallback could not be created at '%2'.")
                      .arg(preferredRoot, fallbackPath);
+#endif
     }
     return {};
 }

@@ -217,9 +217,10 @@ GtApplication::deletePerspective(const QString& id)
         return false;
     }
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (!path.exists() || !path.cd(QStringLiteral("perspective")))
+    if (perspectivePath.isEmpty() || !path.exists())
     {
         gtWarning() << tr("Perspective directory not found!");
         return false;
@@ -278,9 +279,10 @@ GtApplication::renamePerspective(const QString& oldId, const QString& newId)
         return false;
     }
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (!path.exists() || !path.cd(QStringLiteral("perspective")))
+    if (perspectivePath.isEmpty() || !path.exists())
     {
         gtWarning() << tr("Perspective directory not found!");
         return false;
@@ -777,9 +779,10 @@ GtApplication::readPerspectiveIds()
 {
     m_perspectiveIds.clear();
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (path.exists() && path.cd("perspective"))
+    if (!perspectivePath.isEmpty() && path.exists())
     {
         QStringList entries = path.entryList(QStringList() <<
                                              QStringLiteral("*.geom"));
@@ -828,23 +831,6 @@ GtApplication::initFirstRun()
     }
 
     GtCoreApplication::initFirstRun();
-
-    // create application directories
-    const QString settingsPath = roamingPath();
-    if (settingsPath.isEmpty())
-    {
-        gtWarning() << QObject::tr("Could not access application settings "
-                                   "directory!");
-        return false;
-    }
-
-    QString path = QDir(settingsPath).filePath(QStringLiteral("perspective"));
-
-    if (!QDir().mkpath(path))
-    {
-        gtWarning() << tr("Could not create application directories!");
-        return false;
-    }
 
     // create default perspective
     if (!GtPerspective::createDefault())
