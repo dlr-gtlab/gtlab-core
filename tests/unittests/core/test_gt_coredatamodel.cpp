@@ -32,6 +32,11 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QUuid>
+#include <QIdentityProxyModel>
+#include <QPersistentModelIndex>
+#include "gt_explorermodel.h"
+#include "gt_objectgroup.h"
+#include "gt_styledmodel.h"
 
 #include <memory>
 #include <utility>
@@ -529,3 +534,60 @@ TEST_F(ProjectLifecycleTest, duplicatePreservesTaskUuids)
 }
 
 #include "test_gt_coredatamodel.moc"
+
+// Keep the real identity proxy's notification handling while avoiding GUI
+// decoration services in this QCoreApplication test runner.
+class LifecycleStyledModel : public GtStyledModel
+{
+public:
+    QVariant data(const QModelIndex& index, int role) const override
+    {
+        return QIdentityProxyModel::data(index, role);
+    }
+};
+
+TEST_F(ProjectLifecycleTest, explorerRejectsDescendantsOfHiddenProcessData)
+{
+    auto* first = createProject(QStringLiteral("Hidden Process Project"));
+    auto* second =
+        createProject(QStringLiteral("Other Hidden Process Project"));
+    ASSERT_TRUE(gtDataModel->newProject(first, false));
+    ASSERT_TRUE(gtDataModel->newProject(second, false));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+    ASSERT_NE(first->processData(), nullptr);
+    ASSERT_TRUE(first->processData()->isUserHidden());
+    auto* taskGroup = first->processData()->taskGroup();
+    ASSERT_NE(taskGroup, nullptr);
+
+    LifecycleStyledModel styled;
+    styled.setSourceModel(gtDataModel);
+    GtExplorerModel explorer;
+    explorer.setSourceModel(&styled);
+    EXPECT_FALSE(explorer.mapFromSource(QModelIndex{}).isValid());
+    const auto projectIndex = gtDataModel->indexFromObject(first);
+    ASSERT_TRUE(projectIndex.isValid());
+    // Only indexes from the immediate source model may be mapped.
+    EXPECT_FALSE(explorer.mapFromSource(projectIndex).isValid());
+    const auto hiddenParent = styled.mapFromSource(
+        gtDataModel->indexFromObject(first->processData()));
+    ASSERT_FALSE(explorer.mapFromSource(hiddenParent).isValid());
+    const auto descendant =
+        styled.mapFromSource(gtDataModel->indexFromObject(taskGroup));
+    // The process dock can select this object before a command resets all
+    // views. Restoring that selection in the explorer must not create an
+    // index with an invisible parent.
+    ASSERT_FALSE(explorer.mapFromSource(descendant).isValid());
+
+    auto* visible = new GtObjectGroup;
+    ASSERT_TRUE(gtDataModel->appendChild(visible, first).isValid());
+    QPersistentModelIndex visibleIndex(explorer.mapFromSource(
+        styled.mapFromSource(gtDataModel->indexFromObject(visible))));
+    ASSERT_TRUE(visibleIndex.isValid());
+    EXPECT_EQ(explorer.objectFromIndex(visibleIndex), visible);
+    for (int i = 0; i < 3; ++i)
+    {
+        ASSERT_TRUE(gtDataModel->switchProject(second));
+        EXPECT_FALSE(visibleIndex.isValid());
+        ASSERT_TRUE(gtDataModel->switchProject(first));
+    }
+}
