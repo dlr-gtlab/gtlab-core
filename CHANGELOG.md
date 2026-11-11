@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Highlights
 ### Fixed
+- **Regression fixes compared to 2.1.0-alpha.2**:
+  - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
 ### Added
 ### Changed
 ### Deprecated
