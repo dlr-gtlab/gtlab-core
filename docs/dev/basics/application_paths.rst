@@ -14,11 +14,12 @@ Locations
 ---------
 
 The examples below assume a typical, non-sandboxed Linux or Windows
-installation and the application name ``GTlab 2``. They illustrate the
-underlying ``QStandardPaths`` locations; they are not fixed guarantees. Actual
-paths depend on the operating system, Qt version, environment and XDG settings.
-``Runtime`` and ``State`` also include GTlab-specific subdirectories and
-fallback behavior.
+installation and the application name ``GTlab 2``. They show typical paths,
+not fixed guarantees. Actual paths depend on the operating system, environment
+and XDG settings. ``Runtime`` and ``State`` include GTlab-specific
+subdirectories; ``Runtime`` also has a fallback location.
+
+.. rst-class:: compact-table
 
 .. list-table:: Standard application locations
    :header-rows: 1
@@ -29,53 +30,69 @@ fallback behavior.
      - Typical Path
      - GTlab example
    * - ``Config``
-     - User preferences and application settings. Persistent for the user and
-       application.
-     - ``QStandardPaths::AppConfigLocation``: Linux
-       ``~/.config/GTlab 2``; Windows
-       ``%LOCALAPPDATA%/GTlab 2``.
+     - User settings.
+
+       Persistent for this user and application.
+     - ``QStandardPaths::AppConfigLocation``
+
+       | **Linux:** ``~/.config/GTlab 2``
+       | **Windows:** ``%LOCALAPPDATA%/GTlab 2``
      - Settings written by ``GtSettings``.
    * - ``Data``
-     - Persistent user-owned data that GTlab must retain. Downloaded and
-       user-created collections belong here; shipped collections remain
-       read-only installation resources.
-     - ``QStandardPaths::AppDataLocation``: Linux
-       ``~/.local/share/GTlab 2``; Windows
-       ``%APPDATA%/GTlab 2``.
+     - User-owned files.
+
+       Persistent data, including downloaded and user-created collections.
+       Shipped collections remain read-only installation resources.
+     - ``QStandardPaths::AppDataLocation``
+
+       | **Linux:** ``~/.local/share/GTlab 2``
+       | **Windows:** ``%APPDATA%/GTlab 2``
      - Downloaded or user-created collections under ``Collections``.
    * - ``Cache``
-     - Re-creatable data; may be deleted to reclaim space.
-     - ``QStandardPaths::CacheLocation``: Linux ``~/.cache/GTlab 2``;
-       Windows ``%LOCALAPPDATA%/GTlab 2/cache``.
+     - Re-creatable data.
+
+       Can be deleted to reclaim space.
+     - ``QStandardPaths::CacheLocation``
+
+       | **Linux:** ``~/.cache/GTlab 2``
+       | **Windows:** ``%LOCALAPPDATA%/GTlab 2/cache``
      - Cached downloads or derived data.
    * - ``State``
-     - Persistent state scoped to the GTlab installation. The crash-marker
-       file and module-loading lock are stored together here. If State is
-       unavailable, GTlab falls back to Config.
-     - Qt 6.7+: ``QStandardPaths::StateLocation``; Linux
-       ``~/.local/state/GTlab 2/installation-<hash>``; Windows
-       ``%LOCALAPPDATA%/GTlab 2/State/installation-<hash>``. With Qt before
-       6.7, GTlab uses ``QStandardPaths::AppLocalDataLocation/state`` instead
-       (Linux ``~/.local/share/GTlab 2/state/installation-<hash>``; Windows
-       ``%LOCALAPPDATA%/GTlab 2/state/installation-<hash>``).
+     - Installation state.
+
+       Persistent per installation. GTlab falls back to Config if State is
+       unavailable.
+     - ``QStandardPaths::StateLocation``
+
+       | **Linux:** ``~/.local/state/GTlab 2/installation-<hash>``
+       | **Windows:** ``%LOCALAPPDATA%/GTlab 2/State/installation-<hash>``
      - ``GTlab.ini`` records modules that crashed during loading;
        ``GTlab.ini.module-loading.lock`` coordinates module loading.
    * - ``Runtime``
-     - Stable files shared by cooperating GTlab processes, such as project
-       coordination locks. The OS may remove the preferred runtime location;
-       GTlab then uses per-user ``AppLocalDataLocation/runtime``.
-     - Preferred ``QStandardPaths::RuntimeLocation`` plus
-       ``DLR/GTlab 2``: Linux ``/run/user/<UID>/DLR/GTlab 2``; Windows
-       ``%USERPROFILE%/DLR/GTlab 2``. Fallback: Linux
-       ``~/.local/share/GTlab 2/runtime``; Windows
-       ``%LOCALAPPDATA%/GTlab 2/runtime``.
+     - Process coordination files.
+
+       Shared by GTlab processes. If the preferred location is unavailable,
+       GTlab uses a stable per-user fallback.
+     - **Preferred** (``QStandardPaths::RuntimeLocation`` plus
+       ``DLR/GTlab 2``)
+
+       | **Linux:** ``/run/user/<UID>/DLR/GTlab 2``
+       | **Windows:** ``%USERPROFILE%/DLR/GTlab 2``
+
+       **Fallback** (``AppLocalDataLocation/runtime``)
+
+       | **Linux:** ``~/.local/share/GTlab 2/runtime``
+       | **Windows:** ``%LOCALAPPDATA%/GTlab 2/runtime``
      - Project-open lock files.
    * - ``Temp``
-     - Temporary files shared by tasks in one GTlab process. Unique per
-       process and removed on normal shutdown. Usually remains after abnormal
-       termination; old directories are not cleaned up on later launches.
-     - ``QStandardPaths::TempLocation/gtlab-<random>``: Linux
-       ``/tmp/gtlab-<random>``; Windows ``%TEMP%/gtlab-<random>``.
+     - Task temporary files.
+
+       Shared within one process. Removed on normal shutdown; usually left
+       after abnormal termination.
+     - ``QStandardPaths::TempLocation/gtlab-<random>``
+
+       | **Linux:** ``/tmp/gtlab-<random>``
+       | **Windows:** ``%TEMP%/gtlab-<random>``
      - Use a task-specific ``QTemporaryDir`` below this location.
 
 Resolve a location and check the result before using it:
