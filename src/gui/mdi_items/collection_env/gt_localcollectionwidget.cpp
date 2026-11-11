@@ -157,6 +157,11 @@ GtLocalCollectionWidget::onCustomContextMenuRequested(const QPoint& /*pos*/)
         return;
     }
 
+    if (!m_model->canUninstallItem(index))
+    {
+        return;
+    }
+
     QMenu menu;
 
     QAction* deleteAction = menu.addAction(

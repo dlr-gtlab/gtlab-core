@@ -76,6 +76,12 @@ public:
     GtCollectionItem itemFromIndex(const QModelIndex& index);
 
     /**
+     * @brief Returns whether the collection item can be uninstalled.
+     * @param index Item index.
+     */
+    bool canUninstallItem(const QModelIndex& index) const;
+
+    /**
      * @brief uninstallItem
      * @param index
      * @return

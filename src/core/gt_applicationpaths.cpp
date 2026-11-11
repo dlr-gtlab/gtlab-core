@@ -9,8 +9,9 @@
 #include "gt_logging.h"
 
 #include <QCoreApplication>
-#include <QCryptographicHash>
 #include <QDir>
+#include <QFile>
+#include <QFileDevice>
 #include <QFileInfo>
 #include <QObject>
 #include <QStandardPaths>
@@ -82,6 +83,46 @@ createApplicationTemporaryDirectory(TemporaryDirectoryOwner& owner,
     return true;
 }
 
+bool
+ensurePrivateRuntimeDirectory(const QString& path)
+{
+    if (!QDir().mkpath(path))
+    {
+        return false;
+    }
+
+    QFileInfo info(path);
+    if (info.isSymLink() || !info.isDir())
+    {
+        return false;
+    }
+
+#ifdef Q_OS_UNIX
+    const QFileDevice::Permissions privatePermissions =
+        QFileDevice::ReadOwner | QFileDevice::WriteOwner |
+        QFileDevice::ExeOwner;
+    const QFileDevice::Permissions sharedPermissions =
+        QFileDevice::ReadGroup | QFileDevice::WriteGroup |
+        QFileDevice::ExeGroup | QFileDevice::ReadOther |
+        QFileDevice::WriteOther | QFileDevice::ExeOther;
+
+    if (!QFile::setPermissions(path, privatePermissions))
+    {
+        return false;
+    }
+
+    info.refresh();
+    const QFileDevice::Permissions permissions = info.permissions();
+    return !info.isSymLink() && info.isDir() &&
+           (permissions & privatePermissions) == privatePermissions &&
+           (permissions & sharedPermissions) == QFileDevice::Permissions{} &&
+           info.isWritable();
+#else
+    // AppLocalDataLocation is per-user; Windows ACLs come from the profile.
+    return info.isWritable();
+#endif
+}
+
 QString
 runtimeDirectoryPath(QString* error)
 {
@@ -103,45 +144,31 @@ runtimeDirectoryPath(QString* error)
         }
     }
 
-    const QString tempRoot =
-        QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    if (tempRoot.isEmpty())
+    // Keep the fallback per-user and stable for cooperating processes.
+    const QString fallbackRoot =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    if (fallbackRoot.isEmpty())
     {
         if (error)
         {
-            *error = QObject::tr("Neither runtime nor temporary location is "
-                                 "available.");
+            *error = QObject::tr("Neither runtime nor per-user application "
+                                 "data location is available.");
         }
         return {};
     }
 
-    const QByteArray userIdentity = QDir::homePath().toUtf8();
-    const QByteArray userHash =
-        QCryptographicHash::hash(userIdentity, QCryptographicHash::Sha256)
-            .toHex()
-            .left(16);
-    const QString fallbackRoot = QDir(tempRoot).filePath(
-        QStringLiteral("gtlab-runtime-%1").arg(QString::fromLatin1(userHash)));
-    const QString fallbackPath = applicationPath(fallbackRoot);
-    if (QDir().mkpath(fallbackPath) && QFileInfo(fallbackPath).isWritable())
+    const QString fallbackPath =
+        QDir(fallbackRoot).filePath(QStringLiteral("runtime"));
+    if (ensurePrivateRuntimeDirectory(fallbackPath))
     {
         return fallbackPath;
     }
 
     if (error)
     {
-        if (preferredRoot.isEmpty())
-        {
-            *error = QObject::tr("Could not create a usable runtime directory "
-                                 "at '%1'.")
-                         .arg(fallbackPath);
-        }
-        else
-        {
-            *error = QObject::tr("Runtime directory '%1' and fallback '%2' "
-                                 "are unavailable.")
-                         .arg(preferredRoot, fallbackPath);
-        }
+        *error = QObject::tr("Runtime location '%1' is unusable and a private "
+                             "fallback could not be created at '%2'.")
+                     .arg(preferredRoot, fallbackPath);
     }
     return {};
 }

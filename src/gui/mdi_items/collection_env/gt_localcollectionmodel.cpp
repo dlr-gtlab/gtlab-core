@@ -233,6 +233,23 @@ GtLocalCollectionModel::itemFromIndex(const QModelIndex& index)
 }
 
 bool
+GtLocalCollectionModel::canUninstallItem(const QModelIndex& index) const
+{
+    if (!index.isValid() || index.model() != this)
+    {
+        return false;
+    }
+
+    const int row = index.row();
+    if (row < 0 || row >= m_items.size())
+    {
+        return false;
+    }
+
+    return isUserCollectionPath(m_items.at(row).localPath(), nullptr);
+}
+
+bool
 GtLocalCollectionModel::uninstallItem(const QModelIndex& index)
 {
     if (!index.isValid())
