@@ -33,9 +33,8 @@ namespace process
  * @return The new property connection
  */
 GT_CORE_EXPORT GtPropertyConnection* makePropertyConnection(
-    GtProcessComponent* sourceComponent, const QString& sourceProperty,
-    GtProcessComponent* targetComponent, const QString& targetProperty,
-    bool* ok = nullptr);
+    GtProcessComponent& sourceComponent, const QString& sourceProperty,
+    GtProcessComponent& targetComponent, const QString& targetProperty);
 
 
 } // namespace process

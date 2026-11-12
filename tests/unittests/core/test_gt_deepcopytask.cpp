@@ -74,22 +74,22 @@ protected:
         taskgroup->appendChild(roottask);
 
         con1 = gt::utils::process::makePropertyConnection(
-            roottask, "doubleProp1", subtask1, "doubleProp1");
+            *roottask, "doubleProp1", *subtask1, "doubleProp1");
         con2 = gt::utils::process::makePropertyConnection(
-            roottask, "doubleProp1", subtask2, "doubleProp1");
+            *roottask, "doubleProp1", *subtask2, "doubleProp1");
 
         con3 = gt::utils::process::makePropertyConnection(
-            subtask1, "doubleProp1", calc1, "doubleProp1");
-        con4 = gt::utils::process::makePropertyConnection(calc1, "doubleProp2",
-                                                          calc2, "doubleProp1");
+            *subtask1, "doubleProp1", *calc1, "doubleProp1");
+        con4 = gt::utils::process::makePropertyConnection(*calc1, "doubleProp2",
+                                                          *calc2, "doubleProp1");
 
-        con5 = gt::utils::process::makePropertyConnection(calc2, "doubleProp2",
-                                                          calc3, "doubleProp1");
+        con5 = gt::utils::process::makePropertyConnection(*calc2, "doubleProp2",
+                                                          *calc3, "doubleProp1");
         con6 = gt::utils::process::makePropertyConnection(
-            subtask1, "doubleProp1", subtask2, "doubleProp2");
+            *subtask1, "doubleProp1", *subtask2, "doubleProp2");
 
         con7 = gt::utils::process::makePropertyConnection(
-            subtask2, "doubleProp1", calc3, "doubleProp2");
+            *subtask2, "doubleProp1", *calc3, "doubleProp2");
 
         con_obsolete = new GtPropertyConnection;
         con_obsolete->setSourceUuid("no-real-calc");
