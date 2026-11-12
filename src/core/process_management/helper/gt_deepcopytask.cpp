@@ -159,11 +159,9 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject& objCopy,
 {
     bool retval = true;
 
-    for (auto propRelLink :
-         objCopy.findDirectChildren<GtRelativeObjectLinkProperty*>())
+    for (auto* propRelLink :
+         objCopy.propertiesByType<GtRelativeObjectLinkProperty*>())
     {
-        //auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
-
         if (propRelLink && propRelLink->getVal() != "")
         {
             auto originalUuid = propRelLink->getVal();

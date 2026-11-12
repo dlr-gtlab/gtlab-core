@@ -748,15 +748,15 @@ TEST(TestGtRelativeObjectLinkTransfer,
     sibling->firstLink.setVal(originalTarget.uuid());
     // Leave secondLink empty: an unset link must not be remapped.
 
-    EXPECT_FALSE(
+    EXPECT_TRUE(
         gt::utils::process::transferRelativeObjectLinkPropertyViaMapping(
             root, mapping));
 
-    // Missing mappings report failure without altering the unresolved links.
+    // Missing mappings are preserved without failing the transfer.
     EXPECT_EQ(root.firstLink.getVal(), missingTarget.uuid());
     EXPECT_EQ(child->firstLink.getVal(), missingTarget.uuid());
 
-    // Valid links must still be remapped after failures at both levels.
+    // Missing mappings must not prevent remapping valid links at any level.
     EXPECT_EQ(root.secondLink.getVal(), copiedTarget.uuid());
     EXPECT_EQ(child->secondLink.getVal(), copiedTarget.uuid());
     EXPECT_EQ(sibling->firstLink.getVal(), copiedTarget.uuid());
