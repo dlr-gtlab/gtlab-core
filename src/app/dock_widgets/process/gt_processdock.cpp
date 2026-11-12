@@ -1910,7 +1910,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     pasteElement(obj.get(), parent);
     if (parent && obj->parent() == parent)
     {
-        obj.release(); // ownership transferred to the destination
+        static_cast<void>(obj.release()); // ownership transferred to the destination
     }
 }
 
