@@ -29,8 +29,9 @@ protected:
 
     void SetUp() override
     {
-        static const auto register_class_once = [](){
-            gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+        static const auto register_class_once = []() {
+            gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject),
+                                           QStringLiteral("UnitTest"));
             return 0;
         }();
 

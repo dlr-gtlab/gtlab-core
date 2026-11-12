@@ -36,7 +36,8 @@ struct TestPropertyConnection : public testing::Test
 
         if (!gtObjectFactory->knownClass("TestObject"))
         {
-            gtObjectFactory->registerClass(TestObject::staticMetaObject);
+            gtObjectFactory->registerClass(TestObject::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
         }
     }
 

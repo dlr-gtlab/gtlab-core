@@ -27,6 +27,7 @@ public:
         GtDataModel()
     { }
 };
+
 } // namespace
 
 TEST(GtProjectExecutionGuard, UsesCanonicalProjectIdentity)

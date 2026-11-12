@@ -27,7 +27,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     simpleTask->id = QStringLiteral("Simple Task");
     simpleTask->version = GtVersionNumber(0,1);
     simpleTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(simpleTask);
+    GtTaskFactory::registerTaskData(simpleTask, coreModuleId());
 
     GtTaskData loopTask = GT_TASK_DATA(GtLoop);
     loopTask->id = QStringLiteral("Loop");
@@ -35,7 +35,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     loopTask->description = tr("Repeats execution until maixmum "
                                "number of iterations is reached.");
     loopTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(loopTask);
+    GtTaskFactory::registerTaskData(loopTask, coreModuleId());
 
     GtTaskData residualLoopTask = GT_TASK_DATA(GtResidualLoop);
     residualLoopTask->id = QStringLiteral("Residual Loop");
@@ -45,7 +45,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                        "maximum number of iterations "
                                        "is reached.");
     residualLoopTask->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(residualLoopTask);
+    GtTaskFactory::registerTaskData(residualLoopTask, coreModuleId());
 
     GtTaskData parameterLoop = GT_TASK_DATA(GtParameterLoop);
     parameterLoop->id = QStringLiteral("Parameter Loop");
@@ -54,7 +54,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                     "Sets a parameter to a new value "
                                     "between start and end value");
     parameterLoop->status = GtTaskDataImpl::RELEASE;
-    GtTaskFactory::registerTaskData(parameterLoop);
+    GtTaskFactory::registerTaskData(parameterLoop, coreModuleId());
 }
 
 
@@ -70,21 +70,14 @@ GtTaskFactory::instance()
 }
 
 bool
-GtTaskFactory::registerTaskData(GtTaskData taskData)
+GtTaskFactory::registerTaskData(GtTaskData data, const QString& moduleIdent)
 {
-    return registerTaskData(std::move(taskData), {});
-}
-
-bool
-GtTaskFactory::registerTaskData(GtTaskData taskData, const QString& moduleId)
-{
-    if (!gtObjectFactory->registerClass(taskData->metaData(), moduleId))
+    if (!gtObjectFactory->registerClass(data->metaData(), moduleIdent))
     {
         return false;
     }
 
-    m_taskData.insert(taskData->metaData().className(), taskData);
-
+    m_taskData.insert(data->metaData().className(), data);
     return true;
 }
 
@@ -109,4 +102,17 @@ bool
 GtTaskFactory::taskDataExists(const QString& className)
 {
     return m_taskData.contains(className);
+}
+
+QString
+GtTaskFactory::moduleId(const QString& className) const
+{
+    QString id = GtAbstractObjectFactory::moduleId(className);
+
+    if (id.isEmpty())
+    {
+        id = gtObjectFactory->moduleId(className);
+    }
+
+    return id;
 }

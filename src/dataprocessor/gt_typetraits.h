@@ -11,8 +11,10 @@
 #ifndef GT_TYPETRAITS_H
 #define GT_TYPETRAITS_H
 
-#include <type_traits>
 #include <QObject>
+
+#include <type_traits>
+#include <utility>
 
 namespace gt
 {
@@ -115,6 +117,20 @@ using enable_if_ptr_not_const =
         std::enable_if_t<
             std::is_pointer<T>::value &&
             std::is_same<std::remove_const_t<std::remove_pointer_t<T>>*, T>::value, bool>;
+
+/// Yields true if `(const T&).keyValueBegin()` and
+/// `(const T&).keyValueEnd()` exists
+template <typename T, typename = void>
+struct has_key_value_iterators : std::false_type
+{
+};
+template <typename T>
+struct has_key_value_iterators<
+    T, std::void_t<decltype(std::declval<const T&>().keyValueBegin()),
+                   decltype(std::declval<const T&>().keyValueEnd())>>
+    : std::true_type
+{
+};
 
 } // namespace trait
 

@@ -139,7 +139,7 @@ public:
     /**
      * @brief Returns the module associated with a class used by the project.
      * @param className Class name to query.
-     * @return Module identification or an empty string if none is known.
+     * @return Module identification or an empty string if class is unknown.
      */
     QString classModuleId(const QString& className) const;
 

@@ -42,11 +42,12 @@ public:
     static GtImportHandler* instance();
 
     /**
-     * @brief registerClass
-     * @param metaObject
-     * @return
+     * @brief Registers an importer class and its providing module.
+     * @param metaObj Meta object to register.
+     * @param moduleId Identification of the providing module.
+     * @return Whether the class was registered successfully.
      */
-    bool registerClass(QMetaObject metaObj) override;
+    bool registerClass(QMetaObject metaObj, const QString& moduleId) override;
 
     /**
      * @brief Returns list of importer which can handle given classname.

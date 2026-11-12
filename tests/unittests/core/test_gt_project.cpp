@@ -13,6 +13,7 @@
 #include "gt_taskgroup.h"
 #include "gt_xmlutilities.h"
 #include "internal/gt_projectio.h"
+#include "gt_label.h"
 
 #include <QDir>
 #include <QFile>
@@ -361,15 +362,56 @@ TEST(GtProject, UpdatesClassModuleMappingsFromObjectFactoriesAndKnownMappings)
 
     auto* knownObject = new GtObjectGroup;
     project.appendChild(knownObject);
+
     GtProjectTestAccess::insertClassModuleId(
         project, GT_CLASSNAME(GtObjectGroup), QStringLiteral("KnownModule"));
+    GtProjectTestAccess::insertClassModuleId(project, "SomeUnknownObject",
+                                             QStringLiteral("KnownModule"));
 
     GtProjectTestAccess::updateClassModuleIds(project);
 
+    // object's factory wins
     EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("ObjectModule"));
+    // object is known by GTlab
     EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObjectGroup)),
+              GtAbstractObjectFactory::coreModuleId());
+    EXPECT_EQ(project.classModuleId("SomeUnknownObject"),
               QStringLiteral("KnownModule"));
+}
+
+// make sure that a class with the same module id is registered ocrrectly
+TEST(GtProject, UpdatesClassModuleMappingsFromObjectsWithEqualModuleName)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("SameIdTest")));
+    TestProject project(tempDir.path());
+
+    GtProjectTestAccess::insertClassModuleId(project, GT_CLASSNAME(GtLabel),
+                                             QStringLiteral("GtObject"));
+
+    TestProjectObjectFactory factory;
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObjectGroup),
+                                      QStringLiteral("GtObject")));
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("GtObject")));
+
+    auto* providedObject = new GtObject;
+    providedObject->setFactory(&factory);
+    project.appendChild(providedObject);
+    auto* providedObject2 = new GtObjectGroup;
+    providedObject2->setFactory(&factory);
+    project.appendChild(providedObject2);
+
+    GtProjectTestAccess::updateClassModuleIds(project);
+
+    EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtLabel)),
+              QStringLiteral("GtObject"));
+    EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObject)),
+              QStringLiteral("GtObject"));
+    EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObjectGroup)),
+              QStringLiteral("GtObject"));
 }
 
 TEST(GtProject, LoadHelperReadsProcessData)

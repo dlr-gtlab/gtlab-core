@@ -176,13 +176,93 @@ GUI-Library Deprecations
      - 2.0.0
      - Replace with ``emit x->changed()``.
 
+Module ID Requirement for Class Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The overloads of ``GtAbstractObjectFactory::registerClass`` / ``registerClasses``
+without a module ID argument have been removed. Always pass the ID of the providing module:
+
+.. code-block:: cpp
+
+    // old
+    gtObjectFactory->registerClass(GT_METADATA(MyObject));
+
+    // new (preferred)
+    gtObjectFactory->registerClass(GT_METADATA(MyObject), GT_MODULENAME());
+    // or
+    gtObjectFactory->registerClass(GT_METADATA(MyObject), "My Module");
+
+GTlab built-ins use ``GtAbstractObjectFactory::coreModuleId()``
+(``"GTlab"``). This ID is reserved for built-in core classes and must not be used by modules.
+
+Factories whose registration API changed accordingly:
+
+.. rst-class:: compact-table
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50
+   :align: left
+
+   * - **Factory**
+   * - ``GtObjectFactory``
+   * - ``GtFactoryGroup``
+   * - ``GtTaskFactory``
+   * - ``GtCalculatorFactory``
+   * - ``GtCalculatorHelperFactory``
+   * - ``GtExportHandler``
+   * - ``GtImportHandler``
+   * - ``GtPostTemplateFactory``
+
+Further changes to the API of factories:
+
+.. rst-class:: compact-table
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 40 50
+
+   * - **Factory**
+     - **Old Signature**
+     - **New Signature**
+   * - ``GtTaskFactory``
+     - ``registerTaskData(GtTaskData data)``
+     - ``registerTaskData(GtTaskData data, const QString& moduleIdent)``
+   * - ``GtCalculatorFactory``
+     - ``registerCalculatorData(GtCalculatorData data)``
+     - ``registerCalculatorData(GtCalculatorData data, const QString& moduleIdent)``
+   * - ``GtPostTemplateFactory``
+     - ``registerPlots(const QList<QMetaObject>& metaObjects)``
+     - ``registerPlots(const QList<QMetaObject>& metaObjects, const QString& moduleIdent)``
+
+----
+
+Newly Deprecated in 2.1
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following APIs are newly deprecated in GTlab 2.1. They remain available
+during 2.1 and are scheduled for removal in GTlab 2.2:
+
+.. rst-class:: compact-table
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 10 50
+
+   * - **API**
+     - **Since**
+     - **Replacement / Notes**
+   * - ``GtObjectMemento::restore<T*>()``
+     - 2.1.0
+     - Use ``GtObjectMemento::restore_unique<T>()`` instead. It returns a ``std::unique_ptr``, so restored objects cannot leak anymore.
+
 Graphics API
-""""""""""""
+^^^^^^^^^^^^
 
 The API of ``GtGraphicsScene``, ``GtGraphicsView``, ``GtGrid``, and ``GtRuler`` received significant updates. The resulting API changes have been summarized here:
 
 API-breaking Changes
-********************
+""""""""""""""""""""
 
 .. rst-class:: compact-table
 
@@ -213,7 +293,7 @@ API-breaking Changes
      - Replaced with non-public ``GtRuler::cache()`` method (returns ``QPixmap``).
 
 Deprecated API
-**************
+""""""""""""""
 
 .. rst-class:: compact-table
 
@@ -286,7 +366,7 @@ Deprecated API
      - Use ``GtRuler::textSizeHint(QString)``.
 
 Migration Steps
-***************
+"""""""""""""""
 
 1. Replace ``new GtGrid(view)`` with ``new GtGrid(parent)`` and use
    ``GtGraphicsView::setGrid(GtGrid*)`` to transfer ownership.
@@ -321,7 +401,7 @@ The way the grid's visibility has been clarified:
     - ``GtGrid::setActiveAxis(ActiveAxis)`` sets which axis is enabled. Axis are only shown if any axis is enabled and the object itself is visible. Use ``GtGrid::isAxisVisible`` to check if the axis grid is actually visible.
 
 Example Snippets
-****************
+""""""""""""""""
 
 Example (old):
 
@@ -411,25 +491,6 @@ Grid spacing methods:
 
 - ``GtGrid::setGridWidth`` / ``setGridHeight`` -> ``GtGrid::setHSpacing`` / ``setVSpacing`` (or ``GtGrid::setSpacing`` for both).
 - ``GtGrid::scaledGridSpacing`` return a ``GtGridSpacing`` struct with ``hSpacing`` and ``vSpacing`` members denoting the spacing in scene coordinate systems for the current zoom level.
-
-Newly Deprecated in 2.1
-~~~~~~~~~~~~~~~~~~~~~~~
-
-The following APIs are newly deprecated in GTlab 2.1. They remain available
-during 2.1 and are scheduled for removal in GTlab 2.2:
-
-.. rst-class:: compact-table
-
-.. list-table::
-   :header-rows: 1
-   :widths: 40 10 50
-
-   * - **API**
-     - **Since**
-     - **Replacement / Notes**
-   * - ``GtObjectMemento::restore<T*>()``
-     - 2.1.0
-     - Use ``GtObjectMemento::restore_unique<T>()`` instead. It returns a ``std::unique_ptr``, so restored objects cannot leak anymore.
 
 ----
 

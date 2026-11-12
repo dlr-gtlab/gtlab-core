@@ -807,9 +807,8 @@ GtApplication::initFirstRun()
     auto oldConfigPath = gt::settingsConfig(oldVersion, *this).path;
     auto configPath = gt::settingsConfig(newVersion, *this).path;
 
-    if (oldConfigPath != configPath &&
-        QDir(oldConfigPath).exists() &&
-       !QDir(configPath).exists())
+    if (oldConfigPath != configPath && QDir(oldConfigPath).exists() &&
+        !QDir(configPath).exists())
     {
         auto button = QMessageBox::question(nullptr, tr("Migrate configuration"),
                               tr("GTlab found a configuration of an older GTlab"

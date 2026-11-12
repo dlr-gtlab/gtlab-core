@@ -77,7 +77,8 @@ TEST(Issue358, withParentBaseline)
 TEST(Issue358, checkParentExistOnMementoRestore)
 {
     Test358factory factory;
-    factory.registerClass(TestObject358::staticMetaObject);
+    factory.registerClass(TestObject358::staticMetaObject,
+                          QStringLiteral("UnitTest"));
 
     auto mementoStr = R"(
 <object uuid="{parentUID}" class="GtObject">

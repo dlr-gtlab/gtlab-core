@@ -10,6 +10,9 @@
 #include "gt_factorygroup.h"
 #include "gt_object.h"
 #include "gt_objectgroup.h"
+#include "gt_label.h"
+#include "gt_labeldata.h"
+#include "gt_task.h"
 
 namespace
 {
@@ -18,16 +21,27 @@ namespace
     {
     };
 
-} // namespace
+    /// Factory that overrides the registration hook for a single class only
+    class SubclassOverrideFactory : public GtAbstractObjectFactory
+    {
+    public:
+        bool registerClass(QMetaObject metaObj,
+                           const QString& moduleId) override
+        {
+            m_registered << metaObj.className();
+            return GtAbstractObjectFactory::registerClass(metaObj, moduleId);
+        }
 
-TEST(GtAbstractObjectFactory, ExistingRegistrationApiHasNoModuleId)
-{
-    TestObjectFactory factory;
+        QStringList registered() const
+        {
+            return m_registered;
+        }
 
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
-    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
-}
+    private:
+        QStringList m_registered;
+    };
+
+    } // namespace
 
 TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 {
@@ -35,10 +49,20 @@ TEST(GtAbstractObjectFactory, RegistersAndRemovesClassModuleId)
 
     ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
                                       QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("TestModule"));
 
     ASSERT_TRUE(factory.unregisterClass(GT_METADATA(GtObject)));
+    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
+TEST(GtAbstractObjectFactory, EmptyModuleIdIsNotAllowed)
+{
+    TestObjectFactory factory;
+
+    ASSERT_FALSE(factory.registerClass(GT_METADATA(GtObject), QString{}));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObject)));
     EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
@@ -53,14 +77,6 @@ TEST(GtAbstractObjectFactory, BulkRegistrationAssignsModuleId)
               QStringLiteral("TestModule"));
     EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObjectGroup)),
               QStringLiteral("TestModule"));
-}
-
-TEST(GtAbstractObjectFactory, LegacyBulkRegistrationHasNoModuleId)
-{
-    TestObjectFactory factory;
-
-    ASSERT_TRUE(factory.registerClasses({GT_METADATA(GtObject)}));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
 }
 
 TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
@@ -78,11 +94,75 @@ TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
 TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
 {
     TestObjectFactory factory;
-    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
-
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("TestModule")));
     EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
                                          QStringLiteral("TestModule")));
-    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+    EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
+                                         factory.coreModuleId()));
+
+    EXPECT_EQ(factory.moduleId(GT_CLASSNAME(GtObject)),
+              QStringLiteral("TestModule"));
+}
+
+// calling registerClasses calls `registerClass`
+TEST(GtAbstractObjectFactory, BulkRegistrationUsesSubclassOverride)
+{
+    SubclassOverrideFactory factory;
+    GtAbstractObjectFactory& base = factory;
+    const QList<QMetaObject> classes{GT_METADATA(GtObject),
+                                     GT_METADATA(GtObjectGroup)};
+
+    ASSERT_TRUE(base.registerClasses(classes, QStringLiteral("TestModule")));
+
+    const QStringList expected{GT_CLASSNAME(GtObject),
+                               GT_CLASSNAME(GtObjectGroup)};
+    EXPECT_EQ(factory.registered(), expected);
+    EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObjectGroup)),
+              QStringLiteral("TestModule"));
+}
+
+TEST(GtAbstractObjectFactory, ReregisteringKnownClassesFails)
+{
+    TestObjectFactory factory;
+
+    EXPECT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
+
+    // registerClasses does not register partially
+    EXPECT_FALSE(factory.registerClasses(
+        {GT_METADATA(GtObject), GT_METADATA(GtObjectGroup)},
+        QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObjectGroup)));
+
+    EXPECT_TRUE(factory.registerClasses(
+        {GT_METADATA(GtLabel), GT_METADATA(GtLabelData)},
+        QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtLabel)));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtLabelData)));
+
+    EXPECT_FALSE(
+        factory.registerClasses({GT_METADATA(GtLabel), GT_METADATA(GtTask)},
+                                QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtTask)));
+}
+
+TEST(GtAbstractObjectFactory, RegisteringDuplciateClassesFails)
+{
+    TestObjectFactory factory;
+
+    // registerClasses does not register partially
+    EXPECT_FALSE(factory.registerClasses(
+        {GT_METADATA(GtObject), GT_METADATA(GtObjectGroup),
+         GT_METADATA(GtLabel), GT_METADATA(GtLabelData),
+         GT_METADATA(GtObjectGroup), GT_METADATA(GtTask)},
+        QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObject)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObjectGroup)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtLabel)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtLabelData)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtTask)));
 }
 
 TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)

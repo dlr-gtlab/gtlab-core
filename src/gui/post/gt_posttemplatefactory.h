@@ -26,10 +26,12 @@ public:
     static GtPostTemplateFactory* instance();
 
     /**
-     * @brief registerPlot
-     * @param metaObject
+     * @brief registerPlots
+     * @param metaObjects Meta Objects to register
+     * @param moduleIdent Identification of the providing module
      */
-    void registerPlots(const QList<QMetaObject>& metaObjects);
+    void registerPlots(const QList<QMetaObject>& metaObjects,
+                       const QString& moduleIdent);
 
     /**
      * @brief knownPlots

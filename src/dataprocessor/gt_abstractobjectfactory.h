@@ -35,6 +35,15 @@ public:
     virtual ~GtAbstractObjectFactory();
 
     /**
+     * @brief Module id of the classes that are built into GTlab.
+     * Classes registered with this module id are considered as core
+     * classes and do not create module dependencies. Should not be used
+     * by external modules.
+     * @return The built-in core module id
+     */
+    static QString coreModuleId();
+
+    /**
      * @brief newObject - generates gtlab objects based on given classname
      * @param className
      * @param parent object for the new object
@@ -72,16 +81,10 @@ public:
     virtual QStringList knownClasses() const;
 
     /**
-     * @brief registerClass
-     * @param metaObject
-     * @return
-     */
-    virtual bool registerClass(QMetaObject metaObj);
-
-    /**
      * @brief Registers a class and its providing module.
      * @param metaObj Meta object to register.
-     * @param moduleId Identification of the providing module.
+     * @param moduleId Identification of the providing module. Must not be
+     * empty.
      * @return Whether the class was registered successfully.
      */
     virtual bool registerClass(QMetaObject metaObj, const QString& moduleIdent);
@@ -89,22 +92,18 @@ public:
     /**
      * @brief Removes a class from the factory
      * @param metaObj The meta object of the class to remove
-     * @return
+     * @return Returns false if the class was not registered before
      */
     bool unregisterClass(const QMetaObject& metaObj);
 
     /**
-     * @brief registerClasses
-     * @param metaObject
-     * @return
-     */
-    virtual bool registerClasses(const QList<QMetaObject>& metaData);
-
-    /**
      * @brief Registers classes and their providing module.
      * @param metaData Meta objects to register.
-     * @param moduleId Identification of the providing module.
-     * @return Whether all classes were registered successfully.
+     * @param moduleId Identification of the providing module. Must not be
+     * empty.
+     * @return Checks if registration is allowed upfront and returns if
+     * registration is possible. Should not register classes partially.
+     * @note Delegates the registration of each meta object to `registerClass`
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
                                  const QString& moduleIdent);
@@ -117,9 +116,10 @@ public:
     virtual QString moduleId(const QString& className) const;
 
     /**
-     * @brief containsDuplicates
-     * @param plugin
-     * @return
+     * @brief Checks if any class is already registered or is listed multiple
+     * times in the classes to register
+     * @param metaData Classes to check
+     * @return Contains duplicates
      */
     virtual bool containsDuplicates(const QList<QMetaObject>& metaData) const;
 
@@ -217,6 +217,18 @@ protected:
 
     /// debug output indicator
     bool m_silent;
+
+    /**
+     * @brief Returns true if the factory should not log errors
+     * @return Is silent
+     */
+    bool isSilent() const noexcept;
+
+    /**
+     * @brief Sets whether the factory should log errors
+     * @param silent
+     */
+    void setSilent(bool silent = true) noexcept;
 
     /**
      * @brief GtAbstractObjectFactory

@@ -121,8 +121,10 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     gt::registerExecutorType<GtCoreProcessExecutor>();
 
     // register data classes of core lib here
-    gtObjectFactory->registerClass(GT_METADATA(GtProcessData));
-    gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup));
+    gtObjectFactory->registerClass(GT_METADATA(GtProcessData),
+                                   GtAbstractObjectFactory::coreModuleId());
+    gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup),
+                                   GtAbstractObjectFactory::coreModuleId());
 }
 
 GtCoreApplication::~GtCoreApplication()

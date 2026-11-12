@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
 ### Deprecated
+### API Changes
+ - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
+   - Affected factories whose API changed accordingly:
+     - `GtObjectFactory`
+     - `GtFactoryGroup`
+     - `GtTaskFactory`. Also `registerTaskData`.
+     - `GtCalculatorFactory`. Also `registerCalculatorData`.
+     - `GtCalculatorHelperFactory`
+     - `GtExportHandler`
+     - `GtImportHandler`
+     - `GtPostTemplateFactory`. Also `registerPlots`.
 
 ## [2.1.0-alpha.2] - 2026-11-09
 

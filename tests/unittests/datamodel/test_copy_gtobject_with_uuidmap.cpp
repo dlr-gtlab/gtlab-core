@@ -18,7 +18,8 @@ class TestCopyGtObjectWithUuidMapping : public ::testing::Test
 public:
     void SetUp() override
     {
-        gtObjectFactory->registerClass(MyGtObject::staticMetaObject);
+        gtObjectFactory->registerClass(MyGtObject::staticMetaObject,
+                                       QStringLiteral("UnitTest"));
 
         objgroup = new GtObjectGroup;
 

@@ -15,8 +15,12 @@
 #include <QJsonObject>
 #include <QTemporaryDir>
 
+#include <algorithm>
+
+#include "gt_abstractobjectfactory.h"
 #include "gt_calculator.h"
 #include "gt_objectfactory.h"
+#include "gt_objectgroup.h"
 #include "gt_processfactory.h"
 #include "gt_task.h"
 #include "gt_taskgroup.h"
@@ -43,6 +47,19 @@ public:
     }
 };
 
+class MetaDataCoreTestCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MetaDataCoreTestCalculator() = default;
+
+    bool run() override
+    {
+        return true;
+    }
+};
+
 class MetadataTestObject : public GtObject
 {
     Q_OBJECT
@@ -61,6 +78,9 @@ protected:
         ASSERT_TRUE(gtProcessFactory->calculatorFactory()->registerClass(
             MetadataTestCalculator::staticMetaObject,
             QStringLiteral("CalculatorModule")));
+        ASSERT_TRUE(gtProcessFactory->calculatorFactory()->registerClass(
+            MetaDataCoreTestCalculator::staticMetaObject,
+            GtAbstractObjectFactory::coreModuleId()));
         ASSERT_TRUE(gtObjectFactory->registerClass(
             MetadataTestObject::staticMetaObject,
             QStringLiteral("DatamodelModule")));
@@ -72,6 +92,8 @@ protected:
             MetadataTestTask::staticMetaObject);
         gtProcessFactory->calculatorFactory()->unregisterClass(
             MetadataTestCalculator::staticMetaObject);
+        gtProcessFactory->calculatorFactory()->unregisterClass(
+            MetaDataCoreTestCalculator::staticMetaObject);
         gtObjectFactory->unregisterClass(MetadataTestObject::staticMetaObject);
     }
 };
@@ -84,6 +106,8 @@ TEST_F(GtTaskGroupMetadataTest, SavesClassProvidersAndLoadsTask)
     GtTaskGroup group(QStringLiteral("group"), true);
     auto* task = new MetadataTestTask;
     auto* calculator = new MetadataTestCalculator;
+    auto* coreCalculator = new MetaDataCoreTestCalculator;
+    ASSERT_TRUE(task->appendChild(coreCalculator));
     ASSERT_TRUE(task->appendChild(calculator));
     ASSERT_TRUE(group.appendChild(task));
     ASSERT_TRUE(group.save(projectDir.path(), GtTaskGroup::CUSTOM));
@@ -106,6 +130,8 @@ TEST_F(GtTaskGroupMetadataTest, SavesClassProvidersAndLoadsTask)
               QStringLiteral("TaskModule"));
     EXPECT_EQ(mappings.value(QStringLiteral("MetadataTestCalculator")),
               QStringLiteral("CalculatorModule"));
+    EXPECT_EQ(mappings.value(QStringLiteral("MetaDataCoreTestCalculator")),
+              GtAbstractObjectFactory::coreModuleId());
 
     GtTaskGroup loadedGroup(QStringLiteral("group"));
     ASSERT_TRUE(loadedGroup.read(projectDir.path(), GtTaskGroup::CUSTOM));
@@ -120,6 +146,7 @@ TEST_F(GtTaskGroupMetadataTest, PreservesMetadataForMissingNestedClass)
     GtTaskGroup group(QStringLiteral("group"), true);
     auto* task = new MetadataTestTask;
     ASSERT_TRUE(task->appendChild(new MetadataTestCalculator));
+    ASSERT_TRUE(task->appendChild(new MetaDataCoreTestCalculator));
     ASSERT_TRUE(group.appendChild(task));
     ASSERT_TRUE(group.save(projectDir.path(), GtTaskGroup::CUSTOM));
     const QString taskFileName =
@@ -141,6 +168,8 @@ TEST_F(GtTaskGroupMetadataTest, PreservesMetadataForMissingNestedClass)
         gt::xml::readClassModuleMap(doc.documentElement());
     EXPECT_EQ(mappings.value(QStringLiteral("MetadataTestCalculator")),
               QStringLiteral("CalculatorModule"));
+    EXPECT_EQ(mappings.value(QStringLiteral("MetaDataCoreTestCalculator")),
+              GtAbstractObjectFactory::coreModuleId());
 }
 
 TEST_F(GtTaskGroupMetadataTest, SavesNonProcessClassProvider)

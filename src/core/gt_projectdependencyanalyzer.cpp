@@ -9,6 +9,7 @@
 
 #include "gt_project.h"
 #include "gt_objectmemento.h"
+#include "gt_abstractobjectfactory.h"
 #include "gt_objectfactory.h"
 #include "gt_processfactory.h"
 
@@ -94,7 +95,9 @@ GtProjectDependencyAnalyzer::Impl::analyze(const GtProject* project)
     for (const QString& className : qAsConst(m_usedClassNames))
     {
         const QString moduleId = resolveClassModule(className);
-        if (!moduleId.isEmpty())
+
+        if (!moduleId.isEmpty() &&
+            moduleId != GtAbstractObjectFactory::coreModuleId())
         {
             m_directlyRequiredModuleIds.insert(moduleId);
             continue;

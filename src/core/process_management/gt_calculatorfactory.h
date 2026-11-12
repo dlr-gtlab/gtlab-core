@@ -37,12 +37,11 @@ public:
     /**
      * @brief Registers calculator data to factory.
      * @param calcData New calculstor data.
+     * @param moduleIdent Identification of the providing module.
      * @return Returns true if calculstor data was successfully added.
      */
-    virtual bool registerCalculatorData(GtCalculatorData calcData);
-
     virtual bool registerCalculatorData(GtCalculatorData calcData,
-                                        const QString& moduleId);
+                                        const QString& moduleIdent);
 
     /**
      * @brief Returns full list of registered calculator data.
@@ -74,7 +73,6 @@ private:
      * @param parent Parent object.
      */
     explicit GtCalculatorFactory(QObject* parent = nullptr);
-
 };
 
 #endif // GTCALCULATORFACTORY_H

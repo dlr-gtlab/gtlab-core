@@ -116,7 +116,8 @@ namespace
     public:
         RegisteredTestOperation()
         {
-            gtObjectFactory->registerClass(GT_METADATA(TestOperation));
+            gtObjectFactory->registerClass(GT_METADATA(TestOperation),
+                                           QStringLiteral("UnitTest"));
         }
 
         ~RegisteredTestOperation()
