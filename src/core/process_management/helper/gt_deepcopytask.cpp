@@ -56,7 +56,8 @@ deepCopyTask(GtTask* taskOrig)
         return {};
     }
 
-
+    // TODO: Currently, any failure to transfer connections or relative object links will fail the whole deep copy process.
+    // Decide if this is desired.
     if (!transferPropertyConnectionsViaMapping(*taskOrig, *copiedTask.get(),
                                                uuidMap))
     {
@@ -119,6 +120,15 @@ transferPropertyConnectionsViaMapping(GtTask& taskOrig, GtTask& taskCopy,
             uuidMap.containsOriginalUuid(origTargetUuid))
         {
             con->makeConnection();
+
+            if(!con->isConnected())
+            {
+                gtError() << "Failed to establish transferred connection: " + con->objectName() +
+                             "\n      |-> " + origSrcUuid + "(" +
+                             con->sourceProp() + ")" + " -> " + origTargetUuid +
+                             "(" + con->targetProp() + ")";
+                transferAllOk = false;
+            }
         }
         else
         {
@@ -148,9 +158,9 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject& objCopy,
 {
     bool retval = true;
 
-    for (auto prop : qAsConst(objCopy.properties()))
+    for (auto propRelLink : objCopy.findDirectChildren<GtRelativeObjectLinkProperty*>())
     {
-        auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
+        //auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
         if (propRelLink && propRelLink->getVal() != "")
         {
@@ -158,12 +168,13 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject& objCopy,
 
             if (!uuidMap.containsOriginalUuid(originalUuid))
             {
-                gtError()
-                    << &objCopy << " with uuid" << objCopy.uuid()
-                    << ": Could not transfer " << propRelLink
-                    << ", original linked UUID" << originalUuid
-                    << "not found in original process component structure";
-                retval = false;
+                //TODO: decide on strict mode
+                // gtWarning()
+                //     << &objCopy << " with uuid" << objCopy.uuid()
+                //     << ": Could not transfer " << propRelLink
+                //     << ", original linked UUID" << originalUuid
+                //     << "not found in original process component structure";
+                // retval = false;
                 continue;
             }
 

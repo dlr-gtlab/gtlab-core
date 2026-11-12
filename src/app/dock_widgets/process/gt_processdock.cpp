@@ -1601,37 +1601,31 @@ processComponentCloneCopyHelper(GtProcessComponent* pComp)
 } // namespace
 
 
-void
+bool
 GtProcessDock::copyElement(const QModelIndex& index)
 {
     bool ok;
     auto pComp = processComponentIndexToObjectHelper(this, index, &ok);
     if (!ok || !pComp)
     {
-        return;
+        return false;
     }
 
     auto copy = processComponentCloneCopyHelper(pComp);
     if (!copy)
     {
-        return;
+        return false;
     }
 
-    if (auto* task = qobject_cast<GtTask*>(pComp))
-    {
-        gt::utils::process::printWarningForLostPropertyConnections(*task, true);
-    }
+    auto* task = qobject_cast<GtTask*>(pComp);
 
-    if (auto* copiedTask = qobject_cast<GtTask*>(copy))
-    {
-        gt::utils::process::printWarningForLostPropertyConnections(*copiedTask,
-                                                                   true);
-    }
+    auto* copiedTask = qobject_cast<GtTask*>(copy);
 
     QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
 
     delete copy;
+    return true;
 }
 
 void
@@ -1685,7 +1679,11 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
 
     //TODO: needs more refactoring here
-    copyElement(index);
+    if(!copyElement(index))
+    {
+        gtError() << "Could not cut process element";
+        return;
+    }
 
     QList<GtObject*> toDelete;
 
@@ -1813,7 +1811,7 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
     }
 }
 
-void
+bool
 GtProcessDock::pasteElement(GtObject* parent)
 {
     QClipboard* clipboard = QApplication::clipboard();
@@ -1826,7 +1824,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     if (!obj)
     {
         gtError() << tr("Could not restore object from clipboard!");
-        return;
+        return false;
     }
 
     GtObject* obj2 = nullptr;
@@ -1842,7 +1840,7 @@ GtProcessDock::pasteElement(GtObject* parent)
         if (!taskCopy)
         {
             delete obj;
-            return;
+            return false;
         }
 
         obj2 = qobject_cast<GtObject*>(taskCopy.release());
@@ -1851,6 +1849,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     {
         obj2 = obj->copy();
     }
+    delete obj;
 
     if (!qobject_cast<GtTaskGroup*>(parent))
     {
@@ -1858,35 +1857,40 @@ GtProcessDock::pasteElement(GtObject* parent)
 
         if (!pComp)
         {
-            delete obj;
-            return;
+            delete obj2;
+            return false;
         }
 
         if (!pComp->isReady())
         {
-            delete obj;
-            return;
+            delete obj2;
+            return false;
         }
     }
 
-    pasteElement(obj2, parent);
-    delete obj;
+    if(!pasteElement(obj2, parent))
+    {
+        delete obj2;
+        return false;
+    }
+
+    return true;
 }
 
-void
+bool
 GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 {
-    if (!obj || !parent) return;
+    if (!obj || !parent) return false;
 
-    if (qobject_cast<GtCalculator*>(parent)) return;
+    if (qobject_cast<GtCalculator*>(parent)) return false;
 
     if (!qobject_cast<GtTaskGroup*>(parent))
     {
         auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
-        if (!pComp) return;
+        if (!pComp) return false;
 
-        if (!pComp->isReady()) return;
+        if (!pComp->isReady()) return false;
     }
 
     // create new unique identification string
@@ -1900,18 +1904,12 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     auto pasteCmd = gtApp->makeCommand(parent,
                                        tr("Paste process element"));
 
-    /*auto const propCons = obj->findChildren<GtPropertyConnection*>();
-
-    for (GtPropertyConnection* propCon : propCons)
-    {
-        propCon->setParent(nullptr);
-    }*/
 
     auto procComp = qobject_cast<GtProcessComponent*>(obj);
     if (!procComp)
     {
         gtError() << "Pasted object is not a GtProcessComponent";
-        return;
+        return false;
     }
 
     bool success = false;
@@ -1921,7 +1919,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     if (!success)
     {
         gtError() << "Pasting was not successful";
-        return;
+        return false;
     }
 
     pasteCmd.finalize();
@@ -1939,36 +1937,38 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
                                          QItemSelectionModel::ClearAndSelect);
         m_view->setCurrentIndex(index);
     }
+
+    return true;
 }
 
-void
+bool
 GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 {
     if (!parentIndex.isValid())
     {
-        return;
+        return false;
     }
 
     QModelIndex srcParentIndex = mapToSource(parentIndex);
 
     if (!srcParentIndex.isValid())
     {
-        return;
+        return false;
     }
 
     if (srcParentIndex.model() != gtDataModel)
     {
-        return;
+        return false;
     }
 
     GtObject* parent = gtDataModel->objectFromIndex(srcParentIndex);
 
     if (!parent)
     {
-        return;
+        return false;
     }
 
-    pasteElement(parent);
+    return pasteElement(parent);
 }
 
 void

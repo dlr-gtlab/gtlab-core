@@ -29,7 +29,6 @@ namespace process
  * @param sourceProperty ident of the source property
  * @param targetComponent Target task or calculator
  * @param targetProperty ident of the target property
- * @param ok Optional argument for a bool pointer, returns whether the connection could be made
  * @return The new property connection
  */
 GT_CORE_EXPORT GtPropertyConnection* makePropertyConnection(

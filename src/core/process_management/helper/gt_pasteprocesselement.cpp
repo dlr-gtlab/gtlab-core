@@ -25,11 +25,17 @@ bool
 pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child,
                             bool useGtDataModel = false,
                             QModelIndex* modelIndex = nullptr)
-{
-
+{   
     if (useGtDataModel)
     {
         auto newIndex = gtDataModel->appendChild(child, targetParent);
+
+        if (!newIndex.isValid())
+        {
+            gtError() << "Pasting process component failed!";
+            return false;
+        }
+
         if (modelIndex)
         {
             *modelIndex = newIndex;
