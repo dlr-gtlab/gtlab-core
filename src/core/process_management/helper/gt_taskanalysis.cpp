@@ -54,35 +54,25 @@ findRootTask(GtProcessComponent* processComponent)
 }
 
 
-const PropertyConnectionAnalysis
-analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok)
+const std::optional<PropertyConnectionAnalysis>
+analyzePropertyConnectionsRelationship(GtProcessComponent& pComp)
 {
-    if (ok)
-    {
-        *ok = false;
-    }
-
-    PropertyConnectionAnalysis retVal;
-
-    if (!pComp)
-    {
-        return retVal;
-    }
-
-    auto rootTask = findRootTask(pComp);
+    auto rootTask = findRootTask(&pComp);
 
     if (!rootTask)
     {
-        return retVal;
+        return {};
     }
 
     auto allPropCons = rootTask->findChildren<GtPropertyConnection*>();
 
-    const auto descendants = pComp->findChildren<GtProcessComponent*>();
+    const auto descendants = pComp.findChildren<GtProcessComponent*>();
     QList<const GtProcessComponent*> internalProcComps;
     std::copy(descendants.cbegin(), descendants.cend(),
               std::back_inserter(internalProcComps));
-    internalProcComps.append(pComp);
+    internalProcComps.append(&pComp);
+
+    PropertyConnectionAnalysis retVal;
 
     foreach (auto propCon, allPropCons)
     {
@@ -127,10 +117,6 @@ analyzePropertyConnectionsRelationship(GtProcessComponent* pComp, bool* ok)
         }
     }
 
-    if (ok)
-    {
-        *ok = true;
-    }
     return retVal;
 }
 
@@ -165,27 +151,26 @@ printPropConAnalysis(const PropertyConnectionAnalysis& x)
 }
 
 void
-printWarningForLostPropertyConnections(GtTask* task, bool verbose)
+printWarningForLostPropertyConnections(GtTask& task, bool verbose)
 {
-    bool ok1 = false;
-    auto allCons = analyzePropertyConnectionsRelationship(task, &ok1);
-    if (!ok1)
+    auto allCons = analyzePropertyConnectionsRelationship(task);
+    if (!allCons.has_value())
     {
         gtError() << "Analyzing the task property connections of task failed.";
         return;
     }
 
-    printWarningForLostPropertyConnections(task, allCons, verbose);
+    printWarningForLostPropertyConnections(task, allCons.value(), verbose);
 }
 
 void
 printWarningForLostPropertyConnections(
-    GtTask* task, const PropertyConnectionAnalysis& allCons, bool verbose)
+    GtTask& task, const PropertyConnectionAnalysis& allCons, bool verbose)
 {
 
     if (allCons.external.size() > 0)
     {
-        gtWarning() << "Task" << task->objectName()
+        gtWarning() << "Task" << task.objectName()
                     << "has property connection(s) to outside process "
                        "component, lost during copying";
     }
@@ -193,14 +178,14 @@ printWarningForLostPropertyConnections(
     if (allCons.stale.size() > 0)
     {
         gtWarning()
-            << "Task" << task->objectName()
+            << "Task" << task.objectName()
             << "has stale property connection(s), source OR target missing";
     }
 
     if (allCons.obsolete.size() > 0)
     {
         gtWarning()
-            << "Task" << task->objectName()
+            << "Task" << task.objectName()
             << "has obsolete property connection(s), source AND target missing";
     }
 

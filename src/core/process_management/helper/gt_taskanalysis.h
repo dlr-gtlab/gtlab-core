@@ -11,6 +11,7 @@
 #include "gt_core_exports.h"
 
 #include <QList>
+#include <optional>
 
 class GtPropertyConnection;
 class GtTask;
@@ -43,7 +44,7 @@ struct GT_CORE_EXPORT PropertyConnectionAnalysis
 };
 
 /**
- * @brief highestParentTask
+ * @brief Find the highest parent task which is the root task
  * @param processComponent
  * @return
  */
@@ -54,9 +55,8 @@ GT_CORE_EXPORT GtTask* findRootTask(GtProcessComponent* processComponent);
  * @param task
  * @return
  */
-GT_CORE_EXPORT const PropertyConnectionAnalysis
-analyzePropertyConnectionsRelationship(GtProcessComponent* pComp,
-                                       bool* ok = nullptr);
+GT_CORE_EXPORT const std::optional<PropertyConnectionAnalysis>
+analyzePropertyConnectionsRelationship(GtProcessComponent& pComp);
 
 
 /**
@@ -66,9 +66,9 @@ analyzePropertyConnectionsRelationship(GtProcessComponent* pComp,
  * @param verbose Output the connections analysis at the end
  */
 GT_CORE_EXPORT void printWarningForLostPropertyConnections(
-    GtTask* task, bool verbose = false);
+    GtTask& task, bool verbose = false);
 GT_CORE_EXPORT void printWarningForLostPropertyConnections(
-    GtTask* task, const PropertyConnectionAnalysis& allCons,
+    GtTask& task, const PropertyConnectionAnalysis& allCons,
     bool verbose = false);
 
 
