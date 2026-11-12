@@ -65,11 +65,19 @@ makePropertyConnection(GtProcessComponent& sourceComponent,
         return nullptr;
     }
 
+    auto targetPropertyObj = targetComponent.findProperty(targetProperty);
+
+    if (targetPropertyObj->isConnected())
+    {
+        gtError() << "Target property already connected:" << targetProperty << ", target process component:" << &targetComponent;
+        return nullptr;
+    }
+
     GtPropertyConnection* c = new GtPropertyConnection;
     c->setSourceUuid(sourceComponent.uuid());
     c->setSourceProp(sourceComponent.findProperty(sourceProperty)->ident());
     c->setTargetUuid(targetComponent.uuid());
-    c->setTargetProp(targetComponent.findProperty(targetProperty)->ident());
+    c->setTargetProp(targetPropertyObj->ident());
     rootTaskSrc->appendChild(c);
     c->makeConnection();
 
