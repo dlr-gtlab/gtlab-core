@@ -21,6 +21,7 @@
 #include <QTemporaryDir>
 
 #include <memory>
+#include <optional>
 
 class GtProjectTestAccess
 {
@@ -55,7 +56,20 @@ class TestProjectObjectFactory : public GtAbstractObjectFactory
 {
 };
 
-static bool writeProjectFile(const QString& dirPath, const QString& projectName)
+struct GtProjectHelperConfig
+{
+    // Use the running framework version by default; an empty value makes a
+    // legacy project without a core-ver element.
+    std::optional<QString> coreVersion;
+    // Nullopt omits the comment element; the default writes an empty one.
+    std::optional<QString> comment = QString{};
+    // Optional XML fragment inserted after the module list.
+    std::optional<QString> additionalMetadata;
+};
+
+static bool
+writeProjectFile(const QString& dirPath, const QString& projectName,
+                 const GtProjectHelperConfig& config = {})
 {
     QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
@@ -63,39 +77,8 @@ static bool writeProjectFile(const QString& dirPath, const QString& projectName)
         return false;
     }
 
-    const QByteArray data = QString(
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        "<GTLAB projectname=\"%1\" version=\"1.7.0-rc1\">\n"
-        "    <env-footprint>\n"
-        "        <modules/>\n"
-        "    </env-footprint>\n"
-        "    <comment/>\n"
-        "    <MODULES/>\n"
-        "    <PROCESSES/>\n"
-        "    <LABELS/>\n"
-        "</GTLAB>\n")
-        .arg(projectName)
-        .toUtf8();
-
-    return file.write(data) == data.size();
-}
-
-static bool
-writeProjectFileWithCoreVersion(const QString& dirPath,
-                                const QString& projectName,
-                                const QString& coreVersion,
-                                const QString& comment = {},
-                                bool includeComment = true)
-{
-    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate |
-                   QIODevice::Text))
-    {
-        return false;
-    }
-
-    // an empty core version produces a legacy project file without
-    // core-ver element (i.e. an empty environment footprint)
+    const QString coreVersion =
+        config.coreVersion.value_or(GtCoreApplication::version().toString());
     const QString fileVersion =
         coreVersion.isEmpty() ? QStringLiteral("1.7.0-rc1") : coreVersion;
     const QString coreVerElement =
@@ -104,8 +87,12 @@ writeProjectFileWithCoreVersion(const QString& dirPath,
             : QStringLiteral("        <core-ver>%1</core-ver>\n")
                   .arg(coreVersion);
     const QString commentElement =
-        includeComment
-            ? QStringLiteral("    <comment>%1</comment>\n").arg(comment)
+        config.comment
+            ? QStringLiteral("    <comment>%1</comment>\n").arg(*config.comment)
+            : QString();
+    const QString metadataElement =
+        config.additionalMetadata
+            ? QStringLiteral("    %1\n").arg(*config.additionalMetadata)
             : QString();
 
     const QByteArray data =
@@ -117,30 +104,20 @@ writeProjectFileWithCoreVersion(const QString& dirPath,
                 "    </env-footprint>\n"
                 "%4"
                 "    <MODULES/>\n"
+                "%5"
                 "    <PROCESSES/>\n"
                 "    <LABELS/>\n"
                 "</GTLAB>\n")
-            .arg(projectName, fileVersion, coreVerElement)
-            .arg(commentElement)
+            .arg(projectName, fileVersion, coreVerElement, commentElement,
+                 metadataElement)
             .toUtf8();
 
     return file.write(data) == data.size();
 }
 
-static bool writeProjectFileWithClassModules(const QString& dirPath)
-{
-    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
-    {
-        return false;
-    }
-    const QByteArray data = R"(
-<GTLAB projectname="ClassModuleTest" version="2.1.0">
-<env-footprint><modules/></env-footprint>
-<MODULES/><METADATA><CLASS-PROVIDERS><MODULE name="AQuiteLongModuleId">
-<CLASS name="UnknownClass"/></MODULE></CLASS-PROVIDERS></METADATA></GTLAB>)";
-    return file.write(data) == data.size();
-}
+const QString classModuleMetadata = QStringLiteral(
+    "<METADATA><CLASS-PROVIDERS><MODULE name=\"AQuiteLongModuleId\">"
+    "<CLASS name=\"UnknownClass\"/></MODULE></CLASS-PROVIDERS></METADATA>");
 
 static bool writeTaskFileWithClassModules(const QString& dirPath)
 {
@@ -163,30 +140,12 @@ TEST(GtProject, commentMethodReturnsStoredComment)
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
 
-    QString projectPath = tempDir.path();
-    QString projectFile = projectPath + QDir::separator() + GtProject::mainFilename();
+    GtProjectHelperConfig config;
+    config.comment = QStringLiteral("This is a test comment");
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("CommentTest"),
+                                 config));
 
-    // Create project file with a comment
-    QFile file(projectFile);
-    ASSERT_TRUE(file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text));
-
-    const QByteArray data = QString(
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        "<GTLAB projectname=\"CommentTest\" version=\"1.7.0-rc1\">\n"
-        "    <env-footprint>\n"
-        "        <modules/>\n"
-        "    </env-footprint>\n"
-        "    <comment>This is a test comment</comment>\n"
-        "    <MODULES/>\n"
-        "    <PROCESSES/>\n"
-        "    <LABELS/>\n"
-        "</GTLAB>\n")
-        .toUtf8();
-
-    ASSERT_EQ(file.write(data), data.size());
-    file.close();
-
-    TestProject project(projectPath);
+    TestProject project(tempDir.path());
     EXPECT_EQ(project.comment(), QStringLiteral("This is a test comment"));
 }
 
@@ -345,7 +304,10 @@ TEST(GtProject, ReadsClassModuleMappings)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
-    ASSERT_TRUE(writeProjectFileWithClassModules(tempDir.path()));
+    GtProjectHelperConfig config;
+    config.additionalMetadata = classModuleMetadata;
+    ASSERT_TRUE(writeProjectFile(tempDir.path(),
+                                 QStringLiteral("ClassModuleTest"), config));
     TestProject project(tempDir.path());
     EXPECT_EQ(project.classModuleId(QStringLiteral("UnknownClass")),
               QStringLiteral("AQuiteLongModuleId"));
@@ -369,7 +331,10 @@ TEST(GtProject, ProjectMappingsWinAndInvalidTaskFilesAreIgnored)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
-    ASSERT_TRUE(writeProjectFileWithClassModules(tempDir.path()));
+    GtProjectHelperConfig config;
+    config.additionalMetadata = classModuleMetadata;
+    ASSERT_TRUE(writeProjectFile(tempDir.path(),
+                                 QStringLiteral("ClassModuleTest"), config));
     ASSERT_TRUE(writeTaskFileWithClassModules(tempDir.path()));
 
     QDir taskDir(tempDir.path() + QStringLiteral("/tasks"));
@@ -516,10 +481,10 @@ TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
-    ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        tempDir.path(), QStringLiteral("RestoreUpgradeTest"),
-        GtCoreApplication::version().toString(),
-        QStringLiteral("Comment before restore")));
+    GtProjectHelperConfig projectConfig;
+    projectConfig.comment = QStringLiteral("Comment before restore");
+    ASSERT_TRUE(writeProjectFile(
+        tempDir.path(), QStringLiteral("RestoreUpgradeTest"), projectConfig));
 
     TestProject project(tempDir.path());
     EXPECT_FALSE(project.upgradesAvailable());
@@ -528,9 +493,11 @@ TEST(GtProject, restoreBackupMarksOutdatedBackupAsUpgradeAvailable)
     const QString backupDir = tempDir.path() + QDir::separator() + "backup" +
                               QDir::separator() + timeStamp;
     ASSERT_TRUE(QDir().mkpath(backupDir));
-    ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        backupDir, QStringLiteral("RestoreUpgradeTest"), QString(), QString(),
-        false));
+    GtProjectHelperConfig backupConfig;
+    backupConfig.coreVersion = QString{};
+    backupConfig.comment = std::nullopt;
+    ASSERT_TRUE(writeProjectFile(
+        backupDir, QStringLiteral("RestoreUpgradeTest"), backupConfig));
 
     EXPECT_EQ(project.restoreBackupFiles(timeStamp),
               GtProject::RestoreStatus::Success);
@@ -551,10 +518,10 @@ TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
-    ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        tempDir.path(), QStringLiteral("RestoreCurrentTest"),
-        GtCoreApplication::version().toString(),
-        QStringLiteral("Original comment")));
+    GtProjectHelperConfig projectConfig;
+    projectConfig.comment = QStringLiteral("Original comment");
+    ASSERT_TRUE(writeProjectFile(
+        tempDir.path(), QStringLiteral("RestoreCurrentTest"), projectConfig));
 
     TestProject project(tempDir.path());
     EXPECT_FALSE(project.upgradesAvailable());
@@ -563,10 +530,10 @@ TEST(GtProject, restoreBackupKeepsUpgradeAvailabilityForCurrentBackup)
     const QString backupDir = tempDir.path() + QDir::separator() + "backup" +
                               QDir::separator() + timeStamp;
     ASSERT_TRUE(QDir().mkpath(backupDir));
-    ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        backupDir, QStringLiteral("RestoreCurrentTest"),
-        GtCoreApplication::version().toString(),
-        QStringLiteral("Restored comment")));
+    GtProjectHelperConfig backupConfig;
+    backupConfig.comment = QStringLiteral("Restored comment");
+    ASSERT_TRUE(writeProjectFile(
+        backupDir, QStringLiteral("RestoreCurrentTest"), backupConfig));
 
     EXPECT_EQ(project.restoreBackupFiles(timeStamp),
               GtProject::RestoreStatus::Success);
@@ -580,10 +547,10 @@ TEST(GtProject, restoreBackupRejectsInvalidProjectMetadata)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
-    ASSERT_TRUE(writeProjectFileWithCoreVersion(
-        tempDir.path(), QStringLiteral("InvalidRestoreTest"),
-        GtCoreApplication::version().toString(),
-        QStringLiteral("Original comment")));
+    GtProjectHelperConfig projectConfig;
+    projectConfig.comment = QStringLiteral("Original comment");
+    ASSERT_TRUE(writeProjectFile(
+        tempDir.path(), QStringLiteral("InvalidRestoreTest"), projectConfig));
 
     TestProject project(tempDir.path());
     const QString timeStamp = QStringLiteral("20240101000002");
