@@ -421,6 +421,13 @@ mementosByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
 } // namespace
 
 bool
+GtObjectMementoDiff::areByteIdentical(const GtObjectMemento& left,
+                                      const GtObjectMemento& right)
+{
+    return mementosByteIdentical(left, right);
+}
+
+bool
 GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
                               const GtObjectMemento& rightOrig,
                               QDomElement& diffRoot)

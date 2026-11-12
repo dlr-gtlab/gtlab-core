@@ -72,6 +72,22 @@ public:
             GtObject* parent);
 
     /**
+     * @brief Checks if the two mementos are strictly byte identical, i.e.
+     * their class name, uuid, ident, all properties (name, active state,
+     * data type, data bytes) and the complete child tree match.
+     *
+     * A byte identical pair is guaranteed to yield an empty diff
+     * (this is the precondition of the byte identical fast path of
+     * GtObjectMementoDiff).
+     *
+     * @param left memento to compare
+     * @param right memento to compare
+     * @return true if both mementos are byte identical
+     */
+    static bool areByteIdentical(const GtObjectMemento& left,
+                                 const GtObjectMemento& right);
+
+    /**
      * @brief appendDiff
      * @param diff
      * @return

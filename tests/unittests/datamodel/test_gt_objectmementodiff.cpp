@@ -16,7 +16,58 @@
 #include "gt_object.h"
 #include "test_gt_object.h"
 #include "gt_objectfactory.h"
+#include "gt_externalizationmanager.h"
+#include "test_externalizedobject.h"
 
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
+
+namespace
+{
+
+/// Custom metatype without a QDataStream operator: the memento storage
+/// falls back to generic type-only bytes for values of this type.
+struct NonStreamableStruct
+{
+    int i{0};
+    double d{0.0};
+};
+Q_DECLARE_METATYPE(NonStreamableStruct)
+
+static_assert(sizeof(double) == sizeof(std::uint64_t),
+              "double bit helpers require 64 bit doubles");
+
+std::uint64_t
+doubleBits(double value)
+{
+    std::uint64_t bits;
+    std::memcpy(&bits, &value, sizeof(bits));
+    return bits;
+}
+
+double
+doubleFromBits(std::uint64_t bits)
+{
+    double value;
+    std::memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+
+/// quiet NaN with an explicit payload
+double
+makeNan(std::uint64_t payload)
+{
+    return doubleFromBits(0x7ff8000000000000ull
+                          | (payload & 0x0007ffffffffffffull));
+}
+
+} // namespace
 
 /// This is a test fixture that does a init for each test
 class TestGtObjectMementoDiff : public ::testing::Test
