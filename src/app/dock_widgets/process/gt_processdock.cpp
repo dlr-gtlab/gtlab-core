@@ -1176,6 +1176,12 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
     };
 
     auto isEnabled = [=](GtObject*){
+        auto* task = qobject_cast<GtTask*>(obj);
+        if (!qobject_cast<GtTaskGroup*>(obj) && (!task || !task->isReady()))
+        {
+            return false;
+        }
+
         auto* clipboard = QApplication::clipboard();
         auto const* mimeData = clipboard->mimeData();
 
@@ -1877,8 +1883,8 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
-                    gtProcessFactory);
+    std::unique_ptr<GtObject> obj{gtDataModel->objectFromMimeData(
+        mimeData, true, gtProcessFactory)};
 
     if (!obj)
     {
@@ -1901,7 +1907,11 @@ GtProcessDock::pasteElement(GtObject* parent)
         }
     }
 
-    pasteElement(obj, parent);
+    pasteElement(obj.get(), parent);
+    if (parent && obj->parent() == parent)
+    {
+        obj.release(); // ownership transferred to the destination
+    }
 }
 
 void

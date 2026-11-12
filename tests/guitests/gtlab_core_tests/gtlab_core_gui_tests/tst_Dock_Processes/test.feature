@@ -118,6 +118,7 @@ Feature: Test specific features of the process dock
          Then the action 'Paste' is enabled
          When the action 'Paste' is activated
          Then the paste target has 1 additional children
+          And the pasted component is a 'task' named 'New Task'
          # Copy the selected child task and paste it back as a sibling subtask.
          When the context menu of the selected process is opened
           And the action 'Copy' is activated
@@ -126,9 +127,11 @@ Feature: Test specific features of the process dock
          Then the action 'Paste' is enabled
          When the action 'Paste' is activated
          Then the paste target has 2 additional children
+          And the pasted component is a 'task' named 'New Task[2]'
          When the remembered paste target is selected
           And Ctrl+V is pressed in the process view
          Then the paste target has 3 additional children
+          And the pasted component is a 'task' named 'New Task[3]'
 
 
     Scenario: Pasting calculators preserves destination restrictions
@@ -158,9 +161,11 @@ Feature: Test specific features of the process dock
          Then the action 'Paste' is enabled
          When the action 'Paste' is activated
          Then the paste target has 2 additional children
+          And the pasted component is a 'calculator' named 'Sleep[2]'
          When the remembered paste target is selected
           And Ctrl+V is pressed in the process view
          Then the paste target has 3 additional children
+          And the pasted component is a 'calculator' named 'Sleep[3]'
          # The pasted calculator is selected; calculators cannot contain children.
          When the selected process is remembered as the paste target
           And the context menu of the selected process is opened
@@ -168,3 +173,19 @@ Feature: Test specific features of the process dock
          When the process context menu is dismissed
           And Ctrl+V is pressed in the process view
          Then the paste target has 0 additional children
+         # Copied tasks must not be offered to a running destination.
+         Then the process element 'New Task' exists
+         When the process element is selected
+          And the selected process is remembered as the paste target
+          And the context menu of the selected process is opened
+          And the action 'Copy' is activated
+          And the context menu of the selected process is opened
+          And the action 'Run Task' is activated
+         Then wait 1 seconds
+         When the context menu of the selected process is opened
+         Then the action 'Paste' is disabled
+         When the process context menu is dismissed
+          And Ctrl+V is pressed in the process view
+         Then the paste target has 0 additional children
+         When the context menu of the selected process is opened
+          And the action 'Stop Task' is activated

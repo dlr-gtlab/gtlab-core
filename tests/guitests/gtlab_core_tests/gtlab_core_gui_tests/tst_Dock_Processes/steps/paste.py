@@ -47,3 +47,22 @@ def verify_paste_child_count(context, count):
     expected = context.paste_child_count + int(count)
     test.verify(waitFor(lambda: paste_process_view().model().rowCount(
         context.paste_target) == expected))
+
+
+@Then("the pasted component is a '|word|' named '|any|'")
+def verify_pasted_component(context, component_type, name):
+    view = paste_process_view()
+    index = view.currentIndex()
+    test.compare(str(index.data(Qt.DisplayRole)), name)
+    test.compare(index.parent().row(), context.paste_target.row())
+    test.compare(index.parent().data(Qt.DisplayRole),
+                 context.paste_target.data(Qt.DisplayRole))
+
+    # The Add submenu is present only for tasks in processContextMenu().
+    # Check the selected child's type through its UI, without a test-only API.
+    open_selected_process_menu(context)
+    menu = waitForObject({'type': 'QMenu', 'visible': True})
+    has_task_menu = object.exists({'type': 'QMenu', 'title': 'Add...',
+                                   'container': menu})
+    test.compare(has_task_menu, component_type == 'task')
+    dismiss_process_menu(context)
