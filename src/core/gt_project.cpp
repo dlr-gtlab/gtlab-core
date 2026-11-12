@@ -505,13 +505,13 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     auto rollbackGuard = gt::finally([&]() { rollback(); });
 
     // stash files, since the backup might fail
-    const auto failedStash = std::find_if(
-        projectFiles.cbegin(), projectFiles.cend(),
-        [&stash](const QString& file) { return !stash(file); });
+    const auto failedStash =
+        std::find_if(projectFiles.cbegin(), projectFiles.cend(),
+                     [&stash](const QString& file) { return !stash(file); });
     if (failedStash != projectFiles.cend())
     {
-        gtError().nospace().noquote() << "Failed to stash '" << *failedStash
-                                      << "'";
+        gtError().nospace().noquote()
+            << "Failed to stash '" << *failedStash << "'";
         // try to undo partial stash best-effort
         return S::ErrorCopyFailed;
     }
