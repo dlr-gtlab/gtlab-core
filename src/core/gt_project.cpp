@@ -8,6 +8,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <algorithm>
+
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
@@ -503,15 +505,15 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     auto rollbackGuard = gt::finally([&]() { rollback(); });
 
     // stash files, since the backup might fail
-    // cppcheck-suppress useStlAlgorithm
-    for (const auto& file : projectFiles)
+    const auto failedStash = std::find_if(
+        projectFiles.cbegin(), projectFiles.cend(),
+        [&stash](const QString& file) { return !stash(file); });
+    if (failedStash != projectFiles.cend())
     {
-        if (!stash(file))
-        {
-            gtError().nospace().noquote() << "Failed to stash '" << file << "'";
-            // try to undo partial stash best-effort
-            return S::ErrorCopyFailed;
-        }
+        gtError().nospace().noquote() << "Failed to stash '" << *failedStash
+                                      << "'";
+        // try to undo partial stash best-effort
+        return S::ErrorCopyFailed;
     }
 
     if (gt::project::copyProjectData(backupDir, projectDir,
