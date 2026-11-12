@@ -102,7 +102,7 @@ public:
      * @param moduleId Identification of the providing module. Must not be
      * empty.
      * @return Checks if registration is allowed upfront and returns if
-     * registration is possible.
+     * registration is possible. Should not register classes partially.
      * @note Delegates the registration of each meta object to `registerClass`
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData,
@@ -116,9 +116,10 @@ public:
     virtual QString moduleId(const QString& className) const;
 
     /**
-     * @brief containsDuplicates
-     * @param plugin
-     * @return
+     * @brief Checks if any class is already registered or is listed multiple
+     * times in the classes to register
+     * @param metaData Classes to check
+     * @return Contains duplicates
      */
     virtual bool containsDuplicates(const QList<QMetaObject>& metaData) const;
 

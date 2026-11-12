@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <typeindex>
 #include <vector>
+#include <cstring>
 
 namespace
 {
@@ -173,8 +174,8 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
     {
         if (!isSilent())
         {
-            gtWarning() << QObject::tr("Failed to register class '%1', "
-                                       "invalid module id!")
+            gtWarning() << QObject::tr("Invalid module id, failed to register "
+                                       "class '%1'!")
                                .arg(classname);
         }
         return false;
@@ -270,16 +271,37 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 bool
 GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
-    const auto duplicate = std::find_if(
+    // check if any class in factory is known
+    const auto known = std::find_if(
         metaData.begin(), metaData.end(), [this](const QMetaObject& mobj) {
             const QString classname = mobj.className();
             return knownClass(classname);
         });
-    const bool hasDuplicate = duplicate != metaData.end();
-    if (hasDuplicate && !isSilent())
+    const bool hasKnownClass = known != metaData.end();
+    if (hasKnownClass)
     {
-        gtWarning() << QObject::tr("class '%1' already exists!")
-                           .arg(duplicate->className());
+        if (isSilent())
+        {
+            gtWarning() << QObject::tr("class '%1' is already registered!")
+                               .arg(known->className());
+        }
+        return true;
+    }
+
+    // check if any class is listed twice
+    const auto hasDuplicate = std::any_of(
+        metaData.begin(), metaData.end(), [metaData](const QMetaObject& mobj) {
+            const char* classname = mobj.className();
+            return std::count_if(metaData.begin(), metaData.end(),
+                                 [classname](const QMetaObject& mobj) {
+                                     return !std::strcmp(mobj.className(),
+                                                         classname);
+                                 }) > 1;
+        });
+    if (hasDuplicate && isSilent())
+    {
+        gtWarning() << QObject::tr("class '%1' is listed multiple times!")
+                           .arg(known->className());
     }
     return hasDuplicate;
 }

@@ -10,6 +10,9 @@
 #include "gt_factorygroup.h"
 #include "gt_object.h"
 #include "gt_objectgroup.h"
+#include "gt_label.h"
+#include "gt_labeldata.h"
+#include "gt_task.h"
 
 namespace
 {
@@ -117,6 +120,49 @@ TEST(GtAbstractObjectFactory, BulkRegistrationUsesSubclassOverride)
     EXPECT_EQ(factory.registered(), expected);
     EXPECT_EQ(base.moduleId(GT_CLASSNAME(GtObjectGroup)),
               QStringLiteral("TestModule"));
+}
+
+TEST(GtAbstractObjectFactory, ReregisteringKnownClassesFails)
+{
+    TestObjectFactory factory;
+
+    EXPECT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtObject)));
+
+    // registerClasses does not register partially
+    EXPECT_FALSE(factory.registerClasses(
+        {GT_METADATA(GtObject), GT_METADATA(GtObjectGroup)},
+        QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObjectGroup)));
+
+    EXPECT_TRUE(factory.registerClasses(
+        {GT_METADATA(GtLabel), GT_METADATA(GtLabelData)},
+        QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtLabel)));
+    EXPECT_TRUE(factory.knownClass(GT_CLASSNAME(GtLabelData)));
+
+    EXPECT_FALSE(
+        factory.registerClasses({GT_METADATA(GtLabel), GT_METADATA(GtTask)},
+                                QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtTask)));
+}
+
+TEST(GtAbstractObjectFactory, RegisteringDuplciateClassesFails)
+{
+    TestObjectFactory factory;
+
+    // registerClasses does not register partially
+    EXPECT_FALSE(factory.registerClasses(
+        {GT_METADATA(GtObject), GT_METADATA(GtObjectGroup),
+         GT_METADATA(GtLabel), GT_METADATA(GtLabelData),
+         GT_METADATA(GtObjectGroup), GT_METADATA(GtTask)},
+        QStringLiteral("TestModule")));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObject)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtObjectGroup)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtLabel)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtLabelData)));
+    EXPECT_FALSE(factory.knownClass(GT_CLASSNAME(GtTask)));
 }
 
 TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)

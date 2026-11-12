@@ -587,7 +587,7 @@ GtProject::readModuleMetaData(const QDomElement& root)
 void
 GtProject::updateClassModuleIds()
 {
-    QMap<QString, QString> updated;
+    gt::xml::ClassModuleMap updated;
     for (const GtObject* object : findChildren<GtObject*>())
     {
         const QString className = object->isDummy()
@@ -595,7 +595,6 @@ GtProject::updateClassModuleIds()
                                       : object->metaObject()->className();
         // skip visited classes
         if (className.isEmpty() || updated.contains(className)) continue;
-
         QString moduleId;
         if (const auto* factory = object->factory())
         {
@@ -616,12 +615,12 @@ GtProject::updateClassModuleIds()
     }
 
     // merge remaining classes not handled by loaded modules
-    for (auto it = pimpl->classModuleIds.cbegin();
-         it != pimpl->classModuleIds.cend(); ++it)
+    for (auto kv = pimpl->classModuleIds.cbegin();
+         kv != pimpl->classModuleIds.cend(); ++kv)
     {
         // skip visited classes
-        if (it.value().isEmpty() || updated.contains(it.value())) continue;
-        updated.insert(it.key(), it.value());
+        if (kv.value().isEmpty() || updated.contains(kv.key())) continue;
+        updated.insert(kv.key(), kv.value());
     }
 
     pimpl->classModuleIds = std::move(updated);
