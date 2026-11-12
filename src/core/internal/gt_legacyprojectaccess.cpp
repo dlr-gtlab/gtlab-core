@@ -205,6 +205,6 @@ GtLegacyProjectAccess::warningMessage(GtProcessComponent const& component)
                "targets the project selected in the GUI can keep using it.\n"
                "\n"
                "Migration guide: GTlab developer documentation, "
-               "\"Project context and currentProject() compatibility\".")
+               "\"Accessing Project Data\".")
         .arg(location);
 }

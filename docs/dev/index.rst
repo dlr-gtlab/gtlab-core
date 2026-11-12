@@ -81,6 +81,7 @@ Your first module
    :hidden:
 
    howtos/basic_module
+   howtos/project_context_compatibility
    modules/interfaces
    modules/shared_functions
    modules/user_interface
@@ -100,7 +101,6 @@ Your first module
    :hidden:
 
    howtos/migration_and_deprecation
-   howtos/project_context_compatibility
    faq
    changelog
 
