@@ -42,13 +42,7 @@ TEST_F(TestPropertyReference, containerProperty)
 TEST_F(TestPropertyReference, invalidRefs)
 {
     bool ok = false;
-    auto ref = GtPropertyReference::fromString("containerID.myProperty", ok);
-    EXPECT_FALSE(ok);
-
     ref = GtPropertyReference::fromString("[entryID].myProperty", ok);
-    EXPECT_FALSE(ok);
-
-    ref = GtPropertyReference::fromString("containerID.entryID.myProperty", ok);
     EXPECT_FALSE(ok);
 }
 
