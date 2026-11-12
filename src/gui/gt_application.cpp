@@ -34,11 +34,11 @@
 #include <QIcon>
 #include <QApplication>
 #include <QDir>
+#include <QObject>
 #include <QClipboard>
 #include <QUndoStack>
 #include <QUuid>
 #include <QKeyEvent>
-#include <QStandardPaths>
 #include <QSettings>
 
 
@@ -82,15 +82,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
 GtApplication::~GtApplication()
 {
     QApplication::clipboard()->clear();
-
-    // remove temp directory
-    QString tmpPath = QCoreApplication::applicationDirPath() +
-                      QDir::separator() + QStringLiteral("temp");
-
-    gtDebug().medium().quote() << "Deleting temp dir:" << tmpPath;
-
-    QDir dir(tmpPath);
-    dir.removeRecursively();
 }
 
 void
@@ -226,9 +217,10 @@ GtApplication::deletePerspective(const QString& id)
         return false;
     }
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (!path.exists() || !path.cd(QStringLiteral("perspective")))
+    if (perspectivePath.isEmpty() || !path.exists())
     {
         gtWarning() << tr("Perspective directory not found!");
         return false;
@@ -287,9 +279,10 @@ GtApplication::renamePerspective(const QString& oldId, const QString& newId)
         return false;
     }
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (!path.exists() || !path.cd(QStringLiteral("perspective")))
+    if (perspectivePath.isEmpty() || !path.exists())
     {
         gtWarning() << tr("Perspective directory not found!");
         return false;
@@ -786,18 +779,15 @@ GtApplication::readPerspectiveIds()
 {
     m_perspectiveIds.clear();
 
-    QDir path(roamingPath());
+    const QString perspectivePath = GtPerspective::directoryPath();
+    QDir path(perspectivePath);
 
-    if (path.exists() && path.cd("perspective"))
+    if (!perspectivePath.isEmpty() && path.exists())
     {
-        QStringList entries = path.entryList(QStringList() <<
-                                             QStringLiteral("*.geom"));
-
-        foreach (QString entry, entries)
-        {
-            m_perspectiveIds.append(entry.replace(QStringLiteral(".geom"),
-                                                  QStringLiteral("")));
-        }
+        m_perspectiveIds =
+            path.entryList(QStringList() << QStringLiteral("*.geom"));
+        m_perspectiveIds.replaceInStrings(QStringLiteral(".geom"),
+                                          QStringLiteral(""));
 
         m_perspectiveIds.removeDuplicates();
 
@@ -837,15 +827,6 @@ GtApplication::initFirstRun()
     }
 
     GtCoreApplication::initFirstRun();
-
-    // create application directories
-    QString path = roamingPath() + QDir::separator() + "perspective";
-
-    if (!QDir().mkpath(path))
-    {
-        gtWarning() << tr("Could not create application directories!");
-        return false;
-    }
 
     // create default perspective
     if (!GtPerspective::createDefault())

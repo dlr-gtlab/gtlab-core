@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
 ### Changed
+- Module crash state now uses the per-installation state directory. Existing
+  `GTlab.ini` files are copied there if no target exists. Downloaded and
+  user-created collections are stored under per-user `Data/Collections`;
+  existing collections remain discoverable. - #1551
 ### Deprecated
 
 ## [2.1.0-alpha.2] - 2026-11-09

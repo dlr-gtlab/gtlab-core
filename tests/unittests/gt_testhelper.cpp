@@ -9,21 +9,22 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QUuid>
 #include <QDebug>
+#include <QObject>
 
 #include "gt_testhelper.h"
 #include "gt_logging.h"
 
-GtTestHelper::GtTestHelper()
-{    
-    QDir tempDir(tempPath());
-
-    if (tempDir.exists())
+GtTestHelper::GtTestHelper() :
+    m_tempDirectory(
+        QDir(QDir::tempPath()).filePath(QStringLiteral("GTlabUnitTest-XXXXXX")))
+{
+    if (!m_tempDirectory.isValid())
     {
-        tempDir.removeRecursively();
+        qCritical() << QObject::tr(
+            "Could not create test temporary directory!");
     }
 
      // setup gt logging
@@ -46,9 +47,14 @@ GtTestHelper::instance()
 QDir
 GtTestHelper::newTempDir()
 {
+    if (!m_tempDirectory.isValid())
+    {
+        return QDir();
+    }
+
     QString uuid = QUuid::createUuid().toString();
 
-    QString path = tempPath() + QDir::separator() + uuid;
+    QString path = QDir(m_tempDirectory.path()).filePath(uuid);
 
     QDir retval(path);
 
@@ -76,12 +82,4 @@ GtTestHelper::randomStringList(int length)
 }
 
 GtTestHelper::~GtTestHelper()
-{
-}
-
-QString
-GtTestHelper::tempPath()
-{
-    return QCoreApplication::applicationDirPath() + QDir::separator() +
-            QStringLiteral("unittest-temp");
-}
+{ }

@@ -39,6 +39,7 @@
 #include <QSet>
 
 #include <optional>
+#include <memory>
 
 #include "gt_algorithms.h"
 #include "gt_utilities.h"
@@ -198,13 +199,21 @@ bool hasCompatibleModuleAbi(const QString& path,
 class ModuleLoadingLock
 {
 public:
-    ModuleLoadingLock() :
-        m_lockFile(GtCoreApplication::localApplicationIniFilePath() +
-                   QStringLiteral(".module-loading.lock"))
+    ModuleLoadingLock()
     {
-        while (!m_lockFile.tryLock(0))
+        const QString settingsPath =
+            GtCoreApplication::localApplicationIniFilePath();
+        if (settingsPath.isEmpty())
         {
-            if (m_lockFile.error() != QLockFile::LockFailedError)
+            return;
+        }
+
+        m_lockFile = std::make_unique<QLockFile>(
+            settingsPath + QStringLiteral(".module-loading.lock"));
+
+        while (!m_lockFile->tryLock(0))
+        {
+            if (m_lockFile->error() != QLockFile::LockFailedError)
             {
                 return;
             }
@@ -219,7 +228,7 @@ public:
     {
         if (m_locked)
         {
-            m_lockFile.unlock();
+            m_lockFile->unlock();
         }
     }
 
@@ -229,7 +238,7 @@ public:
     }
 
 private:
-    QLockFile m_lockFile;
+    std::unique_ptr<QLockFile> m_lockFile;
     bool m_locked{false};
 };
 
@@ -507,12 +516,17 @@ QStringList getModulesToExclude()
 class CrashedModulesLog
 {
 public:
-    CrashedModulesLog() :
-        settings(GtCoreApplication::localApplicationIniFilePath(),
-                 QSettings::IniFormat)
+    CrashedModulesLog()
     {
-        crashed_mods = settings.value(QStringLiteral("loading_crashed"))
-                           .toStringList();
+        const QString settingsPath =
+            GtCoreApplication::localApplicationIniFilePath();
+        if (!settingsPath.isEmpty())
+        {
+            settings =
+                std::make_unique<QSettings>(settingsPath, QSettings::IniFormat);
+            crashed_mods = settings->value(QStringLiteral("loading_crashed"))
+                               .toStringList();
+        }
     }
 
     void push(const QString& moduleFile)
@@ -551,11 +565,14 @@ public:
 private:
     void sync()
     {
-        settings.setValue(QStringLiteral("loading_crashed"), crashed_mods);
-        settings.sync();
+        if (settings)
+        {
+            settings->setValue(QStringLiteral("loading_crashed"), crashed_mods);
+            settings->sync();
+        }
     }
 
-    QSettings settings;
+    std::unique_ptr<QSettings> settings;
     QStringList crashed_mods;
 
 };

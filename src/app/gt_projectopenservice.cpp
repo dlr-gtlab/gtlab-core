@@ -5,6 +5,7 @@
  */
 
 #include "gt_projectopenservice.h"
+#include "gt_applicationpaths.h"
 
 #include <QCryptographicHash>
 #include <QCoreApplication>
@@ -140,11 +141,16 @@ readFrame(QLocalSocket& socket, QByteArray& payload)
 GtProjectOpenService::GtProjectOpenService(QObject* parent) :
     QObject(parent),
     m_serverName(serviceName()),
-    m_lockFile(QDir(QDir::tempPath())
-                   .filePath(m_serverName + QStringLiteral(".lock"))),
     m_server()
 {
-    m_lockFile.setStaleLockTime(0);
+    const auto runtimeDirectory =
+        GtApplicationPaths::directory(GtApplicationPaths::Location::Runtime);
+    if (runtimeDirectory)
+    {
+        m_lockFile.emplace(
+            runtimeDirectory->filePath(m_serverName + QStringLiteral(".lock")));
+        m_lockFile->setStaleLockTime(0);
+    }
 
     connect(&m_server, &QLocalServer::newConnection, this,
             [this]() { acceptConnections(); });
@@ -194,7 +200,7 @@ GtProjectOpenService::forwardProjectOpen(const QString& projectFilePath) const
 bool
 GtProjectOpenService::startServer()
 {
-    if (!m_lockFile.tryLock(0))
+    if (!m_lockFile || !m_lockFile->tryLock(0))
     {
         return false;
     }
@@ -203,7 +209,7 @@ GtProjectOpenService::startServer()
     // was waiting for the ownership lock.
     if (isServiceReachable())
     {
-        m_lockFile.unlock();
+        m_lockFile->unlock();
         return false;
     }
 
@@ -217,14 +223,14 @@ GtProjectOpenService::startServer()
     // it, and only after verifying that no service is reachable.
     if (isServiceReachable())
     {
-        m_lockFile.unlock();
+        m_lockFile->unlock();
         return false;
     }
 
     QLocalServer::removeServer(m_serverName);
     if (!m_server.listen(m_serverName))
     {
-        m_lockFile.unlock();
+        m_lockFile->unlock();
         return false;
     }
 

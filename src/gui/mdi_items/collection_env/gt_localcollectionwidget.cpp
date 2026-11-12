@@ -157,12 +157,17 @@ GtLocalCollectionWidget::onCustomContextMenuRequested(const QPoint& /*pos*/)
         return;
     }
 
+    if (!m_model->canUninstallItem(index))
+    {
+        return;
+    }
+
     QMenu menu;
 
-    QAction* deleteAction = menu.addAction(
-                gt::gui::icon::remove(), tr("Uninstall"));
+    const QAction* deleteAction =
+        menu.addAction(gt::gui::icon::remove(), tr("Uninstall"));
 
-    QAction* a = menu.exec(QCursor::pos());
+    const QAction* a = menu.exec(QCursor::pos());
 
     if (a == deleteAction)
     {

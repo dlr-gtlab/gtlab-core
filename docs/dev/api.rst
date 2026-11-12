@@ -30,6 +30,18 @@ Data Processor API
    :members:
 
 
+Application paths
+=================
+
+Use :doc:`the application paths guide <basics/application_paths>` to choose a
+location and understand its lifetime. ``GtApplicationPaths::directory``
+creates a missing directory, but does not guarantee that later file operations
+will succeed. Installed resources should only be read.
+
+.. doxygenclass:: GtApplicationPaths
+   :members:
+
+
 Execution API
 =============
 
