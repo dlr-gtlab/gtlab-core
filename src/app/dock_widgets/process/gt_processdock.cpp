@@ -1616,10 +1616,6 @@ GtProcessDock::copyElement(const QModelIndex& index)
         return false;
     }
 
-    auto* task = qobject_cast<GtTask*>(pComp);
-
-    auto* copiedTask = qobject_cast<GtTask*>(copy);
-
     QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
 
