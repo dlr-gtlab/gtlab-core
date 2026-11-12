@@ -7,13 +7,13 @@
 #include "gtest/gtest.h"
 
 #include "gt_project.h"
-#include "gt_coreapplication.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_objectgroup.h"
 #include "gt_processdata.h"
 #include "gt_taskgroup.h"
 #include "gt_xmlutilities.h"
 #include "internal/gt_projectio.h"
+#include "gt_project_test_helper.h"
 
 #include <QDir>
 #include <QFile>
@@ -46,6 +46,9 @@ public:
 
 namespace {
 
+using gtprojecttest::GtProjectHelperConfig;
+using gtprojecttest::writeProjectFile;
+
 class TestProject : public GtProject
 {
 public:
@@ -55,65 +58,6 @@ public:
 class TestProjectObjectFactory : public GtAbstractObjectFactory
 {
 };
-
-struct GtProjectHelperConfig
-{
-    // Use the running framework version by default; an empty value makes a
-    // legacy project without a core-ver element.
-    std::optional<QString> coreVersion;
-    // Nullopt omits the comment element; the default writes an empty one.
-    std::optional<QString> comment = QString{};
-    // Optional XML fragment inserted after the module list.
-    std::optional<QString> additionalMetadata;
-};
-
-static bool
-writeProjectFile(const QString& dirPath, const QString& projectName,
-                 const GtProjectHelperConfig& config = {})
-{
-    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
-    {
-        return false;
-    }
-
-    const QString coreVersion =
-        config.coreVersion.value_or(GtCoreApplication::version().toString());
-    const QString fileVersion =
-        coreVersion.isEmpty() ? QStringLiteral("1.7.0-rc1") : coreVersion;
-    const QString coreVerElement =
-        coreVersion.isEmpty()
-            ? QString()
-            : QStringLiteral("        <core-ver>%1</core-ver>\n")
-                  .arg(coreVersion);
-    const QString commentElement =
-        config.comment
-            ? QStringLiteral("    <comment>%1</comment>\n").arg(*config.comment)
-            : QString();
-    const QString metadataElement =
-        config.additionalMetadata
-            ? QStringLiteral("    %1\n").arg(*config.additionalMetadata)
-            : QString();
-
-    const QByteArray data =
-        QString("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                "<GTLAB projectname=\"%1\" version=\"%2\">\n"
-                "    <env-footprint>\n"
-                "%3"
-                "        <modules/>\n"
-                "    </env-footprint>\n"
-                "%4"
-                "    <MODULES/>\n"
-                "%5"
-                "    <PROCESSES/>\n"
-                "    <LABELS/>\n"
-                "</GTLAB>\n")
-            .arg(projectName, fileVersion, coreVerElement, commentElement,
-                 metadataElement)
-            .toUtf8();
-
-    return file.write(data) == data.size();
-}
 
 const QString classModuleMetadata = QStringLiteral(
     "<METADATA><CLASS-PROVIDERS><MODULE name=\"AQuiteLongModuleId\">"
