@@ -71,7 +71,7 @@ public slots:
      * @brief copies process element at index
      * @param index
      */
-    void copyElement(const QModelIndex& index);
+    bool copyElement(const QModelIndex& index);
 
     /**
      * @brief renameElement open texteditor to rename the object which is
@@ -101,20 +101,20 @@ public slots:
      * @brief pastes process element at index
      * @param index
      */
-    void pasteElement(GtObject* parent);
+    bool pasteElement(GtObject* parent);
 
     /**
      * @brief pasteElement
      * @param obj
      * @param parent
      */
-    void pasteElement(GtObject* obj, GtObject* parent);
+    bool pasteElement(GtObject* obj, GtObject* parent);
 
     /**
      * @brief pasteElement
      * @param parentIndex
      */
-    void pasteElement(const QModelIndex& parentIndex);
+    bool pasteElement(const QModelIndex& parentIndex);
 
     /**
      * @brief sets skip status to component at index
