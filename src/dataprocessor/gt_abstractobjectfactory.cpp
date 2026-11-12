@@ -271,39 +271,21 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 bool
 GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
-    // check if any class in factory is known
-    const auto known = std::find_if(
-        metaData.begin(), metaData.end(), [this](const QMetaObject& mobj) {
-            const QString classname = mobj.className();
-            return knownClass(classname);
-        });
-    const bool hasKnownClass = known != metaData.end();
-    if (hasKnownClass)
+    QSet<QString> seen;
+    for (const auto& metaObj : metaData)
     {
-        if (isSilent())
+        const QString name = QString::fromLatin1(metaObj.className());
+        if (knownClass(name) || seen.contains(name))
         {
-            gtWarning() << QObject::tr("class '%1' is already registered!")
-                               .arg(known->className());
+            if (!isSilent())
+            {
+                gtWarning() << QObject::tr("Duplicate class '%1'").arg(name);
+            }
+            return true;
         }
-        return true;
+        seen.insert(name);
     }
-
-    // check if any class is listed twice
-    const auto hasDuplicate = std::any_of(
-        metaData.begin(), metaData.end(), [metaData](const QMetaObject& mobj) {
-            const char* classname = mobj.className();
-            return std::count_if(metaData.begin(), metaData.end(),
-                                 [classname](const QMetaObject& mobj) {
-                                     return !std::strcmp(mobj.className(),
-                                                         classname);
-                                 }) > 1;
-        });
-    if (hasDuplicate && isSilent())
-    {
-        gtWarning() << QObject::tr("class '%1' is listed multiple times!")
-                           .arg(known->className());
-    }
-    return hasDuplicate;
+    return false;
 }
 
 bool
