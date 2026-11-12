@@ -1883,8 +1883,8 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    std::unique_ptr<GtObject> obj{gtDataModel->objectFromMimeData(
-        mimeData, true, gtProcessFactory)};
+    std::unique_ptr<GtObject> obj{
+        gtDataModel->objectFromMimeData(mimeData, true, gtProcessFactory)};
 
     if (!obj)
     {
