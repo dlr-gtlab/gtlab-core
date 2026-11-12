@@ -101,3 +101,70 @@ Feature: Test specific features of the process dock
          Then wait 1 seconds
          # check success
          Then the process element state is 'Finished'
+
+
+    Scenario: Pasting copied tasks into a task using the menu and Ctrl+V
+        Given GTlab is running in DEV mode
+          And the dock widgets 'Explorer, Processes/Calculators' are visible
+         When the standard testing project is opened
+          And the context menu of the process view is opened
+          And the action 'Add... > Empty Root Task' is activated
+         Then the process element 'New Task' exists
+         When the process element is selected
+          And the selected process is remembered as the paste target
+          And the context menu of the selected process is opened
+          And the action 'Copy' is activated
+          And the context menu of the selected process is opened
+         Then the action 'Paste' is enabled
+         When the action 'Paste' is activated
+         Then the paste target has 1 additional children
+         # Copy the selected child task and paste it back as a sibling subtask.
+         When the context menu of the selected process is opened
+          And the action 'Copy' is activated
+          And the remembered paste target is selected
+          And the context menu of the selected process is opened
+         Then the action 'Paste' is enabled
+         When the action 'Paste' is activated
+         Then the paste target has 2 additional children
+         When the remembered paste target is selected
+          And Ctrl+V is pressed in the process view
+         Then the paste target has 3 additional children
+
+
+    Scenario: Pasting calculators preserves destination restrictions
+        Given GTlab is running in DEV mode
+          And the dock widgets 'Explorer, Processes/Calculators' are visible
+         When the standard testing project is opened
+          And the context menu of the process view is opened
+          And the action 'Add... > Empty Root Task' is activated
+         Then the process element 'New Task' exists
+         When the process element is selected
+          And the selected process is remembered as the paste target
+          And the context menu of the selected process is opened
+          And the action 'Add... > New Calculator...' is activated
+         Then the process element 'Sleep Calculator [RELEASE]' is listed within the category 'Testing'
+         When the entry is selected
+          And the wizard proceeds
+          And the wizard finishes
+         Then the process element 'Sleep' exists
+         When the process element is selected
+          And the context menu of the selected process is opened
+          And the action 'Copy' is activated
+          And the context menu of the process view is opened
+         Then the action 'Paste' is disabled
+         When the process context menu is dismissed
+          And the remembered paste target is selected
+          And the context menu of the selected process is opened
+         Then the action 'Paste' is enabled
+         When the action 'Paste' is activated
+         Then the paste target has 2 additional children
+         When the remembered paste target is selected
+          And Ctrl+V is pressed in the process view
+         Then the paste target has 3 additional children
+         # The pasted calculator is selected; calculators cannot contain children.
+         When the selected process is remembered as the paste target
+          And the context menu of the selected process is opened
+         Then the action 'Paste' does not exist
+         When the process context menu is dismissed
+          And Ctrl+V is pressed in the process view
+         Then the paste target has 0 additional children
