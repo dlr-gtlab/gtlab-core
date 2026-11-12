@@ -1175,7 +1175,7 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
         dock->pasteElement(obj);
     };
 
-    auto isEnabled = [=](GtObject*){
+    auto isEnabled = [=](GtObject*) {
         auto* task = qobject_cast<GtTask*>(obj);
         if (!qobject_cast<GtTaskGroup*>(obj) && (!task || !task->isReady()))
         {
@@ -1910,7 +1910,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     pasteElement(obj.get(), parent);
     if (parent && obj->parent() == parent)
     {
-        static_cast<void>(obj.release()); // ownership transferred to the destination
+        static_cast<void>(obj.release()); // destination owns the copy
     }
 }
 
