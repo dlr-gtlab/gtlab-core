@@ -79,11 +79,11 @@ protected:
 
         con3 = gt::utils::process::makePropertyConnection(
             *subtask1, "doubleProp1", *calc1, "doubleProp1");
-        con4 = gt::utils::process::makePropertyConnection(*calc1, "doubleProp2",
-                                                          *calc2, "doubleProp1");
+        con4 = gt::utils::process::makePropertyConnection(
+            *calc1, "doubleProp2", *calc2, "doubleProp1");
 
-        con5 = gt::utils::process::makePropertyConnection(*calc2, "doubleProp2",
-                                                          *calc3, "doubleProp1");
+        con5 = gt::utils::process::makePropertyConnection(
+            *calc2, "doubleProp2", *calc3, "doubleProp1");
         con6 = gt::utils::process::makePropertyConnection(
             *subtask1, "doubleProp1", *subtask2, "doubleProp2");
 
@@ -221,8 +221,8 @@ TEST_F(TestGtTaskPropertyConnections, highestParent)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 {
-    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *roottask);
+    auto retvalOpt =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*roottask);
 
     ASSERT_TRUE(retvalOpt.has_value());
     auto retval = retvalOpt.value();
@@ -249,8 +249,8 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 {
-    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *subtask1);
+    auto retvalOpt =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*subtask1);
 
     ASSERT_TRUE(retvalOpt.has_value());
     auto retval = retvalOpt.value();
@@ -280,8 +280,8 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask2)
 {
-    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *subtask2);
+    auto retvalOpt =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*subtask2);
 
     ASSERT_TRUE(retvalOpt.has_value());
     auto retval = retvalOpt.value();
@@ -496,8 +496,8 @@ TEST_F(TestGtTaskPropertyConnections, cleanRoottask)
 {
     gt::utils::process::cleanupPropertyConnections(*roottask);
 
-    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *roottask);
+    auto retvalOpt =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*roottask);
 
     ASSERT_TRUE(retvalOpt.has_value());
     auto retval = retvalOpt.value();
@@ -513,8 +513,8 @@ TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
 {
     ASSERT_FALSE(gt::utils::process::cleanupPropertyConnections(*subtask1));
 
-    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *roottask);
+    auto retvalOpt =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*roottask);
 
     ASSERT_TRUE(retvalOpt.has_value());
     auto retval = retvalOpt.value();
@@ -525,8 +525,8 @@ TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
     ASSERT_EQ(retval.stale.size(), 2);
     ASSERT_EQ(retval.obsolete.size(), 1);
 
-    auto retvalOpt2 = gt::utils::process::analyzePropertyConnectionsRelationship(
-        *subtask1);
+    auto retvalOpt2 =
+        gt::utils::process::analyzePropertyConnectionsRelationship(*subtask1);
 
     ASSERT_TRUE(retvalOpt2.has_value());
     auto retval2 = retvalOpt2.value();

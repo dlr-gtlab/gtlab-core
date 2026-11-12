@@ -60,7 +60,8 @@ makePropertyConnection(GtProcessComponent& sourceComponent,
 
     if (rootTaskSrc != rootTaskTgt)
     {
-        gtError() << "Selected process components not within the same root task!";
+        gtError()
+            << "Selected process components not within the same root task!";
         return nullptr;
     }
 

@@ -84,7 +84,8 @@ transferPropertyConnectionsViaMapping(GtTask& taskOrig, GtTask& taskCopy,
     qDeleteAll(connections);
 
     // get the internal connections to be transferred
-    auto analyzedConsOptional = analyzePropertyConnectionsRelationship(taskOrig);
+    auto analyzedConsOptional =
+        analyzePropertyConnectionsRelationship(taskOrig);
     if (!analyzedConsOptional.has_value())
     {
         gtError() << "Analyzing the task property connections of original task "

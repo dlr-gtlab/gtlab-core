@@ -1579,7 +1579,8 @@ processComponentCloneCopyHelper(GtProcessComponent* pComp)
 
     if (origTask)
     {
-        gt::utils::process::printWarningForLostPropertyConnections(*origTask, true);
+        gt::utils::process::printWarningForLostPropertyConnections(*origTask,
+                                                                   true);
 
         auto newTask = gt::utils::process::deepCopyTask(origTask);
 
