@@ -21,73 +21,62 @@ namespace process
 
 
 GtPropertyConnection*
-makePropertyConnection(GtProcessComponent* sourceComponent,
+makePropertyConnection(GtProcessComponent& sourceComponent,
                        const QString& sourceProperty,
-                       GtProcessComponent* targetComponent,
-                       const QString& targetProperty, bool* ok)
+                       GtProcessComponent& targetComponent,
+                       const QString& targetProperty)
 {
-    if (ok)
-    {
-        *ok = false;
-    }
 
-    if (!sourceComponent || !targetComponent)
-    {
-        gtFatal() << "Source or target not set!"
-                  << "\nSource:" << sourceComponent
-                  << "\nTarget:" << targetComponent;
-        return nullptr;
-    }
-
-
-    if (!sourceComponent->findProperty(sourceProperty) ||
-        !targetComponent->findProperty(targetProperty))
+    if (!sourceComponent.findProperty(sourceProperty) ||
+        !targetComponent.findProperty(targetProperty))
     {
         QStringList msg;
-        if (!sourceComponent->findProperty(sourceProperty))
+        if (!sourceComponent.findProperty(sourceProperty))
         {
             msg << "Source property not found!";
         }
-        if (!targetComponent->findProperty(targetProperty))
+        if (!targetComponent.findProperty(targetProperty))
         {
             msg << "Target property not found!";
         }
 
-        gtFatal() << msg.join("\n") << QStringLiteral("\n") + "sourceComponent:"
-                  << sourceComponent
+        gtError() << msg.join("\n") << QStringLiteral("\n") + "sourceComponent:"
+                  << &sourceComponent
                   << QStringLiteral("\n") + "sourceProperty:" << sourceProperty
                   << QStringLiteral("\n") + "targetComponent:"
-                  << targetComponent
+                  << &targetComponent
                   << QStringLiteral("\n") + "targetProperty:" << targetProperty;
         return nullptr;
     }
 
-    auto rootTask = findRootTask(sourceComponent);
+    auto rootTaskSrc = findRootTask(&sourceComponent);
+    auto rootTaskTgt = findRootTask(&targetComponent);
 
-    if (!rootTask)
+    if (!rootTaskSrc || !rootTaskTgt)
     {
-        gtFatal() << "Highest parent not found";
+        gtError() << "Highest parent not found";
+        return nullptr;
+    }
+
+    if (rootTaskSrc != rootTaskTgt)
+    {
+        gtError() << "Selected process components not within the same root task!";
         return nullptr;
     }
 
     GtPropertyConnection* c = new GtPropertyConnection;
-    c->setSourceUuid(sourceComponent->uuid());
-    c->setSourceProp(sourceComponent->findProperty(sourceProperty)->ident());
-    c->setTargetUuid(targetComponent->uuid());
-    c->setTargetProp(targetComponent->findProperty(targetProperty)->ident());
-    rootTask->appendChild(c);
+    c->setSourceUuid(sourceComponent.uuid());
+    c->setSourceProp(sourceComponent.findProperty(sourceProperty)->ident());
+    c->setTargetUuid(targetComponent.uuid());
+    c->setTargetProp(targetComponent.findProperty(targetProperty)->ident());
+    rootTaskSrc->appendChild(c);
     c->makeConnection();
 
     if (!c->isConnected())
     {
-        gtFatal() << "Property connection created, but connection failed";
+        gtError() << "Property connection created, but connection failed";
         delete c;
         return nullptr;
-    }
-
-    if (ok)
-    {
-        *ok = true;
     }
 
     return c;

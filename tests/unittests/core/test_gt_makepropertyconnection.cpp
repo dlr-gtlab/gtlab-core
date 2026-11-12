@@ -42,8 +42,6 @@ TEST_F(TestGtMakePropertyConnection, makeConnectionRejectsInvalidInputs)
         const char* targetProperty;
     };
     const InvalidInput cases[] = {
-        {nullptr, "doubleProp1", calc2, "doubleProp3"},
-        {calc1, "doubleProp2", nullptr, "doubleProp3"},
         {calc1, "missing", calc2, "doubleProp3"},
         {calc1, "doubleProp2", calc2, "missing"},
         {calc1, "missing", calc2, "missing"},
@@ -55,13 +53,12 @@ TEST_F(TestGtMakePropertyConnection, makeConnectionRejectsInvalidInputs)
     {
         SCOPED_TRACE(input.sourceProperty);
         SCOPED_TRACE(input.targetProperty);
-        bool ok = true;
+
         auto* connection = gt::utils::process::makePropertyConnection(
-            input.source, input.sourceProperty, input.target,
-            input.targetProperty, &ok);
+            *(input.source), input.sourceProperty, *(input.target),
+            input.targetProperty);
 
         EXPECT_EQ(connection, nullptr);
-        EXPECT_FALSE(ok);
         EXPECT_EQ(roottask->findChildren<GtPropertyConnection*>().size(),
                   connectionCount);
     }
@@ -71,13 +68,11 @@ TEST_F(TestGtMakePropertyConnection, makeConnectionRequiresRootTask)
 {
     TestGtCalculator standaloneSource;
     TestGtCalculator standaloneTarget;
-    bool ok = true;
 
     EXPECT_EQ(gt::utils::process::makePropertyConnection(
-                  &standaloneSource, "doubleProp2", &standaloneTarget,
-                  "doubleProp3", &ok),
+                  standaloneSource, "doubleProp2", standaloneTarget,
+                  "doubleProp3"),
               nullptr);
-    EXPECT_FALSE(ok);
     EXPECT_TRUE(
         standaloneSource.findChildren<GtPropertyConnection*>().isEmpty());
 }
@@ -87,12 +82,10 @@ TEST_F(TestGtMakePropertyConnection, failedConnectionLeavesNoChild)
     TestTaskWithProperty otherRoot;
     const auto connectionCount =
         roottask->findChildren<GtPropertyConnection*>().size();
-    bool ok = true;
 
     EXPECT_EQ(gt::utils::process::makePropertyConnection(
-                  calc1, "doubleProp2", &otherRoot, "doubleProp3", &ok),
+                  *calc1, "doubleProp2", otherRoot, "doubleProp3"),
               nullptr);
-    EXPECT_FALSE(ok);
     EXPECT_EQ(roottask->findChildren<GtPropertyConnection*>().size(),
               connectionCount);
     EXPECT_TRUE(otherRoot.findChildren<GtPropertyConnection*>().isEmpty());
@@ -100,12 +93,10 @@ TEST_F(TestGtMakePropertyConnection, failedConnectionLeavesNoChild)
 
 TEST_F(TestGtMakePropertyConnection, makeConnectionReportsSuccess)
 {
-    bool ok = false;
     auto* connection = gt::utils::process::makePropertyConnection(
-        calc1, "doubleProp2", calc2, "doubleProp3", &ok);
+        *calc1, "doubleProp2", *calc2, "doubleProp3");
 
     ASSERT_NE(connection, nullptr);
-    EXPECT_TRUE(ok);
     EXPECT_TRUE(connection->isConnected());
     EXPECT_EQ(connection->parent(), roottask);
     EXPECT_EQ(connection->sourceUuid(), calc1->uuid());
