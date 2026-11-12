@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased 2.1]
 
 ### Highlights
+ - GUI modules can extend the Process Dock with pages, Add actions and context actions. - #1617
 ### Fixed
 - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties - #1663
 - **Regression fixes compared to 2.1.0-alpha.2**:
@@ -541,3 +542,4 @@ This is the first patch release of the 2.0 series.
 - Removed: Schedule functionality is moved to BasicTools Module - #63 
 - Removed: Spline functionality is moved to BasicTools Module - #7 
 - Removed: Filter functionality in the explorer widget to display results separately - #57
+

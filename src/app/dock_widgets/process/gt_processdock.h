@@ -11,12 +11,11 @@
 #ifndef GTPROCESSDOCK_H
 #define GTPROCESSDOCK_H
 
+#include <memory>
+
 #include "gt_dockwidget.h"
-#include "gt_command.h"
 #include "gt_taskgroup.h"
 
-#include <QPointer>
-#include <QPersistentModelIndex>
 
 class QPushButton;
 class QMenu;
@@ -34,6 +33,7 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 class GtState;
+class QStackedWidget;
 
 /**
  * @brief The GtProcessDock class
@@ -47,10 +47,14 @@ public:
      * @brief GtProcessDock
      */
     Q_INVOKABLE GtProcessDock();
+    ~GtProcessDock() override;
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
     Qt::DockWidgetArea getDockWidgetArea() override;
+
+    /** Initializes module-contributed pages after modules have been started. */
+    void initAfterStartup() override;
 
     /**
      * @brief mapToSource
@@ -140,53 +144,8 @@ protected:
     void projectChangedEvent(GtProject* project) override;
 
 private:
-    /// Combobox for task group selection
-    QComboBox* m_taskGroupSelection;
-
-    /// Button to run selected process
-    QPushButton* m_runButton;
-
-    /// Button to add a new element to process control environment
-    QPushButton* m_addElementButton;
-
-    /// Button to open the process queue
-    QPushButton* m_processQueueButton;
-
-    /// Tree view
-    GtProcessView* m_view;
-
-    /// model
-    GtProcessComponentModel* m_model;
-
-    /// model
-    GtTaskGroupModel* m_taskGroupModel;
-
-    /// model
-    QPointer<GtTreeFilterModel> m_filterModel;
-
-    /// Search widget
-    GtSearchWidget* m_search;
-
-    /// Pointer to selected task group of current project
-    QPointer<GtTaskGroup> m_taskGroup;
-
-    /// Pointer to current process
-    QPointer<GtTask> m_currentProcess;
-
-    /// Pointer to current project
-    QPointer<GtProject> m_project;
-
-    /// Command
-    GtCommand m_command{};
-
-    /// Expanded item UUIDs
-    GtState* m_expandedItemUuidsState;
-
-    /// Scope of the last selected task group
-    GtState* m_lastTaskGroupScopeState;
-
-    /// ID of the last selected task group
-    GtState* m_lastTaskGroupIdState;
+    class Impl;
+    std::unique_ptr<Impl> m_impl;
 
     /**
      * @brief Determines the current Task Group from the process data and
@@ -200,27 +159,26 @@ private:
      */
     void setCurrentProcess(GtTask* process = nullptr);
 
-    /**
-     * @brief addEmptyTaskToRoot
-     */
-    void addEmptyTaskToRoot();
-
+    /** Adds an empty task to the given root object. */
     void addEmptyTask(GtObject* root);
 
     /**
-     * @brief addCalculator
+     * @brief Opens the calculator wizard and adds the result to the parent.
+     * @param parentObj Task that receives the new calculator.
      */
-    void addCalculator();
+    void addCalculator(GtObject* parentObj);
 
     /**
-     * @brief Opens task wizard to select new task.
+     * @brief Opens the task wizard and adds the result to the parent.
+     * @param parentObj Task or task group that receives the new task.
      */
-    void addTask();
+    void addTask(GtObject* parentObj);
 
     /**
-     * @brief Opens task wizard to select new task to be added as root.
+     * @brief Opens the task wizard and adds the result to the task group.
+     * @param root Task group that receives the root task.
      */
-    void addRootTask();
+    void addRootTask(GtTaskGroup* root);
 
     /**
      * @brief addTaskToParent
@@ -256,8 +214,7 @@ private:
      * @param copy
      * @return
      */
-    bool mapPropertyConnections(GtTask* orig,
-                                GtTask* copy);
+    bool mapPropertyConnections(GtTask* orig, GtTask* copy);
 
     /**
      * @brief Updates list of last used process elements.
@@ -266,12 +223,11 @@ private:
     void updateLastUsedElementList(const QString& str);
 
     /**
-     * @brief Generates menu based on list of last used process elements.
+     * @brief Generates a menu of recently used process elements.
      * @param menu Parent menu.
-     * @param isRoot Identifier whether element menu should be generated for a
-     * root component.
+     * @param insertionTarget Object that receives the selected element.
      */
-    void generateLastUsedElementMenu(QMenu* menu, bool isRoot);
+    void generateLastUsedElementMenu(QMenu* menu, GtObject* insertionTarget);
 
     /**
      * @brief deleteProcessComponent
@@ -290,14 +246,14 @@ private:
      * menus
      * @param menu Menu to fill
      */
-    void makeAddMenu(QMenu& menu);
+    void makeAddMenu(QMenu& menu, GtObject* selectedComponent = nullptr);
 
     /**
      * @brief Creates the context menu based on the current selection and
      * the index provided.
      * @param srcIndex Index to create context menu on
      */
-    void customContextMenu(QModelIndex const& srcIndex);
+    void customContextMenu(const QModelIndex& srcIndex);
 
     /**
      * @brief Creates the default context menu (i.e. when no valid index was
@@ -309,7 +265,8 @@ private:
      * @brief processContextMenu
      * @param obj
      */
-    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index, bool isTask);
+    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index,
+                            bool isTask);
 
     /**
      * @brief multiSelectionContextMenu
@@ -510,10 +467,11 @@ private slots:
     void onTaskDataChanged(GtObject* obj);
 
     /**
-     * @brief Called after action was triggered.
-     * @param obj Triggered aciton
+     * @brief Adds the selected recently used process element.
+     * @param obj Triggered action.
+     * @param insertionTarget Object that receives the new element.
      */
-    void actionTriggered(QObject* obj);
+    void actionTriggered(QObject* obj, GtObject* insertionTarget);
 
     /**
      * @brief Handles executor change
