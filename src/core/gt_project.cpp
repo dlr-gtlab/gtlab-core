@@ -537,7 +537,6 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         {
             gtWarning() << tr("Project name is already used in the session:")
                         << restoredName;
-            rollbackGuard.finalize();
             return S::ErrorCopyFailed;
         }
     }
@@ -548,7 +547,6 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     pimpl->valid = loadMetaData();
     if (!pimpl->valid)
     {
-        rollbackGuard.finalize();
         return S::ErrorCopyFailed;
     }
 
