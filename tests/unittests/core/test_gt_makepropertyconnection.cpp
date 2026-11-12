@@ -69,10 +69,10 @@ TEST_F(TestGtMakePropertyConnection, makeConnectionRequiresRootTask)
     TestGtCalculator standaloneSource;
     TestGtCalculator standaloneTarget;
 
-    EXPECT_EQ(gt::utils::process::makePropertyConnection(
-                  standaloneSource, "doubleProp2", standaloneTarget,
-                  "doubleProp3"),
-              nullptr);
+    EXPECT_EQ(
+        gt::utils::process::makePropertyConnection(
+            standaloneSource, "doubleProp2", standaloneTarget, "doubleProp3"),
+        nullptr);
     EXPECT_TRUE(
         standaloneSource.findChildren<GtPropertyConnection*>().isEmpty());
 }
