@@ -25,7 +25,7 @@ bool
 pasteProcessComponentHelper(GtObject* targetParent, GtProcessComponent* child,
                             bool useGtDataModel = false,
                             QModelIndex* modelIndex = nullptr)
-{   
+{
     if (useGtDataModel)
     {
         auto newIndex = gtDataModel->appendChild(child, targetParent);

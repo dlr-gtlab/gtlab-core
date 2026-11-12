@@ -121,12 +121,13 @@ transferPropertyConnectionsViaMapping(GtTask& taskOrig, GtTask& taskCopy,
         {
             con->makeConnection();
 
-            if(!con->isConnected())
+            if (!con->isConnected())
             {
-                gtError() << "Failed to establish transferred connection: " + con->objectName() +
-                             "\n      |-> " + origSrcUuid + "(" +
-                             con->sourceProp() + ")" + " -> " + origTargetUuid +
-                             "(" + con->targetProp() + ")";
+                gtError() << "Failed to establish transferred connection: " +
+                                 con->objectName() + "\n      |-> " +
+                                 origSrcUuid + "(" + con->sourceProp() + ")" +
+                                 " -> " + origTargetUuid + "(" +
+                                 con->targetProp() + ")";
                 transferAllOk = false;
             }
         }
@@ -158,7 +159,8 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject& objCopy,
 {
     bool retval = true;
 
-    for (auto propRelLink : objCopy.findDirectChildren<GtRelativeObjectLinkProperty*>())
+    for (auto propRelLink :
+         objCopy.findDirectChildren<GtRelativeObjectLinkProperty*>())
     {
         //auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 

@@ -1675,7 +1675,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
 
     //TODO: needs more refactoring here
-    if(!copyElement(index))
+    if (!copyElement(index))
     {
         gtError() << "Could not cut process element";
         return;
@@ -1864,7 +1864,7 @@ GtProcessDock::pasteElement(GtObject* parent)
         }
     }
 
-    if(!pasteElement(obj2, parent))
+    if (!pasteElement(obj2, parent))
     {
         delete obj2;
         return false;

@@ -69,7 +69,8 @@ makePropertyConnection(GtProcessComponent& sourceComponent,
 
     if (targetPropertyObj->isConnected())
     {
-        gtError() << "Target property already connected:" << targetProperty << ", target process component:" << &targetComponent;
+        gtError() << "Target property already connected:" << targetProperty
+                  << ", target process component:" << &targetComponent;
         return nullptr;
     }
 
