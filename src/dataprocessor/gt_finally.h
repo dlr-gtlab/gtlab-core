@@ -104,7 +104,7 @@ public:
     }
 
     /**
-     * @brief Clears object
+     * @brief Clears the pending cleanup without invoking it.
      */
     void clear() noexcept
     {

@@ -257,12 +257,11 @@ public:
     /**
      * @brief Restores the files of the project by the given backup
      *
-     * The project must be closed before calling the function!
+     * The project must be closed before calling. Missing backups, open
+     * projects, copy failures, invalid metadata, and project-name conflicts
+     * return an error status.
      *
-     * The following errors can occur
-     *  -
-     *
-     * @return true if successfull
+     * @return Restore status indicating success or the reason for failure.
      */
     RestoreStatus restoreBackupFiles(const QString& timestamp);
 

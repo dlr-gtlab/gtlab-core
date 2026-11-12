@@ -15,9 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Highlights
 ### Fixed
 - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties - #1663
+- Restoring an outdated project backup now marks the restored project as requiring an update - #1289
 - **Regression fixes compared to 2.1.0-alpha.2**:
   - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
-  
 ### Added
 ### Changed
 ### Deprecated

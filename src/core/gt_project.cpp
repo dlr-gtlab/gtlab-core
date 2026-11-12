@@ -8,6 +8,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <algorithm>
+
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
@@ -23,6 +25,7 @@
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
+#include "gt_session.h"
 #include "gt_package.h"
 #include "gt_labeldata.h"
 #include "gt_label.h"
@@ -40,6 +43,7 @@
 #include "gt_abstractloadinghelper.h"
 #include "gt_batchsaver.h"
 #include "gt_projectdependencyanalyzer.h"
+#include "gt_finally.h"
 
 #include "internal/gt_moduleupgrader.h"
 
@@ -410,7 +414,11 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
 {
     using S = GtProject::RestoreStatus;
 
-    assert(!isOpen());
+    if (isOpen())
+    {
+        gtWarning() << tr("Cannot restore a backup while the project is open.");
+        return S::ErrorCopyFailed;
+    }
 
     QDir projectDir(path());
     assert(projectDir.exists());
@@ -428,16 +436,15 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     static QRegularExpression projectModuleTasksRex(
         R"(^[\w\s\-{}]+\.(gtlab|gtmod)$|^tasks\/[\w\s\-{}\/]+\.gttask$)");
 
-    const auto projectFiles = gt::filesystem::directoryEntries(projectDir,
-                                                         true,
-                                                         projectModuleTasksRex);
+    const auto projectFiles = gt::filesystem::directoryEntries(
+        projectDir, true, projectModuleTasksRex);
 
-    auto moveRelativePath = [](const QDir& srcDir,
-                               const QDir& targetDir,
-                               const QString& rel) -> bool
-    {
+    auto moveRelativePath = [](const QDir& srcDir, const QDir& targetDir,
+                               const QString& rel) -> bool {
         const QString dst = targetDir.filePath(rel);
         const QString src = srcDir.filePath(rel);
+
+        if (!QFile::exists(src)) return false;
 
         QFileInfo dstInfo(dst);
         if (!QDir().mkpath(dstInfo.dir().absolutePath())) return false;
@@ -465,26 +472,86 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return moveRelativePath(tempDir, projectDir, rel);
     };
 
-    // stash files, since the backup might fail
-    for (const auto& file : projectFiles)
-    {
-        if (!stash(file))
+    bool metadataReloadStarted = false;
+    auto rollback = [&]() {
+        const auto restoredFiles = gt::filesystem::directoryEntries(
+            projectDir, true, projectModuleTasksRex);
+
+        for (const auto& file : restoredFiles)
         {
-            gtError().nospace().noquote() << "Failed to stash '" << file << "'";
-            // try to undo partial stash best-effort
-            for (const auto& f : projectFiles) restore(f);
+            if (!projectFiles.contains(file) &&
+                !QFile::remove(projectDir.filePath(file)))
+            {
+                gtWarning().nospace().noquote()
+                    << "Failed to remove restored file '" << file << "'";
+            }
+        }
+
+        for (const auto& file : projectFiles)
+        {
+            if (QFile::exists(tempDir.filePath(file)) && !restore(file))
+            {
+                gtWarning().nospace().noquote()
+                    << "Failed to restore original file '" << file << "'";
+            }
+        }
+
+        if (metadataReloadStarted)
+        {
+            pimpl->valid = loadMetaData();
+            pimpl->upgradesAvailable = checkForUpgrades();
+        }
+    };
+    auto rollbackGuard = gt::finally([&]() { rollback(); });
+
+    // stash files, since the backup might fail
+    const auto failedStash =
+        std::find_if(projectFiles.cbegin(), projectFiles.cend(),
+                     [&stash](const QString& file) { return !stash(file); });
+    if (failedStash != projectFiles.cend())
+    {
+        gtError().nospace().noquote()
+            << "Failed to stash '" << *failedStash << "'";
+        // try to undo partial stash best-effort
+        return S::ErrorCopyFailed;
+    }
+
+    if (gt::project::copyProjectData(backupDir, projectDir,
+                                     gt::project::ForceOverwrite |
+                                         gt::project::IgnoreBackupMd) !=
+        gt::filesystem::CopyStatus::Success)
+    {
+        // restore project files since backup restored has failed
+        return S::ErrorCopyFailed;
+    }
+
+    const QDomElement restoredRoot =
+        readProjectData(projectDir).documentElement();
+    const QString restoredName =
+        restoredRoot.attribute(QStringLiteral("projectname"));
+    if (gtApp && gtApp->session() && !restoredName.isEmpty())
+    {
+        const GtProject* existingProject =
+            gtApp->session()->findProject(restoredName);
+        if (existingProject && existingProject != this)
+        {
+            gtWarning() << tr("Project name is already used in the session:")
+                        << restoredName;
             return S::ErrorCopyFailed;
         }
     }
 
-    if (gt::project::copyProjectData(backupDir, projectDir,
-            gt::project::ForceOverwrite | gt::project::IgnoreBackupMd) !=
-        gt::filesystem::CopyStatus::Success)
+    // reload project state since the restored backup may contain
+    // different (e.g. outdated) project data
+    metadataReloadStarted = true;
+    pimpl->valid = loadMetaData();
+    if (!pimpl->valid)
     {
-        // restore project files since backup restored has failed
-        for (const auto& f : projectFiles) restore(f);
         return S::ErrorCopyFailed;
     }
+
+    pimpl->upgradesAvailable = checkForUpgrades();
+    rollbackGuard.clear();
 
     return S::Success;
 }
@@ -510,6 +577,7 @@ GtProject::loadMetaData()
     setObjectName(projectname);
 
     // read comment
+    pimpl->comment.clear();
     QDomElement cdata = root.firstChildElement(QStringLiteral("comment"));
 
     if (!cdata.isNull())
