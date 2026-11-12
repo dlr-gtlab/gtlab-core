@@ -47,7 +47,7 @@ struct PropertyConnectionAnalysis;
  * @return
  */
 GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(
-    GtTask* taskOrig, GtTask* taskCopy, const GtObjectUUIDMap& uuidMap);
+    GtTask& taskOrig, GtTask& taskCopy, const GtObjectUUIDMap& uuidMap);
 
 /**
  * @brief This supports the functionality of GtRelativeObjectLinkProperty when copying a task
@@ -59,7 +59,7 @@ GT_CORE_EXPORT bool transferPropertyConnectionsViaMapping(
  * @return
  */
 GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
-    GtObject* objCopy, const GtObjectUUIDMap& uuidMap);
+    GtObject& objCopy, const GtObjectUUIDMap& uuidMap);
 
 /**
  * @brief Remove stale or obsolete property connections from a task
@@ -68,7 +68,7 @@ GT_CORE_EXPORT bool transferRelativeObjectLinkPropertyViaMapping(
  * @param task
  * @return Whether cleanup was successful
  */
-GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask* task);
+GT_CORE_EXPORT bool cleanupPropertyConnections(GtTask& task);
 
 
 } // namespace process

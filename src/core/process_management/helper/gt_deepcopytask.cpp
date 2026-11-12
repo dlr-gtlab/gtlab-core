@@ -57,14 +57,14 @@ deepCopyTask(GtTask* taskOrig)
     }
 
 
-    if (!transferPropertyConnectionsViaMapping(taskOrig, copiedTask.get(),
+    if (!transferPropertyConnectionsViaMapping(*taskOrig, *copiedTask.get(),
                                                uuidMap))
     {
         gtError() << "Could not transfer the property connections";
         return {};
     }
 
-    if (!transferRelativeObjectLinkPropertyViaMapping(copiedTask.get(),
+    if (!transferRelativeObjectLinkPropertyViaMapping(*copiedTask.get(),
                                                       uuidMap))
     {
         gtError() << "Could not transfer the relative object link properties";
@@ -76,33 +76,34 @@ deepCopyTask(GtTask* taskOrig)
 
 
 bool
-transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy,
+transferPropertyConnectionsViaMapping(GtTask& taskOrig, GtTask& taskCopy,
                                       const GtObjectUUIDMap& uuidMap)
 {
     // delete all connections, will be added in next step from analysis
-    auto connections = taskCopy->findChildren<GtPropertyConnection*>();
+    auto connections = taskCopy.findChildren<GtPropertyConnection*>();
     qDeleteAll(connections);
 
     // get the internal connections to be transferred
-    bool ok1 = false;
-    auto analyzedCons = analyzePropertyConnectionsRelationship(taskOrig, &ok1);
-    if (!ok1)
+    auto analyzedConsOptional = analyzePropertyConnectionsRelationship(taskOrig);
+    if (!analyzedConsOptional.has_value())
     {
         gtError() << "Analyzing the task property connections of original task "
                      "failed.";
         return false;
     }
 
+    auto analyzedCons = analyzedConsOptional.value();
+
     // copy only the internal connections
     foreach (auto c, analyzedCons.internal)
     {
         auto newCon = c->copy();
-        taskCopy->appendChild(newCon);
+        taskCopy.appendChild(newCon);
     }
 
     // transfer the UUID mapping of connections
     QList<GtPropertyConnection*> allCons =
-        taskCopy->findChildren<GtPropertyConnection*>();
+        taskCopy.findChildren<GtPropertyConnection*>();
     bool transferAllOk = true;
     for (auto con : qAsConst(allCons))
     {
@@ -141,13 +142,12 @@ transferPropertyConnectionsViaMapping(GtTask* taskOrig, GtTask* taskCopy,
 }
 
 bool
-transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy,
+transferRelativeObjectLinkPropertyViaMapping(GtObject& objCopy,
                                              const GtObjectUUIDMap& uuidMap)
 {
     bool retval = true;
 
-
-    for (auto prop : qAsConst(objCopy->properties()))
+    for (auto prop : qAsConst(objCopy.properties()))
     {
         auto propRelLink = qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
@@ -158,7 +158,7 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy,
             if (!uuidMap.containsOriginalUuid(originalUuid))
             {
                 gtError()
-                    << objCopy << " with uuid" << objCopy->uuid()
+                    << &objCopy << " with uuid" << objCopy.uuid()
                     << ": Could not transfer " << propRelLink
                     << ", original linked UUID" << originalUuid
                     << "not found in original process component structure";
@@ -172,31 +172,28 @@ transferRelativeObjectLinkPropertyViaMapping(GtObject* objCopy,
         }
     }
 
-
-    for (auto child : objCopy->findDirectChildren<GtObject*>())
+    for (auto child : objCopy.findDirectChildren<GtObject*>())
     {
-        if (!transferRelativeObjectLinkPropertyViaMapping(child, uuidMap))
+        if (!transferRelativeObjectLinkPropertyViaMapping(*child, uuidMap))
         {
             retval = false;
         }
     }
 
-
     return retval;
 }
 
 bool
-cleanupPropertyConnections(GtTask* task)
+cleanupPropertyConnections(GtTask& task)
 {
-    if (task != findRootTask(task))
+    if (&task != findRootTask(&task))
     {
         gtWarning() << "Performing cleanup is only allowed on root tasks";
         return false;
     }
 
-    bool ok = false;
-    auto allCons = analyzePropertyConnectionsRelationship(task, &ok);
-    if (!ok)
+    auto allCons = analyzePropertyConnectionsRelationship(task);
+    if (!allCons.has_value())
     {
         gtError() << "Analyzing the task property connections of original task "
                      "failed.";
@@ -205,8 +202,8 @@ cleanupPropertyConnections(GtTask* task)
 
     QList<GtPropertyConnection*> toRemove;
 
-    toRemove << allCons.obsolete;
-    toRemove << allCons.stale;
+    toRemove << allCons.value().obsolete;
+    toRemove << allCons.value().stale;
 
     qDeleteAll(toRemove);
 

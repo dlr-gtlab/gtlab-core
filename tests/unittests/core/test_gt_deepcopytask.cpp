@@ -24,7 +24,6 @@
 #include "gt_processdata.h"
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_objectfactory.h"
-#include "gt_taskfactory.h"
 
 
 class TestGtTaskPropertyConnections : public ::testing::Test
@@ -219,24 +218,14 @@ TEST_F(TestGtTaskPropertyConnections, highestParent)
     delete standaloneCalc;
 }
 
-TEST_F(TestGtTaskPropertyConnections, checkTaskPropertyConnectionsErrorBehavior)
-{
-    bool ok;
-
-    // nullptr send
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        nullptr, &ok);
-    Q_UNUSED(retval)
-
-    ASSERT_FALSE(ok);
-}
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 {
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        roottask, &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *roottask);
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 7);
     ASSERT_EQ(retval.external.size(), 0);
@@ -260,10 +249,11 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsRoot)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 {
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        subtask1, &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *subtask1);
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 2);
     ASSERT_EQ(retval.external.size(), 3);
@@ -290,10 +280,11 @@ TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask1)
 
 TEST_F(TestGtTaskPropertyConnections, analyzeConnectionsSubtask2)
 {
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        subtask2, &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *subtask2);
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 1);
     ASSERT_EQ(retval.external.size(), 3);
@@ -349,10 +340,11 @@ TEST_F(TestGtTaskPropertyConnections, deepCopyRoottask)
     ASSERT_NE(calc3->uuid(), calc3_copied->uuid());
 
     // anaylze the property connections
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        roottask_copied.get(), &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *roottask_copied.get());
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 7);
     ASSERT_EQ(retval.external.size(), 0);
@@ -429,10 +421,11 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask1)
     ASSERT_NE(calc2->uuid(), calc2_copied->uuid());
 
     // anaylze the property connections
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        subtask1_copied.get(), &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *subtask1_copied.get());
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 2);
     ASSERT_EQ(retval.external.size(), 0);
@@ -475,10 +468,11 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
     ASSERT_NE(calc3->uuid(), calc3_copied->uuid());
 
     // anaylze the property connections
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        subtask2_copied.get(), &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *subtask2_copied.get());
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 1);
     ASSERT_EQ(retval.external.size(), 0);
@@ -500,12 +494,13 @@ TEST_F(TestGtTaskPropertyConnections, deepCopySubtask2)
 
 TEST_F(TestGtTaskPropertyConnections, cleanRoottask)
 {
-    gt::utils::process::cleanupPropertyConnections(roottask);
+    gt::utils::process::cleanupPropertyConnections(*roottask);
 
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        roottask, &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *roottask);
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 7);
     ASSERT_EQ(retval.external.size(), 0);
@@ -516,12 +511,13 @@ TEST_F(TestGtTaskPropertyConnections, cleanRoottask)
 
 TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
 {
-    ASSERT_FALSE(gt::utils::process::cleanupPropertyConnections(subtask1));
+    ASSERT_FALSE(gt::utils::process::cleanupPropertyConnections(*subtask1));
 
-    bool ok = false;
-    auto retval = gt::utils::process::analyzePropertyConnectionsRelationship(
-        roottask, &ok);
-    ASSERT_TRUE(ok);
+    auto retvalOpt = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *roottask);
+
+    ASSERT_TRUE(retvalOpt.has_value());
+    auto retval = retvalOpt.value();
 
     ASSERT_EQ(retval.internal.size(), 7);
     ASSERT_EQ(retval.external.size(), 0);
@@ -529,11 +525,11 @@ TEST_F(TestGtTaskPropertyConnections, cleanSubtask1ShouldHaveNoEffect)
     ASSERT_EQ(retval.stale.size(), 2);
     ASSERT_EQ(retval.obsolete.size(), 1);
 
+    auto retvalOpt2 = gt::utils::process::analyzePropertyConnectionsRelationship(
+        *subtask1);
 
-    bool ok2 = false;
-    auto retval2 = gt::utils::process::analyzePropertyConnectionsRelationship(
-        subtask1, &ok2);
-    ASSERT_TRUE(ok2);
+    ASSERT_TRUE(retvalOpt2.has_value());
+    auto retval2 = retvalOpt2.value();
 
     ASSERT_EQ(retval2.internal.size(), 2);
     ASSERT_EQ(retval2.external.size(), 3);
@@ -640,7 +636,7 @@ TEST_F(TestGtTaskPropertyConnections, incompleteMappingClearsMissingEndpoints)
         }
 
         EXPECT_FALSE(gt::utils::process::transferPropertyConnectionsViaMapping(
-            subtask2, &taskCopy, mapping));
+            *subtask2, taskCopy, mapping));
         auto* connection =
             taskCopy.findDirectChild<GtPropertyConnection*>("con7");
         ASSERT_NE(connection, nullptr);
@@ -754,7 +750,7 @@ TEST(TestGtRelativeObjectLinkTransfer,
 
     EXPECT_FALSE(
         gt::utils::process::transferRelativeObjectLinkPropertyViaMapping(
-            &root, mapping));
+            root, mapping));
 
     // Missing mappings report failure without altering the unresolved links.
     EXPECT_EQ(root.firstLink.getVal(), missingTarget.uuid());

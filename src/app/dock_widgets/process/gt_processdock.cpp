@@ -1571,18 +1571,16 @@ processComponentIndexToObjectHelper(GtProcessDock* processdock,
 
 
 GtObject*
-processComponentCloneCopyHelper(GtProcessComponent* pComp, bool* ok)
+processComponentCloneCopyHelper(GtProcessComponent* pComp)
 {
-    *ok = true;
-
     GtObject* copy = nullptr;
 
     auto origTask = qobject_cast<GtTask*>(pComp);
 
-    gt::utils::process::printWarningForLostPropertyConnections(origTask, true);
-
     if (origTask)
     {
+        gt::utils::process::printWarningForLostPropertyConnections(*origTask, true);
+
         auto newTask = gt::utils::process::deepCopyTask(origTask);
 
         copy = qobject_cast<GtObject*>(newTask.release());
@@ -1593,7 +1591,6 @@ processComponentCloneCopyHelper(GtProcessComponent* pComp, bool* ok)
 
         if (!copy)
         {
-            *ok = false;
             return nullptr;
         }
     }
@@ -1613,20 +1610,20 @@ GtProcessDock::copyElement(const QModelIndex& index)
         return;
     }
 
-    auto copy = processComponentCloneCopyHelper(pComp, &ok);
-    if (!ok || !copy)
+    auto copy = processComponentCloneCopyHelper(pComp);
+    if (!copy)
     {
         return;
     }
 
     if (auto* task = qobject_cast<GtTask*>(pComp))
     {
-        gt::utils::process::printWarningForLostPropertyConnections(task, true);
+        gt::utils::process::printWarningForLostPropertyConnections(*task, true);
     }
 
     if (auto* copiedTask = qobject_cast<GtTask*>(copy))
     {
-        gt::utils::process::printWarningForLostPropertyConnections(copiedTask,
+        gt::utils::process::printWarningForLostPropertyConnections(*copiedTask,
                                                                    true);
     }
 
@@ -1663,8 +1660,8 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         return;
     }
 
-    auto copy = processComponentCloneCopyHelper(pComp, &ok);
-    if (!ok || !copy)
+    auto copy = processComponentCloneCopyHelper(pComp);
+    if (!copy)
     {
         return;
     }
@@ -1835,10 +1832,10 @@ GtProcessDock::pasteElement(GtObject* parent)
 
     auto task = qobject_cast<GtTask*>(obj);
 
-    gt::utils::process::printWarningForLostPropertyConnections(task, true);
-
     if (task)
     {
+        gt::utils::process::printWarningForLostPropertyConnections(*task, true);
+
         // Pasting a task twice needs to avoid pasting the same UUID twice. Thus, redo deep copy here.
         auto taskCopy = gt::utils::process::deepCopyTask(task);
         if (!taskCopy)
