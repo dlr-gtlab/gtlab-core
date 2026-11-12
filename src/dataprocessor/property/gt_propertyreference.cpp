@@ -37,7 +37,7 @@ GtPropertyReference::fromString(QString s, bool& ok)
     const std::string str = std::move(s).toStdString();
 
     // expression to match an id string
-    const auto idExpr = QString(R"([\w,\-,\s,{,}]+)");
+    const auto idExpr = QString(R"([\w,\-,\s,{,}.]+)");
     // expressio to match the properties including those in arrays
     const auto propExpr = QString(R"(^((%1)\[(%2)\].)?(%3)$)")
                               .arg(idExpr, idExpr, idExpr);
