@@ -2239,4 +2239,107 @@ TEST_F(TestGtObject, bug539)
     EXPECT_EQ(parent.findDirectChildren<TestSpecialGtObject*>().size(), 1);
 }
 
+/**
+ * Regression test: values of properties nested below a struct entry's
+ * members (e.g. inside a GtModeProperty branch) used to be written to the
+ * memento/XML, but were not restored, because the memento import of struct
+ * entries only handled the top-level members. After a round trip, all nested
+ * sub-property values must be restored again.
+ */
+TEST_F(TestGtObject, restoreMementoOfNestedContainers)
+{
+    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject,
+                                   QStringLiteral("UnitTest"));
+
+    TestSpecialGtObject object;
+    object.setFactory(gtObjectFactory);
+
+    // Entry using the mode "by text": the nested string value lives two
+    // levels below the struct entry (entry -> valueMode -> by text).
+    auto& entryByText = object.m_structContainer.newEntry(
+        QStringLiteral("parms"), QStringLiteral("entryByText"));
+    ASSERT_TRUE(entryByText.setMemberVal(
+        QStringLiteral("valueMode"), QStringLiteral("by text")));
+    auto* testName = qobject_cast<GtStringProperty*>(
+        entryByText.findProperty(QStringLiteral("testName")));
+    ASSERT_NE(testName, nullptr);
+    testName->setVal(QStringLiteral("restored text"));
+
+    // Entry using the mode "by number": the nested double value lives in
+    // the other branch of the mode property.
+    auto& entryByNumber = object.m_structContainer.newEntry(
+        QStringLiteral("parms"), QStringLiteral("entryByNumber"));
+    ASSERT_TRUE(entryByNumber.setMemberVal(
+        QStringLiteral("valueMode"), QStringLiteral("by number")));
+    auto* doubleValue = qobject_cast<GtDoubleProperty*>(
+        entryByNumber.findProperty(QStringLiteral("doubleValue")));
+    ASSERT_NE(doubleValue, nullptr);
+    doubleValue->setVal(3.25);
+
+    // Round trip through the XML representation, like a file save/load.
+    const QByteArray xml = object.toMemento().toByteArray();
+    // The write side must actually persist the nested values, otherwise
+    // the round trip below would pass vacuously.
+    EXPECT_TRUE(xml.contains("restored text"));
+    EXPECT_TRUE(xml.contains("3.25"));
+
+    const auto restored = GtObjectMemento(xml).toObject(*gtObjectFactory);
+    ASSERT_NE(restored, nullptr);
+    auto* restoredObject =
+        qobject_cast<TestSpecialGtObject*>(restored.get());
+    ASSERT_NE(restoredObject, nullptr);
+
+    ASSERT_EQ(restoredObject->m_structContainer.size(), 2);
+
+    auto iterByText = restoredObject->m_structContainer.findEntry(
+        QStringLiteral("entryByText"));
+    ASSERT_NE(iterByText, restoredObject->m_structContainer.end());
+    EXPECT_EQ(iterByText->getMemberVal<QString>(QStringLiteral("valueMode")),
+              QStringLiteral("by text"));
+    auto* restoredTestName = qobject_cast<GtStringProperty*>(
+        iterByText->findProperty(QStringLiteral("testName")));
+    ASSERT_NE(restoredTestName, nullptr);
+    EXPECT_EQ(restoredTestName->getVal(), QStringLiteral("restored text"));
+
+    auto iterByNumber = restoredObject->m_structContainer.findEntry(
+        QStringLiteral("entryByNumber"));
+    ASSERT_NE(iterByNumber, restoredObject->m_structContainer.end());
+    EXPECT_EQ(iterByNumber->getMemberVal<QString>(QStringLiteral("valueMode")),
+              QStringLiteral("by number"));
+    auto* restoredDoubleValue = qobject_cast<GtDoubleProperty*>(
+        iterByNumber->findProperty(QStringLiteral("doubleValue")));
+    ASSERT_NE(restoredDoubleValue, nullptr);
+    EXPECT_DOUBLE_EQ(restoredDoubleValue->getVal(), 3.25);
+
+    // Merging into an object that already holds an entry with stale values
+    // exercises the in-place update branch of the same restore path.
+    TestSpecialGtObject target;
+    target.setFactory(gtObjectFactory);
+    auto& staleEntry = target.m_structContainer.newEntry(
+        QStringLiteral("parms"), QStringLiteral("entryByText"));
+    ASSERT_TRUE(staleEntry.setMemberVal(
+        QStringLiteral("valueMode"), QStringLiteral("by text")));
+    auto* staleTestName = qobject_cast<GtStringProperty*>(
+        staleEntry.findProperty(QStringLiteral("testName")));
+    ASSERT_NE(staleTestName, nullptr);
+    staleTestName->setVal(QStringLiteral("stale value"));
+
+    ASSERT_TRUE(GtObjectMemento(xml).mergeTo(target, *gtObjectFactory));
+
+    ASSERT_EQ(target.m_structContainer.size(), 2);
+    auto iterStale = target.m_structContainer.findEntry(
+        QStringLiteral("entryByText"));
+    ASSERT_NE(iterStale, target.m_structContainer.end());
+    auto* updatedTestName = qobject_cast<GtStringProperty*>(
+        iterStale->findProperty(QStringLiteral("testName")));
+    ASSERT_NE(updatedTestName, nullptr);
+    EXPECT_EQ(updatedTestName->getVal(), QStringLiteral("restored text"));
+    auto* targetDoubleValue = qobject_cast<GtDoubleProperty*>(
+        target.m_structContainer.findEntry(QStringLiteral("entryByNumber"))
+            ->findProperty(QStringLiteral("doubleValue")));
+    ASSERT_NE(targetDoubleValue, nullptr);
+    EXPECT_DOUBLE_EQ(targetDoubleValue->getVal(), 3.25);
+}
+
+
 #include "test_gt_object.moc"
