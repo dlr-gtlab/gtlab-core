@@ -18,6 +18,7 @@
 #include "gt_objectfactory.h"
 #include "gt_externalizationmanager.h"
 #include "test_externalizedobject.h"
+#include "test_propertycontainerobject.h"
 
 #include <cmath>
 #include <cstdint>
@@ -65,6 +66,29 @@ makeNan(std::uint64_t payload)
 {
     return doubleFromBits(0x7ff8000000000000ull
                           | (payload & 0x0007ffffffffffffull));
+}
+
+/// Counts all diff elements with the given tag name, optionally
+/// restricted to a specific "name" attribute. Returns 0 for a null diff.
+int
+countDiffElements(const GtObjectMementoDiff& diff, const char* tagName,
+                  const char* nameAttr = nullptr)
+{
+    if (diff.isNull())
+    {
+        return 0;
+    }
+
+    int count = 0;
+    const QDomNodeList elems = diff.doc().elementsByTagName(tagName);
+    for (const QDomElement& elem : elems)
+    {
+        if (nameAttr == nullptr || elem.attribute("name") == QString(nameAttr))
+        {
+            ++count;
+        }
+    }
+    return count;
 }
 
 } // namespace
