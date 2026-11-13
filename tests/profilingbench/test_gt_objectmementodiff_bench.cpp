@@ -673,6 +673,68 @@ runContainerBench(const char* caseName, int entries, int changeMode)
     }
 }
 
+// Fast path cost: the strict areByteIdentical check without any hash
+// computation on a byte-identical (unmodified) pair.
+// cold: fresh pair per measurement (pair creation not timed), only the
+//       comparison is timed; warm: the same pair instance is compared
+//       repeatedly.
+void
+runFastpathCostBench(const char* caseName, BenchTreeConfig cfg)
+{
+    const long long iterMult = benchEnvMult("GT_MEMENTO_BENCH_ITER_MULT", 1);
+    cfg.nodes *= int(benchEnvMult("GT_MEMENTO_BENCH_NODE_MULT", 1));
+
+    const int coldPairs = int(50 * iterMult);
+    const double warmBudgetUs = 3.0e6 * double(iterMult);
+
+    // correctness on one representative pair
+    {
+        BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                       cfg.listLen, 0);
+        EXPECT_FALSE(pair.left.isNull());
+        EXPECT_FALSE(pair.right.isNull());
+        EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(pair.left,
+                                                          pair.right));
+        benchCheckDiff(caseName, pair.left, pair.right, false, QString());
+    }
+
+    // fast path, cold: fresh pair per measurement
+    {
+        std::vector<double> times;
+        times.reserve(coldPairs);
+        size_t acc = 0;
+        for (int i = 0; i < coldPairs; ++i)
+        {
+            BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                           cfg.listLen, 0);
+            const auto t0 = SteadyClock::now();
+            acc += GtObjectMementoDiff::areByteIdentical(pair.left,
+                                                         pair.right) ? 1 : 0;
+            const auto t1 = SteadyClock::now();
+            times.push_back(benchUs(t0, t1));
+        }
+        volatile size_t sink = acc;
+        Q_UNUSED(sink);
+        benchEmit(caseName, cfg.nodes, coldPairs, "fastpath_cold",
+                  std::accumulate(times.begin(), times.end(), 0.0)
+                  / times.size());
+    }
+
+    // fast path, warm: same pair instance compared repeatedly
+    {
+        BenchPair pair = makeBenchPair(cfg.nodes, cfg.childrenPerNode,
+                                       cfg.listLen, 0);
+        int iters = 0;
+        const double mean = benchWarmUsPerCall(
+            3, warmBudgetUs, 100, 100000, iters, [&pair]() -> size_t {
+                return GtObjectMementoDiff::areByteIdentical(pair.left,
+                                                             pair.right)
+                           ? 1 : 0;
+            });
+        benchEmit(caseName, cfg.nodes, iters, "fastpath_warm", mean);
+    }
+}
+
 } // anonymous namespace
 
 class MementoDiffBench : public ::testing::Test
@@ -731,5 +793,16 @@ TEST_F(MementoDiffBench, containerDeep)
 TEST_F(MementoDiffBench, containerMany)
 {
     runContainerBench("containerMany", 2000, 2);
+}
+
+// areByteIdentical fast path on identical mementos: cold + warm
+TEST_F(MementoDiffBench, fastpathCostSmall)
+{
+    runFastpathCostBench("fastpathCost", {100, 3, 8});
+}
+
+TEST_F(MementoDiffBench, fastpathCostLarge)
+{
+    runFastpathCostBench("fastpathCost", {500, 3, 32});
 }
 

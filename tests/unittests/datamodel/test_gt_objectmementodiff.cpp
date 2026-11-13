@@ -39,7 +39,6 @@ struct NonStreamableStruct
     int i{0};
     double d{0.0};
 };
-Q_DECLARE_METATYPE(NonStreamableStruct)
 
 static_assert(sizeof(double) == sizeof(std::uint64_t),
               "double bit helpers require 64 bit doubles");
@@ -81,8 +80,9 @@ countDiffElements(const GtObjectMementoDiff& diff, const char* tagName,
 
     int count = 0;
     const QDomNodeList elems = diff.doc().elementsByTagName(tagName);
-    for (const QDomElement& elem : elems)
+    for (int i = 0; i < elems.size(); ++i)
     {
+        const QDomElement elem = elems.at(i).toElement();
         if (nameAttr == nullptr || elem.attribute("name") == QString(nameAttr))
         {
             ++count;
@@ -92,6 +92,8 @@ countDiffElements(const GtObjectMementoDiff& diff, const char* tagName,
 }
 
 } // namespace
+
+Q_DECLARE_METATYPE(NonStreamableStruct)
 
 /// This is a test fixture that does a init for each test
 class TestGtObjectMementoDiff : public ::testing::Test
@@ -1503,4 +1505,412 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
     GtObjectMementoDiff diff(mem1, mem2);
 
     ASSERT_TRUE(diff.isNull());
+}
+
+// ---------------------------------------------------------------------------
+// areByteIdentical fast path
+// ---------------------------------------------------------------------------
+
+/// The wrapper must report byte-identical pairs as identical and produce an
+/// empty diff; a changed double property must be detected both by the byte
+/// comparison and by the diff.
+TEST_F(TestGtObjectMementoDiff, byteIdenticalWrapperBasics)
+{
+    GtObjectMemento mem1 = obj1.toMemento();
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    obj1.setDouble(obj1.getDouble() + 1.0);
+    GtObjectMemento mem3 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
+
+    GtObjectMementoDiff diff2(mem1, mem3);
+    ASSERT_FALSE(diff2.isNull());
+    EXPECT_EQ(diff2.doc().elementsByTagName("object").size(), 1);
+    EXPECT_EQ(countDiffElements(diff2, "diff-property-change",
+                                "doubleProp"), 1);
+}
+
+/// The fast path must implement a strict bitwise comparison of double
+/// properties: numerically equal or close values that differ in their bit
+/// pattern must never be reported as identical.
+TEST_F(TestGtObjectMementoDiff, doubleBitwiseEquivalence)
+{
+    const double inf = std::numeric_limits<double>::infinity();
+
+    struct Case
+    {
+        const char* name;
+        double left;
+        double right;
+        bool expectRawEq;
+    };
+
+    const Case cases[] = {
+        // same value, different sign bit
+        { "signedZero", 0.0, doubleFromBits(0x8000000000000000ull), false },
+        // NaN with identical / differing payload
+        { "nanSamePayload", makeNan(1), makeNan(1), true },
+        { "nanDiffPayload", makeNan(1), makeNan(2), false },
+        // numerically adjacent doubles (fuzzy-equal on Qt5)
+        { "fuzzyNear", 1.0, doubleFromBits(0x3ff0000000000001ull), false },
+        // different decimal expressions, same encoded double
+        { "roundsToSame", 0.1 + 0.2, 0.30000000000000004, true },
+        // smallest subnormal vs smallest normal
+        { "trueMinVsMinNormal", doubleFromBits(0x0000000000000001ull),
+          doubleFromBits(0x0010000000000000ull), false },
+        // smallest subnormal vs zero
+        { "trueMinVsZero", doubleFromBits(0x0000000000000001ull), 0.0, false },
+        // subnormal sign flip
+        { "subnormalSignFlip", doubleFromBits(0x0000000000000001ull),
+          doubleFromBits(0x8000000000000001ull), false },
+        // infinities
+        { "posInf", inf, inf, true },
+        { "negInf", -inf, -inf, true },
+        // infinity vs largest normal
+        { "infVsMaxNormal", inf, doubleFromBits(0x7fefffffffffffffull), false },
+        { "negInfVsMaxNormal", -inf, doubleFromBits(0xfeffffffffffffull),
+          false },
+        // largest finite values one ulp apart (fuzzy-equal on Qt5)
+        { "fuzzyAtMax", doubleFromBits(0x7fefffffffffffefull),
+          doubleFromBits(0x7fefffffffffffffull), false }
+    };
+
+    for (const Case& c : cases)
+    {
+        SCOPED_TRACE(std::string(c.name));
+
+        obj1.setDouble(c.left);
+        GtObjectMemento mem1 = obj1.toMemento();
+
+        obj1.setDouble(c.right);
+        GtObjectMemento mem2 = obj1.toMemento();
+
+        const bool rawEq = doubleBits(c.left) == doubleBits(c.right);
+        EXPECT_EQ(rawEq, c.expectRawEq);
+        EXPECT_EQ(GtObjectMementoDiff::areByteIdentical(mem1, mem2), rawEq);
+
+        GtObjectMementoDiff diff(mem1, mem2);
+        EXPECT_EQ(diff.isNull(), rawEq);
+
+        // Whether a scalar diff-property-change is emitted additionally
+        // depends on Qt's QVariant comparison (Qt5 compares doubles fuzzy,
+        // Qt6 strictly) -> derive the expectation at runtime.
+        const GtObjectMemento::PropertyData* pLeft =
+            GtObjectMemento::findPropertyByName(mem1.properties,
+                                                QStringLiteral("doubleProp"));
+        const GtObjectMemento::PropertyData* pRight =
+            GtObjectMemento::findPropertyByName(mem2.properties,
+                                                QStringLiteral("doubleProp"));
+        ASSERT_NE(pLeft, nullptr);
+        ASSERT_NE(pRight, nullptr);
+
+        const int expectedChanges =
+            rawEq ? 0 : (pLeft->data() != pRight->data() ? 1 : 0);
+        EXPECT_EQ(countDiffElements(diff, "diff-property-change",
+                                    "doubleProp"), expectedChanges);
+    }
+}
+
+/// List property detection is byte-based (version independent): a sign bit
+/// flip inside a double list must be detected although Qt's QVariant
+/// comparison treats 0.0 and -0.0 as equal.
+TEST_F(TestGtObjectMementoDiff, doubleListSignedZeroChange)
+{
+    obj1.setDoubleVec(QVector<double>() << 0.0);
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.setDoubleVec(QVector<double>()
+                      << doubleFromBits(0x8000000000000000ull));
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+
+    EXPECT_EQ(countDiffElements(diff, "diff-propertylist-change", "dVec"), 1);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change"), 0);
+}
+
+/// "ab","c" and "a","bc" collide in the property hash (per-element toUtf8
+/// without separator) while the strict byte comparison distinguishes them:
+/// the fast path must not treat the pair as identical.
+TEST_F(TestGtObjectMementoDiff, stringListHashCollisionDetected)
+{
+    obj1.stringList = QStringList() << "ab" << "c";
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.stringList = QStringList() << "a" << "bc";
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    EXPECT_EQ(countDiffElements(diff, "diff-propertylist-change",
+                                "strList"), 1);
+
+    // the hash collision is still observable on the hash level
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+}
+
+/// A user metatype without a QDataStream operator is stored as generic
+/// type-only bytes: both mementos compare byte-identical and the diff must
+/// stay empty, although the stored values are not recoverable.
+TEST_F(TestGtObjectMementoDiff, customUnstreamableMetatype)
+{
+#if !defined(NDEBUG)
+    // Qt5 asserts inside QVariant::save for user types without a stream
+    // operator; the assert aborts the whole runner in debug builds.
+    GTEST_SKIP() << "requires a release build (NDEBUG)";
+#endif
+
+    obj1.setVariant(QVariant::fromValue(NonStreamableStruct{ 1, 1.5 }));
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.setVariant(QVariant::fromValue(NonStreamableStruct{ 2, 2.5 }));
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+}
+
+/// Two mementos of an externalized object in the unfetched state (only
+/// externalization meta data, no values) must be byte-identical without any
+/// fetch: the fast path fires before the externalization handling.
+TEST_F(TestGtObjectMementoDiff, externalizedMementosIdenticalStateNoFetch)
+{
+    if (!gtObjectFactory->knownClass("TestExternalizedObject"))
+    {
+        gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+    }
+    gtExternalizationManager->enableExternalization(true);
+
+    auto extObj = std::make_unique<TestExternalizedObject>();
+    extObj->setObjectName("TestObject");
+
+    // fetch the initial data and externalize it: the object is left in the
+    // unfetched state carrying only the externalization meta data
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 1.0);
+        data.setParams(QStringList() << "p1");
+        ASSERT_TRUE(data.isValid());
+    }
+
+    ASSERT_TRUE(extObj->externalize());
+    ASSERT_FALSE(extObj->isFetched());
+
+    GtObjectMemento mem1 = extObj->toMemento();
+    GtObjectMemento mem2 = extObj->toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+
+    // the memento must carry the externalization info
+    const auto info = mem1.externalizationInfo(*gtObjectFactory);
+    EXPECT_TRUE(info.isValid());
+    EXPECT_FALSE(info.isFetched);
+    EXPECT_EQ(info.hash, extObj->extHash());
+}
+
+/// Left memento unfetched (stale), right memento fetched with new values:
+/// the diff must fetch the left side and report exactly the changed values
+/// list.
+TEST_F(TestGtObjectMementoDiff, externalizedMementosChangedStateFetchesLeft)
+{
+    if (!gtObjectFactory->knownClass("TestExternalizedObject"))
+    {
+        gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+    }
+    gtExternalizationManager->enableExternalization(true);
+
+    auto extObj = std::make_unique<TestExternalizedObject>();
+    extObj->setObjectName("TestObject");
+
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 1.0);
+        data.setParams(QStringList() << "p1");
+        ASSERT_TRUE(data.isValid());
+    }
+
+    ASSERT_TRUE(extObj->externalize());
+
+    GtObjectMemento mem1 = extObj->toMemento();
+
+    ASSERT_TRUE(extObj->internalize());
+    EXPECT_EQ(extObj->internalValues(), QVector<double>() << 1.0);
+    EXPECT_EQ(extObj->internalParams(), QStringList() << "p1");
+
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 2.0);
+        ASSERT_TRUE(data.isValid());
+    }
+
+    GtObjectMemento mem2 = extObj->toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    EXPECT_EQ(diff.numberOfDiffSteps(), 1);
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    // the diff must reflect the fetched left side: only the values list
+    // changed
+    EXPECT_EQ(countDiffElements(diff, "diff-propertylist-change",
+                                "values"), 1);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change"), 0);
+}
+
+/// A changed member of a struct container entry must be reported as a
+/// container entry change with exactly one nested scalar change.
+TEST_F(TestGtObjectMementoDiff, containerEntryChange)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    GtObjectMemento mem1 = obj.toMemento();
+
+    obj.environmentVars.at(0).setMemberVal("value", "/bin");
+    GtObjectMemento mem2 = obj.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    const QDomNodeList changes =
+        diff.doc().elementsByTagName("diff-property-container-entry-change");
+    ASSERT_EQ(changes.size(), 1);
+    for (int i = 0; i < changes.size(); ++i)
+    {
+        const QDomElement change = changes.at(i).toElement();
+        EXPECT_EQ(change.attribute("name"), "environmentVars");
+        EXPECT_FALSE(change.attribute("entryName").isEmpty());
+    }
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-add"), 0);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-remove"),
+              0);
+
+    // the changed member surfaces as a nested scalar change
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change", "value"), 1);
+}
+
+/// An added struct container entry must be reported as a container entry
+/// add embedding the full entry, without any scalar change element.
+TEST_F(TestGtObjectMementoDiff, containerEntryAdd)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    GtObjectMemento mem1 = obj.toMemento();
+
+    obj.addEnvironmentVar("HOME", "/home/user");
+    GtObjectMemento mem2 = obj.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    const QDomNodeList adds =
+        diff.doc().elementsByTagName("diff-property-container-entry-add");
+    ASSERT_EQ(adds.size(), 1);
+    for (int i = 0; i < adds.size(); ++i)
+    {
+        const QDomElement add = adds.at(i).toElement();
+        EXPECT_EQ(add.attribute("name"), "environmentVars");
+        EXPECT_EQ(add.attribute("index"), "1");
+    }
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-change"),
+              0);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-remove"),
+              0);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change"), 0);
+
+    // the added entry is embedded into the add element
+    bool found = false;
+    const QDomNodeList props = diff.doc().elementsByTagName("property");
+    for (int i = 0; i < props.size(); ++i)
+    {
+        const QDomElement prop = props.at(i).toElement();
+        if (prop.attribute("name") == "value" &&
+            prop.text() == "/home/user")
+        {
+            found = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(found);
+}
+
+/// A removed struct container entry must be reported as a container entry
+/// remove embedding the full entry, without any scalar change element.
+TEST_F(TestGtObjectMementoDiff, containerEntryRemove)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    obj.addEnvironmentVar("HOME", "/home/user");
+    GtObjectMemento mem1 = obj.toMemento();
+
+    obj.environmentVars.removeEntry(obj.environmentVars.begin());
+    GtObjectMemento mem2 = obj.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    const QDomNodeList removes =
+        diff.doc().elementsByTagName("diff-property-container-entry-remove");
+    ASSERT_EQ(removes.size(), 1);
+    for (int i = 0; i < removes.size(); ++i)
+    {
+        const QDomElement rem = removes.at(i).toElement();
+        EXPECT_EQ(rem.attribute("name"), "environmentVars");
+        EXPECT_EQ(rem.attribute("index"), "0");
+    }
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-add"), 0);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-container-entry-change"),
+              0);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change"), 0);
+
+    // the removed entry is embedded into the remove element
+    bool found = false;
+    const QDomNodeList props = diff.doc().elementsByTagName("property");
+    for (int i = 0; i < props.size(); ++i)
+    {
+        const QDomElement prop = props.at(i).toElement();
+        if (prop.attribute("name") == "value" &&
+            prop.text() == "/usr/bin")
+        {
+            found = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(found);
 }
