@@ -20,6 +20,8 @@
 #include "test_externalizedobject.h"
 #include "test_propertycontainerobject.h"
 
+#include <QDataStream>
+
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -94,6 +96,35 @@ countDiffElements(const GtObjectMementoDiff& diff, const char* tagName,
 } // namespace
 
 Q_DECLARE_METATYPE(NonStreamableStruct)
+
+/// Custom metatype with QDataStream operators: the byte comparison and the
+/// hash computation stream the value, so both see the actual content of the
+/// struct (unlike NonStreamableStruct, which is type-only).
+struct StreamableStruct
+{
+    int i{0};
+    double d{0.0};
+};
+
+inline bool
+operator==(const StreamableStruct& a, const StreamableStruct& b)
+{
+    return a.i == b.i && a.d == b.d;
+}
+
+QDataStream&
+operator<<(QDataStream& stream, const StreamableStruct& value)
+{
+    return stream << value.i << value.d;
+}
+
+QDataStream&
+operator>>(QDataStream& stream, StreamableStruct& value)
+{
+    return stream >> value.i >> value.d;
+}
+
+Q_DECLARE_METATYPE(StreamableStruct)
 
 /// This is a test fixture that does a init for each test
 class TestGtObjectMementoDiff : public ::testing::Test
@@ -1913,4 +1944,209 @@ TEST_F(TestGtObjectMementoDiff, containerEntryRemove)
         }
     }
     EXPECT_TRUE(found);
+}
+
+/// A user metatype with QDataStream operators is stored with its streamed
+/// value bytes: identical values must be byte-identical (empty diff, equal
+/// hashes) and a changed value must be detected exactly like the old
+/// hash-based comparison did.
+TEST_F(TestGtObjectMementoDiff, customStreamableMetatype)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt5 needs the stream operators registered explicitly to stream user
+    // types across translation units (also avoids the QVariant::save assert
+    // in debug builds)
+    qRegisterMetaTypeStreamOperators<StreamableStruct>();
+#endif
+
+    obj1.setVariant(QVariant::fromValue(StreamableStruct{ 1, 1.5 }));
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.setVariant(QVariant::fromValue(StreamableStruct{ 1, 1.5 }));
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+
+    // a changed value must be detected and reported as a property change
+    obj1.setVariant(QVariant::fromValue(StreamableStruct{ 2, 2.5 }));
+    GtObjectMemento mem3 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
+
+    GtObjectMementoDiff diff2(mem1, mem3);
+    ASSERT_FALSE(diff2.isNull());
+    EXPECT_EQ(countDiffElements(diff2, "diff-property-change",
+                                "variantProp"), 1);
+
+    // the hash verdicts must agree with the byte verdicts
+    mem1.calculateHashes();
+    mem3.calculateHashes();
+    EXPECT_NE(mem1.propertyHash(), mem3.propertyHash());
+    EXPECT_NE(mem1.fullHash(), mem3.fullHash());
+}
+
+/// The variant hash treats a null and an empty QString as equal (it hashes
+/// toString().toUtf8()): the byte comparison must agree, while a changed
+/// text must still be detected.
+TEST_F(TestGtObjectMementoDiff, customQStringNullVsEmptyVariant)
+{
+    obj1.setVariant(QVariant(QString()));
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    obj1.setVariant(QVariant(QString("")));
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+
+    // a changed text must still be detected
+    obj1.setVariant(QVariant(QStringLiteral("changed")));
+    GtObjectMemento mem3 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
+
+    GtObjectMementoDiff diff2(mem1, mem3);
+    ASSERT_FALSE(diff2.isNull());
+    EXPECT_EQ(countDiffElements(diff2, "diff-property-change",
+                                "variantProp"), 1);
+}
+
+/// An unchanged struct container must be treated as byte-identical: no
+/// diff at all, matching the equal full hashes of the old comparison.
+TEST_F(TestGtObjectMementoDiff, containerUnchangedNoDiff)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    obj.addEnvironmentVar("HOME", "/home/user");
+    GtObjectMemento mem1 = obj.toMemento();
+
+    GtObjectMemento mem2 = obj.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+
+    // sanity: the memento actually carries the container with both entries
+    ASSERT_EQ(mem1.propertyContainers.size(), 1);
+    EXPECT_EQ(mem1.propertyContainers.first().name, "environmentVars");
+    EXPECT_EQ(mem1.propertyContainers.first().childProperties.size(), 2);
+}
+
+/// Two mementos of a fetched externalized object with identical data must
+/// be byte-identical and produce no diff without any fetch: both mementos
+/// already carry the full data.
+TEST_F(TestGtObjectMementoDiff, externalizedMementosFetchedIdenticalNoFetch)
+{
+    if (!gtObjectFactory->knownClass("TestExternalizedObject"))
+    {
+        gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+    }
+    gtExternalizationManager->enableExternalization(true);
+
+    auto extObj = std::make_unique<TestExternalizedObject>();
+    extObj->setObjectName("TestObject");
+
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 1.0);
+        data.setParams(QStringList() << "p1");
+        ASSERT_TRUE(data.isValid());
+    }
+
+    ASSERT_TRUE(extObj->externalize());
+
+    // keep the data fetched: the mementos now carry the actual values
+    ASSERT_TRUE(extObj->internalize());
+    EXPECT_TRUE(extObj->isFetched());
+    EXPECT_EQ(extObj->internalValues(), QVector<double>() << 1.0);
+
+    GtObjectMemento mem1 = extObj->toMemento();
+    GtObjectMemento mem2 = extObj->toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    EXPECT_TRUE(diff.isNull());
+
+    mem1.calculateHashes();
+    mem2.calculateHashes();
+    EXPECT_EQ(mem1.fullHash(), mem2.fullHash());
+
+    // the memento carries the fetched externalization info
+    const auto info = mem1.externalizationInfo(*gtObjectFactory);
+    EXPECT_TRUE(info.isValid());
+    EXPECT_TRUE(info.isFetched);
+    EXPECT_EQ(info.hash, extObj->extHash());
+}
+
+/// Two fetched mementos of an externalized object whose in-memory data
+/// differs must be diffed without any fetch: a re-fetch would reload the
+/// old file contents and hide the change, so the reported values list
+/// change proves the fetched state was used as-is.
+TEST_F(TestGtObjectMementoDiff, externalizedMementosFetchedDifferentNoFetch)
+{
+    if (!gtObjectFactory->knownClass("TestExternalizedObject"))
+    {
+        gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+    }
+    gtExternalizationManager->enableExternalization(true);
+
+    auto extObj = std::make_unique<TestExternalizedObject>();
+    extObj->setObjectName("TestObject");
+
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 1.0);
+        data.setParams(QStringList() << "p1");
+        ASSERT_TRUE(data.isValid());
+    }
+
+    ASSERT_TRUE(extObj->externalize());
+
+    ASSERT_TRUE(extObj->internalize());
+
+    GtObjectMemento mem1 = extObj->toMemento();
+
+    // modify the data in memory only: the externalized files (and thus the
+    // cached hash) stay unchanged
+    {
+        auto data = extObj->fetchData();
+        data.setValues(QVector<double>() << 2.0);
+        ASSERT_TRUE(data.isValid());
+    }
+
+    GtObjectMemento mem2 = extObj->toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    // both mementos are fetched: the diff must work without any fetch
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+    EXPECT_EQ(diff.numberOfDiffSteps(), 1);
+    ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
+
+    EXPECT_EQ(countDiffElements(diff, "diff-propertylist-change",
+                                "values"), 1);
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change"), 0);
+
+    // the object is still fetched after the diff
+    EXPECT_TRUE(extObj->isFetched());
 }
