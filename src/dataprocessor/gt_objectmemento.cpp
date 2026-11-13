@@ -575,33 +575,21 @@ readProperties(const GtObjectMemento& memento,
     }
 }
 
-void gt::importStructEntryFromMemento(const PD& propStruct,
-                                  // cppcheck-suppress constParameter
-                                  GtPropertyStructInstance& structEntry)
+void
+gt::importStructEntryFromMemento(const PD& propStruct,
+                                 // cppcheck-suppress constParameter
+                                 GtPropertyStructInstance& structEntry)
 {
     assert(propStruct.type() == PD::STRUCT_T);
 
-    auto const & membersInMemento = propStruct.childProperties;
-
-    // copy all member values into the new entry
-    for (auto& member : structEntry.properties())
+    // Restore member values recursively so that nested sub-properties
+    // (e.g. values inside GtModeProperty branches) are restored as well.
+    // This matches the behavior of readProperties() for regular properties.
+    if (!restorePropertyData(structEntry, propStruct,
+                             MissingChildPolicy::Ignore))
     {
-        if (!member) continue;
-
-        auto prop = GtObjectMemento::findPropertyByName(membersInMemento,
-                                                        member->ident());
-
-        if (prop)
-        {
-            member->setValueFromVariant(prop->data());
-            member->setActive(prop->isActive);
-        }
-        else
-        {
-            // property does not exist
-            gtError() << "Property '" << member->ident()
-                      << "' does not exist in memento";
-        }
+        gtWarning() << QObject::tr("Failed to restore struct entry of type '%1'"
+                                   " from memento").arg(structEntry.typeName());
     }
 }
 
