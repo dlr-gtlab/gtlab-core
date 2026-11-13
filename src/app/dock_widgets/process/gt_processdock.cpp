@@ -219,6 +219,15 @@ GtProcessDock::GtProcessDock() :
             onCurrentChanged(current);
     });
 
+    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this]()
+    {
+        if (!m_view->selectionModel()->hasSelection())
+        {
+            updateButtons();
+        }
+    });
+
     connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
             SLOT(itemCollapsed(QModelIndex)));
     connect(m_view, SIGNAL(expanded(QModelIndex)), this,
@@ -991,12 +1000,8 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
 void
 GtProcessDock::onClicked(const QModelIndex& index)
 {
-    if (!index.isValid())
-    {
-        return;
-    }
-
-    onCurrentChanged(index);
+    onCurrentChanged(m_view->selectionModel()->isSelected(index) ?
+                         index : QModelIndex{});
 }
 
 void
