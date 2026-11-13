@@ -211,22 +211,21 @@ public:
     }
 
     static GtPropertyStructDefinition nestedProps(
-        QList<GtAbstractProperty *>& cleanupList)
+        QList<GtAbstractProperty*>& cleanupList)
     {
-        auto makeValueMode = [&cleanupList](const QString& id)
-        {
+        auto makeValueMode = [&cleanupList](const QString& id) {
             auto* p = new GtModeProperty(id, id, "");
 
             auto* byNumber = new GtModeTypeProperty("by number", "by number");
             auto* byText = new GtModeTypeProperty("by text", "by text");
 
-            auto* valueDouble = new GtDoubleProperty(
-                "doubleValue", tr("test"), tr("test"));
+            auto* valueDouble =
+                new GtDoubleProperty("doubleValue", tr("test"), tr("test"));
 
             byNumber->registerSubProperty(*valueDouble);
 
-            auto* testName = new GtStringProperty(
-                "testName", tr("testName"), tr("testName"));
+            auto* testName = new GtStringProperty("testName", tr("testName"),
+                                                  tr("testName"));
 
             byText->registerSubProperty(*testName);
 

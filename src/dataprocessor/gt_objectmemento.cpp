@@ -589,7 +589,8 @@ gt::importStructEntryFromMemento(const PD& propStruct,
                              MissingChildPolicy::Ignore))
     {
         gtWarning() << QObject::tr("Failed to restore struct entry of type '%1'"
-                                   " from memento").arg(structEntry.typeName());
+                                   " from memento")
+                           .arg(structEntry.typeName());
     }
 }
 
