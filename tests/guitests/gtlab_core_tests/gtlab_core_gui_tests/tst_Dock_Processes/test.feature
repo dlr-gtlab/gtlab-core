@@ -99,7 +99,7 @@ Feature: Test specific features of the process dock
          Then the 'Run*' button is enabled
          When the process selection is cleared
          Then the 'Run*' button is greyed out
-         When the process element is selected
+         When the current process index is selected again
          Then the 'Run*' button is enabled
 
 

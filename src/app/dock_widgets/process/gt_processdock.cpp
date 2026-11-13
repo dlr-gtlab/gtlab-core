@@ -221,10 +221,12 @@ GtProcessDock::GtProcessDock() :
 
     connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this]() {
-                if (!m_view->selectionModel()->hasSelection())
-                {
-                    updateButtons();
-                }
+                const auto index = m_view->currentIndex();
+                auto* obj =
+                    m_view->selectionModel()->isSelected(index)
+                        ? gtDataModel->objectFromIndex(mapToSource(index))
+                        : nullptr;
+                updateButtons(obj);
             });
 
     connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
