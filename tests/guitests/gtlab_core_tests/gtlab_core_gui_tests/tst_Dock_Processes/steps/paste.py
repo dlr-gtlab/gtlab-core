@@ -23,7 +23,7 @@ def select_paste_target(context):
     view.scrollTo(target)
     rect = view.visualRect(target)
     mouseClick(view.viewport(), rect.x + rect.width // 2,
-               rect.y + rect.height // 2)
+               rect.y + rect.height // 2, Qt.NoModifier, Qt.LeftButton)
 
 
 @When('the context menu of the selected process is opened')
@@ -31,7 +31,7 @@ def open_selected_process_menu(context):
     view = paste_process_view()
     rect = view.visualRect(view.currentIndex())
     openContextMenu(view.viewport(), rect.x + rect.width // 2,
-                    rect.y + rect.height // 2)
+                    rect.y + rect.height // 2, Qt.NoModifier)
 
 
 @When('Ctrl+V is pressed in the process view')
