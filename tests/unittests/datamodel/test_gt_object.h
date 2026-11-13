@@ -55,8 +55,8 @@ class TestSpecialGtObject : public GtObjectGroup
 public:
     Q_INVOKABLE TestSpecialGtObject() :
         m_boolProp("boolProp", "Test Bool", QString()),
-        m_doubleProp("doubleProp", "Test Double",
-                                            QString(), GtUnit::Category::Angle),
+        m_doubleProp("doubleProp", "Test Double", QString(),
+                     GtUnit::Category::Angle),
         m_fileProp("fileProp", "Test File", QString(), QStringList()),
         m_groupProp("Test Group", QString()),
         m_intProp("intProp", "Test Int", QString()),
@@ -64,11 +64,12 @@ public:
         m_modeProp("modeProp", "Test Mode", QString()),
         m_modeTypeProp("Test Type", QString()),
         m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
-        m_strProp("strProp", "Test String",  QString(), "Test",
+        m_strProp("strProp", "Test String", QString(), "Test",
                   gt::rex::onlyLettersAndNumbers()),
         m_varProp("variantProp", "Test Variant", QString()),
         m_doubleListProp("dblList", "Double List Property"),
-        m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
+        m_exDirProp("exDir", "Existing Directory",
+                    "Existing Directory Property"),
         m_fileChooser("fileChooser", "File Chooser", "File Chooser", {"dat"}),
         m_structContainer("structContainer", tr("Stuct Container"))
     {
