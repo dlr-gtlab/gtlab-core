@@ -108,24 +108,24 @@ Feature: Test specific features of the process dock
           And the dock widgets 'Explorer, Processes/Calculators' are visible
          When the standard testing project is opened
           And the context menu of the process view is opened
-          And the action 'Add... > Empty Root Task' is activated
+          And the process action 'Add... > Empty Root Task' is activated
          Then the process element 'New Task' exists
          When the process element is selected
           And the selected process is remembered as the paste target
           And the context menu of the selected process is opened
-          And the action 'Copy' is activated
+          And the process action 'Copy' is activated
           And the context menu of the selected process is opened
-         Then the action 'Paste' is enabled
-         When the action 'Paste' is activated
+         Then the process action 'Paste' is enabled
+         When the process action 'Paste' is activated
          Then the paste target has 1 additional children
           And the pasted component is a 'task' named 'New Task'
          # Copy the selected child task and paste it back as a sibling subtask.
          When the context menu of the selected process is opened
-          And the action 'Copy' is activated
+          And the process action 'Copy' is activated
           And the remembered paste target is selected
           And the context menu of the selected process is opened
-         Then the action 'Paste' is enabled
-         When the action 'Paste' is activated
+         Then the process action 'Paste' is enabled
+         When the process action 'Paste' is activated
          Then the paste target has 2 additional children
           And the pasted component is a 'task' named 'New Task[2]'
          When the remembered paste target is selected
@@ -139,12 +139,12 @@ Feature: Test specific features of the process dock
           And the dock widgets 'Explorer, Processes/Calculators' are visible
          When the standard testing project is opened
           And the context menu of the process view is opened
-          And the action 'Add... > Empty Root Task' is activated
+          And the process action 'Add... > Empty Root Task' is activated
          Then the process element 'New Task' exists
          When the process element is selected
           And the selected process is remembered as the paste target
           And the context menu of the selected process is opened
-          And the action 'Add... > New Calculator...' is activated
+          And the process action 'Add... > New Calculator...' is activated
          Then the process element 'Sleep Calculator [RELEASE]' is listed within the category 'Testing'
          When the entry is selected
           And the wizard proceeds
@@ -152,14 +152,14 @@ Feature: Test specific features of the process dock
          Then the process element 'Sleep' exists
          When the process element is selected
           And the context menu of the selected process is opened
-          And the action 'Copy' is activated
+          And the process action 'Copy' is activated
           And the context menu of the process view is opened
-         Then the action 'Paste' is disabled
+         Then the process action 'Paste' is disabled
          When the process context menu is dismissed
           And the remembered paste target is selected
           And the context menu of the selected process is opened
-         Then the action 'Paste' is enabled
-         When the action 'Paste' is activated
+         Then the process action 'Paste' is enabled
+         When the process action 'Paste' is activated
          Then the paste target has 2 additional children
           And the pasted component is a 'calculator' named 'Sleep[2]'
          When the remembered paste target is selected
@@ -169,7 +169,7 @@ Feature: Test specific features of the process dock
          # The pasted calculator is selected; calculators cannot contain children.
          When the selected process is remembered as the paste target
           And the context menu of the selected process is opened
-         Then the action 'Paste' does not exist
+         Then the process action 'Paste' does not exist
          When the process context menu is dismissed
           And Ctrl+V is pressed in the process view
          Then the paste target has 0 additional children
@@ -178,14 +178,14 @@ Feature: Test specific features of the process dock
          When the process element is selected
           And the selected process is remembered as the paste target
           And the context menu of the selected process is opened
-          And the action 'Copy' is activated
+          And the process action 'Copy' is activated
           And the context menu of the selected process is opened
-          And the action 'Run Task' is activated
+          And the process action 'Run Task' is activated
          Then wait 1 seconds
          When the context menu of the selected process is opened
-         Then the action 'Paste' is disabled
+         Then the process action 'Paste' is disabled
          When the process context menu is dismissed
           And Ctrl+V is pressed in the process view
          Then the paste target has 0 additional children
          When the context menu of the selected process is opened
-          And the action 'Stop Task' is activated
+          And the process action 'Stop Task' is activated

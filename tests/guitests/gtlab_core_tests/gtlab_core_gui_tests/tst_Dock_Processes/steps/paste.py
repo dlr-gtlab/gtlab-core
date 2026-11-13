@@ -7,6 +7,51 @@ def paste_process_view():
     return waitForObject({'type': 'GtProcessView', 'visible': True})
 
 
+def paste_process_menu():
+    return waitForObject({'type': 'QMenu', 'visible': True})
+
+
+def visible_process_action(name):
+    # Resolve each popup afresh: processContextMenu() creates a temporary QMenu.
+    for action in paste_process_menu().actions():
+        if action.visible and str(action.text).replace('&', '') == name:
+            return action
+    return None
+
+
+@When("the process action '|any|' is activated")
+def activate_process_action(context, path):
+    menu = paste_process_menu()
+    labels = path.split(' > ')
+    for position, label in enumerate(labels):
+        activateItem(menu, label)
+        if position < len(labels) - 1:
+            menu = waitForObject({'type': 'QMenu', 'visible': True,
+                                  'title': label})
+
+
+@Then("the process action '|any|' is enabled")
+def verify_process_action_enabled(context, name):
+    action = visible_process_action(name)
+    test.verify(action is not None, 'Process menu contains ' + name)
+    if action is not None:
+        test.verify(action.enabled, name + ' is enabled')
+
+
+@Then("the process action '|any|' is disabled")
+def verify_process_action_disabled(context, name):
+    action = visible_process_action(name)
+    test.verify(action is not None, 'Process menu contains ' + name)
+    if action is not None:
+        test.verify(not action.enabled, name + ' is disabled')
+
+
+@Then("the process action '|any|' does not exist")
+def verify_process_action_absent(context, name):
+    test.verify(visible_process_action(name) is None,
+                'Process menu does not contain ' + name)
+
+
 @When('the selected process is remembered as the paste target')
 def remember_paste_target(context):
     view = paste_process_view()
@@ -32,6 +77,7 @@ def open_selected_process_menu(context):
     rect = view.visualRect(view.currentIndex())
     openContextMenu(view.viewport(), rect.x + rect.width // 2,
                     rect.y + rect.height // 2, Qt.NoModifier)
+    paste_process_menu()
 
 
 @When('Ctrl+V is pressed in the process view')
@@ -41,7 +87,7 @@ def keyboard_paste(context):
 
 @When('the process context menu is dismissed')
 def dismiss_process_menu(context):
-    type(waitForObject({'type': 'QMenu', 'visible': True}), '<Escape>')
+    type(paste_process_menu(), '<Escape>')
 
 
 @Then('the paste target has |integer| additional children')
@@ -65,7 +111,7 @@ def verify_pasted_component(context, component_type, name):
     # The Add submenu is present only for tasks in processContextMenu().
     # Check the selected child's type through its UI, without a test-only API.
     open_selected_process_menu(context)
-    menu = waitForObject({'type': 'QMenu', 'visible': True})
+    menu = paste_process_menu()
     has_task_menu = object.exists({'type': 'QMenu', 'title': 'Add...',
                                    'container': menu})
     test.compare(has_task_menu, component_type == 'task')
