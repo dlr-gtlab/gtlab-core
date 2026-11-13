@@ -10,16 +10,18 @@ def paste_process_view():
 @When('the selected process is remembered as the paste target')
 def remember_paste_target(context):
     view = paste_process_view()
-    context.paste_target = view.currentIndex()
-    test.verify(context.paste_target.isValid())
-    context.paste_child_count = view.model().rowCount(context.paste_target)
+    target = view.currentIndex()
+    test.verify(target.isValid())
+    context.userData['paste_target'] = target
+    context.userData['paste_child_count'] = view.model().rowCount(target)
 
 
 @When('the remembered paste target is selected')
 def select_paste_target(context):
     view = paste_process_view()
-    view.scrollTo(context.paste_target)
-    rect = view.visualRect(context.paste_target)
+    target = context.userData['paste_target']
+    view.scrollTo(target)
+    rect = view.visualRect(target)
     mouseClick(view.viewport(), rect.x + rect.width // 2,
                rect.y + rect.height // 2)
 
@@ -44,9 +46,10 @@ def dismiss_process_menu(context):
 
 @Then('the paste target has |integer| additional children')
 def verify_paste_child_count(context, count):
-    expected = context.paste_child_count + int(count)
+    target = context.userData['paste_target']
+    expected = context.userData['paste_child_count'] + int(count)
     test.verify(waitFor(lambda: paste_process_view().model().rowCount(
-        context.paste_target) == expected))
+        target) == expected))
 
 
 @Then("the pasted component is a '|word|' named '|any|'")
@@ -54,9 +57,10 @@ def verify_pasted_component(context, component_type, name):
     view = paste_process_view()
     index = view.currentIndex()
     test.compare(str(index.data(Qt.DisplayRole)), name)
-    test.compare(index.parent().row(), context.paste_target.row())
+    target = context.userData['paste_target']
+    test.compare(index.parent().row(), target.row())
     test.compare(index.parent().data(Qt.DisplayRole),
-                 context.paste_target.data(Qt.DisplayRole))
+                 target.data(Qt.DisplayRole))
 
     # The Add submenu is present only for tasks in processContextMenu().
     # Check the selected child's type through its UI, without a test-only API.
