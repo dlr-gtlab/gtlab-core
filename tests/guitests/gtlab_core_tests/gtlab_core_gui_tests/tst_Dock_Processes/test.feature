@@ -181,7 +181,7 @@ Feature: Test specific features of the process dock
           And the process action 'Copy' is activated
           And the context menu of the selected process is opened
           And the process action 'Run Task' is activated
-         Then wait 1 seconds
+         Then the remembered paste target is running
          When the context menu of the selected process is opened
          Then the process action 'Paste' is disabled
          When the process context menu is dismissed

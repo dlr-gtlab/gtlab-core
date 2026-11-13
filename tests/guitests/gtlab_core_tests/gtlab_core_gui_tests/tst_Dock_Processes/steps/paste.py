@@ -8,7 +8,7 @@ def paste_process_view():
 
 
 def paste_process_menu():
-    return waitForObject({'type': 'QMenu', 'visible': True})
+    return waitForObject({'type': 'QMenu', 'visible': True, 'title': ''})
 
 
 def visible_process_action(name):
@@ -108,11 +108,23 @@ def verify_pasted_component(context, component_type, name):
     test.compare(index.parent().data(Qt.DisplayRole),
                  target.data(Qt.DisplayRole))
 
-    # The Add submenu is present only for tasks in processContextMenu().
-    # Check the selected child's type through its UI, without a test-only API.
+    # Tasks have an Add action; inspecting it does not require opening or
+    # locating the hidden submenu.
     open_selected_process_menu(context)
-    menu = paste_process_menu()
-    has_task_menu = object.exists({'type': 'QMenu', 'title': 'Add...',
-                                   'container': menu})
+    has_task_menu = visible_process_action('Add...') is not None
     test.compare(has_task_menu, component_type == 'task')
     dismiss_process_menu(context)
+
+
+@Then('the remembered paste target is running')
+def wait_for_running_paste_target(context):
+    target = context.userData['paste_target']
+    model = paste_process_view().model()
+    state_index = model.index(target.row(), 1, target.parent())
+
+    def is_running():
+        # GtProcessComponentModel exposes execution state in column 1's tooltip.
+        state = str(state_index.data(Qt.ToolTipRole))
+        return state == 'Running' or state.startswith('Progress:')
+
+    test.verify(waitFor(is_running, 10000), 'Paste target has started running')
