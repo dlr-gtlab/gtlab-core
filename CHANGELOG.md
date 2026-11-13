@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
 ### Changed
+- Improved task cloning/copying and the property connection transfer using a new deep copy functionality including UUID mapping between original and copied task structure
+
 ### Deprecated
 
 ## [2.1.0-alpha.2] - 2026-11-09
