@@ -25,7 +25,7 @@
 #include "test_mdi_interface_ext.h"
 
 GtVersionNumber
-TestDatamodelInterfaceExt::version()
+TestDatamodelInterfaceExt::version() const
 {
     return GtVersionNumber(1, 2, 4);
 }

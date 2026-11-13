@@ -26,7 +26,7 @@ TestDatamodelInterface::init()
 { }
 
 GtVersionNumber
-TestDatamodelInterface::version()
+TestDatamodelInterface::version() const
 {
     return GtVersionNumber(1);
 }
