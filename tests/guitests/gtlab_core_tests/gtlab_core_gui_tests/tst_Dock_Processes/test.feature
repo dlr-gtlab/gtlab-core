@@ -95,11 +95,13 @@ Feature: Test specific features of the process dock
          Then the 'Run*' button is enabled
          When empty space in the process view is clicked
          Then the 'Run*' button is greyed out
+          And the process view has no current index
          When the process element is selected
          Then the 'Run*' button is enabled
          When the process selection is cleared
          Then the 'Run*' button is greyed out
-         When the current process index is selected again
+          And the process view has no current index
+         When the previously selected process index is selected again
          Then the 'Run*' button is enabled
 
 

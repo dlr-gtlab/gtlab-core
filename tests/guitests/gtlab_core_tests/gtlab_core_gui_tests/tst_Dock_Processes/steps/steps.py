@@ -12,10 +12,17 @@ def clickEmptyProcessSpace(context):
 @When("the process selection is cleared")
 def clearProcessSelection(context):
     view = waitForObject({"type": "GtProcessView", "visible": True})
+    context.previousProcessIndex = view.currentIndex()
     view.clearSelection()
 
 
-@When("the current process index is selected again")
-def reselectCurrentProcess(context):
+@When("the previously selected process index is selected again")
+def reselectPreviousProcess(context):
     view = waitForObject({"type": "GtProcessView", "visible": True})
-    view.setCurrentIndex(view.currentIndex())
+    view.setCurrentIndex(context.previousProcessIndex)
+
+
+@Then("the process view has no current index")
+def verifyNoCurrentProcess(context):
+    view = waitForObject({"type": "GtProcessView", "visible": True})
+    test.verify(not view.currentIndex().isValid(), "No current process index")

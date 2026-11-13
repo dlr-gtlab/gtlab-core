@@ -213,14 +213,27 @@ GtProcessDock::GtProcessDock() :
     // Current changed (keyboard navigation), Mouse clicks are filtered
     // to improve drag and drop functionality
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, [this](const QModelIndex &current, const QModelIndex &)
-    {
-        if (QApplication::mouseButtons() == Qt::NoButton)
-            onCurrentChanged(current);
-    });
+            this, [this](const QModelIndex& current, const QModelIndex&) {
+                if (!current.isValid() ||
+                    QApplication::mouseButtons() == Qt::NoButton)
+                    onCurrentChanged(current);
+            });
 
     connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this]() {
+                if (!m_view->selectionModel()->hasSelection())
+                {
+                    if (m_view->currentIndex().isValid())
+                    {
+                        m_view->selectionModel()->clearCurrentIndex();
+                    }
+                    else
+                    {
+                        onCurrentChanged(QModelIndex{});
+                    }
+                    return;
+                }
+
                 const auto index = m_view->currentIndex();
                 auto* obj =
                     m_view->selectionModel()->isSelected(index)
