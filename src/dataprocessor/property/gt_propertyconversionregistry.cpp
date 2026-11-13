@@ -13,6 +13,8 @@
 #include "gt_doubleproperty.h"
 #include "gt_boolproperty.h"
 #include "gt_propertyconversion.h"
+#include "gt_stringproperty.h"
+#include "gt_objectlinkproperty.h"
 
 namespace
 {
@@ -282,4 +284,9 @@ GtPropertyConversionRegistry::registerBasicPropertyConvertersImpl()
                                     GtIntProperty::staticMetaObject,
                                     gt::conversion::fromBool::toInt,
                                     gt::conversion::fromBool::canConnectToInt);
+
+    // converter from ObjectLink to QString
+    registerConnectionCompatibility(GtObjectLinkProperty::staticMetaObject,
+                                    GtStringProperty::staticMetaObject,
+                                    gt::conversion::fromObjectLink::toString);
 }
