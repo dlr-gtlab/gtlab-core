@@ -13,39 +13,14 @@
 #  - QT_DIR_LINUX2:		Path to Qt gcc_64 directory
 #  - SQUISH_DIR: 		Squish installation directory
 #  - DEVTOOLS_DIR:		GTlab Dev-Tools path
-# optional: SQUISH_PORT (default 4322), SQUISH_STARTUP_TIMEOUT (seconds, default 30)
 #
 # local variables:
 
 # directory containg GTlab binaries
 GTLAB_DIR=$PWD/build
 
-# Use the same endpoint for the server and every runner invocation.
-SQUISH_PORT=${SQUISH_PORT:-4322}
-SQUISH_STARTUP_TIMEOUT=${SQUISH_STARTUP_TIMEOUT:-30}
-SERVER_LOG=$PWD/gui_tests_server_stdout.txt
-SERVER_PID=
-
-cleanup()
-{
-  if [[ -n "$SERVER_PID" ]]; then
-    kill "$SERVER_PID" 2>/dev/null || true
-    wait "$SERVER_PID" 2>/dev/null || true
-  fi
-}
-trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-
-port_is_open()
-{
-  (: > /dev/tcp/127.0.0.1/"$SQUISH_PORT") >/dev/null 2>&1
-}
-
-server_is_ready()
-{
-  kill -0 "$SERVER_PID" 2>/dev/null && port_is_open
-}
+# timeout [min] before squishserver instance will be killed 
+SQUISH_TIMEOUT=50
 
 
 # ---- setup ----
@@ -95,39 +70,36 @@ export QT_SCALE_FACTOR=1.0
 
 # ---- execution ----
 
-# Serialize jobs using the shared Squish AUT configuration on this host.
-exec 9> "${TMPDIR:-/tmp}/gtlab-squish-${UID}.lock"
-if ! flock -w 3000 9; then
-  echo "ERROR: timed out waiting for the Squish GUI test lock" >&2
-  exit 1
-fi
-
-# Never stop a server that belongs to another job.
-if port_is_open; then
-  echo "ERROR: Squish port $SQUISH_PORT is already occupied" >&2
-  exit 1
-fi
-
-# Register the AUT before starting the server; fail if configuration fails.
-echo "setting up AUT..."
-if ! "$SQUISH_DIR/squishserver" --config addAUT GTlab "$GTLAB_DIR"; then
-  echo "ERROR: could not register the GTlab AUT" >&2
-  exit 1
-fi
-
-# Keep the foreground server as our child, without a terminal or daemon wrapper.
-echo "starting squishserver on port $SQUISH_PORT..."
-"$SQUISH_DIR/squishserver" --verbose --port "$SQUISH_PORT" > "$SERVER_LOG" 2>&1 9>&- &
-SERVER_PID=$!
-startup_deadline=$((SECONDS + SQUISH_STARTUP_TIMEOUT))
-until server_is_ready; do
-  if ! kill -0 "$SERVER_PID" 2>/dev/null || (( SECONDS >= startup_deadline )); then
-    echo "ERROR: squishserver failed to start on port $SQUISH_PORT" >&2
-    cat "$SERVER_LOG" >&2
-    exit 1
+# check if squish is already running -> list processes -> grep squishserver
+iter=0
+while ps aux | grep -v grep | grep squishserver; do
+  echo "waiting for other squish instances to finish... ($iter)"
+  # increment counter
+  ((iter=iter+1))
+  # sleep 1 min 
+  if [ "$iter" -le "$SQUISH_TIMEOUT" ]; then
+    sleep 60
+  # stop squishserver if counter reached max timout
+  else
+    echo "WARN: TIMEOUT - forcing squisserver to stop!"
+	$SQUISH_DIR/squishserver --stop
+	break
   fi
-  sleep 1
 done
+
+# register AUT
+echo "setting up AUT... "
+$SQUISH_DIR/squishserver --config addAUT GTlab $GTLAB_DIR
+#$SQUISH_DIR/squishserver --config setAUTTimeout 60 			# default 20
+#$SQUISH_DIR/squishserver --config setHardExitTimeout 1000  	# default 200
+#$SQUISH_DIR/squishserver --config setSoftExitTimeout 10000 	# default 2000
+
+# start squish server in new terminal 
+echo "starting squishserver... "
+konsole -e $SQUISH_DIR/squishserver --verbose --daemon --logfile $PWD/gui_tests_server_stdout.txt &
+
+# give the server some time to start
+sleep 20
 
 # return code to keep track of failed tests
 RC=0
@@ -137,18 +109,7 @@ echo "starting gui tests... "
 for TESTSUITE in $TESTSUITES; do
   echo "- testing testsuite: '$TESTSUITE'..." 
   # executing runner on testsuite (generate html, junit and txt log files)
-  if ! server_is_ready; then
-    echo "ERROR: squishserver stopped before $TESTSUITE" >&2
-    cat "$SERVER_LOG" >&2
-    RC=$((RC + 1))
-    break
-  fi
-  suite_name=$(basename "$TESTSUITE")
-  "$SQUISH_DIR/squishrunner" --host 127.0.0.1 --port "$SQUISH_PORT" \
-    --testsuite "$TESTSUITE" --exitCodeOnFail 1 \
-    --reportgen html,./gui_tests_web \
-    --reportgen "junit,./gui_tests_junits/junit_$suite_name.xml" \
-    --reportgen stdout,./gui_tests_stdout.txt 9>&-
+  $SQUISH_DIR/squishrunner --testsuite $TESTSUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
   # store latest return code
   rc=$?
   # adding rc to old return codes
@@ -156,7 +117,8 @@ for TESTSUITE in $TESTSUITES; do
   echo "  tests finished with $rc"
 done
 
-# The EXIT trap stops only the server started by this job.
+# stop squish server
+$SQUISH_DIR/squishserver --stop
 
 # generate badge
 echo "generating badge..."

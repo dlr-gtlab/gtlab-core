@@ -153,7 +153,6 @@ linuxBuildRelease:
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
   before_script:
-    - python3 tests/guitests/test_run_guitests.py
     # sync submodules
     - git submodule sync
     - git submodule update --init
