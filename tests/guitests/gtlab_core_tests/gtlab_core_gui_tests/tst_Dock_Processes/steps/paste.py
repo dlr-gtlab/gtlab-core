@@ -10,9 +10,27 @@ def process_int(value):
     return python_builtins.int(python_builtins.str(value))
 
 
-def process_action_label(action):
-    text = python_builtins.str(action.text).split('\t', 1)[0]
-    return text.replace('&', '').strip()
+# GtCoreDatamodel::UuidRole (Qt::UserRole + 1), forwarded by the view proxies.
+PROCESS_UUID_ROLE = 257
+
+
+def process_uuid(index):
+    return python_builtins.str(index.data(PROCESS_UUID_ROLE))
+
+
+def paste_target(context, view):
+    # Resolve fresh indexes from plain values; never retain a QModelIndex across
+    # UI actions or serialize its internal proxy-model pointer through userData.
+    index = view.rootIndex()
+    model = view.model()
+    for row in python_builtins.str(context.userData['paste_target_path']).split('/'):
+        index = model.index(process_int(row), 0, index)
+        if not index.isValid():
+            raise LookupError('Paste target path is no longer valid')
+    expected_uuid = python_builtins.str(context.userData['paste_target_uuid'])
+    if process_uuid(index) != expected_uuid:
+        raise LookupError('Paste target path now refers to a different object')
+    return index
 
 
 def process_item_center(view, index):
@@ -30,11 +48,12 @@ def paste_process_menu():
 
 
 def visible_process_action(name):
-    # Resolve each popup afresh: processContextMenu() creates a temporary QMenu.
-    for action in paste_process_menu().actions():
-        if action.visible and process_action_label(action) == name:
-            return action
-    return None
+    # Use the same native item lookup as menu activation. Iterating a wrapped
+    # QList<QAction*> returned no items in the CI Squish version.
+    try:
+        return waitForObjectItem(paste_process_menu(), name, 1000)
+    except LookupError:
+        return None
 
 
 @When("the process action '|any|' is activated")
@@ -51,9 +70,7 @@ def activate_process_action(context, path):
 @Then("the process action '|any|' is enabled")
 def verify_process_action_enabled(context, name):
     action = visible_process_action(name)
-    test.verify(action is not None, 'Process menu contains ' + name +
-                '; available: ' + ', '.join(process_action_label(item)
-                                            for item in paste_process_menu().actions()))
+    test.verify(action is not None, 'Process menu contains ' + name)
     if action is not None:
         test.verify(action.enabled, name + ' is enabled')
 
@@ -61,9 +78,7 @@ def verify_process_action_enabled(context, name):
 @Then("the process action '|any|' is disabled")
 def verify_process_action_disabled(context, name):
     action = visible_process_action(name)
-    test.verify(action is not None, 'Process menu contains ' + name +
-                '; available: ' + ', '.join(process_action_label(item)
-                                            for item in paste_process_menu().actions()))
+    test.verify(action is not None, 'Process menu contains ' + name)
     if action is not None:
         test.verify(not action.enabled, name + ' is disabled')
 
@@ -79,14 +94,22 @@ def remember_paste_target(context):
     view = paste_process_view()
     target = view.currentIndex()
     test.verify(target.isValid())
-    context.userData['paste_target'] = target
+    context.userData['paste_target_uuid'] = process_uuid(target)
+    root = view.rootIndex()
+    root_uuid = process_uuid(root) if root.isValid() else None
+    rows = []
+    index = target
+    while index.isValid() and process_uuid(index) != root_uuid:
+        rows.insert(0, python_builtins.str(process_int(index.row())))
+        index = index.parent()
+    context.userData['paste_target_path'] = '/'.join(rows)
     context.userData['paste_child_count'] = process_int(view.model().rowCount(target))
 
 
 @When('the remembered paste target is selected')
 def select_paste_target(context):
     view = paste_process_view()
-    target = context.userData['paste_target']
+    target = paste_target(context, view)
     view.scrollTo(target)
     x, y = process_item_center(view, target)
     mouseClick(view.viewport(), x, y, Qt.NoModifier, Qt.LeftButton)
@@ -112,10 +135,14 @@ def dismiss_process_menu(context):
 
 @Then('the paste target has |integer| additional children')
 def verify_paste_child_count(context, count):
-    target = context.userData['paste_target']
     expected = process_int(context.userData['paste_child_count']) + process_int(count)
-    test.verify(waitFor(lambda: process_int(paste_process_view().model().rowCount(
-        target)) == expected))
+
+    def has_expected_count():
+        view = paste_process_view()
+        target = paste_target(context, view)
+        return process_int(view.model().rowCount(target)) == expected
+
+    test.verify(waitFor(has_expected_count))
 
 
 @Then("the pasted component is a '|word|' named '|any|'")
@@ -123,10 +150,8 @@ def verify_pasted_component(context, component_type, name):
     view = paste_process_view()
     index = view.currentIndex()
     test.compare(python_builtins.str(index.data(Qt.DisplayRole)), name)
-    target = context.userData['paste_target']
-    test.compare(index.parent().row(), target.row())
-    test.compare(index.parent().data(Qt.DisplayRole),
-                 target.data(Qt.DisplayRole))
+    target = paste_target(context, view)
+    test.compare(process_uuid(index.parent()), process_uuid(target))
 
     # Tasks have an Add action; inspecting it does not require opening or
     # locating the hidden submenu.
@@ -138,11 +163,10 @@ def verify_pasted_component(context, component_type, name):
 
 @Then('the remembered paste target is running')
 def wait_for_running_paste_target(context):
-    target = context.userData['paste_target']
-    model = paste_process_view().model()
-    state_index = model.index(target.row(), 1, target.parent())
-
     def is_running():
+        view = paste_process_view()
+        target = paste_target(context, view)
+        state_index = view.model().index(target.row(), 1, target.parent())
         # GtProcessComponentModel exposes execution state in column 1's tooltip.
         state = python_builtins.str(state_index.data(Qt.ToolTipRole))
         return state == 'Running' or state.startswith('Progress:')
