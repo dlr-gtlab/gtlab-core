@@ -145,10 +145,7 @@ Feature: Test specific features of the process dock
           And the selected process is remembered as the paste target
           And the context menu of the selected process is opened
           And the process action 'Add... > New Calculator...' is activated
-         Then the process element 'Sleep Calculator [RELEASE]' is listed within the category 'Testing'
-         When the entry is selected
-          And the wizard proceeds
-          And the wizard finishes
+          And the Sleep calculator is added using the process wizard
          Then the process element 'Sleep' exists
          When the process element is selected
           And the context menu of the selected process is opened
