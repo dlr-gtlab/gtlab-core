@@ -399,8 +399,16 @@ propertyBlocksByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
 bool
 mementosByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
 {
+    // the persistence flags (SaveAsOwnFile, IsUnresolved) are part of the
+    // memento state: they decide how the memento is serialized and whether
+    // its data is complete
     if (a.className() != b.className() || a.uuid() != b.uuid() ||
-        a.ident() != b.ident() || !propertyBlocksByteIdentical(a, b))
+        a.ident() != b.ident() ||
+        a.isFlagEnabled(GtObjectMemento::SaveAsOwnFile) !=
+            b.isFlagEnabled(GtObjectMemento::SaveAsOwnFile) ||
+        a.isFlagEnabled(GtObjectMemento::IsUnresolved) !=
+            b.isFlagEnabled(GtObjectMemento::IsUnresolved) ||
+        !propertyBlocksByteIdentical(a, b))
     {
         return false;
     }
@@ -464,14 +472,23 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     const GtObjectMemento& left =  setup.left.value_or(leftOrig);
     const GtObjectMemento& right = setup.right.value_or(rightOrig);
 
-    // create diff element to store changes
-    QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);
-    diffObj.setAttribute(gt::xml::S_NAME_TAG, left.ident());
-    diffObj.setAttribute(gt::xml::S_UUID_TAG, left.uuid());
-    diffObj.setAttribute(gt::xml::S_CLASS_TAG, left.className());
+    // the diff element is created lazily: merely creating it would already
+    // make the document non-null (QDomDocument::isNull), so it is only
+    // created if a change is actually found
     // modified child elements are stored in their own element
     // this way we may not want to actually add the diffObj element (if empty)!
     bool diffObjectEmpty = true;
+    QDomElement diffObj;
+    auto ensureDiffObj = [&]()
+    {
+        if (diffObj.isNull())
+        {
+            diffObj = this->createElement(gt::xml::S_OBJECT_TAG);
+            diffObj.setAttribute(gt::xml::S_NAME_TAG, left.ident());
+            diffObj.setAttribute(gt::xml::S_UUID_TAG, left.uuid());
+            diffObj.setAttribute(gt::xml::S_CLASS_TAG, left.className());
+        }
+    };
 
     // check properties & attributes
     if (left.className() != right.className() ||
@@ -479,6 +496,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         !propertyBlocksByteIdentical(left, right))
     {
         diffObjectEmpty = false;
+        ensureDiffObj();
 
         if (left.className() != right.className())
         {
@@ -534,6 +552,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         else
         {
             diffObjectEmpty = false;
+            ensureDiffObj();
             // added child
             GtObjectIO oio;
             QDomElement rchildElem = oio.toDomElement(rchild, *this, false);
@@ -569,6 +588,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     foreach (int lchildIndex, leftChildIndexSort)
     {
         diffObjectEmpty = false;
+        ensureDiffObj();
         const GtObjectMemento& lchild(left.childObjects[lchildIndex]);
         GtObjectIO oio;
         QDomElement lchildElem = oio.toDomElement(lchild, *this, false);
@@ -643,6 +663,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         if (diff != 0)
         {
             diffObjectEmpty = false;
+            ensureDiffObj();
             const GtObjectMemento& rchild (right.childObjects[indexNew]);
             GtObjectIO oio;
             QDomElement childElem = oio.toDomElement(rchild, *this, false);
@@ -940,8 +961,11 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
         diffObj.setAttribute(gt::xml::S_NAME_TAG, leftProp.name);
         diffObj.setAttribute(gt::xml::S_TYPE_TAG, leftProp.dataType());
 
-        // handle value changes
-        if (leftProp.data() != rightProp.data())
+        // handle value changes: compare byte-wise (consistent with the
+        // byte-identical gate) instead of relying on QVariant::operator!=,
+        // which is version dependent (Qt5 compares some doubles fuzzy,
+        // Qt6 strictly)
+        if (!variantByteIdentical(leftProp.data(), rightProp.data()))
         {
             diffObjEmpty = false;
             QDomElement oldVal =
