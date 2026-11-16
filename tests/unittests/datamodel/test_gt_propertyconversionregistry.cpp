@@ -18,6 +18,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_propertyconversionregistry.h"
 #include "gt_stringproperty.h"
+#include "gt_objectlinkproperty.h"
 
 TEST(TestGtPropertyConversionRegistry, singletonInstance)
 {
@@ -691,3 +692,32 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
     // indicator that the converter of the better match has been selected
     EXPECT_TRUE(res.value->toDouble() < 0);
 }
+
+TEST(TestGtPropertyConversionRegistry, testObjectLinkToString)
+{
+    GtObjectLinkProperty objProp{"target", "Target", "Target", "",
+             nullptr, QStringList() << GT_CLASSNAME(GtObject)};
+
+    GtStringProperty stringProp1("string", "stringProp");
+
+    EXPECT_TRUE(objProp.canConnect(stringProp1));
+
+    GtObject testObject;
+
+    bool success = objProp.setValueFromVariant(testObject.uuid(), QString());
+
+    ASSERT_TRUE(success);
+
+    const auto function = gtPropConversion().convertFunction(
+        GtObjectLinkProperty::staticMetaObject,
+        GtStringProperty::staticMetaObject);
+
+    gt::conversion::ConversionResult<QVariant> res = function(objProp,
+                                                              stringProp1);
+
+    // for identical types without a registered function the connection
+    // is accepted by the fallback
+    EXPECT_STREQ(stringProp1.getVal().toStdString().c_str(),
+                 testObject.uuid().toStdString().c_str());
+}
+
