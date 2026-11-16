@@ -716,8 +716,7 @@ TEST(TestGtPropertyConversionRegistry, testObjectLinkToString)
     gt::conversion::ConversionResult<QVariant> res =
         function(objProp, stringProp1);
 
-    EXPECT_EQ(res.status,
-              gt::conversion::conversionSuccess::Success);
+    EXPECT_EQ(res.status, gt::conversion::conversionSuccess::Success);
 
     // for identical types without a registered function the connection
     // is accepted by the fallback
