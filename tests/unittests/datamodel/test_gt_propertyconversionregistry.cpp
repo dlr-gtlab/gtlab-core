@@ -695,8 +695,9 @@ TEST(TestGtPropertyConversionRegistry, checkDoubleHeritageExample2)
 
 TEST(TestGtPropertyConversionRegistry, testObjectLinkToString)
 {
-    GtObjectLinkProperty objProp{"target", "Target", "Target", "",
-             nullptr, QStringList() << GT_CLASSNAME(GtObject)};
+    GtObjectLinkProperty objProp{
+        "target", "Target", "Target",
+        "",       nullptr,  QStringList() << GT_CLASSNAME(GtObject)};
 
     GtStringProperty stringProp1("string", "stringProp");
 
@@ -712,8 +713,8 @@ TEST(TestGtPropertyConversionRegistry, testObjectLinkToString)
         GtObjectLinkProperty::staticMetaObject,
         GtStringProperty::staticMetaObject);
 
-    gt::conversion::ConversionResult<QVariant> res = function(objProp,
-                                                              stringProp1);
+    gt::conversion::ConversionResult<QVariant> res =
+        function(objProp, stringProp1);
 
     EXPECT_EQ(res.status,
               gt::conversion::conversionSuccess::Success);
@@ -723,4 +724,3 @@ TEST(TestGtPropertyConversionRegistry, testObjectLinkToString)
     EXPECT_STREQ(res.value->toString().toStdString().c_str(),
                  testObject.uuid().toStdString().c_str());
 }
-
