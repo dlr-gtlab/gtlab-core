@@ -11,6 +11,8 @@
 #include "gt_boolproperty.h"
 #include "gt_intproperty.h"
 #include "gt_doubleproperty.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_stringproperty.h"
 
 gt::conversion::ConversionResult<int>
 gt::conversion::fromDouble::toInt(const GtAbstractProperty& source,
@@ -248,4 +250,16 @@ gt::conversion::defaultCompatibility()
             return sourceValue.isValid() && targetValue.isValid() &&
                    sourceValue.userType() == targetValue.userType();
         };
+}
+
+gt::conversion::ConversionResult<QString>
+gt::conversion::fromObjectLink::toString(const GtAbstractProperty& source,
+                                         const GtAbstractProperty& target)
+{
+    const auto& from = static_cast<const GtObjectLinkProperty&>(source);
+    auto& to = static_cast<const GtStringProperty&>(target);
+
+    QString s = source.value<QString>();
+
+    return gt::conversion::ConversionResult<QString>::success(s);
 }

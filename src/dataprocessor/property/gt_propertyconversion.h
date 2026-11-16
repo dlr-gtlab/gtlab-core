@@ -343,6 +343,23 @@ bool canConnectToInt(const GtAbstractProperty& source,
 ConversionResult<int> toInt(const GtAbstractProperty& source,
                             const GtAbstractProperty& target);
 } // namespace fromBool
+
+namespace fromObjectLink
+{
+/**
+ * @brief toString
+ * Converts the value of an object link property to a string
+ * This is done via the uuid of the object
+ * @param source Source property
+ * @param target Target property
+ * @return
+ */
+ConversionResult<QString> toString(const GtAbstractProperty& source,
+                                   const GtAbstractProperty& target);
+
+
+} // namespace fromObjectLink
+
 } // namespace conversion
 } // namespace gt
 
