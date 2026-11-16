@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iomanip>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <vector>
@@ -357,26 +358,23 @@ applyManyBenchChanges(GtObject* root)
 
 struct BenchPair
 {
-    GtObject* tree = nullptr;
+    // unique_ptr: the factory returns the pair by value, so ownership
+    // transfer must not rely on return value optimization
+    std::unique_ptr<GtObject> tree;
     GtObjectMemento left;
     GtObjectMemento right;
-
-    ~BenchPair()
-    {
-        delete tree;
-    }
 };
 
 BenchPair
 makeBenchPair(int numNodes, int childrenPerNode, int listLen, int changeMode)
 {
     BenchPair pair;
-    pair.tree = buildBenchTree(numNodes, childrenPerNode, listLen);
+    pair.tree.reset(buildBenchTree(numNodes, childrenPerNode, listLen));
     pair.left = pair.tree->toMemento();
     if (changeMode == 1)
-        applyDeepBenchChange(pair.tree);
+        applyDeepBenchChange(pair.tree.get());
     else if (changeMode == 2)
-        applyManyBenchChanges(pair.tree);
+        applyManyBenchChanges(pair.tree.get());
     pair.right = pair.tree->toMemento();
     return pair;
 }
@@ -519,14 +517,9 @@ runTreeBench(const char* caseName, BenchTreeConfig cfg, int changeMode,
 
 struct BenchContainerPair
 {
-    TestObject* obj = nullptr;
+    std::unique_ptr<TestObject> obj;
     GtObjectMemento left;
     GtObjectMemento right;
-
-    ~BenchContainerPair()
-    {
-        delete obj;
-    }
 };
 
 TestObject*
@@ -556,9 +549,9 @@ BenchContainerPair
 makeContainerPair(int entries, int changeMode)
 {
     BenchContainerPair pair;
-    pair.obj = buildBenchContainer(entries);
+    pair.obj.reset(buildBenchContainer(entries));
     pair.left = pair.obj->toMemento();
-    applyContainerBenchChange(pair.obj, entries, changeMode);
+    applyContainerBenchChange(pair.obj.get(), entries, changeMode);
     pair.right = pair.obj->toMemento();
     return pair;
 }

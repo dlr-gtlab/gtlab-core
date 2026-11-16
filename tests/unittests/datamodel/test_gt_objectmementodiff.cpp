@@ -132,6 +132,11 @@ class TestGtObjectMementoDiff : public ::testing::Test
 protected:
     virtual void SetUp()
     {
+        // some tests enable externalization on the process-wide manager;
+        // remember the state to restore it after each test
+        m_externalizationWasEnabled =
+            gtExternalizationManager->isExternalizationEnabled();
+
         obj1.setObjectName("Object1");
         obj1.setFactory(gtObjectFactory);
 
@@ -147,12 +152,15 @@ protected:
 
     virtual void TearDown()
     {
+        gtExternalizationManager->enableExternalization(
+            m_externalizationWasEnabled);
     }
 
     TestSpecialGtObject obj1;
     TestSpecialGtObject obj2;
     TestSpecialGtObject obj3;
     TestSpecialGtObject obj4;
+    bool m_externalizationWasEnabled{false};
 };
 
 TEST_F(TestGtObjectMementoDiff, constructors)
@@ -1567,6 +1575,63 @@ TEST_F(TestGtObjectMementoDiff, byteIdenticalWrapperBasics)
                                 "doubleProp"), 1);
 }
 
+/// Byte identity must include the memento persistence flags: a pair that
+/// differs only in SaveAsOwnFile or IsUnresolved is not byte identical,
+/// although the diff stays empty (the flags are not diff content).
+TEST_F(TestGtObjectMementoDiff, byteIdenticalIncludesPersistenceFlags)
+{
+    GtObjectMemento mem1 = obj1.toMemento();
+    GtObjectMemento mem2 = obj1.toMemento();
+    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMemento memSaveAsOwnFile = obj1.toMemento();
+    memSaveAsOwnFile.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, true);
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1,
+                                                       memSaveAsOwnFile));
+
+    GtObjectMemento memUnresolved = obj1.toMemento();
+    memUnresolved.setFlagEnabled(GtObjectMemento::IsUnresolved, true);
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, memUnresolved));
+
+    // a flag-only difference produces no diff content
+    GtObjectMementoDiff diff(mem1, memSaveAsOwnFile);
+    EXPECT_TRUE(diff.isNull());
+}
+
+/// A double change that only exists in the serialized bit pattern (Qt5's
+/// QVariant comparison treats adjacent doubles as equal) must still yield
+/// a scalar diff-property-change with old and new values, consistently
+/// with the byte-identical gate.
+TEST_F(TestGtObjectMementoDiff, doubleBitPatternChangeEmitsValues)
+{
+    obj1.setDouble(1.0);
+    GtObjectMemento mem1 = obj1.toMemento();
+
+    // next double above 1.0: differs only in the lowest mantissa bit
+    obj1.setDouble(doubleFromBits(0x3ff0000000000001ull));
+    GtObjectMemento mem2 = obj1.toMemento();
+
+    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
+
+    GtObjectMementoDiff diff(mem1, mem2);
+    ASSERT_FALSE(diff.isNull());
+
+    EXPECT_EQ(countDiffElements(diff, "diff-property-change", "doubleProp"),
+              1);
+
+    const QDomElement root = diff.documentElement();
+    ASSERT_STREQ(root.tagName().toStdString().c_str(), "object");
+    const QDomElement propChange =
+        root.firstChildElement("diff-property-change");
+    ASSERT_FALSE(propChange.isNull());
+    EXPECT_STREQ(propChange.attribute("name").toStdString().c_str(),
+                 "doubleProp");
+    // old and new values must be present (exact text is not asserted:
+    // QString::number may render both doubles identically)
+    EXPECT_FALSE(propChange.firstChildElement("oldVal").isNull());
+    EXPECT_FALSE(propChange.firstChildElement("newVal").isNull());
+}
+
 /// The fast path must implement a strict bitwise comparison of double
 /// properties: numerically equal or close values that differ in their bit
 /// pattern must never be reported as identical.
@@ -1605,7 +1670,7 @@ TEST_F(TestGtObjectMementoDiff, doubleBitwiseEquivalence)
         { "negInf", -inf, -inf, true },
         // infinity vs largest normal
         { "infVsMaxNormal", inf, doubleFromBits(0x7fefffffffffffffull), false },
-        { "negInfVsMaxNormal", -inf, doubleFromBits(0xfeffffffffffffull),
+        { "negInfVsMaxNormal", -inf, doubleFromBits(0xffefffffffffffffull),
           false },
         // largest finite values one ulp apart (fuzzy-equal on Qt5)
         { "fuzzyAtMax", doubleFromBits(0x7fefffffffffffefull),
@@ -1629,20 +1694,10 @@ TEST_F(TestGtObjectMementoDiff, doubleBitwiseEquivalence)
         GtObjectMementoDiff diff(mem1, mem2);
         EXPECT_EQ(diff.isNull(), rawEq);
 
-        // Whether a scalar diff-property-change is emitted additionally
-        // depends on Qt's QVariant comparison (Qt5 compares doubles fuzzy,
-        // Qt6 strictly) -> derive the expectation at runtime.
-        const GtObjectMemento::PropertyData* pLeft =
-            GtObjectMemento::findPropertyByName(mem1.properties,
-                                                QStringLiteral("doubleProp"));
-        const GtObjectMemento::PropertyData* pRight =
-            GtObjectMemento::findPropertyByName(mem2.properties,
-                                                QStringLiteral("doubleProp"));
-        ASSERT_NE(pLeft, nullptr);
-        ASSERT_NE(pRight, nullptr);
-
-        const int expectedChanges =
-            rawEq ? 0 : (pLeft->data() != pRight->data() ? 1 : 0);
+        // The scalar branch of the diff emits old/new values exactly when
+        // the property values differ byte-wise (version independent),
+        // which is equivalent to the bitwise inequality above.
+        const int expectedChanges = rawEq ? 0 : 1;
         EXPECT_EQ(countDiffElements(diff, "diff-property-change",
                                     "doubleProp"), expectedChanges);
     }
