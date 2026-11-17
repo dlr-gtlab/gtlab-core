@@ -1547,26 +1547,21 @@ TEST_F(TestGtObjectMementoDiff, identicalDoubleListNoDiff)
 }
 
 // ---------------------------------------------------------------------------
-// areByteIdentical fast path
+// byte-identical memento pairs: empty diff behavior
 // ---------------------------------------------------------------------------
 
-/// The wrapper must report byte-identical pairs as identical and produce an
-/// empty diff; a changed double property must be detected both by the byte
-/// comparison and by the diff.
-TEST_F(TestGtObjectMementoDiff, byteIdenticalWrapperBasics)
+/// Identical mementos must produce an empty diff; a changed double property
+/// must be reported as a scalar diff-property-change.
+TEST_F(TestGtObjectMementoDiff, identicalMementosEmptyDiff)
 {
     GtObjectMemento mem1 = obj1.toMemento();
     GtObjectMemento mem2 = obj1.toMemento();
-
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
 
     obj1.setDouble(obj1.getDouble() + 1.0);
     GtObjectMemento mem3 = obj1.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
 
     GtObjectMementoDiff diff2(mem1, mem3);
     ASSERT_FALSE(diff2.isNull());
@@ -1575,33 +1570,28 @@ TEST_F(TestGtObjectMementoDiff, byteIdenticalWrapperBasics)
                                 "doubleProp"), 1);
 }
 
-/// Byte identity must include the memento persistence flags: a pair that
-/// differs only in SaveAsOwnFile or IsUnresolved is not byte identical,
-/// although the diff stays empty (the flags are not diff content).
-TEST_F(TestGtObjectMementoDiff, byteIdenticalIncludesPersistenceFlags)
+/// The memento persistence flags are not diff content: a pair that differs
+/// only in SaveAsOwnFile or IsUnresolved must produce an empty diff.
+TEST_F(TestGtObjectMementoDiff, persistenceFlagChangeOnlyNoDiff)
 {
     GtObjectMemento mem1 = obj1.toMemento();
-    GtObjectMemento mem2 = obj1.toMemento();
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMemento memSaveAsOwnFile = obj1.toMemento();
     memSaveAsOwnFile.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, true);
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1,
-                                                       memSaveAsOwnFile));
 
     GtObjectMemento memUnresolved = obj1.toMemento();
     memUnresolved.setFlagEnabled(GtObjectMemento::IsUnresolved, true);
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, memUnresolved));
 
     // a flag-only difference produces no diff content
-    GtObjectMementoDiff diff(mem1, memSaveAsOwnFile);
-    EXPECT_TRUE(diff.isNull());
+    GtObjectMementoDiff diffSaveAsOwnFile(mem1, memSaveAsOwnFile);
+    EXPECT_TRUE(diffSaveAsOwnFile.isNull());
+    GtObjectMementoDiff diffUnresolved(mem1, memUnresolved);
+    EXPECT_TRUE(diffUnresolved.isNull());
 }
 
 /// A double change that only exists in the serialized bit pattern (Qt5's
 /// QVariant comparison treats adjacent doubles as equal) must still yield
-/// a scalar diff-property-change with old and new values, consistently
-/// with the byte-identical gate.
+/// a scalar diff-property-change with old and new values.
 TEST_F(TestGtObjectMementoDiff, doubleBitPatternChangeEmitsValues)
 {
     obj1.setDouble(1.0);
@@ -1610,8 +1600,6 @@ TEST_F(TestGtObjectMementoDiff, doubleBitPatternChangeEmitsValues)
     // next double above 1.0: differs only in the lowest mantissa bit
     obj1.setDouble(doubleFromBits(0x3ff0000000000001ull));
     GtObjectMemento mem2 = obj1.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
@@ -1632,9 +1620,9 @@ TEST_F(TestGtObjectMementoDiff, doubleBitPatternChangeEmitsValues)
     EXPECT_FALSE(propChange.firstChildElement("newVal").isNull());
 }
 
-/// The fast path must implement a strict bitwise comparison of double
-/// properties: numerically equal or close values that differ in their bit
-/// pattern must never be reported as identical.
+/// Double properties must be compared strictly by their bit pattern:
+/// numerically equal or close values that differ in their bit pattern must
+/// never be reported as identical (empty diff, equal full hash).
 TEST_F(TestGtObjectMementoDiff, doubleBitwiseEquivalence)
 {
     const double inf = std::numeric_limits<double>::infinity();
@@ -1689,10 +1677,16 @@ TEST_F(TestGtObjectMementoDiff, doubleBitwiseEquivalence)
 
         const bool rawEq = doubleBits(c.left) == doubleBits(c.right);
         EXPECT_EQ(rawEq, c.expectRawEq);
-        EXPECT_EQ(GtObjectMementoDiff::areByteIdentical(mem1, mem2), rawEq);
 
         GtObjectMementoDiff diff(mem1, mem2);
         EXPECT_EQ(diff.isNull(), rawEq);
+
+        // the hash verdict must agree with the diff verdict: doubles are
+        // hashed via their QDataStream byte representation, so the bit
+        // pattern is distinguished exactly like in the diff
+        mem1.calculateHashes();
+        mem2.calculateHashes();
+        EXPECT_EQ(mem1.fullHash() == mem2.fullHash(), rawEq);
 
         // The scalar branch of the diff emits old/new values exactly when
         // the property values differ byte-wise (version independent),
@@ -1715,8 +1709,6 @@ TEST_F(TestGtObjectMementoDiff, doubleListSignedZeroChange)
                       << doubleFromBits(0x8000000000000000ull));
     GtObjectMemento mem2 = obj1.toMemento();
 
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
-
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
 
@@ -1725,8 +1717,8 @@ TEST_F(TestGtObjectMementoDiff, doubleListSignedZeroChange)
 }
 
 /// "ab","c" and "a","bc" collide in the property hash (per-element toUtf8
-/// without separator) while the strict byte comparison distinguishes them:
-/// the fast path must not treat the pair as identical.
+/// without separator) while the byte-based comparison distinguishes them:
+/// the diff must not treat the pair as identical.
 TEST_F(TestGtObjectMementoDiff, stringListHashCollisionDetected)
 {
     obj1.stringList = QStringList() << "ab" << "c";
@@ -1734,8 +1726,6 @@ TEST_F(TestGtObjectMementoDiff, stringListHashCollisionDetected)
 
     obj1.stringList = QStringList() << "a" << "bc";
     GtObjectMemento mem2 = obj1.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
@@ -1749,7 +1739,7 @@ TEST_F(TestGtObjectMementoDiff, stringListHashCollisionDetected)
 }
 
 /// A user metatype without a QDataStream operator is stored as generic
-/// type-only bytes: both mementos compare byte-identical and the diff must
+/// type-only bytes: both mementos carry the same bytes and the diff must
 /// stay empty, although the stored values are not recoverable.
 TEST_F(TestGtObjectMementoDiff, customUnstreamableMetatype)
 {
@@ -1765,8 +1755,6 @@ TEST_F(TestGtObjectMementoDiff, customUnstreamableMetatype)
     obj1.setVariant(QVariant::fromValue(NonStreamableStruct{ 2, 2.5 }));
     GtObjectMemento mem2 = obj1.toMemento();
 
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
-
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
 
@@ -1776,8 +1764,8 @@ TEST_F(TestGtObjectMementoDiff, customUnstreamableMetatype)
 }
 
 /// Two mementos of an externalized object in the unfetched state (only
-/// externalization meta data, no values) must be byte-identical without any
-/// fetch: the fast path fires before the externalization handling.
+/// externalization meta data, no values) must produce no diff without any
+/// fetch.
 TEST_F(TestGtObjectMementoDiff, externalizedMementosIdenticalStateNoFetch)
 {
     if (!gtObjectFactory->knownClass("TestExternalizedObject"))
@@ -1803,8 +1791,6 @@ TEST_F(TestGtObjectMementoDiff, externalizedMementosIdenticalStateNoFetch)
 
     GtObjectMemento mem1 = extObj->toMemento();
     GtObjectMemento mem2 = extObj->toMemento();
-
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
@@ -1857,8 +1843,6 @@ TEST_F(TestGtObjectMementoDiff, externalizedMementosChangedStateFetchesLeft)
 
     GtObjectMemento mem2 = extObj->toMemento();
 
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
-
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
     EXPECT_EQ(diff.numberOfDiffSteps(), 1);
@@ -1881,8 +1865,6 @@ TEST_F(TestGtObjectMementoDiff, containerEntryChange)
 
     obj.environmentVars.at(0).setMemberVal("value", "/bin");
     GtObjectMemento mem2 = obj.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
@@ -1915,8 +1897,6 @@ TEST_F(TestGtObjectMementoDiff, containerEntryAdd)
 
     obj.addEnvironmentVar("HOME", "/home/user");
     GtObjectMemento mem2 = obj.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
@@ -1965,8 +1945,6 @@ TEST_F(TestGtObjectMementoDiff, containerEntryRemove)
     obj.environmentVars.removeEntry(obj.environmentVars.begin());
     GtObjectMemento mem2 = obj.toMemento();
 
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
-
     GtObjectMementoDiff diff(mem1, mem2);
     ASSERT_FALSE(diff.isNull());
     ASSERT_EQ(diff.doc().elementsByTagName("object").size(), 1);
@@ -2002,8 +1980,8 @@ TEST_F(TestGtObjectMementoDiff, containerEntryRemove)
 }
 
 /// A user metatype with QDataStream operators is stored with its streamed
-/// value bytes: identical values must be byte-identical (empty diff, equal
-/// hashes) and a changed value must be detected exactly like the old
+/// value bytes: identical values must produce an empty diff with equal
+/// hashes and a changed value must be detected exactly like the old
 /// hash-based comparison did.
 TEST_F(TestGtObjectMementoDiff, customStreamableMetatype)
 {
@@ -2020,8 +1998,6 @@ TEST_F(TestGtObjectMementoDiff, customStreamableMetatype)
     obj1.setVariant(QVariant::fromValue(StreamableStruct{ 1, 1.5 }));
     GtObjectMemento mem2 = obj1.toMemento();
 
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
-
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
 
@@ -2032,8 +2008,6 @@ TEST_F(TestGtObjectMementoDiff, customStreamableMetatype)
     // a changed value must be detected and reported as a property change
     obj1.setVariant(QVariant::fromValue(StreamableStruct{ 2, 2.5 }));
     GtObjectMemento mem3 = obj1.toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
 
     GtObjectMementoDiff diff2(mem1, mem3);
     ASSERT_FALSE(diff2.isNull());
@@ -2048,8 +2022,8 @@ TEST_F(TestGtObjectMementoDiff, customStreamableMetatype)
 }
 
 /// The variant hash treats a null and an empty QString as equal (it hashes
-/// toString().toUtf8()): the byte comparison must agree, while a changed
-/// text must still be detected.
+/// toString().toUtf8()): the diff must agree, while a changed text must
+/// still be detected.
 TEST_F(TestGtObjectMementoDiff, customQStringNullVsEmptyVariant)
 {
     obj1.setVariant(QVariant(QString()));
@@ -2057,8 +2031,6 @@ TEST_F(TestGtObjectMementoDiff, customQStringNullVsEmptyVariant)
 
     obj1.setVariant(QVariant(QString("")));
     GtObjectMemento mem2 = obj1.toMemento();
-
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
@@ -2071,16 +2043,14 @@ TEST_F(TestGtObjectMementoDiff, customQStringNullVsEmptyVariant)
     obj1.setVariant(QVariant(QStringLiteral("changed")));
     GtObjectMemento mem3 = obj1.toMemento();
 
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem3));
-
     GtObjectMementoDiff diff2(mem1, mem3);
     ASSERT_FALSE(diff2.isNull());
     EXPECT_EQ(countDiffElements(diff2, "diff-property-change",
                                 "variantProp"), 1);
 }
 
-/// An unchanged struct container must be treated as byte-identical: no
-/// diff at all, matching the equal full hashes of the old comparison.
+/// An unchanged struct container must produce no diff at all, matching the
+/// equal full hashes of the old comparison.
 TEST_F(TestGtObjectMementoDiff, containerUnchangedNoDiff)
 {
     TestObject obj;
@@ -2089,8 +2059,6 @@ TEST_F(TestGtObjectMementoDiff, containerUnchangedNoDiff)
     GtObjectMemento mem1 = obj.toMemento();
 
     GtObjectMemento mem2 = obj.toMemento();
-
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
@@ -2106,8 +2074,8 @@ TEST_F(TestGtObjectMementoDiff, containerUnchangedNoDiff)
 }
 
 /// Two mementos of a fetched externalized object with identical data must
-/// be byte-identical and produce no diff without any fetch: both mementos
-/// already carry the full data.
+/// produce no diff without any fetch: both mementos already carry the full
+/// data.
 TEST_F(TestGtObjectMementoDiff, externalizedMementosFetchedIdenticalNoFetch)
 {
     if (!gtObjectFactory->knownClass("TestExternalizedObject"))
@@ -2135,8 +2103,6 @@ TEST_F(TestGtObjectMementoDiff, externalizedMementosFetchedIdenticalNoFetch)
 
     GtObjectMemento mem1 = extObj->toMemento();
     GtObjectMemento mem2 = extObj->toMemento();
-
-    EXPECT_TRUE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     GtObjectMementoDiff diff(mem1, mem2);
     EXPECT_TRUE(diff.isNull());
@@ -2189,8 +2155,6 @@ TEST_F(TestGtObjectMementoDiff, externalizedMementosFetchedDifferentNoFetch)
     }
 
     GtObjectMemento mem2 = extObj->toMemento();
-
-    EXPECT_FALSE(GtObjectMementoDiff::areByteIdentical(mem1, mem2));
 
     // both mementos are fetched: the diff must work without any fetch
     GtObjectMementoDiff diff(mem1, mem2);
