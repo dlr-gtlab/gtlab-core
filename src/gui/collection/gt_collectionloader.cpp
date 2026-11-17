@@ -185,10 +185,11 @@ GtCollectionLoader::collectionPath()
     }
 
     const auto* settings = gtApp->settings();
+    QString userCollectionsDir = settings->userCollectionsDir();
 
-    QString collectionpathstr = settings->userCollectionsDir();
+    QString collectionsPathActual = "";
 
-    if (collectionpathstr.isEmpty())
+    if (userCollectionsDir.isEmpty())
     {
 
         QString error;
@@ -201,29 +202,30 @@ GtCollectionLoader::collectionPath()
             return QString();
         }
 
-        collectionpathstr = dataDirectory->absoluteFilePath("collections");
+        collectionsPathActual = dataDirectory->absoluteFilePath("collections");
+    }
+    else
+    {
+        collectionsPathActual = userCollectionsDir;
     }
 
+    QDir collectionsDir{collectionsPathActual};
 
-    QDir dir{collectionpathstr};
-    if (!dir.exists())
+    if (!collectionsDir.mkpath("."))
     {
-        if (!dir.mkpath(dir.absolutePath()))
-        {
-            gtError() << tr("Could not create collection root path!");
-            return QString();
-        }
+        gtError() << tr("Could not create collection root path!");
+        return QString();
     }
 
     QString relativePath = m_collection->collectionId();
 
-    if (!dir.mkpath(relativePath))
+    if (!collectionsDir.mkpath(relativePath))
     {
         gtError() << QObject::tr("Could not create collection path!");
         return QString();
     }
 
-    return QDir::cleanPath(dir.filePath(relativePath));
+    return QDir::cleanPath(collectionsDir.filePath(relativePath));
 }
 
 GtCollectionItem
