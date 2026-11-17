@@ -74,14 +74,16 @@ public:
     {
         PropertyRead = 0x1,
         ObjectValueRead = 0x20,
+        PropertyListRead = 0x80,
         PropertyWritten = 0x2,
         ObjectValueWritten = 0x40,
+        PropertyListWritten = 0x100,
         ObjectAttached = 0x4,
         ObjectDetached = 0x8,
         ObjectDestroyed = 0x10,
-        AllEvents = PropertyRead | ObjectValueRead | PropertyWritten |
-                    ObjectValueWritten | ObjectAttached | ObjectDetached |
-                    ObjectDestroyed
+        AllEvents = PropertyRead | ObjectValueRead | PropertyListRead |
+                    PropertyWritten | ObjectValueWritten | PropertyListWritten |
+                    ObjectAttached | ObjectDetached | ObjectDestroyed
     };
     Q_DECLARE_FLAGS(Events, Event)
 
@@ -188,9 +190,14 @@ private:
     void handlePropertyRead(const GtObject& owner,
                             const GtAbstractProperty& property);
     void handleObjectValueRead(const GtObject& object);
+    void handlePropertyListRead(const GtObject& owner, const QString& listName,
+                                int index, const QString& key);
     void handlePropertyWritten(const GtObject& owner,
                                const GtAbstractProperty& property);
     void handleObjectValueWritten(const GtObject& object);
+    void handlePropertyListWritten(const GtObject& owner,
+                                   const QString& listName, int index,
+                                   const QString& key);
 
     /**
      * @brief Updates the observed tree of this session and of its parent
@@ -216,9 +223,14 @@ private:
     friend void gt::detail::enterPropertyRead(
         const GtAbstractProperty&) noexcept;
     friend void gt::detail::enterObjectValueRead(const GtObject&) noexcept;
+    friend void gt::detail::enterPropertyListRead(const GtObject&,
+                                                  const QString&, int,
+                                                  const QString&) noexcept;
     friend void gt::detail::recordPropertyWritten(
         const GtAbstractProperty&) noexcept;
     friend void gt::recordObjectValueWritten(const GtObject&) noexcept;
+    friend void gt::recordPropertyListWritten(const GtObject&, const QString&,
+                                              int, const QString&) noexcept;
     friend void gt::detail::recordObjectAttached(const GtObject&,
                                                  const GtObject&) noexcept;
     friend void gt::detail::recordObjectDetached(const GtObject&,
