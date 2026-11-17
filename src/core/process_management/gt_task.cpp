@@ -106,6 +106,9 @@ GtTask::exec()
         return false;
     }
 
+    // clear old linked objects
+    linkedObjects().clear();
+
     // collect all calculator properties
     QList<GtAbstractProperty*> const props = fullPropertyList();
 

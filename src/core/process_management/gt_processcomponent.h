@@ -269,6 +269,13 @@ public:
     void appendToLinkObjects(QPointer<GtObject> p);
 
     /**
+     * @brief Returns list of all linked datamodel objects.
+     * @return List of linked datamodel objects.
+     */
+    QList<GtObject const*> linkedObjects() const;
+    QList<QPointer<GtObject>>& linkedObjects();
+
+    /**
      * @brief Returns the effective execution mode of the process component.
      * If the selected mode is "parent", the mode of the parent process
      * component is resolved recursively up the parent chain, so a concrete
@@ -389,10 +396,6 @@ protected:
     /// Path to process/project specific temporary path.
     const QString& tempPath() const;
     GtProcessComponent& setTempPath(QString);
-
-    /// List of linked datamodel objects.
-    QList<GtObject const*> linkedObjects() const;
-    QList<QPointer<GtObject>>& linkedObjects();
 
     /**
      * @brief Hides or Shows the label property.
