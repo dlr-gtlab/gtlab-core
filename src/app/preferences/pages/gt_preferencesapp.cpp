@@ -231,9 +231,6 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     // theme selection
     int index = m_themeSelection->currentIndex();
 
-    // theme selection
-    QString themeMode = settings.themeMode();
-
     if (index == 1)
     {
         settings.setThemeMode("bright");
