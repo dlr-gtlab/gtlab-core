@@ -72,28 +72,6 @@ public:
             GtObject* parent);
 
     /**
-     * @brief Checks if the two mementos are strictly byte identical, i.e.
-     * their class name, uuid, ident, persistence flags (SaveAsOwnFile,
-     * IsUnresolved), all properties (name, active state, data type, data
-     * bytes) and the complete child tree match.
-     *
-     * String property values are compared with the same semantics as the
-     * property hash (a null and an empty QString are not distinguished),
-     * all other values are compared by their QDataStream byte
-     * representation.
-     *
-     * A byte identical pair is guaranteed to yield an empty diff
-     * (this is the precondition of the byte identical fast path of
-     * GtObjectMementoDiff).
-     *
-     * @param left memento to compare
-     * @param right memento to compare
-     * @return true if both mementos are byte identical
-     */
-    static bool areByteIdentical(const GtObjectMemento& left,
-                                 const GtObjectMemento& right);
-
-    /**
      * @brief appendDiff
      * @param diff
      * @return
