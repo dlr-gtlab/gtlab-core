@@ -18,6 +18,7 @@
 #include "gt_icons.h"
 #include "gt_collectionitem.h"
 #include "gt_logging.h"
+#include "gt_collectionspath.h"
 
 #include "gt_localcollectionmodel.h"
 #include "gt_qtutilities.h"
@@ -28,16 +29,6 @@ namespace
 bool
 isUserCollectionPath(const QString& itemPath, QString* error)
 {
-    const auto dataDirectory = GtApplicationPaths::directory(
-        GtApplicationPaths::Location::Data, error);
-    if (!dataDirectory)
-    {
-        return false;
-    }
-
-    const QString rootPath =
-        QFileInfo(dataDirectory->filePath(QStringLiteral("Collections")))
-            .canonicalFilePath();
     const QString canonicalItemPath = QFileInfo(itemPath).canonicalFilePath();
     if (canonicalItemPath.isEmpty())
     {
@@ -47,6 +38,17 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         }
         return false;
     }
+
+
+
+    const auto dataDirectory = GtApplicationPaths::directory(
+        GtApplicationPaths::Location::Data, error);
+    if (!dataDirectory)
+    {
+        return false;
+    }
+
+    const QString rootPath = QDir{gt::detail::collectionsInstallPath()}.canonicalPath();
 
     if (rootPath.isEmpty())
     {
@@ -59,6 +61,7 @@ isUserCollectionPath(const QString& itemPath, QString* error)
 
     const QString relativePath = QDir::fromNativeSeparators(
         QDir(rootPath).relativeFilePath(canonicalItemPath));
+
     const bool isDescendant = !relativePath.isEmpty() &&
                               relativePath != QStringLiteral(".") &&
                               relativePath != QStringLiteral("..") &&

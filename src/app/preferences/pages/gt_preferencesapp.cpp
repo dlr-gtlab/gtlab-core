@@ -233,8 +233,6 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
 
     // theme selection
     QString themeMode = settings.themeMode();
-    gtFatal() << "themeMode:" << themeMode;
-    gtFatal() << "themeMode index:" << index;
 
     if (index == 1)
     {
@@ -264,8 +262,6 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultInstallPath(GtModuleLoader::applicationModuleDir());
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
-
-    // m_moduleDirsTab->loadPaths();
 
     m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
 }

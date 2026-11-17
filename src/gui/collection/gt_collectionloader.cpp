@@ -11,8 +11,7 @@
 
 #include "gt_collectionloader.h"
 
-#include "gt_applicationpaths.h"
-#include "gt_coreapplication.h"
+#include "gt_collectionspath.h"
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -184,38 +183,7 @@ GtCollectionLoader::collectionPath()
         return QString();
     }
 
-    const auto* settings = gtApp->settings();
-    QString userCollectionsDir = settings->userCollectionsDir();
-
-    QString collectionsPathActual = "";
-
-    if (userCollectionsDir.isEmpty())
-    {
-
-        QString error;
-        const auto dataDirectory = GtApplicationPaths::directory(
-            GtApplicationPaths::Location::Data, &error);
-        if (!dataDirectory)
-        {
-            gtError() << QObject::tr("Could not access collection data directory:")
-            << error;
-            return QString();
-        }
-
-        collectionsPathActual = dataDirectory->absoluteFilePath("collections");
-    }
-    else
-    {
-        collectionsPathActual = userCollectionsDir;
-    }
-
-    QDir collectionsDir{collectionsPathActual};
-
-    if (!collectionsDir.mkpath("."))
-    {
-        gtError() << tr("Could not create collection root path!");
-        return QString();
-    }
+    QDir collectionsDir{gt::detail::collectionsInstallPath(true)};
 
     QString relativePath = m_collection->collectionId();
 
@@ -235,8 +203,6 @@ GtCollectionLoader::loadLocalCollectionItem(const QString& path)
     {
         return GtCollectionItem();
     }
-
-//    gtDebug() << "loading " << path << "...";
 
     QString filepath = path + QDir::separator() + QStringLiteral("index.json");
 

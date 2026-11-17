@@ -19,11 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
   
 ### Added
+ - Support to allow more customization of a collection - #1549
+ 
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
-  existing collections remain discoverable. - #1551
+  existing collections remain discoverable. - #1551 
+ - Collections are not stored in the installation folder of GTlab anymore. By default, they are found in the config folder of the user. A new tab in Setting -> Application gives more options to set a dedicated path. - #1549
+ 
 ### Deprecated
 ### API Changes
  - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
@@ -59,7 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The new method `gtApp->modules()` resolves which modules are required by a set of modules, including transitive dependencies.
  - The new `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module versions. - #1312
  - The new method `GtObjectMemento::restore_unique` that returns the restored object as `std::unique_ptr` - #334
- - Support to allow more customization of a collection - #1549
  
 ### Changed
  - Preferences now prompt the user to restart GTlab when a changed setting requires it.
@@ -67,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    all modules that have been loaded when saving the project. - #1312
  - Context menu actions added using the `GtObjectUIAction`-API are now evaluated everytime the corresponding menu is about to be shown. - #1561
  - Enforced nothrow-gurantee throughout the `gt::Finally`-API.
- - Collections are not stored in the installation folder of GTlab anymore. By default, they are found in the config folder of the user. A new tab in Setting -> Application gives more options to set a dedicated path.
 
 ### Deprecated
  - Deprecated `GtCustomActionMenu`. Use `gt::gui::addToMenu` instead. - #1561
