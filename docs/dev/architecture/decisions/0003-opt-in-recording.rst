@@ -40,9 +40,10 @@ Classes and placement
   with ``…Scope`` (``enter…Read``/``leaveRead`` internally), the session
   ``handle…``\s them in private methods that only the hooks call, and the
   observer receives past-tense callbacks (``propertyRead``, …). The only
-  public hooks are ``gt::ObjectValueReadScope`` and
-  ``gt::recordObjectValueWritten()``. Terms are defined in the
-  :doc:`/modules/recording_glossary`.
+  public hooks are ``gt::ObjectValueReadScope``,
+  ``gt::recordObjectValueWritten()``, ``gt::PropertyListReadScope``,
+  ``gt::recordPropertyListWritten()`` and ``gt::SuppressRecordingScope``.
+  Terms are defined in the :doc:`/modules/recording_glossary`.
 
 Execution boundary
 ~~~~~~~~~~~~~~~~~~
@@ -106,6 +107,41 @@ Property hooks
   change. This bookkeeping runs in a ``SuppressRecordingScope``; otherwise
   every write to a property container entry also reported reads of all its
   siblings.
+
+Property list hooks
+~~~~~~~~~~~~~~~~~~~
+
+Modules hold lists of values that are read by key or index, e.g. the
+``values`` of a 0D data zone (``GtDataZone0D``), looked up through its
+``params``. These lists are Qt properties of the object, not registered
+properties, so ``propertyRead`` cannot describe them, and
+``objectValueRead`` loses which value was read.
+
+* Property list events identify the list by owner and name
+  (``propertyListRead(owner, listName, index, key)`` and
+  ``propertyListWritten(…)``), not by ``GtAbstractProperty``. The name is the
+  one stored in the ``propertylist``. This covers Qt properties and
+  registered list properties alike.
+* ``index`` is ``GtRecordingObserver::WholeList`` for whole-list accesses;
+  ``key`` is empty for plain vectors. Reading a key that the list does not
+  contain is not reported.
+* The default callbacks forward to ``objectValueRead(owner)`` and
+  ``objectValueWritten(owner)``, so existing observers keep receiving these
+  accesses. ``PropertyListRead`` and ``PropertyListWritten`` are separate
+  event mask flags.
+* Read scopes keep one nesting: the outermost read wins. Reporting the most
+  specific read instead would delay ``objectValueRead`` until its scope ends.
+  Accessors must use the most specific scope instead.
+* ``SuppressRecordingScope`` is public so that modules can exclude
+  bookkeeping such as fetching or externalizing data.
+* Core properties are unchanged: none of them has keyed accessors.
+
+Alternatives considered:
+
+* A key parameter on ``propertyRead``: requires a ``GtAbstractProperty`` and
+  changes an existing signature.
+* Reporting ``objectValueRead`` and keeping the key in the module: the
+  observer cannot tell which list and value were read.
 
 Object tree hooks
 ~~~~~~~~~~~~~~~~~
