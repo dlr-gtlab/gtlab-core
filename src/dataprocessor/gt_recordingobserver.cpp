@@ -33,6 +33,13 @@ GtRecordingObserver::objectValueRead(const GtObject&)
 }
 
 void
+GtRecordingObserver::propertyListRead(const GtObject& owner, const QString&,
+                                      int, const QString&)
+{
+    objectValueRead(owner);
+}
+
+void
 GtRecordingObserver::propertyWritten(const GtObject&, const GtAbstractProperty&)
 {
     // nothing to do here
@@ -42,6 +49,13 @@ void
 GtRecordingObserver::objectValueWritten(const GtObject&)
 {
     // nothing to do here
+}
+
+void
+GtRecordingObserver::propertyListWritten(const GtObject& owner, const QString&,
+                                         int, const QString&)
+{
+    objectValueWritten(owner);
 }
 
 void

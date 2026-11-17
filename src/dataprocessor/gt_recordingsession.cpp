@@ -23,7 +23,8 @@ namespace
 /// Session active on the current thread
 thread_local GtRecordingSession* currentSession = nullptr;
 
-/// Nesting depth of property and object value reads on the current thread
+/// Nesting depth of property, object value and property list reads on the
+/// current thread
 thread_local int readDepth = 0;
 
 /// Clears the active session of the current thread for its lifetime, so that
@@ -253,6 +254,18 @@ GtRecordingSession::handleObjectValueRead(const GtObject& object)
 }
 
 void
+GtRecordingSession::handlePropertyListRead(const GtObject& owner,
+                                           const QString& listName, int index,
+                                           const QString& key)
+{
+    if (!isObserved(owner)) return;
+
+    pimpl->dispatch(PropertyListRead, [&]() {
+        pimpl->observer.propertyListRead(owner, listName, index, key);
+    });
+}
+
+void
 GtRecordingSession::handlePropertyWritten(const GtObject& owner,
                                           const GtAbstractProperty& property)
 {
@@ -270,6 +283,18 @@ GtRecordingSession::handleObjectValueWritten(const GtObject& object)
 
     pimpl->dispatch(ObjectValueWritten,
                     [&]() { pimpl->observer.objectValueWritten(object); });
+}
+
+void
+GtRecordingSession::handlePropertyListWritten(const GtObject& owner,
+                                              const QString& listName,
+                                              int index, const QString& key)
+{
+    if (!isObserved(owner)) return;
+
+    pimpl->dispatch(PropertyListWritten, [&]() {
+        pimpl->observer.propertyListWritten(owner, listName, index, key);
+    });
 }
 
 void
@@ -419,6 +444,20 @@ gt::detail::enterObjectValueRead(const GtObject& object) noexcept
 }
 
 void
+gt::detail::enterPropertyListRead(const GtObject& owner,
+                                  const QString& listName, int index,
+                                  const QString& key) noexcept
+{
+    // only the outermost read is reported, property reads included
+    if (readDepth++ > 0) return;
+
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->handlePropertyListRead(owner, listName, index, key);
+    }
+}
+
+void
 gt::detail::recordPropertyWritten(const GtAbstractProperty& property) noexcept
 {
     if (!isAnyRecordingRunning()) return;
@@ -443,8 +482,20 @@ gt::recordObjectValueWritten(const GtObject& object) noexcept
     }
 }
 
-gt::detail::SuppressRecordingScope::SuppressRecordingScope() noexcept :
-    m_active(isAnyRecordingRunning())
+void
+gt::recordPropertyListWritten(const GtObject& owner, const QString& listName,
+                              int index, const QString& key) noexcept
+{
+    if (!detail::isAnyRecordingRunning()) return;
+
+    if (GtRecordingSession* session = currentSession)
+    {
+        session->handlePropertyListWritten(owner, listName, index, key);
+    }
+}
+
+gt::SuppressRecordingScope::SuppressRecordingScope() noexcept :
+    m_active(detail::isAnyRecordingRunning())
 {
     if (!m_active) return;
 
@@ -452,7 +503,7 @@ gt::detail::SuppressRecordingScope::SuppressRecordingScope() noexcept :
     currentSession = nullptr;
 }
 
-gt::detail::SuppressRecordingScope::~SuppressRecordingScope()
+gt::SuppressRecordingScope::~SuppressRecordingScope()
 {
     if (m_active) currentSession = m_previous;
 }
