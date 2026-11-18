@@ -26,7 +26,8 @@ collectionsInstallDefaultPath()
         GtApplicationPaths::Location::Data, &error);
     if (!dataDirectory)
     {
-        gtError() << QObject::tr("Could not access collection data directory:") << error;
+        gtError() << QObject::tr("Could not access collection data directory:")
+                  << error;
         return {};
     }
 
@@ -34,14 +35,14 @@ collectionsInstallDefaultPath()
 }
 
 const QString
-collectionsInstallPath(bool mkpath, bool *ok)
+collectionsInstallPath(bool mkpath, bool* ok)
 {
     if (ok)
     {
         *ok = false;
     }
 
-    auto settings = gtApp->settings();
+    const auto* settings = gtApp->settings();
     QString userCollectionsDir = settings->userCollectionsDir();
 
     QString collectionsPathActual;
@@ -83,5 +84,5 @@ collectionsInstallPath(bool mkpath, bool *ok)
 }
 
 
-}
-}
+} // namespace detail
+} // namespace gt

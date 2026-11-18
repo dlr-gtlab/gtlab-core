@@ -129,8 +129,10 @@ TEST_F(CollectionPathTest, ReadsSettingAgainAfterDirectoryChanges)
 TEST_F(CollectionPathTest, EmptySettingFallsBackToRoamingDirectory)
 {
     gtApp->settings()->setUserCollectionsDir(QString{});
-    const QString expected = GtApplicationPaths::directory(GtApplicationPaths::Location::Data).value()
-                                 .filePath("collections/CollectionPathTest");
+    const QString expected =
+        GtApplicationPaths::directory(GtApplicationPaths::Location::Data)
+            .value()
+            .filePath("collections/CollectionPathTest");
 
     GtCollectionLoader loader("CollectionPathTest");
     EXPECT_EQ(expected, loader.collectionPath());

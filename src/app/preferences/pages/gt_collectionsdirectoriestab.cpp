@@ -67,13 +67,11 @@ GtCollectionsDirectoriesTab::onBtnCollectionsDirSelectPressed()
 
 
     QString selectedDir = QFileDialog::getExistingDirectory(
-        this,
-        "Select Collections Install Directory",
-        currPath,
-        QFileDialog::ShowDirsOnly
-        );
+        this, "Select Collections Install Directory", currPath,
+        QFileDialog::ShowDirsOnly);
 
-    if (!selectedDir.isEmpty()) {
+    if (!selectedDir.isEmpty())
+    {
         setCollectionsPath(selectedDir, m_defaultPath);
     }
 }
@@ -85,14 +83,15 @@ GtCollectionsDirectoriesTab::collectionsPath()
 }
 
 void
-GtCollectionsDirectoriesTab::setCollectionsPath(const QString& dir, const QString& defaultPath)
+GtCollectionsDirectoriesTab::setCollectionsPath(const QString& dir,
+                                                const QString& defaultPath)
 {
     ui->edtCollectionsDirPath->setText(dir);
     m_defaultPath = defaultPath;
 }
 
 void
-GtCollectionsDirectoriesTab::setCollectionPathsError(const QString &msg)
+GtCollectionsDirectoriesTab::setCollectionPathsError(const QString& msg)
 {
     ui->lblCollectionsDirMsg->setText(msg);
 

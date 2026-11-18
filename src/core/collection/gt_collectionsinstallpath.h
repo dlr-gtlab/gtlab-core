@@ -23,7 +23,8 @@ namespace detail
  * @param ok Is true when path is valid, otherwise false
  * @return
  */
-const QString GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false, bool* ok = nullptr);
+const QString GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false,
+                                                    bool* ok = nullptr);
 
 
 /**
@@ -31,9 +32,9 @@ const QString GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false, bool* o
  * @return
  */
 const QString GT_CORE_EXPORT collectionsInstallDefaultPath();
-}
+} // namespace detail
 
-}
+} // namespace gt
 
 
 #endif // GT_COLLECTIONSINSTALLPATH_H

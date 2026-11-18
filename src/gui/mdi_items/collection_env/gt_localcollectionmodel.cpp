@@ -53,7 +53,8 @@ isUserCollectionPath(const QString& itemPath, QString* error)
     {
         if (error)
         {
-            *error = QObject::tr("Could not resolve the collections install path.");
+            *error =
+                QObject::tr("Could not resolve the collections install path.");
         }
         return false;
     }
