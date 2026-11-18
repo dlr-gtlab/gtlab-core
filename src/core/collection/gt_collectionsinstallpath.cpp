@@ -1,11 +1,23 @@
-#include "gt_collectionspath.h"
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ */
+
+#include "gt_collectionsinstallpath.h"
 
 #include "gt_applicationpaths.h"
 #include "gt_coreapplication.h"
 #include "gt_settings.h"
 #include "gt_logging.h"
 
-const QString gt::detail::collectionsInstallPath(bool mkpath)
+
+namespace gt
+{
+namespace detail
+{
+
+const QString collectionsInstallPath(bool mkpath)
 {
     const auto* settings = gtApp->settings();
     QString userCollectionsDir = settings->userCollectionsDir();
@@ -41,4 +53,8 @@ const QString gt::detail::collectionsInstallPath(bool mkpath)
     }
 
     return collectionsDir.absolutePath();
+}
+
+
+}
 }

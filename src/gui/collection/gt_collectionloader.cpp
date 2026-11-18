@@ -11,7 +11,7 @@
 
 #include "gt_collectionloader.h"
 
-#include "gt_collectionspath.h"
+#include "gt_collectionsinstallpath.h"
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
 #include "gt_mdilauncher.h"
@@ -21,7 +21,6 @@
 #include "gt_downloaddialog.h"
 #include "gt_algorithms.h"
 #include "gt_qtutilities.h"
-#include "gt_settings.h"
 
 #include <QCoreApplication>
 #include <QDir>

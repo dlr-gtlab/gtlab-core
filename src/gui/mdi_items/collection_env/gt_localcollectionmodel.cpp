@@ -18,7 +18,7 @@
 #include "gt_icons.h"
 #include "gt_collectionitem.h"
 #include "gt_logging.h"
-#include "gt_collectionspath.h"
+#include "gt_collectionsinstallpath.h"
 
 #include "gt_localcollectionmodel.h"
 #include "gt_qtutilities.h"
@@ -38,8 +38,6 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         }
         return false;
     }
-
-
 
     const auto dataDirectory = GtApplicationPaths::directory(
         GtApplicationPaths::Location::Data, error);

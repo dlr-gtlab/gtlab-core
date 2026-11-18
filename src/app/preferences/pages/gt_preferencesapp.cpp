@@ -17,6 +17,7 @@
 #include <QSettings>
 
 #include "gt_application.h"
+#include "gt_collectionsinstallpath.h"
 #include "gt_settings.h"
 #include "gt_logmodel.h"
 #include "gt_logging.h"
@@ -260,5 +261,5 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
 
-    m_collectionDirsTab->setCollectionsPath(settings.userCollectionsDir());
+    m_collectionDirsTab->setCollectionsPath(gt::detail::collectionsInstallPath(false));
 }
