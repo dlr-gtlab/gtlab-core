@@ -11,7 +11,29 @@
 #include "gt_icons.h"
 #include "gt_localcollectionmodel.h"
 
+#include <QAbstractItemModel>
 #include <QIcon>
+#include <QPluginLoader>
+
+#include <memory>
+
+TEST(CollectionModel, ModuleCanOverrideDisplayRole)
+{
+    QPluginLoader loader(QString::fromUtf8(COLLECTION_FIXTURE_PATH));
+    auto* plugin = loader.instance();
+    ASSERT_NE(nullptr, plugin) << loader.errorString().toStdString();
+
+    QObject* modelObject = nullptr;
+    ASSERT_TRUE(QMetaObject::invokeMethod(plugin, "createCollectionModel",
+                                          Q_RETURN_ARG(QObject*, modelObject)));
+    std::unique_ptr<QObject> modelOwner{modelObject};
+    auto* model = qobject_cast<QAbstractItemModel*>(modelOwner.get());
+    ASSERT_NE(nullptr, model);
+
+    ASSERT_EQ(1, model->rowCount());
+    EXPECT_EQ(QStringLiteral("Custom collection item"),
+              model->index(0, 0).data().toString());
+}
 
 TEST(CollectionModel, CustomIconsArePreservedPerItem)
 {

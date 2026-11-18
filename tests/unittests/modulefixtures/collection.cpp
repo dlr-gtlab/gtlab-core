@@ -9,7 +9,27 @@
 
 #include "gt_collectioninterface.h"
 #include "gt_collectionsettings.h"
+#include "gt_localcollectionmodel.h"
 #include "gt_moduleinterface.h"
+
+namespace
+{
+
+class CustomCollectionModel : public GtLocalCollectionModel
+{
+public:
+    QVariant data(const QModelIndex& index, int role) const override
+    {
+        if (index.isValid() && index.column() == 0 && role == Qt::DisplayRole)
+        {
+            return QStringLiteral("Custom collection item");
+        }
+
+        return GtLocalCollectionModel::data(index, role);
+    }
+};
+
+} // namespace
 
 class CollectionTestModule : public QObject,
                              public GtModuleInterface,
@@ -40,6 +60,13 @@ public:
     QMetaObject collectionSettings() const override
     {
         return GtCollectionSettings::staticMetaObject;
+    }
+
+    Q_INVOKABLE QObject* createCollectionModel() const
+    {
+        auto* model = new CustomCollectionModel;
+        model->setItems({GtCollectionItem{}});
+        return model;
     }
 };
 
