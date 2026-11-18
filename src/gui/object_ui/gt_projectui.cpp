@@ -1762,7 +1762,7 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (initialOpenProject)
         {
-            mb.setText(tr("Are you sure to restore the project? \n "
+            mb.setText(tr("Are you sure to restore the project? \n"
                       "Your current project will be overwritten which "
                       "cannot be undone. \n"
                       "The project will be closed automatically to "
@@ -1770,7 +1770,7 @@ GtProjectUI::restoreBackup(GtObject *obj)
         }
         else
         {
-            mb.setText(tr("Are you sure to restore the project? \n "
+            mb.setText(tr("Are you sure to restore the project? \n"
                       "Your current project will be overwritten which "
                           "cannot be undone."));
         }
