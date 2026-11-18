@@ -75,7 +75,6 @@ protected:
             settings.clear();
             settings.sync();
             QFile::remove(settingsFile);
-            QDir(GtCoreApplication::roamingPath()).removeRecursively();
             application.reset();
         }
         QCoreApplication::setApplicationName(previousApplicationName);
