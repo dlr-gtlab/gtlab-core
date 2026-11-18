@@ -11,6 +11,7 @@
 #include <QTableWidget>
 #include <QCheckBox>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QSpinBox>
 #include <QLabel>
 #include <QComboBox>
@@ -151,11 +152,21 @@ GtPreferencesApp::GtPreferencesApp() :
 
     generalLayout->addStretch(1);
 
-    m_moduleDirsTab = new GtModuleDirectoriesTab;
-    tabWidget->addTab(m_moduleDirsTab, tr("Module Directories"));
+    auto* directoriesPage = new QWidget;
+    auto* directoriesLayout = new QVBoxLayout(directoriesPage);
+    tabWidget->addTab(directoriesPage, tr("Directories"));
 
-    m_collectionDirsTab = new GtCollectionsDirectoriesTab;
-    tabWidget->addTab(m_collectionDirsTab, tr("Collections Directories"));
+    auto* moduleDirsGroup = new QGroupBox(tr("Module directories"));
+    auto* moduleDirsLayout = new QVBoxLayout(moduleDirsGroup);
+    m_moduleDirsTab = new GtModuleDirectoriesTab(moduleDirsGroup);
+    moduleDirsLayout->addWidget(m_moduleDirsTab);
+    directoriesLayout->addWidget(moduleDirsGroup, 1);
+
+    auto* collectionDirsGroup = new QGroupBox(tr("Collections directory"));
+    auto* collectionDirsLayout = new QVBoxLayout(collectionDirsGroup);
+    m_collectionDirsTab = new GtCollectionsDirectoriesTab(collectionDirsGroup);
+    collectionDirsLayout->addWidget(m_collectionDirsTab);
+    directoriesLayout->addWidget(collectionDirsGroup);
 
     QWidget* processRunnerPage = new QWidget;
     auto idx = tabWidget->addTab(processRunnerPage, tr("Process Runner"));
