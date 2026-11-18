@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QDesktopServices>
+#include <QFileDialog>
 
 GtCollectionsDirectoriesTab::GtCollectionsDirectoriesTab(QWidget* parent) :
     QWidget(parent),
@@ -19,7 +20,13 @@ GtCollectionsDirectoriesTab::GtCollectionsDirectoriesTab(QWidget* parent) :
     ui->setupUi(this);
 
     connect(ui->btnCollectionsDirShowInExplorer, &QPushButton::clicked, this,
-            &GtCollectionsDirectoriesTab::onShowInExplorer);
+            &GtCollectionsDirectoriesTab::onCollectionsDirShowInExplorer);
+
+    connect(ui->btnCollectionsDirPathReset, &QPushButton::clicked, this,
+            &GtCollectionsDirectoriesTab::onCollectionsDirResetDefault);
+
+    connect(ui->btnCollectionsDirPathSelect, &QPushButton::clicked, this,
+            &GtCollectionsDirectoriesTab::onBtnCollectionsDirSelectPressed);
 }
 
 GtCollectionsDirectoriesTab::~GtCollectionsDirectoriesTab()
@@ -28,7 +35,7 @@ GtCollectionsDirectoriesTab::~GtCollectionsDirectoriesTab()
 }
 
 void
-GtCollectionsDirectoriesTab::onShowInExplorer()
+GtCollectionsDirectoriesTab::onCollectionsDirShowInExplorer()
 {
     QFileInfo fi(collectionsPath());
     if (!fi.exists())
@@ -44,6 +51,33 @@ GtCollectionsDirectoriesTab::onShowInExplorer()
     QDesktopServices::openUrl(QUrl::fromLocalFile(target));
 }
 
+void
+GtCollectionsDirectoriesTab::onCollectionsDirResetDefault()
+{
+    ui->edtCollectionsDirPath->setText(m_defaultPath);
+    ui->lblCollectionsDirMsg->setStyleSheet("");
+    ui->edtCollectionsDirPath->setStyleSheet("");
+    ui->lblCollectionsDirMsg->setText("");
+}
+
+void
+GtCollectionsDirectoriesTab::onBtnCollectionsDirSelectPressed()
+{
+    auto currPath = ui->edtCollectionsDirPath->text();
+
+
+    QString selectedDir = QFileDialog::getExistingDirectory(
+        this,
+        "Select Collections Install Directory",
+        currPath,
+        QFileDialog::ShowDirsOnly
+        );
+
+    if (!selectedDir.isEmpty()) {
+        setCollectionsPath(selectedDir, m_defaultPath);
+    }
+}
+
 const QString
 GtCollectionsDirectoriesTab::collectionsPath()
 {
@@ -51,13 +85,25 @@ GtCollectionsDirectoriesTab::collectionsPath()
 }
 
 void
-GtCollectionsDirectoriesTab::setCollectionsPath(const QString& dir)
+GtCollectionsDirectoriesTab::setCollectionsPath(const QString& dir, const QString& defaultPath)
 {
     ui->edtCollectionsDirPath->setText(dir);
+    m_defaultPath = defaultPath;
 }
 
-void GtCollectionsDirectoriesTab::setCollectionPathsError(const QString &msg)
+void
+GtCollectionsDirectoriesTab::setCollectionPathsError(const QString &msg)
 {
     ui->lblCollectionsDirMsg->setText(msg);
-    ui->lblCollectionsDirMsg->setStyleSheet("color: red;");
+
+    if (!msg.isEmpty())
+    {
+        ui->lblCollectionsDirMsg->setStyleSheet("color: red;");
+        ui->edtCollectionsDirPath->setStyleSheet("color: red;");
+    }
+    else
+    {
+        ui->lblCollectionsDirMsg->setStyleSheet("");
+        ui->edtCollectionsDirPath->setStyleSheet("");
+    }
 }

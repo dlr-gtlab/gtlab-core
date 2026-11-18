@@ -182,15 +182,16 @@ GtCollectionLoader::collectionPath()
         return {};
     }
 
-    auto installPath = gt::detail::collectionsInstallPath(true);
+    bool ok;
+    auto installPath = gt::detail::collectionsInstallPath(true, &ok);
 
-    if (!installPath.has_value())
+    if (!ok)
     {
         gtError() << QObject::tr("Could not resolve collections install path!");
         return {};
     }
 
-    QDir collectionsDir{installPath.value()};
+    QDir collectionsDir{installPath};
 
     QString relativePath = m_collection->collectionId();
 

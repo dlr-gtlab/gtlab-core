@@ -46,9 +46,10 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         return false;
     }
 
-    auto installPath = gt::detail::collectionsInstallPath();
+    bool ok;
+    auto installPath = gt::detail::collectionsInstallPath(false, &ok);
 
-    if (!installPath.has_value())
+    if (!ok)
     {
         if (error)
         {
@@ -57,7 +58,7 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         return false;
     }
 
-    const QString rootPath = QDir{installPath.value()}.canonicalPath();
+    const QString rootPath = QDir{installPath}.canonicalPath();
 
     if (rootPath.isEmpty())
     {

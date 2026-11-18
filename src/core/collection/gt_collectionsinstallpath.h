@@ -20,12 +20,19 @@ namespace detail
 /**
  * @brief Retrieve the current collectionsInstallPath
  * @param mkpath If true, create the required directory path
+ * @param ok Is true when path is valid, otherwise false
  * @return
  */
-const std::optional<const QString> GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false);
+const QString GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false, bool* ok = nullptr);
 
 
+/**
+ * @brief Retrieve the default collectionsInstallPath
+ * @return
+ */
+const QString GT_CORE_EXPORT collectionsInstallDefaultPath();
 }
+
 }
 
 

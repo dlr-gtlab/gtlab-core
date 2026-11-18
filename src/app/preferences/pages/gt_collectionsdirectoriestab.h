@@ -39,8 +39,9 @@ public:
     /**
      * @brief Set the collection path in form
      * @param dir
+     * @param defaultPath
      */
-    void setCollectionsPath(const QString& dir);
+    void setCollectionsPath(const QString& dir, const QString& defaultPath);
 
     /**
      * @brief Set an error message for the colletions path
@@ -53,11 +54,23 @@ private:
     //! Auto-generated UI.
     Ui::GtCollectionsDirectoriesTab* ui;
 
+    QString m_defaultPath;
+
 private slots:
     /**
-     * @brief Open the system file manager for the colletion path
+     * @brief Open the system file manager for the collection path
      */
-    void onShowInExplorer();
+    void onCollectionsDirShowInExplorer();
+
+    /**
+     * @brief Reset to GTlab default
+     */
+    void onCollectionsDirResetDefault();
+
+    /**
+     * @brief Button to select collection path is pressed
+     */
+    void onBtnCollectionsDirSelectPressed();
 };
 
 #endif // GT_COLLECTIONSDIRECTORIESTAB_H

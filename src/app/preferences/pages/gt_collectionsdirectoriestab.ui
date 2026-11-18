@@ -41,9 +41,30 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="btnCollectionsDirPathSelect">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
         <widget class="QPushButton" name="btnCollectionsDirShowInExplorer">
          <property name="text">
           <string>Show in explorer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnCollectionsDirPathReset">
+         <property name="text">
+          <string>Reset to default</string>
          </property>
         </widget>
        </item>
