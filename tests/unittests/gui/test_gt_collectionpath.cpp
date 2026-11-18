@@ -9,6 +9,7 @@
 #include "gt_application.h"
 #include "gt_collectionloader.h"
 #include "gt_settings.h"
+#include "gt_applicationpaths.h"
 
 #include <QApplication>
 #include <QDir>
@@ -129,7 +130,7 @@ TEST_F(CollectionPathTest, ReadsSettingAgainAfterDirectoryChanges)
 TEST_F(CollectionPathTest, EmptySettingFallsBackToRoamingDirectory)
 {
     gtApp->settings()->setUserCollectionsDir(QString{});
-    const QString expected = QDir(GtCoreApplication::roamingPath())
+    const QString expected = GtApplicationPaths::directory(GtApplicationPaths::Location::Data).value()
                                  .filePath("collections/CollectionPathTest");
 
     GtCollectionLoader loader("CollectionPathTest");
