@@ -46,7 +46,18 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         return false;
     }
 
-    const QString rootPath = QDir{gt::detail::collectionsInstallPath()}.canonicalPath();
+    auto installPath = gt::detail::collectionsInstallPath();
+
+    if (!installPath.has_value())
+    {
+        if (error)
+        {
+            *error = QObject::tr("Could not resolve the collections install path.");
+        }
+        return false;
+    }
+
+    const QString rootPath = QDir{installPath.value()}.canonicalPath();
 
     if (rootPath.isEmpty())
     {

@@ -261,5 +261,12 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
 
-    m_collectionDirsTab->setCollectionsPath(gt::detail::collectionsInstallPath(false));
+    auto collPath = gt::detail::collectionsInstallPath(false);
+
+    if (!collPath.has_value())
+    {
+        m_collectionDirsTab->setCollectionPathsError(QObject::tr("Error in collection path"));
+    }
+
+    m_collectionDirsTab->setCollectionsPath(collPath.value());
 }

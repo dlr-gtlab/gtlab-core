@@ -17,7 +17,7 @@ namespace gt
 namespace detail
 {
 
-const QString collectionsInstallPath(bool mkpath)
+const std::optional<const QString> collectionsInstallPath(bool mkpath)
 {
     const auto* settings = gtApp->settings();
     QString userCollectionsDir = settings->userCollectionsDir();
@@ -32,9 +32,8 @@ const QString collectionsInstallPath(bool mkpath)
             GtApplicationPaths::Location::Data, &error);
         if (!dataDirectory)
         {
-            gtError() << QObject::tr("Could not access collection data directory:")
-            << error;
-            return QString();
+            gtError() << QObject::tr("Could not access collection data directory:") << error;
+            return {};
         }
 
         collectionsPathActual = dataDirectory->absoluteFilePath("collections");
@@ -42,6 +41,12 @@ const QString collectionsInstallPath(bool mkpath)
     else
     {
         collectionsPathActual = userCollectionsDir;
+    }
+
+    if (QFileInfo{collectionsPathActual}.isFile())
+    {
+        gtError() << QObject::tr("Retrieved collections path is a file");
+        return {};
     }
 
     QDir collectionsDir{collectionsPathActual};

@@ -15,27 +15,44 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="bottomMargin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QLineEdit" name="edtGtlabEnvValue">
-       <property name="text">
-        <string/>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <property name="readOnly">
-        <bool>false</bool>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-      </widget>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="edtCollectionsDirPath">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnCollectionsDirShowInExplorer">
+         <property name="text">
+          <string>Show in explorer</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="btnShowDir">
+      <widget class="QLabel" name="lblCollectionsDirMsg">
        <property name="text">
-        <string>Show in explorer</string>
+        <string/>
        </property>
       </widget>
      </item>

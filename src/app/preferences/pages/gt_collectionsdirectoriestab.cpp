@@ -18,7 +18,7 @@ GtCollectionsDirectoriesTab::GtCollectionsDirectoriesTab(QWidget* parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->btnShowDir, &QPushButton::clicked, this,
+    connect(ui->btnCollectionsDirShowInExplorer, &QPushButton::clicked, this,
             &GtCollectionsDirectoriesTab::onShowInExplorer);
 }
 
@@ -44,14 +44,20 @@ GtCollectionsDirectoriesTab::onShowInExplorer()
     QDesktopServices::openUrl(QUrl::fromLocalFile(target));
 }
 
-QString
+const QString
 GtCollectionsDirectoriesTab::collectionsPath()
 {
-    return ui->edtGtlabEnvValue->text();
+    return ui->edtCollectionsDirPath->text();
 }
 
 void
 GtCollectionsDirectoriesTab::setCollectionsPath(const QString& dir)
 {
-    ui->edtGtlabEnvValue->setText(dir);
+    ui->edtCollectionsDirPath->setText(dir);
+}
+
+void GtCollectionsDirectoriesTab::setCollectionPathsError(const QString &msg)
+{
+    ui->lblCollectionsDirMsg->setText(msg);
+    ui->lblCollectionsDirMsg->setStyleSheet("color: red;");
 }

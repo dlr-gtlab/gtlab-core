@@ -179,17 +179,25 @@ GtCollectionLoader::collectionPath()
     if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
-        return QString();
+        return {};
     }
 
-    QDir collectionsDir{gt::detail::collectionsInstallPath(true)};
+    auto installPath = gt::detail::collectionsInstallPath(true);
+
+    if (!installPath.has_value())
+    {
+        gtError() << QObject::tr("Could not resolve collections install path!");
+        return {};
+    }
+
+    QDir collectionsDir{installPath.value()};
 
     QString relativePath = m_collection->collectionId();
 
     if (!collectionsDir.mkpath(relativePath))
     {
         gtError() << QObject::tr("Could not create collection path!");
-        return QString();
+        return {};
     }
 
     return QDir::cleanPath(collectionsDir.filePath(relativePath));

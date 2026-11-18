@@ -4,12 +4,13 @@
  * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  */
 
-#ifndef GT_COLLECTIONSPATH_H
-#define GT_COLLECTIONSPATH_H
-
-#include <QString>
+#ifndef GT_COLLECTIONSINSTALLPATH_H
+#define GT_COLLECTIONSINSTALLPATH_H
 
 #include "gt_core_exports.h"
+
+#include <QString>
+#include <optional>
 
 namespace gt
 {
@@ -21,11 +22,11 @@ namespace detail
  * @param mkpath If true, create the required directory path
  * @return
  */
-const QString GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false);
+const std::optional<const QString> GT_CORE_EXPORT collectionsInstallPath(bool mkpath = false);
 
 
 }
 }
 
 
-#endif // GT_COLLECTIONSPATH_H
+#endif // GT_COLLECTIONSINSTALLPATH_H

@@ -30,8 +30,23 @@ public:
      */
     ~GtCollectionsDirectoriesTab() override;
 
-    QString collectionsPath();
+    /**
+     * @brief Get the filled value of collections path in form
+     * @return
+     */
+    const QString collectionsPath();
+
+    /**
+     * @brief Set the collection path in form
+     * @param dir
+     */
     void setCollectionsPath(const QString& dir);
+
+    /**
+     * @brief Set an error message for the colletions path
+     * @param msg
+     */
+    void setCollectionPathsError(const QString& msg);
 
 
 private:
