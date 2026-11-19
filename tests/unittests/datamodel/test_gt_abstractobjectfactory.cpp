@@ -299,17 +299,29 @@ TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)
 TEST(GtFactoryGroup, RegistrationApisAreRejected)
 {
     GtFactoryGroup group;
+
+    TestObjectFactory subfactory;
+    group.addFactory(&subfactory);
+
     GtAbstractObjectFactory* factory = &group;
 
     EXPECT_FALSE(factory->registerClass(GT_METADATA(FactoryTestObject),
                                         QStringLiteral("TestModule")));
-    EXPECT_FALSE(factory->registerClass(GT_METADATA(FactoryTestObject),
+    EXPECT_FALSE(factory->registerClass(GT_METADATA(FactoryTestOtherObject),
                                         QStringLiteral("TestModule")));
     EXPECT_FALSE(factory->registerClasses({GT_METADATA(FactoryTestObject)},
                                           QStringLiteral("TestModule")));
-    EXPECT_FALSE(factory->registerClasses({GT_METADATA(FactoryTestObject)},
+    EXPECT_FALSE(factory->registerClasses({GT_METADATA(FactoryTestOtherObject)},
                                           QStringLiteral("TestModule")));
     EXPECT_FALSE(factory->unregisterClass(GT_METADATA(FactoryTestObject)));
+    EXPECT_FALSE(factory->unregisterClass(GT_METADATA(FactoryTestOtherObject)));
+
+    EXPECT_TRUE(subfactory.registerClass(GT_METADATA(FactoryTestObject),
+                                        QStringLiteral("TestModule")));
+    EXPECT_TRUE(subfactory.registerClasses({GT_METADATA(FactoryTestOtherObject)},
+                                          QStringLiteral("TestModule")));
+    EXPECT_TRUE(subfactory.unregisterClass(GT_METADATA(FactoryTestObject)));
+    EXPECT_TRUE(subfactory.unregisterClass(GT_METADATA(FactoryTestOtherObject)));
 }
 
 TEST(GtFactoryGroup, DelegatesSuperClassNameToProvidingFactory)
@@ -354,8 +366,11 @@ TEST(GtFactoryGroup, DelegatesMetaObjectLookupToProvidingFactory)
     GtFactoryGroup group;
     ASSERT_TRUE(group.addFactory(&factory));
 
-    EXPECT_NE(group.metaObject(GT_CLASSNAME(FactoryTestObject)), nullptr);
-    EXPECT_EQ(group.metaObject(QStringLiteral("UnknownClass")), nullptr);
+    QMetaObject const* mo = group.metaObject(GT_CLASSNAME(FactoryTestObject));
+    ASSERT_TRUE(mo);
+    ASSERT_STREQ(mo->className(), GT_METADATA(FactoryTestObject).className());
+    mo = group.metaObject("UnknownClass");
+    ASSERT_FALSE(mo);
 }
 
 TEST(GtFactoryGroup, MakeObjectCreatesThroughProvidingFactory)

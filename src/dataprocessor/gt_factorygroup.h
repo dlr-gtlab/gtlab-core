@@ -102,9 +102,9 @@ public:
     const QMetaObject* metaObject(const QString& className) const override;
 
     /**
-     * @brief addFactory
-     * @param factory
-     * @return
+     * @brief addFactory - does not take ownership of the factory
+     * @param factory Factory
+     * @return success
      */
     bool addFactory(GtAbstractObjectFactory* factory);
 

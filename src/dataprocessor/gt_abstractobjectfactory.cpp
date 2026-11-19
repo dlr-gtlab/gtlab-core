@@ -8,9 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-
-#include <algorithm>
-
 #include "gt_abstractobjectfactory.h"
 
 #include "gt_object.h"
