@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
      - `GtExportHandler`
      - `GtImportHandler`
      - `GtPostTemplateFactory`. Also `registerPlots`.
+ - Added `GtAbstractObjectFactory::makeObject` function for better memory safety - #605, #221
+ - Made `metaObject()` and `unregisterClass()` in `GtAbstractObjectFactory` virtual - #552, #1647
 
 ## [2.1.0-alpha.2] - 2026-11-09
 
