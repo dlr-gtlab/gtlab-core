@@ -225,7 +225,7 @@ inline void GtProperty<ParamType>::forceSetVal(const ParamType& value,
         *success = true;
     }
 
-    emit changed();
+    notifyChanged();
 }
 
 template<class ParamType>
