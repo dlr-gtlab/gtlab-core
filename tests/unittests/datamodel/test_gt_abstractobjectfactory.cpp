@@ -317,11 +317,12 @@ TEST(GtFactoryGroup, RegistrationApisAreRejected)
     EXPECT_FALSE(factory->unregisterClass(GT_METADATA(FactoryTestOtherObject)));
 
     EXPECT_TRUE(subfactory.registerClass(GT_METADATA(FactoryTestObject),
-                                        QStringLiteral("TestModule")));
-    EXPECT_TRUE(subfactory.registerClasses({GT_METADATA(FactoryTestOtherObject)},
-                                          QStringLiteral("TestModule")));
+                                         QStringLiteral("TestModule")));
+    EXPECT_TRUE(subfactory.registerClasses(
+        {GT_METADATA(FactoryTestOtherObject)}, QStringLiteral("TestModule")));
     EXPECT_TRUE(subfactory.unregisterClass(GT_METADATA(FactoryTestObject)));
-    EXPECT_TRUE(subfactory.unregisterClass(GT_METADATA(FactoryTestOtherObject)));
+    EXPECT_TRUE(
+        subfactory.unregisterClass(GT_METADATA(FactoryTestOtherObject)));
 }
 
 TEST(GtFactoryGroup, DelegatesSuperClassNameToProvidingFactory)
@@ -366,7 +367,7 @@ TEST(GtFactoryGroup, DelegatesMetaObjectLookupToProvidingFactory)
     GtFactoryGroup group;
     ASSERT_TRUE(group.addFactory(&factory));
 
-    QMetaObject const* mo = group.metaObject(GT_CLASSNAME(FactoryTestObject));
+    const QMetaObject* mo = group.metaObject(GT_CLASSNAME(FactoryTestObject));
     ASSERT_TRUE(mo);
     ASSERT_STREQ(mo->className(), GT_METADATA(FactoryTestObject).className());
     mo = group.metaObject("UnknownClass");
