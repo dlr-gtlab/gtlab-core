@@ -17,6 +17,8 @@
 
 #include "gt_propertyconversionregistry.h"
 
+#include <algorithm>
+
 GtAbstractProperty::~GtAbstractProperty() = default;
 
 class GtAbstractProperty::Impl
@@ -29,6 +31,8 @@ public:
     bool m_monitoring{false};
 
     bool m_propertyConnectionEnabled{false};
+    /// Object that registered this property, used for recording
+    const GtObject* owner{nullptr};
 };
 
 GtAbstractProperty::GtAbstractProperty() :
@@ -40,6 +44,7 @@ GtAbstractProperty::GtAbstractProperty() :
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
+    gt::detail::PropertyReadScope readScope(*this);
     return valueToVariant(QString());
 }
 
@@ -175,13 +180,13 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
         return;
     }
 
-    QList<QString> propNames;
-    foreach(GtAbstractProperty* absProp, m_subProperties)
-    {
-        propNames.append(absProp->objectName());
-    }
+    const bool nameTaken =
+        std::any_of(m_subProperties.begin(), m_subProperties.end(),
+                    [&property](const GtAbstractProperty* absProp) {
+                        return absProp->objectName() == property.objectName();
+                    });
 
-    if (propNames.contains(property.objectName()))
+    if (nameTaken)
     {
         gtWarning() << tr("property name already taken!")
                     << " (" << objectName() << ")";
@@ -202,6 +207,9 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
             [this, p = &property]() {
         emit subPropChanged(p);
     });
+
+    // sub-properties added after registration belong to the same object
+    if (m_pimpl->owner) property.setOwnerObject(*m_pimpl->owner);
 }
 
 bool
@@ -488,4 +496,33 @@ GtAbstractProperty*
 gt::getConnectedProperty(const GtPropertyConnection& connection)
 {
     return connection.sourcePropObject();
+}
+
+const GtObject*
+GtAbstractProperty::ownerObject() const
+{
+    return m_pimpl->owner;
+}
+
+void
+GtAbstractProperty::setOwnerObject(const GtObject& owner)
+{
+    if (m_pimpl->owner == &owner) return;
+
+    if (!m_pimpl->owner)
+    {
+        // one permanent connection per property; direct, so that the
+        // recording hook runs in the thread that changed the property
+        connect(
+            this, &GtAbstractProperty::changed, this,
+            [this]() { gt::detail::recordPropertyWritten(*this); },
+            Qt::DirectConnection);
+    }
+
+    m_pimpl->owner = &owner;
+
+    for (GtAbstractProperty* sub : qAsConst(m_subProperties))
+    {
+        sub->setOwnerObject(owner);
+    }
 }
