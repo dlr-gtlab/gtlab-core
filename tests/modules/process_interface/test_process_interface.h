@@ -64,29 +64,11 @@ public:
      */
     void init() override;
 
-    /**
-     * @brief Returns executor identification string .
-     * @return
-     */
-    QString executorId() Q_DECL_OVERRIDE;
+    QString executorId() override;
 
-    /**
-     * @brief Returns executor description.
-     * @return
-     */
-    QString executorDescription() Q_DECL_OVERRIDE;
+    QString executorDescription() override;
 
-    /**
-     * @brief executor
-     * @return
-     */
-    QMetaObject executor() Q_DECL_OVERRIDE;
-
-    /**
-     * @brief Returns list of executor settings.
-     * @return
-     */
-    QList<GtAbstractProperty*> executorSettings() Q_DECL_OVERRIDE;
+    QMetaObject executor() override;
 };
 
 #endif // TEST_MODULE_INTERFACE_H

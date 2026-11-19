@@ -10,10 +10,11 @@ add_gtlab_module(TestProcessInterface MODULE_ID "Test Process Interface"
     calculator/test_mementoprojectcalculator.h
     calculator/test_processstatescalculator.h
     calculator/test_progresscalculator.h
+    calculator/test_recordingexecutor.h
+    calculator/test_recordingtask.h
     calculator/test_sleepcalculator.h
     task/test_consoleoverridetask.h
     test_process_interface.h
-    executor/test_process_executor.h
 
     operation/test_operation.cpp
     calculator/test_calculator.cpp
@@ -21,14 +22,11 @@ add_gtlab_module(TestProcessInterface MODULE_ID "Test Process Interface"
     calculator/test_mementoprojectcalculator.cpp
     calculator/test_processstatescalculator.cpp
     calculator/test_progresscalculator.cpp
+    calculator/test_recordingexecutor.cpp
+    calculator/test_recordingtask.cpp
     calculator/test_sleepcalculator.cpp
     task/test_consoleoverridetask.cpp
     test_process_interface.cpp
-    executor/test_process_executor.cpp
-)
-
-target_sources(TestProcessInterface
-  PRIVATE
 )
 
 target_include_directories(TestProcessInterface PUBLIC calculator .)
