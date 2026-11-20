@@ -55,8 +55,8 @@ class TestSpecialGtObject : public GtObjectGroup
 public:
     Q_INVOKABLE TestSpecialGtObject() :
         m_boolProp("boolProp", "Test Bool", QString()),
-        m_doubleProp("doubleProp", "Test Double",
-                                            QString(), GtUnit::Category::Angle),
+        m_doubleProp("doubleProp", "Test Double", QString(),
+                     GtUnit::Category::Angle),
         m_fileProp("fileProp", "Test File", QString(), QStringList()),
         m_groupProp("Test Group", QString()),
         m_intProp("intProp", "Test Int", QString()),
@@ -64,12 +64,14 @@ public:
         m_modeProp("modeProp", "Test Mode", QString()),
         m_modeTypeProp("Test Type", QString()),
         m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
-        m_strProp("strProp", "Test String",  QString(), "Test",
+        m_strProp("strProp", "Test String", QString(), "Test",
                   gt::rex::onlyLettersAndNumbers()),
         m_varProp("variantProp", "Test Variant", QString()),
         m_doubleListProp("dblList", "Double List Property"),
-        m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
-        m_fileChooser("fileChooser", "File Chooser", "File Chooser", {"dat"})
+        m_exDirProp("exDir", "Existing Directory",
+                    "Existing Directory Property"),
+        m_fileChooser("fileChooser", "File Chooser", "File Chooser", {"dat"}),
+        m_structContainer("structContainer", tr("Stuct Container"))
     {
         m_intProp.setOptional(true);
 
@@ -90,7 +92,17 @@ public:
         registerProperty(m_doubleListProp);
         registerProperty(m_exDirProp);
         registerProperty(m_fileChooser);
+
+        m_structContainer.registerAllowedType(nestedProps(m_cleanupList));
+
+        registerPropertyStructContainer(m_structContainer);
     }
+
+    ~TestSpecialGtObject()
+    {
+        qDeleteAll(m_cleanupList);
+    }
+
 
     bool getBool()
     {
@@ -199,6 +211,40 @@ public:
                qobject_cast<TestObject*>(child) != nullptr;
     }
 
+    static GtPropertyStructDefinition nestedProps(
+        QList<GtAbstractProperty*>& cleanupList)
+    {
+        auto makeValueMode = [&cleanupList](const QString& id) {
+            auto* p = new GtModeProperty(id, id, "");
+
+            auto* byNumber = new GtModeTypeProperty("by number", "by number");
+            auto* byText = new GtModeTypeProperty("by text", "by text");
+
+            auto* valueDouble =
+                new GtDoubleProperty("doubleValue", tr("test"), tr("test"));
+
+            byNumber->registerSubProperty(*valueDouble);
+
+            auto* testName = new GtStringProperty("testName", tr("testName"),
+                                                  tr("testName"));
+
+            byText->registerSubProperty(*testName);
+
+            p->registerSubProperty(*byNumber);
+            p->registerSubProperty(*byText);
+
+            cleanupList.append(byNumber);
+            cleanupList.append(byText);
+            cleanupList.append(valueDouble);
+            cleanupList.append(testName);
+            return p;
+        };
+
+        GtPropertyStructDefinition paramSet("parms");
+        paramSet.defineMember("valueMode", makeValueMode);
+        return paramSet;
+    }
+
     GtBoolProperty m_boolProp;
 
     GtDoubleProperty m_doubleProp;
@@ -239,6 +285,9 @@ public:
 
     QList<bool> boolList;
 
+    GtPropertyStructContainer m_structContainer;
+
+    QList<GtAbstractProperty*> m_cleanupList;
 };
 
 #endif // TEST_GT_OBJECT_H
