@@ -828,8 +828,8 @@ GtApplication::initFirstRun()
 
     GtCoreApplication::initFirstRun();
 
-    if (const auto migration =
-            gt::detail::checkCollectionMigration(QCoreApplication::applicationDirPath()))
+    if (const auto migration = gt::detail::checkCollectionMigration(
+            QCoreApplication::applicationDirPath()))
     {
         const QString title = tr("Migrate Collections");
         const auto answer = QMessageBox::question(
@@ -840,7 +840,8 @@ GtApplication::initFirstRun()
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if (answer == QMessageBox::Yes &&
-            !gt::detail::migrateCollectionData(migration->oldPath, migration->newPath))
+            !gt::detail::migrateCollectionData(migration->oldPath,
+                                               migration->newPath))
         {
             QMessageBox::warning(
                 nullptr, title,

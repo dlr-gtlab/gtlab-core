@@ -76,7 +76,8 @@ TEST_F(CollectionMigrationTest, PreservesPopulatedDestination)
 TEST_F(CollectionMigrationTest, FailedCopyLeavesDestinationEmptyAndCanBeRetried)
 {
     ASSERT_TRUE(QDir().mkpath(newPath));
-    const QString linkPath = oldPath + QStringLiteral("/group/item/linked.json");
+    const QString linkPath =
+        oldPath + QStringLiteral("/group/item/linked.json");
     ASSERT_TRUE(QFile::link(oldPath + itemPath, linkPath));
 
     EXPECT_FALSE(gt::detail::migrateCollectionData(oldPath, newPath));

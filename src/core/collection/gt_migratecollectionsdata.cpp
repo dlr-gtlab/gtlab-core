@@ -13,6 +13,8 @@
 #include <QFileInfo>
 #include <QTemporaryDir>
 
+#include <algorithm>
+
 namespace
 {
 
@@ -40,29 +42,28 @@ copyCollectionTree(const QDir& source, const QDir& target)
         return false;
     }
 
-    for (const QFileInfo& entry : source.entryInfoList(collectionEntries))
-    {
-        if (entry.isSymLink())
-        {
-            return false;
-        }
+    const auto entries = source.entryInfoList(collectionEntries);
+    return std::all_of(
+        entries.cbegin(), entries.cend(), [&target](const QFileInfo& entry) {
+            if (entry.isSymLink())
+            {
+                return false;
+            }
 
-        const QString output = target.filePath(entry.fileName());
-        const bool copied = entry.isDir()
-            ? copyCollectionTree(QDir(entry.absoluteFilePath()), QDir(output))
-            : entry.isFile() && QFile::copy(entry.absoluteFilePath(), output);
-        if (!copied)
-        {
-            return false;
-        }
-    }
-    return true;
+            const QString output = target.filePath(entry.fileName());
+            return entry.isDir()
+                       ? copyCollectionTree(QDir(entry.absoluteFilePath()),
+                                            QDir(output))
+                       : entry.isFile() &&
+                             QFile::copy(entry.absoluteFilePath(), output);
+        });
 }
 
 } // namespace
 
 bool
-gt::detail::migrateCollectionData(const QString& oldPath, const QString& newPath)
+gt::detail::migrateCollectionData(const QString& oldPath,
+                                  const QString& newPath)
 {
     if (oldPath.isEmpty() || newPath.isEmpty())
     {
@@ -76,7 +77,8 @@ gt::detail::migrateCollectionData(const QString& oldPath, const QString& newPath
     }
 
     const QString canonicalTarget = QFileInfo(newPath).canonicalFilePath();
-    const QString targetPath = canonicalTarget.isEmpty() ? newPath : canonicalTarget;
+    const QString targetPath =
+        canonicalTarget.isEmpty() ? newPath : canonicalTarget;
     const QDir source(sourcePath);
     QDir parent = QFileInfo(targetPath).absoluteDir();
 
@@ -105,7 +107,8 @@ gt::detail::migrateCollectionData(const QString& oldPath, const QString& newPath
         return false;
     }
 
-    QTemporaryDir staging(parent.filePath(QStringLiteral(".collections-XXXXXX")));
+    QTemporaryDir staging(
+        parent.filePath(QStringLiteral(".collections-XXXXXX")));
     if (!staging.isValid())
     {
         return false;

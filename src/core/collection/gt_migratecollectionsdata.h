@@ -36,8 +36,8 @@ struct CollectionMigrationPaths
  * @return The source and destination paths, or std::nullopt if migration
  *         is inapplicable.
  */
-GT_CORE_EXPORT std::optional<CollectionMigrationPaths>
-checkCollectionMigration(const QString& applicationDirPath);
+GT_CORE_EXPORT std::optional<CollectionMigrationPaths> checkCollectionMigration(
+    const QString& applicationDirPath);
 
 /**
  * @brief Copy the legacy collection tree to a missing or empty destination.
@@ -50,7 +50,8 @@ checkCollectionMigration(const QString& applicationDirPath);
  * @return true if the copy was placed at the destination, false on failure
  *         or if the destination already contains data.
  */
-GT_CORE_EXPORT bool migrateCollectionData(const QString& oldPath, const QString& newPath);
+GT_CORE_EXPORT bool migrateCollectionData(const QString& oldPath,
+                                          const QString& newPath);
 
 } // namespace detail
 } // namespace gt
