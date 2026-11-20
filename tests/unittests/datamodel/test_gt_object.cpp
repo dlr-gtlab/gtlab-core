@@ -184,6 +184,69 @@ TEST_F(TestGtObject, toMemento)
     ASSERT_FALSE(memento.isNull());
 }
 
+TEST_F(TestGtObject, registerEmptyPropertyId)
+{
+    class TestObj : public GtObject
+    {
+    public:
+        TestObj()
+        {
+            registerProperty(p1);
+        }
+
+        GtDoubleProperty p1{{}, "p1"};
+    };
+    TestObj o;
+
+    GT_REMOVAL_GUARD(
+        2, 2, "Note: in 2.2, props with empty ids should not exist anymore");
+    EXPECT_TRUE(o.findProperty("") != nullptr);
+    EXPECT_TRUE(o.findPropertyByName("p1") != nullptr);
+}
+
+
+TEST_F(TestGtObject, registerPropertyTwice)
+{
+
+    class TestObj : public GtObject
+    {
+    public:
+        TestObj()
+        {
+            registerProperty(p1);
+            registerProperty(p1);
+        }
+
+        GtDoubleProperty p1{"p1", "p1"};
+    };
+    TestObj o;
+
+    EXPECT_TRUE(o.findPropertyByName("p1") != nullptr);
+}
+
+TEST_F(TestGtObject, registerPropertySameID)
+{
+
+    class TestObj : public GtObject
+    {
+    public:
+        TestObj()
+        {
+            // this should raise a warning
+            registerProperty(p1);
+            registerProperty(p2);
+        }
+
+        GtDoubleProperty p1{"id", "p1"};
+        GtDoubleProperty p2{"id", "p2"};
+    };
+    TestObj o;
+
+    EXPECT_TRUE(o.findPropertyByName("p1") != nullptr);
+    EXPECT_TRUE(o.findPropertyByName("p2") == nullptr);
+}
+
+
 TEST_F(TestGtObject, dynamicPropertyUsesCoreRegistryWithoutObjectFactory)
 {
     GtObjectGroup object;
@@ -2078,57 +2141,68 @@ TEST_F(TestGtObject, findRoot)
 TEST_F(TestGtObject, constness)
 {
     GtObject* obj{};
-    GtObject const* constObj{};
+    const GtObject* constObj{};
 
     static_assert(std::is_same<GtObject*,
                   decltype(obj->findChild())>(), "Should be non-const");
-    static_assert(std::is_same<GtObject const*,
-                  decltype(constObj->findChild())>(), "Should be const");
+    static_assert(
+        std::is_same<const GtObject*, decltype(constObj->findChild())>(),
+        "Should be const");
 
     static_assert(std::is_same<GtObject*,
                   decltype(obj->findDirectChild())>(), "Should be non-const");
-    static_assert(std::is_same<GtObject const*,
-                  decltype(constObj->findDirectChild())>(), "Should be const");
+    static_assert(
+        std::is_same<const GtObject*, decltype(constObj->findDirectChild())>(),
+        "Should be const");
 
     static_assert(std::is_same<QObject*,
                   decltype(obj->parent())>(), "Should be non-const");
-    static_assert(std::is_same<QObject const*,
-                  decltype(constObj->parent())>(), "Should be const");
+    static_assert(std::is_same<const QObject*, decltype(constObj->parent())>(),
+                  "Should be const");
 
     static_assert(std::is_same<GtObject*,
                   decltype(obj->findParent())>(), "Should be non-const");
-    static_assert(std::is_same<GtObject const*,
-                  decltype(constObj->findParent())>(), "Should be const");
+    static_assert(
+        std::is_same<const GtObject*, decltype(constObj->findParent())>(),
+        "Should be const");
 
     static_assert(std::is_same<GtObject*,
                   decltype(obj->findRoot())>(), "Should be non-const");
-    static_assert(std::is_same<GtObject const*,
-                  decltype(constObj->findRoot())>(), "Should be const");
+    static_assert(
+        std::is_same<const GtObject*, decltype(constObj->findRoot())>(),
+        "Should be const");
 
     static_assert(std::is_same<GtAbstractProperty*,
                   decltype(obj->findProperty("id"))>(), "Should be non-const");
-    static_assert(std::is_same<GtAbstractProperty const*,
-                  decltype(constObj->findProperty("id"))>(), "Should be const");
+    static_assert(std::is_same<const GtAbstractProperty*,
+                               decltype(constObj->findProperty("id"))>(),
+                  "Should be const");
 
     static_assert(std::is_same<GtAbstractProperty*,
                   decltype(obj->findPropertyByName("name"))>(), "Should be non-const");
-    static_assert(std::is_same<GtAbstractProperty const*,
-                  decltype(constObj->findPropertyByName("name"))>(), "Should be const");
+    static_assert(
+        std::is_same<const GtAbstractProperty*,
+                     decltype(constObj->findPropertyByName("name"))>(),
+        "Should be const");
 
     static_assert(std::is_same<GtPropertyStructContainer*,
                   decltype(obj->findPropertyContainer("id"))>(), "Should be non-const");
-    static_assert(std::is_same<GtPropertyStructContainer const*,
-                  decltype(constObj->findPropertyContainer("id"))>(), "Should be const");
+    static_assert(
+        std::is_same<const GtPropertyStructContainer*,
+                     decltype(constObj->findPropertyContainer("id"))>(),
+        "Should be const");
 
     static_assert(std::is_same<QList<GtObject*>,
                   decltype(obj->findChildren())>(), "Should be non-const");
-    static_assert(std::is_same<QList<GtObject const*>,
-                  decltype(constObj->findChildren())>(), "Should be non-const");
+    static_assert(std::is_same<QList<const GtObject*>,
+                               decltype(constObj->findChildren())>(),
+                  "Should be non-const");
 
     static_assert(std::is_same<QList<GtObject*>,
                   decltype(obj->findDirectChildren())>(), "Should be non-const");
-    static_assert(std::is_same<QList<GtObject const*>,
-                  decltype(constObj->findDirectChildren())>(), "Should be non-const");
+    static_assert(std::is_same<QList<const GtObject*>,
+                               decltype(constObj->findDirectChildren())>(),
+                  "Should be non-const");
 }
 
 TEST(GtObjectBugs, issue276)
