@@ -828,7 +828,8 @@ GtApplication::initFirstRun()
 
     GtCoreApplication::initFirstRun();
 
-    if (const auto migration = gt::detail::checkCollectionMigration())
+    if (const auto migration =
+            gt::detail::checkCollectionMigration(QCoreApplication::applicationDirPath()))
     {
         const QString title = tr("Migrate Collections");
         const auto answer = QMessageBox::question(

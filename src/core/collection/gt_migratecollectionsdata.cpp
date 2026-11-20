@@ -8,7 +8,6 @@
 
 #include "gt_collectionsinstallpath.h"
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -129,9 +128,9 @@ gt::detail::migrateCollectionData(const QString& oldPath, const QString& newPath
 }
 
 std::optional<gt::detail::CollectionMigrationPaths>
-gt::detail::checkCollectionMigration()
+gt::detail::checkCollectionMigration(const QString& applicationDirPath)
 {
-    QDir installationDir(QCoreApplication::applicationDirPath());
+    QDir installationDir(applicationDirPath);
     if (!installationDir.cdUp())
     {
         return std::nullopt;

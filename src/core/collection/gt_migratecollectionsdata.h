@@ -32,10 +32,12 @@ struct CollectionMigrationPaths
  * contains collection subdirectories and the configured destination is
  * missing or empty. This check leaves the destination uncreated.
  *
+ * @param applicationDirPath Directory containing the GTlab executable.
  * @return The source and destination paths, or std::nullopt if migration
  *         is inapplicable.
  */
-GT_CORE_EXPORT std::optional<CollectionMigrationPaths> checkCollectionMigration();
+GT_CORE_EXPORT std::optional<CollectionMigrationPaths>
+checkCollectionMigration(const QString& applicationDirPath);
 
 /**
  * @brief Copy the legacy collection tree to a missing or empty destination.

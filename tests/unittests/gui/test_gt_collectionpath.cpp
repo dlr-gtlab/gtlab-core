@@ -8,6 +8,7 @@
 
 #include "gt_application.h"
 #include "gt_collectionloader.h"
+#include "gt_migratecollectionsdata.h"
 #include "gt_settings.h"
 #include "gt_applicationpaths.h"
 
@@ -152,6 +153,32 @@ TEST_F(CollectionPathTest, ReturnsEmptyWhenConfiguredRootIsAFile)
 
     GtCollectionLoader loader("CollectionPathTest");
     EXPECT_TRUE(loader.collectionPath().isEmpty());
+}
+
+TEST_F(CollectionPathTest, ChecksMigrationWithoutCreatingTheDestination)
+{
+    const QString applicationDir = directory.filePath("install/bin");
+    const QString legacy = directory.filePath("install/Collections");
+    const QString destination = directory.filePath("new collections");
+    gtApp->settings()->setUserCollectionsDir(destination);
+    ASSERT_TRUE(QDir().mkpath(applicationDir));
+
+    using gt::detail::checkCollectionMigration;
+    EXPECT_FALSE(checkCollectionMigration(applicationDir).has_value());
+    ASSERT_TRUE(QDir().mkpath(legacy));
+    EXPECT_FALSE(checkCollectionMigration(applicationDir).has_value());
+    ASSERT_TRUE(QDir(legacy).mkdir("CollectionPathTest"));
+
+    const auto migration = checkCollectionMigration(applicationDir);
+    ASSERT_TRUE(migration.has_value());
+    EXPECT_EQ(legacy, migration->oldPath);
+    EXPECT_EQ(destination, migration->newPath);
+    EXPECT_FALSE(QFileInfo::exists(destination));
+
+    ASSERT_TRUE(QDir().mkpath(destination));
+    EXPECT_TRUE(checkCollectionMigration(applicationDir).has_value());
+    ASSERT_TRUE(QDir(destination).mkdir("existing collection"));
+    EXPECT_FALSE(checkCollectionMigration(applicationDir).has_value());
 }
 
 } // namespace
