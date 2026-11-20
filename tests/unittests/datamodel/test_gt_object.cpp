@@ -191,6 +191,7 @@ TEST_F(TestGtObject, registerEmptyPropertyId)
     public:
         TestObj()
         {
+            setObjectName("TestObject");
             registerProperty(p1);
         }
 
@@ -213,6 +214,7 @@ TEST_F(TestGtObject, registerPropertyTwice)
     public:
         TestObj()
         {
+            setObjectName("TestObject");
             registerProperty(p1);
             registerProperty(p1);
         }
@@ -232,6 +234,7 @@ TEST_F(TestGtObject, registerPropertySameID)
     public:
         TestObj()
         {
+            setObjectName("TestObject");
             // this should raise a warning
             registerProperty(p1);
             registerProperty(p2);

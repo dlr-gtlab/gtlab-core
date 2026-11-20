@@ -1212,9 +1212,9 @@ GtObject::registerProperty(GtAbstractProperty& property)
                          "and will be removed in 2.2")
 
         gtLogOnce(Warning)
-            << tr("DEPRECATED: Property '%1' has empty ident. "
+            << tr("DEPRECATED: Property '%1' of class '%2' has empty ident. "
                   "This is deprecated and will be removed in GTlab 2.2")
-                   .arg(property.objectName());
+                   .arg(property.objectName(), metaObject()->className());
     }
 
 
@@ -1222,7 +1222,7 @@ GtObject::registerProperty(GtAbstractProperty& property)
         (existing && existing != &property))
     {
         gtLogOnce(Warning) << tr("Multiple registration of "
-                                 "property '%1' of object '%2 (%3)'!")
+                                 "property '%1' of object '%2(class %3)'!")
                                   .arg(property.ident(), objectName(),
                                        metaObject()->className());
         return false;
