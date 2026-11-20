@@ -17,6 +17,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QVariant>
+#include <QIcon>
 
 class GtCollectionLoader;
 
@@ -88,7 +89,19 @@ public:
     */
    QString localPath() const;
 
-private:
+   /**
+    * @brief icon
+    * @return
+    */
+   QIcon icon() const;
+
+   /**
+    * @brief setIcon
+    * @param val
+    */
+   void setIcon(const QIcon& val);
+
+   private:
    /// Identification string.
     QString m_ident;
 
@@ -110,6 +123,8 @@ private:
     /// Property map
     QMap<QString, QVariant> m_properties;
 
+    /// Item specific icon (defaults to gt::gui::icon::property())
+    QIcon m_icon;
 };
 
 #endif // GT_COLLECTIONITEM_H

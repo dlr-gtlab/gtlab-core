@@ -24,6 +24,7 @@ class QNetworkAccessManager;
 class GtCollectionItem;
 class GtCollectionReply;
 
+
 /**
  * @brief The GtCollectionHelper class
  */

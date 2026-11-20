@@ -12,15 +12,19 @@
 #ifndef GT_COLLECTIONITEMWIDGET_H
 #define GT_COLLECTIONITEMWIDGET_H
 
+#include "gt_gui_exports.h"
+
 #include <QWidget>
 #include <QDialog>
+
 class QFrame;
 class GtCollectionItem;
+
 
 /**
  * @brief The GtCollectionItemWidget class
  */
-class GtCollectionItemWidget : public QDialog
+class GT_GUI_EXPORT GtCollectionItemWidget : public QDialog
 {
     Q_OBJECT
 

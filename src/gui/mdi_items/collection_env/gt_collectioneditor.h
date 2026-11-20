@@ -95,6 +95,9 @@ private:
     /// Fetch list animation.
     GtCollectionLoadingWidget* m_fetchMovie;
 
+    /// update local collection
+    QPushButton* m_updateLocalButton;
+
     /**
      * @brief generateCollectionSettings
      * @param id
@@ -172,6 +175,10 @@ private slots:
      */
     void updateAllItems();
 
+    /**
+     * @brief updateLocalCollection
+     */
+    void updateLocalCollection();
 };
 
 #endif // GT_COLLECTIONEDITOR_H

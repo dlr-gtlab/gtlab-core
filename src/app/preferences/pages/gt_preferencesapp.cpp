@@ -11,17 +11,20 @@
 #include <QTableWidget>
 #include <QCheckBox>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QSpinBox>
 #include <QLabel>
 #include <QComboBox>
 #include <QSettings>
 
 #include "gt_application.h"
+#include "gt_collectionsinstallpath.h"
 #include "gt_settings.h"
 #include "gt_logmodel.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
 #include "gt_moduledirectoriestab.h"
+#include "gt_collectionsdirectoriestab.h"
 
 #include "gt_preferencesapp.h"
 #include <QStandardItemModel>
@@ -149,8 +152,21 @@ GtPreferencesApp::GtPreferencesApp() :
 
     generalLayout->addStretch(1);
 
-    m_moduleDirsTab = new GtModuleDirectoriesTab;
-    tabWidget->addTab(m_moduleDirsTab, tr("Module Directories"));
+    auto* directoriesPage = new QWidget;
+    auto* directoriesLayout = new QVBoxLayout(directoriesPage);
+    tabWidget->addTab(directoriesPage, tr("Directories"));
+
+    auto* moduleDirsGroup = new QGroupBox(tr("Module directories"));
+    auto* moduleDirsLayout = new QVBoxLayout(moduleDirsGroup);
+    m_moduleDirsTab = new GtModuleDirectoriesTab(moduleDirsGroup);
+    moduleDirsLayout->addWidget(m_moduleDirsTab);
+    directoriesLayout->addWidget(moduleDirsGroup, 1);
+
+    auto* collectionDirsGroup = new QGroupBox(tr("Collections directory"));
+    auto* collectionDirsLayout = new QVBoxLayout(collectionDirsGroup);
+    m_collectionDirsTab = new GtCollectionsDirectoriesTab(collectionDirsGroup);
+    collectionDirsLayout->addWidget(m_collectionDirsTab);
+    directoriesLayout->addWidget(collectionDirsGroup);
 
     QWidget* processRunnerPage = new QWidget;
     auto idx = tabWidget->addTab(processRunnerPage, tr("Process Runner"));
@@ -187,6 +203,7 @@ GtPreferencesApp::GtPreferencesApp() :
 
     // theme selection
     QString themeMode = settings->themeMode();
+
     if (themeMode == "bright")
     {
         m_themeSelection->setCurrentIndex(1);
@@ -243,6 +260,7 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     }
 
     settings.setUserModuleDirs(m_moduleDirsTab->userPaths());
+    settings.setUserCollectionsDir(m_collectionDirsTab->collectionsPath());
 }
 
 void
@@ -253,4 +271,21 @@ GtPreferencesApp::loadSettings(const GtSettings& settings)
     m_moduleDirsTab->setDefaultInstallPath(GtModuleLoader::applicationModuleDir());
     m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
     m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
+
+    bool collectionsInstallPathOk;
+    auto collPath =
+        gt::detail::collectionsInstallPath(false, &collectionsInstallPathOk);
+
+    if (!collectionsInstallPathOk)
+    {
+        m_collectionDirsTab->setCollectionPathsError(
+            QObject::tr("Error in collection path"));
+    }
+    else
+    {
+        m_collectionDirsTab->setCollectionPathsError("");
+    }
+
+    m_collectionDirsTab->setCollectionsPath(
+        collPath, gt::detail::collectionsInstallDefaultPath());
 }

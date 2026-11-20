@@ -19,11 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
   
 ### Added
+ - Support to allow more customization of a collection - #1549
+ 
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
-  existing collections remain discoverable. - #1551
+  existing collections remain discoverable. - #1551 
+ - Collections are not stored in the installation folder of GTlab anymore. By default, they are found in the config folder of the user. A new tab in Setting -> Application gives more options to set a dedicated path. - #1549
+ 
 ### Deprecated
 ### API Changes
  - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
@@ -59,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The new method `gtApp->modules()` resolves which modules are required by a set of modules, including transitive dependencies.
  - The new `GtFootprint::fromProjectModules()` creates a footprint from an explicit set of module versions. - #1312
  - The new method `GtObjectMemento::restore_unique` that returns the restored object as `std::unique_ptr` - #334
-
+ 
 ### Changed
  - Preferences now prompt the user to restart GTlab when a changed setting requires it.
  - The project's footprint only contains modules that are actually used now instead of
