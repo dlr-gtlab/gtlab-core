@@ -178,6 +178,7 @@ target_compile_features(GTlabDataProcessor PUBLIC cxx_std_17)
 
 target_compile_definitions(GTlabDataProcessor
     PUBLIC GT_LOG_USE_QT_BINDINGS
+    PRIVATE GT_MODULE_ID="Core"
 )
 
 if (BUILD_SHARED_LIBS)
