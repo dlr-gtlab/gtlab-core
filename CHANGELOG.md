@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
 ### Deprecated
+- Deprecated `GtAbstractCalculatorExecutor`, `GtCalculatorExecutorList` (including the `gtCalcExecList` macro) and `GtCalculatorExecInterface`.
+  Executors now run any process component; use `GtAbstractProcessExecutor`, `GtProcessExecutorList`
+  (`gtProcessExecList`) and `GtProcessExecInterface` instead. The deprecated names will be removed in GTlab 2.2 - #1601
 ### API Changes
  - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
    - Affected factories whose API changed accordingly:

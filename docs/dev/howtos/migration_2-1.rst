@@ -255,6 +255,15 @@ during 2.1 and are scheduled for removal in GTlab 2.2:
    * - ``GtObjectMemento::restore<T*>()``
      - 2.1.0
      - Use ``GtObjectMemento::restore_unique<T>()`` instead. It returns a ``std::unique_ptr``, so restored objects cannot leak anymore.
+   * - ``GtAbstractCalculatorExecutor``
+     - 2.1.0
+     - Use ``GtAbstractProcessExecutor`` from ``gt_abstractprocessexecutor.h`` instead. The old header no longer includes ``gt_task.h``.
+   * - ``GtCalculatorExecutorList``, ``gtCalcExecList``
+     - 2.1.0
+     - Use ``GtProcessExecutorList`` and ``gtProcessExecList`` from ``gt_processexecutorlist.h`` instead.
+   * - ``GtCalculatorExecInterface``
+     - 2.1.0
+     - Use ``GtProcessExecInterface`` from ``gt_processexecinterface.h`` instead. The interface IID is unchanged.
 
 Graphics API
 ^^^^^^^^^^^^

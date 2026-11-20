@@ -11,32 +11,15 @@
 #ifndef GTABSTRACTCALCULATOREXECUTOR_H
 #define GTABSTRACTCALCULATOREXECUTOR_H
 
-#include "gt_core_exports.h"
+#include "gt_abstractprocessexecutor.h"
+#include "gt_version.h"
 
-#include <QObject>
-
-class GtCalculator;
+GT_REMOVAL_GUARD(2, 2, "Use GtAbstractProcessExecutor instead");
 
 /**
- * @brief The GtAbstractCalculatorExecutor class
+ * @deprecated Use GtAbstractProcessExecutor instead.
  */
-class GT_CORE_EXPORT GtAbstractCalculatorExecutor : public QObject
-{
-    Q_OBJECT
-
-public:
-    /**
-     * @brief exec
-     * @return
-     */
-    virtual bool exec(GtCalculator* calculator) = 0;
-
-protected:
-    /**
-     * @brief GtAbstractCalculatorExecutor
-     */
-    GtAbstractCalculatorExecutor();
-
-};
+using GtAbstractCalculatorExecutor GT_DEPRECATED_ATTR(
+    2, 2, "Use GtAbstractProcessExecutor instead") = GtAbstractProcessExecutor;
 
 #endif // GTABSTRACTCALCULATOREXECUTOR_H

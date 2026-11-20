@@ -124,7 +124,7 @@ Module Interfaces
 .. doxygenclass:: GtNetworkInterface
    :members:
 
-.. doxygenclass:: GtCalculatorExecInterface
+.. doxygenclass:: GtProcessExecInterface
    :members:
 
 .. doxygenclass:: GtOperationInterface

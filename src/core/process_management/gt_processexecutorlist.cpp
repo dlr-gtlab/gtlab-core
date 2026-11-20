@@ -2,7 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gt_calculatorexecutorlist.cpp
+ * Source File: gt_processexecutorlist.cpp
  *
  *  Created on: 22.03.2016
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -12,45 +12,43 @@
 #include <QCoreApplication>
 #include <QStringList>
 
-#include "gt_calculatorexecutorlist.h"
-#include "gt_abstractcalculatorexecutor.h"
-#include "gt_calculatorexecinterface.h"
+#include "gt_processexecutorlist.h"
+#include "gt_abstractprocessexecutor.h"
+#include "gt_processexecinterface.h"
 
-GtCalculatorExecutorList::GtCalculatorExecutorList(QObject* parent) :
+GtProcessExecutorList::GtProcessExecutorList(QObject* parent) :
     QObject(parent)
-{
-
-}
+{ }
 
 bool
-GtCalculatorExecutorList::addExecutor(GtCalculatorExecInterface* executor)
+GtProcessExecutorList::addExecutor(GtProcessExecInterface* executorInterface)
 {
-    if (!executor)
+    if (!executorInterface)
     {
         return false;
     }
 
-    QString id = executor->executorId();
+    QString id = executorInterface->executorId();
 
     if (executorExists(id))
     {
         return false;
     }
 
-    m_calcExecs.insert(id, executor);
+    m_calcExecs.insert(id, executorInterface);
 
     return true;
 }
 
-GtAbstractCalculatorExecutor*
-GtCalculatorExecutorList::generateExecutor(const QString& id)
+GtAbstractProcessExecutor*
+GtProcessExecutorList::generateExecutor(const QString& id)
 {
     if (!executorExists(id))
     {
         return nullptr;
     }
 
-    GtCalculatorExecInterface* cei = m_calcExecs.value(id);
+    GtProcessExecInterface* cei = m_calcExecs.value(id);
 
     if (!cei)
     {
@@ -66,8 +64,8 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
         return nullptr;
     }
 
-    GtAbstractCalculatorExecutor* retval =
-            qobject_cast<GtAbstractCalculatorExecutor*>(obj);
+    GtAbstractProcessExecutor* retval =
+        qobject_cast<GtAbstractProcessExecutor*>(obj);
 
     if (!retval)
     {
@@ -79,14 +77,14 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
 }
 
 QList<GtAbstractProperty*>
-GtCalculatorExecutorList::generateSettings(const QString& id)
+GtProcessExecutorList::generateSettings(const QString& id)
 {
     if (!executorExists(id))
     {
         return QList<GtAbstractProperty*>();
     }
 
-    GtCalculatorExecInterface* cei = m_calcExecs.value(id);
+    GtProcessExecInterface* cei = m_calcExecs.value(id);
 
     if (!cei)
     {
@@ -96,31 +94,31 @@ GtCalculatorExecutorList::generateSettings(const QString& id)
     return cei->executorSettings();
 }
 
-GtCalculatorExecutorList*
-GtCalculatorExecutorList::instance()
+GtProcessExecutorList*
+GtProcessExecutorList::instance()
 {
-    static GtCalculatorExecutorList* retval = nullptr;
+    static GtProcessExecutorList* retval = nullptr;
     if (!retval)
     {
-        retval = new GtCalculatorExecutorList(qApp);
+        retval = new GtProcessExecutorList(qApp);
     }
     return retval;
 }
 
 QStringList
-GtCalculatorExecutorList::executorIds()
+GtProcessExecutorList::executorIds()
 {
     return m_calcExecs.keys();
 }
 
 bool
-GtCalculatorExecutorList::executorExists(const QString& id)
+GtProcessExecutorList::executorExists(const QString& id)
 {
     return m_calcExecs.contains(id);
 }
 
-GtAbstractCalculatorExecutor*
-GtCalculatorExecutorList::executor(const QString& id)
+GtAbstractProcessExecutor*
+GtProcessExecutorList::executor(const QString& id)
 {
     QMutexLocker locker{&m_mutex};
 
@@ -128,7 +126,7 @@ GtCalculatorExecutorList::executor(const QString& id)
 }
 
 QList<GtAbstractProperty*>
-GtCalculatorExecutorList::settings(const QString& id)
+GtProcessExecutorList::settings(const QString& id)
 {
     QMutexLocker locker{&m_mutex};
 
