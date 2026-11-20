@@ -12,7 +12,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QTemporaryDir>
 
 namespace
@@ -61,9 +60,16 @@ copyCollectionTree(const QDir& source, const QDir& target)
     return true;
 }
 
+} // namespace
+
 bool
-migrateCollectionData(const QString& oldPath, const QString& newPath)
+gt::detail::migrateCollectionData(const QString& oldPath, const QString& newPath)
 {
+    if (oldPath.isEmpty() || newPath.isEmpty())
+    {
+        return false;
+    }
+
     const QString sourcePath = QDir(oldPath).canonicalPath();
     if (sourcePath.isEmpty() || !isMissingOrEmptyDirectory(newPath))
     {
@@ -122,45 +128,28 @@ migrateCollectionData(const QString& oldPath, const QString& newPath)
     return parent.rename(staged.absolutePath(), targetPath);
 }
 
-} // namespace
-
-void
-gt::detail::offerCollectionMigration()
+std::optional<gt::detail::CollectionMigrationPaths>
+gt::detail::checkCollectionMigration()
 {
     QDir installationDir(QCoreApplication::applicationDirPath());
     if (!installationDir.cdUp())
     {
-        return;
+        return std::nullopt;
     }
 
     const QDir legacy(installationDir.filePath(QStringLiteral("Collections")));
     if (!legacy.exists() ||
         legacy.isEmpty(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks))
     {
-        return;
+        return std::nullopt;
     }
 
     bool ok = false;
     const QString newPath = collectionsInstallPath(false, &ok);
     if (!ok || !isMissingOrEmptyDirectory(newPath))
     {
-        return;
+        return std::nullopt;
     }
 
-    const QString title = QCoreApplication::translate("GtApplication", "Migrate Collections");
-    const auto answer = QMessageBox::question(
-        nullptr, title, QCoreApplication::translate(
-            "GtApplication", "GTlab found collections in the old installation folder. "
-            "Copy them to the new Collections folder so GTlab can still "
-            "find them after the old installation is removed?"),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-
-    const QString oldPath = legacy.absolutePath();
-    if (answer == QMessageBox::Yes && !migrateCollectionData(oldPath, newPath))
-    {
-        QMessageBox::warning(nullptr, title, QCoreApplication::translate(
-            "GtApplication", "GTlab could not copy the collections to %1. "
-            "The original collections are still in %2.")
-                .arg(QDir::toNativeSeparators(newPath), QDir::toNativeSeparators(oldPath)));
-    }
+    return CollectionMigrationPaths{legacy.absolutePath(), newPath};
 }

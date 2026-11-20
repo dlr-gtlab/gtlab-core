@@ -126,6 +126,7 @@ set(headers
 )
 
 set(hdr_private
+  collection/gt_migratecollectionsdata.h
   internal/gt_coreapplication_p.h
   internal/gt_moduleupgrader.h
   internal/gt_modulemetadata.h
@@ -145,6 +146,7 @@ set(sources
     gt_propertyconnectionfunctions.cpp
     gt_sharedfunction.cpp
     collection/gt_collectionsinstallpath.cpp
+    collection/gt_migratecollectionsdata.cpp
     internal/gt_commandlinefunctionhandler.cpp
     internal/gt_coreupgraderoutines.cpp
     internal/gt_platformspecifics.cpp

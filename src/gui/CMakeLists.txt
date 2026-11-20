@@ -359,8 +359,6 @@ set(sources
     collection/gt_collectionhelper.cpp
     collection/gt_collectionnetworkitem.cpp
     collection/gt_collectionhelperdata.cpp
-    ../core/collection/gt_migratecollectionsdata.cpp
-    ../core/collection/gt_migratecollectionsdata.h
     mdi_items/collection_env/gt_collectionbrowsermodelitem.cpp
     mdi_items/collection_env/gt_abstractbrowserwidget.cpp
     mdi_items/collection_env/gt_collectionloadingwidget.cpp

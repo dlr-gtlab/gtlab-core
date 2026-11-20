@@ -7,12 +7,25 @@
 #ifndef GT_MIGRATECOLLECTIONSDATA_H
 #define GT_MIGRATECOLLECTIONSDATA_H
 
+#include "gt_core_exports.h"
+
+#include <QString>
+
+#include <optional>
+
 namespace gt
 {
 namespace detail
 {
 
-void offerCollectionMigration();
+struct CollectionMigrationPaths
+{
+    QString oldPath;
+    QString newPath;
+};
+
+GT_CORE_EXPORT std::optional<CollectionMigrationPaths> checkCollectionMigration();
+GT_CORE_EXPORT bool migrateCollectionData(const QString& oldPath, const QString& newPath);
 
 } // namespace detail
 } // namespace gt
