@@ -21,8 +21,8 @@ GtState::GtState(const QString& id, const QString& path, const QVariant& initVal
     m_guard(guardian),
     m_path(path)
 {
-    m_property = new GtVariantProperty({}, id, QString(), GtUnit::Category::None,
-                                       initVal);
+    m_property = new GtVariantProperty(id, id, QString(),
+                                       GtUnit::Category::None, initVal);
     m_property->setStoreToMemento(false); // the value should not be serialized
 
     registerProperty(*m_property);
