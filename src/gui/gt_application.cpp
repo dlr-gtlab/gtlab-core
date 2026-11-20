@@ -12,6 +12,7 @@
 
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
+#include "gt_migratecollectionsdata.h"
 #include "gt_perspective.h"
 #include "gt_settings.h"
 #include "gt_session.h"
@@ -826,6 +827,7 @@ GtApplication::initFirstRun()
     }
 
     GtCoreApplication::initFirstRun();
+    gt::detail::offerCollectionMigration();
 
     // create default perspective
     if (!GtPerspective::createDefault())
