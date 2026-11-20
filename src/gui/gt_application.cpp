@@ -835,7 +835,7 @@ GtApplication::initFirstRun()
             nullptr, title,
             tr("GTlab found collections in the old installation folder. "
                "Copy them to the new Collections folder so GTlab can still "
-               "find them after the old installation is removed?"),
+               "find them?"),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if (answer == QMessageBox::Yes &&
