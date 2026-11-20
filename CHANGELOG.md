@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties - #1663
 - **Regression fixes compared to 2.1.0-alpha.2**:
   - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
+  - Fixed registration of properties with an empty identifier - #1684
   
 ### Added
 ### Changed
@@ -24,7 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
+  
 ### Deprecated
+- Empty property IDs are now deprecated and will stop working in GTlab 2.2. - #1684
+
 ### API Changes
  - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
    - Affected factories whose API changed accordingly:
