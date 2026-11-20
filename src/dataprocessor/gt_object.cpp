@@ -1199,7 +1199,7 @@ GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
-    const GtAbstractProperty * existing = nullptr;
+    const GtAbstractProperty* existing = nullptr;
 
     if (!property.ident().isEmpty())
     {
