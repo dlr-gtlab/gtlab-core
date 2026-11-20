@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
  - Support to allow more customization of a collection - #1549
+ - On startup, GTlab offers to copy collections from the old installation
+   folder when the configured Collections folder is missing or empty.
+   The original files are preserved. - #1633
  
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing

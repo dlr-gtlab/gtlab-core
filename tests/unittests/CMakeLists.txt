@@ -66,6 +66,7 @@ target_include_directories(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch
     ${CMAKE_CURRENT_LIST_DIR}/../../src/core
+    ${CMAKE_CURRENT_LIST_DIR}/../../src/core/collection
 )
 target_link_libraries(GTlabUnitTest PRIVATE
     GTlab::Core

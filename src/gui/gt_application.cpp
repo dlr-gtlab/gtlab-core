@@ -12,6 +12,7 @@
 
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
+#include "gt_migratecollectionsdata.h"
 #include "gt_perspective.h"
 #include "gt_settings.h"
 #include "gt_session.h"
@@ -826,6 +827,30 @@ GtApplication::initFirstRun()
     }
 
     GtCoreApplication::initFirstRun();
+
+    if (const auto migration = gt::detail::checkCollectionMigration(
+            QCoreApplication::applicationDirPath()))
+    {
+        const QString title = tr("Migrate Collections");
+        const auto answer = QMessageBox::question(
+            nullptr, title,
+            tr("GTlab found collections in the old installation folder. "
+               "Copy them to the new Collections folder so GTlab can still "
+               "find them?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+        if (answer == QMessageBox::Yes &&
+            !gt::detail::migrateCollectionData(migration->oldPath,
+                                               migration->newPath))
+        {
+            QMessageBox::warning(
+                nullptr, title,
+                tr("GTlab could not copy the collections to %1. "
+                   "The original collections are still in %2.")
+                    .arg(QDir::toNativeSeparators(migration->newPath),
+                         QDir::toNativeSeparators(migration->oldPath)));
+        }
+    }
 
     // create default perspective
     if (!GtPerspective::createDefault())
