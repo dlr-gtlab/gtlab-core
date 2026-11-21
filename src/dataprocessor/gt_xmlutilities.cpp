@@ -805,23 +805,6 @@ expandObjectRefsInDocument(QDomDocument& doc,
         if (objectElem.isNull())
             objectElem = linkedRoot;
 
-        const QString type = refElem.attribute(gt::xml::S_CLASS_TAG);
-        if (objectElem.tagName() != QLatin1String(gt::xml::S_OBJECT_TAG) ||
-            (!uuid.isEmpty() &&
-             uuid != objectElem.attribute(gt::xml::S_UUID_TAG)) ||
-            (!type.isEmpty() &&
-             type != objectElem.attribute(gt::xml::S_CLASS_TAG)))
-        {
-            if (warnings)
-            {
-                warnings->append(
-                    QStringLiteral("Linked object '%1' does not match "
-                                   "its reference (UUID '%2').")
-                        .arg(targetPath, uuid));
-            }
-            continue;
-        }
-
         // Mark imported note as aslink=true to make a potential 'writeXml'
         // after a 'readXml' still write linked files. Otherwise, the link 
         // information is lost

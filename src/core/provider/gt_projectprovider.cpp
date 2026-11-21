@@ -398,7 +398,13 @@ GtProjectProvider::modifyFiles()
         return false;
     }
 
-    const auto ensureModuleFile = [this](const QString& modStrItem) {
+    if (!modifyMainProjectFile())
+    {
+        return false;
+    }
+
+    foreach (const QString& modStrItem, m_pModules)
+    {
         const QString filename = moduleFilename(modStrItem.toLower());
 
         if (filename.isEmpty())
@@ -409,12 +415,13 @@ GtProjectProvider::modifyFiles()
             return false;
         }
 
-        return QFile::exists(filename) || generateModuleFile(modStrItem);
-    };
+        if (!QFile(filename).exists())
+        {
+            generateModuleFile(modStrItem.toLower());
+        }
+    }
 
-    return std::all_of(m_pModules.cbegin(), m_pModules.cend(),
-                       ensureModuleFile) &&
-           modifyMainProjectFile();
+    return true;
 }
 
 bool
@@ -548,24 +555,22 @@ GtProjectProvider::modifyMainProjectFile()
         return false;
     }
 
-    auto pending = m_pModules;
-    auto me = modElement.firstChildElement(QStringLiteral("MODULE"));
+    QDomElement me = modElement.firstChildElement(QStringLiteral("MODULE"));
 
     while (!me.isNull())
     {
-        const auto next = me.nextSiblingElement(QStringLiteral("MODULE"));
-        if (!pending.removeOne(me.attribute(QStringLiteral("name"))))
+        QString id = me.attribute(QStringLiteral("name"));
+
+        gtDebug().verbose() << tr("Checking module '%1'...").arg(id);
+
+        if (!m_pModules.contains(id))
         {
+            // remove entry
+            gtDebug().verbose() << tr("Removing child '%1'...").arg(id);
             modElement.removeChild(me);
         }
-        me = next;
-    }
 
-    for (const auto& id : pending)
-    {
-        auto declaration = document.createElement(QStringLiteral("MODULE"));
-        declaration.setAttribute(QStringLiteral("name"), id);
-        modElement.appendChild(declaration);
+        me = me.nextSiblingElement(QStringLiteral("MODULE"));
     }
 
     // write filled template to file

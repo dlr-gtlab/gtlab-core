@@ -144,12 +144,6 @@ GtProjectUI::GtProjectUI()
 
     addSeparator();
 
-    addSingleAction(tr("Import Package..."), &GtProjectUI::importPackage)
-        .setIcon(gt::gui::icon::import())
-        .setOrderPriority(gt::gui::OrderPriority::ImportAction)
-        .setVerificationMethod(&GtProjectUI::canEditPackages)
-        .setVisibilityMethod(&GtProjectUI::projectIsOpen);
-
     addSingleAction(tr("Export Meta Data"),
                     &GtProjectUI::exportMetaData)
             .setIcon(gt::gui::icon::export_())
@@ -747,16 +741,9 @@ availablePackageModules(const GtProject& project)
 {
     QStringList ids;
     const auto loadedModules = gtApp->moduleDatamodelInterfaceIds();
-    const auto& selection = project.moduleIds();
     for (const auto& id : loadedModules)
     {
-        const auto* type = gtObjectFactory->GtAbstractObjectFactory::metaObject(
-            gtApp->modulePackageId(id));
-        if (type && type->inherits(&GtPackage::staticMetaObject) &&
-            !selection.contains(id, Qt::CaseInsensitive))
-        {
-            ids.append(id);
-        }
+        if (project.packageSlotError(id).isEmpty()) ids.append(id);
     }
     ids.sort(Qt::CaseInsensitive);
     return ids;
@@ -778,23 +765,6 @@ defaultPackageIcon(const QString& moduleId)
     return gt::gui::icon::plugin();
 }
 
-void
-insertPackage(GtProject& project, std::unique_ptr<GtPackage> package,
-              const QString& title, const QString& error)
-{
-    if (package &&
-        !gtDataModel->appendChildren({package.get()}, &project).isEmpty())
-    {
-        static_cast<void>(package.release());
-        return;
-    }
-
-    QMessageBox::warning(
-        nullptr, title,
-        error.isEmpty()
-            ? GtProjectUI::tr("Could not insert the package into the project.")
-            : error);
-}
 } // namespace
 
 bool
@@ -836,25 +806,51 @@ GtProjectUI::addPackage(GtProject& project, const QString& moduleId)
 {
     if (!canEditPackages(&project)) return;
 
+    const auto title = tr("Add Package");
+    const QPointer<GtProject> target(&project);
+    bool restore = false;
+    if (QFile::exists(project.moduleDataPath(moduleId)))
+    {
+        QMessageBox choice(
+            QMessageBox::Question, title,
+            tr("This project already has a saved package for '%1'.")
+                .arg(moduleId),
+            QMessageBox::Cancel);
+        auto* restoreButton = choice.addButton(tr("Restore Existing Package"),
+                                               QMessageBox::AcceptRole);
+        auto* emptyButton = choice.addButton(tr("Create Empty Package"),
+                                             QMessageBox::ActionRole);
+        choice.setDefaultButton(restoreButton);
+        choice.exec();
+        restore = choice.clickedButton() == restoreButton;
+        if (!restore && choice.clickedButton() != emptyButton) return;
+    }
+
+    if (!canEditPackages(target.data())) return;
+
     QString error;
-    auto package = project.createPackage(moduleId, error);
-    insertPackage(project, std::move(package), tr("Add Package"), error);
-}
+    auto package = restore ? target->restorePackage(moduleId, error)
+                           : target->createPackage(moduleId, error);
+    if (restore && !package && error.isEmpty())
+    {
+        if (QMessageBox::warning(nullptr, title,
+                                 tr("The saved package has no module version. "
+                                    "Restore it anyway?"),
+                                 QMessageBox::Yes | QMessageBox::Cancel,
+                                 QMessageBox::Cancel) != QMessageBox::Yes ||
+            !canEditPackages(target.data()))
+            return;
+        package = target->restorePackage(moduleId, error, true);
+    }
 
-void
-GtProjectUI::importPackage(GtObject* obj)
-{
-    if (!canEditPackages(obj)) return;
-    QPointer<GtProject> project(static_cast<GtProject*>(obj));
+    if (package &&
+        gtDataModel->appendChild(std::move(package), target.data()).isValid())
+        return;
 
-    const auto title = tr("Import Package");
-    const auto filename = GtFileDialog::getOpenFileName(
-        nullptr, title, project->path(), tr("GTlab package files (*.gtmod)"));
-    if (filename.isEmpty() || !canEditPackages(project.data())) return;
-
-    QString error;
-    auto package = project->importPackage(filename, error);
-    insertPackage(*project, std::move(package), title, error);
+    QMessageBox::warning(
+        nullptr, title,
+        error.isEmpty() ? tr("Could not insert the package into the project.")
+                        : error);
 }
 
 void
@@ -1059,7 +1055,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         rootElement.setAttribute(QStringLiteral("version"),
                                  gtApp->version().toString());
 
-        project->writePackageSelection(rootElement, document);
+        project->saveModuleMetaData(rootElement, document);
 
         // write data memento
         QDomElement dataElement =

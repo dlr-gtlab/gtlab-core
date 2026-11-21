@@ -303,13 +303,17 @@ public:
     std::unique_ptr<GtPackage> createPackage(const QString& moduleId,
                                              QString& error) const;
 
-    /// Prepares a copy of a package for insertion through the data model.
-    /// Keeps source UUIDs and rejects collisions in the target project.
-    std::unique_ptr<GtPackage> importPackage(const QString& filePath,
-                                             QString& error) const;
+    /// Loads the retained package from this project. A null result with an
+    /// empty error means the caller must confirm restoring an unversioned file.
+    std::unique_ptr<GtPackage> restorePackage(
+        const QString& moduleId, QString& error,
+        bool allowUnversioned = false) const;
 
-    /// Returns a translated error if a package cannot safely be deleted.
-    QString packageDeletionError(GtPackage& package) const;
+    /// Returns a translated error if this project cannot accept the module.
+    QString packageSlotError(const QString& moduleId) const;
+
+    /// Checks module slots and UUIDs before inserting project packages.
+    QString packageInsertionError(const QList<GtObject*>& children) const;
 
     /**
      * @brief Read-only getter to the project settings
@@ -412,11 +416,6 @@ private:
      * @param doc
      */
     void saveModuleMetaData(QDomElement& root, QDomDocument& doc);
-
-    /// Writes the current package selection, including unresolved declarations.
-    void writePackageSelection(QDomElement& root, QDomDocument& doc) const;
-
-    QString packageSlotError(const QString& moduleId) const;
 
     /**
      * @brief saveProcessData

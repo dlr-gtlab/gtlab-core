@@ -44,25 +44,22 @@ Right-click an open project in the Explorer, open *Add Package*, and select a
 package from the submenu. The submenu lists loaded modules that provide a
 package and have an available slot in the project.
 
-Choose *Import Package...* to copy data from a ``.gtmod`` file into an available
-slot. Keep any linked XML files in their original locations relative to the
-package file. Import preserves object UUIDs and rejects collisions with the
-target project. References to objects outside the imported package keep their
-UUIDs and may be unresolved. Packages that require externalized data or
-module-specific auxiliary files are rejected with an explanation.
+If a package file already exists in the current project folder, GTlab offers
+*Restore Existing Package*, *Create Empty Package*, and *Cancel*. Restoring
+loads the last saved package data and retains the original object UUIDs.
+GTlab checks for UUIDs that are already in use in the project and for required
+module upgrades. If the file has no module version, GTlab asks you to confirm
+before restoring it.
 
 Right-click a package and choose *Delete Package*, or select it and press
 *Delete*. Confirming removes the package and its contents from the project.
 Other project objects keep their references. While the edit is in the undo
-history, *Undo* restores the package, including its object UUIDs and unsaved
-changes. GTlab blocks deletion when Undo cannot safely restore auxiliary or
-externalized data.
+history, *Undo* restores the package and its unsaved changes in the object tree.
 
-Add, import, and delete take effect immediately in the Explorer. Use *Save
-Project* to persist the selection and content. Deleting a package leaves its
-files on disk. If a later save replaces an old package file, GTlab first
-copies the previous project files to a ``packages-...`` folder under
-``backup``. Adding a package always starts with fresh data.
+Use *Save Project* to persist the package selection and content. Deleting a
+package leaves its saved files on disk. If saving a new empty package replaces
+a retained ``.gtmod`` file, GTlab first saves a copy of that file alongside it.
+The module continues to manage its own auxiliary files.
 
 Project packages contain project data from modules loaded for the session.
 Package operations are blocked during task execution.
@@ -174,9 +171,7 @@ The context menu of a project is the access point for many of the actions mentio
    * - *Rename Project*
      - Opens a dialog to rename a project. Only possible for closed projects.
    * - *Add Package*
-     - Opens a submenu of available packages. Selecting one creates an empty package.
-   * - *Import Package...*
-     - Copies a package from a ``.gtmod`` file into the project.
+     - Opens a submenu of available packages. Selecting one lets you create an empty package or restore retained data from this project.
    * - *Delete from Session*
      - Deletes project from session. Only possible for closed projects. The following dialog also offers the option of removing the project completely from the computer.
    * - *Generate Backup*

@@ -81,7 +81,7 @@ gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core." DISCOVERY_MODE PRE_TEST)
 
 # Real plugins for module metadata integration tests. Keep them outside the
 # scanned application module directory so tests control each load explicitly.
-foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride FailedNew ProjectPackages AuxiliaryPackages)
+foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride FailedNew ProjectPackages)
     set(fixture_id "${fixture}")
     set(fixture_metadata "{}")
     if(fixture STREQUAL "FailedOverride" OR fixture STREQUAL "FailedNew")
@@ -115,8 +115,6 @@ foreach(fixture IN ITEMS ModuleA ModuleB SuccessfulOverride FailedOverride Faile
     target_compile_definitions(Footprint${fixture} PRIVATE GT_MODULE_ID="${fixture_id}")
     if(fixture STREQUAL "ProjectPackages")
         target_compile_definitions(Footprint${fixture} PRIVATE PROJECT_PACKAGE_FIXTURE)
-    elseif(fixture STREQUAL "AuxiliaryPackages")
-        target_compile_definitions(Footprint${fixture} PRIVATE AUXILIARY_PACKAGE_FIXTURE)
     endif()
     set_property(TARGET Footprint${fixture} APPEND PROPERTY AUTOMOC_MOC_OPTIONS
         "-Mgtlab_core_version=${GTLAB_CORE_VERSION}"

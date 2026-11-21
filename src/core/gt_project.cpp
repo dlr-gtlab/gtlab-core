@@ -72,7 +72,8 @@ newPackage(const QString& moduleId)
 }
 
 std::unique_ptr<GtPackage>
-loadPackage(const QString& moduleId, const QDomElement& root)
+loadPackage(const QString& moduleId, const QDomElement& root,
+            const QDir& projectDir)
 {
     if (root.tagName() != QLatin1String("GTLABMODULE") ||
         root.attribute(QStringLiteral("uuid")).isEmpty())
@@ -93,14 +94,9 @@ loadPackage(const QString& moduleId, const QDomElement& root)
     }
 
     package->setUuid(root.attribute(QStringLiteral("uuid")));
-    if (!package->readData(root)) return {};
+    if (!package->readData(root) || !package->readMiscData(projectDir))
+        return {};
     return package;
-}
-
-bool
-hasExternalizedData(const GtPackage& package)
-{
-    return !package.findChildren<GtExternalizedObject*>().isEmpty();
 }
 
 QString
@@ -114,67 +110,6 @@ storedPackageUuid(const QString& path)
         xml.name() != QLatin1String("GTLABMODULE"))
         return {};
     return xml.attributes().value(QLatin1String("uuid")).toString();
-}
-
-bool
-copyPackageDirectory(const QDir& source, const QDir& target,
-                     bool projectRoot = true)
-{
-    if (!source.isReadable() || !target.mkpath(QStringLiteral(".")))
-        return false;
-
-    const auto entries = source.entryInfoList(
-        QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-    const auto copyEntry = [&](const QFileInfo& entry) {
-        if (projectRoot && entry.isDir() &&
-            entry.fileName().compare(QStringLiteral("backup"),
-                                     Qt::CaseInsensitive) == 0)
-        {
-            return true;
-        }
-        // A module-owned link could lead outside the disposable copy.
-        if (entry.isSymLink()) return false;
-
-        const auto destination = target.filePath(entry.fileName());
-        if (entry.isDir())
-        {
-            return copyPackageDirectory(QDir(entry.absoluteFilePath()),
-                                        QDir(destination), false);
-        }
-        return entry.isFile() &&
-               QFile::copy(entry.absoluteFilePath(), destination);
-    };
-    return std::all_of(entries.cbegin(), entries.cend(), copyEntry);
-}
-
-enum class PackageStorage
-{
-    Standalone,
-    Auxiliary,
-    SnapshotFailed
-};
-
-PackageStorage
-packageStorage(GtPackage& package, const QDir& source)
-{
-    if (hasExternalizedData(package) || !package.hasStandaloneData())
-        return PackageStorage::Auxiliary;
-
-    // A hook may delegate to its base and only read if a companion file
-    // exists. Give it an isolated copy of the directory for this check.
-    QTemporaryDir scratch;
-    const QDir copy(scratch.path());
-    const auto relativePath =
-        QDir(source.canonicalPath()).relativeFilePath(copy.path());
-    if (!scratch.isValid() ||
-        (!QDir::isAbsolutePath(relativePath) &&
-         !relativePath.startsWith("../")) ||
-        !copyPackageDirectory(source, copy))
-    {
-        return PackageStorage::SnapshotFailed;
-    }
-    return package.hasStandaloneData(&copy) ? PackageStorage::Standalone
-                                            : PackageStorage::Auxiliary;
 }
 
 gt::xml::ClassModuleMap
@@ -863,8 +798,9 @@ GtProject::readModuleData()
         gt::insertMissingInto(pimpl->classModuleIds,
                               gt::xml::takeClassModuleMap(root));
 
-        auto package = warnings.isEmpty() ? loadPackage(mid, root) : nullptr;
-        if (!package || !package->readMiscData(QDir(path())))
+        auto package =
+            warnings.isEmpty() ? loadPackage(mid, root, QDir(path())) : nullptr;
+        if (!package)
         {
             gtWarning() << tr("Could not load project package for '%1'. Its "
                               "data will be preserved.")
@@ -887,7 +823,11 @@ GtProject::packageSlotError(const QString& moduleId) const
                   "while no task is executing.");
     }
 
-    if (!gtApp || gtApp->modulePackageId(moduleId).isEmpty())
+    const auto packageClass =
+        gtApp ? gtApp->modulePackageId(moduleId) : QString{};
+    const auto* type =
+        gtObjectFactory->GtAbstractObjectFactory::metaObject(packageClass);
+    if (!type || !type->inherits(&GtPackage::staticMetaObject))
     {
         return tr("No loaded data-model module provides a package for '%1'.")
             .arg(moduleId);
@@ -917,200 +857,112 @@ GtProject::createPackage(const QString& moduleId, QString& error) const
     return package;
 }
 
-std::unique_ptr<GtPackage>
-GtProject::importPackage(const QString& filePath, QString& error) const
+QString
+GtProject::packageInsertionError(const QList<GtObject*>& children) const
 {
-    const QFileInfo file(filePath);
-    if (file.suffix().compare(moduleExtension(), Qt::CaseInsensitive) != 0)
+    QSet<QString> ids;
+    QStringList modules;
+    for (auto* child : children)
     {
-        error = tr("Select a .gtmod project package file.");
-        return {};
-    }
+        const auto* package = qobject_cast<GtPackage*>(child);
+        if (!package) continue;
+        const auto moduleId = packageModuleId(*package);
+        const auto error = packageSlotError(moduleId);
+        if (!error.isEmpty()) return error;
+        if (modules.contains(moduleId, Qt::CaseInsensitive))
+            return tr("The module '%1' can only have one package.")
+                .arg(moduleId);
 
-    if (!isOpen() || GtProjectExecutionGuard::isLocked(this))
-    {
-        error = tr("Project packages can only be imported in an open project "
-                   "while no task is executing.");
-        return {};
-    }
-
-    QStringList warnings;
-    auto document =
-        gt::xml::loadProjectXmlWithLinkedObjects(filePath, &warnings);
-    auto root = document.documentElement();
-    if (!warnings.isEmpty())
-    {
-        error = tr("Could not read the package or its linked objects. %1")
-                    .arg(warnings.join(QLatin1Char('\n')));
-        return {};
-    }
-    if (root.tagName() != QLatin1String("GTLABMODULE"))
-    {
-        error = tr("The file does not contain a valid GTlab project package.");
-        return {};
-    }
-
-    // Legacy package files identify their module by the standard filename.
-    QString moduleId = root.attribute(QStringLiteral("module"));
-    if (moduleId.isEmpty() && gtApp)
-    {
-        for (const auto& id : gtApp->moduleDatamodelInterfaceIds())
+        if (modules.isEmpty())
         {
-            if (file.completeBaseName().compare(id, Qt::CaseInsensitive) != 0)
-                continue;
-            if (!moduleId.isEmpty())
-            {
-                error = tr("The filename matches more than one loaded module.");
-                return {};
-            }
-            moduleId = id;
+            ids.insert(uuid());
+            const auto liveObjects = findChildren<GtObject*>();
+            std::for_each(
+                liveObjects.cbegin(), liveObjects.cend(),
+                [&](const GtObject* object) { ids.insert(object->uuid()); });
+        }
+        modules.append(moduleId);
+
+        auto objects = package->findChildren<GtObject*>();
+        objects.prepend(child);
+        for (const auto* object : objects)
+        {
+            const auto id = object->uuid();
+            if (ids.contains(id))
+                return tr("The object UUID '%1' is already in use.").arg(id);
+            ids.insert(id);
         }
     }
+    return {};
+}
 
-    if (moduleId.isEmpty()) moduleId = file.completeBaseName();
+std::unique_ptr<GtPackage>
+GtProject::restorePackage(const QString& moduleId, QString& error,
+                          bool allowUnversioned) const
+{
     error = packageSlotError(moduleId);
     if (!error.isEmpty()) return {};
 
-    gt::xml::takeClassModuleMap(root);
-    for (auto element = root.firstChildElement(); !element.isNull();
-         element = element.nextSiblingElement())
+    QStringList warnings;
+    auto document = gt::xml::loadProjectXmlWithLinkedObjects(
+        moduleDataPath(moduleId), &warnings);
+    auto root = document.documentElement();
+    if (root.tagName() != QLatin1String("GTLABMODULE") || !warnings.isEmpty())
     {
-        if (element.tagName() != QLatin1String("object"))
-        {
-            error = tr("The package contains unsupported module-specific XML.");
-            return {};
-        }
-    }
-
-    auto package = loadPackage(moduleId, root);
-    if (!package)
-    {
-        error = tr("The file contains invalid data for the registered package "
-                   "of '%1'.")
+        error = tr("Could not read the retained package for '%1' or its linked "
+                   "objects.")
                     .arg(moduleId);
         return {};
     }
 
-    const QUuid packageUuid(package->uuid());
-    if (!packageUuid.isNull() &&
-        QUuid(storedPackageUuid(moduleDataPath(moduleId))) == packageUuid)
+    if (root.hasAttribute(QStringLiteral("version")))
     {
-        error = tr("The package UUID matches a retained package file in the "
-                   "target project.");
-        return {};
-    }
-
-    // Preserving UUIDs keeps references intact, including references in
-    // module-defined properties.
-    QSet<QUuid> targetIds{QUuid(uuid())};
-    const auto targetObjects = findChildren<GtObject*>();
-    std::for_each(targetObjects.cbegin(), targetObjects.cend(),
-                  [&](const GtObject* object) {
-                      targetIds.insert(QUuid(object->uuid()));
-                  });
-
-    QMap<QString, QString> objectClasses;
-    const auto elements = root.elementsByTagName(QStringLiteral("object"));
-    objectClasses.insert(
-        package->uuid(),
-        QString::fromLatin1(package->metaObject()->className()));
-    for (int i = 0; i < elements.count(); ++i)
-    {
-        const auto element = elements.at(i).toElement();
-        const auto id = element.attribute(QStringLiteral("uuid"));
-        if (QUuid(id).isNull() || objectClasses.contains(id))
+        const GtVersionNumber savedVersion(
+            root.attribute(QStringLiteral("version")));
+        if (savedVersion.isNull())
         {
-            error =
-                tr("The package contains a missing or duplicate object UUID.");
+            error = tr("The retained package for '%1' has an invalid module "
+                       "version.")
+                        .arg(moduleId);
             return {};
         }
-        objectClasses.insert(id, element.attribute(QStringLiteral("class")));
-    }
-
-    QList<GtObject*> importedObjects = package->findChildren<GtObject*>();
-    importedObjects.prepend(package.get());
-    QSet<QUuid> importedIds;
-    for (const auto* object : importedObjects)
-    {
-        const auto& id = object->uuid();
-        const QUuid uuid(id);
-        if (uuid.isNull() || importedIds.contains(uuid) ||
-            targetIds.contains(uuid))
+        if (gtApp->moduleVersion(moduleId) < savedVersion)
         {
-            error = tr("The package contains a missing, duplicate or already "
-                       "used object UUID (%1).")
-                        .arg(id);
+            error = tr("The retained package for '%1' was saved with a newer "
+                       "module version (%2).")
+                        .arg(moduleId, savedVersion.toString());
             return {};
         }
-        importedIds.insert(uuid);
-        if (object->isDummy())
+        if (!gt::detail::GtModuleUpgrader::instance()
+                 .availableUpgrades(moduleId, savedVersion)
+                 .isEmpty())
         {
-            error =
-                tr("The package contains an unavailable or unreadable object.");
+            error = tr("The retained package for '%1' requires a data upgrade "
+                       "before it can be restored.")
+                        .arg(moduleId);
             return {};
         }
-        const auto it = objectClasses.find(id);
-        if (it != objectClasses.end())
-        {
-            if (it.value() != QLatin1String(object->metaObject()->className()))
-            {
-                error =
-                    tr("A package object does not match its registered class.");
-                return {};
-            }
-            objectClasses.erase(it);
-        }
     }
-    if (!objectClasses.isEmpty() ||
-        !root.elementsByTagName(QStringLiteral("objectref")).isEmpty())
+    else if (!allowUnversioned)
     {
-        error = tr("The complete package object tree could not be loaded.");
         return {};
     }
 
-    if (hasExternalizedData(*package))
+    gt::xml::takeClassModuleMap(root);
+    auto package = loadPackage(moduleId, root, QDir(path()));
+    if (!package)
     {
-        error = tr("Importing packages with externalized data is unsupported.");
+        error = tr("Could not restore the retained package for '%1'.")
+                    .arg(moduleId);
         return {};
-    }
-    switch (packageStorage(*package, QDir(file.absolutePath())))
-    {
-    case PackageStorage::Auxiliary:
-        error = tr("This package uses module-specific auxiliary data or "
-                   "cannot be reconstructed from its object tree.");
-        return {};
-    case PackageStorage::SnapshotFailed:
-        error = tr("Could not verify the package's companion files in an "
-                   "isolated directory.");
-        return {};
-    case PackageStorage::Standalone:
-        break;
     }
 
-    gtExternalizationManager->initExternalizedObjects(*package);
+    error = packageInsertionError({package.get()});
+    if (!error.isEmpty()) return {};
+
+    // The retained package belongs to the active project's current storage.
+    gtExternalizationManager->initExternalizedObjects(*package, false);
     return package;
-}
-
-QString
-GtProject::packageDeletionError(GtPackage& package) const
-{
-    if (package.parent() != this || !isOpen())
-        return tr("The package is not part of an open project.");
-
-    if (GtProjectExecutionGuard::isLocked(this))
-        return tr("Cannot delete a project package while a task is executing.");
-
-    switch (packageStorage(package, QDir(path())))
-    {
-    case PackageStorage::Auxiliary:
-        return tr("This package has externalized or module-specific data that "
-                  "cannot safely be restored by Undo.");
-    case PackageStorage::SnapshotFailed:
-        return tr("Could not verify that the package can be restored by Undo.");
-    case PackageStorage::Standalone:
-        return {};
-    }
-    return {};
 }
 
 bool
@@ -1118,7 +970,6 @@ GtProject::saveModuleData()
 {
     if (!isOpen()) return false;
 
-    bool needsRecoveryCopy = false;
     QMap<QString, GtPackage*> packages;
     QSet<QString> savedSlots;
     for (auto* package : findDirectChildren<GtPackage*>())
@@ -1135,44 +986,23 @@ GtProject::saveModuleData()
         packages.insert(mid, package);
 
         const auto filename = moduleDataPath(mid);
-        if (!QFileInfo::exists(filename)) continue;
-
-        if (pimpl->declaredModuleIds.contains(mid) &&
-            storedPackageUuid(filename) == package->uuid())
-            continue;
-
-        if (packageStorage(*package, QDir(path())) !=
-            PackageStorage::Standalone)
+        if (QFileInfo::exists(filename) &&
+            storedPackageUuid(filename) != package->uuid())
         {
-            gtError() << tr("Cannot replace the old package files for '%1' "
-                            "without risking auxiliary data.")
-                             .arg(mid);
-            return false;
+            // Keep the retained master in the same directory so its links
+            // still resolve. A new package has its own object UUIDs.
+            const auto backup =
+                filename + QStringLiteral(".") +
+                QUuid::createUuid().toString(QUuid::WithoutBraces) +
+                QStringLiteral(".bak");
+            if (!QFile::copy(filename, backup))
+            {
+                gtError()
+                    << tr("Could not preserve the retained package file '%1'.")
+                           .arg(filename);
+                return false;
+            }
         }
-        needsRecoveryCopy = true;
-    }
-
-    // A stale master may still refer to XML files shared by the project's
-    // link directory. Preserve the complete previous disk state for recovery
-    // before any linked or auxiliary files are written.
-    if (needsRecoveryCopy)
-    {
-        QDir backups(gt::project::backupDirPath(*this));
-        const auto recoveryName =
-            QStringLiteral("packages-") +
-            QUuid::createUuid().toString(QUuid::WithoutBraces);
-        if (!backups.mkpath(QStringLiteral("."))) return false;
-        QTemporaryDir staging(
-            backups.filePath(QStringLiteral(".packages-XXXXXX")));
-        if (!staging.isValid() ||
-            !copyPackageDirectory(QDir(path()), QDir(staging.path())) ||
-            !backups.rename(QFileInfo(staging.path()).fileName(), recoveryName))
-        {
-            gtError() << tr("Could not back up the old project package files.");
-            return false;
-        }
-        gtInfo() << tr("Old project package files backed up to %1.")
-                        .arg(backups.absoluteFilePath(recoveryName));
     }
 
     if (!saveExternalizedObjectData())
@@ -1193,6 +1023,9 @@ GtProject::saveModuleData()
         auto root = document.createElement(QStringLiteral("GTLABMODULE"));
         root.setAttribute(QStringLiteral("uuid"), package->uuid());
         root.setAttribute(QStringLiteral("module"), mid);
+        const auto version = gtApp->moduleVersion(mid);
+        if (!version.isNull())
+            root.setAttribute(QStringLiteral("version"), version.toString());
         root.setAttribute(
             QStringLiteral("class"),
             QString::fromLatin1(package->metaObject()->className()));
@@ -1323,12 +1156,6 @@ GtProject::saveExternalizedObjectData()
 
 void
 GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
-{
-    writePackageSelection(root, doc);
-}
-
-void
-GtProject::writePackageSelection(QDomElement& root, QDomDocument& doc) const
 {
     QDomElement modulesElement = doc.createElement(QStringLiteral("MODULES"));
 

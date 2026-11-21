@@ -36,27 +36,21 @@ canInsertPackages(GtObject* parent, const QList<GtObject*>& children,
     auto* project = qobject_cast<GtProject*>(parent);
     if (!project) return true;
 
-    auto occupied = project->moduleIds();
-    bool addingPackage = false;
-    for (const auto* child : children)
+    const auto hasPackage = std::any_of(
+        children.cbegin(), children.cend(), [](const GtObject* child) {
+            return qobject_cast<const GtPackage*>(child);
+        });
+    if (!hasPackage) return true;
+
+    const auto error = project->packageInsertionError(children);
+    if (!error.isEmpty())
     {
-        const auto* package = qobject_cast<const GtPackage*>(child);
-        if (!package) continue;
-        const QString type =
-            QString::fromLatin1(package->metaObject()->className());
-        const auto module = gtObjectFactory->moduleId(type);
-        if (!gtApp || gtApp->modulePackageId(module) != type ||
-            occupied.contains(module, Qt::CaseInsensitive))
-        {
-            return false;
-        }
-        occupied.append(module);
-        addingPackage = true;
+        gtWarning() << error;
+        return false;
     }
-    return !addingPackage ||
-           (project->isOpen() && gtApp->currentProject() == project &&
-            guard.tryAcquire(project) ==
-                GtProjectExecutionGuard::Result::Acquired);
+    return gtApp->currentProject() == project &&
+           guard.tryAcquire(project) ==
+               GtProjectExecutionGuard::Result::Acquired;
 }
 } // namespace
 

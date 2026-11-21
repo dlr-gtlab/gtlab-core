@@ -77,6 +77,9 @@ public:
      */
     void initExternalizedObjects(GtObject& root);
 
+    /// Selects the initial project backup or the current storage for fetching.
+    void initExternalizedObjects(GtObject& root, bool fetchInitialVersion);
+
     /**
      * @brief registers an externalization interface. Will receive info
      * if project was loaded.

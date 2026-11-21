@@ -19,14 +19,11 @@
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_package.h"
-#include "gt_processexecutor.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
 
 #include "gt_datamodel.h"
-
-#include <QMessageBox>
 
 GtDataModel::GtDataModel(QObject* parent) : GtCoreDatamodel(parent)
 {
@@ -294,21 +291,6 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
     }
 
     reduceToParents(objects);
-
-    for (auto* object : objects)
-    {
-        auto* package = qobject_cast<GtPackage*>(object);
-        auto* project =
-            package ? qobject_cast<GtProject*>(package->parent()) : nullptr;
-        if (!project) continue;
-        if (gt::currentProcessExecutor().taskCurrentlyRunning()) return false;
-        const auto error = project->packageDeletionError(*package);
-        if (!error.isEmpty())
-        {
-            QMessageBox::warning(nullptr, tr("Delete Package"), error);
-            return false;
-        }
-    }
 
     QString commandMsg;
 

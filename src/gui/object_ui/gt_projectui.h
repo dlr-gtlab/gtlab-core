@@ -200,7 +200,6 @@ private:
     static bool canExportMetaData(GtObject* obj);
 
     static void addPackage(GtProject& project, const QString& moduleId);
-    static void importPackage(GtObject* obj);
     static bool canEditPackages(GtObject* obj);
 
     /**

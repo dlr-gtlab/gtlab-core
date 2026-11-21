@@ -1233,7 +1233,7 @@ GtMainWin::runUpdate()
         {
             case QMessageBox::Yes:
             {
-                if (!gtDataModel->saveProject(gtApp->currentProject())) return;
+                gtDataModel->saveProject(gtApp->currentProject());
                 break;
             }
 
@@ -1279,14 +1279,10 @@ GtMainWin::runUpdate()
         }
     }
 
-    QDir path(QApplication::applicationDirPath());
-    if (!path.cdUp())
-    {
-        gtError() << tr("Could not find the maintenance tool directory.");
-        return;
-    }
-
     m_forceQuit = true;
+
+    QDir path(QApplication::applicationDirPath());
+    path.cdUp();
 
     QStringList arguments;
     arguments << QStringLiteral("--su");
