@@ -398,8 +398,7 @@ GtProjectProvider::modifyFiles()
         return false;
     }
 
-    foreach (const QString& modStrItem, m_pModules)
-    {
+    const auto ensureModuleFile = [this](const QString& modStrItem) {
         const QString filename = moduleFilename(modStrItem.toLower());
 
         if (filename.isEmpty())
@@ -410,13 +409,12 @@ GtProjectProvider::modifyFiles()
             return false;
         }
 
-        if (!QFile::exists(filename) && !generateModuleFile(modStrItem))
-        {
-            return false;
-        }
-    }
+        return QFile::exists(filename) || generateModuleFile(modStrItem);
+    };
 
-    return modifyMainProjectFile();
+    return std::all_of(m_pModules.cbegin(), m_pModules.cend(),
+                       ensureModuleFile) &&
+           modifyMainProjectFile();
 }
 
 bool

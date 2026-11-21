@@ -393,7 +393,7 @@ gt::gui::makeDeleteAction(GtObject& obj)
         const bool isPackage = qobject_cast<GtPackage*>(&obj) &&
                                qobject_cast<GtProject*>(obj.parent());
         auto lambda = [isPackage](GtObject* target) {
-            if (GtProject* project = target->findRoot<GtProject*>())
+            if (const auto* project = target->findRoot<GtProject*>())
             {
                 QPointer<GtObject> selected(target);
                 if (isPackage)

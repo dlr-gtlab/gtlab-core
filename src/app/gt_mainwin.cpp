@@ -1279,10 +1279,14 @@ GtMainWin::runUpdate()
         }
     }
 
-    m_forceQuit = true;
-
     QDir path(QApplication::applicationDirPath());
-    path.cdUp();
+    if (!path.cdUp())
+    {
+        gtError() << tr("Could not find the maintenance tool directory.");
+        return;
+    }
+
+    m_forceQuit = true;
 
     QStringList arguments;
     arguments << QStringLiteral("--su");

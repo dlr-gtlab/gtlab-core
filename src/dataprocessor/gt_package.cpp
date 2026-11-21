@@ -24,7 +24,13 @@ namespace
 {
 // The base hooks acknowledge the probe. An override that handles auxiliary
 // data itself must not be assumed to be safe just because it returns true.
-thread_local const GtPackage** miscDataProbe = nullptr;
+struct MiscDataProbe
+{
+    const GtPackage* package = nullptr;
+    bool calledBase = false;
+};
+
+thread_local MiscDataProbe miscDataProbe;
 } // namespace
 
 GtPackage::GtPackage()
@@ -85,7 +91,7 @@ GtPackage::readData(const QDomElement& root)
 bool
 GtPackage::readMiscData(const QDir& /*projectDir*/)
 {
-    if (miscDataProbe) *miscDataProbe = this;
+    if (miscDataProbe.package == this) miscDataProbe.calledBase = true;
     return true;
 }
 
@@ -104,7 +110,7 @@ GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
 bool
 GtPackage::saveMiscData(const QDir& /*projectDir*/)
 {
-    if (miscDataProbe) *miscDataProbe = this;
+    if (miscDataProbe.package == this) miscDataProbe.calledBase = true;
     return true;
 }
 
@@ -130,13 +136,13 @@ GtPackage::hasStandaloneData(const QDir* readProbeDir)
         return directory.isEmpty(QDir::AllEntries | QDir::NoDotAndDotDot |
                                  QDir::Hidden | QDir::System);
     };
-    const GtPackage* calledBase = nullptr;
-    auto* previousProbe = std::exchange(miscDataProbe, &calledBase);
+    const auto previousProbe =
+        std::exchange(miscDataProbe, MiscDataProbe{copy.get()});
     const auto restoreProbe =
         qScopeGuard([previousProbe] { miscDataProbe = previousProbe; });
 
     if (!copy->readMiscData(readProbeDir ? *readProbeDir : directory) ||
-        calledBase != copy.get() || !sameData() || !empty())
+        !miscDataProbe.calledBase || !sameData() || !empty())
     {
         return false;
     }
@@ -158,9 +164,9 @@ GtPackage::hasStandaloneData(const QDir* readProbeDir)
 
     // Probe the live data as well. An override can store values outside the
     // Memento that only become visible when it writes them to the directory.
-    calledBase = nullptr;
-    if (!copy->saveMiscData(directory) || calledBase != copy.get() || !empty())
+    miscDataProbe.calledBase = false;
+    if (!copy->saveMiscData(directory) || !miscDataProbe.calledBase || !empty())
         return false;
-    calledBase = nullptr;
-    return saveMiscData(directory) && calledBase == this && empty();
+    miscDataProbe = {this};
+    return saveMiscData(directory) && miscDataProbe.calledBase && empty();
 }

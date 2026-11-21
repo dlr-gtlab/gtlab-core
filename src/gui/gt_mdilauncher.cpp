@@ -276,7 +276,7 @@ GtMdiLauncher::close()
 }
 
 void
-GtMdiLauncher::onSubWindowClose(QObject* obj)
+GtMdiLauncher::onSubWindowClose(const QObject* obj)
 {
     auto iter = pimpl->openItems.find(obj);
     if (iter != pimpl->openItems.end())

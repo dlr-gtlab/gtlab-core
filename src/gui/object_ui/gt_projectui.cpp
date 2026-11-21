@@ -766,7 +766,7 @@ QIcon
 defaultPackageIcon(const QString& moduleId)
 {
     const auto className = gtApp->modulePackageId(moduleId);
-    if (auto* ui = gtApp->defaultObjectUI(className))
+    if (const auto* ui = gtApp->defaultObjectUI(className))
     {
         // A module's ObjectUI can use the package's default state to choose its icon.
         const std::unique_ptr<GtObject> package(
@@ -785,7 +785,7 @@ insertPackage(GtProject& project, std::unique_ptr<GtPackage> package,
     if (package &&
         !gtDataModel->appendChildren({package.get()}, &project).isEmpty())
     {
-        package.release();
+        static_cast<void>(package.release());
         return;
     }
 
@@ -850,7 +850,7 @@ GtProjectUI::importPackage(GtObject* obj)
     const auto title = tr("Import Package");
     const auto filename = GtFileDialog::getOpenFileName(
         nullptr, title, project->path(), tr("GTlab package files (*.gtmod)"));
-    if (filename.isEmpty() || !project || !canEditPackages(project)) return;
+    if (filename.isEmpty() || !canEditPackages(project.data())) return;
 
     QString error;
     auto package = project->importPackage(filename, error);

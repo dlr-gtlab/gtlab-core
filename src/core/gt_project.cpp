@@ -48,6 +48,7 @@
 #include <QUuid>
 #include <QXmlStreamReader>
 
+#include <algorithm>
 #include <cassert>
 
 namespace
@@ -124,13 +125,12 @@ copyPackageDirectory(const QDir& source, const QDir& target,
 
     const auto entries = source.entryInfoList(
         QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-    for (const auto& entry : entries)
-    {
+    const auto copyEntry = [&](const QFileInfo& entry) {
         if (projectRoot && entry.isDir() &&
             entry.fileName().compare(QStringLiteral("backup"),
                                      Qt::CaseInsensitive) == 0)
         {
-            continue;
+            return true;
         }
         // A module-owned link could lead outside the disposable copy.
         if (entry.isSymLink()) return false;
@@ -138,17 +138,13 @@ copyPackageDirectory(const QDir& source, const QDir& target,
         const auto destination = target.filePath(entry.fileName());
         if (entry.isDir())
         {
-            if (!copyPackageDirectory(QDir(entry.absoluteFilePath()),
-                                      QDir(destination), false))
-                return false;
+            return copyPackageDirectory(QDir(entry.absoluteFilePath()),
+                                        QDir(destination), false);
         }
-        else if (!entry.isFile() ||
-                 !QFile::copy(entry.absoluteFilePath(), destination))
-        {
-            return false;
-        }
-    }
-    return true;
+        return entry.isFile() &&
+               QFile::copy(entry.absoluteFilePath(), destination);
+    };
+    return std::all_of(entries.cbegin(), entries.cend(), copyEntry);
 }
 
 enum class PackageStorage
@@ -597,15 +593,17 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     };
 
     // stash files, since the backup might fail
-    for (const auto& file : projectFiles)
+    const auto failedStash =
+        std::find_if(projectFiles.cbegin(), projectFiles.cend(),
+                     [&](const QString& file) { return !stash(file); });
+    if (failedStash != projectFiles.cend())
     {
-        if (!stash(file))
-        {
-            gtError().nospace().noquote() << "Failed to stash '" << file << "'";
-            // try to undo partial stash best-effort
-            for (const auto& f : projectFiles) restore(f);
-            return S::ErrorCopyFailed;
-        }
+        gtError().nospace().noquote()
+            << "Failed to stash '" << *failedStash << "'";
+        // try to undo partial stash best-effort
+        for (const auto& f : projectFiles)
+            restore(f);
+        return S::ErrorCopyFailed;
     }
 
     if (gt::project::copyProjectData(backupDir, projectDir,
@@ -1005,10 +1003,11 @@ GtProject::importPackage(const QString& filePath, QString& error) const
     // Preserving UUIDs keeps references intact, including references in
     // module-defined properties.
     QSet<QUuid> targetIds{QUuid(uuid())};
-    for (const auto* object : findChildren<GtObject*>())
-    {
-        targetIds.insert(QUuid(object->uuid()));
-    }
+    const auto targetObjects = findChildren<GtObject*>();
+    std::for_each(targetObjects.cbegin(), targetObjects.cend(),
+                  [&](const GtObject* object) {
+                      targetIds.insert(QUuid(object->uuid()));
+                  });
 
     QMap<QString, QString> objectClasses;
     const auto elements = root.elementsByTagName(QStringLiteral("object"));
