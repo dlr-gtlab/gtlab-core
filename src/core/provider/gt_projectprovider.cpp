@@ -190,8 +190,8 @@ GtProjectProvider::duplicateProject(const QString& newId,
     // project so it can follow the regular data-model open path. Persist the
     // prepared data first, then release it from the project object.
     retval->markOpen();
-    const bool saved = retval->saveProjectOverallData() &&
-                       retval->saveModuleData();
+    const bool saved = retval->saveModuleData() &&
+                       retval->saveProjectOverallData();
     retval->markClosed();
 
     if (!saved)
@@ -398,11 +398,6 @@ GtProjectProvider::modifyFiles()
         return false;
     }
 
-    if (!modifyMainProjectFile())
-    {
-        return false;
-    }
-
     foreach (const QString& modStrItem, m_pModules)
     {
         const QString filename = moduleFilename(modStrItem.toLower());
@@ -415,13 +410,13 @@ GtProjectProvider::modifyFiles()
             return false;
         }
 
-        if (!QFile(filename).exists())
+        if (!QFile::exists(filename) && !generateModuleFile(modStrItem))
         {
-            generateModuleFile(modStrItem.toLower());
+            return false;
         }
     }
 
-    return true;
+    return modifyMainProjectFile();
 }
 
 bool
@@ -555,22 +550,24 @@ GtProjectProvider::modifyMainProjectFile()
         return false;
     }
 
-    QDomElement me = modElement.firstChildElement(QStringLiteral("MODULE"));
+    auto pending = m_pModules;
+    auto me = modElement.firstChildElement(QStringLiteral("MODULE"));
 
     while (!me.isNull())
     {
-        QString id = me.attribute(QStringLiteral("name"));
-
-        gtDebug().verbose() << tr("Checking module '%1'...").arg(id);
-
-        if (!m_pModules.contains(id))
+        const auto next = me.nextSiblingElement(QStringLiteral("MODULE"));
+        if (!pending.removeOne(me.attribute(QStringLiteral("name"))))
         {
-            // remove entry
-            gtDebug().verbose() << tr("Removing child '%1'...").arg(id);
             modElement.removeChild(me);
         }
+        me = next;
+    }
 
-        me = me.nextSiblingElement(QStringLiteral("MODULE"));
+    for (const auto& id : pending)
+    {
+        auto declaration = document.createElement(QStringLiteral("MODULE"));
+        declaration.setAttribute(QStringLiteral("name"), id);
+        modElement.appendChild(declaration);
     }
 
     // write filled template to file

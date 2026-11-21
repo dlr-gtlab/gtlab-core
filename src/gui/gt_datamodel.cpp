@@ -18,11 +18,15 @@
 #include "gt_saveprojecthelper.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_package.h"
+#include "gt_processexecutor.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
 
 #include "gt_datamodel.h"
+
+#include <QMessageBox>
 
 GtDataModel::GtDataModel(QObject* parent) : GtCoreDatamodel(parent)
 {
@@ -58,6 +62,11 @@ GtDataModel::flags(const QModelIndex& index) const
     // check object
     if (object)
     {
+        if (qobject_cast<GtPackage*>(object) &&
+            qobject_cast<GtProject*>(object->parent()))
+        {
+            return defaultFlags | Qt::ItemIsDropEnabled;
+        }
         // add drop enabled flag
         defaultFlags = defaultFlags | Qt::ItemIsDropEnabled;
     }
@@ -272,7 +281,7 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
 bool
 GtDataModel::deleteFromModel(GtObject* obj)
 {
-    return GtCoreDatamodel::deleteFromModel(obj);
+    return obj && deleteFromModel(QList<GtObject*>{obj});
 }
 
 bool
@@ -282,6 +291,22 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
     if (objects.isEmpty())
     {
         return true;
+    }
+
+    reduceToParents(objects);
+
+    for (auto* object : objects)
+    {
+        auto* package = qobject_cast<GtPackage*>(object);
+        auto* project = package ? qobject_cast<GtProject*>(package->parent()) : nullptr;
+        if (!project) continue;
+        if (gt::currentProcessExecutor().taskCurrentlyRunning()) return false;
+        const auto error = project->packageDeletionError(*package);
+        if (!error.isEmpty())
+        {
+            QMessageBox::warning(nullptr, tr("Delete Package"), error);
+            return false;
+        }
     }
 
     QString commandMsg;
@@ -296,8 +321,6 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
         commandMsg = QString::number(objects.size()) + QStringLiteral(" ") +
                      tr("objects") + QStringLiteral(" ") + tr("deleted");
     }
-
-    reduceToParents(objects);
 
     auto* commonParent = qobject_cast<GtObject*>(
         gt::find_lowest_ancestor(objects, gt::get_parent_object)

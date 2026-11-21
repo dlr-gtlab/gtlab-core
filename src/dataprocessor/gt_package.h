@@ -59,6 +59,10 @@ public:
      */
     virtual bool saveMiscData(const QDir& projectDir);
 
+    /// Checks whether the package can be reconstructed from its object tree
+    /// without project-directory data. Probes the hooks in a scratch directory.
+    bool hasStandaloneData(const QDir* readProbeDir = nullptr);
+
 protected:
     /**
      * @brief GtPackage

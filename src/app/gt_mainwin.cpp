@@ -19,6 +19,8 @@
 #include "gt_projectprovider.h"
 #include "gt_datamodel.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_processexecutormanager.h"
 #include "gt_filedialog.h"
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
@@ -67,6 +69,11 @@
 
 namespace
 {
+    bool canChangeCommandHistory()
+    {
+        return !gt::currentProcessExecutor().taskCurrentlyRunning() &&
+               !GtProjectExecutionGuard::isLocked(gtApp->currentProject());
+    }
 
     QString canonicalProjectPath(const QString& path)
     {
@@ -164,6 +171,16 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     redoAct->setIcon(gt::gui::icon::redo());
     redoAct->setText(tr("Redo"));
     redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
+
+    auto* history = gtApp->undoStack();
+    disconnect(undoAct, nullptr, history, nullptr);
+    disconnect(redoAct, nullptr, history, nullptr);
+    connect(undoAct, &QAction::triggered, this, [history] {
+        if (canChangeCommandHistory()) history->undo();
+    });
+    connect(redoAct, &QAction::triggered, this, [history] {
+        if (canChangeCommandHistory()) history->redo();
+    });
 
     // edit menu initialization
     ui->menuEdit->addAction(undoAct);
@@ -885,12 +902,24 @@ GtMainWin::openExamplesWidget()
 void
 GtMainWin::openCommandHistory()
 {
+    if (!canChangeCommandHistory()) return;
     if (!m_undoView.data())
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
         m_undoView->setWindowIcon(gt::gui::icon::history());
         m_undoView->setStack(gtApp->undoStack());
+        auto* view = m_undoView.data();
+        auto updateView = [view] { view->setEnabled(canChangeCommandHistory()); };
+        auto monitorExecutor = [this, view, updateView](GtCoreProcessExecutor* executor) {
+            if (!executor) return;
+            connect(executor, &GtCoreProcessExecutor::queueChanged,
+                    view, updateView, Qt::QueuedConnection);
+            updateView();
+        };
+        connect(&gt::processExecutorManager(), &GtProcessExecutorManager::executorChanged,
+                view, monitorExecutor);
+        monitorExecutor(&gt::currentProcessExecutor());
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);
     }
@@ -1199,7 +1228,7 @@ GtMainWin::runUpdate()
         {
             case QMessageBox::Yes:
             {
-                gtDataModel->saveProject(gtApp->currentProject());
+                if (!gtDataModel->saveProject(gtApp->currentProject())) return;
                 break;
             }
 

@@ -7,6 +7,10 @@
 #include "gtest/gtest.h"
 
 #include "gt_projectdependencyanalyzer.h"
+#include "gt_package.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_objectmementodiff.h"
+#include "gt_projectexecutionguard.h"
 
 #include "gt_abstractobjectfactory.h"
 #include "gt_calculator.h"
@@ -26,6 +30,7 @@
 #include "gt_task.h"
 #include "gt_testhelper.h"
 #include "gt_versionnumber.h"
+#include "gt_xmlutilities.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -253,6 +258,294 @@ protected:
     QByteArray m_previousModuleDirs;
     QString m_previousExternalizationDir;
 };
+
+class ProjectPackagesTest : public ProjectFootprintTest
+{
+protected:
+    void SetUp() override
+    {
+        ProjectFootprintTest::SetUp();
+        ASSERT_FALSE(HasFatalFailure());
+        ASSERT_TRUE(m_app->loadSingleModule(
+            QString::fromUtf8(FOOTPRINT_ProjectPackages_PATH)));
+    }
+
+    void TearDown() override
+    {
+        if (auto* project = m_app->currentProject()) gtDataModel->closeProject(project);
+        for (const auto& name : {QStringLiteral("PackageLinkObject"),
+                                 QStringLiteral("PackageExternalizedObject"),
+                                 QStringLiteral("ProjectPackageFixture"),
+                                 QStringLiteral("AuxiliaryPackageFixture")})
+        {
+            if (auto* type = gtObjectFactory->GtAbstractObjectFactory::metaObject(name))
+            {
+                const auto metaObject = *type;
+                gtObjectFactory->unregisterClass(metaObject);
+            }
+        }
+        ProjectFootprintTest::TearDown();
+    }
+
+    const QString moduleId = QStringLiteral("ProjectPackages");
+};
+
+TEST_F(ProjectPackagesTest, packageMembershipTracksMementosAndSuccessfulSaves)
+{
+    auto* project = createProject(QStringLiteral("PackageMembership"));
+    ASSERT_NE(project, nullptr);
+    const auto file = project->moduleDataPath(moduleId);
+    QString error;
+    auto package = project->createPackage(moduleId, error);
+    ASSERT_TRUE(package) << qPrintable(error);
+    EXPECT_TRUE(package->isDeletable());
+    const auto packageId = package->uuid();
+    const auto beforeAdd = project->toMemento();
+    ASSERT_TRUE(gtDataModel->appendChild(std::move(package), project).isValid());
+    GtObjectMementoDiff add(beforeAdd, project->toMemento());
+    EXPECT_TRUE(project->hasChanges());
+    EXPECT_EQ(project->moduleIds(), QStringList{moduleId});
+    EXPECT_FALSE(QFile::exists(file));
+    EXPECT_FALSE(project->createPackage(moduleId, error));
+    ASSERT_TRUE(project->revertDiff(add));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+    ASSERT_TRUE(project->applyDiff(add));
+    ASSERT_NE(project->findPackage(moduleId), nullptr);
+    EXPECT_EQ(project->findPackage(moduleId)->uuid(), packageId);
+
+    auto child = std::make_unique<GtObjectGroup>();
+    child->setObjectName(QStringLiteral("Saved Data"));
+    const auto childId = child->uuid();
+    ASSERT_TRUE(project->findPackage(moduleId)->appendChild(std::move(child)));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    project->createBackup(QStringLiteral("Before package deletion"));
+    const QDir backups(gt::project::backupDirPath(*project));
+    const auto originalBackups = backups.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    ASSERT_EQ(originalBackups.size(), 1);
+    project->findPackage(moduleId)->findDirectChildren<GtObject*>().first()
+        ->setObjectName(QStringLiteral("Unsaved Data"));
+
+    auto* current = project->findPackage(moduleId);
+    const auto edited = project->toMemento();
+    {
+        GtProjectExecutionGuard guard;
+        ASSERT_EQ(guard.tryAcquire(project), GtProjectExecutionGuard::Result::Acquired);
+        EXPECT_FALSE(project->packageDeletionError(*current).isEmpty());
+        EXPECT_FALSE(gtDataModel->deleteFromModel(current));
+    }
+    ASSERT_TRUE(project->packageDeletionError(*current).isEmpty());
+    ASSERT_TRUE(gtDataModel->deleteFromModel(current));
+    GtObjectMementoDiff removal(edited, project->toMemento());
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+    EXPECT_TRUE(QFile::exists(file));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    EXPECT_TRUE(TestProject(project->path()).moduleIds().isEmpty());
+    ASSERT_TRUE(project->revertDiff(removal));
+    ASSERT_NE(project->getObjectByUuid(childId), nullptr);
+    EXPECT_EQ(project->getObjectByUuid(childId)->objectName(),
+              QStringLiteral("Unsaved Data"));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    ASSERT_TRUE(project->applyDiff(removal));
+    EXPECT_EQ(project->getObjectByUuid(childId), nullptr);
+    ASSERT_TRUE(project->revertDiff(removal));
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    ASSERT_NE(project->findPackage(moduleId), nullptr);
+    EXPECT_EQ(project->findPackage(moduleId)->uuid(), packageId);
+    ASSERT_NE(project->getObjectByUuid(childId), nullptr);
+    EXPECT_EQ(project->getObjectByUuid(childId)->objectName(),
+              QStringLiteral("Unsaved Data"));
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    ASSERT_EQ(project->restoreBackupFiles(originalBackups.first()),
+              GtProject::RestoreStatus::Success);
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    ASSERT_NE(project->getObjectByUuid(childId), nullptr);
+    EXPECT_EQ(project->getObjectByUuid(childId)->objectName(),
+              QStringLiteral("Saved Data"));
+}
+
+TEST_F(ProjectPackagesTest, addIgnoresStaleFileAndPreservesItOnSave)
+{
+    auto* project = createProject(QStringLiteral("StalePackage"), {moduleId});
+    ASSERT_NE(project, nullptr);
+    auto* oldPackage = project->findPackage(moduleId);
+    ASSERT_NE(oldPackage, nullptr);
+    auto child = std::make_unique<GtObjectGroup>();
+    const auto childId = child->uuid();
+    ASSERT_TRUE(oldPackage->appendChild(std::move(child)));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    const auto oldId = oldPackage->uuid();
+    ASSERT_TRUE(gtDataModel->deleteFromModel(oldPackage));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+
+    QString error;
+    EXPECT_FALSE(project->importPackage(project->moduleDataPath(moduleId), error));
+    EXPECT_TRUE(error.contains(QStringLiteral("retained package file")));
+    auto package = project->createPackage(moduleId, error);
+    ASSERT_TRUE(package) << qPrintable(error);
+    EXPECT_NE(package->uuid(), oldId);
+    EXPECT_TRUE(package->findChildren<GtObject*>().isEmpty());
+    ASSERT_TRUE(gtDataModel->appendChild(std::move(package), project).isValid());
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    const QDir backups(gt::project::backupDirPath(*project));
+    const auto copies = backups.entryList({QStringLiteral("packages-*")}, QDir::Dirs);
+    ASSERT_EQ(copies.size(), 1);
+    const auto oldFile = QDir(backups.filePath(copies.first()))
+        .filePath(QFileInfo(project->moduleDataPath(moduleId)).fileName());
+    const auto original = gt::xml::loadProjectXmlWithLinkedObjects(oldFile);
+    EXPECT_EQ(original.documentElement().attribute(QStringLiteral("uuid")), oldId);
+    EXPECT_EQ(original.elementsByTagName(QStringLiteral("object")).at(0)
+                  .toElement().attribute(QStringLiteral("uuid")), childId);
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    ASSERT_NE(project->findPackage(moduleId), nullptr);
+    EXPECT_TRUE(project->findPackage(moduleId)->findChildren<GtObject*>().isEmpty());
+}
+
+TEST_F(ProjectPackagesTest, importKeepsLinkedObjectsReferencesAndSourceFiles)
+{
+    auto* project = createProject(QStringLiteral("ImportPackage"));
+    ASSERT_NE(project, nullptr);
+    auto destination = std::make_unique<GtObjectGroup>();
+    destination->setObjectName(QStringLiteral("Destination"));
+    destination->setSaveAsOwnFile(true);
+    const auto destinationId = destination->uuid();
+    std::unique_ptr<GtObject> linkOwner(
+        gtObjectFactory->newObject(QStringLiteral("PackageLinkObject")));
+    ASSERT_TRUE(linkOwner);
+    const auto linkOwnerId = linkOwner->uuid();
+    linkOwner->setObjectName(QStringLiteral("Link Owner"));
+    auto* link = qobject_cast<GtObjectLinkProperty*>(
+        linkOwner->findProperty(QStringLiteral("link")));
+    ASSERT_NE(link, nullptr);
+    link->setVal(destinationId);
+
+    QDomDocument document;
+    auto root = document.createElement(QStringLiteral("GTLABMODULE"));
+    const auto packageId = QUuid::createUuid().toString();
+    root.setAttribute(QStringLiteral("uuid"), packageId);
+    document.appendChild(root);
+    root.appendChild(document.importNode(destination->toMemento().documentElement(), true));
+    root.appendChild(document.importNode(linkOwner->toMemento().documentElement(), true));
+    const auto source = gtTestHelper->newTempDir();
+    const auto file = source.filePath(moduleId.toLower() + QStringLiteral(".gtmod"));
+    ASSERT_TRUE(gt::xml::saveProjectXmlWithLinkedObjects(
+        QStringLiteral("project"), document, source, file,
+        gt::xml::LinkFileSaveType::WithLinkedFiles, nullptr));
+    QFile sourceFile(file);
+    ASSERT_TRUE(sourceFile.open(QIODevice::ReadOnly));
+    const auto sourceBytes = sourceFile.readAll();
+    sourceFile.close();
+    ASSERT_TRUE(sourceBytes.contains("objectref"));
+
+    QString error;
+    const auto missingLinks = gtTestHelper->newTempDir()
+        .filePath(QFileInfo(file).fileName());
+    ASSERT_TRUE(QFile::copy(file, missingLinks));
+    EXPECT_FALSE(project->importPackage(missingLinks, error));
+    EXPECT_TRUE(error.contains(QStringLiteral("linked objects")));
+
+    const auto sidecar = source.filePath(QStringLiteral(".package-sidecar"));
+    ASSERT_TRUE(writeFile(sidecar, "module-owned data"));
+    EXPECT_FALSE(project->importPackage(file, error));
+    EXPECT_TRUE(error.contains(QStringLiteral("auxiliary")));
+    ASSERT_TRUE(QFile::remove(sidecar));
+
+    project->setUuid(destinationId);
+    EXPECT_FALSE(project->importPackage(file, error));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+    project->newUuid();
+    auto package = project->importPackage(file, error);
+    ASSERT_TRUE(package) << qPrintable(error);
+    EXPECT_EQ(package->uuid(), packageId);
+    const auto before = project->toMemento();
+    ASSERT_TRUE(gtDataModel->appendChild(std::move(package), project).isValid());
+    EXPECT_FALSE(project->importPackage(file, error));
+    GtObjectMementoDiff import(before, project->toMemento());
+    ASSERT_TRUE(project->revertDiff(import));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+    ASSERT_TRUE(project->applyDiff(import));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    ASSERT_NE(project->findPackage(moduleId), nullptr);
+    EXPECT_EQ(project->findPackage(moduleId)->uuid(), packageId);
+    auto* object = project->getObjectByUuid(linkOwnerId);
+    ASSERT_NE(object, nullptr);
+    auto* importedLink = qobject_cast<GtObjectLinkProperty*>(
+        object->findProperty(QStringLiteral("link")));
+    ASSERT_NE(importedLink, nullptr);
+    EXPECT_EQ(importedLink->linkedObjectUUID(), destinationId);
+    EXPECT_EQ(importedLink->linkedObject(), project->getObjectByUuid(destinationId));
+    ASSERT_TRUE(sourceFile.open(QIODevice::ReadOnly));
+    EXPECT_EQ(sourceFile.readAll(), sourceBytes);
+}
+
+TEST_F(ProjectPackagesTest, rejectsUnsupportedImportAndRetainsUnreadableDeclaration)
+{
+    const QString auxiliaryId = QStringLiteral("AuxiliaryPackages");
+    ASSERT_TRUE(m_app->loadSingleModule(
+        QString::fromUtf8(FOOTPRINT_AuxiliaryPackages_PATH)));
+    auto* project = createProject(QStringLiteral("AuxiliaryPackage"));
+    ASSERT_NE(project, nullptr);
+    const QDir source = gtTestHelper->newTempDir();
+    const auto file = source.filePath(auxiliaryId.toLower() + QStringLiteral(".gtmod"));
+    ASSERT_TRUE(writeFile(file, "<GTLABMODULE uuid=\"{d17e8426-532f-43c1-ba02-80a3f548259a}\"/>"));
+    QString error;
+    EXPECT_FALSE(project->importPackage(file, error));
+    EXPECT_TRUE(error.contains(QStringLiteral("auxiliary")));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+
+    const auto externalizedFile = source.filePath(moduleId.toLower() + QStringLiteral(".gtmod"));
+    ASSERT_TRUE(writeFile(externalizedFile,
+        "<GTLABMODULE uuid=\"{d17e8426-532f-43c1-ba02-80a3f548259a}\">"
+        "<object class=\"PackageExternalizedObject\" name=\"Externalized\""
+        " uuid=\"{d17e8426-532f-43c1-ba02-80a3f548259b}\"/>"
+        "</GTLABMODULE>"));
+    EXPECT_FALSE(project->importPackage(externalizedFile, error));
+    EXPECT_TRUE(error.contains(QStringLiteral("externalized")));
+    EXPECT_TRUE(project->moduleIds().isEmpty());
+
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+
+    project = createProject(QStringLiteral("BrokenPackage"), {moduleId});
+    ASSERT_NE(project, nullptr);
+    ASSERT_TRUE(gtDataModel->closeProject(project));
+    const auto brokenFile = project->moduleDataPath(moduleId);
+    ASSERT_TRUE(writeFile(brokenFile, "<GTLABMODULE"));
+    ASSERT_TRUE(gtDataModel->openProject(project));
+    EXPECT_FALSE(project->findPackage(moduleId));
+    EXPECT_FALSE(project->importPackage(brokenFile, error));
+    EXPECT_FALSE(project->createPackage(moduleId, error));
+    ASSERT_TRUE(gtDataModel->saveProject(project));
+    EXPECT_EQ(TestProject(project->path()).moduleIds(), QStringList{moduleId});
+    QFile unreadable(brokenFile);
+    ASSERT_TRUE(unreadable.open(QIODevice::ReadOnly));
+    EXPECT_EQ(unreadable.readAll(), QByteArray("<GTLABMODULE"));
+}
+
+TEST_F(ProjectPackagesTest, failedPackageSaveKeepsOldSelectionAndDirtyState)
+{
+    auto* project = createProject(QStringLiteral("FailingPackageSave"));
+    ASSERT_NE(project, nullptr);
+    QString error;
+    {
+        GtProjectExecutionGuard guard;
+        ASSERT_EQ(guard.tryAcquire(project), GtProjectExecutionGuard::Result::Acquired);
+        EXPECT_FALSE(project->createPackage(moduleId, error));
+    }
+    auto package = project->createPackage(moduleId, error);
+    ASSERT_TRUE(package);
+    package->setObjectName(QStringLiteral("Fail Save"));
+    ASSERT_TRUE(gtDataModel->appendChild(std::move(package), project).isValid());
+    EXPECT_FALSE(gtDataModel->saveProject(project));
+    EXPECT_TRUE(project->hasChanges());
+    EXPECT_EQ(project->moduleIds(), QStringList{moduleId});
+    EXPECT_TRUE(TestProject(project->path()).moduleIds().isEmpty());
+}
 
 TEST_F(ProjectFootprintTest, unusedEnvironmentModulesAreExcluded)
 {
@@ -566,8 +859,8 @@ TEST_F(ProjectFootprintTest, unloadedModuleDataPreservesFootprintEntries)
 
     delete object;
 
-    // once the data is gone and the metadata of all required modules is
-    // available, all entries are recomputed and stale entries are removed
+    // The declaration is still unresolved when its package file is absent.
+    // A later recovery may restore the file, so retain the saved footprint.
     ASSERT_TRUE(QFile::remove(project->path() + QDir::separator() +
                               QStringLiteral("ghost.") +
                               GtProject::moduleExtension()));
@@ -575,7 +868,10 @@ TEST_F(ProjectFootprintTest, unloadedModuleDataPreservesFootprintEntries)
     ASSERT_TRUE(gtDataModel->saveProject(project));
 
     modules = GtFootprint{project->readFootprint()}.modules();
-    EXPECT_TRUE(modules.isEmpty());
+    EXPECT_EQ(modules.value(QStringLiteral("Ghost")).toString(),
+              QStringLiteral("3.2.1"));
+    EXPECT_EQ(TestProject(project->path()).moduleIds(),
+              QStringList{QStringLiteral("Ghost")});
 }
 
 TEST_F(ProjectFootprintTest, dummyObjectsKeepTheirProviderModuleRequired)

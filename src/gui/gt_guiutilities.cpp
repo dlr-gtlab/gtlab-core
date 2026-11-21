@@ -18,7 +18,10 @@
 #include "gt_importmenu.h"
 #include "gt_mdilauncher.h"
 #include "gt_objectui.h"
+#include "gt_package.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_deleteitemmessagebox.h"
 #include "gt_icons.h"
 
 #include "gt_application.h"
@@ -386,13 +389,27 @@ gt::gui::makeDeleteAction(GtObject& obj)
     // delete object action
     if (obj.isDeletable())
     {
-        auto lambda = [=](GtObject* target){
+        const bool isPackage = qobject_cast<GtPackage*>(&obj) &&
+                               qobject_cast<GtProject*>(obj.parent());
+        auto lambda = [isPackage](GtObject* target){
             if (GtProject* project = target->findRoot<GtProject*>())
             {
-                gtDataModel->deleteFromModel(target);
+                QPointer<GtObject> selected(target);
+                if (isPackage)
+                {
+                    if (GtProjectExecutionGuard::isLocked(project)) return;
+                    GtDeleteItemMessageBox confirmation(QObject::tr("Delete Package"),
+                                                        target->objectName());
+                    confirmation.setInformativeText(QObject::tr(
+                        "The package and all its contents will be removed from the project."));
+                    confirmation.setDefaultButton(QMessageBox::Cancel);
+                    if (confirmation.exec() != QMessageBox::Yes || !selected) return;
+                }
+                gtDataModel->deleteFromModel(selected);
             }
         };
-        return makeAction(QObject::tr("Delete"), lambda)
+        return makeAction(isPackage ? QObject::tr("Delete Package") :
+                                       QObject::tr("Delete"), lambda)
             .setIcon(gt::gui::icon::delete_())
             .setShortCut(gtApp->getShortCutSequence("delete"))
             .setOrderPriority(gt::gui::OrderPriority::DeleteAction);

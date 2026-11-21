@@ -23,10 +23,13 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QTreeWidget>
+#include <QPointer>
 
 #include "gt_abstractloadinghelper.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_objectfactory.h"
 #include "gt_datamodel.h"
 #include "gt_checkablestringlistmodel.h"
 #include "gt_application.h"
@@ -140,10 +143,15 @@ GtProjectUI::GtProjectUI()
 
     addSeparator();
 
-    addSingleAction(tr("Choose Project Modules"),
-                    &GtProjectUI::chooseProjectModule)
+    addSingleAction(tr("Add Package..."), &GtProjectUI::addPackage)
             .setIcon(gt::gui::icon::plugin())
-            .setVerificationMethod(&GtProjectUI::canChooseProjectModule);
+            .setVerificationMethod(&GtProjectUI::canAddPackage)
+            .setVisibilityMethod(&GtProjectUI::projectIsOpen);
+
+    addSingleAction(tr("Import Package..."), &GtProjectUI::importPackage)
+            .setIcon(gt::gui::icon::import())
+            .setVerificationMethod(&GtProjectUI::canEditPackages)
+            .setVisibilityMethod(&GtProjectUI::projectIsOpen);
 
     addSingleAction(tr("Export Meta Data"),
                     &GtProjectUI::exportMetaData)
@@ -295,6 +303,9 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
 bool
 GtProjectUI::saveAndCloseCurrentProject()
 {
+    auto* project = gtApp->currentProject();
+    if (!project) return true;
+
     if (gtApp->hasProjectChanges())
     {
 
@@ -307,7 +318,7 @@ GtProjectUI::saveAndCloseCurrentProject()
 
         if (ret == QMessageBox::Yes)
         {
-            gtDataModel->saveProject(gtApp->currentProject());
+            if (!gtDataModel->saveProject(project)) return false;
         }
         else if (ret == QMessageBox::Cancel)
         {
@@ -315,8 +326,7 @@ GtProjectUI::saveAndCloseCurrentProject()
         }
     }
 
-    gtDataModel->closeProject(gtApp->currentProject());
-    return true;
+    return gtDataModel->closeProject(project);
 }
 
 
@@ -455,7 +465,7 @@ GtProjectUI::closeProject(GtObject* obj)
         {
             case QMessageBox::Yes:
             {
-                gtDataModel->saveProject(gtApp->currentProject());
+                if (!gtDataModel->saveProject(project)) return;
                 break;
             }
 
@@ -733,148 +743,92 @@ GtProjectUI::canSetCurrentProject(GtObject* obj)
     return true;
 }
 
-void
-GtProjectUI::chooseProjectModule(GtObject* obj)
+namespace
 {
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
+QStringList
+availablePackageModules(const GtProject& project)
+{
+    QStringList ids;
+    const auto loadedModules = gtApp->moduleDatamodelInterfaceIds();
+    const auto& selection = project.moduleIds();
+    for (const auto& id : loadedModules)
     {
+        const auto* type = gtObjectFactory->GtAbstractObjectFactory::metaObject(
+            gtApp->modulePackageId(id));
+        if (type && type->inherits(&GtPackage::staticMetaObject) &&
+            !selection.contains(id, Qt::CaseInsensitive))
+        {
+            ids.append(id);
+        }
+    }
+    ids.sort(Qt::CaseInsensitive);
+    return ids;
+}
+
+void
+insertPackage(GtProject& project, std::unique_ptr<GtPackage> package,
+              const QString& title, const QString& error)
+{
+    if (package && !gtDataModel->appendChildren({package.get()}, &project).isEmpty())
+    {
+        package.release();
         return;
     }
 
-    if (!project->isOpen())
-    {
-        return;
-    }
+    QMessageBox::warning(nullptr, title, error.isEmpty()
+        ? GtProjectUI::tr("Could not insert the package into the project.")
+        : error);
+}
+} // namespace
 
-    GtDialog dialog;
-
-    dialog.setWindowTitle(tr("Project Modules") +
-                          QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(gt::gui::icon::plugin());
-
-    auto layout = new QVBoxLayout;
-
-    auto label = new QLabel(tr("Select project specific modules"));
-    layout->addWidget(label);
-
-    auto model = new GtCheckableStringListModel(
-        gtApp->moduleDatamodelInterfaceIds(), &dialog);
-
-    model->selectItems(project->moduleIds());
-
-    auto view = new QListView;
-    view->setModel(model);
-    view->setFrameStyle(QListView::NoFrame);
-    layout->addWidget(view);
-
-    layout->addStretch(1);
-
-
-
-    auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(gt::gui::icon::check());
-
-    connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
-    connect(model, SIGNAL(noItemSelected(bool)), okButton,
-            SLOT(setDisabled(bool)));
-
-    layout->addWidget(okButton);
-
-    dialog.setLayout(layout);
-
-    if (dialog.exec())
-    {
-        QStringList tmpAdd = model->selectedStringList();
-        QStringList tmpRemove;
-
-        foreach (const QString& str, project->moduleIds())
-        {
-            if (!tmpAdd.removeOne(str))
-            {
-                tmpRemove << str;
-            }
-        }
-
-        gtDebug().medium() << "added modules = " << tmpAdd;
-        gtDebug().medium() << "removed modules = " << tmpRemove;
-
-        if (!tmpAdd.isEmpty() || !tmpRemove.isEmpty())
-        {
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle(tr("Save Project"));
-            mb.setWindowIcon(gt::gui::icon::save());
-            mb.setText(tr("Found unsaved changes.\nDo you want to save ")
-                       + tr("your changes?"));
-            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-
-            mb.setDefaultButton(QMessageBox::Cancel);
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    gtDebug().medium() << tr("changing project...");
-
-                    gtDataModel->saveProject(project);
-                    gtDataModel->closeProject(project);
-
-                    QStringList modIds = project->moduleIds();
-                    modIds.append(tmpAdd);
-
-                    foreach (const QString& str, tmpRemove)
-                    {
-                        modIds.removeOne(str);
-                    }
-
-                    GtProjectProvider provider(project);
-
-                    provider.setProjectModules(modIds);
-
-                    if (provider.apply())
-                    {
-                        gtDataModel->openProject(project);
-                    }
-                    else
-                    {
-                        gtError() << tr("could not apply changes!");
-                    }
-
-                    break;
-                }
-
-                default:
-                    break;
-            }
-        }
-    }
+bool
+GtProjectUI::canEditPackages(GtObject* obj)
+{
+    auto* project = qobject_cast<GtProject*>(obj);
+    return project && project == gtApp->currentProject() && project->isOpen() &&
+           !GtProjectExecutionGuard::isLocked(project) &&
+           !gt::currentProcessExecutor().taskCurrentlyRunning();
 }
 
 bool
-GtProjectUI::canChooseProjectModule(GtObject* obj)
+GtProjectUI::canAddPackage(GtObject* obj)
 {
-    if (gt::currentProcessExecutor().taskCurrentlyRunning())
-    {
-        return false;
-    }
+    return canEditPackages(obj) &&
+           !availablePackageModules(*static_cast<GtProject*>(obj)).isEmpty();
+}
 
+void
+GtProjectUI::addPackage(GtObject* obj)
+{
+    if (!canAddPackage(obj)) return;
+    QPointer<GtProject> project(static_cast<GtProject*>(obj));
 
-    auto project = qobject_cast<GtProject*>(obj);
+    const auto title = tr("Add Package");
+    bool accepted = false;
+    const auto module = QInputDialog::getItem(
+        nullptr, title, tr("Data-model module"), availablePackageModules(*project),
+        0, false, &accepted);
+    if (!accepted || !project || !canEditPackages(project)) return;
 
-    if (!project)
-    {
-        return false;
-    }
+    QString error;
+    auto package = project->createPackage(module, error);
+    insertPackage(*project, std::move(package), title, error);
+}
 
-    if (!project->isOpen())
-    {
-        return false;
-    }
+void
+GtProjectUI::importPackage(GtObject* obj)
+{
+    if (!canEditPackages(obj)) return;
+    QPointer<GtProject> project(static_cast<GtProject*>(obj));
 
-    return true;
+    const auto title = tr("Import Package");
+    const auto filename = GtFileDialog::getOpenFileName(
+        nullptr, title, project->path(), tr("GTlab package files (*.gtmod)"));
+    if (filename.isEmpty() || !project || !canEditPackages(project)) return;
+
+    QString error;
+    auto package = project->importPackage(filename, error);
+    insertPackage(*project, std::move(package), title, error);
 }
 
 void
@@ -1079,23 +1033,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         rootElement.setAttribute(QStringLiteral("version"),
                                  gtApp->version().toString());
 
-        // write module meta data
-        QDomElement modsElement =
-            document.createElement(QStringLiteral("MODULES"));
-
-        foreach (const QString& str, project->moduleIds())
-        {
-            QDomElement modElement =
-                document.createElement(QStringLiteral("MODULE"));
-
-            modElement.setAttribute(QStringLiteral("name"), str);
-            modElement.setAttribute(QStringLiteral("version"),
-                                    gtApp->moduleVersion(str).toString());
-
-            modsElement.appendChild(modElement);
-        }
-
-        rootElement.appendChild(modsElement);
+        project->writePackageSelection(rootElement, document);
 
         // write data memento
         QDomElement dataElement =
@@ -1630,7 +1568,7 @@ GtProjectUI::backupProject(GtObject* obj)
         {
             case QMessageBox::Yes:
             {
-                gtDataModel->saveProject(gtApp->currentProject());
+                if (!gtDataModel->saveProject(project)) return;
                 break;
             }
 
@@ -1784,19 +1722,13 @@ GtProjectUI::restoreBackup(GtObject *obj)
             return;
         }
 
-        if (initialOpenProject)
-        {
-            gtDataModel->closeProject(gtApp->currentProject());
-        }
+        if (initialOpenProject && !gtDataModel->closeProject(project)) return;
 
         bool success = project->restoreBackupFiles(selectedFolder) ==
                        GtProject::RestoreStatus::Success;
 
         if (success && initialOpenProject)
         {
-            // update module metadata since the project might contain
-            // different packages in the backup
-            project->loadMetaData();
             success = gtDataModel->openProject(project);
         }
 

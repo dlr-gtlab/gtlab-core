@@ -194,17 +194,10 @@ private:
      */
     static bool canExportMetaData(GtObject* obj);
 
-    /**
-     * @brief chooseProjectModule
-     * @param obj
-     */
-    static void chooseProjectModule(GtObject* obj);
-
-    /**
-     * @brief canChooseProjectModule
-     * @param obj
-     */
-    static bool canChooseProjectModule(GtObject* obj);
+    static void addPackage(GtObject* obj);
+    static void importPackage(GtObject* obj);
+    static bool canAddPackage(GtObject* obj);
+    static bool canEditPackages(GtObject* obj);
 
     /**
      * @brief enableVersionControl

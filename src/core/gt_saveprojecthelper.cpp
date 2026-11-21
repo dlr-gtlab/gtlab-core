@@ -31,12 +31,12 @@ GtSaveProjectHelper::run()
         return;
     }
 
-    if (!m_project->saveProjectOverallData())
+    if (!m_project->saveModuleData())
     {
         return;
     }
 
-    if (!m_project->saveModuleData())
+    if (!m_project->saveProjectOverallData())
     {
         return;
     }
