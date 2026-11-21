@@ -24,6 +24,7 @@
 #include <QUrl>
 #include <QTreeWidget>
 #include <QPointer>
+#include <QMenu>
 
 #include "gt_abstractloadinghelper.h"
 #include "gt_project.h"
@@ -143,13 +144,9 @@ GtProjectUI::GtProjectUI()
 
     addSeparator();
 
-    addSingleAction(tr("Add Package..."), &GtProjectUI::addPackage)
-            .setIcon(gt::gui::icon::plugin())
-            .setVerificationMethod(&GtProjectUI::canAddPackage)
-            .setVisibilityMethod(&GtProjectUI::projectIsOpen);
-
     addSingleAction(tr("Import Package..."), &GtProjectUI::importPackage)
             .setIcon(gt::gui::icon::import())
+            .setOrderPriority(gt::gui::OrderPriority::ImportAction)
             .setVerificationMethod(&GtProjectUI::canEditPackages)
             .setVisibilityMethod(&GtProjectUI::projectIsOpen);
 
@@ -790,29 +787,36 @@ GtProjectUI::canEditPackages(GtObject* obj)
            !gt::currentProcessExecutor().taskCurrentlyRunning();
 }
 
-bool
-GtProjectUI::canAddPackage(GtObject* obj)
+QMenu*
+GtProjectUI::createAddPackageMenu(QMenu& parent, GtProject& project)
 {
-    return canEditPackages(obj) &&
-           !availablePackageModules(*static_cast<GtProject*>(obj)).isEmpty();
+    if (!project.isOpen()) return nullptr;
+
+    auto* submenu = new QMenu(tr("Add Package"), &parent);
+    submenu->setIcon(gt::gui::icon::plugin());
+    const auto modules = availablePackageModules(project);
+    submenu->setEnabled(canEditPackages(&project) && !modules.isEmpty());
+
+    const QPointer<GtProject> target(&project);
+    for (const auto& module : modules)
+    {
+        QString label = module;
+        auto* action = submenu->addAction(label.replace('&', QStringLiteral("&&")));
+        connect(action, &QAction::triggered, submenu, [target, module] {
+            if (target) addPackage(*target, module);
+        });
+    }
+    return submenu;
 }
 
 void
-GtProjectUI::addPackage(GtObject* obj)
+GtProjectUI::addPackage(GtProject& project, const QString& moduleId)
 {
-    if (!canAddPackage(obj)) return;
-    QPointer<GtProject> project(static_cast<GtProject*>(obj));
-
-    const auto title = tr("Add Package");
-    bool accepted = false;
-    const auto module = QInputDialog::getItem(
-        nullptr, title, tr("Data-model module"), availablePackageModules(*project),
-        0, false, &accepted);
-    if (!accepted || !project || !canEditPackages(project)) return;
+    if (!canEditPackages(&project)) return;
 
     QString error;
-    auto package = project->createPackage(module, error);
-    insertPackage(*project, std::move(package), title, error);
+    auto package = project.createPackage(moduleId, error);
+    insertPackage(project, std::move(package), tr("Add Package"), error);
 }
 
 void

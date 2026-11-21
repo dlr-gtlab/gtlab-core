@@ -21,6 +21,7 @@
 #include "gt_package.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_projectui.h"
 #include "gt_deleteitemmessagebox.h"
 #include "gt_icons.h"
 
@@ -447,6 +448,16 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addOpenWithActions(menu, obj);
 
     addImportMenu(menu, obj);
+
+    if (auto* project = qobject_cast<GtProject*>(&obj))
+    {
+        if (auto* submenu = GtProjectUI::createAddPackageMenu(menu, *project))
+        {
+            auto* action = menu.insertMenu(
+                actionBefore(menu, OrderPriority::BeforeImportAction), submenu);
+            setOrderPriority(*action, OrderPriority::BeforeImportAction);
+        }
+    }
 
     addExportMenu(menu, obj);
 

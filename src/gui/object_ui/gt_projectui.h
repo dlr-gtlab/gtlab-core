@@ -17,6 +17,8 @@
 
 #include "gt_objectui.h"
 
+class QMenu;
+
 /**
  * @brief The GtProjectUI class
  */
@@ -55,6 +57,9 @@ public:
      * how to do it
      */
     static void switchToProject(class GtProject& project);
+
+    /// Builds the Add Package submenu for an open project.
+    static QMenu* createAddPackageMenu(QMenu& parent, GtProject& project);
 
     /**
      * @brief renameProject
@@ -194,9 +199,8 @@ private:
      */
     static bool canExportMetaData(GtObject* obj);
 
-    static void addPackage(GtObject* obj);
+    static void addPackage(GtProject& project, const QString& moduleId);
     static void importPackage(GtObject* obj);
-    static bool canAddPackage(GtObject* obj);
     static bool canEditPackages(GtObject* obj);
 
     /**

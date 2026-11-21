@@ -40,9 +40,9 @@ Click *Next* to confirm your selection. To finalize the setup, choose *Finish* o
 
 Edit project packages
 ^^^^^^^^^^^^^^^^^^^^^
-Right-click an open project in the Explorer and choose *Add Package...* to
-create an empty package. The list shows loaded modules that provide a package
-and have an available slot in the project.
+Right-click an open project in the Explorer, open *Add Package*, and select a
+package from the submenu. The submenu lists loaded modules that provide a
+package and have an available slot in the project.
 
 Choose *Import Package...* to copy data from a ``.gtmod`` file into an available
 slot. Keep any linked XML files in their original locations relative to the
@@ -173,8 +173,8 @@ The context menu of a project is the access point for many of the actions mentio
      - Opens the folder in the computer file system containing the project file.
    * - *Rename Project*
      - Opens a dialog to rename a project. Only possible for closed projects.
-   * - *Add Package...*
-     - Creates an empty package for a loaded data-model module.
+   * - *Add Package*
+     - Opens a submenu of available packages. Selecting one creates an empty package.
    * - *Import Package...*
      - Copies a package from a ``.gtmod`` file into the project.
    * - *Delete from Session*
