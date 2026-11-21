@@ -762,6 +762,20 @@ availablePackageModules(const GtProject& project)
     return ids;
 }
 
+QIcon
+defaultPackageIcon(const QString& moduleId)
+{
+    const auto className = gtApp->modulePackageId(moduleId);
+    if (auto* ui = gtApp->defaultObjectUI(className))
+    {
+        // A module's ObjectUI can use the package's default state to choose its icon.
+        const std::unique_ptr<GtObject> package(gtObjectFactory->newObject(className));
+        const auto icon = ui->data(package.get(), Qt::DecorationRole).value<QIcon>();
+        if (!icon.isNull()) return icon;
+    }
+    return gt::gui::icon::plugin();
+}
+
 void
 insertPackage(GtProject& project, std::unique_ptr<GtPackage> package,
               const QString& title, const QString& error)
@@ -801,7 +815,9 @@ GtProjectUI::createAddPackageMenu(QMenu& parent, GtProject& project)
     for (const auto& module : modules)
     {
         QString label = module;
-        auto* action = submenu->addAction(label.replace('&', QStringLiteral("&&")));
+        auto* action = submenu->addAction(
+            defaultPackageIcon(module), label.replace('&', QStringLiteral("&&")));
+        action->setIconVisibleInMenu(true);
         connect(action, &QAction::triggered, submenu, [target, module] {
             if (target) addPackage(*target, module);
         });
