@@ -25,7 +25,7 @@ namespace
 // The base hooks acknowledge the probe. An override that handles auxiliary
 // data itself must not be assumed to be safe just because it returns true.
 thread_local const GtPackage** miscDataProbe = nullptr;
-}
+} // namespace
 
 GtPackage::GtPackage()
 {
@@ -82,7 +82,8 @@ GtPackage::readData(const QDomElement& root)
     return true;
 }
 
-bool GtPackage::readMiscData(const QDir& /*projectDir*/)
+bool
+GtPackage::readMiscData(const QDir& /*projectDir*/)
 {
     if (miscDataProbe) *miscDataProbe = this;
     return true;
@@ -100,7 +101,8 @@ GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
     return true;
 }
 
-bool GtPackage::saveMiscData(const QDir& /*projectDir*/)
+bool
+GtPackage::saveMiscData(const QDir& /*projectDir*/)
 {
     if (miscDataProbe) *miscDataProbe = this;
     return true;
@@ -130,9 +132,8 @@ GtPackage::hasStandaloneData(const QDir* readProbeDir)
     };
     const GtPackage* calledBase = nullptr;
     auto* previousProbe = std::exchange(miscDataProbe, &calledBase);
-    const auto restoreProbe = qScopeGuard([previousProbe] {
-        miscDataProbe = previousProbe;
-    });
+    const auto restoreProbe =
+        qScopeGuard([previousProbe] { miscDataProbe = previousProbe; });
 
     if (!copy->readMiscData(readProbeDir ? *readProbeDir : directory) ||
         calledBase != copy.get() || !sameData() || !empty())
@@ -142,8 +143,10 @@ GtPackage::hasStandaloneData(const QDir* readProbeDir)
 
     QDomDocument originalDocument;
     QDomDocument restoredDocument;
-    auto originalRoot = originalDocument.createElement(QStringLiteral("GTLABMODULE"));
-    auto restoredRoot = restoredDocument.createElement(QStringLiteral("GTLABMODULE"));
+    auto originalRoot =
+        originalDocument.createElement(QStringLiteral("GTLABMODULE"));
+    auto restoredRoot =
+        restoredDocument.createElement(QStringLiteral("GTLABMODULE"));
     originalDocument.appendChild(originalRoot);
     restoredDocument.appendChild(restoredRoot);
     if (!saveData(originalRoot, originalDocument) ||

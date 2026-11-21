@@ -69,11 +69,12 @@
 
 namespace
 {
-    bool canChangeCommandHistory()
-    {
-        return !gt::currentProcessExecutor().taskCurrentlyRunning() &&
-               !GtProjectExecutionGuard::isLocked(gtApp->currentProject());
-    }
+bool
+canChangeCommandHistory()
+{
+    return !gt::currentProcessExecutor().taskCurrentlyRunning() &&
+           !GtProjectExecutionGuard::isLocked(gtApp->currentProject());
+}
 
     QString canonicalProjectPath(const QString& path)
     {
@@ -910,15 +911,19 @@ GtMainWin::openCommandHistory()
         m_undoView->setWindowIcon(gt::gui::icon::history());
         m_undoView->setStack(gtApp->undoStack());
         auto* view = m_undoView.data();
-        auto updateView = [view] { view->setEnabled(canChangeCommandHistory()); };
-        auto monitorExecutor = [this, view, updateView](GtCoreProcessExecutor* executor) {
+        auto updateView = [view] {
+            view->setEnabled(canChangeCommandHistory());
+        };
+        auto monitorExecutor = [this, view,
+                                updateView](GtCoreProcessExecutor* executor) {
             if (!executor) return;
-            connect(executor, &GtCoreProcessExecutor::queueChanged,
-                    view, updateView, Qt::QueuedConnection);
+            connect(executor, &GtCoreProcessExecutor::queueChanged, view,
+                    updateView, Qt::QueuedConnection);
             updateView();
         };
-        connect(&gt::processExecutorManager(), &GtProcessExecutorManager::executorChanged,
-                view, monitorExecutor);
+        connect(&gt::processExecutorManager(),
+                &GtProcessExecutorManager::executorChanged, view,
+                monitorExecutor);
         monitorExecutor(&gt::currentProcessExecutor());
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);

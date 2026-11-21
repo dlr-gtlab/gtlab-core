@@ -190,8 +190,8 @@ GtProjectProvider::duplicateProject(const QString& newId,
     // project so it can follow the regular data-model open path. Persist the
     // prepared data first, then release it from the project object.
     retval->markOpen();
-    const bool saved = retval->saveModuleData() &&
-                       retval->saveProjectOverallData();
+    const bool saved =
+        retval->saveModuleData() && retval->saveProjectOverallData();
     retval->markClosed();
 
     if (!saved)

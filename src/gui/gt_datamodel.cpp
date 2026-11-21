@@ -298,7 +298,8 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
     for (auto* object : objects)
     {
         auto* package = qobject_cast<GtPackage*>(object);
-        auto* project = package ? qobject_cast<GtProject*>(package->parent()) : nullptr;
+        auto* project =
+            package ? qobject_cast<GtProject*>(package->parent()) : nullptr;
         if (!project) continue;
         if (gt::currentProcessExecutor().taskCurrentlyRunning()) return false;
         const auto error = project->packageDeletionError(*package);

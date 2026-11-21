@@ -566,7 +566,8 @@ GtApplication::endCommand(const GtCommand& command)
     auto* root =  m_d->m_commandRoot->findRoot<GtSession*>();
     if (root && diff.numberOfDiffSteps() > 0)
     {
-        auto* changeCmd = new GtMementoChangeCommand(diff, m_d->m_commandId, root);
+        auto* changeCmd =
+            new GtMementoChangeCommand(diff, m_d->m_commandId, root);
         undoStack()->push(changeCmd);
     }
 

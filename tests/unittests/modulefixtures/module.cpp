@@ -7,12 +7,12 @@
 #include "gt_moduleinterface.h"
 
 #if defined(PROJECT_PACKAGE_FIXTURE) || defined(AUXILIARY_PACKAGE_FIXTURE)
-#include "gt_datamodelinterface.h"
-#include "gt_externalizedobject.h"
-#include "gt_package.h"
-#include "gt_objectlinkproperty.h"
+  #include "gt_datamodelinterface.h"
+  #include "gt_externalizedobject.h"
+  #include "gt_package.h"
+  #include "gt_objectlinkproperty.h"
 
-#include <QDir>
+  #include <QDir>
 
 class PackageLinkObject : public GtObject
 {
@@ -24,27 +24,41 @@ public:
     }
 
 private:
-    GtObjectLinkProperty m_link{QStringLiteral("link"), QStringLiteral("Link"),
-                                QString{}, this, {QStringLiteral("GtObject")}};
+    GtObjectLinkProperty m_link{QStringLiteral("link"),
+                                QStringLiteral("Link"),
+                                QString{},
+                                this,
+                                {QStringLiteral("GtObject")}};
 };
 
 class PackageExternalizedObject : public GtExternalizedObject
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE PackageExternalizedObject() {}
+    Q_INVOKABLE PackageExternalizedObject()
+    { }
 
 protected:
-    bool doFetchData(QVariant&, bool) override { return false; }
-    bool doExternalizeData(QVariant&) override { return false; }
-    void doClearExternalizedData() override {}
+    bool doFetchData(QVariant&, bool) override
+    {
+        return false;
+    }
+    bool doExternalizeData(QVariant&) override
+    {
+        return false;
+    }
+    void doClearExternalizedData() override
+    { }
 };
 
 class ProjectPackageFixture : public GtPackage
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE ProjectPackageFixture() { setObjectName(QStringLiteral("Test Package")); }
+    Q_INVOKABLE ProjectPackageFixture()
+    {
+        setObjectName(QStringLiteral("Test Package"));
+    }
 
     bool readMiscData(const QDir& directory) override
     {
@@ -66,14 +80,20 @@ class AuxiliaryPackageFixture : public GtPackage
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE AuxiliaryPackageFixture() {}
-    bool readMiscData(const QDir&) override { return true; }
+    Q_INVOKABLE AuxiliaryPackageFixture()
+    { }
+    bool readMiscData(const QDir&) override
+    {
+        return true;
+    }
 };
 #endif
 
-class FootprintTestModule : public QObject, public GtModuleInterface
+class FootprintTestModule : public QObject,
+                            public GtModuleInterface
 #if defined(PROJECT_PACKAGE_FIXTURE) || defined(AUXILIARY_PACKAGE_FIXTURE)
-                          , public GtDatamodelInterface
+    ,
+                            public GtDatamodelInterface
 #endif
 {
     Q_OBJECT
@@ -93,16 +113,28 @@ public:
         return QStringLiteral("Test module");
     }
 #if defined(PROJECT_PACKAGE_FIXTURE)
-    QMetaObject package() override { return ProjectPackageFixture::staticMetaObject; }
+    QMetaObject package() override
+    {
+        return ProjectPackageFixture::staticMetaObject;
+    }
     QList<QMetaObject> data() override
     {
         return {PackageLinkObject::staticMetaObject,
                 PackageExternalizedObject::staticMetaObject};
     }
-    bool standAlone() override { return true; }
+    bool standAlone() override
+    {
+        return true;
+    }
 #elif defined(AUXILIARY_PACKAGE_FIXTURE)
-    QMetaObject package() override { return AuxiliaryPackageFixture::staticMetaObject; }
-    bool standAlone() override { return true; }
+    QMetaObject package() override
+    {
+        return AuxiliaryPackageFixture::staticMetaObject;
+    }
+    bool standAlone() override
+    {
+        return true;
+    }
 #endif
 };
 

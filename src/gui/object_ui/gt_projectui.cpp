@@ -145,10 +145,10 @@ GtProjectUI::GtProjectUI()
     addSeparator();
 
     addSingleAction(tr("Import Package..."), &GtProjectUI::importPackage)
-            .setIcon(gt::gui::icon::import())
-            .setOrderPriority(gt::gui::OrderPriority::ImportAction)
-            .setVerificationMethod(&GtProjectUI::canEditPackages)
-            .setVisibilityMethod(&GtProjectUI::projectIsOpen);
+        .setIcon(gt::gui::icon::import())
+        .setOrderPriority(gt::gui::OrderPriority::ImportAction)
+        .setVerificationMethod(&GtProjectUI::canEditPackages)
+        .setVisibilityMethod(&GtProjectUI::projectIsOpen);
 
     addSingleAction(tr("Export Meta Data"),
                     &GtProjectUI::exportMetaData)
@@ -769,8 +769,10 @@ defaultPackageIcon(const QString& moduleId)
     if (auto* ui = gtApp->defaultObjectUI(className))
     {
         // A module's ObjectUI can use the package's default state to choose its icon.
-        const std::unique_ptr<GtObject> package(gtObjectFactory->newObject(className));
-        const auto icon = ui->data(package.get(), Qt::DecorationRole).value<QIcon>();
+        const std::unique_ptr<GtObject> package(
+            gtObjectFactory->newObject(className));
+        const auto icon =
+            ui->data(package.get(), Qt::DecorationRole).value<QIcon>();
         if (!icon.isNull()) return icon;
     }
     return gt::gui::icon::plugin();
@@ -780,15 +782,18 @@ void
 insertPackage(GtProject& project, std::unique_ptr<GtPackage> package,
               const QString& title, const QString& error)
 {
-    if (package && !gtDataModel->appendChildren({package.get()}, &project).isEmpty())
+    if (package &&
+        !gtDataModel->appendChildren({package.get()}, &project).isEmpty())
     {
         package.release();
         return;
     }
 
-    QMessageBox::warning(nullptr, title, error.isEmpty()
-        ? GtProjectUI::tr("Could not insert the package into the project.")
-        : error);
+    QMessageBox::warning(
+        nullptr, title,
+        error.isEmpty()
+            ? GtProjectUI::tr("Could not insert the package into the project.")
+            : error);
 }
 } // namespace
 
@@ -815,8 +820,9 @@ GtProjectUI::createAddPackageMenu(QMenu& parent, GtProject& project)
     for (const auto& module : modules)
     {
         QString label = module;
-        auto* action = submenu->addAction(
-            defaultPackageIcon(module), label.replace('&', QStringLiteral("&&")));
+        auto* action =
+            submenu->addAction(defaultPackageIcon(module),
+                               label.replace('&', QStringLiteral("&&")));
         action->setIconVisibleInMenu(true);
         connect(action, &QAction::triggered, submenu, [target, module] {
             if (target) addPackage(*target, module);

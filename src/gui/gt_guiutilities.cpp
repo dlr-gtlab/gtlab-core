@@ -392,25 +392,28 @@ gt::gui::makeDeleteAction(GtObject& obj)
     {
         const bool isPackage = qobject_cast<GtPackage*>(&obj) &&
                                qobject_cast<GtProject*>(obj.parent());
-        auto lambda = [isPackage](GtObject* target){
+        auto lambda = [isPackage](GtObject* target) {
             if (GtProject* project = target->findRoot<GtProject*>())
             {
                 QPointer<GtObject> selected(target);
                 if (isPackage)
                 {
                     if (GtProjectExecutionGuard::isLocked(project)) return;
-                    GtDeleteItemMessageBox confirmation(QObject::tr("Delete Package"),
-                                                        target->objectName());
-                    confirmation.setInformativeText(QObject::tr(
-                        "The package and all its contents will be removed from the project."));
+                    GtDeleteItemMessageBox confirmation(
+                        QObject::tr("Delete Package"), target->objectName());
+                    confirmation.setInformativeText(
+                        QObject::tr("The package and all its contents will be "
+                                    "removed from the project."));
                     confirmation.setDefaultButton(QMessageBox::Cancel);
-                    if (confirmation.exec() != QMessageBox::Yes || !selected) return;
+                    if (confirmation.exec() != QMessageBox::Yes || !selected)
+                        return;
                 }
                 gtDataModel->deleteFromModel(selected);
             }
         };
-        return makeAction(isPackage ? QObject::tr("Delete Package") :
-                                       QObject::tr("Delete"), lambda)
+        return makeAction(isPackage ? QObject::tr("Delete Package")
+                                    : QObject::tr("Delete"),
+                          lambda)
             .setIcon(gt::gui::icon::delete_())
             .setShortCut(gtApp->getShortCutSequence("delete"))
             .setOrderPriority(gt::gui::OrderPriority::DeleteAction);

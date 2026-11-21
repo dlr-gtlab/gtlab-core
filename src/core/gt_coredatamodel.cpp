@@ -42,7 +42,8 @@ canInsertPackages(GtObject* parent, const QList<GtObject*>& children,
     {
         const auto* package = qobject_cast<const GtPackage*>(child);
         if (!package) continue;
-        const QString type = QString::fromLatin1(package->metaObject()->className());
+        const QString type =
+            QString::fromLatin1(package->metaObject()->className());
         const auto module = gtObjectFactory->moduleId(type);
         if (!gtApp || gtApp->modulePackageId(module) != type ||
             occupied.contains(module, Qt::CaseInsensitive))
@@ -54,9 +55,10 @@ canInsertPackages(GtObject* parent, const QList<GtObject*>& children,
     }
     return !addingPackage ||
            (project->isOpen() && gtApp->currentProject() == project &&
-            guard.tryAcquire(project) == GtProjectExecutionGuard::Result::Acquired);
+            guard.tryAcquire(project) ==
+                GtProjectExecutionGuard::Result::Acquired);
 }
-}
+} // namespace
 
 GtCoreDatamodel* GtCoreDatamodel::m_self = 0;
 
@@ -1134,10 +1136,11 @@ GtCoreDatamodel::deleteFromModel(QList<GtObject*> objects)
         if (!project) continue;
         if (guard.isLocked() && guard.projectKey() == guard.projectKey(project))
             continue;
-        if (guard.isLocked() ||
-            guard.tryAcquire(project) != GtProjectExecutionGuard::Result::Acquired)
+        if (guard.isLocked() || guard.tryAcquire(project) !=
+                                    GtProjectExecutionGuard::Result::Acquired)
         {
-            gtWarning() << tr("Cannot delete project packages while a task is executing.");
+            gtWarning() << tr(
+                "Cannot delete project packages while a task is executing.");
             return false;
         }
     }

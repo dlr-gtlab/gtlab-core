@@ -301,12 +301,12 @@ public:
     /// Prepares a new package for insertion through the data model.
     /// Returns an empty pointer and a translated error on failure.
     std::unique_ptr<GtPackage> createPackage(const QString& moduleId,
-                                            QString& error) const;
+                                             QString& error) const;
 
     /// Prepares a copy of a package for insertion through the data model.
     /// Keeps source UUIDs and rejects collisions in the target project.
     std::unique_ptr<GtPackage> importPackage(const QString& filePath,
-                                            QString& error) const;
+                                             QString& error) const;
 
     /// Returns a translated error if a package cannot safely be deleted.
     QString packageDeletionError(GtPackage& package) const;
