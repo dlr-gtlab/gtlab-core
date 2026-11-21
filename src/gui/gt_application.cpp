@@ -564,14 +564,12 @@ GtApplication::endCommand(const GtCommand& command)
     gtDebug().verbose() << "######## COMMAND END! (" << m_d->m_commandId << ")";
 
     auto* root =  m_d->m_commandRoot->findRoot<GtSession*>();
-    if (!root)
+    if (root && diff.numberOfDiffSteps() > 0)
     {
-        gtWarning().medium() << tr("no root object found!");
-        return;
+        auto* changeCmd =
+            new GtMementoChangeCommand(diff, m_d->m_commandId, root);
+        undoStack()->push(changeCmd);
     }
-
-    auto* changeCmd = new GtMementoChangeCommand(diff, m_d->m_commandId, root);
-    undoStack()->push(changeCmd);
 
     // cleanup
     m_d->m_commandRoot = nullptr;

@@ -38,14 +38,31 @@ On the **Project Modules** page, select the modules relevant to your project. On
 
 Click *Next* to confirm your selection. To finalize the setup, choose *Finish* on the *Import Data* page.
 
-Add packages to a project
-^^^^^^^^^^^^^^^^^^^^^^^^^
-When creating projects, you are already asked which `Packages`_ should be part of the project data.
-This can be changed later using the *Choose Project Modules* entry in the project's `context menu`_.
+Edit project packages
+^^^^^^^^^^^^^^^^^^^^^
+Right-click an open project in the Explorer, open *Add Package*, and select a
+package from the submenu. The submenu lists loaded modules that provide a
+package and have an available slot in the project.
 
-.. image:: images/project_select_modules_dark.png
-   :align: center
-   :alt: Choose Project Modules
+If a package file already exists in the current project folder, GTlab offers
+*Restore Existing Package*, *Create Empty Package*, and *Cancel*. Restoring
+loads the last saved package data and retains the original object UUIDs.
+GTlab checks for UUIDs that are already in use in the project and for required
+module upgrades. If the file has no module version, GTlab asks you to confirm
+before restoring it.
+
+Right-click a package and choose *Delete Package*, or select it and press
+*Delete*. Confirming removes the package and its contents from the project.
+Other project objects keep their references. While the edit is in the undo
+history, *Undo* restores the package and its unsaved changes in the object tree.
+
+Use *Save Project* to persist the package selection and content. Deleting a
+package leaves its saved files on disk. If saving a new empty package replaces
+a retained ``.gtmod`` file, GTlab first saves a copy of that file alongside it.
+The module continues to manage its own auxiliary files.
+
+Project packages contain project data from modules loaded for the session.
+Package operations are blocked during task execution.
 
 .. _label_section_sessions:
 
@@ -76,7 +93,7 @@ The context menu (right‑click) adapts depending on whether a project is open o
    :align: center
    :alt: Project Context Menu
 
-Modules can be added or removed later using *Choose Project Modules* from the context menu. Projects can be saved or closed with *Save Project*, *Save Project As…*, or *Close Project*.
+Projects can be saved or closed with *Save Project*, *Save Project As…*, or *Close Project*.
 
 .. image:: images/project_explorer_project_context_dark.png
    :align: center
@@ -153,8 +170,8 @@ The context menu of a project is the access point for many of the actions mentio
      - Opens the folder in the computer file system containing the project file.
    * - *Rename Project*
      - Opens a dialog to rename a project. Only possible for closed projects.
-   * - *Choose Project Modules*
-     - Opens selection editor for the module based Packages_ which should be used in the project.
+   * - *Add Package*
+     - Opens a submenu of available packages. Selecting one lets you create an empty package or restore retained data from this project.
    * - *Delete from Session*
      - Deletes project from session. Only possible for closed projects. The following dialog also offers the option of removing the project completely from the computer.
    * - *Generate Backup*
@@ -172,8 +189,8 @@ Packages
 ^^^^^^^^
 Packages are elements of the first level in the project data structure, directly below the project element itself.
 These usually represent a data node specific to a use case, which is usually provided via the implementation in a module.
-However, this does not mean that each module provides its own data model node,
-nor does it mean that you cannot use the options of a module (e.g. its workflow elements) if you do not also activate the package in the project.
+Modules can also provide workflow elements that are available independently of
+the project's package selection.
 
 .. _label_section_properties:
 

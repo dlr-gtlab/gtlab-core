@@ -18,6 +18,7 @@
 #include "gt_saveprojecthelper.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_package.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
@@ -58,6 +59,11 @@ GtDataModel::flags(const QModelIndex& index) const
     // check object
     if (object)
     {
+        if (qobject_cast<GtPackage*>(object) &&
+            qobject_cast<GtProject*>(object->parent()))
+        {
+            return defaultFlags | Qt::ItemIsDropEnabled;
+        }
         // add drop enabled flag
         defaultFlags = defaultFlags | Qt::ItemIsDropEnabled;
     }
@@ -272,7 +278,7 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
 bool
 GtDataModel::deleteFromModel(GtObject* obj)
 {
-    return GtCoreDatamodel::deleteFromModel(obj);
+    return obj && deleteFromModel(QList<GtObject*>{obj});
 }
 
 bool
@@ -283,6 +289,8 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
     {
         return true;
     }
+
+    reduceToParents(objects);
 
     QString commandMsg;
 
@@ -296,8 +304,6 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
         commandMsg = QString::number(objects.size()) + QStringLiteral(" ") +
                      tr("objects") + QStringLiteral(" ") + tr("deleted");
     }
-
-    reduceToParents(objects);
 
     auto* commonParent = qobject_cast<GtObject*>(
         gt::find_lowest_ancestor(objects, gt::get_parent_object)

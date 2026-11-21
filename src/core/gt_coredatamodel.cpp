@@ -23,8 +23,36 @@
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_package.h"
 
 #include "gt_coredatamodel.h"
+
+namespace
+{
+bool
+canInsertPackages(GtObject* parent, const QList<GtObject*>& children,
+                  GtProjectExecutionGuard& guard)
+{
+    auto* project = qobject_cast<GtProject*>(parent);
+    if (!project) return true;
+
+    const auto hasPackage = std::any_of(
+        children.cbegin(), children.cend(), [](const GtObject* child) {
+            return qobject_cast<const GtPackage*>(child);
+        });
+    if (!hasPackage) return true;
+
+    const auto error = project->packageInsertionError(children);
+    if (!error.isEmpty())
+    {
+        gtWarning() << error;
+        return false;
+    }
+    return gtApp->currentProject() == project &&
+           guard.tryAcquire(project) ==
+               GtProjectExecutionGuard::Result::Acquired;
+}
+} // namespace
 
 GtCoreDatamodel* GtCoreDatamodel::m_self = 0;
 
@@ -983,7 +1011,9 @@ GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
         return QModelIndexList();
     }
 
-    if (children.isEmpty() || !parent->canAppendChildren(children))
+    GtProjectExecutionGuard guard;
+    if (children.isEmpty() || !parent->canAppendChildren(children) ||
+        !canInsertPackages(parent, children, guard))
     {
         return {};
     }
@@ -1044,8 +1074,10 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         return {};
     }
 
+    GtProjectExecutionGuard guard;
     if (row < 0 || row > parent->childCount<GtObject*>() ||
-        !parent->canAppendChildren({child}))
+        !parent->canAppendChildren({child}) ||
+        !canInsertPackages(parent, {child}, guard))
     {
         return {};
     }
@@ -1088,6 +1120,23 @@ GtCoreDatamodel::deleteFromModel(QList<GtObject*> objects)
     if (objects.isEmpty())
     {
         return true;
+    }
+
+    GtProjectExecutionGuard guard;
+    for (auto* object : objects)
+    {
+        if (!qobject_cast<GtPackage*>(object)) continue;
+        auto* project = qobject_cast<GtProject*>(object->parent());
+        if (!project) continue;
+        if (guard.isLocked() && guard.projectKey() == guard.projectKey(project))
+            continue;
+        if (guard.isLocked() || guard.tryAcquire(project) !=
+                                    GtProjectExecutionGuard::Result::Acquired)
+        {
+            gtWarning() << tr(
+                "Cannot delete project packages while a task is executing.");
+            return false;
+        }
     }
 
     // delete each object separately

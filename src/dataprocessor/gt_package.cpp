@@ -18,6 +18,7 @@
 GtPackage::GtPackage()
 {
     setObjectName("Package");
+    setFlag(UserDeletable);
 }
 
 bool

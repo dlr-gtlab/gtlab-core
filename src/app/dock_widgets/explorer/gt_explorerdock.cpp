@@ -13,6 +13,7 @@
 #include "gt_explorerview.h"
 #include "gt_searchwidget.h"
 #include "gt_project.h"
+#include "gt_package.h"
 #include "gt_qtutilities.h"
 #include "gt_application.h"
 #include "gt_settings.h"
@@ -713,12 +714,34 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
     GtDeleteItemMessageBox mb(str1, str2);
 
+    QList<QPointer<GtObject>> selection;
+    bool deletesPackage = false;
+    for (auto* object : deletables)
+    {
+        selection.append(object);
+        deletesPackage |= qobject_cast<GtPackage*>(object) &&
+                          qobject_cast<GtProject*>(object->parent());
+    }
+    if (deletesPackage)
+    {
+        if (deletables.size() == 1) mb.setWindowTitle(tr("Delete Package"));
+        mb.setInformativeText(tr("Selected packages and all their contents "
+                                 "will be removed from the project."));
+        mb.setDefaultButton(QMessageBox::Cancel);
+    }
+
     int ret = mb.exec();
 
     switch (ret)
     {
         case QMessageBox::Yes:
         {
+            deletables.clear();
+            for (const auto& object : selection)
+            {
+                if (!object) return;
+                deletables.append(object);
+            }
             gtDataModel->deleteFromModel(deletables);
             break;
         }

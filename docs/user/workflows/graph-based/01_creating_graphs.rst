@@ -16,7 +16,7 @@ To install, select the component in the Maintenance Tool:
 
 To activate the module for the current project, right-click on the project in the Explorer Dock and navigate to:
 
-	*Choose Project Modules* → *IntelliGraph*
+	*Add Package* → *IntelliGraph*
 
 Creating a Graph
 """"""""""""""""

@@ -18,7 +18,11 @@
 #include "gt_importmenu.h"
 #include "gt_mdilauncher.h"
 #include "gt_objectui.h"
+#include "gt_package.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_projectui.h"
+#include "gt_deleteitemmessagebox.h"
 #include "gt_icons.h"
 
 #include "gt_application.h"
@@ -386,13 +390,30 @@ gt::gui::makeDeleteAction(GtObject& obj)
     // delete object action
     if (obj.isDeletable())
     {
-        auto lambda = [=](GtObject* target){
-            if (GtProject* project = target->findRoot<GtProject*>())
+        const bool isPackage = qobject_cast<GtPackage*>(&obj) &&
+                               qobject_cast<GtProject*>(obj.parent());
+        auto lambda = [isPackage](GtObject* target) {
+            if (const auto* project = target->findRoot<GtProject*>())
             {
-                gtDataModel->deleteFromModel(target);
+                QPointer<GtObject> selected(target);
+                if (isPackage)
+                {
+                    if (GtProjectExecutionGuard::isLocked(project)) return;
+                    GtDeleteItemMessageBox confirmation(
+                        QObject::tr("Delete Package"), target->objectName());
+                    confirmation.setInformativeText(
+                        QObject::tr("The package and all its contents will be "
+                                    "removed from the project."));
+                    confirmation.setDefaultButton(QMessageBox::Cancel);
+                    if (confirmation.exec() != QMessageBox::Yes || !selected)
+                        return;
+                }
+                gtDataModel->deleteFromModel(selected);
             }
         };
-        return makeAction(QObject::tr("Delete"), lambda)
+        return makeAction(isPackage ? QObject::tr("Delete Package")
+                                    : QObject::tr("Delete"),
+                          lambda)
             .setIcon(gt::gui::icon::delete_())
             .setShortCut(gtApp->getShortCutSequence("delete"))
             .setOrderPriority(gt::gui::OrderPriority::DeleteAction);
@@ -430,6 +451,16 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addOpenWithActions(menu, obj);
 
     addImportMenu(menu, obj);
+
+    if (auto* project = qobject_cast<GtProject*>(&obj))
+    {
+        if (auto* submenu = GtProjectUI::createAddPackageMenu(menu, *project))
+        {
+            auto* action = menu.insertMenu(
+                actionBefore(menu, OrderPriority::BeforeImportAction), submenu);
+            setOrderPriority(*action, OrderPriority::BeforeImportAction);
+        }
+    }
 
     addExportMenu(menu, obj);
 

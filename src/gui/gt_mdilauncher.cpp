@@ -276,7 +276,7 @@ GtMdiLauncher::close()
 }
 
 void
-GtMdiLauncher::onSubWindowClose(QObject* obj)
+GtMdiLauncher::onSubWindowClose(const QObject* obj)
 {
     auto iter = pimpl->openItems.find(obj);
     if (iter != pimpl->openItems.end())
@@ -651,6 +651,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     if (data)
     {
+        connect(data, &QObject::destroyed, mdiWidget, &QObject::deleteLater);
         mdiItem->setData(data);
     }
 

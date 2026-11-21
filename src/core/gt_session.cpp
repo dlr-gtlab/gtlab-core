@@ -78,12 +78,12 @@ GtSession::saveProjectData(GtProject* project)
         return false;
     }
 
-    if (!project->saveProjectOverallData())
+    if (!project->saveModuleData())
     {
         return false;
     }
 
-    if (!project->saveModuleData())
+    if (!project->saveProjectOverallData())
     {
         return false;
     }
