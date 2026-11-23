@@ -28,3 +28,16 @@ GtLineNumberArea::paintEvent(QPaintEvent* event)
     m_codeEditor->lineNumberAreaPaintEvent(event);
 }
 
+void
+GtLineNumberArea::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_codeEditor->handleLineNumberAreaClick(event->pos());
+    }
+    else
+    {
+        QWidget::mousePressEvent(event);
+    }
+}
+

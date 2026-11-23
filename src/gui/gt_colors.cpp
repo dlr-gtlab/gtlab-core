@@ -347,6 +347,34 @@ gt::gui::color::code_editor::highlightSearch()
     return QColor(255, 255, 0, 100);
 }
 
+// Fold indicator (triangles) in the line number area gutter
+QColor
+gt::gui::color::code_editor::foldIndicator()
+{
+    if (gt::gui::isApplicationDarkTheme())
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        return QColor(200, 200, 200);
+    }
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(90, 90, 90);
+}
+
+// Marker ("...") shown on folded lines
+QColor
+gt::gui::color::code_editor::foldedMarker()
+{
+    if (gt::gui::isApplicationDarkTheme())
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        return QColor(170, 170, 170);
+    }
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(110, 110, 110);
+}
+
 QColor
 gt::gui::color::xml_highlight::syntaxChar()
 {

@@ -63,6 +63,7 @@ set(headers
     tools/gt_xmlhighlighter.h
     tools/gt_linenumberarea.h
     tools/gt_codeeditor.h
+    tools/gt_codefoldmanager.h
     tools/gt_lineedit.h
     tools/gt_listview.h
     tools/gt_searchwidget.h
@@ -245,6 +246,7 @@ set(sources
     tools/gt_xmlhighlighter.cpp
     tools/gt_linenumberarea.cpp
     tools/gt_codeeditor.cpp
+    tools/gt_codefoldmanager.cpp
     tools/gt_searchwidget.cpp
     tools/gt_treeview.cpp
     tools/gt_lineedit.cpp

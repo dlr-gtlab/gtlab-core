@@ -255,6 +255,8 @@ GT_GUI_EXPORT QColor portHover();
 namespace code_editor {
     GT_GUI_EXPORT QColor highlightLine();
     GT_GUI_EXPORT QColor highlightSearch();
+    GT_GUI_EXPORT QColor foldIndicator();
+    GT_GUI_EXPORT QColor foldedMarker();
 } // namespace code_editor
 
 namespace xml_highlight {
