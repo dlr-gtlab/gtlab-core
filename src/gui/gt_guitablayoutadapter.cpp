@@ -172,6 +172,7 @@ GtGuiTabLayoutAdapter::addItem(GtMdiItem& item)
     widget->setParent(m_tab);
     widget->setWindowIcon(item.icon());
     widget->setWindowTitle(windowTitle(item));
+    setContainingWidget(item, widget);
 
     int idx = m_tab->addTab(widget, item.icon(), item.objectName());
     assert(idx >= 0);

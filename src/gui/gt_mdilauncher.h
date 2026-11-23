@@ -49,16 +49,10 @@ public:
     static GtMdiLauncher* instance();
 
     /**
-     * @brief Sets the adapter responsible for laying out the gui items
-     * @param adapter Adapter
-     */
-    void setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter);
-
-    /**
      * @brief setMdiArea
      * @param area
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setAdapter` instead")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::setAdapter` instead")
     void setMdiArea(QTabWidget* area);
 
     /**
@@ -67,7 +61,7 @@ public:
      *
      * @return The name. Returns the class name, if the menu name is not known
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::displayName`")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::openWithMenuName`")
     QString mdiOpenWithName(const QString& classname) const;
 
     /**
@@ -134,7 +128,8 @@ public:
      * @brief Returns true if current gui item is printable.
      * @return Is printable
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiLauncher::isCurrentWindowPrintable`")
+    GT_DEPRECATED_REMOVED_IN(2, 2,
+                             "use `GtGuiLauncher::isCurrentWindowPrintable`")
     bool isCurrentWindowPrintable() const;
 
     /**
@@ -162,7 +157,7 @@ public:
      * @return true in case of success, else false
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerDockWidget`")
-    bool registerDockWidget(QMetaObject metaObj);
+    bool registerDockWidget(QMetaObject metaObj, const QString& moduleIdent);
 
     /**
      * @brief Closes all active MDI items.
@@ -193,20 +188,15 @@ public:
     QStringList knownClasses() const override;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
-    bool registerClass(QMetaObject metaObj) override;
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
-    bool registerClass(QMetaObject metaObj, const QString& moduleId) override;
+    bool registerClass(QMetaObject metaObj,
+                       const QString& moduleIdent) override;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::unregisterGuiItem`")
     bool unregisterClass(const QMetaObject& metaObj);
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
-    bool registerClasses(const QList<QMetaObject>& metaData) override;
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItem`")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerGuiItems`")
     bool registerClasses(const QList<QMetaObject>& metaData,
-                         const QString& moduleId) override;
+                         const QString& moduleIdent) override;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::moduleId`")
     QString moduleId(const QString& className) const override;
@@ -241,8 +231,9 @@ protected:
      * @param metaData
      * @return
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerDockWidget`")
-    bool registerDockWidgets(const QList<QMetaObject>& metaData);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGuiFactory::registerDockWidgets`")
+    bool registerDockWidgets(const QList<QMetaObject>& metaData,
+                             const QString& moduleId);
 
     /**
      * @brief registerCollection
@@ -286,20 +277,6 @@ private:
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
-
-//    /**
-//     * @brief isItemAllowed
-//     * @param mdiItem
-//     * @param data
-//     * @return
-//     */
-//    bool isItemAllowed(GtMdiItem* mdiItem);
-
-    /**
-     * @brief setFocus
-     * @param mdiId
-     */
-    void setFocus(const QString& mdiId);
 };
 
 #endif // GTMDILAUNCHER_H

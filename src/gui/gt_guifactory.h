@@ -61,10 +61,21 @@ public:
      * @brief Registers a dock widget using the meta object provided.
      * The dock widget must be default invokable. Updates `lastError`
      * @param metaObject Meta object
-     * @param moduleId Module Id this dock widget is associated with
-     * @return Success
+     * @param moduleIdent Module Id this dock widget is associated with
+     * @return Whether the class was registered successfully
      */
-    bool registerDockWidget(QMetaObject metaObject, const QString& moduleId);
+    bool registerDockWidget(QMetaObject metaObject, const QString& moduleIdent);
+
+    /**
+     * @brief Registers all dock widgets using the meta objects provided.
+     * If one registration fails, all preceding registrations are rolled back.
+     * The gui item must be default invokable. Updates `lastError`.
+     * @param metaObjects List of meta objects
+     * @param moduleIdent Module Id this gui item is associated with
+     * @return Whether all classes were registered successfully
+     */
+    bool registerDockWidgets(QList<QMetaObject> metaObjects,
+                             const QString& moduleIdent);
 
     /**
      * @brief Unregisters the dock widget
@@ -78,10 +89,21 @@ public:
      * @brief Registers a gui item using the meta object provided.
      * The gui item must be default invokable. Updates `lastError`
      * @param metaObject Meta object
-     * @param moduleId Module Id this gui item is associated with
-     * @return Success
+     * @param moduleIdent Module Id this gui item is associated with
+     * @return Whether the class was registered successfully
      */
-    bool registerGuiItem(QMetaObject metaObject, const QString& moduleId);
+    bool registerGuiItem(QMetaObject metaObject, const QString& moduleIdent);
+
+    /**
+     * @brief Registers all gui item using the meta objects provided.
+     * If one registration fails, all preceding registrations are rolled back.
+     * The gui item must be default invokable. Updates `lastError`.
+     * @param metaObjects List of meta objects
+     * @param moduleIdent Module Id this gui item is associated with
+     * @return Whether all classes were registered successfully
+     */
+    bool registerGuiItems(QList<QMetaObject> metaObjects,
+                          const QString& moduleIdent);
 
     /**
      * @brief Unregisters the gui item
@@ -124,6 +146,16 @@ public:
      */
     GT_NO_DISCARD
     QString displayName(const QString& className) const;
+
+    /**
+     * @brief Display name of the associated class to bes used for the
+     * "Open With" menu
+     * @param className Class name to query
+     * @return "Open With" menu entry name. If no display name was registered or
+     * the class is unknown to this factory, the passed in class name is used.
+     */
+    GT_NO_DISCARD
+    QString openWithMenuName(const QString& className) const;
 
     /**
      * @brief Returns whether the class name is a known dock widget

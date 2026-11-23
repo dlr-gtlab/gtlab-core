@@ -20,13 +20,7 @@
 
 #include <memory>
 
-class QFrame;
-class QSettings;
-class QMdiSubWindow;
 class GtProject;
-class GtQueuedMdiEvent;
-class GtAbstractProperty;
-class GtMdiLauncher;
 class GtState;
 class GtQmlAction;
 
@@ -37,6 +31,10 @@ class GT_GUI_EXPORT GtMdiItem : public GtObject
 {
     Q_OBJECT
 
+    friend class GtProjectChangedEvent;
+    friend class GtObjectChangedEvent;
+    friend class GtGuiLayoutAdapter;
+
 public:
     /**
      * @brief ~GtMdiItem
@@ -45,25 +43,31 @@ public:
 
     bool setCurrentObject(GtObject* object, QString customId = {});
 
-    bool regenerateId();
-
     const QString& currentId() const noexcept;
 
-    enum Flag : int
+    enum GuiItemFlag : int
     {
         NoFlag = 0,
+        /// Indicates that the gui item may be instantiated multiple times
+        /// if the custom id of the corresponding object is the same.
+        /// Is overriden by `allowsMultipleInstances`.
         AllowsMultipleInstances = 1 << 0,
+        /// Indicates that the gui item may react to updated data if the custom
+        /// id of the corresponding object is the same.
+        /// TODO: where is it called?
         AllowsReopening = 1 << 1,
+        /// Indicates that the gui item is deleted once the data object is deleted
+        BoundToObject = 1 << 2,
     };
-    using Flags = QFlags<Flag>;
+    using GuiItemFlags = QFlags<GuiItemFlag>;
 
-    void setFlag(Flag flag, bool enable = true) noexcept;
-    void setFlags(Flags flags) noexcept;
-    Flags flags() const noexcept;
+    void setItemFlag(GuiItemFlag flag, bool enable = true) noexcept;
+    void setItemFlags(GuiItemFlags flags) noexcept;
+    GuiItemFlags itemFlags() const noexcept;
 
     /**
-     * @brief widget
-     * @return
+     * @brief Returns this gui items widget
+     * @return Widget
      */
     QWidget* widget();
 
@@ -82,58 +86,10 @@ public:
      */
     virtual void setData(GtObject* obj);
 
-    // TODO: make protected
-    /** Event called after current project has changed.
-        @param new current project */
-    virtual void projectChangedEvent(GtProject* project);
-
-    // TODO: make protected
     /**
-     * @brief Event called after object selection has changed.
-     * @param current object
-     */
-    virtual void objectChangedEvent(GtObject* obj);
-
-    // TODO: make protected?
-    /**
-     * @brief showEvent
+     * @brief Triggered once when the mdi item is shown
      */
     virtual void showEvent();
-
-    // TODO: make protected
-    /**
-     * @brief Event called after project was saved.
-     * @param project Savend project.
-     */
-    virtual void projectSavedEvent(GtProject* project);
-
-    // TODO: make protected
-    /**
-     * @brief Initializes a new global state.
-     * @param State identification string.
-     * @param State specific path.
-     * @param Initial value.
-     * @param Force initialization indicator.
-     * @return New state.
-     */
-    GtState* initializeState(const QString& id, const QString& path,
-                             const QVariant& initValue,
-                             bool forceInitialization = false);
-
-    // TODO: make protected
-    /**
-     * @brief Initializes a new project specific state.
-     * @param Project.
-     * @brief Initializes a new global state.
-     * @param State identification string.
-     * @param State specific path.
-     * @param Initial value.
-     * @param Force initialization indicator.
-     * @return New state.
-     */
-    GtState* initializeState(GtProject* project,const QString& id,
-                             const QString& path, const QVariant& initValue,
-                             bool forceInitialization = false);
 
     /**
       * @brief subWin
@@ -146,13 +102,20 @@ public:
     }
 
     /**
-     * @brief Virtual function to specify if mdi item allows multiple instances.
+     * @brief Returns the widget containing this gui item's widget
+     * @return Containing widget
+     */
+    QWidget* containingWidget();
+
+    /**
+     * @brief Virtual function to specify if this gui item allows multiple
+     * instances. By default multiple instances are not allowed.
      * @return Multiple instances indicator.
      */
     virtual bool allowsMultipleInstances() const;
 
     /**
-     * @brief Virtual function to specify if mdi item is printable.
+     * @brief Virtual function to specify if this gui item is printable.
      * @return Printable indicator.
      */
     virtual bool isPrintable() const;
@@ -186,18 +149,33 @@ protected:
     virtual void initialized();
 
     /**
-     * @brief Virtual function to return custom mdi id based on given object.
+     * @brief Virtual function to return custom id based on the given object.
      * Default implementation returns empty string.
      * @param obj Given object
-     * @return Custom mdi identification string.
+     * @return Custom identification string.
      */
     virtual QString customId(GtObject* obj);
+
+    /** Event called after current project has changed.
+        @param new current project */
+    virtual void projectChangedEvent(GtProject* project);
+
+    /**
+     * @brief Event called after object selection has changed.
+     * @param current object
+     */
+    virtual void objectChangedEvent(GtObject* obj);
+    /**
+     * @brief Event called after project was saved.
+     * @param project Savend project.
+     */
+    virtual void projectSavedEvent(GtProject* project);
 
     /**
      * @brief setSubWin
      * @param subWin
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned. Edit `widget()`.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Bi replacement planned. Edit `widget()`.")
     void setSubWin(QWidget* subWin);
 
     /**
@@ -233,7 +211,33 @@ protected:
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**
-     * @brief Adds a toolbar action for the mdi item
+     * @brief Initializes a new global state.
+     * @param State identification string.
+     * @param State specific path.
+     * @param Initial value.
+     * @param Force initialization indicator.
+     * @return New state.
+     */
+    GtState* initializeState(const QString& id, const QString& path,
+                             const QVariant& initValue,
+                             bool forceInitialization = false);
+
+    /**
+     * @brief Initializes a new project specific state.
+     * @param Project.
+     * @brief Initializes a new global state.
+     * @param State identification string.
+     * @param State specific path.
+     * @param Initial value.
+     * @param Force initialization indicator.
+     * @return New state.
+     */
+    GtState* initializeState(GtProject* project, const QString& id,
+                             const QString& path, const QVariant& initValue,
+                             bool forceInitialization = false);
+
+    /**
+     * @brief Adds a toolbar action for the gui item
      *
      * The item will be the owner / parent of the created action
      *
@@ -259,6 +263,15 @@ private:
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
+
+    /**
+     * @brief Sets the containing widget. The item may be embedded into another
+     * widget which then becomes the containing widget (e.g. a dock-like widget)
+     * @param cwidget Containing widget
+     */
+    void setContainingWidget(QWidget* cwidget);
+
+    bool regenerateId();
 
 private slots:
 
@@ -294,6 +307,7 @@ signals:
      * @brief try to reopening mdi item (Result View)
      * @param pointer to existing data object
      */
+    // TODO: whats the replacement?
     GT_DEPRECATED_REMOVED_IN(2, 2, "...")
     void tryReopening(GtObject* existDataObj);
 

@@ -43,7 +43,7 @@ GtGuiLauncher::isNull() const noexcept
 }
 
 bool
-GtGuiLauncher::isNewItemAllowed(GtMdiItem const& guiItem) const
+GtGuiLauncher::isNewItemAllowed(const GtMdiItem& guiItem) const
 {
     if (guiItem.allowsMultipleInstances()) return true;
 
@@ -126,7 +126,8 @@ GtGuiLauncher::closeAll()
 }
 
 GtMdiItem*
-GtGuiLauncher::open(const QString& className, GtObject* data, const QString& customId)
+GtGuiLauncher::open(const QString& className, GtObject* data,
+                    const QString& customId)
 {
     assert(!isNull());
 
@@ -150,7 +151,8 @@ GtGuiLauncher::open(const QString& className, GtObject* data, const QString& cus
         auto activeItem = pimpl()->adapter->item(item->currentId());
         if (!activeItem) return nullptr;
 
-        if (data && activeItem->flags().testFlag(GtMdiItem::AllowsReopening))
+        if (data &&
+            activeItem->itemFlags().testFlag(GtMdiItem::AllowsReopening))
         {
             activeItem->setCurrentObject(data);
         }
@@ -182,4 +184,3 @@ GtGuiLauncher::pimpl() const noexcept
 {
     return impl.get();
 }
-

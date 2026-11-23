@@ -289,7 +289,8 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
                                              plugin->ident());
 
         gtMdiLauncher->registerClasses(mdip->mdiItems(), plugin->ident());
-        gtMdiLauncher->registerDockWidgets(mdip->dockWidgets());
+        gtMdiLauncher->registerDockWidgets(mdip->dockWidgets(),
+                                           plugin->ident());
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
 

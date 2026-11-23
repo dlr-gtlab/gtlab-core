@@ -252,9 +252,6 @@ private:
         const QList<PropertyFactoryData>& prepared) const;
 
     std::unique_ptr<Impl> m_impl;
-
-    QStringList classHierarchy(const QMetaObject* metaObj);
-
 };
 
 #endif // GTABSTRACTOBJECTFACTORY_H

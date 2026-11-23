@@ -37,6 +37,8 @@ public:
 
 protected:
     GtGuiLayoutAdapter();
+
+    void setContainingWidget(GtMdiItem& item, QWidget* containingWidget);
 };
 
 #endif // GT_GUILAYOUTADAPTER_H

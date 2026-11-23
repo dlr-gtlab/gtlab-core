@@ -157,7 +157,11 @@ bool isDefaultConstructible(const QMetaObject& metaObject);
  * @tparam List Any type with a begin() and end() function
  * @return Whether all meta objects are default constructible
  */
-template <typename List>
+template <
+    typename List,
+    typename Iter = decltype(std::declval<const List&>().begin()),
+    typename = std::enable_if_t<std::is_same<
+        QMetaObject, typename std::iterator_traits<Iter>::value_type>::value>>
 GT_NO_DISCARD bool
 areDefaultConstructible(const List& list)
 {

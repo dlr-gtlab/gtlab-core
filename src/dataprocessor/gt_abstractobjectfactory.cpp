@@ -130,17 +130,11 @@ GtAbstractObjectFactory::classHierarchy(const QString& className)
         retval << className;
         if (const QMetaObject* smo = mo->superClass())
         {
-            retval.append(classHierarchy(smo));
+            retval.append(gt::classHierarchy(*smo));
         }
     }
 
     return retval;
-}
-
-QStringList
-GtAbstractObjectFactory::classHierarchy(const QMetaObject* metaObj)
-{
-    return metaObj ? QStringList{} : gt::classHierarchy(*metaObj);
 }
 
 bool

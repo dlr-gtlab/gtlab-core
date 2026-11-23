@@ -25,7 +25,6 @@ class GtGuiLayoutAdapter;
 class GT_GUI_EXPORT GtGuiLauncher final : public QObject
 {
 public:
-
     ~GtGuiLauncher() noexcept override;
 
     /**
@@ -86,22 +85,19 @@ public:
 
 public slots:
 
-    GtMdiItem* open(const QString& className,
-                    GtObject* data = nullptr,
+    GtMdiItem* open(const QString& className, GtObject* data = nullptr,
                     const QString& customId = {});
 
-    GtMdiItem* open(const QString& className,
-                    const QString& customId);
+    GtMdiItem* open(const QString& className, const QString& customId);
 
 private:
-
     GtGuiLauncher();
 
     /// Returns whether the launcher is null
     bool isNull() const noexcept;
 
     /// Returns whether
-    bool isNewItemAllowed(GtMdiItem const& guiItem) const;
+    bool isNewItemAllowed(const GtMdiItem& guiItem) const;
 
     struct Impl;
     std::unique_ptr<Impl> impl;
@@ -111,7 +107,7 @@ private:
     Impl* pimpl() noexcept;
     /// wrapper for impl for const-correct access
     GT_NO_DISCARD
-    Impl const* pimpl() const noexcept;
+    const Impl* pimpl() const noexcept;
 };
 
 #endif // GT_GUILAUNCHER_H

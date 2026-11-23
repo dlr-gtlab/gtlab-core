@@ -320,7 +320,10 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
                 auto* item = new QTreeWidgetItem(columns);
                 tree->addTopLevelItem(item);
             }
+            // sort by module and by name if module is same
+            tree->setSortingEnabled(true);
             tree->sortItems(0, Qt::AscendingOrder);
+            tree->sortByColumn(1, Qt::AscendingOrder);
 
             layout->addWidget(tree);
             page->setLayout(layout);

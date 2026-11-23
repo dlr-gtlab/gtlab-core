@@ -14,6 +14,7 @@
 #include "gt_application.h"
 #include "gt_preferencesdialog.h"
 #include "gt_mdilauncher.h"
+#include "gt_guilauncher.h"
 #include "gt_dockwidget.h"
 #include "gt_projectwizard.h"
 #include "gt_projectprovider.h"
@@ -147,7 +148,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     updateCollectionEntries();
 
     // mdi launcher initialization
-    gtMdiLauncher->setAdapter(
+    GtGuiLauncher::instance().setAdapter(
         std::make_unique<GtGuiTabLayoutAdapter>(*ui->mdiArea));
 
     ui->mdiArea->tabBar()->setExpanding(true);

@@ -19,25 +19,16 @@
 #include "gt_guilauncher.h"
 #include "gt_guitablayoutadapter.h"
 
-struct GtMdiLauncher::Impl { };
+struct GtMdiLauncher::Impl
+{
+};
 
-GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
+GtMdiLauncher::GtMdiLauncher(QObject* parent) :
+    QObject(parent),
     pimpl(nullptr)
 { }
 
 GtMdiLauncher::~GtMdiLauncher() = default;
-
-void
-GtMdiLauncher::setFocus(const QString& mdiId)
-{
-    GtGuiLauncher::instance().focus(mdiId);
-}
-
-void
-GtMdiLauncher::closeAll()
-{
-    GtGuiLauncher::instance().closeAll();
-}
 
 GtMdiLauncher*
 GtMdiLauncher::instance()
@@ -51,9 +42,9 @@ GtMdiLauncher::instance()
 }
 
 void
-GtMdiLauncher::setAdapter(std::unique_ptr<GtGuiLayoutAdapter> adapter)
+GtMdiLauncher::closeAll()
 {
-    GtGuiLauncher::instance().setAdapter(std::move(adapter));
+    GtGuiLauncher::instance().closeAll();
 }
 
 void
@@ -62,14 +53,14 @@ GtMdiLauncher::setMdiArea(QTabWidget* area)
     auto* tab = qobject_cast<GtTabWidget*>(area);
     if (!tab) return;
 
-    setAdapter(std::make_unique<GtGuiTabLayoutAdapter>(*tab));
+    GtGuiLauncher::instance().setAdapter(
+        std::make_unique<GtGuiTabLayoutAdapter>(*tab));
 }
 
 QString
 GtMdiLauncher::mdiOpenWithName(const QString& className) const
 {
-    QString displayName = GtGuiFactory::instance().displayName(className);
-    return displayName.isEmpty() ? className : displayName;
+    return GtGuiFactory::instance().openWithMenuName(className);
 }
 
 QStringList
@@ -160,9 +151,10 @@ GtMdiLauncher::dockWidget(const QString& id)
 }
 
 bool
-GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
+GtMdiLauncher::registerDockWidget(QMetaObject metaObj,
+                                  const QString& moduleIdent)
 {
-    return GtGuiFactory::instance().registerDockWidget(metaObj, QString{});
+    return GtGuiFactory::instance().registerDockWidget(metaObj, moduleIdent);
 }
 
 bool
@@ -176,18 +168,10 @@ GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
 }
 
 bool
-GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
+GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData,
+                                   const QString& moduleId)
 {
-    if (dockWidgetsExist(metaData))
-    {
-        return false;
-    }
-
-    for (const QMetaObject& metaObj : metaData)
-    {
-        registerDockWidget(metaObj);
-    }
-    return true;
+    return GtGuiFactory::instance().registerDockWidgets(metaData, moduleId);
 }
 
 GtObject*
@@ -221,16 +205,10 @@ GtMdiLauncher::knownClasses() const
 }
 
 bool
-GtMdiLauncher::registerClass(QMetaObject metaObj)
+GtMdiLauncher::registerClass(QMetaObject metaObj, const QString& moduleIdent)
 {
-    return registerClass(metaObj, QString{});
-}
-
-bool
-GtMdiLauncher::registerClass(QMetaObject metaObj, const QString& moduleId)
-{
-    GtGuiFactory::instance().registerGuiItem(metaObj, moduleId);
-    return GtAbstractObjectFactory::registerClass(metaObj, moduleId);
+    GtGuiFactory::instance().registerGuiItem(metaObj, moduleIdent);
+    return GtAbstractObjectFactory::registerClass(metaObj, moduleIdent);
 }
 
 bool
@@ -241,18 +219,12 @@ GtMdiLauncher::unregisterClass(const QMetaObject& metaObj)
 }
 
 bool
-GtMdiLauncher::registerClasses(const QList<QMetaObject>& metaData)
-{
-    return registerClasses(metaData, QString{});
-}
-
-bool
 GtMdiLauncher::registerClasses(const QList<QMetaObject>& metaData,
-                               const QString& moduleId)
+                               const QString& moduleIdent)
 {
     return std::all_of(metaData.begin(), metaData.end(),
-                       [this, &moduleId](const QMetaObject& mobj) {
-                           return registerClass(mobj, moduleId);
+                       [this, &moduleIdent](const QMetaObject& mobj) {
+                           return registerClass(mobj, moduleIdent);
                        });
 }
 

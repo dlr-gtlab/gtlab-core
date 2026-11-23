@@ -133,7 +133,7 @@ GtGuiFactory::makeGuiItem(const QString& className) const
 
 bool
 GtGuiFactory::registerDockWidget(QMetaObject metaObject,
-                                 const QString& moduleId)
+                                 const QString& moduleIdent)
 {
     pimpl()->lastError.clear();
 
@@ -146,8 +146,15 @@ GtGuiFactory::registerDockWidget(QMetaObject metaObject,
         return false;
     }
 
+    if (moduleIdent.isEmpty() && gtApp && gtApp->devMode())
+    {
+        gtWarning() << QObject::tr("Dock widget '%1' has no module "
+                                   "id associated!")
+                           .arg(moduleIdent);
+    }
+
     auto iter = pimpl()->dockWidgets.insert(
-        className, Impl::DockWidgetEntry{std::move(metaObject), className});
+        className, Impl::DockWidgetEntry{std::move(metaObject), moduleIdent});
 
     auto unregister =
         gt::finally([this, iter]() { pimpl()->dockWidgets.erase(iter); });
@@ -162,6 +169,26 @@ GtGuiFactory::registerDockWidget(QMetaObject metaObject,
 }
 
 bool
+GtGuiFactory::registerDockWidgets(QList<QMetaObject> metaObjects,
+                                  const QString& moduleIdent)
+{
+    auto rollback = gt::finally([this, &metaObjects]() {
+        for (const QMetaObject& mobj : metaObjects)
+        {
+            unregisterDockWidget(mobj.className());
+        }
+    });
+
+    const bool success =
+        std::all_of(metaObjects.begin(), metaObjects.end(),
+                    [this, &moduleIdent](const QMetaObject& mobj) {
+                        return registerDockWidget(mobj, moduleIdent);
+                    });
+    if (success) rollback.clear();
+    return success;
+}
+
+bool
 GtGuiFactory::unregisterDockWidget(const QString& className)
 {
     auto iter = pimpl()->dockWidgets.find(className);
@@ -172,7 +199,8 @@ GtGuiFactory::unregisterDockWidget(const QString& className)
 }
 
 bool
-GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
+GtGuiFactory::registerGuiItem(QMetaObject metaObject,
+                              const QString& moduleIdent)
 {
     pimpl()->lastError.clear();
 
@@ -185,8 +213,15 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
         return false;
     }
 
+    if (moduleIdent.isEmpty() && gtApp && gtApp->devMode())
+    {
+        gtWarning() << QObject::tr("GUI Item '%1' has no module "
+                                   "id associated!")
+                           .arg(moduleIdent);
+    }
+
     auto iter = pimpl()->guiItems.insert(
-        className, Impl::GuiItemEntry{std::move(metaObject), className});
+        className, Impl::GuiItemEntry{std::move(metaObject), moduleIdent});
 
     auto unregister =
         gt::finally([this, iter]() { pimpl()->guiItems.erase(iter); });
@@ -206,6 +241,26 @@ GtGuiFactory::registerGuiItem(QMetaObject metaObject, const QString& moduleId)
 
     unregister.clear();
     return true;
+}
+
+bool
+GtGuiFactory::registerGuiItems(QList<QMetaObject> metaObjects,
+                               const QString& moduleIdent)
+{
+    auto rollback = gt::finally([this, &metaObjects]() {
+        for (const QMetaObject& mobj : metaObjects)
+        {
+            unregisterGuiItem(mobj.className());
+        }
+    });
+
+    const bool success =
+        std::all_of(metaObjects.begin(), metaObjects.end(),
+                    [this, &moduleIdent](const QMetaObject& mobj) {
+                        return registerGuiItem(mobj, moduleIdent);
+                    });
+    if (success) rollback.clear();
+    return success;
 }
 
 bool
@@ -264,6 +319,13 @@ GtGuiFactory::displayName(const QString& className) const
         return item->displayName;
     }
     return {};
+}
+
+QString
+GtGuiFactory::openWithMenuName(const QString& className) const
+{
+    const QString name = displayName(className);
+    return name.isEmpty() ? className : name;
 }
 
 bool

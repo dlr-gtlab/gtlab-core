@@ -35,6 +35,7 @@ struct GtMdiItem::Impl
     /// Mdi item data
     QPointer<GtObject> dataObject;
 
+    QPointer<QWidget> containingWidget{};
 
     /// Mdi item custom identification string
     QString cid;
@@ -44,7 +45,7 @@ struct GtMdiItem::Impl
     /// The list of registered toolbar actions, non-owning
     std::vector<GtQmlAction*> toolbarActions;
 
-    Flags flags{NoFlag};
+    GuiItemFlags flags{NoFlag};
 
     bool initialized{false};
     bool queueEvents{false};
@@ -52,7 +53,7 @@ struct GtMdiItem::Impl
     template <class T>
     T* takeEvent()
     {
-        for (GtQueuedMdiEvent* e : qAsConst(eventQueue))
+        for (GtQueuedMdiEvent* e : eventQueue)
         {
             if (T* ce = qobject_cast<T*>(e))
             {
@@ -61,7 +62,7 @@ struct GtMdiItem::Impl
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 };
 
@@ -105,7 +106,7 @@ GtMdiItem::icon() const
 void
 GtMdiItem::setData(GtObject* /*obj*/)
 {
-
+    // nothing to do here
 }
 
 GtMdiItem::~GtMdiItem()
@@ -147,7 +148,7 @@ GtMdiItem::regenerateId()
     QString newId = metaObject()->className();
     QString suffix = this->customId(currentObject());
 
-    const GtObject* object = qAsConst(*this).currentObject();
+    const GtObject* object = this->currentObject();
 
     if (suffix.isEmpty() && object)
     {
@@ -169,19 +170,19 @@ GtMdiItem::currentId() const noexcept
 }
 
 void
-GtMdiItem::setFlag(Flag flag, bool enable) noexcept
+GtMdiItem::setItemFlag(GuiItemFlag flag, bool enable) noexcept
 {
     pimpl->flags.setFlag(flag, enable);
 }
 
 void
-GtMdiItem::setFlags(Flags flags) noexcept
+GtMdiItem::setItemFlags(GuiItemFlags flags) noexcept
 {
     pimpl->flags = flags;
 }
 
-GtMdiItem::Flags
-GtMdiItem::flags() const noexcept
+GtMdiItem::GuiItemFlags
+GtMdiItem::itemFlags() const noexcept
 {
     return pimpl->flags |
            (allowsMultipleInstances() ? AllowsMultipleInstances : NoFlag);
@@ -237,8 +238,10 @@ GtMdiItem::customId(GtObject* /*obj*/)
 }
 
 void
-GtMdiItem::setSubWin(QWidget*)
-{ }
+GtMdiItem::setSubWin(QWidget* w)
+{
+    Q_UNUSED(w);
+}
 
 QKeySequence
 GtMdiItem::registerShortCut(const QString& id,
@@ -286,21 +289,33 @@ GtMdiItem::getShortCut(const QString& id)
 }
 
 void
+GtMdiItem::setContainingWidget(QWidget* cwidget)
+{
+    pimpl->containingWidget = cwidget;
+}
+
+void
 GtMdiItem::projectChangedEvent(GtProject* /*project*/)
 {
-
+    // nothing to do here
 }
 
 void
 GtMdiItem::objectChangedEvent(GtObject* /*obj*/)
 {
-
+    // nothing to do here
 }
 
 void
 GtMdiItem::showEvent()
 {
     // nothing to do here
+}
+
+QWidget*
+GtMdiItem::containingWidget()
+{
+    return pimpl->containingWidget ? pimpl->containingWidget.data() : widget();
 }
 
 void
@@ -345,8 +360,9 @@ GtMdiItem::onObjectChanged(GtObject* obj)
     }
 }
 
-void GtMdiItem::windowStateChanged(Qt::WindowStates /*oldState*/,
-                                   Qt::WindowStates newState)
+void
+GtMdiItem::windowStateChanged(Qt::WindowStates /*oldState*/,
+                              Qt::WindowStates newState)
 {
     if (newState != Qt::WindowNoState)
     {
@@ -381,6 +397,5 @@ GtMdiItem::print()
 void
 GtMdiItem::onThemeChanged()
 {
-
+    // nothing to do here
 }
-

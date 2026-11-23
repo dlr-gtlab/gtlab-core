@@ -7,5 +7,13 @@
  */
 
 #include "gt_guilayoutadapter.h"
+#include "gt_mdiitem.h"
 
 GtGuiLayoutAdapter::GtGuiLayoutAdapter() = default;
+
+void
+GtGuiLayoutAdapter::setContainingWidget(GtMdiItem& item,
+                                        QWidget* containingWidget)
+{
+    item.setContainingWidget(containingWidget);
+}

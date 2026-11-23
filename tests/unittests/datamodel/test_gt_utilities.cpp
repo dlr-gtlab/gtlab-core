@@ -504,6 +504,38 @@ TEST_F(TestGtUtilities, finally_move_assignment_cleanup)
     EXPECT_TRUE(bInitialized);
 }
 
+TEST_F(TestGtUtilities, is_default_constructible)
+{
+    EXPECT_FALSE(gt::isDefaultConstructible(GT_METADATA(GtObject)));
+    EXPECT_TRUE(gt::isDefaultConstructible(GT_METADATA(GtObjectGroup)));
+    EXPECT_TRUE(gt::isDefaultConstructible(GT_METADATA(TestSpecialGtObject)));
+
+    // test if SFINAE works as intended
+    EXPECT_TRUE(gt::areDefaultConstructible(QVector<QMetaObject>{}));
+    EXPECT_TRUE(gt::areDefaultConstructible(QList<QMetaObject>{}));
+    EXPECT_TRUE(
+        gt::areDefaultConstructible(std::initializer_list<QMetaObject>{}));
+
+    EXPECT_FALSE(gt::areDefaultConstructible(std::initializer_list<QMetaObject>{
+        GT_METADATA(GtObject), GT_METADATA(GtObjectGroup),
+        GT_METADATA(TestSpecialGtObject)}));
+    EXPECT_TRUE(gt::areDefaultConstructible(std::initializer_list<QMetaObject>{
+        GT_METADATA(GtObjectGroup), GT_METADATA(TestSpecialGtObject)}));
+}
+
+TEST_F(TestGtUtilities, class_hierarchy)
+{
+    EXPECT_EQ(gt::classHierarchy(GT_METADATA(QObject)),
+              QStringList({"QObject"}));
+    EXPECT_EQ(gt::classHierarchy(GT_METADATA(GtObject)),
+              QStringList({"GtObject", "QObject"}));
+    EXPECT_EQ(gt::classHierarchy(GT_METADATA(GtObjectGroup)),
+              QStringList({"GtObjectGroup", "GtObject", "QObject"}));
+    EXPECT_EQ(gt::classHierarchy(GT_METADATA(TestSpecialGtObject)),
+              QStringList({"TestSpecialGtObject", "GtObjectGroup", "GtObject",
+                           "QObject"}));
+}
+
 TEST_F(TestGtUtilities, clamp)
 {
     EXPECT_EQ(gt::clamp(1, -9, 7), 1);
