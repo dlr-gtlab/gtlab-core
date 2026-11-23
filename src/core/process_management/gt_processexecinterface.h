@@ -63,7 +63,7 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtProcessExecInterface,
-                    "de.dlr.gtlab.GtCalculatorExecInterface/0.1")
+                    "de.dlr.gtlab.GtAbstractExecInterface/0.1")
 QT_END_NAMESPACE
 
 #endif // GT_PROCESSEXECINTERFACE_H
