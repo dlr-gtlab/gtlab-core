@@ -109,9 +109,14 @@ Override only the callbacks you need:
        void propertyRead(const GtObject& owner,
                          const GtAbstractProperty& property) override;
        void objectValueRead(const GtObject& object) override;
+       void propertyListRead(const GtObject& owner, const QString& listName,
+                             int index, const QString& key) override;
        void propertyWritten(const GtObject& owner,
                             const GtAbstractProperty& property) override;
        void objectValueWritten(const GtObject& object) override;
+       void propertyListWritten(const GtObject& owner,
+                                const QString& listName, int index,
+                                const QString& key) override;
        void objectAttached(const GtObject& parent,
                            const GtObject& child) override;
        void objectDetached(const GtObject& parent,
@@ -162,12 +167,21 @@ attached, detached, moved or deleted. Roots always stay observed.
    * - ``objectValueRead``
      - An accessor of an observed object marked with
        ``gt::ObjectValueReadScope`` runs (see below).
+   * - ``propertyListRead``
+     - An accessor of a property list of an observed object marked with
+       ``gt::PropertyListReadScope`` runs (see below). By default forwarded
+       to ``objectValueRead``.
    * - ``propertyWritten``
-     - A property of an observed object emits ``changed()``, even if the
-       value did not change.
+     - A property of an observed object reports a change through
+       ``notifyChanged()`` (e.g. ``setVal()``), even if the value did not
+       change.
    * - ``objectValueWritten``
      - A setter of an observed object calls
        ``gt::recordObjectValueWritten()`` (see below).
+   * - ``propertyListWritten``
+     - A setter of a property list of an observed object calls
+       ``gt::recordPropertyListWritten()`` (see below). By default forwarded
+       to ``objectValueWritten``.
    * - ``objectAttached``
      - A child is attached to an observed parent (``appendChild()``, including
        ``GtObject(parent)``).
@@ -221,6 +235,77 @@ If the object is observed, the observer receives
 ``objectValueWritten(object)``. Writes are reported even inside a read, e.g.
 when a getter fills a cache.
 
+Record property lists
+^^^^^^^^^^^^^^^^^^^^^
+
+A property list is a named list of values of an object that is stored as a
+``propertylist``, e.g. the ``values`` of a 0D data zone, addressed by the
+keys in its ``params``. It does not need to be a registered property. Mark
+accessors that read single values with ``gt::PropertyListReadScope``:
+
+.. code-block:: cpp
+
+   double
+   MyTable::value(const QString& key) const
+   {
+       int index = m_keys.indexOf(key);
+       if (index < 0) return 0.0; // no value read, nothing reported
+
+       gt::PropertyListReadScope readScope(*this, "values", index, key);
+       return m_values.at(index);
+   }
+
+If the owner is observed, the observer receives
+``propertyListRead(owner, "values", index, key)``. For plain vectors, leave
+the key empty. Accessors that return the whole list pass
+``GtRecordingObserver::WholeList`` as index. Reading a key that the list does
+not contain reads no value and is not reported.
+
+Setters call ``gt::recordPropertyListWritten()`` after the change, once per
+changed list. Changes that append or replace values pass
+``GtRecordingObserver::WholeList``:
+
+.. code-block:: cpp
+
+   void
+   MyTable::setValue(const QString& key, double value)
+   {
+       int index = m_keys.indexOf(key);
+       m_values[index] = value;
+       gt::recordPropertyListWritten(*this, "values", index, key);
+   }
+
+   void
+   MyTable::append(const QString& key, double value)
+   {
+       m_keys.append(key);
+       m_values.append(value);
+       gt::recordPropertyListWritten(*this, "keys",
+                                     GtRecordingObserver::WholeList);
+       gt::recordPropertyListWritten(*this, "values",
+                                     GtRecordingObserver::WholeList);
+   }
+
+Observers that do not override the property list callbacks receive these
+events as ``objectValueRead(owner)`` and ``objectValueWritten(owner)``.
+
+Choose the read scope
+^^^^^^^^^^^^^^^^^^^^^
+
+All read scopes share one nesting: only the outermost read on a thread is
+reported. Wrap each accessor in the most specific scope that describes it.
+An accessor that reads a property list value inside a
+``gt::ObjectValueReadScope`` is reported as ``objectValueRead`` only, and the
+index and key are lost. Use ``gt::ObjectValueReadScope`` only for data that
+is neither a registered property nor a property list.
+
+Exclude bookkeeping
+^^^^^^^^^^^^^^^^^^^
+
+Internal bookkeeping that is not a data access, e.g. loading externalized
+data into memory or writing it back, runs in a ``gt::SuppressRecordingScope``.
+No events are reported on the thread while the scope exists.
+
 Nested recording sessions
 -------------------------
 
@@ -264,8 +349,10 @@ Limits
 * No recording in out-of-process runs (process runner) or for children on a
   remote executor.
 * Code that reads property member values directly bypasses the read hooks.
-  Own accessors are recorded only if they use ``gt::ObjectValueReadScope``
-  or ``gt::recordObjectValueWritten()``.
+  Own accessors are recorded only if they use the hooks in
+  ``gt_recordinghooks.h``.
+* Property classes that emit ``changed()`` directly instead of calling
+  ``notifyChanged()`` bypass the write hook.
 * No ``objectAccessed()`` event; mutations through mutable references are
   reported as reads.
 
@@ -275,5 +362,7 @@ Checklist
 * The executor creates one observer and one session per call.
 * The observer is thread-safe if the recorded code uses workers.
 * Worker entry points are wrapped with ``gt::propagateRecording()``.
+* Own accessors use the most specific read scope; bookkeeping runs in a
+  ``gt::SuppressRecordingScope``.
 * Event callbacks store identities; resolution happens in
   ``recordingFinished()``.

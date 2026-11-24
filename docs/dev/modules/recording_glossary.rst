@@ -55,6 +55,20 @@ Terms used for recording executions (see :doc:`recording`).
       Data of an object that is not held in a registered property, read and
       changed through the object's own accessors.
 
+   Property list
+      A named list of values of an object, stored as a ``propertylist``. Its
+      values are addressed by index and, for key/value lists, by key. It
+      need not be a registered property.
+      *Avoid:* list property, double list (as general terms).
+
+   Property list read
+      A read of one value of a property list, or of the whole list. Reading
+      a key that the list does not contain reads no value.
+
+   Property list write
+      A change of one value of a property list, or of the whole list, e.g.
+      when values are appended or replaced together.
+
    Hook
       A point in the data model that reports an event to the active recording
       session.

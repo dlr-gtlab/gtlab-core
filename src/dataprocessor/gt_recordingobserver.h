@@ -9,6 +9,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include <QString>
+
 class GtObject;
 class GtAbstractProperty;
 class GtRecordingSession;
@@ -28,6 +30,9 @@ class GtRecordingSession;
 class GT_DATAMODEL_EXPORT GtRecordingObserver
 {
 public:
+    /// Index of a property list event that concerns the whole list
+    static constexpr int WholeList = -1;
+
     virtual ~GtRecordingObserver();
 
     /**
@@ -59,6 +64,22 @@ public:
      */
     virtual void objectValueRead(const GtObject& object);
 
+    /**
+     * @brief A value of a property list of an observed object was read (see
+     * gt::PropertyListReadScope).
+     *
+     * The default implementation calls objectValueRead(owner).
+     *
+     * @param owner Object that holds the property list.
+     * @param listName Name of the property list, as stored in the project.
+     * @param index Index of the read value, or WholeList if the whole list
+     *        was read.
+     * @param key Key of the read value for key/value lists, otherwise empty.
+     */
+    virtual void propertyListRead(const GtObject& owner,
+                                  const QString& listName, int index,
+                                  const QString& key);
+
     /// A property of an observed object reported a change.
     virtual void propertyWritten(const GtObject& owner,
                                  const GtAbstractProperty& property);
@@ -69,6 +90,24 @@ public:
      * a registered property. Counterpart of objectValueRead().
      */
     virtual void objectValueWritten(const GtObject& object);
+
+    /**
+     * @brief A value of a property list of an observed object was changed
+     * (see gt::recordPropertyListWritten()). Counterpart of
+     * propertyListRead().
+     *
+     * The default implementation calls objectValueWritten(owner).
+     *
+     * @param owner Object that holds the property list.
+     * @param listName Name of the property list, as stored in the project.
+     * @param index Index of the changed value, or WholeList if the whole list
+     *        changed, e.g. because values were appended or replaced.
+     * @param key Key of the changed value for key/value lists, otherwise
+     *        empty.
+     */
+    virtual void propertyListWritten(const GtObject& owner,
+                                     const QString& listName, int index,
+                                     const QString& key);
 
     /**
      * @brief A child was attached to an observed parent.

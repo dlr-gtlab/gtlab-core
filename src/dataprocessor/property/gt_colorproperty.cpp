@@ -73,7 +73,7 @@ GtColorProperty&
 GtColorProperty::operator=(const QString& val)
 {
     setVal(val);
-    emit changed();
+    notifyChanged();
     return *this;
 }
 
@@ -81,7 +81,7 @@ GtColorProperty&
 GtColorProperty::operator=(const gt::rgb& val)
 {
     setFromRGB(val);
-    emit changed();
+    notifyChanged();
     return *this;
 }
 

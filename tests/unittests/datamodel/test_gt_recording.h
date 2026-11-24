@@ -81,6 +81,10 @@ public:
         bool success{false};
         /// Session active on the thread while the callback ran
         GtRecordingSession* activeSession{nullptr};
+        /// Property list events only
+        QString listName;
+        int index{0};
+        QString key;
     };
 
     /// Throw from the named callback kind ("started", "read", ...)
@@ -131,6 +135,18 @@ public:
         log({QStringLiteral("valueRead"), &object});
     }
 
+    void propertyListRead(const GtObject& owner, const QString& listName,
+                          int index, const QString& key) override
+    {
+        logList(QStringLiteral("listRead"), owner, listName, index, key);
+    }
+
+    void propertyListWritten(const GtObject& owner, const QString& listName,
+                             int index, const QString& key) override
+    {
+        logList(QStringLiteral("listWritten"), owner, listName, index, key);
+    }
+
     void objectAttached(const GtObject& parent, const GtObject& child) override
     {
         log({QStringLiteral("attached"), &parent, nullptr, &child});
@@ -158,6 +174,16 @@ public:
 private:
     mutable QMutex m_mutex;
     QVector<Entry> m_entries;
+
+    void logList(const QString& kind, const GtObject& owner,
+                 const QString& listName, int index, const QString& key)
+    {
+        Entry e{kind, &owner};
+        e.listName = listName;
+        e.index = index;
+        e.key = key;
+        log(e);
+    }
 
     void log(Entry entry)
     {
