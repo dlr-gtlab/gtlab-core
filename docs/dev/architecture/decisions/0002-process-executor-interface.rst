@@ -84,12 +84,15 @@ Default executor behavior
 
 Both ``exec()`` overloads have a default implementation that runs the
 component locally: ``exec(GtCalculator*)`` calls ``run()`` and
-``exec(GtTask*)`` calls ``runIteration()``. An executor overrides only the
-overloads it handles. Every registered executor id remains a valid task mode,
-and calculator-only executor plugins keep working; they run tasks locally.
+``exec(GtTask*)`` calls ``setUp()`` and ``runIteration()``. An executor
+overrides only the overloads it handles. Every registered executor id remains
+a valid task mode, and calculator-only executor plugins keep working; they run
+tasks locally.
 
-Link resolution and ``setUp()`` run in ``GtTask::exec()`` before the executor
-is called; the executor wraps the task iteration only.
+Link resolution runs in ``GtTask::exec()`` before the executor is called.
+``setUp()`` is left to the executor: it calls ``setUp()`` and then
+``runIteration()``, so that a recording executor records both (ADR 0003).
+The default ``exec(GtTask*)`` does the same locally.
 
 Executor lifetime
 ~~~~~~~~~~~~~~~~~
