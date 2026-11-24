@@ -14,6 +14,7 @@
 #include "gt_application.h"
 #include "gt_preferencesdialog.h"
 #include "gt_mdilauncher.h"
+#include "gt_guilauncher.h"
 #include "gt_dockwidget.h"
 #include "gt_projectwizard.h"
 #include "gt_projectprovider.h"
@@ -44,6 +45,7 @@
 #include "gt_examplesmdiwidget.h"
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
+#include "gt_guitablayoutadapter.h"
 
 #include <QApplication>
 #include <QDir>
@@ -146,7 +148,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     updateCollectionEntries();
 
     // mdi launcher initialization
-    gtMdiLauncher->setMdiArea(ui->mdiArea);
+    GtGuiLauncher::instance().setAdapter(
+        std::make_unique<GtGuiTabLayoutAdapter>(*ui->mdiArea));
 
     ui->mdiArea->tabBar()->setExpanding(true);
     ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
@@ -408,7 +411,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
     }
 
     assert(GtMdiLauncher::instance());
-    GtMdiLauncher::instance()->close();
+    GtMdiLauncher::instance()->closeAll();
 
     QMainWindow::closeEvent(event);
 }

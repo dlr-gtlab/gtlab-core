@@ -135,14 +135,15 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     // contains dynamic linked mdi classes
     if (mdip)
     {
-        if (gtMdiLauncher->containsDuplicates(mdip->mdiItems()))
+        auto items = mdip->mdiItems();
+        if (gtMdiLauncher->containsDuplicates(items))
         {
             gtWarning() << errorString()
                         << QObject::tr("A mdi item is already defined!");
             return false;
         }
 
-        if (!gtMdiLauncher->registerMdiWidgets(mdip->mdiItems()))
+        if (!gt::areDefaultConstructible(items))
         {
             gtWarning() << errorString()
                         << QObject::tr("Not all mdi items are invokable!");
@@ -288,7 +289,8 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
                                              plugin->ident());
 
         gtMdiLauncher->registerClasses(mdip->mdiItems(), plugin->ident());
-        gtMdiLauncher->registerDockWidgets(mdip->dockWidgets());
+        gtMdiLauncher->registerDockWidgets(mdip->dockWidgets(),
+                                           plugin->ident());
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
 

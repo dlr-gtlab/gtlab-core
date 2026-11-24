@@ -67,12 +67,12 @@ registerWidgets()
     gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget), coreId);
     gtMdiLauncher->registerClass(GT_METADATA(GtStartupPage), coreId);
 
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtOutputDock));
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtExplorerDock));
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtProcessDock));
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPropertiesDock));
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtLabelsDock));
-    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPostDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtOutputDock), coreId);
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtExplorerDock), coreId);
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtProcessDock), coreId);
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPropertiesDock), coreId);
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtLabelsDock), coreId);
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPostDock), coreId);
 }
 
 

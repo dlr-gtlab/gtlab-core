@@ -155,7 +155,7 @@ Module component guidance
 * **Calculators:** keep ``exec()`` compatible, but pass ``GtProject*`` or
   ``GtExecutionContext`` into new calculator helpers and services. Existing
   ``gtApp->currentProject()`` calls remain supported during Core execution.
-* **Project-bound MDI widgets:** store the project supplied when the widget is
+* **Project-bound GUI items:** store the project supplied when the widget is
   opened, for example as a ``QPointer<GtProject>``. Use
   ``gtApp->currentProject()`` only for actions explicitly targeting the
   currently selected GUI project.
