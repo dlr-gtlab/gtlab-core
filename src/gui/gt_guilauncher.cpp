@@ -45,7 +45,10 @@ GtGuiLauncher::isNull() const noexcept
 bool
 GtGuiLauncher::isNewItemAllowed(const GtMdiItem& guiItem) const
 {
-    if (guiItem.allowsMultipleInstances()) return true;
+    if (guiItem.itemFlags().testFlags(GtMdiItem::AllowsMultipleInstances))
+    {
+        return true;
+    }
 
     QString mdiId = guiItem.currentId();
 
@@ -144,7 +147,7 @@ GtGuiLauncher::open(const QString& className, GtObject* data,
     // add parent to this class for now
     item->setParent(this);
 
-    item->setCurrentObject(data, customId);
+    if (!item->setCurrentObject(data, customId)) return nullptr;
 
     if (!isNewItemAllowed(*item))
     {
@@ -155,6 +158,7 @@ GtGuiLauncher::open(const QString& className, GtObject* data,
             activeItem->itemFlags().testFlag(GtMdiItem::AllowsReopening))
         {
             activeItem->setCurrentObject(data);
+            activeItem->setData(data);
         }
         pimpl()->adapter->focus(activeItem->currentId());
         return activeItem;
@@ -162,8 +166,10 @@ GtGuiLauncher::open(const QString& className, GtObject* data,
 
     if (!pimpl()->adapter->addItem(*item)) return nullptr;
 
+    // make item populate its view
     item->setData(data);
 
+    assert(item->parent()); // must be owned by someone
     return item.release();
 }
 

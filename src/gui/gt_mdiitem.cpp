@@ -29,22 +29,25 @@ struct GtMdiItem::Impl
         qDeleteAll(eventQueue);
     }
 
-    ///
-    QPointer<QFrame> frame{new GtMdiWidget};
+    /// widget
+    QPointer<GtMdiWidget> widget{new GtMdiWidget};
 
-    /// Mdi item data
+    /// current data object to operate on
     QPointer<GtObject> dataObject;
 
+    /// widget containing this item's widget
     QPointer<QWidget> containingWidget{};
 
-    /// Mdi item custom identification string
-    QString cid;
+    /// item identification string
+    QString id;
 
+    /// event queue
     QList<GtQueuedMdiEvent*> eventQueue;
 
     /// The list of registered toolbar actions, non-owning
     std::vector<GtQmlAction*> toolbarActions;
 
+    /// flags
     GuiItemFlags flags{NoFlag};
 
     bool initialized{false};
@@ -69,104 +72,37 @@ struct GtMdiItem::Impl
 GtMdiItem::GtMdiItem() :
     pimpl(std::make_unique<Impl>())
 {
-    pimpl->frame->hide();
+    pimpl->widget->hide();
 
-    connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
-            SLOT(onProjectChanged(GtProject*)));
-    connect(gtApp, SIGNAL(objectSelected(GtObject*)),
-            SLOT(onObjectChanged(GtObject*)));
-    connect(gtDataModel, SIGNAL(projectSaved(GtProject*)),
-            SLOT(onProjectSaved(GtProject*)));
-}
+    // delete item if widget is deleted (before QWidget's destructor)
+    connect(pimpl->widget, &GtMdiWidget::widgetAboutToBeDeleted, this,
+            [this]() {
+                pimpl->widget = nullptr;
+                delete this;
+            });
 
-QWidget*
-GtMdiItem::widget()
-{
-    return pimpl->frame.data();
-}
-
-GtObject*
-GtMdiItem::currentObject() noexcept
-{
-    return pimpl->dataObject;
-}
-
-const GtObject*
-GtMdiItem::currentObject() const noexcept
-{
-    return pimpl->dataObject;
-}
-
-QIcon
-GtMdiItem::icon() const
-{
-    return gt::gui::icon::layers();
-}
-
-void
-GtMdiItem::setData(GtObject* /*obj*/)
-{
-    // nothing to do here
+    assert(gtApp);
+    assert(gtDataModel);
+    connect(gtApp, &GtApplication::currentProjectChanged, this,
+            &GtMdiItem::onProjectChanged);
+    connect(gtApp, &GtApplication::objectSelected, this,
+            &GtMdiItem::onObjectChanged);
+    connect(gtApp, &GtApplication::themeChanged, this,
+            &GtMdiItem::onThemeChanged);
+    connect(gtDataModel, &GtDataModel::projectSaved, this,
+            &GtMdiItem::onProjectSaved);
 }
 
 GtMdiItem::~GtMdiItem()
 {
-    // if this object is a child of frame, the QPointer of frame was not set to
-    // null before this function is called, resulting in a double deletion of
-    // frame.
-    if (pimpl->frame && !pimpl->frame->parent() && parent() != pimpl->frame)
+    // delete widget if item is deleted
+    if (pimpl->widget)
     {
-        delete pimpl->frame;
+        pimpl->widget->disconnect(this);
+        // so that widget's destructor does not delete us in case we are a child
+        setParent(nullptr);
+        delete pimpl->widget;
     }
-}
-
-bool
-GtMdiItem::setCurrentObject(GtObject* object, QString customId)
-{
-    pimpl->dataObject = object;
-    if (!customId.isEmpty())
-    {
-        pimpl->cid = std::move(customId);
-    }
-    else
-    {
-        regenerateId();
-    }
-
-    if (!pimpl->initialized)
-    {
-        pimpl->initialized = true;
-        initialized();
-    }
-    return true;
-}
-
-bool
-GtMdiItem::regenerateId()
-{
-    assert(metaObject());
-    QString newId = metaObject()->className();
-    QString suffix = this->customId(currentObject());
-
-    const GtObject* object = this->currentObject();
-
-    if (suffix.isEmpty() && object)
-    {
-        suffix = object->uuid();
-    }
-
-    if (!suffix.isEmpty()) newId.append(u'#').append(suffix);
-
-    if (newId == pimpl->cid) return false;
-
-    pimpl->cid = newId;
-    return true;
-}
-
-const QString&
-GtMdiItem::currentId() const noexcept
-{
-    return pimpl->cid;
 }
 
 void
@@ -186,6 +122,75 @@ GtMdiItem::itemFlags() const noexcept
 {
     return pimpl->flags |
            (allowsMultipleInstances() ? AllowsMultipleInstances : NoFlag);
+}
+
+GtObject*
+GtMdiItem::currentObject() noexcept
+{
+    return pimpl->dataObject;
+}
+
+const GtObject*
+GtMdiItem::currentObject() const noexcept
+{
+    return pimpl->dataObject;
+}
+
+const QString&
+GtMdiItem::currentId() const noexcept
+{
+    return pimpl->id;
+}
+
+bool
+GtMdiItem::setCurrentObject(GtObject* object, QString customId)
+{
+    if (pimpl->dataObject) pimpl->dataObject->disconnect(this);
+
+    pimpl->dataObject = object;
+
+    if (itemFlags().testFlag(BoundToObject))
+    {
+        if (!object) return false;
+
+        connect(object, &QObject::destroyed, this, &QObject::deleteLater);
+    }
+
+    // regnerate new id
+    assert(metaObject());
+
+    QString newId = metaObject()->className();
+    QString suffix = std::move(customId);
+
+    if (suffix.isEmpty())
+    {
+        GtObject* object = this->currentObject();
+
+        suffix = this->customId(object);
+
+        if (suffix.isEmpty() && object)
+        {
+            suffix = object->uuid();
+        }
+    }
+
+    if (!suffix.isEmpty()) newId.append(u'#').append(suffix);
+
+    if (newId != pimpl->id) pimpl->id = std::move(newId);
+
+    return true;
+}
+
+QWidget*
+GtMdiItem::widget()
+{
+    return pimpl->widget.data();
+}
+
+QIcon
+GtMdiItem::icon() const
+{
+    return gt::gui::icon::layers();
 }
 
 GtState*
@@ -210,7 +215,7 @@ GtMdiItem::initializeState(GtProject* project, const QString& id,
 bool
 GtMdiItem::allowsMultipleInstances() const
 {
-    return false;
+    return pimpl->flags.testFlag(AllowsMultipleInstances);
 }
 
 bool
@@ -226,9 +231,33 @@ GtMdiItem::toolbarActions() const
 }
 
 void
+GtMdiItem::setData(GtObject* /*obj*/)
+{
+    // nothing to do here
+}
+
+void
 GtMdiItem::initialized()
 {
     // do nothing
+}
+
+void
+GtMdiItem::projectChangedEvent(GtProject* /*project*/)
+{
+    // nothing to do here
+}
+
+void
+GtMdiItem::objectChangedEvent(GtObject* /*obj*/)
+{
+    // nothing to do here
+}
+
+void
+GtMdiItem::showEvent()
+{
+    // nothing to do here
 }
 
 QString
@@ -294,22 +323,10 @@ GtMdiItem::setContainingWidget(QWidget* cwidget)
     pimpl->containingWidget = cwidget;
 }
 
-void
-GtMdiItem::projectChangedEvent(GtProject* /*project*/)
+QWidget*
+GtMdiItem::subWin()
 {
-    // nothing to do here
-}
-
-void
-GtMdiItem::objectChangedEvent(GtObject* /*obj*/)
-{
-    // nothing to do here
-}
-
-void
-GtMdiItem::showEvent()
-{
-    // nothing to do here
+    return widget();
 }
 
 QWidget*

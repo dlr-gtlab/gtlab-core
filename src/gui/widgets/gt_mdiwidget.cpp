@@ -18,6 +18,11 @@ GtMdiWidget::GtMdiWidget(QWidget* parent, Qt::WindowFlags f) :
     setFrameStyle(QFrame::NoFrame);
 }
 
+GtMdiWidget::~GtMdiWidget()
+{
+    emit widgetAboutToBeDeleted();
+}
+
 void
 GtMdiWidget::hideEvent(QHideEvent* event)
 {

@@ -11,9 +11,27 @@
 
 GtGuiLayoutAdapter::GtGuiLayoutAdapter() = default;
 
+bool
+GtGuiLayoutAdapter::hasItem(const QString& itemId)
+{
+    return item(itemId);
+}
+
 void
 GtGuiLayoutAdapter::setContainingWidget(GtMdiItem& item,
                                         QWidget* containingWidget)
 {
     item.setContainingWidget(containingWidget);
+}
+
+void
+GtGuiLayoutAdapter::triggerInitialization(GtMdiItem& item)
+{
+    item.initialized();
+}
+
+void
+GtGuiLayoutAdapter::triggerShowEvent(GtMdiItem& item)
+{
+    item.showEvent();
 }

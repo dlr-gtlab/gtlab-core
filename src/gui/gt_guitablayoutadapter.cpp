@@ -163,7 +163,7 @@ GtGuiTabLayoutAdapter::addItem(GtMdiItem& item)
 {
     if (isNull()) return false;
 
-    auto widget = item.widget();
+    auto widget = qobject_cast<GtMdiWidget*>(item.widget());
     if (!widget) return false;
 
     bool isDuplicate = itemFromWidget(*widget);
@@ -177,34 +177,26 @@ GtGuiTabLayoutAdapter::addItem(GtMdiItem& item)
     int idx = m_tab->addTab(widget, item.icon(), item.objectName());
     assert(idx >= 0);
 
-    if (GtMdiWidget* w = qobject_cast<GtMdiWidget*>(widget))
-    {
-        setupRedockAction(idx, m_tab, w, &item);
-    }
+    setupRedockAction(idx, m_tab, widget, &item);
 
     m_openItems.insert(widget, &item);
+    triggerInitialization(item);
 
     connect(
-        widget, &QObject::destroyed, this,
+        widget, &GtMdiWidget::widgetAboutToBeDeleted, this,
         [this, widget]() {
             auto iter = m_openItems.find(widget);
-            if (iter != m_openItems.end())
-            {
-                delete *iter;
-                m_openItems.erase(iter);
-            }
+            if (iter != m_openItems.end()) m_openItems.erase(iter);
         },
         Qt::DirectConnection);
+
     connect(&item, &QObject::objectNameChanged, this,
             [this, &item]() { onObjectNameChanged(&item); });
-    connect(&item, &QObject::destroyed, widget, &QObject::deleteLater);
-    connect(gtApp, &GtApplication::themeChanged, &item,
-            &GtMdiItem::onThemeChanged);
 
     m_tab->setCurrentIndex(idx);
 
     widget->show();
-    item.showEvent();
+    triggerShowEvent(item);
 
     return true;
 }

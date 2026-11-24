@@ -22,18 +22,49 @@ class GT_GUI_EXPORT GtGuiTabLayoutAdapter final : public GtGuiLayoutAdapter
 public:
     GtGuiTabLayoutAdapter(GtTabWidget& tabWidget);
 
+    /**
+     * @brief Whether the adapter is null and invalid.
+     * @return Is null
+     */
     bool isNull() const noexcept;
 
+    /**
+     * @brief Requests to focus the item with the given id
+     * @param itemId Item's id to foucs
+     */
     void focus(const QString& itemId) override;
 
+    /**
+     * @brief Adds the item's widget to the adapter
+     * @param item Item to add to the adapter
+     * @return Whether appending was successful.
+     */
     bool addItem(GtMdiItem& item) override;
 
+    /**
+     * @brief Returns the item for the given item id or null if no open item
+     * was found
+     * @param itemId Item identification
+     * @return Item belonging to the given itemId (may be null)
+     */
     GtMdiItem* item(const QString& itemId) override;
 
+    /**
+     * @brief Returns the item from the widget (containing widget)
+     * @param widget Widget to retrieve mdi item from
+     * @return Item belonging to `widget` (may be null)
+     */
     GtMdiItem* itemFromWidget(QWidget& widget) override;
 
+    /**
+     * @brief Returns the currently active gui item
+     * @return Active item (may be null)
+     */
     GtMdiItem* currentItem() override;
 
+    /**
+     * @brief Closes all open items
+     */
     void closeAll() override;
 
 private:

@@ -15,7 +15,7 @@
 
 /**
  * @brief The GtMdiWidget class.
- * Used to customize handling of undocked MDI Items.
+ * Used to customize handling of undocked Gui Items.
  */
 class GtMdiWidget : public QFrame
 {
@@ -25,6 +25,7 @@ public:
     
     explicit GtMdiWidget(QWidget* parent = nullptr,
                          Qt::WindowFlags f = Qt::WindowFlags());
+    ~GtMdiWidget() override;
 
 protected:
 
@@ -32,7 +33,12 @@ protected:
 
 signals:
 
+    /// emiitted once the widget request to be redocked
     void redockWidget();
+
+    /// emitted once the widget is about to be deleted
+    /// (before `QWidget`s destructor)
+    void widgetAboutToBeDeleted();
 };
 
 #endif // GTMDIWIDGET_H

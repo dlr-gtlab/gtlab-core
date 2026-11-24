@@ -34,6 +34,7 @@ class GT_GUI_EXPORT GtMdiItem : public GtObject
     friend class GtProjectChangedEvent;
     friend class GtObjectChangedEvent;
     friend class GtGuiLayoutAdapter;
+    friend class GtGuiLauncher;
 
 public:
     /**
@@ -41,28 +42,42 @@ public:
      */
     ~GtMdiItem() override;
 
-    bool setCurrentObject(GtObject* object, QString customId = {});
-
-    const QString& currentId() const noexcept;
-
+    /// Item Flags
     enum GuiItemFlag : int
     {
+        /// Default
         NoFlag = 0,
         /// Indicates that the gui item may be instantiated multiple times
         /// if the custom id of the corresponding object is the same.
         /// Is overriden by `allowsMultipleInstances`.
         AllowsMultipleInstances = 1 << 0,
         /// Indicates that the gui item may react to updated data if the custom
-        /// id of the corresponding object is the same.
-        /// TODO: where is it called?
+        /// id of the corresponding object is the same. The `setData` method
+        /// will be called with the new object
         AllowsReopening = 1 << 1,
-        /// Indicates that the gui item is deleted once the data object is deleted
+        /// Indicates that the gui item should be deleted once the data object
+        /// is deleted. If no data object is given, no instance is allowed.
         BoundToObject = 1 << 2,
     };
     using GuiItemFlags = QFlags<GuiItemFlag>;
 
+    /**
+     * @brief Sets or unsets the given item flag. Flags must be set within the
+     * constructor to take an effect.
+     * @param flag Item flag to set
+     * @param enable Whether to set or reset the given flag
+     */
     void setItemFlag(GuiItemFlag flag, bool enable = true) noexcept;
+    /**
+     * @brief Sets the given item flags. Flags must be set within the
+     * constructor to take an effect.
+     * @param flags Item flags to set
+     */
     void setItemFlags(GuiItemFlags flags) noexcept;
+    /**
+     * @brief Returns the item flags currently set.
+     * @return Flags
+     */
     GuiItemFlags itemFlags() const noexcept;
 
     /**
@@ -71,8 +86,22 @@ public:
      */
     QWidget* widget();
 
+    /**
+     * @brief Returns the current data object
+     * @return Current data object. May be null.
+     */
     GtObject* currentObject() noexcept;
     const GtObject* currentObject() const noexcept;
+
+    /**
+     * @brief Returns the id of this gui item. The id is used to indentify the
+     * gui item. A gui item may yield the same id for different objects
+     * (by using `customId`). If another gui item is being requested that has
+     * the same id as an exisiting gui item, the `AllowsMultipleInstances` flag
+     * will decide wehther another item is opened.
+     * @return Current id
+     */
+    const QString& currentId() const noexcept;
 
     /**
      * @brief Virtual function to specify item specific icon.
@@ -81,25 +110,11 @@ public:
     virtual QIcon icon() const;
 
     /**
-     * @brief setData
-     * @param obj
-     */
-    virtual void setData(GtObject* obj);
-
-    /**
-     * @brief Triggered once when the mdi item is shown
-     */
-    virtual void showEvent();
-
-    /**
       * @brief subWin
       * @return
       */
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned. Use `widget()`.")
-    QWidget* subWin()
-    {
-        return widget();
-    }
+    QWidget* subWin();
 
     /**
      * @brief Returns the widget containing this gui item's widget
@@ -108,9 +123,13 @@ public:
     QWidget* containingWidget();
 
     /**
-     * @brief Virtual function to specify if this gui item allows multiple
-     * instances. By default multiple instances are not allowed.
-     * @return Multiple instances indicator.
+     * @brief Denotes whether multiple instances of this gui item are allowed.
+     * This is determined by the id of the gui item (see `currentId`). If an
+     * existing gui item has the same id and multiple instances are not allowed,
+     * a new instance is not created. By default multiple instances are not
+     * allowed.
+     * @return Whether multiple instances for gui items with the same id are
+     * allowed.
      */
     virtual bool allowsMultipleInstances() const;
 
@@ -121,7 +140,8 @@ public:
     virtual bool isPrintable() const;
 
     /**
-     * @brief Returns actions installed into the toolbar when the item gets active
+     * @brief Returns actions installed into the toolbar when the item gets
+     * active
      */
     const std::vector<GtQmlAction*>& toolbarActions() const;
 
@@ -144,20 +164,39 @@ protected:
     GtMdiItem();
 
     /**
-     * @brief initialized
+     * @brief Triggered once the widget is about to show, before `showEvent`.
+     * `currentObject` and `customId` are set and `widget` is .
      */
     virtual void initialized();
 
     /**
-     * @brief Virtual function to return custom id based on the given object.
-     * Default implementation returns empty string.
+     * @brief Triggered once when the gui item is shown, before `setData`
+     */
+    virtual void showEvent();
+
+    /**
+     * @brief Triggered once the item is initialized and the widget gets
+     * visible. Main method to apply the data to the view/editor. If the flag
+     * `AllowsReopening` is set, this method is used to apply new data too.
+     * @param obj Object (same as currentObject). May be null.
+     */
+    virtual void setData(GtObject* obj);
+
+    /**
+     * @brief Allows to return a custom id based on the given object. It can be
+     * used to link multiple objects onto the same gui item instance by
+     * returning the same id for each object. The custom id is class specific.
+     * By default no custom id is used and each gui item has a unique id for
+     * each unique data object.
      * @param obj Given object
      * @return Custom identification string.
      */
     virtual QString customId(GtObject* obj);
 
-    /** Event called after current project has changed.
-        @param new current project */
+    /**
+     * Event called after current project has changed.
+     * @param new current project
+     */
     virtual void projectChangedEvent(GtProject* project);
 
     /**
@@ -165,6 +204,7 @@ protected:
      * @param current object
      */
     virtual void objectChangedEvent(GtObject* obj);
+
     /**
      * @brief Event called after project was saved.
      * @param project Savend project.
@@ -271,7 +311,14 @@ private:
      */
     void setContainingWidget(QWidget* cwidget);
 
-    bool regenerateId();
+    /**
+     * @brief Sets the current object internall and regenertes the id using the
+     * custom id, if valid.
+     * @param object New data object
+     * @param customId optional custom id
+     * @return Whether object is accepted
+     */
+    bool setCurrentObject(GtObject* object, QString customId = {});
 
 private slots:
 
@@ -301,16 +348,9 @@ private slots:
      * @brief windowAboutToActive
      */
     void windowAboutToActive();
-
-signals:
-    /**
-     * @brief try to reopening mdi item (Result View)
-     * @param pointer to existing data object
-     */
-    // TODO: whats the replacement?
-    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
-    void tryReopening(GtObject* existDataObj);
-
 };
+
+/// forward decl
+using GtGuiItem = GtMdiItem;
 
 #endif // GTMDIITEM_H
