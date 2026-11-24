@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a GUI crash when switching between projects after running a calculator that adds objects or changes properties - #1663
 - **Regression fixes compared to 2.1.0-alpha.2**:
   - Fixed the connection of monitoring properties in the connection editor which was mistakenly allowed - #1668
-  
 ### Added
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing
@@ -36,6 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
      - `GtExportHandler`
      - `GtImportHandler`
      - `GtPostTemplateFactory`. Also `registerPlots`.
+- Deprecated `GtMdiLauncher` and its macro `gtMdiLauncher` - #1199
+  - use `GtGuiLauncher` for opending `GtMdiItem`s (now referred to as GUI Items)
+  - `GtGuiFactory` implements `GtMdiLauncer`s factory for GUI items and dock widgets
+  - `GtCollectionRegistry` implements `GtMdiLauncer`s factory for collections
+- Added flags to `GtMdiItem` - #1199
+  - Allowing a GUI item to be reopened with a different data object if the custom ID matches
+  - Binding the lifetime of a GUI item to the data object. If the data object is deleted the GUI item is deleted as well
 
 ## [2.1.0-alpha.2] - 2026-11-09
 
