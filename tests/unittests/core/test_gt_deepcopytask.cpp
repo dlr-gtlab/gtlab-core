@@ -31,14 +31,17 @@ protected:
     {
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(GtPropertyConnection)))
             gtObjectFactory->registerClass(
-                GtPropertyConnection::staticMetaObject);
+                GtPropertyConnection::staticMetaObject,
+                QStringLiteral("UnitTest"));
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
-            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
 
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestTaskWithProperty)))
             gtObjectFactory->registerClass(
-                TestTaskWithProperty::staticMetaObject);
+                TestTaskWithProperty::staticMetaObject,
+                QStringLiteral("UnitTest"));
 
         roottask = new TestTaskWithProperty;
         roottask->setObjectName("rt");
@@ -567,12 +570,14 @@ protected:
     virtual void SetUp()
     {
         if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
-            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject,
+                                           QStringLiteral("UnitTest"));
 
         if (!gtObjectFactory->knownClass(
                 GT_CLASSNAME(TestTaskWithRelativeObjectLinkProperty)))
             gtObjectFactory->registerClass(
-                TestTaskWithRelativeObjectLinkProperty::staticMetaObject);
+                TestTaskWithRelativeObjectLinkProperty::staticMetaObject,
+                QStringLiteral("UnitTest"));
 
         roottask = new TestTaskWithRelativeObjectLinkProperty;
         roottask->setObjectName("rt");
@@ -611,7 +616,8 @@ TEST_F(TestGtTaskRelativeObjectLinkProperty,
 }
 
 
-class TestGtTaskRelativeObjectLinkProperty : public ::testing::Test
+TEST_F(TestGtTaskPropertyConnections,
+       transferRemapsAvailableConnectionEndpoints)
 {
     for (int missing = 1; missing <= 3; ++missing)
     {
@@ -682,7 +688,7 @@ TEST_F(TestGtTaskPropertyConnections, copyDistinguishesCalculatorsWithSameName)
 
 TEST_F(TestGtTaskRelativeObjectLinkProperty, copyRemapsNestedRelativeLink)
 {
-    auto* nestedTask = new GtTask;
+    auto* nestedTask = new TestTaskWithRelativeObjectLinkProperty;
     roottask->appendChild(nestedTask);
     nestedTask->appendChild(calc1);
     auto* target = new TestGtCalculator;
