@@ -68,6 +68,7 @@ Return the metadata of each concrete GUI class:
 An MDI item is associated with a compatible data-model object and opens in the
 central workspace. A dock widget provides a module-wide tool and should not be
 used as a substitute for an editor tied to one object.
+See :doc:`../user_interface/gui_items` for implementing viewers and editors.
 
 .. _map-objects-to-ui-classes:
 

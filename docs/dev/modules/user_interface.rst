@@ -58,6 +58,7 @@ must also handle their target object being removed outside the widget.
 .. toctree::
    :maxdepth: 1
 
-   user_interface/icons
    user_interface/objectui
+   user_interface/gui_items
+   user_interface/icons
    user_interface/stylesheets

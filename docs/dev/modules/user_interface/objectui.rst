@@ -303,6 +303,8 @@ styling.
         return GtObjectUI::specificData(object, role, column);
    }
 
+.. _objectui-open-with-menu:
+
 Open-With Menu
 """"""""""""""
 

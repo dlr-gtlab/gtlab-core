@@ -342,6 +342,12 @@ GtMdiItem::projectSavedEvent(GtProject* project)
 }
 
 void
+GtMdiItem::onThemeChanged()
+{
+    // nothing to do here
+}
+
+void
 GtMdiItem::onProjectChanged(GtProject* project)
 {
     if (pimpl->queueEvents)
@@ -409,10 +415,4 @@ GtMdiItem::print()
     QMessageBox::information(nullptr, tr("Print error"),
                              tr("MDI Item not printable!"),
                              QMessageBox::Ok);
-}
-
-void
-GtMdiItem::onThemeChanged()
-{
-    // nothing to do here
 }
