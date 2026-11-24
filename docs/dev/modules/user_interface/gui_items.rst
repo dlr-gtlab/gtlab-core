@@ -115,7 +115,7 @@ The launcher deduplicates by ``currentId()`` unless the item allows multiple ins
 
     The former ``GtMdiLauncher`` is deprecated and was removed in 2.2; use ``GtGuiLauncher`` and ``GtGuiFactory`` instead.
 
-Toolbar Actions, Shortcuts, States
+Toolbar actions, shortcuts, states
 ----------------------------------
 
 A GUI item can contribute to the main toolbar and to persisted UI state:
@@ -134,7 +134,7 @@ In both cases the data object may be deleted outside the widget.
 Prefer the ``BoundToObject`` flag for tightly coupled editors, otherwise guard access with ``QPointer`` and handle the object becoming null.
 Test the item with no project open, after switching projects, and after the target object is removed, in both light and dark themes.
 
-Minimal Example
+Minimal example
 ---------------
 
 **Header (myobjectviewer.h):**

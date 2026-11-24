@@ -48,8 +48,8 @@ default to empty collections.
       QMap<const char*, QMetaObject> uiItems() override;
   };
 
-Register viewers and dock widgets
----------------------------------
+Register viewers, editors and dock widgets
+------------------------------------------
 
 Return the metadata of each concrete GUI class:
 
@@ -65,9 +65,8 @@ Return the metadata of each concrete GUI class:
       return {GT_METADATA(MyToolDockWidget)};
   }
 
-An MDI item is associated with a compatible data-model object and opens in the
-central workspace. A dock widget provides a module-wide tool and should not be
-used as a substitute for an editor tied to one object.
+A GUI item (:cpp:class:`GtMdiItem` also known as "MDI Item") is associated with a compatible data-model object and opens in the central workspace.
+A dock widget provides a module-wide tool and should not be used as a substitute for an editor tied to one object.
 See :doc:`../user_interface/gui_items` for implementing viewers and editors.
 
 .. _map-objects-to-ui-classes:
@@ -98,7 +97,7 @@ Post-processing classes
 
 ``postItems()`` registers post-processing template items, while
 ``postPlots()`` registers plot implementations used by those views. Return Qt
-metadata for the concrete classes, just as for MDI items. Modules that do not
+metadata for the concrete classes, just as for GUI items. Modules that do not
 extend post-processing should leave both functions untouched.
 
 GUI code requires the GUI application and should link ``GTlab::Gui``. Keep
