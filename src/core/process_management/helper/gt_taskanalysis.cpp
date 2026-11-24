@@ -1,0 +1,201 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * Author: Matthias Schuff (SG-VTM)
+ */
+
+#include "gt_taskanalysis.h"
+
+#include <algorithm>
+#include <iterator>
+
+#include "gt_processcomponent.h"
+#include "gt_taskgroup.h"
+#include "gt_task.h"
+
+#include "gt_propertyconnection.h"
+
+namespace gt
+{
+namespace utils
+{
+namespace process
+{
+
+GtTask*
+findRootTask(GtProcessComponent* processComponent)
+{
+    if (!processComponent)
+    {
+        return nullptr;
+    }
+
+    auto task = qobject_cast<GtTask*>(processComponent);
+
+    if (!processComponent->parent())
+    {
+        return task;
+    }
+
+    if (qobject_cast<GtTaskGroup*>(processComponent->parent()))
+    {
+        return task;
+    }
+
+    auto parent = qobject_cast<GtTask*>(processComponent->parent());
+
+    if (parent)
+    {
+        return findRootTask(parent);
+    }
+
+    return nullptr;
+}
+
+
+const std::optional<PropertyConnectionAnalysis>
+analyzePropertyConnectionsRelationship(GtProcessComponent& pComp)
+{
+    auto rootTask = findRootTask(&pComp);
+
+    if (!rootTask)
+    {
+        return {};
+    }
+
+    auto allPropCons = rootTask->findChildren<GtPropertyConnection*>();
+
+    const auto descendants = pComp.findChildren<GtProcessComponent*>();
+    QList<const GtProcessComponent*> internalProcComps;
+    std::copy(descendants.cbegin(), descendants.cend(),
+              std::back_inserter(internalProcComps));
+    internalProcComps.append(&pComp);
+
+    PropertyConnectionAnalysis retVal;
+
+    foreach (auto propCon, allPropCons)
+    {
+        const GtProcessComponent* const sourceObj =
+            qobject_cast<const GtProcessComponent*>(
+                rootTask->getObjectByUuid(propCon->sourceUuid()));
+        const GtProcessComponent* const targetObj =
+            qobject_cast<const GtProcessComponent*>(
+                rootTask->getObjectByUuid(propCon->targetUuid()));
+
+        // lost connection to any object
+        if (!sourceObj && !targetObj)
+        {
+            retVal.obsolete.append(propCon);
+        }
+        // if one connection side is lost and other connects internally
+        else if ((!sourceObj && targetObj &&
+                  internalProcComps.contains(targetObj)) ||
+                 (sourceObj && !targetObj &&
+                  internalProcComps.contains(sourceObj)))
+        {
+            retVal.stale.append(propCon);
+        }
+        // both internal
+        else if (sourceObj && targetObj &&
+                 internalProcComps.contains(sourceObj) &&
+                 internalProcComps.contains(targetObj))
+        {
+            retVal.internal.append(propCon);
+        }
+        // one side is outside
+        else if (sourceObj && targetObj &&
+                 (internalProcComps.contains(sourceObj) ||
+                  internalProcComps.contains(targetObj)))
+        {
+            retVal.external.append(propCon);
+        }
+        // otherwise its "foreign"
+        else
+        {
+            retVal.foreign.append(propCon);
+        }
+    }
+
+    return retVal;
+}
+
+
+QString
+propertyConnectionsPrint(const QList<GtPropertyConnection*>& cons)
+{
+    QStringList retval;
+    std::transform(cons.cbegin(), cons.cend(), std::back_inserter(retval),
+                   [](GtPropertyConnection* c) {
+                       return "   |-> Connection: " + c->objectName() +
+                              "Connected:" +
+                              (c->isConnected() ? QStringLiteral("true")
+                                                : QStringLiteral("false")) +
+                              "\n      |-> " + c->sourceUuid() + "(" +
+                              c->sourceProp() + ")" + " -> " + c->targetUuid() +
+                              "(" + c->targetProp() + ")";
+                   });
+
+    return retval.join("\n");
+}
+
+void
+printPropConAnalysis(const PropertyConnectionAnalysis& x)
+{
+    gtInfo() << "Property connections analysis:"
+             << "\n|-> internal:\n" + propertyConnectionsPrint(x.internal)
+             << "\n|-> external:\n" + propertyConnectionsPrint(x.external)
+             << "\n|-> foreign:\n" + propertyConnectionsPrint(x.foreign)
+             << "\n|-> stale:\n" + propertyConnectionsPrint(x.stale)
+             << "\n|-> obsolete:\n" + propertyConnectionsPrint(x.obsolete);
+}
+
+void
+printWarningForLostPropertyConnections(GtTask& task, bool verbose)
+{
+    auto allCons = analyzePropertyConnectionsRelationship(task);
+    if (!allCons.has_value())
+    {
+        gtError() << "Analyzing the task property connections of task failed.";
+        return;
+    }
+
+    printWarningForLostPropertyConnections(task, allCons.value(), verbose);
+}
+
+void
+printWarningForLostPropertyConnections(
+    GtTask& task, const PropertyConnectionAnalysis& allCons, bool verbose)
+{
+
+    if (allCons.external.size() > 0)
+    {
+        gtWarning() << "Task" << task.objectName()
+                    << "has property connection(s) to outside process "
+                       "component, lost during copying";
+    }
+
+    if (allCons.stale.size() > 0)
+    {
+        gtWarning()
+            << "Task" << task.objectName()
+            << "has stale property connection(s), source OR target missing";
+    }
+
+    if (allCons.obsolete.size() > 0)
+    {
+        gtWarning()
+            << "Task" << task.objectName()
+            << "has obsolete property connection(s), source AND target missing";
+    }
+
+    if (verbose)
+    {
+        printPropConAnalysis(allCons);
+    }
+}
+
+
+} // namespace process
+} // namespace utils
+} // namespace gt
