@@ -15,6 +15,7 @@
 #include "gt_mdiitem.h"
 #include "gt_application.h"
 #include "gt_datamodel.h"
+#include "gt_project.h"
 #include "gt_projectchangedevent.h"
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
