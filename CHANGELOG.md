@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
-- Improved task cloning/copying and the property connection transfer using a new deep copy functionality including UUID mapping between original and copied task structure
+- Improved task cloning/copying and the property connection transfer using a new deep copy functionality including UUID mapping between original and copied task structure - #1536
 
 ### Deprecated
 ### API Changes
