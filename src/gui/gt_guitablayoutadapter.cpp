@@ -237,9 +237,7 @@ GtGuiTabLayoutAdapter::closeAll()
 {
     std::for_each(m_openItems.keyValueBegin(), m_openItems.keyValueEnd(),
                   [](auto entry) {
-                      // schedule widget deletion
-                      if (entry.first) entry.first->deleteLater();
-                      // delete item
+                      // destroys widget too
                       delete entry.second;
                   });
     m_openItems.clear();

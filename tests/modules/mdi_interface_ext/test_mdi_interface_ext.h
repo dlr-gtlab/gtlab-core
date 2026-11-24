@@ -67,6 +67,12 @@ public:
     QList<QMetaObject> mdiItems() override;
 
     /**
+     * @brief Returns static meta objects of dockwidget classes.
+     * @return list including meta objects
+     */
+    QList<QMetaObject> dockWidgets() override;
+
+    /**
      * @brief Returns static meta objects of object user interface classes
      * combined with the name of the target class.
      * @return

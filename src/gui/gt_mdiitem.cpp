@@ -75,11 +75,15 @@ GtMdiItem::GtMdiItem() :
 {
     pimpl->widget->hide();
 
-    // delete item if widget is deleted (before QWidget's destructor)
+    // delete item if widget is deleted (before QWidget's destructor).
+    // Use deleteLater instead of a synchronous "delete this": the signal is
+    // emitted from ~GtMdiWidget while other slots (e.g. the layout adapter
+    // removing the item from its map) are still connected to the same signal,
+    // so destroying the receiver here is re-entrant and can crash.
     connect(pimpl->widget, &GtMdiWidget::widgetAboutToBeDeleted, this,
             [this]() {
                 pimpl->widget = nullptr;
-                delete this;
+                deleteLater();
             });
 
     assert(gtApp);

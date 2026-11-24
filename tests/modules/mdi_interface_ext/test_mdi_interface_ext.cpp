@@ -15,6 +15,13 @@
 #include "test_mdi_ext_externalobjectviewer.h"
 #include "test_mdi_ext_externalobjectui.h"
 
+#include "test_gui_item_multiple.h"
+#include "test_gui_item_reopen.h"
+#include "test_gui_item_bound.h"
+#include "test_gui_item_customid.h"
+#include "test_gui_item_nodata.h"
+#include "test_gui_flags_dock.h"
+
 #include "test_dmi_externalobject.h"
 #include "test_dmi_data.h"
 
@@ -59,7 +66,19 @@ TestDatamodelInterfaceExt::mdiItems()
     retval << GT_METADATA(TestMdiExtViewer);
     retval << GT_METADATA(TestMdiExtExternalObjectViewer);
 
+    retval << GT_METADATA(TestGuiItemMultiple);
+    retval << GT_METADATA(TestGuiItemReopen);
+    retval << GT_METADATA(TestGuiItemBound);
+    retval << GT_METADATA(TestGuiItemCustomId);
+    retval << GT_METADATA(TestGuiItemNoData);
+
     return retval;
+}
+
+QList<QMetaObject>
+TestDatamodelInterfaceExt::dockWidgets()
+{
+    return {GT_METADATA(TestGuiFlagsDock)};
 }
 
 QMap<const char*, QMetaObject>

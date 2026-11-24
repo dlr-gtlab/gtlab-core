@@ -21,11 +21,8 @@ struct GtGuiLauncher::Impl
 }; // struct Impl
 
 GtGuiLauncher::GtGuiLauncher() :
-    QObject(GtApplication::instance()),
     impl{std::make_unique<Impl>()}
-{
-    assert(parent() && "GtApplication was not setup yet!");
-}
+{ }
 
 GtGuiLauncher::~GtGuiLauncher() noexcept = default;
 
