@@ -72,6 +72,7 @@ set(headers
     process_management/process_runner/gt_processrunnertcpconnection.h
     process_management/calculators/gt_exporttomementocalculator.h
     settings/gt_shortcutsettingsdata.h
+    collection/gt_collectionsinstallpath.h
     states/gt_state.h
     states/gt_stategroup.h
     states/gt_statehandler.h
@@ -143,6 +144,7 @@ set(sources
     gt_processexecutormanager.cpp
     gt_propertyconnectionfunctions.cpp
     gt_sharedfunction.cpp
+    collection/gt_collectionsinstallpath.cpp
     internal/gt_commandlinefunctionhandler.cpp
     internal/gt_coreupgraderoutines.cpp
     internal/gt_platformspecifics.cpp
@@ -277,6 +279,7 @@ target_include_directories(GTlabCore
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/settings>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/network>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/states>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/collection>
 
     # includes for consumer after install
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/core>"
