@@ -24,7 +24,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="editCollectionsDirPath">
+    <widget class="GtElidedLineEdit" name="editCollectionsDirPath">
      <property name="readOnly">
       <bool>false</bool>
      </property>
@@ -53,6 +53,12 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>GtElidedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>gt_elidedlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <connections/>
 </ui>
