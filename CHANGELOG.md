@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed registration of properties with an empty identifier - #1684
   
 ### Added
+ - Support to allow more customization of a collection - #1549
+
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing
   `GTlab.ini` files are copied there if no target exists. Downloaded and

@@ -138,7 +138,7 @@ GtLocalCollectionModel::data(const QModelIndex& index, int role) const
     case Qt::DecorationRole:
         if (col == 0)
         {
-            return gt::gui::icon::property();
+            return item.icon();
         }
         else if (col == 1)
         {

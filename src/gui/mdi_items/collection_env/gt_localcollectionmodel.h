@@ -15,11 +15,12 @@
 #include <QAbstractListModel>
 
 #include "gt_collectionitem.h"
+#include "gt_gui_exports.h"
 
 /**
  * @brief The GtLocalCollectionModel class
  */
-class GtLocalCollectionModel : public QAbstractListModel
+class GT_GUI_EXPORT GtLocalCollectionModel : public QAbstractListModel
 {
     Q_OBJECT
 
