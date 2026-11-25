@@ -284,6 +284,49 @@ TEST(CurrentProjectCompatibility, saveAndCloseRejectBusyProject)
 
     EXPECT_FALSE(gtDataModel->saveProject(first));
     EXPECT_FALSE(gtDataModel->closeProject(first));
+    EXPECT_EQ(first->restoreBackupFiles(QStringLiteral("busy-project-backup")),
+              GtProject::RestoreStatus::ErrorCopyFailed);
+    EXPECT_TRUE(first->isOpen());
+}
+
+TEST(CurrentProjectCompatibility,
+     restoreBackupRejectsProjectNameUsedByAnotherSessionProject)
+{
+    TestApplication application;
+    TestProject* first = nullptr;
+    TestProject* second = nullptr;
+    auto session = sessionWithProjects(first, second);
+    application.installSession(std::move(session));
+
+    const QString originalName = first->objectName();
+    const QString timeStamp = QStringLiteral("20240101000000");
+    const QString backupDir = first->path() + QDir::separator() + "backup" +
+                              QDir::separator() + timeStamp;
+    ASSERT_TRUE(QDir().mkpath(backupDir));
+
+    QFile backupProjectFile(backupDir + QDir::separator() +
+                            GtProject::mainFilename());
+    ASSERT_TRUE(backupProjectFile.open(QIODevice::WriteOnly | QIODevice::Text));
+    const QByteArray backupData =
+        QStringLiteral("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                       "<GTLAB projectname=\"%1\" version=\"1.7.0-rc1\">\n"
+                       "    <env-footprint>\n"
+                       "        <core-ver>2.0.0</core-ver>\n"
+                       "        <modules/>\n"
+                       "    </env-footprint>\n"
+                       "    <comment/>\n"
+                       "    <MODULES/><PROCESSES/><LABELS/>\n"
+                       "</GTLAB>\n")
+            .arg(second->objectName())
+            .toUtf8();
+    ASSERT_EQ(backupProjectFile.write(backupData), backupData.size());
+    backupProjectFile.close();
+
+    EXPECT_EQ(first->restoreBackupFiles(timeStamp),
+              GtProject::RestoreStatus::ErrorCopyFailed);
+    EXPECT_TRUE(first->isValid());
+    EXPECT_EQ(first->objectName(), originalName);
+    EXPECT_EQ(gtApp->session()->findProject(second->objectName()), second);
 }
 
 TEST(CurrentProjectCompatibility, nestedExecutionContextsRestorePreviousProject)

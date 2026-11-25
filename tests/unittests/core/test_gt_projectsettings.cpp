@@ -8,47 +8,22 @@
 
 #include "gt_project.h"
 #include "gt_projectsettings.h"
+#include "gt_project_test_helper.h"
 
-#include <QDir>
-#include <QFile>
 #include <QJsonValue>
 #include <QJsonArray>
-#include <QIODevice>
 #include <QTemporaryDir>
 
 namespace
 {
+
+using gtprojecttest::writeProjectFile;
 
 class TestProject : public GtProject
 {
 public:
     explicit TestProject(const QString& path) : GtProject(path) {}
 };
-
-static bool writeProjectFile(const QString& dirPath, const QString& projectName)
-{
-    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
-    {
-        return false;
-    }
-
-    const QByteArray data = QString(
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        "<GTLAB projectname=\"%1\" version=\"1.7.0-rc1\">\n"
-        "    <env-footprint>\n"
-        "        <modules/>\n"
-        "    </env-footprint>\n"
-        "    <comment/>\n"
-        "    <MODULES/>\n"
-        "    <PROCESSES/>\n"
-        "    <LABELS/>\n"
-        "</GTLAB>\n")
-        .arg(projectName)
-        .toUtf8();
-
-    return file.write(data) == data.size();
-}
 
 } // namespace
 
