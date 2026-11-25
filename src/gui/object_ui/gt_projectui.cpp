@@ -1747,69 +1747,92 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
     /// Dialog to select backup to restore from
     GtProjectRestoreBackupDialog restoreDialog(validDirs);
-    if (restoreDialog.exec() && restoreDialog.result() == GtDialog::Accepted)
+    if (!restoreDialog.exec() || restoreDialog.result() != GtDialog::Accepted)
     {
-        const QString selectedFolder = restoreDialog.selectedFolderName();
-        gtInfo() << tr("Restore backup from folder '%1'")
-                        .arg(selectedFolder);
+        return;
+    }
 
-        QMessageBox mb;
-        mb.setIcon(QMessageBox::Question);
-        mb.setWindowTitle(tr("Confirm Restore"));
-        mb.setWindowIcon(gt::gui::icon::check());
+    const QString selectedFolder = restoreDialog.selectedFolderName();
+    gtInfo() << tr("Restore backup from folder '%1'").arg(selectedFolder);
 
-        const bool initialOpenProject = project->isOpen();
+    QMessageBox mb;
+    mb.setIcon(QMessageBox::Question);
+    mb.setWindowTitle(tr("Confirm Restore"));
+    mb.setWindowIcon(gt::gui::icon::check());
 
-        if (initialOpenProject)
-        {
-            mb.setText(tr("Are you sure to restore the project? \n "
+    const bool initialOpenProject = project->isOpen();
+
+    if (initialOpenProject)
+    {
+        mb.setText(tr("Are you sure to restore the project? \n"
                       "Your current project will be overwritten which "
                       "cannot be undone. \n"
                       "The project will be closed automatically to "
-                          "start restore."));
-        }
-        else
-        {
-            mb.setText(tr("Are you sure to restore the project? \n "
-                      "Your current project will be overwritten which "
-                          "cannot be undone."));
-        }
-
-
-        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-        mb.setDefaultButton(QMessageBox::Cancel);
-
-        if (mb.exec() != QMessageBox::Yes)
-        {
-            return;
-        }
-
-        if (initialOpenProject)
-        {
-            gtDataModel->closeProject(gtApp->currentProject());
-        }
-
-        bool success = project->restoreBackupFiles(selectedFolder) ==
-                       GtProject::RestoreStatus::Success;
-
-        if (success && initialOpenProject)
-        {
-            // update module metadata since the project might contain
-            // different packages in the backup
-            project->loadMetaData();
-            success = gtDataModel->openProject(project);
-        }
-
-        // notify the user on the success
-        if (success)
-        {
-            QMessageBox::information(nullptr, tr("Backup restored"),
-                tr("The project has been successfully restored from backup."));
-        }
-        else
-        {
-            QMessageBox::critical(nullptr, tr("Backup restore failed"),
-                tr("The project backup could not be restored."));
-        }
+                      "start restore."));
     }
+    else
+    {
+        mb.setText(tr("Are you sure to restore the project? \n"
+                      "Your current project will be overwritten which "
+                      "cannot be undone."));
+    }
+
+
+    mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+    mb.setDefaultButton(QMessageBox::Cancel);
+
+    if (mb.exec() != QMessageBox::Yes)
+    {
+        return;
+    }
+
+    if (initialOpenProject && !gtDataModel->closeProject(project))
+    {
+        QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                              tr("The project could not be closed before "
+                                 "restoring the backup."));
+        return;
+    }
+
+    if (project->restoreBackupFiles(selectedFolder) !=
+        GtProject::RestoreStatus::Success)
+    {
+        QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                              tr("The project backup could not be restored."));
+        return;
+    }
+
+    bool projectOpened = false;
+    if (initialOpenProject && !project->upgradesAvailable())
+    {
+        // reopen the project since it was open before the restore
+        projectOpened = gtDataModel->openProject(project);
+    }
+
+    // update the project entry since the restored backup may
+    // contain different (e.g. outdated) project data
+    gtDataModel->updateObject(project);
+
+    if (project->upgradesAvailable())
+    {
+        QMessageBox::information(
+            nullptr, tr("Backup restored"),
+            tr("The project has been successfully restored from backup but "
+               "the project data is outdated and requires an upgrade "
+               "before it can be opened."));
+        return;
+    }
+
+    if (initialOpenProject && !projectOpened)
+    {
+        QMessageBox::warning(
+            nullptr, tr("Backup restored"),
+            tr("The backup was restored, but the project could not "
+               "be reopened."));
+        return;
+    }
+
+    QMessageBox::information(nullptr, tr("Backup restored"),
+                             tr("The project has been successfully "
+                                "restored from backup."));
 }
