@@ -47,7 +47,7 @@ TEST(LegacyProjectAccessRegistry, marksEachKeyOnlyOnce)
 TEST(LegacyProjectAccessRegistry, concurrentCallsMarkKeyOnlyOnce)
 {
     gt::detail::LegacyProjectAccessRegistry registry;
-    QString const key = QStringLiteral("module/Component");
+    const QString key = QStringLiteral("module/Component");
     std::atomic<int> markedCount{0};
     std::vector<std::thread> workers;
     workers.reserve(16);
@@ -73,245 +73,244 @@ TEST(LegacyProjectAccessRegistry, concurrentCallsMarkKeyOnlyOnce)
 namespace
 {
 
-    const QString kWarningMarker =
-        QStringLiteral("Legacy project access detected");
+const QString kWarningMarker = QStringLiteral("Legacy project access detected");
 
-    class TestProject : public GtProject
+class TestProject : public GtProject
+{
+public:
+    explicit TestProject(QString path) :
+        GtProject(std::move(path))
+    { }
+};
+
+class TestSession : public GtSession
+{
+public:
+    static bool createEmptySessionForTest(const QString& id)
     {
-    public:
-        explicit TestProject(QString path) : GtProject(std::move(path))
-        {
-        }
-    };
-
-    class TestSession : public GtSession
-    {
-    public:
-        static bool createEmptySessionForTest(const QString& id)
-        {
-            return createEmptySession(id);
-        }
-
-        void addProjectForTest(GtProject* project)
-        {
-            addProject(project);
-        }
-    };
-
-    class TestApplication : public GtCoreApplication
-    {
-    public:
-        TestApplication() : GtCoreApplication(qApp, AppMode::Batch)
-        {
-            init();
-        }
-
-        ~TestApplication() override
-        {
-            gtExternalizationManager->onProjectLoaded(QDir::tempPath());
-        }
-
-        void installSession(std::unique_ptr<TestSession> session)
-        {
-            constexpr auto sessionId = "legacyprojectaccess";
-            ASSERT_FALSE(roamingPath().isEmpty());
-            ASSERT_TRUE(QDir().mkpath(roamingPath()));
-            ASSERT_TRUE(TestSession::createEmptySessionForTest(
-                QString::fromLatin1(sessionId)));
-            m_session.reset();
-            initSession(QString::fromLatin1(sessionId));
-
-            for (auto* project : session->projects())
-            {
-                ASSERT_TRUE(gtDataModel->newProject(project, false));
-            }
-        }
-
-    protected:
-        bool initFirstRun() override
-        {
-            return true;
-        }
-    };
-
-    class WarningRecorder
-    {
-    public:
-        WarningRecorder()
-        {
-            auto destination = gt::log::makeFunctorDestination(
-                [this](std::string const& message, gt::log::Level level,
-                       gt::log::Details const&) {
-                    if (level != gt::log::WarningLevel)
-                    {
-                        return;
-                    }
-                    QMutexLocker locker(&m_mutex);
-                    m_warnings.append(QString::fromStdString(message));
-                });
-            gt::log::Logger::instance().addDestination("legacy-access-recorder",
-                                                       std::move(destination));
-        }
-
-        ~WarningRecorder()
-        {
-            gt::log::Logger::instance().removeDestination(
-                "legacy-access-recorder");
-        }
-
-        QStringList warnings() const
-        {
-            QMutexLocker locker(&m_mutex);
-            return m_warnings.filter(kWarningMarker);
-        }
-
-    private:
-        mutable QMutex m_mutex;
-        QStringList m_warnings;
-    };
-
-    QString writeProjectFile(const QString& path, const QString& name)
-    {
-        QDir().mkpath(path);
-        QFile file(QDir(path).filePath(GtProject::mainFilename()));
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            return {};
-        }
-        file.write(
-            QStringLiteral("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                           "<GTLAB projectname=\"%1\" version=\"1.7.0-rc1\">\n"
-                           "    <env-footprint><core-ver>2.0.0</core-ver>"
-                           "<modules/></env-footprint>\n"
-                           "    <comment/><MODULES/><PROCESSES/><LABELS/>\n"
-                           "</GTLAB>\n")
-                .arg(name)
-                .toUtf8());
-        return path;
+        return createEmptySession(id);
     }
 
-    class RepeatedAccessCalculator : public GtCalculator
+    void addProjectForTest(GtProject* project)
     {
-        Q_OBJECT
-    public:
-        bool run() override
-        {
-            first = gtApp->currentProject();
-            second = gtApp->currentProject();
-            return true;
-        }
-        GtProject* first = nullptr;
-        GtProject* second = nullptr;
-    };
+        addProject(project);
+    }
+};
 
-    class NestedAccessCalculator : public GtCalculator
+class TestApplication : public GtCoreApplication
+{
+public:
+    TestApplication() :
+        GtCoreApplication(qApp, AppMode::Batch)
     {
-        Q_OBJECT
-    public:
-        bool run() override
-        {
-            observed = gtApp->currentProject();
-            return true;
-        }
-        GtProject* observed = nullptr;
-    };
+        init();
+    }
 
-    class ParentCalculator : public GtCalculator
+    ~TestApplication() override
     {
-        Q_OBJECT
-    public:
-        bool run() override
-        {
-            if (!child || !child->exec())
-            {
-                return false;
-            }
-            observed = gtApp->currentProject();
-            return true;
-        }
-        NestedAccessCalculator* child = nullptr;
-        GtProject* observed = nullptr;
-    };
+        gtExternalizationManager->onProjectLoaded(QDir::tempPath());
+    }
 
-    class PathOnlyCalculator : public GtCalculator
+    void installSession(std::unique_ptr<TestSession> session)
     {
-        Q_OBJECT
-    public:
-        bool run() override
-        {
-            observed = gtApp->currentProject();
-            return true;
-        }
-        GtProject* observed = nullptr;
-    };
+        constexpr auto sessionId = "legacyprojectaccess";
+        ASSERT_FALSE(roamingPath().isEmpty());
+        ASSERT_TRUE(QDir().mkpath(roamingPath()));
+        ASSERT_TRUE(TestSession::createEmptySessionForTest(
+            QString::fromLatin1(sessionId)));
+        m_session.reset();
+        initSession(QString::fromLatin1(sessionId));
 
-    class DisabledAccessCalculator : public GtCalculator
+        for (auto* project : session->projects())
+        {
+            ASSERT_TRUE(gtDataModel->newProject(project, false));
+        }
+    }
+
+protected:
+    bool initFirstRun() override
     {
-        Q_OBJECT
-    public:
-        bool run() override
-        {
-            observed = gtApp->currentProject();
-            return true;
-        }
-        GtProject* observed = nullptr;
-    };
+        return true;
+    }
+};
 
-    class DirectAccessComponent : public GtProcessComponent
+class WarningRecorder
+{
+public:
+    WarningRecorder()
     {
-        Q_OBJECT
+        auto destination = gt::log::makeFunctorDestination(
+            [this](const std::string& message, gt::log::Level level,
+                   const gt::log::Details&) {
+                if (level != gt::log::WarningLevel)
+                {
+                    return;
+                }
+                QMutexLocker locker(&m_mutex);
+                m_warnings.append(QString::fromStdString(message));
+            });
+        gt::log::Logger::instance().addDestination("legacy-access-recorder",
+                                                   std::move(destination));
+    }
 
-    public:
-        bool exec() override
-        {
-            observed = gtApp->currentProject();
-            return true;
-        }
-
-        GtProject* observed = nullptr;
-    };
-
-    class LegacyProjectAccessTest : public ::testing::Test
+    ~WarningRecorder()
     {
-    protected:
-        static void SetUpTestSuite()
+        gt::log::Logger::instance().removeDestination("legacy-access-recorder");
+    }
+
+    QStringList warnings() const
+    {
+        QMutexLocker locker(&m_mutex);
+        return m_warnings.filter(kWarningMarker);
+    }
+
+private:
+    mutable QMutex m_mutex;
+    QStringList m_warnings;
+};
+
+QString
+writeProjectFile(const QString& path, const QString& name)
+{
+    QDir().mkpath(path);
+    QFile file(QDir(path).filePath(GtProject::mainFilename()));
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return {};
+    }
+    file.write(
+        QStringLiteral("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                       "<GTLAB projectname=\"%1\" version=\"1.7.0-rc1\">\n"
+                       "    <env-footprint><core-ver>2.0.0</core-ver>"
+                       "<modules/></env-footprint>\n"
+                       "    <comment/><MODULES/><PROCESSES/><LABELS/>\n"
+                       "</GTLAB>\n")
+            .arg(name)
+            .toUtf8());
+    return path;
+}
+
+class RepeatedAccessCalculator : public GtCalculator
+{
+    Q_OBJECT
+public:
+    bool run() override
+    {
+        first = gtApp->currentProject();
+        second = gtApp->currentProject();
+        return true;
+    }
+    GtProject* first = nullptr;
+    GtProject* second = nullptr;
+};
+
+class NestedAccessCalculator : public GtCalculator
+{
+    Q_OBJECT
+public:
+    bool run() override
+    {
+        observed = gtApp->currentProject();
+        return true;
+    }
+    GtProject* observed = nullptr;
+};
+
+class ParentCalculator : public GtCalculator
+{
+    Q_OBJECT
+public:
+    bool run() override
+    {
+        if (!child || !child->exec())
         {
-            qunsetenv("GTLAB_LEGACY_PROJECT_ACCESS_WARNING");
-            tempDir = std::make_unique<QTemporaryDir>();
-            ASSERT_TRUE(tempDir->isValid());
-            application = std::make_unique<TestApplication>();
-
-            auto session = std::make_unique<TestSession>();
-            guiProject = new TestProject(
-                writeProjectFile(tempDir->filePath(QStringLiteral("gui")),
-                                 QStringLiteral("gui")));
-            executionProject = new TestProject(
-                writeProjectFile(tempDir->filePath(QStringLiteral("execution")),
-                                 QStringLiteral("execution")));
-            ASSERT_FALSE(guiProject->path().isEmpty());
-            ASSERT_FALSE(executionProject->path().isEmpty());
-            session->addProjectForTest(guiProject);
-            session->addProjectForTest(executionProject);
-            application->installSession(std::move(session));
-            ASSERT_TRUE(gtDataModel->openProject(guiProject));
+            return false;
         }
+        observed = gtApp->currentProject();
+        return true;
+    }
+    NestedAccessCalculator* child = nullptr;
+    GtProject* observed = nullptr;
+};
 
-        static void TearDownTestSuite()
-        {
-            application.reset();
-            tempDir.reset();
-        }
+class PathOnlyCalculator : public GtCalculator
+{
+    Q_OBJECT
+public:
+    bool run() override
+    {
+        observed = gtApp->currentProject();
+        return true;
+    }
+    GtProject* observed = nullptr;
+};
 
-        static std::unique_ptr<QTemporaryDir> tempDir;
-        static std::unique_ptr<TestApplication> application;
-        static TestProject* guiProject;
-        static TestProject* executionProject;
-    };
+class DisabledAccessCalculator : public GtCalculator
+{
+    Q_OBJECT
+public:
+    bool run() override
+    {
+        observed = gtApp->currentProject();
+        return true;
+    }
+    GtProject* observed = nullptr;
+};
 
-    std::unique_ptr<QTemporaryDir> LegacyProjectAccessTest::tempDir;
-    std::unique_ptr<TestApplication> LegacyProjectAccessTest::application;
-    TestProject* LegacyProjectAccessTest::guiProject = nullptr;
-    TestProject* LegacyProjectAccessTest::executionProject = nullptr;
+class DirectAccessComponent : public GtProcessComponent
+{
+    Q_OBJECT
+
+public:
+    bool exec() override
+    {
+        observed = gtApp->currentProject();
+        return true;
+    }
+
+    GtProject* observed = nullptr;
+};
+
+class LegacyProjectAccessTest : public ::testing::Test
+{
+protected:
+    static void SetUpTestSuite()
+    {
+        qunsetenv("GTLAB_LEGACY_PROJECT_ACCESS_WARNING");
+        tempDir = std::make_unique<QTemporaryDir>();
+        ASSERT_TRUE(tempDir->isValid());
+        application = std::make_unique<TestApplication>();
+
+        auto session = std::make_unique<TestSession>();
+        guiProject = new TestProject(writeProjectFile(
+            tempDir->filePath(QStringLiteral("gui")), QStringLiteral("gui")));
+        executionProject = new TestProject(
+            writeProjectFile(tempDir->filePath(QStringLiteral("execution")),
+                             QStringLiteral("execution")));
+        ASSERT_FALSE(guiProject->path().isEmpty());
+        ASSERT_FALSE(executionProject->path().isEmpty());
+        session->addProjectForTest(guiProject);
+        session->addProjectForTest(executionProject);
+        application->installSession(std::move(session));
+        ASSERT_TRUE(gtDataModel->openProject(guiProject));
+    }
+
+    static void TearDownTestSuite()
+    {
+        application.reset();
+        tempDir.reset();
+    }
+
+    static std::unique_ptr<QTemporaryDir> tempDir;
+    static std::unique_ptr<TestApplication> application;
+    static TestProject* guiProject;
+    static TestProject* executionProject;
+};
+
+std::unique_ptr<QTemporaryDir> LegacyProjectAccessTest::tempDir;
+std::unique_ptr<TestApplication> LegacyProjectAccessTest::application;
+TestProject* LegacyProjectAccessTest::guiProject = nullptr;
+TestProject* LegacyProjectAccessTest::executionProject = nullptr;
 
 } // namespace
 
@@ -362,6 +361,24 @@ TEST_F(LegacyProjectAccessTest, attributesActualExecutionAndPreservesResolution)
     // GUI selection outside execution remains a supported silent use.
     EXPECT_EQ(gtApp->currentProject(), guiProject);
     EXPECT_EQ(recorder.warnings().size(), 3);
+}
+
+TEST_F(LegacyProjectAccessTest, doesNotWarnForContextWithoutComponent)
+{
+    gtApp->setDevMode(true);
+    WarningRecorder recorder;
+
+    {
+        GtExecutionContext context(executionProject);
+        GtExecutionContextScope scope(context);
+
+        // The execution context is active, but no calculator/task is running.
+        EXPECT_EQ(gtApp->currentProject(), executionProject);
+        EXPECT_TRUE(recorder.warnings().isEmpty());
+    }
+
+    EXPECT_EQ(gtApp->currentProject(), guiProject);
+    EXPECT_TRUE(recorder.warnings().isEmpty());
 }
 
 TEST_F(LegacyProjectAccessTest, pathOnlyContextWarnsWithoutClaimingResolution)

@@ -17,26 +17,26 @@ class GtProcessComponent;
 namespace gt::detail
 {
 
-    /** Thread-safe, non-exported deduplication state for legacy access warnings. */
-    class LegacyProjectAccessRegistry
+/** Thread-safe, non-exported deduplication state for legacy access warnings. */
+class LegacyProjectAccessRegistry
+{
+public:
+    bool markIfNew(const QString& key)
     {
-    public:
-        bool markIfNew(QString const& key)
+        QMutexLocker locker(&m_mutex);
+        if (m_reported.contains(key))
         {
-            QMutexLocker locker(&m_mutex);
-            if (m_reported.contains(key))
-            {
-                return false;
-            }
-
-            m_reported.insert(key);
-            return true;
+            return false;
         }
 
-    private:
-        QMutex m_mutex;
-        QSet<QString> m_reported;
-    };
+        m_reported.insert(key);
+        return true;
+    }
+
+private:
+    QMutex m_mutex;
+    QSet<QString> m_reported;
+};
 
 } // namespace gt::detail
 
@@ -64,12 +64,12 @@ public:
 
     ~GtProcessComponentExecutionScope();
 
-    GtProcessComponentExecutionScope(GtProcessComponentExecutionScope const&) =
+    GtProcessComponentExecutionScope(const GtProcessComponentExecutionScope&) =
         delete;
     GtProcessComponentExecutionScope(GtProcessComponentExecutionScope&&) =
         delete;
     GtProcessComponentExecutionScope& operator=(
-        GtProcessComponentExecutionScope const&) = delete;
+        const GtProcessComponentExecutionScope&) = delete;
     GtProcessComponentExecutionScope& operator=(
         GtProcessComponentExecutionScope&&) = delete;
 
@@ -130,10 +130,10 @@ private:
     static bool warningsEnabled();
 
     /// Returns the deduplication key of a component
-    static QString warningKey(GtProcessComponent const& component);
+    static QString warningKey(const GtProcessComponent& component);
 
     /// Returns the actionable warning text of a component
-    static QString warningMessage(GtProcessComponent const& component);
+    static QString warningMessage(const GtProcessComponent& component);
 };
 
 #endif // GTLEGACYPROJECTACCESS_H

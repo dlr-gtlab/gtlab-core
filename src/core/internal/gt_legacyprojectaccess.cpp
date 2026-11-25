@@ -17,79 +17,81 @@
 namespace
 {
 
-    /// Component executed on the current thread, borrowed and never owned
-    thread_local GtProcessComponent* executingComponent = nullptr;
+/// Component executed on the current thread, borrowed and never owned
+thread_local GtProcessComponent* executingComponent = nullptr;
 
-    /// Environment variable overriding the developer mode condition
-    const char* const kWarningEnvVar = "GTLAB_LEGACY_PROJECT_ACCESS_WARNING";
+/// Environment variable overriding the developer mode condition
+const char* const kWarningEnvVar = "GTLAB_LEGACY_PROJECT_ACCESS_WARNING";
 
-    /// Tri-state result of the environment override
-    enum class EnvironmentOverride
+/// Tri-state result of the environment override
+enum class EnvironmentOverride
+{
+    /// No valid override, fall back to the developer mode condition
+    NOT_SET,
+    /// Override to off, e.g. "0"
+    OFF,
+    /// Override to on, e.g. "1"
+    ON,
+};
+
+gt::detail::LegacyProjectAccessRegistry&
+warningRegistry()
+{
+    static gt::detail::LegacyProjectAccessRegistry registry;
+    return registry;
+}
+
+/// Returns the meta-object class name of a component
+QString
+className(const GtProcessComponent& component)
+{
+    return QString::fromLatin1(component.metaObject()->className());
+}
+
+/// Returns the identity of the module providing a component, if known
+QString
+moduleId(const GtProcessComponent& component)
+{
+    const GtAbstractObjectFactory* factory = component.factory();
+
+    if (!factory)
     {
-        /// No valid override, fall back to the developer mode condition
-        NOT_SET,
-        /// Override to off, e.g. "0"
-        OFF,
-        /// Override to on, e.g. "1"
-        ON,
-    };
-
-    gt::detail::LegacyProjectAccessRegistry& warningRegistry()
-    {
-        static gt::detail::LegacyProjectAccessRegistry registry;
-        return registry;
+        return QString();
     }
 
-    /// Returns the meta-object class name of a component
-    QString className(GtProcessComponent const& component)
-    {
-        return QString::fromLatin1(component.metaObject()->className());
-    }
+    return factory->moduleId(className(component));
+}
 
-    /// Returns the identity of the module providing a component, if known
-    QString moduleId(GtProcessComponent const& component)
-    {
-        GtAbstractObjectFactory const* factory = component.factory();
+/// Returns the startup override of the developer mode condition
+EnvironmentOverride
+environmentOverride()
+{
+    static const EnvironmentOverride value = [] {
+        const QString value =
+            QString::fromLocal8Bit(qgetenv(kWarningEnvVar)).trimmed().toLower();
 
-        if (!factory)
+        if (value == QLatin1String("1") || value == QLatin1String("true") ||
+            value == QLatin1String("on") || value == QLatin1String("yes"))
         {
-            return QString();
+            return EnvironmentOverride::ON;
         }
 
-        return factory->moduleId(className(component));
-    }
+        if (value == QLatin1String("0") || value == QLatin1String("false") ||
+            value == QLatin1String("off") || value == QLatin1String("no"))
+        {
+            return EnvironmentOverride::OFF;
+        }
 
-    /// Returns the startup override of the developer mode condition
-    EnvironmentOverride environmentOverride()
-    {
-        static const EnvironmentOverride value = [] {
-            const QString value =
-                QString::fromLocal8Bit(qgetenv(kWarningEnvVar))
-                    .trimmed()
-                    .toLower();
-
-            if (value == QLatin1String("1") || value == QLatin1String("true") ||
-                value == QLatin1String("on") || value == QLatin1String("yes"))
-            {
-                return EnvironmentOverride::ON;
-            }
-
-            if (value == QLatin1String("0") ||
-                value == QLatin1String("false") ||
-                value == QLatin1String("off") || value == QLatin1String("no"))
-            {
-                return EnvironmentOverride::OFF;
-            }
-
-            return EnvironmentOverride::NOT_SET;
-        }();
-        return value;
-    }
+        return EnvironmentOverride::NOT_SET;
+    }();
+    return value;
+}
 
 } // namespace
 
 GtProcessComponentExecutionScope::GtProcessComponentExecutionScope(
-    GtProcessComponent* component) : m_previous(executingComponent)
+    GtProcessComponent* component) :
+    m_previous(executingComponent)
 {
     executingComponent = component;
 }
@@ -108,7 +110,7 @@ GtProcessComponentExecutionScope::current() noexcept
 void
 GtLegacyProjectAccess::reportLegacyAccess()
 {
-    GtProcessComponent const* component =
+    const GtProcessComponent* component =
         GtProcessComponentExecutionScope::current();
 
     // Access outside of a component execution, e.g. from GUI code that
@@ -124,7 +126,7 @@ GtLegacyProjectAccess::reportLegacyAccess()
         return;
     }
 
-    QString const key = warningKey(*component);
+    const QString key = warningKey(*component);
 
     if (!warningRegistry().markIfNew(key))
     {
@@ -159,25 +161,25 @@ GtLegacyProjectAccess::warningsEnabled()
 }
 
 QString
-GtLegacyProjectAccess::warningKey(GtProcessComponent const& component)
+GtLegacyProjectAccess::warningKey(const GtProcessComponent& component)
 {
-    QString const id = className(component);
-    QString const module = moduleId(component);
+    const QString id = className(component);
+    const QString module = moduleId(component);
 
     return module.isEmpty() ? id : module + QStringLiteral("/") + id;
 }
 
 QString
-GtLegacyProjectAccess::warningMessage(GtProcessComponent const& component)
+GtLegacyProjectAccess::warningMessage(const GtProcessComponent& component)
 {
-    QString const name = component.objectName().isEmpty()
+    const QString name = component.objectName().isEmpty()
                              ? className(component)
                              : component.objectName();
 
     QString location =
         QStringLiteral("'%1'\n(class: %2").arg(name, className(component));
 
-    QString const module = moduleId(component);
+    const QString module = moduleId(component);
 
     if (!module.isEmpty())
     {

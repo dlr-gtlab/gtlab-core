@@ -90,7 +90,7 @@ GtCalculator::exec()
     // search for object link and object path properties
     foreach (GtAbstractProperty* prop, props)
     {
-        if (GtObjectLinkProperty const* objLink =
+        if (const GtObjectLinkProperty* objLink =
                 qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
@@ -107,7 +107,7 @@ GtCalculator::exec()
                 gtDebug() << QObject::tr("Linked object not found in runnable");
             }
         }
-        else if (GtObjectPathProperty const* objPath =
+        else if (const GtObjectPathProperty* objPath =
                      qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
@@ -127,7 +127,7 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString const currentExecMode = pimpl->execMode.get();
+    const QString currentExecMode = pimpl->execMode.get();
 
     if (currentExecMode != "local")
     {
