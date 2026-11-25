@@ -24,7 +24,6 @@ class GT_DATAMODEL_EXPORT GtGroupProperty : public GtProperty<QString>
     Q_OBJECT
 
 public:
-
     /**
      * @brief Creates a group property
      *
@@ -32,8 +31,7 @@ public:
      * @param name  The visible name of the property in the UI
      * @param brief A brief / help text
      */
-    GtGroupProperty(const QString& id,
-                    const QString& name,
+    GtGroupProperty(const QString& id, const QString& name,
                     const QString& brief);
 
     /**
