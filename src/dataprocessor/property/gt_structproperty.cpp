@@ -46,10 +46,9 @@ GtPropertyStructDefinition::newInstance(QString name) const
 GtPropertyStructInstance::GtPropertyStructInstance(
     const QString& id, const QString& typeName,
     gt::PolyVector<GtAbstractProperty>&& childProps) :
-    GtGroupProperty(typeName, ""),
+    GtGroupProperty(id, typeName, ""),
     m_childs(std::move(childProps))
 {
-    m_id = id;
     m_storeMemento = true;
 
     for (auto& child : m_childs)

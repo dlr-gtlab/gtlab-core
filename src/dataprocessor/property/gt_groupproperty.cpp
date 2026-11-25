@@ -10,11 +10,11 @@
 
 #include "gt_groupproperty.h"
 
-GtGroupProperty::GtGroupProperty(const QString& name,
-                                 const QString& brief)
+GtGroupProperty::GtGroupProperty(const QString &id, const QString &name, const QString &brief)
 {
     setObjectName(name);
 
+    m_id = id;
     m_brief = brief;
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
@@ -22,6 +22,12 @@ GtGroupProperty::GtGroupProperty(const QString& name,
     m_storeMemento = false;
 
     connect(this, SIGNAL(changed()), SLOT(onSubPropertyChange()));
+}
+
+GtGroupProperty::GtGroupProperty(const QString& name,
+                                 const QString& brief)
+   : GtGroupProperty(name, name, brief) // we use the name for the ID
+{
 }
 
 
