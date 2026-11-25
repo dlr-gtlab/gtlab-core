@@ -58,12 +58,14 @@ add_executable(GTlabUnitTest ${SOURCES})
 target_sources(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch/gt_consoleruntaskfrommemento.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch/gt_consolepropertyoverrides.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../../src/gui/undoredo/gt_mementochangecommand.cpp
 )
 set_target_properties(GTlabUnitTest PROPERTIES AUTOMOC ON AUTORCC ON)
 
 target_compile_definitions(GTlabUnitTest PRIVATE GT_MODULE_ID="Unittests" "GT_LOG_USE_QT_BINDINGS")
 target_include_directories(GTlabUnitTest PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/core
     ${CMAKE_CURRENT_LIST_DIR}/../../src/batch
     ${CMAKE_CURRENT_LIST_DIR}/../../src/core
 )

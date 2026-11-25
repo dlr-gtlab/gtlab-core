@@ -74,6 +74,8 @@ set(headers
     process_management/helper/gt_deepcopytask.h
     process_management/helper/gt_makepropertyconnection.h
     process_management/helper/gt_taskanalysis.h
+    process_management/helper/gt_pasteprocesselement.h
+    process_management/helper/gt_movepropertyconnectionstonewroot.h
     settings/gt_shortcutsettingsdata.h
     states/gt_state.h
     states/gt_stategroup.h
@@ -204,6 +206,8 @@ set(sources
     process_management/helper/gt_deepcopytask.cpp    
     process_management/helper/gt_makepropertyconnection.cpp
     process_management/helper/gt_taskanalysis.cpp
+    process_management/helper/gt_pasteprocesselement.cpp
+    process_management/helper/gt_movepropertyconnectionstonewroot.cpp
     settings/gt_shortcutsettingsdata.cpp
     states/gt_state.cpp
     states/gt_stategroup.cpp
@@ -256,8 +260,7 @@ set(resources
     ${CMAKE_CURRENT_SOURCE_DIR}/../resources/templates/templates.qrc
 )
 
-add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources}
-    process_management/helper/gt_pasteprocesselement.h process_management/helper/gt_pasteprocesselement.cpp)
+add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources})
 add_library(GTlab::Core ALIAS GTlabCore)
 
 target_compile_definitions(GTlabCore

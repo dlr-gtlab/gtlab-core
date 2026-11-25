@@ -13,6 +13,7 @@
 #include <QMimeData>
 #include <QFont>
 
+#include "gt_movepropertyconnectionstonewroot.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_extendedcalculatordata.h"
 #include "gt_extendedtaskdata.h"
@@ -22,7 +23,7 @@
 #include "gt_processfactory.h"
 #include "gt_task.h"
 #include "gt_taskfactory.h"
-#include "gt_propertyconnectionfunctions.h"
+#include "gt_taskanalysis.h"
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
 #include "gt_icons.h"
@@ -530,22 +531,13 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         return false;
     }
 
-    QList<GtPropertyConnection*> internalCons;
-    QList<GtPropertyConnection*> lostCons;
     GtTask* newHighestParent = nullptr;
     GtTask* highestParent = nullptr;
 
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
-                                    (droppedObject))
-    {
-        internalCons = detail::internalPropertyConnections(pComp);
-        lostCons = detail::lostPropertyConnections(pComp);
-    }
-
-    if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (destinationObject))
     {
-        newHighestParent = detail::highestParentTask(pComp);
+        newHighestParent = gt::utils::process::findRootTask(pComp);
     }
     else if (qobject_cast<GtTaskGroup*>(destinationObject))
     {
@@ -560,7 +552,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        highestParent = detail::highestParentTask(pComp);
+        highestParent = gt::utils::process::findRootTask(pComp);
     }
 
     if (!highestParent)
@@ -597,15 +589,21 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         return false;
     }
 
+    auto pCompMoved = qobject_cast<GtProcessComponent*>(droppedObject);
 
-    QList<GtObject*> toDelete;
-
-    foreach (GtPropertyConnection* propCon, lostCons)
+    std::optional<gt::utils::process::PropertyConnectionMovePlan>
+        movePlanReturn;
+    if (pCompMoved && highestParent && newHighestParent &&
+        highestParent != newHighestParent)
     {
-        toDelete.append(propCon);
+        gt::utils::process::
+            printWarningForLostPropertyConnectionsWhenMovingToNewRoot(
+                *pCompMoved, true);
+        movePlanReturn =
+            gt::utils::process::prepareMovePropertyConnectionToNewRoot(
+                *pCompMoved, *highestParent, *newHighestParent);
     }
 
-    detail::setOffLostConnectionWarnings(lostCons, highestParent);
 
     if (row >= 0)
     {
@@ -638,12 +636,20 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         }
     }
 
-    foreach (GtPropertyConnection* propCon, internalCons)
+    if (movePlanReturn.has_value())
     {
-        newHighestParent->appendChild(propCon);
-    }
+        auto plan = movePlanReturn.value();
 
-    gtDataModel->deleteFromModel(toDelete);
+        foreach (auto propCon, plan.toMove)
+        {
+            gtDataModel->appendChild(propCon, newHighestParent);
+        }
+
+        foreach (auto propCon, plan.toDelete)
+        {
+            gtDataModel->deleteFromModel(propCon);
+        }
+    }
 
     endMoveRows();
 
