@@ -22,7 +22,7 @@
 #include "gt_processfactory.h"
 #include "gt_task.h"
 #include "gt_taskfactory.h"
-#include "gt_propertyconnectionfunctions.h"
+#include "gt_taskanalysis.h"
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
 #include "gt_icons.h"
@@ -535,17 +535,26 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     GtTask* newHighestParent = nullptr;
     GtTask* highestParent = nullptr;
 
+    gt::utils::process::PropertyConnectionAnalysis allCons;
+
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        internalCons = detail::internalPropertyConnections(pComp);
-        lostCons = detail::lostPropertyConnections(pComp);
+        if (auto allConsRet =
+                gt::utils::process::analyzePropertyConnectionsRelationship(
+                    *pComp))
+        {
+            allCons = allConsRet.value();
+            internalCons = allCons.internal;
+            lostCons.append(allCons.obsolete);
+            lostCons.append(allCons.stale);
+        }
     }
 
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (destinationObject))
     {
-        newHighestParent = detail::highestParentTask(pComp);
+        newHighestParent = gt::utils::process::findRootTask(pComp);
     }
     else if (qobject_cast<GtTaskGroup*>(destinationObject))
     {
@@ -560,7 +569,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        highestParent = detail::highestParentTask(pComp);
+        highestParent = gt::utils::process::findRootTask(pComp);
     }
 
     if (!highestParent)
@@ -605,7 +614,8 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         toDelete.append(propCon);
     }
 
-    detail::setOffLostConnectionWarnings(lostCons, highestParent);
+    gt::utils::process::printWarningForLostPropertyConnections(*highestParent,
+                                                               allCons);
 
     if (row >= 0)
     {
