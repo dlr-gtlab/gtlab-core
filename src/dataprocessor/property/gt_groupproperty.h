@@ -14,6 +14,7 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
+#include "gt_version.h"
 
 /**
  * @brief The GtGroupProperty class
@@ -24,8 +25,22 @@ class GT_DATAMODEL_EXPORT GtGroupProperty : public GtProperty<QString>
 
 public:
     /**
-     * @brief GtGroupProperty
+     * @brief Creates a group property
+     *
+     * @param id    The id of the property
+     * @param name  The visible name of the property in the UI
+     * @param brief A brief / help text
      */
+    GtGroupProperty(const QString& id, const QString& name,
+                    const QString& brief);
+
+    /**
+     * @brief Creates a group property
+     *
+     * The construcor used `name` for the property id.
+     * Note, that this constructor is deprecated in favour of manual ids.
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use constructor with explicit ID")
     GtGroupProperty(const QString& name,
                     const QString& brief);
 

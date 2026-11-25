@@ -1199,15 +1199,32 @@ GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
-    const GtAbstractProperty* existing = findProperty(property.ident());
+    const GtAbstractProperty* existing = nullptr;
+
+    if (!property.ident().isEmpty())
+    {
+        existing = findProperty(property.ident());
+    }
+    else
+    {
+        GT_REMOVAL_GUARD(2, 2,
+                         "Empty property idents are deprecated "
+                         "and will be removed in 2.2")
+
+        gtLogOnce(Warning)
+            << tr("DEPRECATED: Property '%1' of class '%2' has empty ident. "
+                  "This is deprecated and will be removed in GTlab 2.2")
+                   .arg(property.objectName(), metaObject()->className());
+    }
+
+
     if (pimpl->properties.contains(&property) ||
         (existing && existing != &property))
     {
-        gtWarning() << tr("multiple property registration!")
-                    << QStringLiteral(" Object Name (") << objectName()
-                    << QStringLiteral(")")
-                    << QStringLiteral(" Property Name (") << property.ident()
-                    << QStringLiteral(")");
+        gtLogOnce(Warning) << tr("Multiple registration of "
+                                 "property '%1' of object '%2(class %3)'!")
+                                  .arg(property.ident(), objectName(),
+                                       metaObject()->className());
         return false;
     }
 
