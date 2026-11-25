@@ -61,6 +61,12 @@ public:
     bool standAlone() override;
 
     /**
+     * @brief Initializes GUI-related elements of the module. Called on
+     * application startup once the main window is created.
+     */
+    void initGUI() const override;
+
+    /**
      * @brief Returns static meta objects of mdi item classes.
      * @return list including meta objects
      */
