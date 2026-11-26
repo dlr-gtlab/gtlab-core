@@ -726,8 +726,10 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) co
 
     std::unique_ptr<GtObject> obj;
 
-
-    obj.reset(factory.newObject(className(), parent));
+    if (parent)
+        obj.reset(factory.makeChild(className(), *parent));
+    else
+        obj = factory.makeObject(className());
 
     if (!obj)
     {

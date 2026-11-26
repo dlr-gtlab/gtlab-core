@@ -8,7 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-
 #include "gt_abstractobjectfactory.h"
 
 #include "gt_object.h"
@@ -105,6 +104,23 @@ GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 
     retval->setFactory(this);
     return retval;
+}
+
+std::unique_ptr<GtObject>
+GtAbstractObjectFactory::makeObject(const QString& className)
+{
+    return std::unique_ptr<GtObject>{newObject(className, nullptr)};
+}
+
+GtObject*
+GtAbstractObjectFactory::makeChild(const QString& className, GtObject& parent)
+{
+    std::unique_ptr<GtObject> object{newObject(className, &parent)};
+    if (object && !object->parent() && !parent.appendChild(object.get()))
+    {
+        return nullptr;
+    }
+    return object.release();
 }
 
 QString
@@ -289,7 +305,7 @@ GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) 
 }
 
 bool
-GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
+GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData) const
 {
     return std::all_of(
         std::begin(metaData), std::end(metaData),

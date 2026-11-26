@@ -184,6 +184,8 @@ without a module ID argument have been removed. Always pass the ID of the provid
 
 .. code-block:: cpp
 
+    #include <gt_globals.h> // for GT_MODULENAME
+    
     // old
     gtObjectFactory->registerClass(GT_METADATA(MyObject));
 
