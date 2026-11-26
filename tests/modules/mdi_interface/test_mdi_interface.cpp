@@ -17,16 +17,103 @@
 
 #include "test_mdi_interface.h"
 
+#include "gt_object.h"
+#include "gt_processdockextensions.h"
+
+#include <QLabel>
+#include <QPointer>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+namespace
+{
+
+QPointer<QLabel> processDockTargetLabel;
+
+QString
+targetDescription(const QString& action, GtObject* target)
+{
+    if (!target)
+    {
+        return action + QStringLiteral(" target: <null>");
+    }
+
+    return action + QStringLiteral(" target: ") + target->objectName() +
+           QStringLiteral(" (") + target->metaObject()->className() +
+           QStringLiteral(")");
+}
+
+class TestProcessDockPage : public GtProcessDockPage
+{
+public:
+    TestProcessDockPage()
+    {
+        auto* layout = new QVBoxLayout(this);
+        layout->addWidget(new QLabel(tr("Test Process-Dock extension"), this));
+
+        processDockTargetLabel = new QLabel(tr("No action selected"), this);
+        layout->addWidget(processDockTargetLabel);
+
+        auto* activateButton = new QPushButton(tr("Activate page"), this);
+        layout->addWidget(activateButton);
+        connect(activateButton, &QPushButton::clicked, this,
+                &GtProcessDockPage::activationRequested);
+    }
+
+    QString pageId() const override
+    {
+        return QStringLiteral("test-mdi-interface-page");
+    }
+
+    QString title() const override
+    {
+        return QStringLiteral("Test MDI Interface");
+    }
+};
+
+} // namespace
+
 GtVersionNumber
 TestMdiInterface::version()
 {
-    return GtVersionNumber(1,2,3);
+    return GtVersionNumber(1, 2, 3);
 }
 
 QString
 TestMdiInterface::description() const
 {
     return "Test Mdi Interface";
+}
+
+void
+TestMdiInterface::init()
+{
+    gt::gui::registerProcessDockPage(this,
+                                     [] { return new TestProcessDockPage; });
+
+    gt::gui::registerProcessAddAction(
+        this, GtObjectUIAction(
+                  QStringLiteral("Show Add Target"),
+                  GtObjectUIAction::InvokableActionMethod(
+                      [this](QObject* callbackOwner, GtObject* target) {
+                          if (callbackOwner == this && processDockTargetLabel)
+                          {
+                              processDockTargetLabel->setText(targetDescription(
+                                  QStringLiteral("Add"), target));
+                          }
+                      })));
+
+    gt::gui::registerProcessContextAction(
+        this, GtObjectUIAction(
+                  QStringLiteral("Show Context Target"),
+                  GtObjectUIAction::InvokableActionMethod(
+                      [this](QObject* callbackOwner, GtObject* target) {
+                          if (callbackOwner == this && processDockTargetLabel)
+                          {
+                              processDockTargetLabel->setText(targetDescription(
+                                  QStringLiteral("Context"), target));
+                          }
+                      })));
 }
 
 ///gtdatamodelinterface
