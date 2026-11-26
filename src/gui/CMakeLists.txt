@@ -83,6 +83,7 @@ set(headers
     tools/gt_regexpvalidator.h
     tools/gt_qmltoolbar.h
     tools/gt_qmltoolbargroup.h
+    tools/gt_elidedlineedit.h
     gt_objectui.h
     object_ui/gt_projectui.h
     object_ui/gt_processui.h
@@ -265,6 +266,7 @@ set(sources
     tools/gt_regexpvalidator.cpp
     tools/gt_qmltoolbar.cpp
     tools/gt_qmltoolbargroup.cpp
+    tools/gt_elidedlineedit.cpp
     gt_objectui.cpp
     object_ui/gt_projectui.cpp
     object_ui/gt_processui.cpp

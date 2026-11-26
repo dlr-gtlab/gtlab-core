@@ -20,13 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed registration of properties with an empty identifier - #1684
   
 ### Added
+ - Support to allow more customization of a collection - #1549
+
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;
   existing collections remain discoverable. - #1551
-- Improvments of memento diffing function to increase executino speed - #1656 
-  
+- Improvments of memento diffing function to reduce the time for change detection - #1656 
+- The collections directory can now be customized by setting it under Application → Directories
+  in the preferences. The default is the users `Data/Collections` directory. - #1549
+
 ### Deprecated
 - Empty property IDs are now deprecated and will stop working in GTlab 2.2. - #1684
 

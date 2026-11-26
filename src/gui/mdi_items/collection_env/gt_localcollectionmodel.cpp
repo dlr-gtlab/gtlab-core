@@ -14,10 +14,10 @@
 #include <QFileInfo>
 #include <QObject>
 
-#include "gt_applicationpaths.h"
 #include "gt_icons.h"
 #include "gt_collectionitem.h"
 #include "gt_logging.h"
+#include "gt_collectionsinstallpath.h"
 
 #include "gt_localcollectionmodel.h"
 #include "gt_qtutilities.h"
@@ -28,16 +28,6 @@ namespace
 bool
 isUserCollectionPath(const QString& itemPath, QString* error)
 {
-    const auto dataDirectory = GtApplicationPaths::directory(
-        GtApplicationPaths::Location::Data, error);
-    if (!dataDirectory)
-    {
-        return false;
-    }
-
-    const QString rootPath =
-        QFileInfo(dataDirectory->filePath(QStringLiteral("Collections")))
-            .canonicalFilePath();
     const QString canonicalItemPath = QFileInfo(itemPath).canonicalFilePath();
     if (canonicalItemPath.isEmpty())
     {
@@ -47,6 +37,21 @@ isUserCollectionPath(const QString& itemPath, QString* error)
         }
         return false;
     }
+
+    bool ok;
+    auto installPath = gt::detail::collectionsInstallPath(false, &ok);
+
+    if (!ok)
+    {
+        if (error)
+        {
+            *error =
+                QObject::tr("Could not resolve the collections install path.");
+        }
+        return false;
+    }
+
+    const QString rootPath = QDir{installPath}.canonicalPath();
 
     if (rootPath.isEmpty())
     {
@@ -138,7 +143,7 @@ GtLocalCollectionModel::data(const QModelIndex& index, int role) const
     case Qt::DecorationRole:
         if (col == 0)
         {
-            return gt::gui::icon::property();
+            return item.icon();
         }
         else if (col == 1)
         {
