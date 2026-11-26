@@ -24,10 +24,6 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include <cerrno>
-#include <clocale>
-#include <cstdlib>
-#include <cstring>
 #include <typeinfo>
 
 #include "gt_object.h"
@@ -1491,10 +1487,8 @@ propertyListToVariant(const QString& value, const QString& type)
         QVector<double> list;
         list.reserve(strList.size());
 
-        foreach (const auto& val, strList)
-        {
-            list.append(val.toDouble());
-        }
+        std::transform(strList.begin(), strList.end(), std::back_inserter(list),
+                       [](const QStringRef& val) { return val.toDouble(); });
 
         var.setValue(list);
     }

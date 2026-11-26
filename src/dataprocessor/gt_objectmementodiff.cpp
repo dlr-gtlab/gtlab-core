@@ -408,7 +408,8 @@ mementosByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
             b.isFlagEnabled(GtObjectMemento::SaveAsOwnFile) ||
         a.isFlagEnabled(GtObjectMemento::IsUnresolved) !=
             b.isFlagEnabled(GtObjectMemento::IsUnresolved) ||
-        !propertyBlocksByteIdentical(a, b))
+        !propertyBlocksByteIdentical(a, b) ||
+        a.dynamicProperties != b.dynamicProperties)
     {
         return false;
     }
@@ -485,7 +486,8 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     // check properties & attributes
     if (left.className() != right.className() ||
         left.ident() != right.ident() ||
-        !propertyBlocksByteIdentical(left, right))
+        !propertyBlocksByteIdentical(left, right) ||
+        left.dynamicProperties != right.dynamicProperties)
     {
         diffObjectEmpty = false;
         ensureDiffObj();
