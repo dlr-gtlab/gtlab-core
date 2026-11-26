@@ -1175,7 +1175,13 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
         dock->pasteElement(obj);
     };
 
-    auto isEnabled = [=](GtObject*){
+    auto isEnabled = [=](GtObject*) {
+        auto* task = qobject_cast<GtTask*>(obj);
+        if (!qobject_cast<GtTaskGroup*>(obj) && (!task || !task->isReady()))
+        {
+            return false;
+        }
+
         auto* clipboard = QApplication::clipboard();
         auto const* mimeData = clipboard->mimeData();
 
@@ -1183,10 +1189,10 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
         {
             GtObjectMemento memento{mimeData->data(GT_CLASSNAME(GtObject))};
 
-            if (allowCalculator)
+            if (allowCalculator &&
+                memento.canCastTo(GT_CLASSNAME(GtCalculator), gtProcessFactory))
             {
-                return memento.canCastTo(GT_CLASSNAME(GtCalculator),
-                                         gtProcessFactory);
+                return true;
             }
 
             return memento.canCastTo(GT_CLASSNAME(GtTask),
