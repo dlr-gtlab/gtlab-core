@@ -84,6 +84,27 @@ Feature: Test specific features of the process dock
          Then the process element 'New Task[2]' exists
 
 
+    Scenario: Clearing the process selection disables Run
+        Given GTlab is running in DEV mode
+          And the dock widgets 'Explorer, Processes/Calculators' are visible
+         When the standard testing project is opened
+          And the context menu of the process view is opened
+          And the action 'Add... > Empty Root Task' is activated
+         Then the process element 'New Task' exists
+         When the process element is selected
+         Then the 'Run*' button is enabled
+         When empty space in the process view is clicked
+         Then the 'Run*' button is greyed out
+          And the process view has no current index
+         When the process element is selected
+         Then the 'Run*' button is enabled
+         When the process selection is cleared
+         Then the 'Run*' button is greyed out
+          And the process view has no current index
+         When the previously selected process index is selected again
+         Then the 'Run*' button is enabled
+
+
 	Scenario: Running a task
         Given GTlab is running in DEV mode
           And the dock widgets 'Explorer, Processes/Calculators' are visible
