@@ -11,6 +11,10 @@
 
 #include <QMimeData>
 #include <QDir>
+#include <QThread>
+
+#include <memory>
+#include <vector>
 
 #include <gt_logging.h>
 #include "gt_session.h"
@@ -67,8 +71,77 @@ GtCoreDatamodel::flags(const QModelIndex& index) const
 void
 GtCoreDatamodel::setSession(GtSession* session)
 {
+    if (QThread::currentThread() != thread() ||
+        (session && session->thread() != thread()))
+    {
+        gtWarning() << tr("Session and model must share the current thread");
+        return;
+    }
+
     beginResetModel();
+    if (m_session)
+    {
+        disconnect(m_session, &GtObject::diffChildAboutToChange, this, nullptr);
+        disconnect(m_session, &GtObject::diffChildChanged, this, nullptr);
+        disconnect(m_session, &GtObject::diffChildAboutToMove, this, nullptr);
+        disconnect(m_session, &GtObject::diffChildMoved, this, nullptr);
+    }
     m_session = session;
+    if (m_session)
+    {
+        connect(m_session, &GtObject::diffChildAboutToChange, this,
+                [this](GtObject* parent, int row, bool insert) {
+                    // The invisible session root exposes only projects, so a
+                    // generic object row cannot be used as a model root row.
+                    if (parent == m_session)
+                    {
+                        beginResetModel();
+                        return;
+                    }
+                    const auto index = indexFromObject(parent);
+                    if (insert)
+                        beginInsertRows(index, row, row);
+                    else
+                        beginRemoveRows(index, row, row);
+                });
+        connect(m_session, &GtObject::diffChildChanged, this,
+                [this](GtObject* parent, int, bool insert) {
+                    if (parent == m_session)
+                    {
+                        endResetModel();
+                        return;
+                    }
+                    if (insert)
+                        endInsertRows();
+                    else
+                        endRemoveRows();
+                });
+        auto moves = std::make_shared<std::vector<bool>>();
+        connect(m_session, &GtObject::diffChildAboutToMove, this,
+                [this, moves](GtObject* parent, int source, int destination) {
+                    if (parent == m_session)
+                    {
+                        beginResetModel();
+                        return;
+                    }
+                    const auto index = indexFromObject(parent);
+                    // Qt's destination is measured before removing the row.
+                    moves->push_back(beginMoveRows(
+                        index, source, source, index,
+                        destination > source ? destination + 1 : destination));
+                });
+        connect(m_session, &GtObject::diffChildMoved, this,
+                [this, moves](GtObject* parent, int, int) {
+                    if (parent == m_session)
+                    {
+                        endResetModel();
+                        return;
+                    }
+                    const bool started = moves->back();
+                    moves->pop_back();
+                    if (started) endMoveRows();
+                });
+    }
     endResetModel();
 }
 
