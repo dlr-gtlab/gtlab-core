@@ -1883,8 +1883,8 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
-                    gtProcessFactory);
+    std::unique_ptr<GtObject> obj{
+        gtDataModel->objectFromMimeData(mimeData, true, gtProcessFactory)};
 
     if (!obj)
     {
@@ -1907,7 +1907,11 @@ GtProcessDock::pasteElement(GtObject* parent)
         }
     }
 
-    pasteElement(obj, parent);
+    pasteElement(obj.get(), parent);
+    if (parent && obj->parent() == parent)
+    {
+        static_cast<void>(obj.release()); // destination owns the copy
+    }
 }
 
 void
