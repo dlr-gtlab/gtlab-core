@@ -20,6 +20,8 @@
 
 #include <QCryptographicHash>
 #include <QHash>
+#include <QBuffer>
+#include <QDataStream>
 
 #include <algorithm>
 #include <optional>
@@ -255,15 +257,185 @@ fetchExternalizedMementos(const GtObjectMemento& leftOrig,
     return result;
 }
 
+namespace
+{
+//
+// Strict structural identity checks for memento pairs.
+//
+// They compare exactly the byte content the hash computation
+// (GtObjectMemento::calculateHashes / propertyHashHelper /
+// gt::detail::VariantHasher) feeds into the SHA256 digests:
+//   - className, uuid and ident (as in toUtf8, null == empty)
+//   - property name, isActive, dataType, property type and the
+//     QDataStream byte representation of the value - the very same
+//     operator as used by gt::detail::VariantHasher, including its
+//     behavior for types that cannot be streamed (type name only)
+//   - nested child properties, property containers and child objects,
+//     in order
+//
+// A `true` result therefore guarantees equal fullHash values. The checks
+// replace the expensive SHA256 computation for memento pairs that are
+// byte-identical; any mismatch falls through to the regular diff path.
+
+bool
+variantByteIdentical(const QVariant& a, const QVariant& b)
+{
+    auto typeA = gt::metaTypeId(a);
+    auto typeB = gt::metaTypeId(b);
+    if (typeA != typeB)
+    {
+        return false;
+    }
+
+    static const auto type_QString = gt::metaTypeIdFromName("QString");
+    static const auto type_QStringList = gt::metaTypeIdFromName("QStringList");
+
+    if (typeA == type_QString)
+    {
+        // VariantHasher hashes toString().toUtf8(): null and empty
+        // strings are not distinguished
+        return a.toString() == b.toString();
+    }
+    else if (typeA == type_QStringList)
+    {
+        // VariantHasher hashes the toUtf8() of every element: null and
+        // empty entries are not distinguished
+        const QStringList listA = a.toStringList();
+        const QStringList listB = b.toStringList();
+        if (listA.size() != listB.size())
+        {
+            return false;
+        }
+        for (int i = 0; i < listA.size(); i++)
+        {
+            if (listA[i] != listB[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // generic path: identical QDataStream byte representation as used
+    // by gt::detail::VariantHasher
+    QByteArray bytesA;
+    QByteArray bytesB;
+    {
+        QBuffer buffer(&bytesA);
+        buffer.open(QIODevice::WriteOnly);
+        QDataStream stream(&buffer);
+        stream << a;
+    }
+    {
+        QBuffer buffer(&bytesB);
+        buffer.open(QIODevice::WriteOnly);
+        QDataStream stream(&buffer);
+        stream << b;
+    }
+    return bytesA == bytesB;
+}
+
+bool
+propertyByteIdentical(const PD& a, const PD& b)
+{
+    if (a.name != b.name || a.isActive != b.isActive ||
+        a.dataType() != b.dataType() || a.type() != b.type())
+    {
+        return false;
+    }
+
+    if (!variantByteIdentical(a.data(), b.data()))
+    {
+        return false;
+    }
+
+    if (a.childProperties.size() != b.childProperties.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < a.childProperties.size(); i++)
+    {
+        if (!propertyByteIdentical(a.childProperties[i], b.childProperties[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+propertyBlocksByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
+{
+    const auto& propsA = a.properties;
+    const auto& propsB = b.properties;
+    if (propsA.size() != propsB.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < propsA.size(); i++)
+    {
+        if (!propertyByteIdentical(propsA[i], propsB[i]))
+        {
+            return false;
+        }
+    }
+
+    const auto& contA = a.propertyContainers;
+    const auto& contB = b.propertyContainers;
+    if (contA.size() != contB.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < contA.size(); i++)
+    {
+        if (!propertyByteIdentical(contA[i], contB[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+mementosByteIdentical(const GtObjectMemento& a, const GtObjectMemento& b)
+{
+    // the persistence flags (SaveAsOwnFile, IsUnresolved) are part of the
+    // memento state: they decide how the memento is serialized and whether
+    // its data is complete
+    if (a.className() != b.className() || a.uuid() != b.uuid() ||
+        a.ident() != b.ident() ||
+        a.isFlagEnabled(GtObjectMemento::SaveAsOwnFile) !=
+            b.isFlagEnabled(GtObjectMemento::SaveAsOwnFile) ||
+        a.isFlagEnabled(GtObjectMemento::IsUnresolved) !=
+            b.isFlagEnabled(GtObjectMemento::IsUnresolved) ||
+        !propertyBlocksByteIdentical(a, b) ||
+        a.dynamicProperties != b.dynamicProperties)
+    {
+        return false;
+    }
+
+    if (a.childObjects.size() != b.childObjects.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < a.childObjects.size(); i++)
+    {
+        if (!mementosByteIdentical(a.childObjects[i], b.childObjects[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+} // namespace
+
 bool
 GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
                               const GtObjectMemento& rightOrig,
                               QDomElement& diffRoot)
 {
-    // update hashes if needed
-    leftOrig.calculateHashes();
-    rightOrig.calculateHashes();
-    if (leftOrig.fullHash() == rightOrig.fullHash() && diffRoot.isNull())
+    // fast path: strict byte-identical memento pair -> nothing to diff
+    if (mementosByteIdentical(leftOrig, rightOrig))
     {
         gtDebug() << QObject::tr("compared object mementos are identical!");
         return true;
@@ -294,20 +466,31 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     const GtObjectMemento& left =  setup.left.value_or(leftOrig);
     const GtObjectMemento& right = setup.right.value_or(rightOrig);
 
-    // create diff element to store changes
-    QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);
-    diffObj.setAttribute(gt::xml::S_NAME_TAG, left.ident());
-    diffObj.setAttribute(gt::xml::S_UUID_TAG, left.uuid());
-    diffObj.setAttribute(gt::xml::S_CLASS_TAG, left.className());
+    // the diff element is created lazily: merely creating it would already
+    // make the document non-null (QDomDocument::isNull), so it is only
+    // created if a change is actually found
     // modified child elements are stored in their own element
     // this way we may not want to actually add the diffObj element (if empty)!
     bool diffObjectEmpty = true;
+    QDomElement diffObj;
+    auto ensureDiffObj = [&]() {
+        if (diffObj.isNull())
+        {
+            diffObj = this->createElement(gt::xml::S_OBJECT_TAG);
+            diffObj.setAttribute(gt::xml::S_NAME_TAG, left.ident());
+            diffObj.setAttribute(gt::xml::S_UUID_TAG, left.uuid());
+            diffObj.setAttribute(gt::xml::S_CLASS_TAG, left.className());
+        }
+    };
 
     // check properties & attributes
-    if (left.propertyHash() != right.propertyHash() ||
+    if (left.className() != right.className() ||
+        left.ident() != right.ident() ||
+        !propertyBlocksByteIdentical(left, right) ||
         left.dynamicProperties != right.dynamicProperties)
     {
         diffObjectEmpty = false;
+        ensureDiffObj();
 
         if (left.className() != right.className())
         {
@@ -351,13 +534,11 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         if (lchildIter != leftChildIndexMap.end())
         {
             // check for modifications
+            // (makeDiff has a fast path for byte-identical pairs)
             const GtObjectMemento& lchild(left.childObjects[*lchildIter]);
-            if (lchild.fullHash() != rchild.fullHash())
+            if (!makeDiff(lchild, rchild, diffRoot))
             {
-                if (!makeDiff(lchild, rchild, diffRoot))
-                {
-                    return false;
-                }
+                return false;
             }
             // take item from list to track removed objects
             leftChildIndexMap.erase(lchildIter);
@@ -365,6 +546,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         else
         {
             diffObjectEmpty = false;
+            ensureDiffObj();
             // added child
             GtObjectIO oio;
             QDomElement rchildElem = oio.toDomElement(rchild, *this, false);
@@ -400,6 +582,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
     foreach (int lchildIndex, leftChildIndexSort)
     {
         diffObjectEmpty = false;
+        ensureDiffObj();
         const GtObjectMemento& lchild(left.childObjects[lchildIndex]);
         GtObjectIO oio;
         QDomElement lchildElem = oio.toDomElement(lchild, *this, false);
@@ -474,6 +657,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
         if (diff != 0)
         {
             diffObjectEmpty = false;
+            ensureDiffObj();
             const GtObjectMemento& rchild (right.childObjects[indexNew]);
             GtObjectIO oio;
             QDomElement childElem = oio.toDomElement(rchild, *this, false);
@@ -527,7 +711,7 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
 {
     QHash<QString,const GtObjectMemento::PropertyData*> leftPropMap;
     foreach (const GtObjectMemento::PropertyData& lprop, leftProperties)
-    {
+    { // cppcheck-suppress useStlAlgorithm
         leftPropMap.insert(lprop.name, &lprop);
     }
     // look for modified / added properties
@@ -538,7 +722,7 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
         {
             // check for modifications
             const GtObjectMemento::PropertyData& lprop (**lpropIter);
-            if (lprop.hash != rprop.hash)
+            if (!propertyByteIdentical(lprop, rprop))
             {
                 handlePropertyChange(lprop, rprop, diffRoot);
             }
@@ -607,7 +791,7 @@ GtObjectMementoDiff::detectPropertyContainerChanges(
         const auto& left = leftContainers[i];
         const auto& right = rightContainers[i];
 
-        if (left.hash != right.hash)
+        if (!propertyByteIdentical(left, right))
         {
             detectPropertyContainerChanges(left, right, diffRoot);
         }
@@ -653,7 +837,7 @@ GtObjectMementoDiff::detectPropertyContainerChanges(
             const auto& rightEntry = *iter;
             assert(leftEntry.name == rightEntry.name);
 
-            if (leftEntry.hash != rightEntry.hash)
+            if (!propertyByteIdentical(leftEntry, rightEntry))
             {
                 changed.emplace_back(leftEntry.name, leftEntry, rightEntry);
             }
@@ -799,8 +983,11 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
         diffObj.setAttribute(gt::xml::S_NAME_TAG, leftProp.name);
         diffObj.setAttribute(gt::xml::S_TYPE_TAG, leftProp.dataType());
 
-        // handle value changes
-        if (leftProp.data() != rightProp.data())
+        // handle value changes: compare byte-wise (consistent with the
+        // byte-identical gate) instead of relying on QVariant::operator!=,
+        // which is version dependent (Qt5 compares some doubles fuzzy,
+        // Qt6 strictly)
+        if (!variantByteIdentical(leftProp.data(), rightProp.data()))
         {
             diffObjEmpty = false;
             QDomElement oldVal =
