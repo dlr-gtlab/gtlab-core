@@ -16,8 +16,8 @@
 #include "gt_calculatorfactory.h"
 #include "gt_taskfactory.h"
 #include "gt_moduleinterface.h"
-#include "gt_calculatorexecinterface.h"
-#include "gt_calculatorexecutorlist.h"
+#include "gt_processexecinterface.h"
+#include "gt_processexecutorlist.h"
 #include "gt_calculatordata.h"
 #include "gt_taskdata.h"
 #include "gt_objectfactory.h"
@@ -128,13 +128,13 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
-    const GtCalculatorExecInterface* calculatorExecutorInterface =
-        checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
+    const GtProcessExecInterface* calculatorExecutorInterface =
+        checkInterface<GtProcessExecInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked calculator execution classes
     if (calculatorExecutorInterface)
     {
-        // check for GtAbstractCalculatorExecutor class
+        // check for GtAbstractProcessExecutor class
     }
 
     GtNetworkInterface* networkInterface =
@@ -170,10 +170,10 @@ bool
 GtProcessModuleLoader::registerAdditionalInterfaces(GtModuleInterface* plugin)
 {
     // Reject executor conflicts before registering any process interfaces.
-    GtCalculatorExecInterface* calculatorExecutorInterface =
-        checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
+    GtProcessExecInterface* calculatorExecutorInterface =
+        checkInterface<GtProcessExecInterface>(plugin->ident(), plugin);
     if (calculatorExecutorInterface &&
-        gtCalcExecList->executorExists(
+        gtProcessExecList->executorExists(
             calculatorExecutorInterface->executorId()))
     {
         gtError() << QObject::tr("Calculator executor '%1' already exists!")
@@ -221,7 +221,7 @@ GtProcessModuleLoader::registerAdditionalInterfaces(GtModuleInterface* plugin)
     // Register the calculator executor.
     if (calculatorExecutorInterface)
     {
-        gtCalcExecList->addExecutor(calculatorExecutorInterface);
+        gtProcessExecList->addExecutor(calculatorExecutorInterface);
     }
 
     // Register the network access group.

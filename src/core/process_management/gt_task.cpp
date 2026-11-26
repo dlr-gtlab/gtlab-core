@@ -9,9 +9,11 @@
  */
 
 #include "gt_task.h"
+#include "gt_abstractprocessexecutor.h"
 #include "gt_accessdata.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
+#include "gt_processexecutorlist.h"
 #include "gt_coreapplication.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
@@ -27,6 +29,7 @@
 GT_SUPPRESS_DEPRECATED_BEGIN
 struct GtTask::Impl
 {
+
     /// Event loop
     QEventLoop eventLoop;
 
@@ -37,6 +40,7 @@ struct GtTask::Impl
     /// ATTENTION: THIS IS DEPRECATED
     /// REMOVE SUPPRESSION FOR DEPRECATION WARNING ASWELL WHEN THIS CODE IS REMOVED!!!!!
     GtMonitoringDataTable monitoringDataTable;
+
 
     /// Interruption flag
     QAtomicInt interrupt;
@@ -102,6 +106,9 @@ GtTask::exec()
         return false;
     }
 
+    // clear old linked objects
+    linkedObjects().clear();
+
     // collect all calculator properties
     QList<GtAbstractProperty*> const props = fullPropertyList();
 
@@ -147,13 +154,6 @@ GtTask::exec()
     // reset evaluator variables
     m_currentIter.setVal(0);
 
-    // Initialize individual evaluator setting
-    if (!setUp())
-    {
-        setState(GtProcessComponent::FAILED);
-        return false;
-    }
-
     // check max. iteration steps
     if (m_maxIter <= 0)
     {
@@ -161,7 +161,7 @@ GtTask::exec()
         return false;
     }
 
-    // emit `finihed` signal if task was not triggered by the `run` method
+    // emit `finished` signal if task was not triggered by the `run` method
     auto finally = gt::finally([this, isStandaone = pimpl->eventLoop.isRunning()](){
         if (!isStandaone) emit finished();
     });
@@ -173,11 +173,50 @@ GtTask::exec()
     emit triggerClearMonitoringData();
     GT_SUPPRESS_DEPRECATED_END
 
-    // start iteration
-    if (!runIteration())
+    // current execution mode identification string
+    QString execModeStr = execMode();
+
+    if (execModeStr != "local")
     {
-        setState(GtProcessComponent::FAILED);
-        return false;
+        // plugin execution
+        // find executor
+        GtAbstractProcessExecutor* executor =
+            gtProcessExecList->executor(execModeStr);
+
+        if (!executor)
+        {
+            // executor plugin not found
+            gtError() << tr("Calculator execution plugin error!");
+            setState(GtCalculator::FAILED);
+            return false;
+        }
+
+        // run execution plugin
+        const bool success = executor->exec(this);
+        delete executor;
+
+        if (!success)
+        {
+            // execution failed
+            setState(GtCalculator::FAILED);
+            return false;
+        }
+    }
+    else
+    {
+        // Initialize individual evaluator setting
+        if (!setUp())
+        {
+            setState(GtProcessComponent::FAILED);
+            return false;
+        }
+
+        // start iteration
+        if (!runIteration())
+        {
+            setState(GtProcessComponent::FAILED);
+            return false;
+        }
     }
 
     // max. number of iteration steps reached

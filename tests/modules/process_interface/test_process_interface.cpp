@@ -16,6 +16,7 @@
 #include "test_crashonexecutecalculator.h"
 #include "test_sleepcalculator.h"
 #include "test_progresscalculator.h"
+#include "executor/test_process_executor.h"
 
 #include "gt_objectfactory.h"
 
@@ -29,6 +30,30 @@ TestProcessInterface::init()
     // deserialized
     gtObjectFactory->registerClass(TestConsoleOverrideSolver::staticMetaObject,
                                    ident());
+}
+
+QString
+TestProcessInterface::executorId()
+{
+    return QStringLiteral("test executor");
+}
+
+QString
+TestProcessInterface::executorDescription()
+{
+    return QStringLiteral("Decorates process component execution");
+}
+
+QMetaObject
+TestProcessInterface::executor()
+{
+    return GT_METADATA(GtTestExecutor);
+}
+
+QList<GtAbstractProperty*>
+TestProcessInterface::executorSettings()
+{
+    return {};
 }
 
 GtVersionNumber

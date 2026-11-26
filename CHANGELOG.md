@@ -29,7 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Deprecated
 - Empty property IDs are now deprecated and will stop working in GTlab 2.2. - #1684
-
+- Deprecated `GtAbstractCalculatorExecutor`, `GtCalculatorExecutorList` (including the `gtCalcExecList` macro) and `GtCalculatorExecInterface`.
+  Executors now run any process component; use `GtAbstractProcessExecutor`, `GtProcessExecutorList`
+  (`gtProcessExecList`) and `GtProcessExecInterface` instead. The deprecated names will be removed in GTlab 2.2 - #1601
 ### API Changes
  - `GtAbstractObjectFactory::registerClass`/`registerClasses` now require an additional `ModuleId` argument, denoting the origin of the registered class(es) - #1650
    - Affected factories whose API changed accordingly:
