@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
  - Support to allow more customization of a collection - #1549
+- Developer Mode now warns when running process components use legacy
+  `currentProject()` (once per component class, without changing behavior). - #1519
 
 ### Changed
 - Module crash state now uses the per-installation state directory. Existing

@@ -23,6 +23,7 @@
 #include "gt_logging.h"
 
 #include "gt_calculator.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 struct GtCalculator::Impl
 {
@@ -51,6 +52,8 @@ GtCalculator::~GtCalculator() = default;
 bool
 GtCalculator::exec()
 {
+    GtProcessComponentExecutionScope componentScope(this);
+
     // clear old linked objects
     linkedObjects().clear();
 
@@ -124,7 +127,7 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString currentExecMode = pimpl->execMode.get();
+    const QString currentExecMode = pimpl->execMode.get();
 
     if (currentExecMode != "local")
     {

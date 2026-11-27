@@ -20,6 +20,7 @@
 #include "gt_task.h"
 #include "gt_project.h"
 #include "gt_logging.h"
+#include "internal/gt_legacyprojectaccess.h"
 
 GtRunnable::GtRunnable(QString projectPath) :
     GtRunnable(std::move(projectPath), GtExecutionContext())
@@ -55,6 +56,10 @@ GtRunnable::run()
 
     for (GtProcessComponent* pc : qAsConst(m_queue))
     {
+        // marks the component as executing on this thread for developer
+        // diagnostics only, e.g. legacy project access warnings
+        GtProcessComponentExecutionScope componentScope(pc);
+
         // success
         if (pc->exec()) continue;
 
