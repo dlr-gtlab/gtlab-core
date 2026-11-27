@@ -25,10 +25,12 @@
 #include "gt_datamodel.h"
 #include "gt_command.h"
 #include "gt_applicationprivate.h"
-#include "gt_logging.h"
 #include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
+#include "gt_offercollectionmigration.h"
+
+#include "gt_logging.h"
 
 #include <QMessageBox>
 #include <QIcon>
@@ -826,6 +828,13 @@ GtApplication::initFirstRun()
     }
 
     GtCoreApplication::initFirstRun();
+
+    if (!gt::detail::collectionmigration::offerMigration(*settings()))
+    {
+        QMessageBox::critical(
+            nullptr, tr("Migrate collections"),
+            tr("GTlab encountered an error during migrating the collections."));
+    }
 
     // create default perspective
     if (!GtPerspective::createDefault())
