@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
 ### Changed
+- Add, restore, and delete module packages in the Explorer with Undo and Redo. Add Module Package can restore saved data from the same project. - #1688
 - Module crash state now uses the per-installation state directory. Existing
   `GTlab.ini` files are copied there if no target exists. Downloaded and
   user-created collections are stored under per-user `Data/Collections`;

@@ -56,9 +56,13 @@ A: Open the New Project Wizard from ``File → New Project`` and set a project n
 
 .. rst-class:: faq-question
 
-Q: How do I add or remove modules for a project?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-A: Use ``Choose Project Modules`` from the project context menu in the Project Explorer.
+Q: How do I add or remove a module package in a project?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: Right-click an open project in the Project Explorer and choose
+``Add Module Package``. Select a module from the submenu. To remove a module
+package and its data from the project tree, right-click it and choose
+``Delete``. You can restore its last saved data later through
+``Add Module Package`` in the same project.
 
 .. rst-class:: faq-question
 

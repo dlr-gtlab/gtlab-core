@@ -30,7 +30,9 @@ The project name must be unique within the session. In addition, you cannot sele
    :align: center
    :alt: Project Specifications
 
-On the **Project Modules** page, select the modules relevant to your project. Only modules with a valid data model are available for selection.
+On the **Project Modules** page, select the modules whose module packages you
+want in the new project. Only modules with a valid data model are available
+for selection.
 
 .. image:: images/new_project_wizard_modules_dark.png
    :align: center
@@ -38,14 +40,32 @@ On the **Project Modules** page, select the modules relevant to your project. On
 
 Click *Next* to confirm your selection. To finalize the setup, choose *Finish* on the *Import Data* page.
 
-Add packages to a project
-^^^^^^^^^^^^^^^^^^^^^^^^^
-When creating projects, you are already asked which `Packages`_ should be part of the project data.
-This can be changed later using the *Choose Project Modules* entry in the project's `context menu`_.
+Edit module packages
+^^^^^^^^^^^^^^^^^^^^
+Right-click an open project in the Explorer and choose *Add Module Package*,
+directly above *Open Project Settings...*. Select a module from the submenu
+to create or restore its module package. The submenu lists loaded modules
+that provide a module package and have none in this project.
 
-.. image:: images/project_select_modules_dark.png
-   :align: center
-   :alt: Choose Project Modules
+If the current project folder already contains a saved module package for the
+selected module, GTlab offers *Restore Existing Module Package*,
+*Create Empty Module Package*, and *Cancel*. Restoring loads the last saved
+data and retains the original object UUIDs. GTlab checks for required module
+upgrades. If the file has no module version, GTlab asks you to confirm before
+reading its contents.
+
+Right-click a module package and choose *Delete*, or select it and press
+*Delete*. Confirm to remove the module package and its contents from the project.
+Other project objects keep their references. While the edit is in the undo
+history, *Undo* restores the module package and its unsaved changes in the
+object tree.
+
+Use *Save Project* to save your changes. Deleting a module package leaves its
+saved files on disk. If you choose *Create Empty Module Package*, the next
+successful save replaces the retained ``.gtmod`` file with the new data. The
+module continues to manage its own auxiliary files.
+
+Module packages can be edited only while no task is running.
 
 .. _label_section_sessions:
 
@@ -72,17 +92,12 @@ The context menu (right‑click) adapts depending on whether a project is open o
 - *Delete from Session*: Removes a closed project from the active session (optionally deleting it from the file system).
 - *Show in Explorer*: Opens the project’s folder in the file explorer.
 
-.. image:: images/project_explorer_open_project_dark.png
-   :align: center
-   :alt: Project Context Menu
+For open projects, the menu includes *Save Project*, *Save Project As…*,
+*Close Project*, and *Add Module Package*.
 
-Modules can be added or removed later using *Choose Project Modules* from the context menu. Projects can be saved or closed with *Save Project*, *Save Project As…*, or *Close Project*.
-
-.. image:: images/project_explorer_project_context_dark.png
-   :align: center
-   :alt: Project Context Menu
-
-The data objects of the modules linked to a project appear as sub‑entries in the tree. Their structure matches the module’s data model and may include models, geometry, or result objects. Use *Ctrl+F* to filter the data objects.
+Module packages appear directly below the project in the tree. A module
+package can contain models, geometry, or result objects, depending on the
+module's data model. Use *Ctrl+F* to filter the data objects.
 
 .. image:: images/project_explorer_project_content_dark.png
    :align: center
@@ -143,6 +158,8 @@ The context menu of a project is the access point for many of the actions mentio
      - Saves the current state of the project.
    * - *Save Project As...*
      - Saves the current project at a different location with a different name and opens this copy in the explorer.
+   * - *Add Module Package*
+     - Opens a submenu of modules for which you can create an empty module package or restore saved data from this project.
    * - *Open Project Settings...*
      - Opens the dialog of the `Project Settings`_.
    * - *Show Project Footprint*
@@ -153,8 +170,6 @@ The context menu of a project is the access point for many of the actions mentio
      - Opens the folder in the computer file system containing the project file.
    * - *Rename Project*
      - Opens a dialog to rename a project. Only possible for closed projects.
-   * - *Choose Project Modules*
-     - Opens selection editor for the module based Packages_ which should be used in the project.
    * - *Delete from Session*
      - Deletes project from session. Only possible for closed projects. The following dialog also offers the option of removing the project completely from the computer.
    * - *Generate Backup*
@@ -168,12 +183,11 @@ Project Data
 
 .. _label_section_packages:
 
-Packages
-^^^^^^^^
-Packages are elements of the first level in the project data structure, directly below the project element itself.
-These usually represent a data node specific to a use case, which is usually provided via the implementation in a module.
-However, this does not mean that each module provides its own data model node,
-nor does it mean that you cannot use the options of a module (e.g. its workflow elements) if you do not also activate the package in the project.
+Module Packages
+^^^^^^^^^^^^^^^
+A module package holds a module's data for this project. It appears directly
+below the project in the data tree. Modules can also provide workflow
+elements that are available independently of the project's module packages.
 
 .. _label_section_properties:
 

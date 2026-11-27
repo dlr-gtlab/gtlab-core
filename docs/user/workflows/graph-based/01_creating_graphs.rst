@@ -8,35 +8,35 @@ Creating Graphs
 Initial Setup
 """""""""""""
 
-The **IntelliGraph Module** must be installed and activated for the active project.
+Install the **IntelliGraph module** and add its module package to the active
+project.
 
 To install, select the component in the Maintenance Tool:
 
 	*GTlab 2.0* → *Modules* → *GTlab IntelliGraph Libraries*
 
-To activate the module for the current project, right-click on the project in the Explorer Dock and navigate to:
+To add the module package, right-click the project in the Explorer Dock and choose:
 
-	*Choose Project Modules* → *IntelliGraph*
+	*Add Module Package* → *IntelliGraph*
 
 Creating a Graph
 """"""""""""""""
 
-Once the module is activated for the current project, a new datatree object named **IntelliGraphs** appears.
-This object is also called the :ref:`Package  <label_section_packages>`.
-All Intelli Graphs are organized under this package object.
+The **IntelliGraphs** :ref:`module package <label_section_packages>` appears in
+the project tree and contains all Intelli Graphs for the project.
 
 First, one has to create a **category object**, which can be used to organize Intelli Graphs accordingly.
-To add a new category, right-click the package and select *Add Category*.
+To add a new category, right-click **IntelliGraphs** and select *Add Category*.
 Enter the name of the category and confirm.
 
 .. image:: ../images/workflows_how_to_add_category_bright.png
    :align: center
-   :alt: Adding a new category to the package
+   :alt: Adding a new category to the module package
    :class: only-light
 
 .. image:: ../images/workflows_how_to_add_category_dark.png
    :align: center
-   :alt: Adding a new category to the package
+   :alt: Adding a new category to the module package
    :class: only-dark
 
 .. note::
@@ -52,7 +52,7 @@ Enter the name of the graph and confirm.
 
 .. image:: ../images/workflows_how_to_add_graph_dark.png
    :align: center
-   :alt: Adding a new category to the package
+   :alt: Adding a new graph to a category
    :class: only-dark
 
 .. note::

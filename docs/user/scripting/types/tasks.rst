@@ -9,8 +9,8 @@ code. It allows tasks and calculators to be executed conditionally,
 iteratively, or in any user-defined sequence.
 
 Within the script, tasks and calculators can be instantiated and executed as
-Python objects. Additionally, all data model packages of the current project
-are accessible by their package name. This provides the ability to read and
+Python objects. Additionally, all module packages of the current project are
+accessible by name. This provides the ability to read and
 modify the data objects’ properties, as well as using the data when building
 the workflow. By combining these capabilities with Python features such as
 loops, conditions, and calculations, tasks and calculators can be scripted to
