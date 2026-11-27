@@ -928,7 +928,7 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
         if (!gtObjectFactory->invokable(datamodel->package()))
         {
             gtWarning() << errorString()
-                        << QObject::tr("Package is not invokable!");
+                        << QObject::tr("Module package is not invokable!");
             return false;
         }
         if (gtObjectFactory->containsDuplicates(datamodel->data()))

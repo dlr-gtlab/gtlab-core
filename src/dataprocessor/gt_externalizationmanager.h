@@ -102,6 +102,10 @@ public slots:
     void onProjectLoaded(QString projectDir);
 
 private:
+    friend class GtProject;
+
+    /// Selects the initial project backup or the current storage for fetching.
+    void setFetchInitialVersion(GtObject& root, bool fetchInitialVersion);
 
     /**
      * @brief GtExternalizationManager

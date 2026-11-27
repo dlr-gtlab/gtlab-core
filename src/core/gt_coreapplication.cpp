@@ -865,6 +865,28 @@ GtCoreApplication::loadingProcedure(GtAbstractLoadingHelper* helper)
     helper->exec();
 }
 
+void
+GtCoreApplication::loadingProcedure(
+    std::unique_ptr<GtAbstractLoadingHelper> helper)
+{
+    if (!helper) return;
+
+    auto* const job = helper.get();
+    auto* const callerThread = job->thread();
+    // loadingProcedure(job) blocks until `finished` is emitted, so capturing
+    // `helper` by reference is safe. In GUI mode the helper runs in a worker
+    // thread and must be deleted there via deleteLater(); in synchronous batch
+    // mode it stays on `callerThread` and is destroyed by `unique_ptr` on exit.
+    connect(
+        job, &GtAbstractLoadingHelper::finished, job,
+        [&helper, callerThread] {
+            if (helper->thread() != callerThread)
+                helper.release()->deleteLater();
+        },
+        Qt::DirectConnection);
+    loadingProcedure(job);
+}
+
 bool
 GtCoreApplication::checkLicence()
 {

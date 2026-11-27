@@ -130,6 +130,9 @@ private:
      */
     void setupDockWidgets();
 
+    /// Wires Undo and Redo to the current project's command history.
+    void setupCommandHistory();
+
     /**
      * @brief Closes through the normal shutdown path and requests a restart
      * when the close is accepted.

@@ -9,22 +9,53 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QMimeData>
-#include <QDir>
+#include "gt_coredatamodel.h"
 
-#include <gt_logging.h>
-#include "gt_session.h"
-#include "gt_project.h"
-#include "gt_objectfactory.h"
-#include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
+#include "gt_executioncontext.h"
+#include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_session.h"
 #include "gt_state.h"
 #include "gt_statehandler.h"
-#include "gt_externalizationmanager.h"
-#include "gt_executioncontext.h"
-#include "gt_projectexecutionguard.h"
 
-#include "gt_coredatamodel.h"
+#include "gt_externalizationmanager.h"
+#include "gt_objectfactory.h"
+#include "gt_objectmemento.h"
+#include "gt_package.h"
+
+#include "gt_logging.h"
+
+#include <QDir>
+#include <QMimeData>
+#include <QSet>
+
+// Validates package insertions into a project and acquires `guard` for the
+// caller's scope so no task can start while packages are being inserted.
+bool
+GtCoreDatamodel::canInsertPackages(GtObject* parent,
+                                   const QList<GtObject*>& children,
+                                   GtProjectExecutionGuard& guard)
+{
+    auto* project = qobject_cast<GtProject*>(parent);
+    if (!project) return true;
+
+    QSet<const QMetaObject*> packageTypes;
+    for (const auto* child : children)
+    {
+        const auto* package = qobject_cast<const GtPackage*>(child);
+        if (!package) continue;
+        // canAppendChildren checks each candidate against the existing tree.
+        const auto* type = package->metaObject();
+        if (packageTypes.contains(type)) return false;
+        packageTypes.insert(type);
+    }
+
+    return packageTypes.isEmpty() ||
+           (project->isOpen() && gtApp->currentProject() == project &&
+            guard.tryAcquire(project) ==
+                GtProjectExecutionGuard::Result::Acquired);
+}
 
 GtCoreDatamodel* GtCoreDatamodel::m_self = 0;
 
@@ -983,7 +1014,9 @@ GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
         return QModelIndexList();
     }
 
-    if (children.isEmpty() || !parent->canAppendChildren(children))
+    GtProjectExecutionGuard guard;
+    if (children.isEmpty() || !parent->canAppendChildren(children) ||
+        !canInsertPackages(parent, children, guard))
     {
         return {};
     }
@@ -1044,8 +1077,10 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         return {};
     }
 
+    GtProjectExecutionGuard guard;
     if (row < 0 || row > parent->childCount<GtObject*>() ||
-        !parent->canAppendChildren({child}))
+        !parent->canAppendChildren({child}) ||
+        !canInsertPackages(parent, {child}, guard))
     {
         return {};
     }
@@ -1088,6 +1123,25 @@ GtCoreDatamodel::deleteFromModel(QList<GtObject*> objects)
     if (objects.isEmpty())
     {
         return true;
+    }
+
+    // Hold the execution guard for the duration of deleting top-level module
+    // packages (rejecting mixed-project package deletions in a single call).
+    GtProjectExecutionGuard guard;
+    for (auto* object : objects)
+    {
+        if (!qobject_cast<GtPackage*>(object)) continue;
+        auto* project = qobject_cast<GtProject*>(object->parent());
+        if (!project) continue;
+        if (guard.isLocked() && guard.projectKey() == guard.projectKey(project))
+            continue;
+        if (guard.isLocked() || guard.tryAcquire(project) !=
+                                    GtProjectExecutionGuard::Result::Acquired)
+        {
+            gtWarning() << tr(
+                "Cannot delete module packages while a task is executing.");
+            return false;
+        }
     }
 
     // delete each object separately

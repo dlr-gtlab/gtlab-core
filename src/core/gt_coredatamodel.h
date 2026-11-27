@@ -27,6 +27,7 @@
 
 class GtSession;
 class GtProject;
+class GtProjectExecutionGuard;
 class GtObject;
 class GtAbstractObjectFactory;
 
@@ -385,6 +386,10 @@ protected:
                            const QList<GtObject*>& projectData);
 
 private:
+    static bool canInsertPackages(GtObject* parent,
+                                  const QList<GtObject*>& children,
+                                  GtProjectExecutionGuard& guard);
+
     /// Current session
     QPointer<GtSession> m_session;
 

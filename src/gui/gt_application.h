@@ -247,6 +247,8 @@ public:
      */
     bool commandIsRunning();
 
+    using GtCoreApplication::loadingProcedure;
+
     /**
      * @brief loadingProcedure
      * @param helper

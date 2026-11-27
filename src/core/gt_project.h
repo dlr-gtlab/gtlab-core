@@ -65,7 +65,7 @@ public:
     /**
      * @brief Returns dataset storage location for given module.
      * @param moduleId Module identification string.
-     * @return storage location of module specific dataset.
+     * @return Storage location, or an empty string if the path is unsafe.
      */
     QString moduleDataPath(const QString& moduleId) const;
 
@@ -298,6 +298,23 @@ public:
      */
     static const QString moduleExtension();
 
+    /// Prepares a new package for insertion through the data model.
+    /// Returns an empty pointer and a translated error on failure.
+    std::unique_ptr<GtPackage> createPackage(const QString& moduleId,
+                                             QString& error) const;
+
+    enum class PackageRestoreStatus
+    {
+        Success,
+        NeedsVersionConfirmation,
+        Failed
+    };
+
+    /// Restores the saved module package through the data model.
+    /// Returns a translated error on failure.
+    PackageRestoreStatus restorePackage(const QString& moduleId, QString& error,
+                                        bool allowUnversioned = false);
+
     /**
      * @brief Read-only getter to the project settings
      */
@@ -322,6 +339,8 @@ protected:
      * @param list module identification strings
      */
     void setModuleIds(const QStringList& list);
+
+    bool childAccepted(GtObject* child) override;
 
 private:
     struct Impl;

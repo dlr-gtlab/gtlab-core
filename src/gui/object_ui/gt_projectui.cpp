@@ -23,10 +23,14 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QTreeWidget>
+#include <QPointer>
+#include <QThread>
 
 #include "gt_abstractloadinghelper.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_objectfactory.h"
 #include "gt_datamodel.h"
 #include "gt_checkablestringlistmodel.h"
 #include "gt_application.h"
@@ -59,61 +63,73 @@
 
 #include "gt_projectui.h"
 
+#include <algorithm>
+
+namespace
+{
+// GtProjectUI is constructed before modules are loaded; "Add Module Package"
+// actions are registered later at default priority, so keep project lifecycle
+// actions ordered above them.
+constexpr int beforePackageActions = gt::gui::OrderPriority::Default - 1;
+} // namespace
+
 GtProjectUI::GtProjectUI()
 {
     addSingleAction(tr("Upgrade Project Data..."),
                     &GtProjectUI::upgradeProjectData)
-            .setIcon(gt::gui::icon::upload())
-            .setVerificationMethod(&GtProjectUI::canUpgradeProjectData)
-            .setVisibilityMethod(&GtProjectUI::canUpgradeProjectData);
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::upload())
+        .setVerificationMethod(&GtProjectUI::canUpgradeProjectData)
+        .setVisibilityMethod(&GtProjectUI::canUpgradeProjectData);
 
     addSingleAction(tr("Set as active Project"),
                     &GtProjectUI::setCurrentProject)
-            .setIcon(gt::gui::icon::objectEmpty())
-            .setVerificationMethod(&GtProjectUI::canSetCurrentProject)
-            .setVisibilityMethod(&GtProjectUI::canSetCurrentProject);
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::objectEmpty())
+        .setVerificationMethod(&GtProjectUI::canSetCurrentProject)
+        .setVisibilityMethod(&GtProjectUI::canSetCurrentProject);
 
-    addSingleAction(tr("Open Project"),
-                    &GtProjectUI::openProject)
-            .setIcon(gt::gui::icon::projectOpen())
-            .setVerificationMethod(&GtProjectUI::canOpenProject)
-            .setShortCut(gtApp->getShortCutSequence("openProject"));
+    addSingleAction(tr("Open Project"), &GtProjectUI::openProject)
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::projectOpen())
+        .setVerificationMethod(&GtProjectUI::canOpenProject)
+        .setShortCut(gtApp->getShortCutSequence("openProject"));
 
-    addSingleAction(tr("Close Project"),
-                    &GtProjectUI::closeProject)
-            .setIcon(gt::gui::icon::projectClose())
-            .setVerificationMethod(&GtProjectUI::canCloseProject)
-            .setShortCut(gtApp->getShortCutSequence("closeProject"));
+    addSingleAction(tr("Close Project"), &GtProjectUI::closeProject)
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::projectClose())
+        .setVerificationMethod(&GtProjectUI::canCloseProject)
+        .setShortCut(gtApp->getShortCutSequence("closeProject"));
 
-    addSingleAction(tr("Save Project"),
-                    &GtProjectUI::saveProject)
-            .setIcon(gt::gui::icon::save())
-            .setVerificationMethod(&GtProjectUI::canSaveProject)
-            .setShortCut(gtApp->getShortCutSequence("save"));
+    addSingleAction(tr("Save Project"), &GtProjectUI::saveProject)
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::save())
+        .setVerificationMethod(&GtProjectUI::canSaveProject)
+        .setShortCut(gtApp->getShortCutSequence("save"));
 
-    addSingleAction(tr("Save Project As..."),
-                    &GtProjectUI::saveProjectAs)
-            .setIcon(gt::gui::icon::save())
-            .setVerificationMethod(&GtProjectUI::canSaveProjectAs);
+    addSingleAction(tr("Save Project As..."), &GtProjectUI::saveProjectAs)
+        .setOrderPriority(beforePackageActions)
+        .setIcon(gt::gui::icon::save())
+        .setVerificationMethod(&GtProjectUI::canSaveProjectAs);
 
-    addSeparator();
+    addSeparator(beforePackageActions);
 
     if (gtApp->devMode())
     {
         addSingleAction(tr("Enable Version Control"),
                         &GtProjectUI::enableVersionControl)
-                .setIcon(gt::gui::icon::check())
-                .setVerificationMethod(&GtProjectUI::canEnableVersionControl)
-                .setVisibilityMethod(&GtProjectUI::canEnableVersionControl);
+            .setOrderPriority(beforePackageActions)
+            .setIcon(gt::gui::icon::check())
+            .setVerificationMethod(&GtProjectUI::canEnableVersionControl)
+            .setVisibilityMethod(&GtProjectUI::canEnableVersionControl);
 
-        addSeparator();
-
+        addSeparator(beforePackageActions);
     }
- 
+
     addSingleAction(tr("Open Project Settings..."),
                     &GtProjectUI::openProjectSettings)
-            .setIcon(gt::gui::icon::config())
-            .setVerificationMethod(&GtProjectUI::projectIsOpen);
+        .setIcon(gt::gui::icon::config())
+        .setVerificationMethod(&GtProjectUI::projectIsOpen);
 
     addSingleAction(tr("Show Project Footprint"),
                     &GtProjectUI::showFootprint)
@@ -139,11 +155,6 @@ GtProjectUI::GtProjectUI()
             .setShortCut(gtApp->getShortCutSequence("rename"));
 
     addSeparator();
-
-    addSingleAction(tr("Choose Project Modules"),
-                    &GtProjectUI::chooseProjectModule)
-            .setIcon(gt::gui::icon::plugin())
-            .setVerificationMethod(&GtProjectUI::canChooseProjectModule);
 
     addSingleAction(tr("Export Meta Data"),
                     &GtProjectUI::exportMetaData)
@@ -295,6 +306,9 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
 bool
 GtProjectUI::saveAndCloseCurrentProject()
 {
+    auto* project = gtApp->currentProject();
+    if (!project) return true;
+
     if (gtApp->hasProjectChanges())
     {
 
@@ -307,7 +321,7 @@ GtProjectUI::saveAndCloseCurrentProject()
 
         if (ret == QMessageBox::Yes)
         {
-            gtDataModel->saveProject(gtApp->currentProject());
+            if (!gtDataModel->saveProject(project)) return false;
         }
         else if (ret == QMessageBox::Cancel)
         {
@@ -315,8 +329,7 @@ GtProjectUI::saveAndCloseCurrentProject()
         }
     }
 
-    gtDataModel->closeProject(gtApp->currentProject());
-    return true;
+    return gtDataModel->closeProject(project);
 }
 
 
@@ -364,6 +377,22 @@ GtProjectUI::switchToProject(GtProject& toProject)
     {
         gtError() << tr("Could not switch project!");
     }
+}
+
+std::unique_ptr<GtProject>
+GtProjectUI::loadProjectFile(const QString& filename)
+{
+    std::unique_ptr<GtProject> project;
+    auto* const guiThread = QThread::currentThread();
+    gtApp->loadingProcedure(gt::makeLoadingHelper([&] {
+        GtProjectProvider provider(filename);
+        project.reset(provider.project());
+        if (!project) return;
+
+        project->projectSettings().moveToThread(guiThread);
+        gt::moveToThread(*project, guiThread);
+    }));
+    return project;
 }
 
 void
@@ -455,7 +484,7 @@ GtProjectUI::closeProject(GtObject* obj)
         {
             case QMessageBox::Yes:
             {
-                gtDataModel->saveProject(gtApp->currentProject());
+                if (!gtDataModel->saveProject(project)) return;
                 break;
             }
 
@@ -733,148 +762,129 @@ GtProjectUI::canSetCurrentProject(GtObject* obj)
     return true;
 }
 
-void
-GtProjectUI::chooseProjectModule(GtObject* obj)
+namespace
 {
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
+QIcon
+defaultPackageIcon(const QString& moduleId)
+{
+    const auto className = gtApp->modulePackageId(moduleId);
+    if (const auto* ui = gtApp->defaultObjectUI(className))
     {
-        return;
+        // A module's ObjectUI can use the package's default state to choose its icon.
+        const std::unique_ptr<GtObject> package(
+            gtObjectFactory->newObject(className));
+        const auto icon =
+            ui->data(package.get(), Qt::DecorationRole).value<QIcon>();
+        if (!icon.isNull()) return icon;
     }
+    return gt::gui::icon::plugin();
+}
 
-    if (!project->isOpen())
+} // namespace
+
+bool
+GtProjectUI::canEditPackages(GtObject* obj)
+{
+    auto* project = qobject_cast<GtProject*>(obj);
+    return project && project == gtApp->currentProject() && project->isOpen() &&
+           !GtProjectExecutionGuard::isLocked(project) &&
+           !gt::currentProcessExecutor().taskCurrentlyRunning();
+}
+
+void
+GtProjectUI::registerPackageActions()
+{
+    auto modules = gtApp->moduleDatamodelInterfaceIds();
+    if (modules.isEmpty()) return;
+    modules.sort(Qt::CaseInsensitive);
+
+    auto& group = addActionGroup(tr("Add Module Package"), modules.size());
+    group.setIcon(gt::gui::icon::plugin());
+    for (const auto& module : modules)
     {
-        return;
-    }
+        const auto* type = gtObjectFactory->GtAbstractObjectFactory::metaObject(
+            gtApp->modulePackageId(module));
+        if (!type || !type->inherits(&GtPackage::staticMetaObject)) continue;
 
-    GtDialog dialog;
-
-    dialog.setWindowTitle(tr("Project Modules") +
-                          QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(gt::gui::icon::plugin());
-
-    auto layout = new QVBoxLayout;
-
-    auto label = new QLabel(tr("Select project specific modules"));
-    layout->addWidget(label);
-
-    auto model = new GtCheckableStringListModel(
-        gtApp->moduleDatamodelInterfaceIds(), &dialog);
-
-    model->selectItems(project->moduleIds());
-
-    auto view = new QListView;
-    view->setModel(model);
-    view->setFrameStyle(QListView::NoFrame);
-    layout->addWidget(view);
-
-    layout->addStretch(1);
-
-
-
-    auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(gt::gui::icon::check());
-
-    connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
-    connect(model, SIGNAL(noItemSelected(bool)), okButton,
-            SLOT(setDisabled(bool)));
-
-    layout->addWidget(okButton);
-
-    dialog.setLayout(layout);
-
-    if (dialog.exec())
-    {
-        QStringList tmpAdd = model->selectedStringList();
-        QStringList tmpRemove;
-
-        foreach (const QString& str, project->moduleIds())
-        {
-            if (!tmpAdd.removeOne(str))
-            {
-                tmpRemove << str;
-            }
-        }
-
-        gtDebug().medium() << "added modules = " << tmpAdd;
-        gtDebug().medium() << "removed modules = " << tmpRemove;
-
-        if (!tmpAdd.isEmpty() || !tmpRemove.isEmpty())
-        {
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle(tr("Save Project"));
-            mb.setWindowIcon(gt::gui::icon::save());
-            mb.setText(tr("Found unsaved changes.\nDo you want to save ")
-                       + tr("your changes?"));
-            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-
-            mb.setDefaultButton(QMessageBox::Cancel);
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    gtDebug().medium() << tr("changing project...");
-
-                    gtDataModel->saveProject(project);
-                    gtDataModel->closeProject(project);
-
-                    QStringList modIds = project->moduleIds();
-                    modIds.append(tmpAdd);
-
-                    foreach (const QString& str, tmpRemove)
-                    {
-                        modIds.removeOne(str);
-                    }
-
-                    GtProjectProvider provider(project);
-
-                    provider.setProjectModules(modIds);
-
-                    if (provider.apply())
-                    {
-                        gtDataModel->openProject(project);
-                    }
-                    else
-                    {
-                        gtError() << tr("could not apply changes!");
-                    }
-
-                    break;
-                }
-
-                default:
-                    break;
-            }
-        }
+        QString label = module;
+        group.addAction(
+            makeSingleAction(label.replace('&', QStringLiteral("&&")),
+                             [module](GtObject* obj) {
+                                 if (auto* project =
+                                         qobject_cast<GtProject*>(obj))
+                                     addPackage(*project, module);
+                             })
+                .setIcon(defaultPackageIcon(module))
+                .setVisibilityMethod([module](GtObject* obj) {
+                    const auto* project = qobject_cast<GtProject*>(obj);
+                    return project && project->isOpen() &&
+                           !project->moduleIds().contains(module,
+                                                          Qt::CaseInsensitive);
+                })
+                .setVerificationMethod(&GtProjectUI::canEditPackages));
     }
 }
 
-bool
-GtProjectUI::canChooseProjectModule(GtObject* obj)
+void
+GtProjectUI::addPackage(GtProject& project, const QString& moduleId)
 {
-    if (gt::currentProcessExecutor().taskCurrentlyRunning())
+    if (!canEditPackages(&project)) return;
+
+    const auto title = tr("Add Module Package");
+    const QPointer<GtProject> target(&project);
+    bool restore = false;
+    if (QFile::exists(project.moduleDataPath(moduleId)))
     {
-        return false;
+        QMessageBox choice(
+            QMessageBox::Question, title,
+            tr("This project already has a saved module package for '%1'.")
+                .arg(moduleId),
+            QMessageBox::Cancel);
+        auto* restoreButton = choice.addButton(
+            tr("Restore Existing Module Package"), QMessageBox::AcceptRole);
+        auto* emptyButton = choice.addButton(tr("Create Empty Module Package"),
+                                             QMessageBox::ActionRole);
+        choice.setDefaultButton(restoreButton);
+        choice.exec();
+        restore = choice.clickedButton() == restoreButton;
+        if (!restore && choice.clickedButton() != emptyButton) return;
     }
 
+    if (!canEditPackages(target.data())) return;
 
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
+    QString error;
+    if (restore)
     {
-        return false;
+        using Status = GtProject::PackageRestoreStatus;
+        const auto status = target->restorePackage(moduleId, error);
+        if (status == Status::Success) return;
+        if (status == Status::NeedsVersionConfirmation)
+        {
+            if (QMessageBox::warning(nullptr, title,
+                                     tr("The saved module package has no "
+                                        "module version. Restore it anyway?"),
+                                     QMessageBox::Yes | QMessageBox::Cancel,
+                                     QMessageBox::Cancel) != QMessageBox::Yes ||
+                !canEditPackages(target.data()))
+                return;
+            if (target->restorePackage(moduleId, error, true) ==
+                Status::Success)
+                return;
+        }
+    }
+    else
+    {
+        auto package = target->createPackage(moduleId, error);
+        if (package &&
+            gtDataModel->appendChild(std::move(package), target.data())
+                .isValid())
+            return;
     }
 
-    if (!project->isOpen())
-    {
-        return false;
-    }
-
-    return true;
+    QMessageBox::warning(
+        nullptr, title,
+        error.isEmpty() ? tr("Could not add the module package to the project.")
+                        : error);
 }
 
 void
@@ -1079,23 +1089,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         rootElement.setAttribute(QStringLiteral("version"),
                                  gtApp->version().toString());
 
-        // write module meta data
-        QDomElement modsElement =
-            document.createElement(QStringLiteral("MODULES"));
-
-        foreach (const QString& str, project->moduleIds())
-        {
-            QDomElement modElement =
-                document.createElement(QStringLiteral("MODULE"));
-
-            modElement.setAttribute(QStringLiteral("name"), str);
-            modElement.setAttribute(QStringLiteral("version"),
-                                    gtApp->moduleVersion(str).toString());
-
-            modsElement.appendChild(modElement);
-        }
-
-        rootElement.appendChild(modsElement);
+        project->saveModuleMetaData(rootElement, document);
 
         // write data memento
         QDomElement dataElement =
@@ -1111,7 +1105,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
                 if (!clonedPkg)
                 {
-                    gtError() << tr("Could not clone package!");
+                    gtError() << tr("Could not clone the module package!");
                     return;
                 }
 
@@ -1630,7 +1624,7 @@ GtProjectUI::backupProject(GtObject* obj)
         {
             case QMessageBox::Yes:
             {
-                gtDataModel->saveProject(gtApp->currentProject());
+                if (!gtDataModel->saveProject(project)) return;
                 break;
             }
 
@@ -1655,9 +1649,8 @@ GtProjectUI::backupProject(GtObject* obj)
     if (backUpDialog.exec() && backUpDialog.result() == GtDialog::Accepted)
     {
         gtInfo() << tr("Generate backup");
-        gtApp->loadingProcedure(gt::makeLoadingHelper([&]() {
-            project->createBackup(backUpDialog.message());
-        }).get());
+        gtApp->loadingProcedure(gt::makeLoadingHelper(
+            [&] { project->createBackup(backUpDialog.message()); }));
     }
 }
 
@@ -1784,19 +1777,13 @@ GtProjectUI::restoreBackup(GtObject *obj)
             return;
         }
 
-        if (initialOpenProject)
-        {
-            gtDataModel->closeProject(gtApp->currentProject());
-        }
+        if (initialOpenProject && !gtDataModel->closeProject(project)) return;
 
         bool success = project->restoreBackupFiles(selectedFolder) ==
                        GtProject::RestoreStatus::Success;
 
         if (success && initialOpenProject)
         {
-            // update module metadata since the project might contain
-            // different packages in the backup
-            project->loadMetaData();
             success = gtDataModel->openProject(project);
         }
 

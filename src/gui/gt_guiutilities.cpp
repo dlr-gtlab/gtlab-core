@@ -307,6 +307,22 @@ addCustomActions(QMenu& menu, GtObject& obj)
 
             QAction* submenuAction = menu.insertMenu(before, submenu);
             gt::gui::setOrderPriority(*submenuAction, group.orderPriority());
+
+            // Hide or disable dynamic action groups (e.g. "Add Module Package")
+            // when no visible or enabled entries remain.
+            auto updateGroup = [submenu, submenuAction] {
+                const auto actions = submenu->actions();
+                submenuAction->setVisible(countVisibleActions(actions) > 0);
+                submenuAction->setEnabled(std::any_of(
+                    actions.cbegin(), actions.cend(),
+                    [](const QAction* action) {
+                        return !action->isSeparator() && action->isVisible() &&
+                               action->isEnabled();
+                    }));
+            };
+            updateGroup();
+            QObject::connect(submenu, &QMenu::aboutToShow, submenuAction,
+                             updateGroup);
         }
     }
 
@@ -380,25 +396,33 @@ gt::gui::addExportMenu(QMenu& menu, GtObject& obj)
     return nullptr;
 }
 
+namespace
+{
+
+GtObjectUIAction
+objectDeleteAction(const GtObject& obj,
+                   GtObjectUIAction::ActionMethod deleteRequestHandler)
+{
+    if (!obj.isDeletable()) return {};
+
+    if (!deleteRequestHandler)
+        deleteRequestHandler = [](GtObject* target) {
+            if (target->findRoot<GtProject*>())
+                gtDataModel->deleteFromModel(target);
+        };
+    return gt::gui::makeAction(QObject::tr("Delete"),
+                               std::move(deleteRequestHandler))
+        .setIcon(gt::gui::icon::delete_())
+        .setShortCut(gtApp->getShortCutSequence("delete"))
+        .setOrderPriority(gt::gui::OrderPriority::DeleteAction);
+}
+
+} // namespace
+
 GtObjectUIAction
 gt::gui::makeDeleteAction(GtObject& obj)
 {
-    // delete object action
-    if (obj.isDeletable())
-    {
-        auto lambda = [=](GtObject* target){
-            if (GtProject* project = target->findRoot<GtProject*>())
-            {
-                gtDataModel->deleteFromModel(target);
-            }
-        };
-        return makeAction(QObject::tr("Delete"), lambda)
-            .setIcon(gt::gui::icon::delete_())
-            .setShortCut(gtApp->getShortCutSequence("delete"))
-            .setOrderPriority(gt::gui::OrderPriority::DeleteAction);
-    }
-
-    return {};
+    return objectDeleteAction(obj, {});
 }
 
 GtObjectUIAction
@@ -422,10 +446,9 @@ gt::gui::makeRenameAction(GtObject& obj,
 }
 
 int
-gt::gui::makeObjectContextMenu(QMenu& menu,
-                               GtObject& obj,
-                               QModelIndex const& idx,
-                               QAbstractItemView* view)
+gt::gui::makeObjectContextMenu(
+    QMenu& menu, GtObject& obj, const QModelIndex& idx, QAbstractItemView* view,
+    std::function<void(GtObject*)> deleteRequestHandler)
 {
     addOpenWithActions(menu, obj);
 
@@ -448,7 +471,7 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
         }
     }
 
-    auto delete_ = makeDeleteAction(obj);
+    auto delete_ = objectDeleteAction(obj, std::move(deleteRequestHandler));
     if (!delete_.isEmpty())
     {
         QAction* before = addAction(

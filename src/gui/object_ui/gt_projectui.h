@@ -17,6 +17,10 @@
 
 #include "gt_objectui.h"
 
+#include <memory>
+
+class GtProject;
+
 /**
  * @brief The GtProjectUI class
  */
@@ -54,7 +58,10 @@ public:
      * @brief Switches the project and performs user queries
      * how to do it
      */
-    static void switchToProject(class GtProject& project);
+    static void switchToProject(GtProject& project);
+
+    /// Reads a project file through the normal background loader.
+    static std::unique_ptr<GtProject> loadProjectFile(const QString& filename);
 
     /**
      * @brief renameProject
@@ -194,17 +201,11 @@ private:
      */
     static bool canExportMetaData(GtObject* obj);
 
-    /**
-     * @brief chooseProjectModule
-     * @param obj
-     */
-    static void chooseProjectModule(GtObject* obj);
+    static void addPackage(GtProject& project, const QString& moduleId);
+    friend class GtApplication;
 
-    /**
-     * @brief canChooseProjectModule
-     * @param obj
-     */
-    static bool canChooseProjectModule(GtObject* obj);
+    void registerPackageActions();
+    static bool canEditPackages(GtObject* obj);
 
     /**
      * @brief enableVersionControl
