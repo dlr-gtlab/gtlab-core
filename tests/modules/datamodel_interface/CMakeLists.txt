@@ -28,3 +28,8 @@ target_link_libraries(TestDatamodelInterface
     GTlab::Logging
     GTlab::Core
 )
+if(TARGET GTlabUnitTest AND BUILD_WITH_HDF5)
+    add_dependencies(GTlabUnitTest TestDatamodelInterface)
+    target_compile_definitions(GTlabUnitTest PRIVATE
+        PACKAGE_HDF5_MODULE_PATH="$<TARGET_FILE:TestDatamodelInterface>")
+endif()

@@ -21,7 +21,8 @@ Feature: Test the mdi interface
          Then the entry has a valid icon
          # check number of context menu entries
          When the context menu of the entry is opened
-         Then the menu contains 3 entries
+         Then the menu contains 4 entries
+          And the action 'Delete' exists
          # Only one mdi item is registered -> no open with menu visible
           And the action 'Open With' does not exist
          # check listed actions and check the output dock
