@@ -1,0 +1,174 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ */
+
+#include "gt_migratecollectionsdata.h"
+
+#include "gt_collectionsinstallpath.h"
+
+#include "gt_applicationpaths.h"
+#include "gt_settings.h"
+#include "gt_finally.h"
+#include "gt_logging.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QLockFile>
+#include <QObject>
+#include <QSettings>
+#include <QCoreApplication>
+
+#include <algorithm>
+
+
+namespace gt
+{
+namespace detail
+{
+namespace collectionmigration
+{
+QString
+stateToString(State state)
+{
+    switch (state)
+    {
+    case State::Completed:
+        return QStringLiteral("completed");
+    case State::Suppressed:
+        return QStringLiteral("suppressed");
+    case State::Pending:
+        return QStringLiteral("pending");
+    }
+    return QStringLiteral("pending");
+}
+
+State
+stringToState(const QString& state)
+{
+    if (state == "completed") return State::Completed;
+    if (state == "suppressed") return State::Suppressed;
+    return State::Pending;
+}
+
+State
+settingToState(const GtSettings& appSettings)
+{
+    return stringToState(appSettings.collectionMigrationState());
+}
+
+const std::optional<QFileInfo>
+lockFile()
+{
+    auto configpath =
+        GtApplicationPaths().directory(GtApplicationPaths::Location::Config);
+    if (configpath.has_value())
+        return QFileInfo(configpath.value().absoluteFilePath(
+            QStringLiteral(".collection-migraton.lock")));
+    else
+        return {};
+}
+
+std::optional<QString>
+legacyPath()
+{
+    QDir installationDir(QCoreApplication::applicationDirPath());
+
+    if (!installationDir.cdUp())
+    {
+        gtError() << "Legacy path is invalid, cannot cdUp installation dir:"
+                  << installationDir;
+        return {};
+    }
+
+    QString legacy(
+        installationDir.absoluteFilePath(QStringLiteral("Collections")));
+
+    return legacy;
+}
+
+namespace
+{
+bool
+copyDirectory(const QString& sourcePath, const QString& destinationPath)
+{
+    QDir sourceDir(sourcePath);
+
+    if (!sourceDir.exists()) return false;
+
+    // Create destination directory
+    if (!QDir().mkpath(destinationPath)) return false;
+
+    const QFileInfoList entries =
+        sourceDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::Hidden |
+                                QDir::System | QDir::NoDotAndDotDot);
+
+    return std::all_of(entries.cbegin(), entries.cend(),
+                       [&destinationPath](const QFileInfo& entry) {
+                           if (entry.isSymLink())
+                           {
+                               return false;
+                           }
+                           const QString source = entry.absoluteFilePath();
+                           const QString destination =
+                               QDir(destinationPath).filePath(entry.fileName());
+                           return entry.isDir()
+                                      ? copyDirectory(source, destination)
+                                      : QFile::copy(source, destination);
+                       });
+}
+
+} // namespace
+
+
+bool
+runMigration(QString* migratedDestination)
+{
+    auto lock1 = lockFile();
+    if (!lock1.has_value())
+    {
+        gtError() << "Could not retrieve lock file path";
+        return false;
+    }
+
+    QLockFile lock(lock1.value().absoluteFilePath());
+
+    if (!lock.tryLock(1000))
+    {
+        gtError() << "Could not retrieve lock";
+        return false;
+    }
+
+    auto unlockGuard = gt::finally([&lock] { lock.unlock(); });
+
+    auto sourcePathRet = legacyPath();
+    if (!sourcePathRet.has_value())
+    {
+        return false;
+    }
+    auto sourcePath = sourcePathRet.value();
+
+    bool ok1;
+    auto destination = collectionsInstallPath(false, &ok1);
+    if (!ok1)
+    {
+        return false;
+    }
+
+    if (!copyDirectory(sourcePath, destination))
+    {
+        return false;
+    }
+    if (migratedDestination)
+    {
+        *migratedDestination = destination;
+    }
+    return true;
+}
+
+
+} // namespace collectionmigration
+} // namespace detail
+} // namespace gt
