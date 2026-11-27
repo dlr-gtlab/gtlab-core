@@ -8,6 +8,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <algorithm>
+
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
@@ -23,6 +25,7 @@
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
+#include "gt_session.h"
 #include "gt_package.h"
 #include "gt_labeldata.h"
 #include "gt_label.h"
@@ -40,6 +43,7 @@
 #include "gt_abstractloadinghelper.h"
 #include "gt_batchsaver.h"
 #include "gt_projectdependencyanalyzer.h"
+#include "gt_finally.h"
 
 #include "internal/gt_moduleupgrader.h"
 
@@ -405,9 +409,11 @@ GtProject::createBackup(QString const& message) const
 GtProject::RestoreStatus
 GtProject::restoreBackupFiles(const QString& timeStamp)
 {
-    using S = GtProject::RestoreStatus;
-
-    assert(!isOpen());
+    if (isOpen())
+    {
+        gtWarning() << tr("Cannot restore a backup while the project is open.");
+        return RestoreStatus::ErrorCopyFailed;
+    }
 
     QDir projectDir(path());
     assert(projectDir.exists());
@@ -419,22 +425,21 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     {
         gtError().nospace().noquote()
             << "Backup folder '" << timeStamp << "' not found";
-        return S::ErrorNoBackupFound;
+        return RestoreStatus::ErrorNoBackupFound;
     }
 
     static QRegularExpression projectModuleTasksRex(
         R"(^[\w\s\-{}]+\.(gtlab|gtmod)$|^tasks\/[\w\s\-{}\/]+\.gttask$)");
 
-    const auto projectFiles = gt::filesystem::directoryEntries(projectDir,
-                                                         true,
-                                                         projectModuleTasksRex);
+    const auto projectFiles = gt::filesystem::directoryEntries(
+        projectDir, true, projectModuleTasksRex);
 
-    auto moveRelativePath = [](const QDir& srcDir,
-                               const QDir& targetDir,
-                               const QString& rel) -> bool
-    {
+    auto moveRelativePath = [](const QDir& srcDir, const QDir& targetDir,
+                               const QString& rel) -> bool {
         const QString dst = targetDir.filePath(rel);
         const QString src = srcDir.filePath(rel);
+
+        if (!QFile::exists(src)) return false;
 
         QFileInfo dstInfo(dst);
         if (!QDir().mkpath(dstInfo.dir().absolutePath())) return false;
@@ -449,41 +454,106 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
     if (!temp.isValid())
     {
         gtError() << "Failed to create temporary directory";
-        return S::ErrorCopyFailed;
+        return RestoreStatus::ErrorCopyFailed;
     }
 
     QDir tempDir(temp.path());
 
+    QString failedStash;
     auto stash = [&](const QString& rel) {
-        return moveRelativePath(projectDir, tempDir, rel);
+        const bool succeeded = moveRelativePath(projectDir, tempDir, rel);
+        if (!succeeded)
+        {
+            failedStash = rel;
+        }
+        return succeeded;
     };
 
     auto restore = [&](const QString& rel) {
         return moveRelativePath(tempDir, projectDir, rel);
     };
 
-    // stash files, since the backup might fail
-    for (const auto& file : projectFiles)
-    {
-        if (!stash(file))
+    bool metadataReloadStarted = false;
+    auto rollback = [&]() {
+        const auto restoredFiles = gt::filesystem::directoryEntries(
+            projectDir, true, projectModuleTasksRex);
+
+        for (const auto& file : restoredFiles)
         {
-            gtError().nospace().noquote() << "Failed to stash '" << file << "'";
-            // try to undo partial stash best-effort
-            for (const auto& f : projectFiles) restore(f);
-            return S::ErrorCopyFailed;
+            if (!projectFiles.contains(file) &&
+                !QFile::remove(projectDir.filePath(file)))
+            {
+                gtWarning().nospace().noquote()
+                    << "Failed to remove restored file '" << file << "'";
+            }
         }
+
+        for (const auto& file : projectFiles)
+        {
+            if (QFile::exists(tempDir.filePath(file)) && !restore(file))
+            {
+                gtWarning().nospace().noquote()
+                    << "Failed to restore original file '" << file << "'";
+            }
+        }
+
+        if (metadataReloadStarted)
+        {
+            pimpl->valid = loadMetaData();
+            pimpl->upgradesAvailable = checkForUpgrades();
+        }
+    };
+    auto rollbackGuard = gt::finally([&]() { rollback(); });
+
+    // stash files, since the backup might fail
+    const bool stashSucceeded =
+        std::all_of(projectFiles.cbegin(), projectFiles.cend(), stash);
+    if (!stashSucceeded)
+    {
+        gtError().nospace().noquote()
+            << "Failed to stash '" << failedStash << "'";
+        // try to undo partial stash best-effort
+        return RestoreStatus::ErrorCopyFailed;
     }
 
     if (gt::project::copyProjectData(backupDir, projectDir,
-            gt::project::ForceOverwrite | gt::project::IgnoreBackupMd) !=
+                                     gt::project::ForceOverwrite |
+                                         gt::project::IgnoreBackupMd) !=
         gt::filesystem::CopyStatus::Success)
     {
         // restore project files since backup restored has failed
-        for (const auto& f : projectFiles) restore(f);
-        return S::ErrorCopyFailed;
+        return RestoreStatus::ErrorCopyFailed;
     }
 
-    return S::Success;
+    const QDomElement restoredRoot =
+        readProjectData(projectDir).documentElement();
+    const QString restoredName =
+        restoredRoot.attribute(QStringLiteral("projectname"));
+    if (gtApp && gtApp->session() && !restoredName.isEmpty())
+    {
+        const GtProject* existingProject =
+            gtApp->session()->findProject(restoredName);
+        if (existingProject && existingProject != this)
+        {
+            gtWarning() << tr("Project name is already used in the session:")
+                        << restoredName;
+            return RestoreStatus::ErrorCopyFailed;
+        }
+    }
+
+    // reload project state since the restored backup may contain
+    // different (e.g. outdated) project data
+    metadataReloadStarted = true;
+    pimpl->valid = loadMetaData();
+    if (!pimpl->valid)
+    {
+        return RestoreStatus::ErrorCopyFailed;
+    }
+
+    pimpl->upgradesAvailable = checkForUpgrades();
+    rollbackGuard.clear();
+
+    return RestoreStatus::Success;
 }
 
 bool
@@ -507,6 +577,7 @@ GtProject::loadMetaData()
     setObjectName(projectname);
 
     // read comment
+    pimpl->comment.clear();
     QDomElement cdata = root.firstChildElement(QStringLiteral("comment"));
 
     if (!cdata.isNull())
