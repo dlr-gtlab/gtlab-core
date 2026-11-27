@@ -31,12 +31,13 @@ GtSaveProjectHelper::run()
         return;
     }
 
-    if (!m_project->saveProjectOverallData())
+    // Save module packages before publishing the updated project.gtlab manifest.
+    if (!m_project->saveModuleData())
     {
         return;
     }
 
-    if (!m_project->saveModuleData())
+    if (!m_project->saveProjectOverallData())
     {
         return;
     }

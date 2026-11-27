@@ -48,9 +48,11 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 
     undoAction = new GtQmlAction(tr("Undo"), icon::url(icon::undo), this);
     undoAction->setVisible(false);
+    undoAction->setEnabled(false);
 
     redoAction = new GtQmlAction(tr("Redo"), icon::url(icon::redo), this);
     redoAction->setVisible(false);
+    redoAction->setEnabled(false);
 
     infoAction
         = new GtQmlAction(tr("Project Info"), icon::url(icon::info2), this);
@@ -162,13 +164,11 @@ void
 GtMainToolbar::makeConnections(GtMainWin* mainwin)
 {
 
-    connect(undoAction, SIGNAL(triggered()),
-            gtApp->undoStack(), SLOT(undo()));
-
+    // Triggering and enabled state of undoAction/redoAction are managed by
+    // GtMainWin::setupCommandHistory() to guard history during task execution.
     connect(gtApp->undoStack(), &QUndoStack::canUndoChanged, undoAction,
             [this](bool canUndo) {
                 undoAction->setVisible(undoAction->isVisible() || canUndo);
-                undoAction->setEnabled(canUndo);
             });
 
     connect(gtApp->undoStack(), &QUndoStack::undoTextChanged, undoAction,
@@ -176,16 +176,12 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
                 undoAction->setToolTip(txt);
             });
 
-    connect(redoAction, SIGNAL(triggered()),
-            gtApp->undoStack(), SLOT(redo()));
-
     connect(infoAction, &GtQmlAction::triggered,
             this, &GtMainToolbar::showProjectInfo);
 
     connect(gtApp->undoStack(), &QUndoStack::canRedoChanged, redoAction,
             [this](bool canRedo) {
                 redoAction->setVisible(redoAction->isVisible() || canRedo);
-                redoAction->setEnabled(canRedo);
             });
 
     connect(gtApp->undoStack(), &QUndoStack::redoTextChanged, redoAction,

@@ -12,6 +12,7 @@
 
 #include "gt_explorerview.h"
 #include "gt_searchwidget.h"
+#include "gt_package.h"
 #include "gt_project.h"
 #include "gt_qtutilities.h"
 #include "gt_application.h"
@@ -27,15 +28,27 @@
 #include "gt_guiutilities.h"
 
 
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QFrame>
 #include <QCheckBox>
 #include <QMenu>
 #include <QKeyEvent>
+#include <QPointer>
 
 #include <algorithm>
-#include <QApplication>
+#include <iterator>
 #include <memory>
+
+namespace
+{
+bool
+isModulePackage(GtObject* object)
+{
+    return qobject_cast<GtPackage*>(object) &&
+           qobject_cast<GtProject*>(object->parent());
+}
+} // namespace
 
 GtExplorerDock::GtExplorerDock() :
     m_model(nullptr),
@@ -203,7 +216,15 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     QMenu menu(this);
 
-    if (gt::gui::makeObjectContextMenu(menu, *obj, index, m_view))
+    std::function<void(GtObject*)> deleteRequestHandler;
+    if (isModulePackage(obj))
+        deleteRequestHandler =
+            [this, target = QPersistentModelIndex(index)](GtObject*) {
+                if (target.isValid()) deleteElements({target});
+            };
+
+    if (gt::gui::makeObjectContextMenu(menu, *obj, index, m_view,
+                                       std::move(deleteRequestHandler)))
     {
         menu.exec(QCursor::pos());
     }
@@ -712,6 +733,17 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
     }
 
     GtDeleteItemMessageBox mb(str1, str2);
+    // mb.exec() runs a nested event loop; track targets with QPointer so we
+    // abort if any object is destroyed before the user confirms deletion.
+    QList<QPointer<GtObject>> pendingDeletion;
+    if (std::any_of(deletables.cbegin(), deletables.cend(), isModulePackage))
+    {
+        mb.setInformativeText(tr("Selected module packages and their contents "
+                                 "will be removed from the project."));
+        mb.setDefaultButton(QMessageBox::Cancel);
+        std::copy(deletables.cbegin(), deletables.cend(),
+                  std::back_inserter(pendingDeletion));
+    }
 
     int ret = mb.exec();
 
@@ -719,6 +751,9 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
     {
         case QMessageBox::Yes:
         {
+            if (std::any_of(pendingDeletion.cbegin(), pendingDeletion.cend(),
+                            [](const auto& object) { return object.isNull(); }))
+                return;
             gtDataModel->deleteFromModel(deletables);
             break;
         }

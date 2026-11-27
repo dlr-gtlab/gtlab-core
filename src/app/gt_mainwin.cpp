@@ -19,6 +19,8 @@
 #include "gt_projectprovider.h"
 #include "gt_datamodel.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
+#include "gt_processexecutormanager.h"
 #include "gt_filedialog.h"
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
@@ -47,7 +49,9 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QItemSelectionModel>
 #include <QKeyEvent>
+#include <QUndoStack>
 #include <QUndoView>
 #include <QMdiSubWindow>
 #include <QDesktopServices>
@@ -67,6 +71,14 @@
 
 namespace
 {
+bool
+canChangeCommandHistory()
+{
+    // GtMementoChangeCommand applies diffs directly, bypassing the data
+    // model's execution guards.
+    return !gt::currentProcessExecutor().taskCurrentlyRunning() &&
+           !GtProjectExecutionGuard::isLocked(gtApp->currentProject());
+}
 
     QString canonicalProjectPath(const QString& path)
     {
@@ -151,23 +163,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->mdiArea->tabBar()->setExpanding(true);
     ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
 
-    // undo action
-    QAction* undoAct = gtApp->undoStack()->createUndoAction(this,
-                       tr("Undo"));
-    undoAct->setIcon(gt::gui::icon::undo());
-    undoAct->setText(tr("Undo"));
-    undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
-
-    // redo action
-    QAction* redoAct = gtApp->undoStack()->createRedoAction(this,
-                       tr("Redo"));
-    redoAct->setIcon(gt::gui::icon::redo());
-    redoAct->setText(tr("Redo"));
-    redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
-
-    // edit menu initialization
-    ui->menuEdit->addAction(undoAct);
-    ui->menuEdit->addAction(redoAct);
+    setupCommandHistory();
     ui->menuEdit->addAction(ui->actionUndoHistory);
     ui->menuEdit->addSeparator();
     ui->menuEdit->addAction(ui->actionProcessQueue);
@@ -661,10 +657,7 @@ GtMainWin::importProject()
         return;
     }
 
-    GtProjectProvider provider(filename);
-    std::unique_ptr<GtProject> loadedProject(provider.project());
-
-    if (!addProjectAndRequestOpen(std::move(loadedProject), true))
+    if (!addProjectAndRequestOpen(GtProjectUI::loadProjectFile(filename), true))
     {
         gtWarning() << tr("Cannot open the project");
     }
@@ -685,8 +678,7 @@ GtMainWin::openProjectFromPath(const QString& projectFilePath)
         return;
     }
 
-    GtProjectProvider provider(fileInfo.absoluteFilePath());
-    std::unique_ptr<GtProject> project(provider.project());
+    auto project = GtProjectUI::loadProjectFile(fileInfo.absoluteFilePath());
     if (!project || !project->isValid())
     {
         QMessageBox::critical(
@@ -883,14 +875,96 @@ GtMainWin::openExamplesWidget()
 }
 
 void
+GtMainWin::setupCommandHistory()
+{
+    auto* stack = gtApp->undoStack();
+    const auto addGuardedAction = [this, stack](GtQmlAction* button,
+                                                auto operation) {
+        const bool undo = operation == &QUndoStack::undo;
+        const auto label = undo ? tr("Undo") : tr("Redo");
+        const auto format = undo ? tr("Undo %1") : tr("Redo %1");
+        auto* action = ui->menuEdit->addAction(
+            undo ? gt::gui::icon::undo() : gt::gui::icon::redo(), label);
+        action->setShortcut(gtApp->getShortCutSequence(undo ? "undo" : "redo"));
+        const auto setText = [action, label, format](const QString& command) {
+            action->setText(command.isEmpty() ? label : format.arg(command));
+        };
+        connect(stack,
+                undo ? &QUndoStack::undoTextChanged
+                     : &QUndoStack::redoTextChanged,
+                action, setText);
+        setText(undo ? stack->undoText() : stack->redoText());
+        connect(action, &QAction::triggered, stack, [stack, operation] {
+            if (canChangeCommandHistory()) (stack->*operation)();
+        });
+        connect(button, &GtQmlAction::triggered, action, &QAction::trigger);
+        return action;
+    };
+    auto* undo =
+        addGuardedAction(m_mainWindowToolbar->undoAction, &QUndoStack::undo);
+    auto* redo =
+        addGuardedAction(m_mainWindowToolbar->redoAction, &QUndoStack::redo);
+
+    const auto refresh = [this, stack, undo, redo] {
+        const bool editable = canChangeCommandHistory();
+        undo->setEnabled(editable && stack->canUndo());
+        redo->setEnabled(editable && stack->canRedo());
+        m_mainWindowToolbar->undoAction->setEnabled(undo->isEnabled());
+        m_mainWindowToolbar->redoAction->setEnabled(redo->isEnabled());
+        ui->actionUndoHistory->setEnabled(editable);
+        if (m_undoView) m_undoView->setEnabled(editable);
+    };
+    connect(stack, &QUndoStack::canUndoChanged, this, refresh);
+    connect(stack, &QUndoStack::canRedoChanged, this, refresh);
+    connect(ui->menuEdit, &QMenu::aboutToShow, this, refresh);
+    connect(gtApp, &GtApplication::currentProjectChanged, this, refresh);
+
+    auto observeExecutor = [this, refresh, queue = QMetaObject::Connection{}](
+                               GtCoreProcessExecutor* executor) mutable {
+        disconnect(queue);
+        if (executor)
+            queue = connect(executor, &GtCoreProcessExecutor::queueChanged,
+                            this, refresh, Qt::QueuedConnection);
+        refresh();
+    };
+    observeExecutor(&gt::currentProcessExecutor());
+    connect(&gt::processExecutorManager(),
+            &GtProcessExecutorManager::executorChanged, this,
+            std::move(observeExecutor));
+}
+
+void
 GtMainWin::openCommandHistory()
 {
+    if (!canChangeCommandHistory()) return;
     if (!m_undoView.data())
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
         m_undoView->setWindowIcon(gt::gui::icon::history());
-        m_undoView->setStack(gtApp->undoStack());
+        auto* stack = gtApp->undoStack();
+        m_undoView->setStack(stack);
+
+        // QUndoView's default selection model changes the stack directly.
+        auto* view = m_undoView.data();
+        auto* selection = new QItemSelectionModel(view->model(), view);
+        view->setSelectionModel(selection);
+        const auto selectStackIndex = [view, stack] {
+            view->setCurrentIndex(view->model()->index(stack->index(), 0));
+        };
+        connect(view->model(), &QAbstractItemModel::modelReset, view,
+                selectStackIndex);
+        connect(selection, &QItemSelectionModel::currentChanged, view,
+                [stack, selectStackIndex](const QModelIndex& index) {
+                    if (!index.isValid() || index.row() == stack->index())
+                        return;
+                    if (canChangeCommandHistory())
+                        stack->setIndex(index.row());
+                    else
+                        selectStackIndex();
+                });
+        selectStackIndex();
+
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);
     }

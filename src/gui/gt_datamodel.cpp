@@ -18,6 +18,7 @@
 #include "gt_saveprojecthelper.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_package.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
@@ -58,6 +59,13 @@ GtDataModel::flags(const QModelIndex& index) const
     // check object
     if (object)
     {
+        // Top-level module packages accept drops, but cannot be dragged out of
+        // their project (skip Qt::ItemIsDragEnabled below).
+        if (qobject_cast<GtPackage*>(object) &&
+            qobject_cast<GtProject*>(object->parent()))
+        {
+            return defaultFlags | Qt::ItemIsDropEnabled;
+        }
         // add drop enabled flag
         defaultFlags = defaultFlags | Qt::ItemIsDropEnabled;
     }
@@ -284,6 +292,8 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
         return true;
     }
 
+    reduceToParents(objects);
+
     QString commandMsg;
 
     if (objects.size() == 1)
@@ -296,8 +306,6 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
         commandMsg = QString::number(objects.size()) + QStringLiteral(" ") +
                      tr("objects") + QStringLiteral(" ") + tr("deleted");
     }
-
-    reduceToParents(objects);
 
     auto* commonParent = qobject_cast<GtObject*>(
         gt::find_lowest_ancestor(objects, gt::get_parent_object)

@@ -243,7 +243,7 @@ private slots:
      * @brief onSubWindowClose
      * @param obj
      */
-    void onSubWindowClose(QObject* obj);
+    void onSubWindowClose(const QObject* obj);
 
     void onCloseTabRequest(int i);
 };

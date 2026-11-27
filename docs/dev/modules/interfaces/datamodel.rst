@@ -4,8 +4,8 @@ Data-model interface
 ====================
 
 Use :cpp:class:`GtDatamodelInterface` when a module contributes persistent
-domain objects to GTlab projects. It registers one package class and any number
-of :cpp:class:`GtObject`-derived data classes. GTlab then uses its object
+domain objects to GTlab projects. It registers one module package class and any
+number of :cpp:class:`GtObject`-derived data classes. GTlab uses its object
 factories and serialization system to create, copy, save, and restore them.
 
 .. code-block:: cpp
@@ -30,10 +30,10 @@ factories and serialization system to create, copy, save, and restore them.
       bool standAlone() override;
   };
 
-Register the package and objects
---------------------------------
+Register the module package and objects
+---------------------------------------
 
-``package()`` returns the metadata of the module's package class. ``data()``
+``package()`` returns the metadata of the module package class. ``data()``
 returns the metadata of every other persistent class provided by the module:
 
 .. code-block:: cpp
@@ -59,10 +59,10 @@ requires a deliberate migration strategy.
 Choose standalone behavior
 --------------------------
 
-``standAlone()`` tells GTlab whether the module owns an independent package in
-the project structure:
+``standAlone()`` tells GTlab whether the module owns a top-level module package
+in the project structure:
 
-* return ``true`` for a domain module with its own package and data tree;
+* return ``true`` for a domain module with its own module package and data tree;
 * return ``false`` when the module only contributes types or functionality to
   data structures owned elsewhere.
 
@@ -73,7 +73,7 @@ independently.
 Even when a module is not stand-alone, it may still need to implement
 ``package()`` and ``data()`` if it contributes shared types to another module's
 data tree. In that case the module supplies the type metadata, but GTlab does
-not create a separate top-level package for it.
+not create a separate module package for it.
 
 Data-model classes should keep domain state in GTlab properties and follow the
 normal ``GtObject`` parent-child ownership model. See

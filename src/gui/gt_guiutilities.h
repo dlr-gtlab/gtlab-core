@@ -16,6 +16,8 @@
 #include "gt_gui_exports.h"
 #include "gt_version.h"
 
+#include <functional>
+
 class QAction;
 class QMenu;
 class QKeyEvent;
@@ -178,33 +180,30 @@ GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
                                                 QAbstractItemView& view);
 
 /**
- * @brief Adds the ObjectUI Actions of `obj` to `menu`. Returns the number of
- * visible actions. Optional `index` and `view` parameter are used for
- * renaming the object (if its renamable) in a `QAbstractItemView`. Can be used
- * in custom context menus for views that displays GtObjects. Automatically
- * sorts the menu actions according to their order priorities.
+ * @brief Adds the object's context-menu actions in priority order.
  *
- * Usage:
+ * @code{.cpp}
+ * QMenu menu(this);
+ * if (gt::gui::makeObjectContextMenu(menu, *obj, index, m_view))
+ * {
+ *     menu.exec(QCursor::pos());
+ * }
+ * @endcode
  *
- *  QMenu menu(this);
- *
- *  if (gt::gui::makeObjectContextMenu(menu, *obj, index, m_view))
- *  {
- *      menu.exec(QCursor::pos());
- *  }
- *
- * @param menu Menu to adds the actions to.
- * @param obj Optional. Object to fetch the object uis froms.
- * @param idx Optional. Index of the object in the view.
- * This may be used to rename the object.
- * @param view View. May be used for renaming the object.
- * @return Number of visible actions. May be used to conditionally show menu
- * only if visible actions are present.
+ * @param menu Menu to populate.
+ * @param obj Object for which the menu is built.
+ * @param idx Model index of the object in @p view, used for inline renaming.
+ * @param view View used for inline renaming. May be null.
+ * @param deleteRequestHandler Called with the target object when the user
+ * triggers the Delete action. A custom handler replaces default deletion and
+ * is responsible for any confirmation and for deleting the object. An empty
+ * handler uses the default deletion behavior.
+ * @return Number of visible actions, excluding separators.
  */
-GT_GUI_EXPORT int makeObjectContextMenu(QMenu& menu,
-                                        GtObject& obj,
-                                        const QModelIndex& idx = {},
-                                        QAbstractItemView* view = {});
+GT_GUI_EXPORT int makeObjectContextMenu(
+    QMenu& menu, GtObject& obj, const QModelIndex& idx = {},
+    QAbstractItemView* view = nullptr,
+    std::function<void(GtObject*)> deleteRequestHandler = {});
 
 /**
  * @brief Handles a double click on the object using the correct object ui

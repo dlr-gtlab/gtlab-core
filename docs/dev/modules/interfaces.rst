@@ -27,8 +27,8 @@ Choose interfaces by feature
      - Any GTlab module
      - Identity, version, description, and optional module-wide hooks
    * - :ref:`datamodelinterface`
-     - Persistent domain objects and, optionally, its own project package
-     - Package and object-class metadata
+     - Persistent domain objects and, optionally, its own module package
+     - Module package and object-class metadata
    * - :ref:`processinterface`
      - Calculators or workflow tasks
      - Calculator and task descriptors

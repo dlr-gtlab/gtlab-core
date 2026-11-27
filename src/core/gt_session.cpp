@@ -78,12 +78,13 @@ GtSession::saveProjectData(GtProject* project)
         return false;
     }
 
-    if (!project->saveProjectOverallData())
+    // Save module packages before publishing the updated project.gtlab manifest.
+    if (!project->saveModuleData())
     {
         return false;
     }
 
-    if (!project->saveModuleData())
+    if (!project->saveProjectOverallData())
     {
         return false;
     }

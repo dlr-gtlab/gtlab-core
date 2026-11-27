@@ -18,8 +18,8 @@
 #include <QFileInfo>
 #include <QHeaderView>
 
-#include "gt_projectprovider.h"
 #include "gt_project.h"
+#include "gt_projectui.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
 #include "gt_application.h"
@@ -132,12 +132,10 @@ GtExplorerView::dropEvent(QDropEvent* event)
         {
             gtDebug() << "  |-> is existing file!";
 
-            GtProjectProvider provider(url.toLocalFile());
-            GtProject* project = provider.project();
-
-            if (!gtDataModel->newProject(project, true))
+            auto project = GtProjectUI::loadProjectFile(url.toLocalFile());
+            if (gtDataModel->newProject(project.get(), true))
             {
-                delete project;
+                static_cast<void>(project.release());
             }
         }
     }

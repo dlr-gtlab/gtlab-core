@@ -487,10 +487,16 @@ public:
     virtual void endCommand(const GtCommand& command);
 
     /**
-     * @brief loadingProcedure
-     * @param helper
+     * @brief Runs the helper and returns once its work is complete.
+     * @param helper Borrowed helper. The caller manages its lifetime.
      */
     virtual void loadingProcedure(GtAbstractLoadingHelper* helper);
+
+    /**
+     * @brief Takes ownership of the helper and returns once its work is complete.
+     * @param helper Parentless helper created in the calling thread.
+     */
+    void loadingProcedure(std::unique_ptr<GtAbstractLoadingHelper> helper);
 
     /**
      * @brief checkLicence
