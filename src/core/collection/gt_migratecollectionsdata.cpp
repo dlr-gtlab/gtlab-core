@@ -11,6 +11,7 @@
 #include "gt_applicationpaths.h"
 #include "gt_settings.h"
 #include "gt_finally.h"
+
 #include "gt_logging.h"
 
 #include <QDir>
