@@ -29,6 +29,8 @@ const auto migrationTestRoot =
     QStringLiteral("GTLAB_COLLECTION_MIGRATION_TEST_ROOT");
 const auto migrationTestMode =
     QStringLiteral("GTLAB_COLLECTION_MIGRATION_TEST_MODE");
+const auto migrationTestDestination =
+    QStringLiteral("GTLAB_COLLECTION_MIGRATION_TEST_DESTINATION");
 const auto itemPath = QStringLiteral("group/item/index.json");
 
 QString
@@ -62,6 +64,7 @@ protected:
         auto environment = QProcessEnvironment::systemEnvironment();
         environment.insert(migrationTestRoot, directory.path());
         environment.insert(migrationTestMode, mode);
+        environment.insert(migrationTestDestination, newPath);
 #ifdef Q_OS_WIN
         const QString libraryDirectory =
             QDir::toNativeSeparators(QFileInfo(executable).absolutePath());
@@ -152,7 +155,9 @@ TEST(CollectionMigrationProcess, DISABLED_Run)
             }
         }
     });
-    const QString destination = destinationPath(root);
+    const QString destination =
+        qEnvironmentVariable("GTLAB_COLLECTION_MIGRATION_TEST_DESTINATION");
+    ASSERT_FALSE(destination.isEmpty());
     application.init();
     application.settings()->setUserCollectionsDir(destination);
     ASSERT_EQ(State::Pending, settingToState(*application.settings()));
@@ -236,6 +241,48 @@ TEST_F(CollectionMigrationTest, FailsWhenLegacyDirectoryIsMissing)
 
     EXPECT_FALSE(QFileInfo::exists(newPath));
 }
+
+TEST_F(CollectionMigrationTest, RejectsLegacyDirectoryAsDestination)
+{
+    const QDir legacy(oldPath);
+    ASSERT_TRUE(legacy.mkpath(QStringLiteral("empty")));
+    newPath = oldPath;
+
+    ASSERT_NO_FATAL_FAILURE(migrate(QStringLiteral("failure")));
+
+    EXPECT_EQ(QStringList{QStringLiteral("empty")},
+              legacy.entryList(QDir::AllEntries | QDir::NoDotAndDotDot));
+}
+
+TEST_F(CollectionMigrationTest, RejectsMissingDestinationInsideLegacyDirectory)
+{
+    ASSERT_NO_FATAL_FAILURE(writeFile(oldPath, itemPath, "original"));
+    const QString nestedParent =
+        QDir(oldPath).filePath(QStringLiteral("nested"));
+    newPath = QDir(nestedParent).filePath(QStringLiteral("collections"));
+
+    ASSERT_NO_FATAL_FAILURE(migrate(QStringLiteral("failure")));
+
+    EXPECT_FALSE(QFileInfo::exists(nestedParent));
+    expectContents(oldPath, itemPath, "original");
+}
+
+#ifdef Q_OS_UNIX
+TEST_F(CollectionMigrationTest,
+       RejectsDestinationThroughSymlinkToLegacyDirectory)
+{
+    ASSERT_NO_FATAL_FAILURE(writeFile(oldPath, itemPath, "original"));
+    const QString alias = directory.filePath(QStringLiteral("legacy-alias"));
+    ASSERT_TRUE(QFile::link(oldPath, alias));
+    newPath = QDir(alias).filePath(QStringLiteral("nested/collections"));
+
+    ASSERT_NO_FATAL_FAILURE(migrate(QStringLiteral("failure")));
+
+    EXPECT_FALSE(
+        QFileInfo::exists(QDir(oldPath).filePath(QStringLiteral("nested"))));
+    expectContents(oldPath, itemPath, "original");
+}
+#endif
 
 TEST_F(CollectionMigrationTest, StopsOnFirstCopyFailure)
 {

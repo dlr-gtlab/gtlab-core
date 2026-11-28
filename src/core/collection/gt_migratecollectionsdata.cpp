@@ -89,6 +89,34 @@ legacyPath()
     return legacy;
 }
 
+bool
+isMigrationDestinationSafe(const QString& sourcePath,
+                           const QString& destinationPath)
+{
+    if (sourcePath.isEmpty() || destinationPath.isEmpty()) return false;
+
+    const QString source = QDir(sourcePath).canonicalPath();
+    if (source.isEmpty()) return false;
+
+    // The destination may be missing. Resolve its nearest existing ancestor
+    // so a symbolic link in the path cannot hide an overlap.
+    QFileInfo ancestor(QDir(destinationPath).absolutePath());
+    while (!ancestor.exists() && !ancestor.isSymLink())
+    {
+        const QString parent = ancestor.absolutePath();
+        if (parent == ancestor.absoluteFilePath()) return false;
+        ancestor.setFile(parent);
+    }
+
+    const QString resolvedAncestor = ancestor.canonicalFilePath();
+    if (resolvedAncestor.isEmpty()) return false;
+
+    const QString relative = QDir(source).relativeFilePath(resolvedAncestor);
+    return relative == QStringLiteral("..") ||
+           relative.startsWith(QStringLiteral("../")) ||
+           QDir::isAbsolutePath(relative);
+}
+
 namespace
 {
 bool
@@ -97,6 +125,16 @@ copyDirectory(const QString& sourcePath, const QString& destinationPath)
     QDir sourceDir(sourcePath);
 
     if (!sourceDir.exists()) return false;
+
+    if (!isMigrationDestinationSafe(sourcePath, destinationPath))
+    {
+        gtError() << QObject::tr(
+                         "Cannot migrate collections from %1 to %2. "
+                         "The destination must be outside the source folder.")
+                         .arg(QDir::toNativeSeparators(sourcePath),
+                              QDir::toNativeSeparators(destinationPath));
+        return false;
+    }
 
     // Create destination directory
     if (!QDir().mkpath(destinationPath)) return false;

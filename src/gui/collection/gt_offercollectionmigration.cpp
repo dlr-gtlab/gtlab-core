@@ -101,6 +101,31 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
 
         if (answer == QMessageBox::Yes)
         {
+            bool destinationValid = false;
+            const QString destination =
+                collectionsInstallPath(false, &destinationValid);
+            if (!destinationValid) return false;
+
+            if (!gt::detail::collectionmigration::isMigrationDestinationSafe(
+                    legacy.absolutePath(), destination))
+            {
+                QMessageBox error(QMessageBox::Critical, title, QString{},
+                                  QMessageBox::Ok);
+                error.setTextFormat(Qt::PlainText);
+                error.setText(
+                    GtApplication::tr(
+                        "Collection migration is not possible. Choose a "
+                        "destination "
+                        "outside the legacy Collections folder.\n\n"
+                        "Legacy Collections folder\n%1\n\n"
+                        "Configured destination\n%2")
+                        .arg(QDir::toNativeSeparators(legacy.absolutePath()),
+                             QDir::toNativeSeparators(destination)));
+                // The error has been displayed. Continue startup.
+                error.exec();
+                return true;
+            }
+
             QString migratedDestination;
             if (!gt::detail::collectionmigration::runMigration(
                     &migratedDestination))
