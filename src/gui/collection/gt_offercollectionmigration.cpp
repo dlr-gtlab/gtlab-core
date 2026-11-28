@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLabel>
+#include <QLockFile>
 #include <QMessageBox>
 #include <QObject>
 #include <QPlainTextEdit>
@@ -71,12 +72,17 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
             return false;
         }
         const QString lockPath = lock->absoluteFilePath();
+        QLockFile lockCheck(lockPath);
+        lockCheck.setStaleLockTime(0);
 
-        while (true)
+        while (!lockCheck.tryLock(0))
         {
-            if (!QFileInfo::exists(lockPath))
+            if (lockCheck.error() != QLockFile::LockFailedError)
             {
-                break;
+                gtError() << GtApplication::tr(
+                                 "Could not check the collection migration lock: %1")
+                                 .arg(QDir::toNativeSeparators(lockPath));
+                return false;
             }
 
             QMessageBox busy(QMessageBox::Information, title, QString{},
@@ -96,6 +102,7 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
                 return true;
             }
         }
+        lockCheck.unlock();
 
         QMessageBox prompt(QMessageBox::Question, title, QString{},
                            QMessageBox::Yes | QMessageBox::No);

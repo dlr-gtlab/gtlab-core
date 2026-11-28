@@ -192,6 +192,7 @@ runMigration(QString* migratedDestination)
     }
 
     QLockFile lock(lock1.value().absoluteFilePath());
+    lock.setStaleLockTime(0);
 
     if (!lock.tryLock(1000))
     {
