@@ -9,6 +9,7 @@
  */
 
 #include "gt_settings.h"
+#include "gt_migratecollectionsdata.h"
 #include "gt_settingsitem.h"
 #include "gt_loglevel.h"
 
@@ -81,6 +82,9 @@ struct GtSettings::Impl
 
     /// User collections directory
     GtSettingsItem* userCollectionsDir;
+
+    /// Collection migration state
+    GtSettingsItem* collectionMigrationState;
 };
 
 GtSettings::GtSettings()
@@ -106,6 +110,11 @@ GtSettings::GtSettings()
     pimpl->userCollectionsDir = registerSettingRestart(
         QStringLiteral("application/general/collections_dir"),
         QLatin1String(""));
+
+    pimpl->collectionMigrationState =
+        registerSetting("application/migration/collections",
+                        gt::detail::collectionmigration::stateToString(
+                            gt::detail::collectionmigration::State::Pending));
 
     pimpl->lastPerspective =
             registerSetting(
@@ -500,4 +509,18 @@ void
 GtSettings::setUserCollectionsDir(const QString& dir)
 {
     pimpl->userCollectionsDir->setValue(dir);
+}
+
+QString
+GtSettings::collectionMigrationState() const
+{
+    return pimpl->collectionMigrationState->getValue().toString();
+}
+
+void
+GtSettings::setCollectionMigrationState(
+    const gt::detail::collectionmigration::State& state)
+{
+    pimpl->collectionMigrationState->setValue(
+        gt::detail::collectionmigration::stateToString(state));
 }

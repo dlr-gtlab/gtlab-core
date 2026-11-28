@@ -19,6 +19,16 @@
 namespace gt
 {
 
+/// Forward declaration of collection migration state
+namespace detail
+{
+namespace collectionmigration
+{
+enum class State;
+}
+} // namespace detail
+
+
 /**
  * @brief Helper method for creating a module settings path
  * @param moduleID The ID of the module
@@ -42,7 +52,9 @@ makeModuleSettingsPath(const QString & ident)
     return makeModuleSettingsPath(GT_MODULENAME(), ident);
 }
 
+
 } // namespace gt
+
 
 /**
  * @brief The GtSettings class
@@ -400,6 +412,19 @@ public:
      * @brief Sets the user collections directory
      */
     void setUserCollectionsDir(const QString& dir);
+
+    /**
+     * @brief Read the saved collection migration state.
+     * @return The stored state as a string.
+     */
+    QString collectionMigrationState() const;
+
+    /**
+     * @brief Save the collection migration state.
+     * @param state Migration state to save.
+     */
+    void setCollectionMigrationState(
+        const gt::detail::collectionmigration::State& state);
 
 private:
 

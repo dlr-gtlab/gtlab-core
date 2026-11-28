@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
  - Support to allow more customization of a collection - #1549
+ - On startup, GTlab offers a one-time copy of legacy collections to the default
+   Collections folder. The original files and existing collection items are
+   preserved. If any entries fail to copy, GTlab reports them. - #1633
 - Developer Mode now warns when running process components use legacy
   `currentProject()` (once per component class, without changing behavior). - #1519
 

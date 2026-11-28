@@ -181,6 +181,7 @@ set(headers
     collection/gt_collectionhelper.h
     collection/gt_collectionnetworkitem.h
     collection/gt_collectionhelperdata.h
+    collection/gt_offercollectionmigration.h
     mdi_items/collection_env/gt_collectionbrowsermodelitem.h
     mdi_items/collection_env/gt_abstractbrowserwidget.h
     mdi_items/collection_env/gt_collectionloadingwidget.h
@@ -356,6 +357,7 @@ set(sources
     mdi_items/collection_env/gt_collectionbrowsermodel.cpp
     collection/gt_collectionitem.cpp
     collection/gt_collectionloader.cpp
+    collection/gt_offercollectionmigration.cpp
     mdi_items/collection_env/gt_collectionitemwidget.cpp
     collection/gt_collectionreply.cpp
     collection/gt_collectionhelper.cpp

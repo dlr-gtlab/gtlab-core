@@ -9,6 +9,7 @@
 #include "gt_applicationpaths.h"
 #include "gt_collectionsinstallpath.h"
 #include "gt_coreapplication.h"
+#include "gt_migratecollectionsdata.h"
 #include "gt_settings.h"
 
 #include <QCoreApplication>
@@ -142,6 +143,43 @@ TEST_F(CollectionPathTest, ReturnsEmptyWhenConfiguredRootIsAFile)
     gtApp->settings()->setUserCollectionsDir(root);
 
     EXPECT_TRUE(gt::detail::collectionInstallPath(collectionId).isEmpty());
+}
+
+TEST_F(CollectionPathTest, PersistsMigrationStatesAndRestoresPending)
+{
+    using namespace gt::detail::collectionmigration;
+    auto& settings = *application->settings();
+    EXPECT_EQ(State::Pending, settingToState(settings));
+    EXPECT_EQ(QStringLiteral("pending"), settings.collectionMigrationState());
+
+    settings.setCollectionMigrationState(State::Suppressed);
+    EXPECT_EQ(State::Suppressed, settingToState(GtSettings{}));
+    EXPECT_EQ(QStringLiteral("suppressed"),
+              GtSettings().collectionMigrationState());
+
+    settings.restoreSettings();
+    EXPECT_EQ(State::Pending, settingToState(GtSettings{}));
+
+    settings.setCollectionMigrationState(State::Completed);
+    EXPECT_EQ(State::Completed, settingToState(GtSettings{}));
+    EXPECT_EQ(QStringLiteral("completed"),
+              GtSettings().collectionMigrationState());
+
+    settings.restoreSettings();
+    EXPECT_EQ(State::Pending, settingToState(GtSettings{}));
+    EXPECT_EQ(QStringLiteral("pending"),
+              GtSettings().collectionMigrationState());
+}
+
+TEST_F(CollectionPathTest, UnrecognizedMigrationStateIsPending)
+{
+    const QString key = QStringLiteral("application/migration/collections");
+    auto& settings = *application->settings();
+    ASSERT_TRUE(settings.hasSetting(key));
+    settings.setSetting(key, QStringLiteral("declined"));
+
+    EXPECT_EQ(gt::detail::collectionmigration::State::Pending,
+              gt::detail::collectionmigration::settingToState(settings));
 }
 
 } // namespace
