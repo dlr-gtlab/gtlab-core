@@ -268,6 +268,18 @@ TEST_F(CollectionMigrationTest, RejectsMissingDestinationInsideLegacyDirectory)
 }
 
 #ifdef Q_OS_UNIX
+TEST_F(CollectionMigrationTest, RejectsSymlinkedLegacyDirectory)
+{
+    const QString unrelated = directory.filePath(QStringLiteral("unrelated"));
+    ASSERT_NO_FATAL_FAILURE(writeFile(unrelated, itemPath, "original"));
+    ASSERT_TRUE(QFile::link(unrelated, oldPath));
+
+    ASSERT_NO_FATAL_FAILURE(migrate(QStringLiteral("failure")));
+
+    EXPECT_FALSE(QFileInfo::exists(newPath));
+    expectContents(unrelated, itemPath, "original");
+}
+
 TEST_F(CollectionMigrationTest,
        RejectsDestinationThroughSymlinkToLegacyDirectory)
 {

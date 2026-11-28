@@ -89,13 +89,34 @@ legacyPath()
     return legacy;
 }
 
+QString
+canonicalMigrationSource(const QString& sourcePath)
+{
+    const QFileInfo sourceInfo(sourcePath);
+    if (sourceInfo.isSymLink() || !sourceInfo.isDir()) return {};
+
+    const QString source = sourceInfo.canonicalFilePath();
+    const QString parent = sourceInfo.absoluteDir().canonicalPath();
+    if (source.isEmpty() || parent.isEmpty()) return {};
+
+    // Resolve installation path aliases without allowing the source itself
+    // to redirect to a different directory.
+    const QString expected = QDir(parent).filePath(sourceInfo.fileName());
+#ifdef Q_OS_WIN
+    if (source.compare(expected, Qt::CaseInsensitive) != 0) return {};
+#else
+    if (source != expected) return {};
+#endif
+    return source;
+}
+
 bool
 isMigrationDestinationSafe(const QString& sourcePath,
                            const QString& destinationPath)
 {
-    if (sourcePath.isEmpty() || destinationPath.isEmpty()) return false;
+    if (destinationPath.isEmpty()) return false;
 
-    const QString source = QDir(sourcePath).canonicalPath();
+    const QString source = canonicalMigrationSource(sourcePath);
     if (source.isEmpty()) return false;
 
     // The destination may be missing. Resolve its nearest existing ancestor
@@ -124,12 +145,11 @@ copyDirectory(const QString& sourcePath, const QString& destinationPath)
 {
     QDir sourceDir(sourcePath);
 
-    if (!sourceDir.exists()) return false;
-
     if (!isMigrationDestinationSafe(sourcePath, destinationPath))
     {
         gtError() << QObject::tr(
                          "Cannot migrate collections from %1 to %2. "
+                         "The source must be a directory at its original location. "
                          "The destination must be outside the source folder.")
                          .arg(QDir::toNativeSeparators(sourcePath),
                               QDir::toNativeSeparators(destinationPath));

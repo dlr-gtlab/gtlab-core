@@ -42,6 +42,17 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
             return false;
         }
         QDir legacy(ret.value());
+        const QFileInfo legacyInfo(ret.value());
+
+        if ((legacyInfo.isSymLink() || legacyInfo.isDir()) &&
+            canonicalMigrationSource(ret.value()).isEmpty())
+        {
+            gtError() << GtApplication::tr(
+                             "Cannot migrate collections. The legacy folder "
+                             "must be a directory at its original location: %1")
+                             .arg(QDir::toNativeSeparators(ret.value()));
+            return false;
+        }
 
         if (!legacy.exists() ||
             legacy.isEmpty(QDir::Files | QDir::Dirs | QDir::Hidden |

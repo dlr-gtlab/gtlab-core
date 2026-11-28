@@ -66,11 +66,19 @@ GT_CORE_EXPORT std::optional<QString> legacyPath();
 GT_CORE_EXPORT const std::optional<QFileInfo> lockFile();
 
 /**
+ * @brief Resolve a migration source directory without following a source link.
+ * @param sourcePath Path to the source directory.
+ * @return The canonical path, or an empty string if the source is missing,
+ * is not a directory, or resolves outside its expected location.
+ */
+GT_CORE_EXPORT QString canonicalMigrationSource(const QString& sourcePath);
+
+/**
  * @brief Check whether a migration destination is outside the source directory.
  * @param sourcePath Legacy Collections directory.
  * @param destinationPath Destination directory, which may be missing.
- * @return True if the source and destination ancestor can be resolved and the
- * destination is outside the source.
+ * @return True if the source is a valid migration directory and the destination
+ * resolves outside it.
  */
 GT_CORE_EXPORT bool isMigrationDestinationSafe(const QString& sourcePath,
                                                const QString& destinationPath);
