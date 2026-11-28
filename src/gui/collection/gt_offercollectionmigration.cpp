@@ -12,6 +12,8 @@
 #include "gt_migratecollectionsdata.h"
 #include "gt_settings.h"
 
+#include "gt_logging.h"
+
 #include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -26,7 +28,6 @@
 #include <QSaveFile>
 #include <QStringList>
 #include <QVBoxLayout>
-#include <gt_logging.h>
 
 
 bool
