@@ -148,12 +148,13 @@ copyDirectory(const QString& sourcePath, const QString& destinationPath)
 
     if (!isMigrationDestinationSafe(sourcePath, destinationPath))
     {
-        gtError() << QObject::tr(
-                         "Cannot migrate collections from %1 to %2. "
-                         "The source must be a directory at its original location. "
-                         "The destination must be outside the source folder.")
-                         .arg(QDir::toNativeSeparators(sourcePath),
-                              QDir::toNativeSeparators(destinationPath));
+        gtError()
+            << QObject::tr(
+                   "Cannot migrate collections from %1 to %2. "
+                   "The source must be a directory at its original location. "
+                   "The destination must be outside the source folder.")
+                   .arg(QDir::toNativeSeparators(sourcePath),
+                        QDir::toNativeSeparators(destinationPath));
         return false;
     }
 

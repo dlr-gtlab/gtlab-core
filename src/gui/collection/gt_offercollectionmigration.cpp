@@ -80,9 +80,10 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
         {
             if (lockCheck.error() != QLockFile::LockFailedError)
             {
-                gtError() << GtApplication::tr(
-                                 "Could not check the collection migration lock: %1")
-                                 .arg(QDir::toNativeSeparators(lockPath));
+                gtError()
+                    << GtApplication::tr(
+                           "Could not check the collection migration lock: %1")
+                           .arg(QDir::toNativeSeparators(lockPath));
                 return false;
             }
 
