@@ -43,7 +43,9 @@ gt::detail::collectionmigration::offerMigration(GtSettings& appSettings)
         }
         QDir legacy(ret.value());
 
-        if (!legacy.exists() || legacy.isEmpty())
+        if (!legacy.exists() ||
+            legacy.isEmpty(QDir::Files | QDir::Dirs | QDir::Hidden |
+                           QDir::System | QDir::NoDotAndDotDot))
         {
             appSettings.setCollectionMigrationState(
                 gt::detail::collectionmigration::State::Completed);
