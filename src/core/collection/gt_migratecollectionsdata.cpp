@@ -156,26 +156,45 @@ copyDirectory(const QString& sourcePath, const QString& destinationPath)
         return false;
     }
 
-    // Create destination directory
-    if (!QDir().mkpath(destinationPath)) return false;
+    if (!QDir().mkpath(destinationPath))
+    {
+        gtError() << QObject::tr("Could not create directory %1 to copy %2.")
+                         .arg(QDir::toNativeSeparators(destinationPath),
+                              QDir::toNativeSeparators(sourcePath));
+        return false;
+    }
 
     const QFileInfoList entries =
         sourceDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::Hidden |
                                 QDir::System | QDir::NoDotAndDotDot);
 
-    return std::all_of(entries.cbegin(), entries.cend(),
-                       [&destinationPath](const QFileInfo& entry) {
-                           if (entry.isSymLink())
-                           {
-                               return false;
-                           }
-                           const QString source = entry.absoluteFilePath();
-                           const QString destination =
-                               QDir(destinationPath).filePath(entry.fileName());
-                           return entry.isDir()
-                                      ? copyDirectory(source, destination)
-                                      : QFile::copy(source, destination);
-                       });
+    return std::all_of(
+        entries.cbegin(), entries.cend(),
+        [&destinationPath](const QFileInfo& entry) {
+            const QString source = entry.absoluteFilePath();
+            const QString destination =
+                QDir(destinationPath).filePath(entry.fileName());
+            if (entry.isSymLink())
+            {
+                gtError() << QObject::tr("Could not copy %1 to %2. "
+                                         "Symbolic links are not supported.")
+                                 .arg(QDir::toNativeSeparators(source),
+                                      QDir::toNativeSeparators(destination));
+                return false;
+            }
+            if (entry.isDir())
+            {
+                return copyDirectory(source, destination);
+            }
+            QFile file(source);
+            if (file.copy(destination)) return true;
+
+            gtError() << QObject::tr("Could not copy %1 to %2: %3")
+                             .arg(QDir::toNativeSeparators(source),
+                                  QDir::toNativeSeparators(destination),
+                                  file.errorString());
+            return false;
+        });
 }
 
 } // namespace
